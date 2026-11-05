@@ -62,6 +62,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let notificationBannerMapper: MultiWalletNotificationBannerMapper
     private let deeplinkHandler: TokenScreenDeeplinkResponder
     private var bag = Set<AnyCancellable>()
+    private var jointOperationDetailsTask: Task<Void, Never>?
 
     private lazy var yieldStateFactory = TokenDetailsYieldStateFactory(
         walletModel: walletModel,
@@ -117,6 +118,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     deinit {
+        jointOperationDetailsTask?.cancel()
         AppLogger.debug("TokenDetailsViewModel deinit")
     }
 
@@ -527,21 +529,37 @@ private extension TokenDetailsViewModel {
     }
 
     private func bindJointOperationDetails(operationId: String) {
-        jointOperationsInFlightPublisher
-            .compactMap { operations in operations.first { $0.id == operationId } }
-            .timeout(.seconds(Constants.jointOperationAppearanceTimeout), scheduler: DispatchQueue.main)
-            .prefix(1)
-            .receiveOnMain()
-            .sink { [weak self] pendingOperation in
-                guard let self else { return }
+        guard let jointAccount = walletModel.account as? any JointAccountModel else {
+            return
+        }
 
-                coordinator?.openJointAccountOperationDetails(
-                    pendingOperation: pendingOperation,
-                    userWalletInfo: userWalletInfo,
-                    addressBookManager: addressBookManager
-                )
+        let resolver = JointAccountOperationDeeplinkResolver(
+            jointAccount: jointAccount,
+            timeout: Constants.jointOperationResolutionTimeout
+        )
+
+        jointOperationDetailsTask = Task { [weak self] in
+            do {
+                let pendingOperation = try await resolver.resolve(operationId: operationId)
+                try Task.checkCancellation()
+                await self?.openJointOperationDetails(pendingOperation: pendingOperation)
+            } catch {
+                guard !error.isCancellationError else {
+                    return
+                }
+
+                JointAccountsLogger.error("Failed to open the joint operation from a deeplink", error: error)
             }
-            .store(in: &bag)
+        }
+    }
+
+    @MainActor
+    private func openJointOperationDetails(pendingOperation: JointAccountPendingOperation) {
+        coordinator?.openJointAccountOperationDetails(
+            pendingOperation: pendingOperation,
+            userWalletInfo: userWalletInfo,
+            addressBookManager: addressBookManager
+        )
     }
 
     private func bind() {
@@ -884,7 +902,7 @@ extension TokenDetailsViewModel: TokenDetailsActionsRoutable {}
 
 private extension TokenDetailsViewModel {
     enum Constants {
-        static let jointOperationAppearanceTimeout: TimeInterval = 10
+        static let jointOperationResolutionTimeout: Duration = .seconds(10)
     }
 }
 

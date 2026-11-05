@@ -21,4 +21,8 @@ struct JointAccountPendingOperationsProviderMock: JointAccountPendingOperationsP
     func requestFrequentUpdates(operationId: String) -> AnyCancellable? {
         nil
     }
+
+    func loadOperation(id: String) async throws -> JointAccountPendingOperation {
+        throw JointOperationError.operationNotFound
+    }
 }

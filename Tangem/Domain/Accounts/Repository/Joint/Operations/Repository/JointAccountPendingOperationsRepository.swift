@@ -23,6 +23,8 @@ protocol JointAccountPendingOperationsRepository {
     /// - Note: The faster pace ends with the operation, whoever still holds the token.
     func requestFrequentUpdates(operationId: String) -> AnyCancellable?
 
+    func loadOperation(id: String, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation
+
     /// Registers the operation a member signed and stores it among the account's.
     /// - Returns: The operation as the endpoint registered it, with that signature already counted.
     func createOperation(_ request: JointAccountOperationRequest, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation
