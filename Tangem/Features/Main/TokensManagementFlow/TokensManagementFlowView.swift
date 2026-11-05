@@ -25,7 +25,7 @@ struct TokensManagementFlowView: View {
             headerContent: { headerView },
             mainContent: { mainContentView }
         )
-        .environment(\.isAddAndOrganizeRedesignEnabled, true)
+        .environment(\.isInTokensManagementFlow, true)
     }
 
     // MARK: - Sub Views
