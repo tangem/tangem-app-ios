@@ -832,7 +832,6 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .loadPromotions,
              .hidePromotion,
              .marketingCampaigns,
-             .submitSurveyResponse,
              .story,
              .stories,
              .coinsList,
