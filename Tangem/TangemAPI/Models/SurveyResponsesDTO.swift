@@ -18,6 +18,11 @@ extension SurveyResponsesDTO {
             let surveyId: String
             let walletId: String
             let answers: [Answer]
+
+            private enum CodingKeys: String, CodingKey {
+                case surveyId
+                case answers
+            }
         }
 
         struct Answer: Encodable, Equatable {
