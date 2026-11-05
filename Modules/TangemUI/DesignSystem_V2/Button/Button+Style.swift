@@ -175,6 +175,17 @@ extension EnvironmentValues {
     @Entry var buttonPaintsPressOverlay = true
 }
 
+extension View {
+    @ViewBuilder
+    func deferringPressFeedbackToGlass() -> some View {
+        if #available(iOS 26.0, *) {
+            environment(\.buttonPaintsPressOverlay, false)
+        } else {
+            self
+        }
+    }
+}
+
 // MARK: - Constants
 
 private extension Button.Style {
