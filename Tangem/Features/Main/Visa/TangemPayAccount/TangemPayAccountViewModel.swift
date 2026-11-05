@@ -73,6 +73,8 @@ final class TangemPayAccountViewModel: ObservableObject {
             router?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
         case .planSelectNeeded(let tariffPlanSelector):
             router?.openTangemPaySelectPlan(tariffPlanSelector: tariffPlanSelector)
+        case .verified, .cardNotOpened:
+            break
         }
     }
 }
@@ -114,6 +116,10 @@ private extension TangemPayAccountViewModel {
                         .eraseToAnyPublisher()
                 case .planSelectNeeded:
                     .just(output: .planSelectNeeded)
+                case .verified:
+                    .just(output: .verified)
+                case .cardNotOpened:
+                    .just(output: .skeleton)
                 }
             }
             .handleEvents(receiveOutput: { [userWalletId] state in
@@ -234,6 +240,7 @@ extension TangemPayAccountViewModel {
         case unavailable(cached: CachedDisplayData? = nil)
         case rootedDevice
         case planSelectNeeded
+        case verified
 
         var subtitle: String {
             switch self {
@@ -242,7 +249,7 @@ extension TangemPayAccountViewModel {
             case .actionRequired:
                 Localization.moneyAccountMainStatusActionRequired
             case .issuingYourCard:
-                Localization.tangempayIssuingYourCard
+                TangemPayUnifiedOnboarding.isEnabled ? Localization.moneyAccountMainStatusActivating : Localization.tangempayIssuingYourCard
             case .failedToIssueCard:
                 Localization.tangempayFailedToIssueCard
             case .normal(let card, _, let count):
@@ -263,12 +270,14 @@ extension TangemPayAccountViewModel {
                 Localization.tangempayKycHasFailed
             case .planSelectNeeded:
                 Localization.tangempaySelectPlanTitle
+            case .verified:
+                Localization.moneyAccountMainStatusActionRequired
             }
         }
 
         var isFullyVisible: Bool {
             switch self {
-            case .kycInProgress, .actionRequired, .issuingYourCard, .failedToIssueCard, .normal, .skeleton, .kycDeclined, .cardDeactivated, .replacingCard, .planSelectNeeded:
+            case .kycInProgress, .actionRequired, .issuingYourCard, .failedToIssueCard, .normal, .skeleton, .kycDeclined, .cardDeactivated, .replacingCard, .planSelectNeeded, .verified:
                 true
             case .syncNeeded(let cached), .unavailable(let cached):
                 cached != nil
@@ -278,10 +287,12 @@ extension TangemPayAccountViewModel {
         }
 
         var isSubtitleHighlighted: Bool {
-            if case .actionRequired = self {
+            switch self {
+            case .actionRequired, .verified:
                 return true
+            default:
+                return false
             }
-            return false
         }
 
         var isSkeleton: Bool {

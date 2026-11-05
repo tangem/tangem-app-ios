@@ -81,10 +81,6 @@ extension TangemPayUtilities {
         )
     }
 
-    static var isMoneyAccountAvailable: Bool {
-        FeatureProvider.isAvailable(.tangemPayMoneyAccount) && FeatureProvider.isAvailable(.tangemPayCustomerSummary)
-    }
-
     private static var usdcToken: Token {
         Token(
             name: Constants.usdcSymbol,

@@ -82,7 +82,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     }
 
     private var isMoneyAccountAvailable: Bool {
-        TangemPayUtilities.isMoneyAccountAvailable
+        TangemPayUnifiedOnboarding.isEnabled
     }
 
     @Injected(\.tangemPayAssembly)
@@ -294,9 +294,13 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             return
         }
 
-        let enrollmentState: TangemPayEnrollmentState
+        let result: TangemPayEnrollmentStateFetcher.EnrollmentResult
         do {
-            (enrollmentState, customerId) = try await enrollmentStateFetcher.getEnrollmentState()
+            result = try await enrollmentStateFetcher.getEnrollmentState()
+            customerId = result.customerId
+            if let summary = result.summary {
+                customerSummaryCacheStorage.saveCachedCustomerSummary(summary, userWalletId: userWalletId)
+            }
         } catch {
             switch error {
             case .unauthorized:
@@ -304,65 +308,146 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
                 setMoneyAccountState(.syncNeeded)
             case .moyaError, .apiError, .decodingError, .serverError:
                 stateSubject.value = .unavailable
-                setMoneyAccountState(.unavailable)
+                updateMoneyAccountState(summary: cachedCustomerSummary)
             }
             VisaLogger.error("Failed to get TangemPay enrollment state", error: error)
             return
         }
 
         let weakReferenceHolder = makeWeakReferenceHolder()
+        let customerInfo = result.customerInfo
+        let summary = result.summary
 
-        switch enrollmentState {
-        case .enrolled(let customerInfo, let summary):
+        switch result.state {
+        case .enrolled:
             let account = makePaymentAccount(customerInfo: customerInfo, summary: summary)
             customerInfoCacheStorage.saveCachedCustomerInfo(
                 customerInfo,
                 customerWalletId: customerWalletId
             )
-            if let summary {
-                customerSummaryCacheStorage.saveCachedCustomerSummary(summary, userWalletId: userWalletId)
-            }
             stateSubject.value = .tangemPayAccount(account)
-            updateMoneyAccountState(summary: summary)
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
-        case .cardDeactivated(let customerInfo, let summary):
+        case .cardDeactivated:
             let account = makePaymentAccount(customerInfo: customerInfo, summary: summary)
             stateSubject.value = .cardDeactivated(account)
-            updateMoneyAccountState(summary: summary)
 
-        case .failedToIssueCard(let customerInfo, let summary):
+        case .failedToIssueCard:
             let account = makePaymentAccount(customerInfo: customerInfo, summary: summary)
             customerInfoCacheStorage.saveCachedCustomerInfo(customerInfo, customerWalletId: customerWalletId)
-            customerSummaryCacheStorage.saveCachedCustomerSummary(summary, userWalletId: userWalletId)
             stateSubject.value = .failedToIssueCard(account)
-            updateMoneyAccountState(summary: summary)
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
         case .kycRequired:
             orderStatusPollingService.cancel()
             stateSubject.value = makeKYCRequiredState()
-            resetMoneyAccount()
 
         case .kycInProgress:
             orderStatusPollingService.cancel()
             stateSubject.value = .kycRequired(weakReferenceHolder)
-            resetMoneyAccount()
 
         case .kycDeclined:
             orderStatusPollingService.cancel()
             stateSubject.value = .kycDeclined(weakReferenceHolder)
-            resetMoneyAccount()
             Analytics.log(.visaOnboardingVisaKYCRejected, contextParams: .userWallet(userWalletId))
 
         case .planSelectNeeded:
             stateSubject.value = .planSelectNeeded(tariffPlanSelector: weakReferenceHolder)
-            resetMoneyAccount()
+
+        case .verified:
+            orderStatusPollingService.cancel()
+            stateSubject.value = .verified(weakReferenceHolder)
+
+        case .cardNotOpened:
+            stateSubject.value = .cardNotOpened
 
         case .unavailable:
             stateSubject.value = .unavailable
-            resetMoneyAccount()
         }
+
+        updateMoneyAccountState(summary: summary)
+    }
+
+    func loadProductsAvailability() async throws -> TangemPayProductsAvailability {
+        async let card = customerService.checkEligibility(product: .paymentAccount)
+        async let account = customerService.checkEligibility(product: .bankingAccount)
+        let (cardEligibility, accountEligibility) = try await (card, account)
+
+        var availableProducts = Set<TangemPayProduct>()
+        if cardEligibility.available {
+            availableProducts.insert(.paymentAccount)
+        }
+        if accountEligibility.available {
+            availableProducts.insert(.bankingAccount)
+        }
+
+        return TangemPayProductsAvailability(availableProducts: availableProducts)
+    }
+
+    func placeOnboardingOrder(
+        products: TangemPayProductsAvailability,
+        plan: TangemPayTariffPlanTransition?,
+        addressSigner: TangemPayBankingAccountAddressSigning
+    ) async throws(TangemPayOnboardingOrderError) {
+        guard let (customerWalletAddress, _) = tangemPayAssembly.customerWalletAddressAndSavedTokensResolver.resolve(
+            customerWalletId: customerWalletId,
+            keysRepository: keysRepository
+        ) else {
+            throw .failed(TangemPayManagerError.missingCustomerWalletAddress)
+        }
+
+        var accountIssueBanking: TangemPayPlaceOrderRequest.AccountIssueBanking?
+        if products.isAccountAvailable {
+            do {
+                let signingResponse = try await addressSigner.signDepositAddress()
+                keysRepository.update(derivations: signingResponse.derivationResult)
+                accountIssueBanking = .init(
+                    depositAddress: signingResponse.depositAddress,
+                    signature: signingResponse.signature
+                )
+            } catch {
+                keysRepository.update(derivations: error.derivationResult)
+                throw error.isUserCancelled ? .cancelled : .failed(error.underlyingError)
+            }
+        }
+
+        let tariffPlanTransition = plan.map {
+            TangemPayPlaceOrderRequest.TariffPlanTransition(
+                targetTariffPlanId: $0.tariffPlan.id,
+                tariffPlanTransitionType: $0.type.rawValue
+            )
+        }
+
+        guard tariffPlanTransition != nil || accountIssueBanking != nil else {
+            throw .notEligible
+        }
+
+        let request = TangemPayPlaceOrderRequest(
+            customerWalletAddress: customerWalletAddress,
+            tariffPlanTransition: tariffPlanTransition,
+            accountIssueBanking: accountIssueBanking
+        )
+
+        do {
+            _ = try await customerService.placeOrder(
+                request: request,
+                idempotencyKey: TangemPayIdempotencyKey.make(UUID().uuidString)
+            )
+        } catch {
+            switch error.apiErrorCode {
+            case TangemPayAPIError.Code.onboardingNotEligible:
+                throw .notEligible
+            case TangemPayAPIError.Code.onboardingAlreadyOnboarded:
+                await refreshState()
+                throw .alreadyOnboarded
+            case TangemPayAPIError.Code.onboardingActiveOrderExists:
+                break
+            default:
+                throw .failed(error)
+            }
+        }
+
+        await refreshState()
     }
 
     func renewSession(
@@ -581,7 +666,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     }
 
     private func updateMoneyAccountState(summary: TangemPayCustomerSummaryResponse?) {
-        guard isMoneyAccountAvailable, let summary else {
+        guard isMoneyAccountAvailable, let summary, summary.customerStatus != .former else {
             resetMoneyAccount()
             return
         }
