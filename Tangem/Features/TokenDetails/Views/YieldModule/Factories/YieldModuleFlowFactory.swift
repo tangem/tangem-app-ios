@@ -177,7 +177,7 @@ final class CommonYieldModuleFlowFactory {
 
         let tokenFeeProvidersManagerProvider = WalletModelTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
-            supportingOptions: .exactly([.market]),
+            purpose: .transfer(.exactly([.market])),
             transactionReleasesSourceToken: transactionReleasesSourceToken,
             providerSwitching: .untilUserSelection
         )

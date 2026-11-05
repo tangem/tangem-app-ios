@@ -33,3 +33,9 @@ extension AccountsDTO {
 extension AccountsDTO {
     enum Response {}
 }
+
+extension AccountsDTO {
+    static var isV2Available: Bool {
+        FeatureProvider.isAvailable(.jointAccounts) || FeatureProvider.isAvailable(.collectibles)
+    }
+}

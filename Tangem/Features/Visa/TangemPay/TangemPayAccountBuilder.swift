@@ -15,4 +15,9 @@ protocol TangemPayAccountBuilder {
         account: (any TangemPayAccountModel)?,
         accountRemover: (any TangemPayAccountRemoving)?
     ) -> TangemPayAccount
+
+    func makeMoneyAccount(
+        customerId: String,
+        bankingAccount: TangemPayCustomerSummaryResponse.BankingAccount
+    ) -> TangemPayMoneyAccount
 }

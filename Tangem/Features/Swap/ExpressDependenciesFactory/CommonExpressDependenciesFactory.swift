@@ -44,7 +44,8 @@ private extension CommonExpressDependenciesFactory {
             expressRepository: swapRepository,
             featureFlags: ExpressFeatureFlags(
                 isSwapBestRateDefaultProviderEnabled: FeatureProvider.isAvailable(.swapBestRateDefaultProvider),
-                isHideRejectedSwapProvidersEnabled: FeatureProvider.isAvailable(.hideRejectedSwapProviders)
+                isHideRejectedSwapProvidersEnabled: FeatureProvider.isAvailable(.hideRejectedSwapProviders),
+                isAPIV2Enabled: FeatureProvider.isAvailable(.expressApiV2)
             ),
             preferredProviderId: preferredProviderId,
             mcpIntentID: mcpIntentID

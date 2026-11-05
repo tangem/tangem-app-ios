@@ -38,7 +38,8 @@ extension CollectiblesAccountTokenFeeProvidersManagerProvider: TokenFeeProviders
             tokenFeeLoader: DefaultTokenFeeLoader(loader: CollectiblesAccountTokenFeeLoader(feeTokenItem: feeTokenItem)),
             customFeeProvider: .none,
             feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
-            supportingOptions: .all
+            supportingOptions: .all,
+            payer: .user
         )
 
         return CommonTokenFeeProvidersManager(

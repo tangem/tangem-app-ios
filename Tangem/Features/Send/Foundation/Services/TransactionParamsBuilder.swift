@@ -30,11 +30,15 @@ struct TransactionParamsBuilder {
                 throw TransactionParamsBuilderError.invalidMemoDestinationTag
             }
         case .stellar:
-            if let memoID = UInt64(value) {
+            if let memoID = UInt64(value), String(memoID) == value {
                 return StellarTransactionParams(memo: .id(memoID))
-            } else {
-                return StellarTransactionParams(memo: .text(value))
             }
+
+            guard value.utf8.count <= Constants.stellarTextMemoMaxBytes else {
+                throw TransactionParamsBuilderError.invalidMemoDestinationTag
+            }
+
+            return StellarTransactionParams(memo: .text(value))
         case .ton:
             return TONTransactionParams(memo: value)
         case .cosmos, .terraV1, .terraV2, .sei, .gonka:
@@ -147,6 +151,14 @@ struct TransactionParamsBuilder {
              .seiEvm:
             throw TransactionParamsBuilderError.extraIdNotSupported
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension TransactionParamsBuilder {
+    enum Constants {
+        static let stellarTextMemoMaxBytes = 28
     }
 }
 

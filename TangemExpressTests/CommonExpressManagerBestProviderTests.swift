@@ -117,7 +117,7 @@ private extension CommonExpressManagerBestProviderTests {
             expressAPIProvider: ExpressAPIProviderStub(),
             expressProviderManagerFactory: QuotedProviderManagerFactory(expectAmounts: ["dex": 90, "cex": 100]),
             expressRepository: ProvidersRepositoryStub(providers: [makeProvider(id: "dex", type: .dex), makeProvider(id: "cex", type: .cex)]),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: isSwapBestRateDefaultProviderEnabled, isHideRejectedSwapProvidersEnabled: false)
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: isSwapBestRateDefaultProviderEnabled, isHideRejectedSwapProvidersEnabled: false, isAPIV2Enabled: false)
         )
     }
 
@@ -180,7 +180,7 @@ private struct QuotedProviderManagerFactory: ExpressProviderManagerFactory {
             expressFeeProvider: FeeProviderFactoryStub().makeExpressFeeProvider(),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false, isAPIV2Enabled: false)
         )
 
         let quote = ExpressQuote(

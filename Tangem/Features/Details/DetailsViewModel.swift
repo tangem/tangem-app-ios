@@ -32,6 +32,10 @@ final class DetailsViewModel: ObservableObject {
 
     var topSectionTypes: [TopSectionType] {
         var types: [TopSectionType] = []
+
+        if let connectionsRowViewModel {
+            types.append(.connections(connectionsRowViewModel))
+        }
         if let walletConnectRowViewModel {
             types.append(.walletConnect(walletConnectRowViewModel))
         }
@@ -43,6 +47,7 @@ final class DetailsViewModel: ObservableObject {
         return types
     }
 
+    @Published private var connectionsRowViewModel: ConnectionsRowViewModel?
     @Published private var walletConnectRowViewModel: WalletConnectRowViewModel?
     @Published private var addressBookRowViewModel: AddressBookRowViewModel?
 
@@ -165,6 +170,11 @@ private extension DetailsViewModel {
         }
     }
 
+    func openConnections() {
+        Analytics.log(.buttonConnections)
+        coordinator?.openConnections()
+    }
+
     func openWalletConnect() {
         Analytics.log(.buttonWalletConnect)
         coordinator?.openWalletConnect(with: selectedUserWalletModel?.config.getDisabledLocalizedReason(for: .walletConnect))
@@ -250,6 +260,7 @@ private extension DetailsViewModel {
 
 private extension DetailsViewModel {
     func setupView() {
+        setupConnectionsRowViewModel()
         setupWalletConnectRowViewModel()
         setupAddressBookRowViewModel()
         setupUserWalletViewModels()
@@ -315,7 +326,23 @@ private extension DetailsViewModel {
             .store(in: &bag)
     }
 
+    func setupConnectionsRowViewModel() {
+        guard FeatureProvider.isAvailable(.mcp) else {
+            return
+        }
+
+        connectionsRowViewModel = ConnectionsRowViewModel(
+            action: { [weak self] in
+                self?.openConnections()
+            }
+        )
+    }
+
     func setupWalletConnectRowViewModel() {
+        guard !FeatureProvider.isAvailable(.mcp) else {
+            return
+        }
+
         guard
             let selectedUserWalletModel,
             !selectedUserWalletModel.config.getFeatureAvailability(.walletConnect).isHidden else {
@@ -402,7 +429,7 @@ private extension DetailsViewModel {
     func setupAppSettingsViewModel() {
         appSettingsViewModel = DefaultRowViewModel(
             title: Localization.appSettingsTitle,
-            accessibilityIdentifier: DetailsAccessibilityIdentifiers.appSettings,
+            accessibilityIdentifier: DetailsAccessibilityIdentifiers.appSettingsButton,
             action: weakify(self, forFunction: DetailsViewModel.openAppSettings)
         )
     }
@@ -411,12 +438,12 @@ private extension DetailsViewModel {
         supportSectionModels = [
             DefaultRowViewModel(
                 title: Localization.commonContactSupport,
-                accessibilityIdentifier: DetailsAccessibilityIdentifiers.contactSupport,
+                accessibilityIdentifier: DetailsAccessibilityIdentifiers.contactSupportButton,
                 action: weakify(self, forFunction: DetailsViewModel.selectSupport)
             ),
             DefaultRowViewModel(
                 title: Localization.disclaimerTitle,
-                accessibilityIdentifier: DetailsAccessibilityIdentifiers.termsOfService,
+                accessibilityIdentifier: DetailsAccessibilityIdentifiers.termsOfServiceButton,
                 action: weakify(self, forFunction: DetailsViewModel.openTOS)
             ),
         ]
@@ -514,7 +541,7 @@ private extension DetailsViewModel {
                         throw UserWalletRepositoryError.cantUnlockWallet
                     }
 
-                    let hadSingleMobileWallet = UserWalletRepositoryModeHelper.hasSingleMobileWallet
+                    let walletAddedLogger = WalletAddedAnalyticsLogger()
 
                     if AppSettings.shared.saveUserWallets {
                         try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
@@ -527,9 +554,7 @@ private extension DetailsViewModel {
                         }
                     }
 
-                    if hadSingleMobileWallet {
-                        viewModel.logColdWalletAddedAnalytics(cardInfo: cardInfo)
-                    }
+                    walletAddedLogger.logIfNeeded(source: .settings, contextData: cardInfo.analyticsContextData)
 
                     viewModel.isScanning = false
                     viewModel.coordinator?.dismiss()
@@ -733,19 +758,6 @@ private extension DetailsViewModel {
     }
 }
 
-// MARK: - Analytics
-
-private extension DetailsViewModel {
-    func logColdWalletAddedAnalytics(cardInfo: CardInfo) {
-        Analytics.log(
-            .settingsColdWalletAdded,
-            params: [.source: Analytics.ParameterValue.settings],
-            analyticsSystems: .all,
-            contextParams: .custom(cardInfo.analyticsContextData)
-        )
-    }
-}
-
 // MARK: - Navigation
 
 private extension DetailsViewModel {
@@ -757,6 +769,7 @@ private extension DetailsViewModel {
 extension DetailsViewModel {
     @RawCaseName
     enum TopSectionType: Identifiable {
+        case connections(ConnectionsRowViewModel)
         case walletConnect(WalletConnectRowViewModel)
         case addressBook(AddressBookRowViewModel)
     }

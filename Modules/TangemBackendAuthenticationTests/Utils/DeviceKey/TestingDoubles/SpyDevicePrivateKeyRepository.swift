@@ -13,7 +13,7 @@ private import os.lock
 final class SpyDevicePrivateKeyRepository: DevicePrivateKeyRepository {
     private let state = OSAllocatedUnfairLock(initialState: State())
 
-    var retrieveResult: Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError> {
+    var retrieveResult: Result<SpyDevicePrivateKey, DevicePrivateKeyRepositoryError> {
         get { state.withLock(\.retrieveResult) }
         set { state.withLock { $0.retrieveResult = newValue }}
     }
@@ -27,7 +27,7 @@ final class SpyDevicePrivateKeyRepository: DevicePrivateKeyRepository {
         state.withLock(\.receivedMessages)
     }
 
-    func retrieve() throws(DevicePrivateKeyRepositoryError) -> StubDevicePrivateKey {
+    func retrieve() throws(DevicePrivateKeyRepositoryError) -> SpyDevicePrivateKey {
         state.withLock { $0.receivedMessages.append(.retrieve) }
         return try state.withLock(\.retrieveResult).get()
     }
@@ -41,7 +41,7 @@ final class SpyDevicePrivateKeyRepository: DevicePrivateKeyRepository {
 extension DevicePrivateKeyRepository where Self == SpyDevicePrivateKeyRepository {
     static var successStub: some DevicePrivateKeyRepository {
         let stub = SpyDevicePrivateKeyRepository()
-        stub.retrieveResult = Result.success(StubDevicePrivateKey())
+        stub.retrieveResult = Result.success(SpyDevicePrivateKey.successStub)
         return stub
     }
 }
@@ -53,7 +53,7 @@ extension SpyDevicePrivateKeyRepository {
     }
 
     private struct State {
-        var retrieveResult = Result<StubDevicePrivateKey, DevicePrivateKeyRepositoryError>.failure(
+        var retrieveResult = Result<SpyDevicePrivateKey, DevicePrivateKeyRepositoryError>.failure(
             .keychainFailure(.retrieveFailed(status: -1))
         )
         var deleteResult = Result<Void, DevicePrivateKeyRepositoryError>.failure(.keychainFailure(.deleteFailed(status: -1)))

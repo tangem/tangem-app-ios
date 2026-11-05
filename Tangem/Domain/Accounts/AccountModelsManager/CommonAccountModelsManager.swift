@@ -604,16 +604,13 @@ extension CommonAccountModelsManager: CommonCryptoAccountModelDelegate {
 // MARK: - JointAccountModelDelegate protocol conformance
 
 extension CommonAccountModelsManager: JointAccountModelDelegate {
-    func activateJointAccount(with config: JointAccountActivationConfig) async throws(AccountEditError) {
+    func confirmJointAccount(with config: JointAccountConfirmationConfig) async throws(AccountEditError) -> JointAccountStatus {
         do {
-            try await jointAccountsRepository.activateJointAccount(withConfig: config)
+            return try await jointAccountsRepository.confirmJointAccount(withConfig: config)
         } catch {
-            AccountsLogger.error("Failed to activate a joint account of user wallet \(userWalletId)", error: error)
+            AccountsLogger.error("Failed to confirm a joint account of user wallet \(userWalletId.stringValue.masked())", error: error)
             throw .unknownError(error)
         }
-
-        // The account has an address now, and the wallet models built for it are the ones holding the old one
-        await refreshCryptoAccounts()
     }
 }
 

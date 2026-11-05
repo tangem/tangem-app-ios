@@ -98,7 +98,8 @@ private extension CEXProviderFlowHelperExchangeDataErrorTests {
             mapper: ExpressManagerMapper(),
             featureFlags: ExpressFeatureFlags(
                 isSwapBestRateDefaultProviderEnabled: false,
-                isHideRejectedSwapProvidersEnabled: isHideRejectedSwapProvidersEnabled
+                isHideRejectedSwapProvidersEnabled: isHideRejectedSwapProvidersEnabled,
+                isAPIV2Enabled: false
             )
         ))
     }

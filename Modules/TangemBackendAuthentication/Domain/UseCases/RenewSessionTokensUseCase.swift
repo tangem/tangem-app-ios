@@ -16,6 +16,7 @@ actor RenewSessionTokensUseCase {
     private let sessionAuthenticationClient: any SessionAuthenticationClient
 
     private let sessionTokensRepository: any SessionTokensRepository
+    private let appAttestationStatusRepository: any AppAttestationStatusRepository
     private let deviceRegistrationStatusRepository: any DeviceRegistrationStatusRepository
     private let userWalletRegistrationStatusRepository: any UserWalletRegistrationStatusRepository
 
@@ -24,7 +25,7 @@ actor RenewSessionTokensUseCase {
 
     private let deviceMetadataProvider: () -> DeviceMetadata
     private let dateProvider: @Sendable () -> Date
-    private let analyticsReporter: any BackendAuthenticationAnalyticsReporter
+    private let analyticsReporter: any BackendAuthenticationNonceAnalyticsReporter
     private let logger: Logger
 
     private var inFlightRenewalTask: Task<Result<SessionTokens, RenewSessionTokensError>, Never>?
@@ -34,13 +35,14 @@ actor RenewSessionTokensUseCase {
         appAttestService: some AppAttestService,
         sessionAuthenticationClient: some SessionAuthenticationClient,
         sessionTokensRepository: some SessionTokensRepository,
+        appAttestationStatusRepository: some AppAttestationStatusRepository,
         deviceRegistrationStatusRepository: some DeviceRegistrationStatusRepository,
         userWalletRegistrationStatusRepository: some UserWalletRegistrationStatusRepository,
         deviceKeyManager: DeviceKeyManager,
         nonceDecryptor: some NonceDecryptor,
         deviceMetadataProvider: @escaping @Sendable @autoclosure () -> DeviceMetadata,
         dateProvider: @escaping @Sendable @autoclosure () -> Date = Date.now,
-        analyticsReporter: some BackendAuthenticationAnalyticsReporter,
+        analyticsReporter: some BackendAuthenticationNonceAnalyticsReporter,
         logger: Logger
     ) {
         self.registerDevice = registerDevice
@@ -49,6 +51,7 @@ actor RenewSessionTokensUseCase {
         self.sessionAuthenticationClient = sessionAuthenticationClient
 
         self.sessionTokensRepository = sessionTokensRepository
+        self.appAttestationStatusRepository = appAttestationStatusRepository
         self.deviceRegistrationStatusRepository = deviceRegistrationStatusRepository
         self.userWalletRegistrationStatusRepository = userWalletRegistrationStatusRepository
 
@@ -113,10 +116,24 @@ actor RenewSessionTokensUseCase {
     }
 
     private func authenticateNewSession() async throws(RenewSessionTokensError) -> SessionTokens {
+        let freshSessionTokensAfterRegistration: SessionTokens?
+
+        do {
+            freshSessionTokensAfterRegistration = try await registerDevice()
+        } catch {
+            throw RenewSessionTokensError.registrationFailure(error)
+        }
+
+        if let freshSessionTokensAfterRegistration {
+            return freshSessionTokensAfterRegistration
+        }
+
         do {
             return try await authenticate()
         } catch RenewSessionTokensError.clientFailure(.deviceRegistrationMissing) {
             return try await recoverFromMissingDeviceRegistration()
+        } catch RenewSessionTokensError.clientFailure(.appAttestRejected) {
+            return try await recoverFromAppAttestRejection()
         } catch RenewSessionTokensError.clientFailure(.authenticationRejected) {
             await deleteSessionTokens()
             throw RenewSessionTokensError.clientFailure(.authenticationRejected)
@@ -138,7 +155,17 @@ extension RenewSessionTokensUseCase {
         let decryptedNonceBytes = try decrypt(cipheredNonce: cipheredNonce)
         let decryptedNonce = String(decoding: decryptedNonceBytes, as: UTF8.self)
 
-        let attestationToken = await generateAttestationToken(for: decryptedNonceBytes)
+        let appAttestToken: SessionAuthenticationRequest.AppAttestToken?
+        let appHasAlreadyBeenAttested = appAttestationStatusRepository.retrieve()
+
+        if appHasAlreadyBeenAttested {
+            let assertion: AppAssertion? = await assert(decryptedNonceBytes: decryptedNonceBytes)
+            appAttestToken = assertion.map(SessionAuthenticationRequest.AppAttestToken.init(assertion:))
+        } else {
+            let attestation: AppAttestation? = await attest(decryptedNonceBytes: decryptedNonceBytes)
+            appAttestToken = attestation.map(SessionAuthenticationRequest.AppAttestToken.init(attestation:))
+        }
+
         let deviceMetadata = deviceMetadataProvider()
 
         let authenticationSignature: DeviceSignature
@@ -147,7 +174,7 @@ extension RenewSessionTokensUseCase {
             let signaturePayload = DeviceSignaturePayloadFactory.make(
                 devicePublicKey: devicePublicKey,
                 decryptedNonce: decryptedNonce,
-                attestationToken: attestationToken,
+                attestationToken: appAttestToken?.object,
                 metadata: deviceMetadata
             )
 
@@ -156,17 +183,39 @@ extension RenewSessionTokensUseCase {
             throw RenewSessionTokensError.deviceKeyFailure(error)
         }
 
+        let request = SessionAuthenticationRequest(
+            devicePublicKey: devicePublicKey,
+            decryptedNonce: decryptedNonce,
+            metadata: deviceMetadata,
+            signature: authenticationSignature,
+            appAttestToken: appAttestToken
+        )
+
+        let sessionTokens: SessionTokens
         do {
-            return try await sessionAuthenticationClient.authenticate(
-                devicePublicKey: devicePublicKey,
-                decryptedNonce: decryptedNonce,
-                metadata: deviceMetadata,
-                signature: authenticationSignature,
-                attestationToken: attestationToken
-            )
+            sessionTokens = try await sessionAuthenticationClient.authenticate(request: request)
         } catch {
             throw RenewSessionTokensError.clientFailure(error)
         }
+
+        guard appAttestToken != nil else {
+            return sessionTokens
+        }
+
+        let backendAcceptedAppAttestToken = sessionTokens.refreshToken != nil
+
+        let shouldPersistAppAttestationStatus = !appHasAlreadyBeenAttested && backendAcceptedAppAttestToken
+        if shouldPersistAppAttestationStatus {
+            appAttestationStatusRepository.persist(isAppAttested: true)
+        }
+
+        let shouldClearAppAttestationStatus = appHasAlreadyBeenAttested && !backendAcceptedAppAttestToken
+        if shouldClearAppAttestationStatus {
+            appAttestationStatusRepository.persist(isAppAttested: false)
+            logger.debug("App attestation status cleared, because backend did not accept app assertion")
+        }
+
+        return sessionTokens
     }
 
     /// On `.deviceRegistrationMissing` error we register the device again, exactly once,
@@ -174,6 +223,7 @@ extension RenewSessionTokensUseCase {
     /// If registration reports the device as already registered (no tokens),
     /// we retry `authenticate()` exactly once more, with no further recovery.
     private func recoverFromMissingDeviceRegistration() async throws(RenewSessionTokensError) -> SessionTokens {
+        appAttestationStatusRepository.persist(isAppAttested: false)
         deviceRegistrationStatusRepository.persist(isRegistered: false)
 
         let freshSessionTokensAfterRegistration: SessionTokens?
@@ -196,11 +246,47 @@ extension RenewSessionTokensUseCase {
         return recoveredSessionTokens
     }
 
-    private func generateAttestationToken(for decryptedNonceBytes: Data) async -> Data? {
+    private func recoverFromAppAttestRejection() async throws(RenewSessionTokensError) -> SessionTokens {
+        appAttestationStatusRepository.persist(isAppAttested: false)
+        logger.debug("App attestation status cleared, because backend rejected app assertion")
+
+        return try await authenticate()
+    }
+
+    private func attest(decryptedNonceBytes: Data) async -> AppAttestation? {
         do {
-            return try await appAttestService.generateAttestationToken(for: decryptedNonceBytes)
+            return try await appAttestService.attest(decryptedNonceBytes: decryptedNonceBytes)
+        } catch AppAttestServiceError.deviceCheckUnsupported {
+            logger.debug("App attestation is not supported, proceeding without it")
+            return nil
         } catch {
-            logger.error("Failed to generate app attestation token", error: error)
+            logger.error("Failed to generate app attestation", error: error)
+            return nil
+        }
+    }
+
+    private func assert(decryptedNonceBytes: Data) async -> AppAssertion? {
+        do {
+            return try await appAttestService.assert(decryptedNonceBytes: decryptedNonceBytes)
+        } catch AppAttestServiceError.assertionKeyCorrupted {
+            appAttestationStatusRepository.persist(isAppAttested: false)
+            logger.error(
+                "App attestation status cleared, because stored key for app assertion was malformed.",
+                error: AppAttestServiceError.assertionKeyCorrupted
+            )
+            return nil
+        } catch AppAttestServiceError.assertionKeyNotFound {
+            appAttestationStatusRepository.persist(isAppAttested: false)
+            logger.error(
+                "App attestation status cleared, because stored key for app assertion was not found.",
+                error: AppAttestServiceError.assertionKeyNotFound
+            )
+            return nil
+        } catch AppAttestServiceError.deviceCheckUnsupported {
+            logger.debug("App assertion is not supported, proceeding without it")
+            return nil
+        } catch {
+            logger.error("Failed to generate app assertion", error: error)
             return nil
         }
     }
@@ -225,6 +311,7 @@ extension RenewSessionTokensUseCase {
                  .authenticateFailed,
                  .authenticationRejected,
                  .deviceRegistrationMissing,
+                 .appAttestRejected,
                  .refreshFailed:
                 break
             }

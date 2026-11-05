@@ -25,12 +25,14 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
     var tokensCount: String {
         let tokensCount = Localization.commonTokensCount(rawTokensCount)
 
-        guard let jointAccount = accountModel as? any JointAccountModel, jointAccount.status.isActive else {
+        switch accountModel {
+        case let jointAccount as any JointAccountModel where jointAccount.status.isActive:
+            let membersCount = Localization.jointAccountMembersCount(jointAccount.policy.membersCount)
+            return "\(tokensCount) \(AppConstants.dotSign) \(membersCount)"
+
+        default:
             return tokensCount
         }
-
-        let membersCount = Localization.jointAccountMembersCount(jointAccount.policy.membersCount)
-        return "\(tokensCount) \(AppConstants.dotSign) \(membersCount)"
     }
 
     var isEmptyContent: Bool { rawTokensCount == 0 }
@@ -128,7 +130,7 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
             jointAccount
                 .jointAccountPendingOperationsProvider
                 .pendingOperationsPublisher
-                .map { operations in operations.contains { $0.operation.status.isInFlight } }
+                .map { operations in operations.contains { $0.status.isInFlight } }
                 .removeDuplicates()
                 .receiveOnMain()
                 .assign(to: &$hasOperationsInFlight)

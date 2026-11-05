@@ -416,7 +416,8 @@ private extension MobileSocialWalletViewModel {
             keys: wallet.preparedWallet.walletInfo.keys,
             recoveryEnrollment: UserWalletRecoveryEnrollment(
                 providerIdToken: input.credentials.identityToken,
-                encryptedRecoveryKey: encryptedRecoveryKey
+                encryptedRecoveryKey: encryptedRecoveryKey.ciphertext,
+                recoveryKeyId: encryptedRecoveryKey.keyId
             )
         )
     }

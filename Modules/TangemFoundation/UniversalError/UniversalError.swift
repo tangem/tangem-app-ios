@@ -32,6 +32,7 @@ import Foundation
 /// `112` - Polymarket `Polymarket+UniversalError`
 /// `113` - WebSocket `WebSocketTransportError`
 /// `114` - Collectibles `Collectibles+UniversalError`
+/// `115` - MCP `MCP+UniversalError`
 public protocol UniversalError: LocalizedError {
     var errorCode: Int { get }
 }

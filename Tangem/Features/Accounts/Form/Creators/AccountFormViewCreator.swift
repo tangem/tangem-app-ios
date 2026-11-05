@@ -40,12 +40,6 @@ protocol AccountFormViewCreator {
     func selectWallet(_ userWalletModel: any UserWalletModel)
 }
 
-extension AccountFormViewCreator {
-    var initialAccountName: String { "" }
-    var initialIcon: AccountModel.CompositeIcon { AccountModelUtils.UI.newAccountIcon() }
-    var showsAccountIndexDescription: Bool { true }
-}
-
 // MARK: - Auxiliary types
 
 enum AccountFormOperationResult {

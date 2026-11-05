@@ -24,6 +24,7 @@ import Foundation
 
 public enum FeatureDerivationPaths {
     public static let tangemPay = "m/44'/60'/999999'/0/0"
+    public static let tangemPayBankingAccount = "m/44'/60'/999998'/0/0"
     public static let polymarket = "m/44'/60'/999899'/0/0"
     public static let collectibles = "m/44'/501'/999799'/0'/0'"
 }

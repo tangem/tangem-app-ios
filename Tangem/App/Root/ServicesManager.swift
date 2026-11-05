@@ -66,6 +66,7 @@ final class CommonServicesManager {
     private let storiesPrefetchManager: StoriesPrefetchManager
     private let pushNotificationEventsLogger: PushNotificationsEventsLogger
     private let mobileAccessCodeCleaner: MobileAccessCodeCleaner
+    private let mcpSessionsCleaner: MCPSessionsCleaner
     private let customerIOWrapper: CustomerIOWrapper
 
     private var _initialized: Bool = false
@@ -76,6 +77,7 @@ final class CommonServicesManager {
         storiesPrefetchManager = StoriesPrefetchManager()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
         mobileAccessCodeCleaner = MobileAccessCodeCleaner()
+        mcpSessionsCleaner = MCPSessionsCleaner()
         customerIOWrapper = CustomerIOWrapper()
     }
 
@@ -261,6 +263,7 @@ extension CommonServicesManager: ServicesManager {
         forceUpdateService.refreshCache()
         appDatabase.initialize()
         MCPModuleFactory.configure()
+        mcpSessionsCleaner.initialize()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating

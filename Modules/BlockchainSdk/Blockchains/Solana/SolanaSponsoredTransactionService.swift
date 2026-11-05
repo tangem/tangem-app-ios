@@ -167,7 +167,7 @@ public struct SolanaRawInstruction: Sendable {
         self.data = data
     }
 
-    fileprivate func transactionInstruction() throws -> TransactionInstruction {
+    func transactionInstruction() throws -> TransactionInstruction {
         guard let programIdKey = PublicKey(string: programId) else {
             throw BlockchainSdkError.failedToConvertPublicKey
         }

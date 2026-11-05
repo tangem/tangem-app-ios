@@ -31,7 +31,7 @@ extension OnboardVisaDeeplink {
     init(link: DeeplinkURL) throws {
         try link.query.requireAll(Keys.entry, Shared.id)
 
-        deeplinkString = link.absoluteString
+        deeplinkString = MarketingActivityUid.linkWithoutUid(link.absoluteString)
     }
 }
 

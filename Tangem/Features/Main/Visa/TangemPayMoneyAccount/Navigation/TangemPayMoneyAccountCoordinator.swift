@@ -36,6 +36,7 @@ final class TangemPayMoneyAccountCoordinator: CoordinatorObject {
 extension TangemPayMoneyAccountCoordinator {
     struct Options {
         let userWalletModel: any UserWalletModel
+        let moneyAccount: any TangemPayMoneyAccountModel
     }
 }
 

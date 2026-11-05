@@ -13,18 +13,18 @@ import class Moya.Response
 private import TangemNetworkUtils
 
 struct MoyaMCPAgentClient: MCPAgentClient {
-    private let provider: MoyaProvider<MCPAgentTarget>
+    private let provider: MoyaProvider<MCPClientTarget>
     private let baseURL: URL
     private let decoder: JSONDecoder
 
-    init(provider: MoyaProvider<MCPAgentTarget>, baseURL: URL, decoder: JSONDecoder) {
+    init(provider: MoyaProvider<MCPClientTarget>, baseURL: URL, decoder: JSONDecoder) {
         self.provider = provider
         self.baseURL = baseURL
         self.decoder = decoder
     }
 
     func fetch(agentID: String) async throws(MCPAgentClientError) -> MCPAgent {
-        let target = MCPAgentTarget(agentID: agentID, baseURL: baseURL)
+        let target = MCPClientTarget.get(agentID: agentID, baseURL: baseURL)
 
         let response: Moya.Response
         do {
@@ -34,7 +34,7 @@ struct MoyaMCPAgentClient: MCPAgentClient {
         }
 
         do {
-            let fetchResponse = try decoder.decode(FetchMCPAgentDTO.Response.self, from: response.data)
+            let fetchResponse = try decoder.decode(MCPClientDTO.Get.Response.self, from: response.data)
             return MCPAgentMapper.mapToDomain(fetchResponse)
         } catch {
             throw MCPAgentClientError.fetchFailed(underlying: error)

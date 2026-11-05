@@ -744,9 +744,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Choose from %li token</string>
+        <string>Понад %li доступний токен</string>
+        <key>few</key>
+        <string>Понад %li доступні токени</string>
+        <key>many</key>
+        <string>Понад %li доступних токенів</string>
         <key>other</key>
-        <string>Choose from %li tokens</string>
+        <string>Понад %li доступного токена</string>
       </dict>
     </dict>
   </dict>

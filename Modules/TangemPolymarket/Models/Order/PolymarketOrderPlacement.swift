@@ -78,6 +78,7 @@ public enum PolymarketOrderPlacementStatus: Hashable, Sendable {
 public enum PolymarketOrderPlacementError: Error {
     case notSent(underlying: Error)
     case rejected(message: String?)
+    case unauthorized(message: String?)
     case noLiquidity(message: String?)
 
     case ambiguous(underlying: Error)

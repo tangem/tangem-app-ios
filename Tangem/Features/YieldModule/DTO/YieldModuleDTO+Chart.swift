@@ -12,7 +12,6 @@ import TangemFoundation
 extension YieldModuleDTO {
     enum ChartWindow: String, Decodable {
         case lastMonth = "LAST_MONTH"
-        case lastQuarter = "LAST_QUARTER"
         case lastYear = "LAST_YEAR"
     }
 }
@@ -24,8 +23,6 @@ extension YieldModuleDTO.Response {
         let market: String
         let bucketSizeDays: Int
         let period: YieldModuleDTO.ChartWindow
-        let from: String
-        let to: String
         let data: [ChartData]
         let avr: Double
 

@@ -222,6 +222,7 @@ extension Analytics {
         case settingsButtonManageTokens = "[Settings] Button - Manage Tokens"
         case settingsColdWalletAdded = "[Settings] Cold Wallet Added"
         case buttonWalletConnect = "[Settings] Button - Wallet Connect"
+        case buttonConnections = "[Settings] Button - Connections"
         case buttonStartWalletConnectSession = "[Settings] Button - Start Wallet Connect Session"
         case buttonStopWalletConnectSession = "[Settings] Button - Stop Wallet Connect Session"
         case buttonCardSettings = "[Settings] Button - Card Settings"
@@ -320,6 +321,11 @@ extension Analytics {
         case accountSettingsButtonAddNewAccount = "[Settings / Account] Button - Add New Account"
         case accountSettingsAccountError = "[Settings / Account] Account Error"
         case manageTokensCustomTokenAddedToAnotherAccount = "[Settings / Account] Button - Add Token To Another Account"
+
+        // MARK: - Connections
+
+        case connectionsScreenOpened = "[Connections] Connections Screen Opened"
+        case connectionsDisconnectAllButtonTapped = "[Connections] Button - Disconnect All"
 
         // MARK: - Wallet Connect
 
@@ -470,6 +476,7 @@ extension Analytics {
         case mainNoticeOldCard = "[Main Screen] Notice - Old Card"
         case mainNoticeDevelopmentCard = "[Main Screen] Notice - Development Card"
         case mainNoticeMissingAddress = "[Main Screen] Notice - Missing Addresses"
+        case mainNoticeLinkWallet = "[Main Screen] Notice - Link Wallet"
         case mainNoticeWalletUnlock = "[Main Screen] Notice - Wallet Unlock"
         case mainNoticeWalletUnlockTapped = "[Main Screen] Notice - Wallet Unlock Tapped"
         case mainNoticeBackupYourWallet = "[Main Screen] Notice - Backup Your Wallet"
@@ -1036,7 +1043,9 @@ extension Analytics {
         case earningNoticeHighNetworkFee = "[Earning] Notice - High Network Fee"
         case earningErrors = "[Earning] Earn Errors"
         case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
+        case earningPromoScreenOpened = "[Earning] Promo Screen Opened"
         case earningPromoScreenClosed = "[Earning] Promo Screen Closed"
+        case earningPromoScreenSkipped = "[Earning] Promo Screen Skipped"
         case earningButtonTryYieldMode = "[Earning] Button - Try Yield Mode"
         case mainNoticeYieldPromo = "[Main Screen] Yield Promo"
         case mainNoticeYieldPromoClicked = "[Main Screen] Yield Promo Clicked"
@@ -1106,5 +1115,30 @@ extension Analytics {
 
         case userWalletRegistrationUnexpectedCurve = "[Backend Auth] Unexpected Wallet Curve"
         case backendAuthNonceRequestTimeout = "[Backend Auth] Nonce Request Timeout"
+        case backendAuthAttestationFailed = "[Backend Auth] Attestation Failed"
+        case backendAuthButtonLinkWallet = "[Backend Auth] Button - Link Wallet"
+
+        // MARK: - MCP Authorization
+
+        case mcpAuthorizationConnectionReceived = "[MCP Authorization] Connection Received"
+        case mcpAuthorizationAgentConnectionRequested = "[MCP Authorization] Agent Connection Requested"
+        case mcpAuthorizationApproveButtonTapped = "[MCP Authorization] Button - Approve"
+        case mcpAuthorizationAgentConnected = "[MCP Authorization] Agent Connected"
+        case mcpAuthorizationDeclineButtonTapped = "[MCP Authorization] Button - Decline"
+        case mcpAuthorizationFailed = "[MCP Authorization] Authorization Failed"
+        case mcpAuthorizationPushPermissionRequired = "[MCP Authorization] Notice - Push Permission Required"
+
+        // MARK: - MCP Sessions
+
+        case mcpSessionsAgentDisconnected = "[MCP Sessions] Agent Disconnected"
+
+        // MARK: - MCP Intent
+
+        case mcpIntentReceived = "[MCP Intent] Intent Received"
+        case mcpIntentScreenOpened = "[MCP Intent] Intent Screen Opened"
+        case mcpIntentLoadFailed = "[MCP Intent] Intent Load Failed"
+        case mcpIntentContinueButtonTapped = "[MCP Intent] Button - Continue"
+        case mcpIntentCompleted = "[MCP Intent] Intent Completed"
+        case mcpIntentReportFailed = "[MCP Intent] Intent Report Failed"
     }
 }

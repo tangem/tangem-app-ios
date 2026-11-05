@@ -553,7 +553,13 @@ final class SwapModelTests: LeakTrackingTestSuite {
         #expect(sut.providerSlippage?.defaultSlippage == defaultSlippage)
 
         baseline = recorder.count
-        sut.userDidFinishSelection(feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)), feeOption: .market)
+        sut.userDidFinishSelection(
+            feeProviderID: TokenFeeProviderID(
+                feeTokenItem: .blockchain(.init(.ethereum(testnet: false), derivationPath: nil)),
+                payer: .user
+            ),
+            feeOption: .market
+        )
 
         let isLoadingFee = if case .loading(.fee) = recorder.latest { true } else { false }
         #expect(isLoadingFee)
@@ -1319,6 +1325,12 @@ private extension SwapModelTests {
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(),
+            finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
+                pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+                walletModelsManager: WalletModelsManagerMock(),
+                historyDeltaSyncing: JointOperationsHistoryDeltaSyncingStub()
+            ),
+            userRoleService: JointAccountUserRoleServiceMock(),
             delegate: jointAccountDelegate
         )
         let walletModel = WalletModelTestsMock(

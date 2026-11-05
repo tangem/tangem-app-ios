@@ -18,7 +18,7 @@ struct ManageTokensListItemView: View {
 
     private let isReadOnly: Bool
 
-    @Environment(\.isAddAndOrganizeRedesignEnabled) private var isRedesign
+    @Environment(\.isInTokensManagementFlow) private var isInTokensManagementFlow
 
     init(viewModel: ManageTokensListItemViewModel, isReadOnly: Bool) {
         self.viewModel = viewModel
@@ -33,7 +33,7 @@ struct ManageTokensListItemView: View {
     // MARK: - Redesign-aware styling
 
     private var nameFont: TangemFontStyle {
-        isRedesign ? TangemFontStyle(DesignSystem.Font.subheadingMediumToken) : TangemFontStyle(font: Fonts.Bold.subheadline)
+        isInTokensManagementFlow ? TangemFontStyle(DesignSystem.Font.subheadingMediumToken) : TangemFontStyle(font: Fonts.Bold.subheadline)
     }
 
     private var nameColor: Color {
@@ -41,7 +41,7 @@ struct ManageTokensListItemView: View {
     }
 
     private var symbolFont: TangemFontStyle {
-        isRedesign ? TangemFontStyle(DesignSystem.Font.captionMediumToken) : TangemFontStyle(font: Fonts.Regular.caption1)
+        isInTokensManagementFlow ? TangemFontStyle(DesignSystem.Font.captionMediumToken) : TangemFontStyle(font: Fonts.Regular.caption1)
     }
 
     private var symbolColor: Color {
@@ -49,7 +49,7 @@ struct ManageTokensListItemView: View {
     }
 
     private var subtitleFont: TangemFontStyle {
-        isRedesign ? TangemFontStyle(DesignSystem.Font.subheadingMediumToken) : TangemFontStyle(font: Fonts.Regular.footnote)
+        isInTokensManagementFlow ? TangemFontStyle(DesignSystem.Font.subheadingMediumToken) : TangemFontStyle(font: Fonts.Regular.footnote)
     }
 
     private var subtitleColor: Color {

@@ -375,6 +375,10 @@ private final class TronGaslessSubmitNetworkManagerStub: GaslessTransactionsNetw
     var availableTronFeeTokensPublisher: AnyPublisher<[TronFeeToken], Never> { Just([]).eraseToAnyPublisher() }
     var currentHost: String { "test" }
     var feeRecipientAddress: String? { nil }
+    var cachedSolanaFeePayer: String? { nil }
+    var solanaFeePayer: String? { nil }
+
+    func submitSolanaGaslessTransaction(_ request: SolanaSubmitRequest, userWalletId: UserWalletId) async throws -> String { "" }
 
     func updateAvailableTokens() {}
     func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String { "" }

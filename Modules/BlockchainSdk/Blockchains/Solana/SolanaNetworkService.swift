@@ -269,6 +269,46 @@ public final class SolanaNetworkService: MultiNetworkProvider {
         try await solanaSdk.api.getLatestBlockhash()
     }
 
+    func getLatestBlockhashWithHeight() async throws -> SolanaLatestBlockhash {
+        let latestBlockhash: LatestBlockhash? = try await withCheckedThrowingContinuation { continuation in
+            solanaSdk.router.request(
+                bcMethod: "getLatestBlockhash",
+                parameters: [RequestConfiguration(commitment: "confirmed")]
+            ) { (result: Result<Rpc<LatestBlockhash?>, Error>) in
+                continuation.resume(with: result.map(\.value))
+            }
+        }
+
+        guard let blockhash = latestBlockhash?.blockhash else {
+            throw SolanaError.blockHashNotFound
+        }
+
+        guard let lastValidBlockHeight = latestBlockhash?.lastValidBlockHeight else {
+            throw SolanaGaslessError.missingLastValidBlockHeight
+        }
+
+        return SolanaLatestBlockhash(blockhash: blockhash, lastValidBlockHeight: lastValidBlockHeight)
+    }
+
+    func splTokenDestination(
+        mintAddress: String,
+        tokenProgramId: PublicKey,
+        destinationAddress: String
+    ) async throws -> Action.SPLTokenDestinationAddress {
+        let allowUnfundedRecipient = try await checkIfSolanaAccount(destinationAddress: destinationAddress).async()
+
+        return try await withCheckedThrowingContinuation { continuation in
+            solanaSdk.action.findSPLTokenDestinationAddress(
+                mintAddress: mintAddress,
+                tokenProgramId: tokenProgramId,
+                destinationAddress: destinationAddress,
+                allowUnfundedRecipient: allowUnfundedRecipient
+            ) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
     /// `nil` means no account exists at the address.
     func rawAccountInfo(address: String) async throws -> SolanaRawAccount? {
         do {

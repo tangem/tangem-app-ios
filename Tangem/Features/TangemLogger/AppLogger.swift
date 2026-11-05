@@ -19,6 +19,7 @@ let AppsflyerLogger = Logger(category: .app).tag("AppsFlyer")
 let SupportChatLogger = Logger(category: .app).tag("Support Chat")
 let BackendAuthLogger = Logger(category: .app).tag("Backend Auth")
 let MCPLogger = Logger(category: .app).tag("MCP")
+let ConnectionsLogger = Logger(category: .app).tag("Connections")
 
 extension Logger.Category {
     static let app = OSLogCategory(name: "App")

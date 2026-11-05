@@ -59,6 +59,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var collectiblesCoordinator: CollectiblesCoordinator?
     @Published var tangemPayMoneyAccountCoordinator: TangemPayMoneyAccountCoordinator?
     @Published var jointAccountManagementCoordinator: JointAccountManagementCoordinator?
+    @Published var contactManagementCoordinator: AddressBookContactManagementCoordinator?
 
     // MARK: - Child coordinators (Other)
 
@@ -499,7 +500,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             }
     }
 
-    func openTangemPayMoneyAccount(userWalletModel: any UserWalletModel) {
+    func openTangemPayMoneyAccount(
+        userWalletModel: any UserWalletModel,
+        moneyAccount: any TangemPayMoneyAccountModel
+    ) {
         mainBottomSheetUIManager.hide()
 
         let coordinator = TangemPayMoneyAccountCoordinator(
@@ -510,7 +514,8 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         )
 
         let options = TangemPayMoneyAccountCoordinator.Options(
-            userWalletModel: userWalletModel
+            userWalletModel: userWalletModel,
+            moneyAccount: moneyAccount
         )
 
         coordinator.start(with: options)
@@ -627,6 +632,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             || actionButtonsBuyCoordinator != nil
             || actionButtonsSellCoordinator != nil
             || yieldModuleActiveCoordinator != nil
+            || contactManagementCoordinator != nil
     }
 
     /// Changes to the slots `isPresentingOverMain` reads, so a campaign that a modal was covering gets
@@ -641,6 +647,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             $actionButtonsBuyCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $actionButtonsSellCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $yieldModuleActiveCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $contactManagementCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $yieldModePromoSheetViewModel.dropFirst().mapToVoid().eraseToAnyPublisher(),
         ]
 
@@ -657,6 +664,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             $actionButtonsBuyCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
             $actionButtonsSellCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
             $yieldModuleActiveCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
+            $contactManagementCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
         ]
     }
 
@@ -748,10 +756,16 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         jointAccountManagementCoordinator = coordinator
     }
 
-    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation, userWalletInfo: UserWalletInfo) {
-        let viewModel = JointAccountOperationDetailsViewModelBuilder().build(
+    func openJointAccountOperationDetails(
+        pendingOperation: JointAccountPendingOperation,
+        userWalletInfo: UserWalletInfo,
+        addressBookManager: AddressBookManager
+    ) {
+        let addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
+        let viewModel = JointAccountOperationDetailsViewModel(
             pendingOperation: pendingOperation,
-            userWalletInfo: userWalletInfo,
+            addressBookWallet: addressBookWallet,
+            recipientSource: CommonJointAccountOperationRecipientSource(addressBookWallet: addressBookWallet),
             coordinator: self
         )
 
@@ -767,6 +781,25 @@ extension MainCoordinator: JointAccountOperationDetailsRoutable {
     func closeOperationDetails() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openAddContactFromOperationDetails(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            openAddContact(addressBookWallet: addressBookWallet, prefilledEntries: prefilledEntries)
+        }
+    }
+}
+
+// MARK: - AddressBookContactNavigating
+
+extension MainCoordinator: AddressBookContactNavigating {
+    var addressBookAnalyticsSource: AddressBookAnalyticsSource { .transactionDetails }
+
+    func contactManagementDidDismiss() {
+        Task { @MainActor in
+            floatingSheetPresenter.resumeSheetsDisplaying()
         }
     }
 }
@@ -1217,7 +1250,18 @@ extension MainCoordinator: MainScreenPromoSheetHost {
             hasPresentedStoryPublisher,
             hasPresentedModalPublisher,
             isRootHiddenPublisher,
+            didEnterBackgroundPublisher,
         ]
+    }
+
+    var isSurfaceBusy: Bool {
+        isPresentingOverMain || tangemPayCampaignCoordinator != nil
+    }
+
+    private var didEnterBackgroundPublisher: AnyPublisher<Bool, Never> {
+        NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
+            .map { _ in true }
+            .eraseToAnyPublisher()
     }
 
     private var hasPresentedModalPublisher: AnyPublisher<Bool, Never> {
@@ -1250,12 +1294,13 @@ extension MainCoordinator: MainScreenPromoSheetHost {
 // MARK: - YieldModePromoSheetRoutable
 
 extension MainCoordinator: YieldModePromoSheetRoutable {
-    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) {
-        guard !isPresentingOverMain, tangemPayCampaignCoordinator == nil else {
-            return
+    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) -> Bool {
+        guard !isSurfaceBusy else {
+            return false
         }
 
         yieldModePromoSheetViewModel = viewModel
+        return true
     }
 
     func dismissYieldModePromo() {

@@ -14,6 +14,7 @@ import TangemUIUtils
 struct EarnCalculatorView: View {
     @ObservedObject var viewModel: EarnCalculatorViewModel
     var onIncentiveInfoTap: (() -> Void)?
+    var showsCard = true
 
     var body: some View {
         VStack(spacing: .zero) {
@@ -27,26 +28,34 @@ struct EarnCalculatorView: View {
                 onIncentiveInfoTap: onIncentiveInfoTap
             )
             .padding(.top, Constants.headerTopPadding)
-            .padding(.horizontal, Constants.contentPadding)
+            .padding(.horizontal, horizontalPadding)
             .padding(.bottom, Constants.contentPadding)
 
             EarnCalculatorChart(bars: viewModel.state.bars, selectedBarID: $viewModel.selectedBarID)
-                .padding([.horizontal, .top], Constants.contentPadding)
+                .padding(.horizontal, horizontalPadding)
+                .padding(.top, Constants.contentPadding)
                 .padding(.bottom, Constants.chartBottomPadding)
 
             inputs
-                .padding(Constants.contentPadding)
+                .padding(.horizontal, horizontalPadding)
+                .padding(.vertical, Constants.contentPadding)
         }
-        .background(
-            DesignSystem.Color.bgSecondary,
-            in: RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
-        )
+        .background {
+            if showsCard {
+                RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
+                    .fill(DesignSystem.Color.bgSecondary)
+            }
+        }
     }
 }
 
 // MARK: - Subviews
 
 private extension EarnCalculatorView {
+    var horizontalPadding: CGFloat {
+        showsCard ? Constants.contentPadding : 0
+    }
+
     var horizonBinding: Binding<EarnCalculatorHorizon> {
         Binding(
             get: { viewModel.selectedHorizon },

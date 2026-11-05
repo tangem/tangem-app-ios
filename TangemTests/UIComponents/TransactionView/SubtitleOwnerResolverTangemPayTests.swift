@@ -23,7 +23,7 @@ struct SubtitleOwnerResolverTangemPayTests {
         )
 
         #expect(resolved == .accountInCurrentWallet(name: owner.name, icon: owner.icon))
-        #expect(resolved?.isOwnWallet == true)
+        #expect(resolved.isOwnWallet == true)
     }
 
     @Test("Another wallet's Pay deposit address resolves to that wallet's Pay account")

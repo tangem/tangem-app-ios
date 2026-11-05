@@ -12,7 +12,7 @@ import struct TangemFoundation.UserWalletId
 
 @MainActor
 final class MCPConnectionRequestUserWalletSelectorViewModel: ObservableObject, HashableObject {
-    private let selectionChanged: (MCPUserWallet) -> Void
+    private let selectionRequested: (MCPUserWallet) -> Void
 
     @Published private(set) var state: MCPConnectionRequestUserWalletSelectorState
 
@@ -21,9 +21,9 @@ final class MCPConnectionRequestUserWalletSelectorViewModel: ObservableObject, H
         selectedUserWalletID: MCPUserWallet.ID,
         userWalletImageRepository: MCPUserWalletImageRepository,
         balanceUpdater: @escaping (MCPUserWallet.ID) -> AsyncStream<String>,
-        selectionChanged: @escaping (MCPUserWallet) -> Void
+        selectionRequested: @escaping (MCPUserWallet) -> Void
     ) {
-        self.selectionChanged = selectionChanged
+        self.selectionRequested = selectionRequested
 
         weak var futureSelf: MCPConnectionRequestUserWalletSelectorViewModel?
 
@@ -36,8 +36,8 @@ final class MCPConnectionRequestUserWalletSelectorViewModel: ObservableObject, H
                     ),
                     imageRepository: userWalletImageRepository,
                     balanceUpdater: balanceUpdater,
-                    tapAction: { selectedUserWalletState in
-                        futureSelf?.handle(action: .selectionChanged(selectedUserWalletState))
+                    tapAction: { userWalletState in
+                        futureSelf?.handle(action: .rowTapped(userWalletState))
                     }
                 )
             }
@@ -48,11 +48,12 @@ final class MCPConnectionRequestUserWalletSelectorViewModel: ObservableObject, H
 
     func handle(action: MCPConnectionRequestUserWalletSelectorAction) {
         switch action {
-        case .selectionChanged(let selectedUserWalletState):
-            selectionChanged(selectedUserWalletState.userWallet)
+        case .rowTapped(let userWalletState):
+            selectionRequested(userWalletState.userWallet)
 
+        case .selectionUpdated(let selectedUserWalletID):
             for userWalletRowViewModel in state.userWallets {
-                let isSelected = userWalletRowViewModel.state.id == selectedUserWalletState.id
+                let isSelected = userWalletRowViewModel.state.id == selectedUserWalletID
                 userWalletRowViewModel.handle(action: .isSelectedChanged(isSelected))
             }
         }

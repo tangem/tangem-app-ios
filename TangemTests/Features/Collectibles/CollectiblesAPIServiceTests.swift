@@ -185,7 +185,7 @@ struct CollectiblesAPIServiceTests {
         }
     }
 
-    @Test("open-pack sends the transaction id in the body and asks for the won card in the query")
+    @Test("open-pack sends the transaction id in the body and asks for the won card and the auto buyback in the query")
     func openPackRequest() async throws {
         CollectiblesStubURLProtocol.responses = [
             Data(#"{"txId":"tx-1","status":"pack-opened","nftWon":null}"#.utf8),
@@ -197,6 +197,55 @@ struct CollectiblesAPIServiceTests {
         #expect(body["txId"] as? String == "tx-1")
         #expect(body.count == 1)
         #expect(Self.queryValue("includeNftWon", of: CollectiblesStubURLProtocol.requests.first) == "true")
+        #expect(Self.queryValue("includeAutoBuyback", of: CollectiblesStubURLProtocol.requests.first) == "true")
+    }
+
+    @Test("The purchase status asks for the won card and the auto buyback in the query")
+    func purchaseStatusAsksForWonCardAndAutoBuyback() async throws {
+        CollectiblesStubURLProtocol.responses = [Data(#"{"txId":"tx-1","status":"auto-buybacked"}"#.utf8)]
+
+        _ = try await makeSUT().loadPurchaseStatus(txID: "tx-1", userWalletID: "wallet-1")
+
+        #expect(Self.queryValue("txId", of: CollectiblesStubURLProtocol.requests.first) == "tx-1")
+        #expect(Self.queryValue("includeNftWon", of: CollectiblesStubURLProtocol.requests.first) == "true")
+        #expect(Self.queryValue("includeAutoBuyback", of: CollectiblesStubURLProtocol.requests.first) == "true")
+    }
+
+    @Test("A spin the partner no longer knows surfaces as spinNotFound, other opening failures stay .http", arguments: [
+        ("No spin transaction found for memo", true),
+        ("Machine empty", false),
+    ])
+    func mapsSpinNotFound(detail: String, isSpinNotFound: Bool) async throws {
+        CollectiblesStubURLProtocol.statusCode = 502
+        CollectiblesStubURLProtocol.responses = [
+            Data(#"{"title":"Bad Gateway","status":502,"detail":"\#(detail)","code":3010,"errors":[]}"#.utf8),
+        ]
+
+        do {
+            _ = try await makeSUT().openPack(txID: "tx-1", userWalletID: "wallet-1")
+            Issue.record("Expected the opening to fail")
+        } catch CollectiblesPackOpeningError.spinNotFound {
+            #expect(isSpinNotFound)
+        } catch CollectiblesAPIService.Error.http(let statusCode, _) {
+            #expect(!isSpinNotFound)
+            #expect(statusCode == 502)
+        }
+    }
+
+    @Test("Active purchases ask for their machine and keep only the ones that name it")
+    func loadsActivePurchases() async throws {
+        CollectiblesStubURLProtocol.responses = [Self.activePurchases]
+
+        let purchases = try await makeSUT().loadActivePurchases(userWalletID: "wallet-1")
+
+        let purchase = try #require(purchases.first)
+        #expect(purchases.count == 1)
+        #expect(purchase.txID == "tx-1")
+        #expect(purchase.machineID == "pokemon_50")
+        #expect(purchase.status == .packPurchased)
+        #expect(abs(purchase.createdAt.timeIntervalSince1970 - 1_787_646_067.518) < 0.001)
+        #expect(Self.queryValue("includeMachine", of: CollectiblesStubURLProtocol.requests.first) == "true")
+        #expect(CollectiblesStubURLProtocol.requests.first?.value(forHTTPHeaderField: "user-id") == "wallet-1")
     }
 
     // MARK: - Buyback
@@ -227,7 +276,7 @@ struct CollectiblesAPIServiceTests {
     func readsAutoSoldPayout(toAmount: String, toDecimals: Int, payout: Decimal?) async throws {
         let buyback = #"{"toAmount":"\#(toAmount)","toDecimals":\#(toDecimals)}"#
         CollectiblesStubURLProtocol.responses = [
-            Data(#"{"txId":"tx-1","status":"pack-opened","nftWon":null,"buyback":\#(buyback)}"#.utf8),
+            Data(#"{"txId":"tx-1","status":"pack-opened","nftWon":null,"autoBuyback":\#(buyback)}"#.utf8),
         ]
 
         let transaction = try await makeSUT().loadPurchaseStatus(txID: "tx-1", userWalletID: "wallet-1")
@@ -309,6 +358,16 @@ private extension CollectiblesAPIServiceTests {
             userWalletID: "wallet-1"
         )
     }
+
+    static let activePurchases = Data(
+        #"""
+        {"activeTxs": [
+            {"txId": "tx-1", "status": "pack-purchased", "machine": {"externalId": "pokemon_50"},
+             "createdAt": "2026-08-25T08:21:07.518119Z"},
+            {"txId": "tx-2", "status": "waiting-for-payment", "createdAt": "2026-08-25T08:21:07.518119Z"}
+        ]}
+        """#.utf8
+    )
 
     static func queryValue(_ name: String, of request: URLRequest?) -> String? {
         request?.url

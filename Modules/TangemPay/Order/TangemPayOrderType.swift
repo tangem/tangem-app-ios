@@ -16,6 +16,7 @@ public enum TangemPayOrderType: String, Decodable {
     case tariffPlanTransition = "TARIFF_PLAN_TRANSITION"
     case smartContractIssueRain = "SMART_CONTRACT_ISSUE_RAIN"
     case bankOfframpRain = "BANK_OFFRAMP_RAIN"
+    case onboardingRain = "ONBOARDING_RAIN"
     case unknown
 
     public init(from decoder: Decoder) throws {

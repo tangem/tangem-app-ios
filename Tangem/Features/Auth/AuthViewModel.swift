@@ -348,12 +348,9 @@ private extension AuthViewModel {
                         walletInfo: .cardWallet(cardInfo),
                         keys: .cardWallet(keys: cardInfo.card.wallets)
                     ) {
-                        let hadSingleMobileWallet = UserWalletRepositoryModeHelper.hasSingleMobileWallet
+                        let walletAddedLogger = WalletAddedAnalyticsLogger()
                         try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
-
-                        if hadSingleMobileWallet {
-                            viewModel.logColdWalletAddedAnalytics(cardInfo: cardInfo)
-                        }
+                        walletAddedLogger.logIfNeeded(source: .signIn, contextData: cardInfo.analyticsContextData)
 
                         await MainActor.run {
                             viewModel.isCardScanning = false
@@ -526,15 +523,6 @@ private extension AuthViewModel {
         Analytics.log(
             .cardWasScanned,
             params: [.source: analyticsCardScanSourceParameterValue],
-            contextParams: .custom(cardInfo.analyticsContextData)
-        )
-    }
-
-    func logColdWalletAddedAnalytics(cardInfo: CardInfo) {
-        Analytics.log(
-            .settingsColdWalletAdded,
-            params: [.source: Analytics.ParameterValue.signIn],
-            analyticsSystems: .all,
             contextParams: .custom(cardInfo.analyticsContextData)
         )
     }

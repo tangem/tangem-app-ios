@@ -31,12 +31,7 @@ enum TransactionDetailsMenuFactory {
         }
 
         if let addressToSave = addContactHelper.addressToSave(for: record) {
-            addressActions.append(.init(
-                id: "addContact",
-                title: Localization.addressBookAddContact,
-                icon: DesignSystem.Icons.UserPlus.regular24,
-                action: .addContact(address: addressToSave)
-            ))
+            addressActions.append(addContactAction(for: addressToSave))
         }
 
         var transactionActions: [TransactionDetailsHeaderViewData.MenuAction] = []
@@ -104,6 +99,15 @@ enum TransactionDetailsMenuFactory {
         )
     }
 
+    static func addContactAction(for address: String) -> TransactionDetailsHeaderViewData.MenuAction {
+        .init(
+            id: "addContact",
+            title: Localization.addressBookAddContact,
+            icon: DesignSystem.Icons.UserPlus.regular24,
+            action: .addContact(address: address)
+        )
+    }
+
     // MARK: - Yield provider
 
     private static func isYieldProviderInteraction(_ transactionType: TransactionViewModel.TransactionType) -> Bool {
@@ -134,11 +138,14 @@ enum TransactionDetailsMenuFactory {
     }
 
     private static func transactionId(for record: TransactionRecord) -> String {
-        guard let expressExtraInfo = record.expressExtraInfo else {
+        switch record.historyExtraInfo {
+        case .express(let expressExtraInfo):
+            return expressExtraInfo.txId
+        case .jointOperation(let info) where JointOperationSyntheticTxHelper.isSyntheticIdentifier(record.hash):
+            return info.groupingId
+        case .jointOperation, nil:
             return record.hash
         }
-
-        return expressExtraInfo.txId
     }
 
     private static func copyProviderTransactionIdAction(for record: TransactionRecord) -> TransactionDetailsHeaderViewData.MenuAction? {
@@ -146,16 +153,16 @@ enum TransactionDetailsMenuFactory {
         let title: String
         let toast: String
 
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             externalTx = info.transaction.externalTx
             title = Localization.expressSwapId
             toast = Localization.expressSwapIdCopied
-        case .onramp(let info):
+        case .express(.onramp(let info)):
             externalTx = info.transaction.externalTx
             title = Localization.expressOnrampId
             toast = Localization.expressOnrampIdCopied
-        case nil:
+        case .jointOperation, nil:
             return nil
         }
 
@@ -172,7 +179,10 @@ enum TransactionDetailsMenuFactory {
     }
 
     private static func onChainHash(for record: TransactionRecord) -> String? {
-        ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash) ? nil : record.hash
+        let isSynthetic = ExpressSyntheticTxHelper.isSyntheticIdentifier(record.hash)
+            || JointOperationSyntheticTxHelper.isSyntheticIdentifier(record.hash)
+
+        return isSynthetic ? nil : record.hash
     }
 
     // MARK: - Explore
@@ -188,16 +198,21 @@ enum TransactionDetailsMenuFactory {
     // MARK: - Share
 
     private static func isShareAvailable(for record: TransactionRecord) -> Bool {
-        record.expressExtraInfo != nil
+        switch record.historyExtraInfo {
+        case .express:
+            return true
+        case .jointOperation, nil:
+            return false
+        }
     }
 
     static func shareText(for record: TransactionRecord, context: TransactionDetailsContext) -> String? {
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             return swapShareText(info, onChainHash: onChainHash(for: record))
-        case .onramp(let info):
+        case .express(.onramp(let info)):
             return onrampShareText(info, onChainHash: onChainHash(for: record), context: context)
-        case nil:
+        case .jointOperation, nil:
             return nil
         }
     }

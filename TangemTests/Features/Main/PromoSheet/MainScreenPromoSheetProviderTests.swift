@@ -308,6 +308,21 @@ struct MainScreenPromoSheetProviderTests {
         }
     }
 
+    @Test("A surface that covers main by the time the sheet is due skips the promo without reading the variant")
+    func surfaceBusyAtPresentationSkipsWithoutReadingVariant() async {
+        let experiment = ExperimentServiceStub(storedVariant: "user_max_apy", isFetched: true)
+
+        await withProvider(managerStates: [.ready], experiment: experiment) { provider, managers, host, _ in
+            host.isSurfaceBusy = true
+            provider.onMainScreenAppear(isPushRequestScheduled: false)
+            await drainMainQueue()
+
+            #expect(experiment.invokedMethods.isEmpty)
+            #expect(managers[0].skipReasons == [.surfaceBusy])
+            #expect(managers.presentedIds.isEmpty)
+        }
+    }
+
     @Test("A skipped launch never reads the variant")
     func skipNeverReadsVariant() async {
         let experiment = ExperimentServiceStub(storedVariant: "user_max_apy", isFetched: true)
@@ -480,6 +495,7 @@ private final class StubPromoSheetInteractor: MainScreenPromoSheetInteractor {
 private final class StubPromoSheetHost: MainScreenPromoSheetHost {
     let busySurfaceSubject = CurrentValueSubject<Bool, Never>(false)
     let otherBusySurfaceSubject = CurrentValueSubject<Bool, Never>(false)
+    var isSurfaceBusy = false
 
     var busySurfacePublishers: [AnyPublisher<Bool, Never>] {
         [busySurfaceSubject.eraseToAnyPublisher(), otherBusySurfaceSubject.eraseToAnyPublisher()]

@@ -32,7 +32,7 @@ struct WelcomeCreateWalletActionFactory {
         return WelcomeActionSheetViewModel(
             input: .init(
                 title: Localization.introductionButtonCreateWallet,
-                analyticsSheet: .create,
+                analyticsSheet: .createWallet,
                 items: [
                     WelcomeActionSheetItem(
                         id: "hardware",

@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-private import Foundation
+import Foundation
 private import struct TangemFoundation.UserWalletId
 
 struct KeychainSessionTokensRepository: SessionTokensRepository {
@@ -17,7 +17,9 @@ struct KeychainSessionTokensRepository: SessionTokensRepository {
 
     init(keychainRepository: some KeychainRepository) {
         self.keychainRepository = keychainRepository
+
         encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
         decoder = JSONDecoder()
     }
 
@@ -84,51 +86,53 @@ extension KeychainSessionTokensRepository {
     }
 }
 
-private struct SchemaVersion: Decodable {
-    let version: Int
-}
-
-private struct VersionedDTO<DTO: Codable>: Codable {
-    let version: Int
-    let dto: DTO
-}
-
-private typealias SessionTokensDTO = SessionTokensSchemaV1.SessionTokensDTO
-
-private enum SessionTokensSchemaV1 {
-    static let version = 1
-
-    struct SessionTokensDTO: Codable {
-        let accessToken: TokenDTO
-        let refreshToken: TokenDTO?
-        let userWalletIDs: [Data]
-
-        var toDomain: SessionTokens {
-            SessionTokens(
-                accessToken: accessToken.toDomain,
-                refreshToken: refreshToken?.toDomain,
-                userWalletIDs: userWalletIDs.map(UserWalletId.init(value:))
-            )
-        }
-
-        init(fromDomain domainModel: SessionTokens) {
-            accessToken = TokenDTO(fromDomain: domainModel.accessToken)
-            refreshToken = domainModel.refreshToken.map(TokenDTO.init)
-            userWalletIDs = domainModel.userWalletIDs.map(\.value)
-        }
+extension KeychainSessionTokensRepository {
+    struct SchemaVersion: Decodable {
+        let version: Int
     }
 
-    struct TokenDTO: Codable {
-        let jwt: String
-        let expiresAt: Date
+    struct VersionedDTO<DTO: Codable>: Codable {
+        let version: Int
+        let dto: DTO
+    }
 
-        var toDomain: SessionTokens.Token {
-            SessionTokens.Token(jwt: jwt, expiresAt: expiresAt)
+    typealias SessionTokensDTO = SessionTokensSchemaV1.SessionTokensDTO
+
+    enum SessionTokensSchemaV1 {
+        static let version = 1
+
+        struct SessionTokensDTO: Codable {
+            let accessToken: TokenDTO
+            let refreshToken: TokenDTO?
+            let userWalletIDs: [Data]
+
+            var toDomain: SessionTokens {
+                SessionTokens(
+                    accessToken: accessToken.toDomain,
+                    refreshToken: refreshToken?.toDomain,
+                    userWalletIDs: userWalletIDs.map(UserWalletId.init(value:))
+                )
+            }
+
+            init(fromDomain domainModel: SessionTokens) {
+                accessToken = TokenDTO(fromDomain: domainModel.accessToken)
+                refreshToken = domainModel.refreshToken.map(TokenDTO.init)
+                userWalletIDs = domainModel.userWalletIDs.map(\.value)
+            }
         }
 
-        init(fromDomain domainModel: SessionTokens.Token) {
-            jwt = domainModel.jwt
-            expiresAt = domainModel.expiresAt
+        struct TokenDTO: Codable {
+            let jwt: String
+            let expiresAt: Date
+
+            var toDomain: SessionTokens.Token {
+                SessionTokens.Token(jwt: jwt, expiresAt: expiresAt)
+            }
+
+            init(fromDomain domainModel: SessionTokens.Token) {
+                jwt = domainModel.jwt
+                expiresAt = domainModel.expiresAt
+            }
         }
     }
 }

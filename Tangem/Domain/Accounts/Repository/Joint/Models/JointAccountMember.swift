@@ -21,17 +21,19 @@ struct JointAccountMember: Equatable {
     /// these are only ever compared case-insensitively, never as strings.
     let address: String
     let role: Role
+    let isMe: Bool
+    let signature: String?
 }
 
 // MARK: - Convenience
 
 extension JointAccountMember {
-    init(stored: StoredJointAccount.Member) {
+    init(stored: StoredJointAccount.Member, isMe: Bool) {
         let role: Role = switch stored.role {
         case .creator: .creator
         case .member: .member
         }
 
-        self.init(name: stored.name, address: stored.address, role: role)
+        self.init(name: stored.name, address: stored.address, role: role, isMe: isMe, signature: stored.signature)
     }
 }

@@ -23,6 +23,7 @@ protocol WalletConnectConnectedDAppRepository {
     func replaceExistingDApp(with updatedDApp: WalletConnectConnectedDApp) async throws(WalletConnectDAppPersistenceError)
 
     func deleteDApp(with sessionTopic: String) async throws(WalletConnectDAppPersistenceError)
+    func deleteDApps(with sessionTopics: Set<String>) async throws(WalletConnectDAppPersistenceError)
     func delete(dApps: [WalletConnectConnectedDApp]) async throws(WalletConnectDAppPersistenceError)
     func deleteDApps(forUserWalletId userWalletId: String) async throws(WalletConnectDAppPersistenceError) -> [WalletConnectConnectedDApp]
 }

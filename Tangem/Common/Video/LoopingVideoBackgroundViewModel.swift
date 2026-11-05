@@ -37,6 +37,11 @@ final class LoopingVideoBackgroundViewModel: ObservableObject {
         applyAutoplayPreference()
     }
 
+    func pause() {
+        autoplayPreferenceObserver = nil
+        player?.pause()
+    }
+
     func stop() {
         autoplayPreferenceObserver = nil
         player?.pause()

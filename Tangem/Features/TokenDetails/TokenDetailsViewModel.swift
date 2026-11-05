@@ -122,7 +122,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
 
     func openTransactionDetails(_ transaction: TransactionViewModel) {
         if let jointOperation = jointOperation(for: transaction) {
-            coordinator?.openJointAccountOperationDetails(pendingOperation: jointOperation, userWalletInfo: userWalletInfo)
+            coordinator?.openJointAccountOperationDetails(
+                pendingOperation: jointOperation,
+                userWalletInfo: userWalletInfo,
+                addressBookManager: addressBookManager
+            )
             return
         }
 
@@ -180,7 +184,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .openGetTangemPay,
              .closeGetTangemPay,
              .removeTangemPayAccount,
-             .editSlippage:
+             .editSlippage,
+             .linkUserWallet:
             break
         case .openFeeCurrency:
             coordinator?.proceedFeeCurrencyNavigatingDismissOption(
@@ -523,14 +528,18 @@ private extension TokenDetailsViewModel {
 
     private func bindJointOperationDetails(operationId: String) {
         jointOperationsInFlightPublisher
-            .compactMap { operations in operations.first { $0.operation.id == operationId } }
+            .compactMap { operations in operations.first { $0.id == operationId } }
             .timeout(.seconds(Constants.jointOperationAppearanceTimeout), scheduler: DispatchQueue.main)
             .prefix(1)
             .receiveOnMain()
             .sink { [weak self] pendingOperation in
                 guard let self else { return }
 
-                coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation, userWalletInfo: userWalletInfo)
+                coordinator?.openJointAccountOperationDetails(
+                    pendingOperation: pendingOperation,
+                    userWalletInfo: userWalletInfo,
+                    addressBookManager: addressBookManager
+                )
             }
             .store(in: &bag)
     }

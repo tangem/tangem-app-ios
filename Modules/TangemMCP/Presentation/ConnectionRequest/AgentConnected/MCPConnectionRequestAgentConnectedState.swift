@@ -6,13 +6,14 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-// [REDACTED_TODO_COMMENT]
+import enum TangemLocalization.Localization
+
 struct MCPConnectionRequestAgentConnectedState: Equatable {
-    let title = "Agent connected"
+    let title = Localization.mcpConnectionSuccessTitle
     let body: String
-    let doneButtonTitle = "Done"
+    let doneButtonTitle = Localization.commonDone
 
     init(agentName: String) {
-        body = "\(agentName) can now view your balances and request transaction approvals. Revoke access anytime in Connections."
+        body = Localization.mcpConnectionSuccessDescription(agentName)
     }
 }

@@ -14,11 +14,14 @@ struct ExpressAuthorizationPlugin: PluginType {
     let userId: String
     let sessionId: String
     let refcode: String?
+    let isVersionV2: Bool
 
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
         var request = request
 
-        request.headers.add(name: "api-key", value: apiKey)
+        if !isVersionV2 {
+            request.headers.add(name: "api-key", value: apiKey)
+        }
         request.headers.add(name: "user-id", value: userId)
         request.headers.add(name: "session-id", value: sessionId)
 

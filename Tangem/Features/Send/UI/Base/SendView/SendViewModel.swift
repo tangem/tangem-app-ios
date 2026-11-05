@@ -157,10 +157,6 @@ final class SendViewModel: ObservableObject {
         }
     }
 
-    func mainButtonTitle(mainButtonType: SendMainButtonType) -> String {
-        mainButtonUIOptionsProvider.mainButtonTitle(mainButtonType: mainButtonType, flowActionType: flowActionType)
-    }
-
     func mainButtonSigningActionButtonType(mainButtonType: SendMainButtonType) -> SigningActionButtonViewType? {
         mainButtonUIOptionsProvider.mainButtonSigningActionButtonType(mainButtonType: mainButtonType, flowActionType: flowActionType)
     }
@@ -205,8 +201,8 @@ private extension SendViewModel {
     }
 
     @MainActor
-    func proceed(result _: TransactionDispatcherResult) {
-        coordinator?.didDispatchTransaction()
+    func proceed(result: TransactionDispatcherResult) {
+        coordinator?.didDispatchTransaction(result)
         stepsManager.performFinish()
     }
 

@@ -54,6 +54,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         isTurboModeOn: Bool,
         usdcBalanceProvider: any TokenBalanceProvider,
         purchaseInteractor: any CollectiblesPackPurchaseInteractor,
+        relinkStatusProvider: (any CollectiblesRelinkStatusProvider)?,
         routable: (any CollectiblesConfirmOrderRoutable)?,
         revealAssetsPreloader: any CollectiblesRevealAssetsPreloader,
         delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider(),
@@ -91,7 +92,8 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
             ),
         ]
 
-        bind(usdcBalanceProvider: usdcBalanceProvider)
+        bind(usdcBalanceProvider: usdcBalanceProvider, relinkStatusProvider: relinkStatusProvider)
+        restorePendingPurchase()
     }
 
     // MARK: - Methods
@@ -188,7 +190,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     }
 
     func openAgain() {
-        dismissSheet { [weak self] in self?.approve() }
+        dismissSheet { [weak self] in self?.routable?.returnToMachine() }
     }
 
     func sheetDidDismiss() {
@@ -225,6 +227,7 @@ extension CollectiblesConfirmOrderViewModel {
         case balanceUnavailable
         case approve
         case notEnoughFunds
+        case relinkRequired
         case generating
         case confirming
         case opening
@@ -266,7 +269,10 @@ private extension CollectiblesConfirmOrderViewModel {
 // MARK: - Private logic
 
 private extension CollectiblesConfirmOrderViewModel {
-    func bind(usdcBalanceProvider: any TokenBalanceProvider) {
+    func bind(
+        usdcBalanceProvider: any TokenBalanceProvider,
+        relinkStatusProvider: (any CollectiblesRelinkStatusProvider)?
+    ) {
         usdcBalanceProvider.balanceTypePublisher
             .map(Self.balanceState(from:))
             .receive(on: DispatchQueue.main)
@@ -274,6 +280,20 @@ private extension CollectiblesConfirmOrderViewModel {
                 self?.update(balanceState: balanceState)
             }
             .store(in: &bag)
+
+        relinkStatusProvider?.isRelinkRequiredPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateButtonState()
+            }
+            .store(in: &bag)
+    }
+
+    func restorePendingPurchase() {
+        Task { [weak self, purchaseInteractor] in
+            await purchaseInteractor.restorePendingPurchase()
+            self?.updateButtonState()
+        }
     }
 
     func update(balanceState newState: BalanceState) {
@@ -332,6 +352,8 @@ private extension CollectiblesConfirmOrderViewModel {
         updateButtonState()
 
         switch error as? CollectiblesPackPurchaseError {
+        case .relinkRequired:
+            buttonState = .relinkRequired
         case .lowInventory:
             present(.lowInventory)
         case .packUnopened, .openFailed, .prizeNotDelivered:
@@ -341,6 +363,8 @@ private extension CollectiblesConfirmOrderViewModel {
             showError(message: "Your purchase has expired")
         case .paymentFailed(.refunded):
             showError(message: "Your payment has been refunded")
+        case .anotherPurchaseInProgress:
+            showError(message: "Open your other pack first")
         default:
             showError()
         }
@@ -372,6 +396,11 @@ private extension CollectiblesConfirmOrderViewModel {
             return
         case .generated:
             buttonState = .packGenerated
+            return
+        }
+
+        if purchaseInteractor.isPurchaseLocked(machineID: machineID) {
+            buttonState = .relinkRequired
             return
         }
 

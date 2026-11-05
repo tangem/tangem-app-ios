@@ -19,7 +19,8 @@ final class CollectiblesMachineViewModel: ObservableObject {
     private let provider: any CollectiblesMachineProvider
     private let pollInterval: Duration
     private let appStateObserver: AppStateObserver
-    private let hasUnfinishedPurchase: @MainActor () -> Bool
+    private let isPurchaseLocked: @MainActor () -> Bool
+    private let relinkStatusProvider: (any CollectiblesRelinkStatusProvider)?
     private weak var routable: (any CollectiblesMachineRoutable)?
 
     private var machine: CollectiblesMachine
@@ -29,17 +30,13 @@ final class CollectiblesMachineViewModel: ObservableObject {
 
     private(set) var pollingTask: Task<Void, Never>?
 
-    var isOpenLocked: Bool {
-        isRelinkRequired && !hasUnfinishedPurchase()
-    }
-
     // MARK: - Publishers
 
     /// The header and the CTA render straight from the tapped pack, ahead of the first response.
     @Published private(set) var title: String
     @Published private(set) var artworkURL: URL?
     @Published private(set) var openButtonText: String
-    @Published private(set) var isRelinkRequired = false
+    @Published private(set) var isOpenLocked = false
 
     @Published private(set) var details: Details
     /// A purchase parameter, not a setting: it lives as long as the screen and rides along into the order.
@@ -53,21 +50,23 @@ final class CollectiblesMachineViewModel: ObservableObject {
         routable: (any CollectiblesMachineRoutable)?,
         prizePoolProvider: any CollectiblesPrizePoolProvider,
         relinkStatusProvider: (any CollectiblesRelinkStatusProvider)?,
-        hasUnfinishedPurchase: @escaping @MainActor () -> Bool,
+        isPurchaseLocked: @escaping @MainActor () -> Bool,
         provider: any CollectiblesMachineProvider = CollectiblesAPIService(),
         pollInterval: Duration = Constants.defaultPollInterval,
         notificationCenter: NotificationCenter = .default
     ) {
+        self.routable = routable
+        self.provider = provider
+        self.pollInterval = pollInterval
+        self.isPurchaseLocked = isPurchaseLocked
+        self.relinkStatusProvider = relinkStatusProvider
+
         title = pack.machine.name
         artworkURL = pack.machine.artworkURL
         openButtonText = Self.makeOpenButtonText(price: pack.machine.price)
         details = Mapper.map(pack.machine)
         machine = pack.machine
         machineID = pack.id
-        self.routable = routable
-        self.provider = provider
-        self.pollInterval = pollInterval
-        self.hasUnfinishedPurchase = hasUnfinishedPurchase
         prizePoolViewModel = CollectiblesPrizePoolViewModel(machineID: pack.id, provider: prizePoolProvider)
         appStateObserver = AppStateObserver(notificationCenter: notificationCenter)
 
@@ -75,9 +74,12 @@ final class CollectiblesMachineViewModel: ObservableObject {
             self?.updateAppActivity(isActive: !isInBackground)
         }
 
+        isOpenLocked = isPurchaseLocked()
+
         relinkStatusProvider?.isRelinkRequiredPublisher
             .receiveOnMain()
-            .assign(to: &$isRelinkRequired)
+            .map { [isPurchaseLocked] _ in isPurchaseLocked() }
+            .assign(to: &$isOpenLocked)
     }
 
     deinit {
@@ -88,7 +90,9 @@ final class CollectiblesMachineViewModel: ObservableObject {
 
     func onWillAppear() {
         isOnScreen = true
+        isOpenLocked = isPurchaseLocked()
         prizePoolViewModel.load()
+        recheckRelinkStatus()
 
         guard pollingTask == nil else { return }
 
@@ -141,6 +145,12 @@ private extension CollectiblesMachineViewModel {
         return Localization.collectiblesMachineOpenButton(amount)
     }
 
+    func recheckRelinkStatus() {
+        Task { [relinkStatusProvider] in
+            await relinkStatusProvider?.refreshStateSilently()
+        }
+    }
+
     func startPolling(fetchesImmediately: Bool = false) {
         pollingTask?.cancel()
 
@@ -175,6 +185,8 @@ private extension CollectiblesMachineViewModel {
             cancelPolling()
             return
         }
+
+        recheckRelinkStatus()
 
         guard pollingTask == nil else { return }
 

@@ -29,7 +29,7 @@ struct BankDetailsView: View {
         .topNavigation(
             title: viewModel.title,
             subtitle: viewModel.stepSubtitle,
-            onClose: viewModel.onCloseTap
+            close: .enabled(viewModel.onCloseTap)
         )
         .onChange(of: focusedField, perform: viewModel.focusedFieldDidChange(to:))
         .onAppear(perform: viewModel.refresh)

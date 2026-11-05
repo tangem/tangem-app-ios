@@ -161,16 +161,3 @@ private extension CommonWalletCardsBackupReportService {
         case postponed
     }
 }
-
-// MARK: - Error
-
-private extension Error {
-    var isRefusedByBackEnd: Bool {
-        guard let statusCode = asMoyaError?.response?.statusCode else {
-            return false
-        }
-
-        let isRetryableClientError = [408, 429].contains(statusCode)
-        return (400 ... 499).contains(statusCode) && !isRetryableClientError
-    }
-}

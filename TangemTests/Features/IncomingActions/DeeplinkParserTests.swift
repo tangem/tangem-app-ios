@@ -130,6 +130,23 @@ struct DeeplinkParserTests {
         #expect(result == .navigation(.campaigns(CampaignsDeeplink(campaignId: "whale-swap-cashback"))))
     }
 
+    @Test("Keeps the intent id as received")
+    func keepsIntentIdAsReceived() throws {
+        let uppercased = try #require(URL(string: "tangem://intent?id=F37A9311-18FF-49EC-B200-FEE7D2575C8E&source=transaction&type=send"))
+        let lowercased = try #require(URL(string: "tangem://intent?id=f37a9311-18ff-49ec-b200-fee7d2575c8e&source=transaction&type=send"))
+
+        guard
+            case .navigation(.mcpIntent(let uppercasedIntent)) = parser.parse(uppercased),
+            case .navigation(.mcpIntent(let lowercasedIntent)) = parser.parse(lowercased)
+        else {
+            Issue.record("Expected both links to be parsed as intents")
+            return
+        }
+
+        #expect(uppercasedIntent.id == "F37A9311-18FF-49EC-B200-FEE7D2575C8E")
+        #expect(lowercasedIntent.id == "f37a9311-18ff-49ec-b200-fee7d2575c8e")
+    }
+
     @Test(
         "Rejects deeplink with unknown host",
         arguments: [

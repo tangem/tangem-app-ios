@@ -120,7 +120,7 @@ private extension CommonExpressManagerSlippageTests {
             expressAPIProvider: ExpressAPIProviderStub(),
             expressProviderManagerFactory: factory,
             expressRepository: ExpressRepositoryStub(providers: providers),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false, isAPIV2Enabled: false)
         )
     }
 
@@ -188,7 +188,7 @@ private final class ExpressProviderManagerFactorySpy: ExpressProviderManagerFact
             expressFeeProvider: FeeProviderFactoryStub().makeExpressFeeProvider(),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false, isAPIV2Enabled: false)
         )
 
         return ExpressAvailableProvider(context: context, manager: spy)

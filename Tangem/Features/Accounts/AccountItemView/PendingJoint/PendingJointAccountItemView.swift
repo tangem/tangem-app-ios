@@ -28,21 +28,23 @@ struct PendingJointAccountItemView: View {
 
     var body: some View {
         SwiftUI.Button(action: viewModel.onSelect) {
-            VStack(spacing: Constants.contentSpacing) {
+            VStack(spacing: .zero) {
                 header
+                    .padding(Constants.contentPadding)
 
                 if let action = viewModel.action {
                     actionBanner(for: action)
+                        .allowsHitTesting(false)
+                        .padding([.horizontal, .bottom], Constants.contentPadding)
                 }
             }
-            .padding(Constants.contentPadding)
             .frame(maxWidth: .infinity)
             // Inside the label so that the background scales with the content when the plate is pressed
             .background(backgroundColor)
             .cornerRadiusContinuous(cornerRadius)
             .contentShape(.rect)
         }
-        .buttonStyle(.scaled(scaleAmount: Constants.pressedScale, dimmingAmount: Constants.pressedDimming))
+        .buttonStyle(.scaled(dimmingAmount: 0.7))
         .accessibilityIdentifier(AccountsAccessibilityIdentifiers.pendingJointAccountItem(accountName: viewModel.name))
     }
 
@@ -85,39 +87,24 @@ struct PendingJointAccountItemView: View {
     // MARK: - Action banner
 
     private func actionBanner(for action: PendingJointAccountItemViewModel.Action) -> some View {
-        HStack(spacing: Constants.actionBannerSpacing) {
-            icon(for: action)
-                .renderingMode(.template)
-                .foregroundStyle(DesignSystem.Color.iconStatusWarning)
-
-            Text(title(for: action))
-                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
-                .lineLimit(1)
-
-            Spacer(minLength: Constants.actionBannerSpacing)
-
-            DesignSystem.Icons.ChevronRight.regular12.image
-                .renderingMode(.template)
-                .foregroundStyle(DesignSystem.Color.iconSecondary)
-        }
-        .padding(.horizontal, Constants.actionBannerHorizontalPadding)
-        .frame(height: Constants.actionBannerHeight)
-        .frame(maxWidth: .infinity)
-        .background(DesignSystem.Color.bgStatusWarningSubtle)
-        .cornerRadiusContinuous(Constants.actionBannerCornerRadius)
+        ActionMessage(title(for: action), icon: icon(for: action), action: viewModel.onSelect)
+            .variant(.warning)
     }
 
-    private func icon(for action: PendingJointAccountItemViewModel.Action) -> Image {
+    private func icon(for action: PendingJointAccountItemViewModel.Action) -> ImageType {
         switch action {
-        case .invite: DesignSystem.Icons.UserPlus.regular16.image
-        case .activate: DesignSystem.Icons.WalletCheckmark.regular16.image
+        case .invite: DesignSystem.Icons.UserPlus.regular16
+        case .confirm: DesignSystem.Icons.Success.filled16
+        case .waitingForMembers, .waitingForConfirmations: DesignSystem.Icons.Clock.regular16
         }
     }
 
     private func title(for action: PendingJointAccountItemViewModel.Action) -> String {
         switch action {
         case .invite: Localization.jointAccountInviteMembersToJoin
-        case .activate: Localization.jointAccountActivationAccountButtonTitle
+        case .confirm: Localization.jointAccountConfirmSharedAddress
+        case .waitingForMembers(let count): Localization.jointAccountMainWaitingMembers(count)
+        case .waitingForConfirmations(let count): Localization.jointAccountMainWaitingConfirmations(count)
         }
     }
 }
@@ -139,17 +126,7 @@ extension PendingJointAccountItemView: Setupable {
 private extension PendingJointAccountItemView {
     enum Constants {
         static let contentPadding: CGFloat = 12
-        static let contentSpacing: CGFloat = 12
         static let linesSpacing: CGFloat = 4
-
-        static let actionBannerHeight: CGFloat = 32
-        static let actionBannerHorizontalPadding: CGFloat = 12
-        static let actionBannerSpacing: CGFloat = 8
-        static let actionBannerCornerRadius: CGFloat = 20
-
-        /// Matches the press feedback of the expandable plates it stands alongside.
-        static let pressedScale: CGFloat = 0.98
-        static let pressedDimming: CGFloat = 0.7
     }
 }
 
@@ -158,19 +135,20 @@ private extension PendingJointAccountItemView {
 /// Outlives the accounts of the previews below, which hold it weakly.
 private let previewJointAccountDelegate = JointAccountModelDelegateMock()
 
-private let previewInviteURL = URL(string: "https://tangem.com/joint-account/join/preview")
-
 private let previewCreator = JointAccountMember(
     name: "Member 0",
     address: "0x0000000000000000000000000000000000000000",
-    role: .creator
+    role: .creator,
+    isMe: false,
+    signature: nil
 )
 
 private func previewJointAccount(
     status: JointAccountStatus,
     membersCount: Int,
     takenSlotsCount: Int,
-    userRole: JointAccountUserRole = .outsider
+    isCreator: Bool = false,
+    confirmedCount: Int = 0
 ) -> any JointAccountModel {
     CommonJointAccountModel(
         cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
@@ -182,50 +160,63 @@ private func previewJointAccount(
         membersService: JointAccountMembersServiceMock(
             slots: (0 ..< max(membersCount, takenSlotsCount)).map { index -> JointAccountSlot in
                 guard index < takenSlotsCount else {
-                    return .empty(invite: previewInviteURL.map { JointAccountInvite(id: "invite-\(index)", url: $0) })
+                    let slot = JointAccountMemberSlotID(index)
+
+                    return .empty(slot, isCreator ? .invitable : .notInvitable)
                 }
 
                 return .member(
                     JointAccountMember(
                         name: "Member \(index)",
                         address: "0x0000000000000000000000000000000000000000",
-                        role: index == 0 ? .creator : .member
-                    )
+                        role: index == 0 ? .creator : .member,
+                        isMe: index == 0 && isCreator,
+                        signature: index < confirmedCount ? "0x" : nil
+                    ),
+                    .joined
                 )
-            },
-            userRole: userRole
+            }
         ),
+        finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
+            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+            walletModelsManager: WalletModelsManagerMock(),
+            historyDeltaSyncing: MockJointOperationsHistorySyncService()
+        ),
+        userRoleService: JointAccountUserRoleServiceMock(creator: isCreator),
         delegate: previewJointAccountDelegate
     )
 }
+
+private let previewSafeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
+
+private let previewJointAccounts: [any JointAccountModel] = [
+    previewJointAccount(status: .pending, membersCount: 5, takenSlotsCount: 1, isCreator: true),
+    previewJointAccount(status: .pending, membersCount: 5, takenSlotsCount: 2),
+    previewJointAccount(
+        status: .confirming(safeAddress: previewSafeAddress),
+        membersCount: 3,
+        takenSlotsCount: 3,
+        isCreator: true
+    ),
+    previewJointAccount(
+        status: .confirming(safeAddress: previewSafeAddress),
+        membersCount: 3,
+        takenSlotsCount: 3,
+        isCreator: true,
+        confirmedCount: 1
+    ),
+]
 
 #Preview {
     ZStack {
         DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
         VStack(spacing: 8) {
-            PendingJointAccountItemView(
-                viewModel: PendingJointAccountItemViewModel(
-                    jointAccount: previewJointAccount(status: .pending, membersCount: 5, takenSlotsCount: 1),
-                    onTap: {}
-                )
-            )
-            .cornerRadius(24)
-            .backgroundColor(DesignSystem.Color.bgSecondary)
-
-            PendingJointAccountItemView(
-                viewModel: PendingJointAccountItemViewModel(
-                    jointAccount: previewJointAccount(
-                        status: .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
-                        membersCount: 3,
-                        takenSlotsCount: 3,
-                        userRole: .member(previewCreator)
-                    ),
-                    onTap: {}
-                )
-            )
-            .cornerRadius(24)
-            .backgroundColor(DesignSystem.Color.bgSecondary)
+            ForEach(indexed: previewJointAccounts, id: \.0) { _, jointAccount in
+                PendingJointAccountItemView(viewModel: PendingJointAccountItemViewModel(jointAccount: jointAccount, onTap: {}))
+                    .cornerRadius(24)
+                    .backgroundColor(DesignSystem.Color.bgSecondary)
+            }
         }
         .padding(12)
     }

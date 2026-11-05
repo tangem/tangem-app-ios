@@ -33,6 +33,7 @@ final class WalletModelTestsMock: WalletModel {
     var yieldModuleManagerMock: (any YieldModuleManager)?
     var tronAccountActivationStateProviderMock: (any TronAccountActivationStateProvider)?
     var tronGaslessTransactionsBuilderMock: (any TronGaslessTransactionsBuilder)?
+    var solanaGaslessTransactionBuilderMock: (any SolanaGaslessTransactionBuilder)?
     var isCustomMock = false
     var sendingRestrictionsMock: SendingRestrictions?
     private let _updateAfterSendingTransactionCalls = OSAllocatedUnfairLock(initialState: [Bool]())
@@ -254,6 +255,7 @@ final class WalletModelTestsMock: WalletModel {
     var existentialDepositWarning: String? { nil }
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { nil }
     var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { tronGaslessTransactionsBuilderMock }
+    var solanaGaslessTransactionBuilder: (any SolanaGaslessTransactionBuilder)? { solanaGaslessTransactionBuilderMock }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { nil }
 
     // MARK: - CustomStringConvertible

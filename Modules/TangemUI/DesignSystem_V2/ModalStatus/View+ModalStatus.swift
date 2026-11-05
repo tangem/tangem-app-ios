@@ -13,7 +13,6 @@ public extension View {
         isPresented: Binding<Bool>,
         size: ModalSize = .flexible,
         dragIndicator: Visibility = .visible,
-        onClose: (() -> Void)? = nil,
         onDismiss: (() -> Void)? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
@@ -22,7 +21,7 @@ public extension View {
             size: size,
             contentLayout: .intrinsic,
             dragIndicator: dragIndicator,
-            navigation: .closeButton(onClose: onClose),
+            navigation: .closeButton(),
             onDismiss: onDismiss,
             content: content
         )
@@ -32,7 +31,6 @@ public extension View {
         item: Binding<Item?>,
         size: ModalSize = .flexible,
         dragIndicator: Visibility = .visible,
-        onClose: (() -> Void)? = nil,
         onDismiss: (() -> Void)? = nil,
         @ViewBuilder content: @escaping (Item) -> Content
     ) -> some View {
@@ -41,7 +39,7 @@ public extension View {
             size: { _ in size },
             contentLayout: .intrinsic,
             dragIndicator: dragIndicator,
-            navigation: .closeButton(onClose: onClose),
+            navigation: .closeButton(),
             onDismiss: onDismiss,
             content: content
         )

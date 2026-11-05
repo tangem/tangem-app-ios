@@ -27,12 +27,14 @@ struct OverlayView: Identifiable {
     let view: AnyView
     let style: PresentationStyle
     let animated: Bool
+    let onDismiss: (() -> Void)?
 
-    init(id: String, view: some View, style: PresentationStyle, animated: Bool = true) {
+    init(id: String, view: some View, style: PresentationStyle, animated: Bool = true, onDismiss: (() -> Void)? = nil) {
         self.id = id
         self.view = AnyView(view)
         self.style = style
         self.animated = animated
+        self.onDismiss = onDismiss
     }
 
     enum PresentationStyle: Equatable {

@@ -6,17 +6,18 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
-
 public enum DetailsAccessibilityIdentifiers {
-    public static let addressBookButton = "detailsAddressBookButton"
-    public static let buyWalletButton = "detailsBuyWalletButton"
-    public static let getTangemPayButton = "detailsGetTangemPayButton"
-    public static let addNewWallet = "detailsAddNewWalletButton"
-    public static let addWalletTypeHardwareButton = "detailsAddWalletTypeHardwareButton"
-    public static let addWalletTypeMobileButton = "detailsAddWalletTypeMobileButton"
-    public static let appSettings = "detailsAppSettingsButton"
-    public static let contactSupport = "detailsContactSupportButton"
-    public static let termsOfService = "detailsTermsOfServiceButton"
-    public static let appVersion = "detailsAppVersionLabel"
+    private static let prefix = "Details."
+
+    public static let connectionsButton = Self.prefix + "connectionsButton"
+    public static let addressBookButton = Self.prefix + "addressBookButton"
+    public static let buyWalletButton = Self.prefix + "buyWalletButton"
+    public static let getTangemPayButton = Self.prefix + "getTangemPayButton"
+    public static let addNewWallet = Self.prefix + "addNewWalletButton"
+    public static let addWalletTypeHardwareButton = Self.prefix + "addWalletTypeHardwareButton"
+    public static let addWalletTypeMobileButton = Self.prefix + "addWalletTypeMobileButton"
+    public static let appSettingsButton = Self.prefix + "appSettingsButton"
+    public static let contactSupportButton = Self.prefix + "contactSupportButton"
+    public static let termsOfServiceButton = Self.prefix + "termsOfServiceButton"
+    public static let appVersionLabel = Self.prefix + "appVersionLabel"
 }

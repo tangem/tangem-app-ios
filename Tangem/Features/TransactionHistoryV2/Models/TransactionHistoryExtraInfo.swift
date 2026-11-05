@@ -10,10 +10,12 @@ import BlockchainSdk
 
 enum TransactionHistoryExtraInfo: TransactionRecord.ExtraInfo, Hashable {
     case express(TransactionHistoryExpressExtraInfo)
+    case jointOperation(JointOperationHistoryInfo)
 
     var groupingId: String {
         switch self {
         case .express(let info): info.txId
+        case .jointOperation(let info): info.groupingId
         }
     }
 }

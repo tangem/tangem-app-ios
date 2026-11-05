@@ -20,9 +20,6 @@ struct TransactionView: View {
     @ScaledMetric private var iconContainerSide: CGFloat = 40
     @ScaledMetric private var glyphSize: CGFloat = 20
     @ScaledMetric private var warningIconSize: CGFloat = 16
-    @ScaledMetric private var pendingIndicatorSide: CGFloat = 16
-    @ScaledMetric private var pendingIndicatorGlyphSize: CGFloat = 12
-    @ScaledMetric private var pendingIndicatorBorderWidth: CGFloat = 2
 
     private var display: TransactionDisplayModel { viewModel.display }
 
@@ -105,29 +102,7 @@ struct TransactionView: View {
             iconContent
         }
         .frame(width: iconContainerSide, height: iconContainerSide)
-        .overlay(alignment: .bottomTrailing) {
-            if viewModel.isPendingSignature {
-                pendingSignatureIndicator
-            }
-        }
         .accessibilityIdentifier(statusAccessibilityIdentifier)
-    }
-
-    private var pendingSignatureIndicator: some View {
-        Circle()
-            .fill(DesignSystem.Color.bgStatusWarningSubtle)
-            .overlay {
-                DesignSystem.Icons.Clock.regular12.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: pendingIndicatorGlyphSize, height: pendingIndicatorGlyphSize)
-                    .foregroundStyle(DesignSystem.Color.iconStatusWarning)
-            }
-            .overlay {
-                Circle().strokeBorder(DesignSystem.Color.bgPrimary, lineWidth: pendingIndicatorBorderWidth)
-            }
-            .frame(width: pendingIndicatorSide, height: pendingIndicatorSide)
     }
 
     @ViewBuilder
@@ -161,11 +136,7 @@ struct TransactionView: View {
                 .lineLimit(1)
                 .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.transactionItem(key: transactionKey))
 
-            if viewModel.isPendingSignature {
-                Badge(label: Localization.transactionHistoryPending, accessibilityLabel: nil)
-                    .size(.x4)
-                    .appearance(.warning)
-            } else if viewModel.inProgress {
+            if rowStatus == .progress {
                 ProgressDots(style: .small)
             }
         }
@@ -264,17 +235,33 @@ private struct TransactionCashbackBadge: View {
 // MARK: - Status-driven styling
 
 private extension TransactionView {
-    var isFailed: Bool { viewModel.icon.status == .failed }
+    enum RowStatus {
+        case progress
+        case pending
+        case finished
+        case failed
+    }
 
-    var nameColor: Color {
+    var rowStatus: RowStatus {
         if viewModel.isPendingSignature {
-            return DesignSystem.Color.textPrimary
+            return .pending
         }
 
         switch viewModel.icon.status {
-        case .failed, .undefined: return DesignSystem.Color.textAccentRed
-        case .inProgress: return DesignSystem.Color.textAccentBlue
-        case .confirmed: return DesignSystem.Color.textPrimary
+        case .failed, .undefined: return .failed
+        case .inProgress: return .progress
+        case .confirmed: return .finished
+        }
+    }
+
+    var isFailed: Bool { viewModel.icon.status == .failed }
+
+    var nameColor: Color {
+        switch rowStatus {
+        case .failed: DesignSystem.Color.textAccentRed
+        case .progress: DesignSystem.Color.textAccentBlue
+        case .pending: DesignSystem.Color.textStatusWarning
+        case .finished: DesignSystem.Color.textPrimary
         }
     }
 
@@ -283,9 +270,9 @@ private extension TransactionView {
             return tangemPayAmountColor
         }
 
-        switch viewModel.icon.status {
-        case .failed, .undefined, .inProgress: return DesignSystem.Color.textSecondary
-        case .confirmed: return DesignSystem.Color.textPrimary
+        switch rowStatus {
+        case .failed, .progress, .pending: return DesignSystem.Color.textSecondary
+        case .finished: return DesignSystem.Color.textPrimary
         }
     }
 
@@ -306,18 +293,20 @@ private extension TransactionView {
     }
 
     var iconBackgroundColor: Color {
-        switch viewModel.icon.status {
-        case .failed, .undefined: DesignSystem.Color.bgStatusErrorSubtle
-        case .inProgress: DesignSystem.Color.bgStatusInfoSubtle
-        case .confirmed: DesignSystem.Color.bgTransparentPrimary
+        switch rowStatus {
+        case .failed: DesignSystem.Color.bgStatusErrorSubtle
+        case .progress: DesignSystem.Color.bgStatusInfoSubtle
+        case .pending: DesignSystem.Color.bgStatusWarningSubtle
+        case .finished: DesignSystem.Color.bgTransparentPrimary
         }
     }
 
     var iconGlyphColor: Color {
-        switch viewModel.icon.status {
-        case .failed, .undefined: DesignSystem.Color.iconAccentRed
-        case .inProgress: DesignSystem.Color.iconAccentBlue
-        case .confirmed: DesignSystem.Color.iconSecondary
+        switch rowStatus {
+        case .failed: DesignSystem.Color.iconAccentRed
+        case .progress: DesignSystem.Color.iconAccentBlue
+        case .pending: DesignSystem.Color.iconStatusWarning
+        case .finished: DesignSystem.Color.iconSecondary
         }
     }
 }

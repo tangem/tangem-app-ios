@@ -8,8 +8,8 @@
 import struct Foundation.Decimal
 
 /// A swap an AI agent proposed through MCP, fetched by the id a `tangem://intent?...` link carries.
-public struct ExchangeMCPIntent: Hashable, Sendable {
-    public let intentID: String
+public struct ExchangeMCPIntent: Identifiable, Hashable, Sendable {
+    public let id: String
     public let providerID: ExpressProvider.Id
     public let rateType: ExpressProviderRateType
     public let from: Self.Asset
@@ -17,6 +17,7 @@ public struct ExchangeMCPIntent: Hashable, Sendable {
     public let specifiedAmount: Self.SpecifiedAmount
     public let walletID: String
     public let agentID: String
+    public let isHandled: Bool
 }
 
 public extension ExchangeMCPIntent {

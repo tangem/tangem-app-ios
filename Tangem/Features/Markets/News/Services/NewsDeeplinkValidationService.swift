@@ -43,7 +43,7 @@ final class NewsDeeplinkValidationService: NewsDeeplinkValidating {
             event: .newsLinkMismatch,
             params: [
                 .newsId: String(newsId),
-                .source: deeplinkURL,
+                .source: MarketingActivityUid.loggableLink(deeplinkURL),
             ]
         )
 
@@ -57,7 +57,7 @@ final class NewsDeeplinkValidationService: NewsDeeplinkValidating {
 
         var params = error.marketsAnalyticsParams
         params[.newsId] = String(newsId)
-        params[.source] = deeplinkURL
+        params[.source] = MarketingActivityUid.loggableLink(deeplinkURL)
 
         Analytics.log(event: .newsLinkMismatch, params: params)
         return true

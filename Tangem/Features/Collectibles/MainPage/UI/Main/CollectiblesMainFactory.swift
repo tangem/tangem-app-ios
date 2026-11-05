@@ -44,7 +44,13 @@ private extension CollectiblesMainFactory {
     func makeRelinkBannerViewModel(routable: (any CollectiblesMainRoutable)?) -> CollectiblesRelinkBannerViewModel? {
         let openReconnection = makeOpenReconnection(routable: routable)
 
-        return accountModel.map { CollectiblesRelinkBannerViewModel(relinker: $0, openReconnection: openReconnection) }
+        return accountModel.map {
+            CollectiblesRelinkBannerViewModel(
+                relinker: $0,
+                openReconnection: openReconnection,
+                closeCollectibles: { [weak routable] in routable?.closeCollectibles() }
+            )
+        }
     }
 
     func makeOpenReconnection(routable: (any CollectiblesMainRoutable)?) -> (@MainActor () -> Void)? {

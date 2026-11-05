@@ -11,8 +11,8 @@ import Combine
 import BlockchainSdk
 import TangemFoundation
 
-/// The Safe address of a joint account: nil until it is activated, since only `JointAccountStatus.active` carries one,
-/// and nil for one whose composition does not resolve to it — see `JointAccountSafeAddressVerifier`.
+/// The Safe address a joint account's wallets are built at: nil until the account is active, although
+/// `JointAccountStatus.confirming` carries the address already, and nil for an untrusted account.
 protocol JointAccountSafeAddressProvider {
     var safeAddress: String? { get }
     var safeAddressPublisher: AnyPublisher<String?, Never> { get }
@@ -31,27 +31,21 @@ struct JointAccountsRepositorySafeAddressProvider {
         cryptoAccountId = CryptoAccountModelId(userWalletId: userWalletId, derivationIdentity: derivationIdentity).rawValue.hexString
     }
 
-    /// Checked on every read rather than once on activation: a member who did not activate the account never had it
-    /// checked otherwise, and any refresh can bring a different address along.
     private func safeAddress(in storedJointAccounts: [StoredJointAccount]) -> String? {
         guard
             let storedJointAccount = storedJointAccounts.first(by: cryptoAccountId),
-            case .active(let announcedSafeAddress) = storedJointAccount.status
+            let statusSafeAddress = safeAddress(of: storedJointAccount.status)
         else {
             return nil
         }
 
-        do {
-            let confirmedSafeAddress = try JointAccountSafeAddressVerifier.confirm(
-                announcedAddress: announcedSafeAddress,
-                owners: storedJointAccount.members.map(\.address),
-                threshold: storedJointAccount.threshold
-            )
+        return EVMAddressUtils.toChecksumAddress(statusSafeAddress) ?? statusSafeAddress
+    }
 
-            return EVMAddressUtils.toChecksumAddress(confirmedSafeAddress) ?? confirmedSafeAddress
-        } catch {
-            JointAccountsLogger.error("The Safe of a joint account does not resolve to the composition it is stored with", error: error)
-            return nil
+    private func safeAddress(of status: JointAccountStatus) -> String? {
+        switch status {
+        case .active(let safeAddress): safeAddress
+        case .pending, .confirming, .untrusted, .cancelled, .unknown: nil
         }
     }
 }

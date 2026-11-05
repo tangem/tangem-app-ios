@@ -16,8 +16,9 @@ enum MCPConnectionRequestAction {
     case openSystemSettingsButtonTapped
 
     case userWalletSelectorTapped
+    case userWalletSelectionRequested(MCPUserWallet)
     case userWalletSelectionUpdated(MCPUserWallet)
-    case userWalletSelectorAutoCloseDelayElapsed
+    case unregisteredUserWalletSelected
 
     case fetchRequestFailed(MCPConnectionClientError)
     case agentConnectionRejected(Result<Void, MCPConnectionClientError>)
