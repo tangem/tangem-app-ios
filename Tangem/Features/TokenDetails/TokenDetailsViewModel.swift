@@ -184,7 +184,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .openGetTangemPay,
              .closeGetTangemPay,
              .removeTangemPayAccount,
-             .editSlippage:
+             .editSlippage,
+             .linkUserWallet:
             break
         case .openFeeCurrency:
             coordinator?.proceedFeeCurrencyNavigatingDismissOption(

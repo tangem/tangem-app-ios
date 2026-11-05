@@ -77,6 +77,7 @@ enum NotificationButtonActionType: Identifiable {
     case openAppStore
     case removeTangemPayAccount
     case editSlippage
+    case linkUserWallet(signingActionButtonType: SigningActionButtonViewType)
 
     var id: Int {
         switch self {
@@ -123,6 +124,7 @@ enum NotificationButtonActionType: Identifiable {
         case .openAppStore: "openAppStore".hashValue
         case .removeTangemPayAccount: "removeTangemPayAccount".hashValue
         case .editSlippage: "editSlippage".hashValue
+        case .linkUserWallet: "linkUserWallet".hashValue
         }
     }
 
@@ -206,6 +208,10 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.forceUpdateButton
         case .removeTangemPayAccount:
             return Localization.tangempayRemoveAccount
+        case .linkUserWallet(.requiredNFCInteraction):
+            return Localization.commonScanCard
+        case .linkUserWallet(.holdToConfirm):
+            return Localization.commonConfirm
         }
     }
 
@@ -216,6 +222,8 @@ enum NotificationButtonActionType: Identifiable {
              .unlock(let icon),
              .renewTangemPaySession(let icon):
             return icon
+        case .linkUserWallet(let signingActionButtonType):
+            return signingActionButtonType.mainButtonIcon
         case .swap:
             return .leading(Assets.exchangeMini)
         case .backupCard,
@@ -272,7 +280,8 @@ enum NotificationButtonActionType: Identifiable {
              .openGetTangemPay,
              .allowPushPermissionRequest,
              .activate,
-             .openYieldBoostPromo:
+             .openYieldBoostPromo,
+             .linkUserWallet:
             return .primary
         case .backupCard,
              .openFeeCurrency,
