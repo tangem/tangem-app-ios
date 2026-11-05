@@ -30,7 +30,7 @@ public struct MCPAgent: Equatable, Sendable {
     }
 }
 
-extension MCPAgent {
+public extension MCPAgent {
     static let fallbackName = "AI Agent"
     static let fallbackHost = "mcp.tangem.org"
 }

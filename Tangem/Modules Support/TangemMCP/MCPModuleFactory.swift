@@ -10,6 +10,7 @@ import Combine
 import Foundation
 import class UIKit.UIApplication
 import class UIKit.UIImage
+import class Kingfisher.ImageCache
 import enum TangemBackendAuthentication.BackendAuthenticationAssembly
 import TangemFoundation
 import TangemLocalization
@@ -27,6 +28,8 @@ enum MCPModuleFactory {
     private static let blockchainImageAssetProvider = NetworkImageProvider()
     private static let tokenIconURLBuilder = IconURLBuilder()
 
+    static let kingfisherImageCache = ImageCache(name: "com.tangem.mcp.icons")
+
     static func configure() {
         guard FeatureProvider.isAvailable(.mcp) else { return }
 
@@ -37,6 +40,7 @@ enum MCPModuleFactory {
             requestRetrier: BackendAuthenticationAssembly.requestRetrier,
             authorizationAnalyticsReporter: CommonMCPAuthorizationAnalyticsReporter(),
             sessionsAnalyticsReporter: CommonMCPSessionsAnalyticsReporter(),
+            kingfisherImageCache: kingfisherImageCache,
             logger: MCPLogger
         )
 
@@ -46,7 +50,8 @@ enum MCPModuleFactory {
     @MainActor
     static func makeConnectionRequestViewModel(
         userCode: String,
-        sheetClosedAction: @escaping () -> Void = {}
+        preselectedUserWalletID: UserWalletId? = nil,
+        connectionAcceptedAction: @escaping (UserWalletId) -> Void = { _ in }
     ) -> MCPConnectionRequestViewModel? {
         guard FeatureProvider.isAvailable(.mcp) else {
             return nil
@@ -58,7 +63,7 @@ enum MCPModuleFactory {
             return nil
         }
 
-        let selectedUserWalletID = userWalletRepository.selectedModel?.userWalletId
+        let selectedUserWalletID = preselectedUserWalletID ?? userWalletRepository.selectedModel?.userWalletId
         let selectedUserWallet = userWallets.first { $0.id == selectedUserWalletID } ?? userWallets[0]
 
         CommonMCPAuthorizationAnalyticsReporter().reportConnectionReceived()
@@ -85,9 +90,9 @@ enum MCPModuleFactory {
                     )
                 )
             },
+            connectionAcceptedAction: connectionAcceptedAction,
             closeAction: { [weak floatingSheetPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
-                sheetClosedAction()
             }
         )
     }

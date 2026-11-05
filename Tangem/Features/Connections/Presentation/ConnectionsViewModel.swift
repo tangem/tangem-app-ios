@@ -8,6 +8,7 @@
 
 import struct Combine.Published
 import protocol Combine.ObservableObject
+import struct TangemFoundation.UserWalletId
 import enum TangemLocalization.Localization
 import struct TangemLogger.Logger
 import TangemMCP
@@ -25,7 +26,10 @@ final class ConnectionsViewModel: ObservableObject {
     private var connectedDAppsUpdatesTask: Task<Void, Never>?
     private var extendConnectedDAppSessionsTask: Task<Void, Never>?
     private var fetchMCPSessionsTask: Task<Void, Never>?
+    private var newMCPSessionPollingTask: Task<Void, Never>?
     private var disconnectAllTask: Task<Void, Never>?
+
+    private static let newMCPSessionFetchDelays: [Duration] = [.seconds(2), .seconds(2), .seconds(3), .seconds(3), .seconds(5)]
 
     @Published private(set) var state: ConnectionsViewState
 
@@ -58,6 +62,7 @@ final class ConnectionsViewModel: ObservableObject {
         connectedDAppsUpdatesTask?.cancel()
         extendConnectedDAppSessionsTask?.cancel()
         fetchMCPSessionsTask?.cancel()
+        newMCPSessionPollingTask?.cancel()
         disconnectAllTask?.cancel()
     }
 }
@@ -125,14 +130,22 @@ extension ConnectionsViewModel {
             handleWalletConnectQRScanResult(uri: uri, source: source)
 
         case .mcpConnectionRequest(let userCode, _):
-            coordinator?.openMCPConnectionRequest(userCode: userCode, sheetClosedAction: { [weak self] in
-                self?.fetchMCPSessions()
-            })
+            coordinator?.openMCPConnectionRequest(
+                userCode: userCode,
+                preselectedUserWalletID: state.selectedTabID,
+                connectionAcceptedAction: { [weak self] userWalletID in
+                    self?.pollForNewMCPSession(userWalletID: userWalletID)
+                }
+            )
         }
     }
 
     private func handleWalletConnectQRScanResult(uri: WalletConnectRequestURI, source: ConnectionsQRScanResult.Source) {
-        let walletConnectAvailability = userWalletRepository.selectedModel?.config.getFeatureAvailability(.walletConnect)
+        let selectedUserWalletID = state.selectedTabID
+        let walletConnectAvailability = userWalletRepository.models
+            .first { $0.userWalletId == selectedUserWalletID }?
+            .config
+            .getFeatureAvailability(.walletConnect)
 
         if case .disabled(let localizedReason) = walletConnectAvailability {
             let alert = ConnectionsViewState.ModalDialog.Alert.walletConnectFeatureDisabled(
@@ -145,10 +158,10 @@ extension ConnectionsViewModel {
 
         switch source {
         case .qrCode:
-            coordinator?.openDAppConnectionProposal(forURI: uri, source: .qrCode)
+            coordinator?.openDAppConnectionProposal(forURI: uri, source: .qrCode, preselectedUserWalletID: selectedUserWalletID)
 
         case .clipboard:
-            coordinator?.openDAppConnectionProposal(forURI: uri, source: .clipboard)
+            coordinator?.openDAppConnectionProposal(forURI: uri, source: .clipboard, preselectedUserWalletID: selectedUserWalletID)
         }
     }
 
@@ -164,6 +177,16 @@ extension ConnectionsViewModel {
     }
 
     private func handleMCPSessionsReloadButtonTapped() {
+        let isAlreadyReloading = state.tabs.contains { tab in
+            guard case .failed(let failedState) = tab.mcpSessionsSection.state else {
+                return false
+            }
+
+            return failedState.isReloading
+        }
+
+        guard !isAlreadyReloading else { return }
+
         var tabs = state.tabs
 
         for index in tabs.indices {
@@ -186,6 +209,7 @@ extension ConnectionsViewModel {
     private func disconnectAll() {
         disconnectAllTask?.cancel()
         fetchMCPSessionsTask?.cancel()
+        stopPollingForNewMCPSession()
 
         let disconnectAllDApps = interactor.disconnectAllDApps
         let revokeDeviceMCPSessions = interactor.revokeDeviceMCPSessions
@@ -362,12 +386,96 @@ extension ConnectionsViewModel {
         }
     }
 
+    private func pollForNewMCPSession(userWalletID: UserWalletId) {
+        stopPollingForNewMCPSession()
+        fetchMCPSessionsTask?.cancel()
+
+        let knownSessionIDs = knownMCPSessionIDs(of: userWalletID)
+        updateAwaitingNewMCPSession(true, userWalletID: userWalletID)
+
+        newMCPSessionPollingTask = Task { [
+            weak self,
+            fetchSessions = interactor.fetchMCPSessions,
+            fetchDelays = Self.newMCPSessionFetchDelays,
+            logger
+        ] in
+            var hasFetchedSessions = false
+
+            for fetchDelay in fetchDelays {
+                do {
+                    try await Task.sleep(for: fetchDelay)
+                } catch {
+                    return
+                }
+
+                do throws(MCPSessionClientError) {
+                    let sessions = try await fetchSessions()
+
+                    guard !Task.isCancelled else { return }
+
+                    hasFetchedSessions = true
+                    logger.debug("Fetched \(sessions.count) MCP sessions while waiting for a new one")
+                    self?.updateMCPSessionsSections(with: sessions)
+
+                    if let knownSessionIDs, sessions.contains(where: { $0.userWalletID == userWalletID && !knownSessionIDs.contains($0.id) }) {
+                        break
+                    }
+                } catch {
+                    guard !Task.isCancelled else { return }
+
+                    logger.error("Failed to fetch MCP sessions while waiting for a new one", error: error)
+                }
+            }
+
+            if !hasFetchedSessions, knownSessionIDs == nil {
+                self?.updateMCPSessionsSectionsWithFailure()
+            }
+
+            self?.updateAwaitingNewMCPSession(false, userWalletID: userWalletID)
+        }
+    }
+
+    private func knownMCPSessionIDs(of userWalletID: UserWalletId) -> Set<MCPSession.ID>? {
+        guard
+            let tab = state.tabs.first(where: { $0.id == userWalletID }),
+            case .content(let sessionRows) = tab.mcpSessionsSection.state
+        else {
+            return nil
+        }
+
+        return Set(sessionRows.map(\.id))
+    }
+
+    private func stopPollingForNewMCPSession() {
+        newMCPSessionPollingTask?.cancel()
+        newMCPSessionPollingTask = nil
+
+        var tabs = state.tabs
+
+        for index in tabs.indices {
+            tabs[index].mcpSessionsSection.isAwaitingNewSession = false
+        }
+
+        state.tabs = tabs
+    }
+
+    private func updateAwaitingNewMCPSession(_ isAwaitingNewSession: Bool, userWalletID: UserWalletId) {
+        guard let index = state.tabs.firstIndex(where: { $0.id == userWalletID }) else {
+            return
+        }
+
+        state.tabs[index].mcpSessionsSection.isAwaitingNewSession = isAwaitingNewSession
+    }
+
     private func updateMCPSessionsSections(with sessions: [MCPSession]) {
         let sessionsByUserWalletID = Dictionary(grouping: sessions, by: \.userWalletID)
         var tabs = state.tabs
 
         for index in tabs.indices {
-            tabs[index].mcpSessionsSection.state = .content(sessionsByUserWalletID[tabs[index].id] ?? [])
+            let sessionRows = (sessionsByUserWalletID[tabs[index].id] ?? []).map(
+                ConnectionsViewState.UserWalletTab.MCPSessionsSection.SessionRow.init(session:)
+            )
+            tabs[index].mcpSessionsSection.state = .content(sessionRows)
         }
 
         state.tabs = tabs
