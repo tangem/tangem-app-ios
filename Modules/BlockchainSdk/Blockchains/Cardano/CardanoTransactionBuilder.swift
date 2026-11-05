@@ -276,6 +276,10 @@ private extension CardanoTransactionBuilder {
         option: BuildCardanoSigningInputOption,
         tokenAmount: TokenAmount?
     ) throws -> CardanoSigningInput {
+        if CardanoAddressUtils.isShelleyAddress(destination), !CardanoAddressUtils.isValidShelleyAddress(destination) {
+            throw CardanoError.invalidDestinationAddress
+        }
+
         var input = try CardanoSigningInput.with {
             $0.utxos = try buildTxInput()
 
