@@ -12,10 +12,12 @@ extension CollectiblesDTO {
     struct PurchaseTransactionRequest: Encodable {
         let txID: String
         var includeNftWon: Bool?
+        var includeAutoBuyback: Bool?
 
         private enum CodingKeys: String, CodingKey {
             case txID = "txId"
             case includeNftWon
+            case includeAutoBuyback
         }
     }
 }

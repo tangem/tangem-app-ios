@@ -185,7 +185,7 @@ struct CollectiblesAPIServiceTests {
         }
     }
 
-    @Test("open-pack sends the transaction id in the body and asks for the won card in the query")
+    @Test("open-pack sends the transaction id in the body and asks for the won card and the auto buyback in the query")
     func openPackRequest() async throws {
         CollectiblesStubURLProtocol.responses = [
             Data(#"{"txId":"tx-1","status":"pack-opened","nftWon":null}"#.utf8),
@@ -197,6 +197,18 @@ struct CollectiblesAPIServiceTests {
         #expect(body["txId"] as? String == "tx-1")
         #expect(body.count == 1)
         #expect(Self.queryValue("includeNftWon", of: CollectiblesStubURLProtocol.requests.first) == "true")
+        #expect(Self.queryValue("includeAutoBuyback", of: CollectiblesStubURLProtocol.requests.first) == "true")
+    }
+
+    @Test("The purchase status asks for the won card and the auto buyback in the query")
+    func purchaseStatusAsksForWonCardAndAutoBuyback() async throws {
+        CollectiblesStubURLProtocol.responses = [Data(#"{"txId":"tx-1","status":"auto-buybacked"}"#.utf8)]
+
+        _ = try await makeSUT().loadPurchaseStatus(txID: "tx-1", userWalletID: "wallet-1")
+
+        #expect(Self.queryValue("txId", of: CollectiblesStubURLProtocol.requests.first) == "tx-1")
+        #expect(Self.queryValue("includeNftWon", of: CollectiblesStubURLProtocol.requests.first) == "true")
+        #expect(Self.queryValue("includeAutoBuyback", of: CollectiblesStubURLProtocol.requests.first) == "true")
     }
 
     // MARK: - Buyback
@@ -227,7 +239,7 @@ struct CollectiblesAPIServiceTests {
     func readsAutoSoldPayout(toAmount: String, toDecimals: Int, payout: Decimal?) async throws {
         let buyback = #"{"toAmount":"\#(toAmount)","toDecimals":\#(toDecimals)}"#
         CollectiblesStubURLProtocol.responses = [
-            Data(#"{"txId":"tx-1","status":"pack-opened","nftWon":null,"buyback":\#(buyback)}"#.utf8),
+            Data(#"{"txId":"tx-1","status":"pack-opened","nftWon":null,"autoBuyback":\#(buyback)}"#.utf8),
         ]
 
         let transaction = try await makeSUT().loadPurchaseStatus(txID: "tx-1", userWalletID: "wallet-1")
