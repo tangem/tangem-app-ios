@@ -481,9 +481,9 @@ final class MainViewModel: ObservableObject {
         if let accountModels {
             params[.accountsCount] = String(accountModels.cryptoAccountsCount)
 
-            let jointAccounts = accountModels.jointAccounts
-            params[.jointAccountsCount] = String(jointAccounts.filter { $0.status.isActive }.count)
-            params[.pendingJointAccountsCount] = String(jointAccounts.filter { $0.status.isPending || $0.status.isConfirming }.count)
+            let jointAccountStatuses = accountModels.jointAccounts.map { $0.jointAccountStatusProvider.status }
+            params[.jointAccountsCount] = String(jointAccountStatuses.filter(\.isActive).count)
+            params[.pendingJointAccountsCount] = String(jointAccountStatuses.filter { $0.isPending || $0.isConfirming }.count)
         }
 
         params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
