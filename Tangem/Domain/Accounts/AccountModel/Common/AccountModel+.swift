@@ -45,6 +45,16 @@ extension JointAccounts {
 }
 
 extension Array where Element == AccountModel {
+    var jointAccounts: JointAccounts {
+        flatMap { accountModel in
+            if case .joint(let jointAccounts) = accountModel {
+                return jointAccounts
+            }
+
+            return []
+        }
+    }
+
     func firstStandard() -> AccountModel? {
         first { account in
             if case .standard = account {

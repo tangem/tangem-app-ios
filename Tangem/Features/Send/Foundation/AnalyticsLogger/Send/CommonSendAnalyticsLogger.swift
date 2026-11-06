@@ -26,6 +26,14 @@ class CommonSendAnalyticsLogger {
         sendSourceTokenInput?.sourceToken.value?.tokenItem
     }
 
+    private var jointAccountPolicy: JointAccountPolicy? {
+        guard case .joint(let policy) = sendSourceTokenInput?.sourceToken.value?.accountType else {
+            return nil
+        }
+
+        return policy
+    }
+
     private var receiveTokenItem: TokenItem? {
         sendReceiveTokenInput?.receiveToken.value?.tokenItem
     }
@@ -58,6 +66,33 @@ class CommonSendAnalyticsLogger {
 
     private func buildRateTypeAnalyticsValue() -> String? {
         sendSwapProvidersInput?.currentRateType?.analyticsValue.rawValue
+    }
+
+    private func buildFeeTypeAnalyticsValue(selectedFee: FeeOption?) -> Analytics.ParameterValue {
+        guard jointAccountPolicy == nil else {
+            return .fixed
+        }
+
+        return SendAnalyticsHelper.makeFeeTypeParameter(
+            selectedFee: selectedFee,
+            supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false
+        )
+    }
+
+    private func buildJointAccountAnalyticsParameters() -> [Analytics.ParameterKey: String] {
+        guard let jointAccountPolicy else {
+            return [:]
+        }
+
+        return [
+            .membersCount: "\(jointAccountPolicy.membersCount)",
+            .threshold: "\(jointAccountPolicy.signersCount)",
+        ]
+    }
+
+    private func buildSourceAccountTypeAnalyticsParameters() -> [Analytics.ParameterKey: String] {
+        sendSourceTokenInput?.sourceToken.value?.accountModelAnalyticsProvider?
+            .analyticsParameters(with: AccountTypeAnalyticsBuilder()) ?? [:]
     }
 
     private func buildAccountAnalyticsParameters() -> [Analytics.ParameterKey: String] {
@@ -790,7 +825,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         default: .sendTransactionSentScreenOpened
         }
 
-        let feeTypeAnalyticsParameter = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: sendFeeInput?.selectedFee?.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
+        let feeTypeAnalyticsParameter = buildFeeTypeAnalyticsValue(selectedFee: sendFeeInput?.selectedFee?.option)
 
         var analyticsParameters: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol,
@@ -809,8 +844,13 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(for: selectedFee.value.value).rawValue
         }
 
+        if jointAccountPolicy != nil {
+            analyticsParameters[.nonce] = Analytics.ParameterValue.no.rawValue
+        }
+
         // Merge account analytics (source + destination)
         analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
+        analyticsParameters.merge(buildJointAccountAnalyticsParameters()) { $1 }
 
         Analytics.log(
             event: event,
@@ -961,6 +1001,11 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             return
         }
 
+        guard jointAccountPolicy == nil else {
+            Analytics.logJointAccountError(source: .createOperation, error: error)
+            return
+        }
+
         Analytics.log(event: .sendErrorTransactionRejected, params: [
             .token: tokenItem.currencySymbol,
             .errorCode: "\(error.universalErrorCode)",
@@ -982,7 +1027,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             return
         }
 
-        let feeType = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: fee, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
+        let feeType = buildFeeTypeAnalyticsValue(selectedFee: fee)
 
         // If the blockchain doesn't support additional field -- return null
         // Otherwise return full / empty
@@ -1006,6 +1051,9 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFee.tokenItem)
             params[.feeAssetType] = Analytics.ParameterValue.feeAssetType(for: tokenFee.value.value).rawValue
         }
+
+        params.merge(buildSourceAccountTypeAnalyticsParameters()) { $1 }
+        params.merge(buildJointAccountAnalyticsParameters()) { $1 }
 
         Analytics.log(
             event: .transactionSent,

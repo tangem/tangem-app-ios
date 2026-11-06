@@ -31,7 +31,10 @@ final class PairedAccountAnalyticsBuilder: AccountsAnalyticsBuilder {
         }
 
         // The parameter has always been numeric, and both kinds of account report the bare index they are numbered by
-        return [role.analyticsKey: "\(derivationIdentity.derivationIndex)"]
+        return [
+            role.analyticsKey: "\(derivationIdentity.derivationIndex)",
+            role.accountTypeKey: derivationIdentity.type.analyticsValue.rawValue,
+        ]
     }
 }
 
@@ -44,6 +47,13 @@ extension PairedAccountAnalyticsBuilder {
             switch self {
             case .source: .accountDerivationFrom
             case .destination: .accountDerivationTo
+            }
+        }
+
+        var accountTypeKey: Analytics.ParameterKey {
+            switch self {
+            case .source: .accountTypeFrom
+            case .destination: .accountTypeTo
             }
         }
     }

@@ -85,13 +85,16 @@ extension CommonJointAccountPendingOperationsRepository: JointAccountPendingOper
         return operation
     }
 
-    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data, forCryptoAccountId cryptoAccountId: String) async throws {
+    @discardableResult
+    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation {
         guard isJointAccountsAvailable else {
             throw InternalError.featureUnavailable
         }
 
         let operation = try await networkService.signOperation(id: id, safeTransaction: safeTransaction, signature: signature)
         try await synchronizer.apply(.localOperation(operation, cryptoAccountId: cryptoAccountId))
+
+        return operation
     }
 
     func rejectOperation(id: String, forCryptoAccountId cryptoAccountId: String) async throws {

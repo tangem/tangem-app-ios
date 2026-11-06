@@ -361,6 +361,12 @@ extension Analytics {
         case accountSourceNew = "New Account"
         case accountSourceArchive = "Archive"
 
+        // MARK: - Account Type
+
+        case accountTypeCrypto = "Crypto"
+        case accountTypeJoint = "Joint"
+        case accountTypeCollectibles = "Collectibles"
+
         // MARK: - Swap
 
         case simple

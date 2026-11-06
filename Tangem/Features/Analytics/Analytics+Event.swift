@@ -1121,6 +1121,18 @@ extension Analytics {
         case backendAuthWalletRegistrationFailed = "[Backend Auth] Wallet Registration Failed"
         case backendAuthButtonLinkWallet = "[Backend Auth] Button - Link Wallet"
 
+        // MARK: - Joint Account
+
+        case jointAccountButtonCreateJointAccount = "[Joint Account] Button - Create Joint Account"
+        case jointAccountIntroScreenOpened = "[Joint Account] Intro Screen Opened"
+        case jointAccountCreated = "[Joint Account] Joint Account Created"
+        case jointAccountInviteLinkOpened = "[Joint Account] Invite Link Opened"
+        case jointAccountJoined = "[Joint Account] Account Joined"
+        case jointAccountOperationSigned = "[Joint Account] Operation Signed"
+        case jointAccountError = "[Joint Account] Joint Account Error"
+        case jointAccountNoticeAccountsLimitReached = "[Joint Account] Notice - Accounts Limit Reached"
+        case jointAccountFakedoorPopupDisplayed = "[Joint Account] Fakedoor Popup Displayed"
+
         // MARK: - MCP Authorization
 
         case mcpAuthorizationConnectionReceived = "[MCP Authorization] Connection Received"

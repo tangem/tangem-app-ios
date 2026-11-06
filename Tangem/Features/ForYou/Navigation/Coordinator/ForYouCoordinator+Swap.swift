@@ -101,6 +101,10 @@ private extension ForYouCoordinator {
         }
 
         if let swapUnavailableAlert {
+            if case .from = direction, availabilityProvider.swapSourceAvailability().isJointAccountsComingSoon {
+                Analytics.logJointAccountFakedoorPopupDisplayed(source: .mainScreenSwap, action: .swap, tokenItem: walletModel.tokenItem)
+            }
+
             alertPresenter.present(alert: swapUnavailableAlert)
             return
         }

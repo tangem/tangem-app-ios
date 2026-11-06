@@ -48,6 +48,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     }
 
     private let alertPresenter: AlertPresenter
+    private let analyticsLogger: any JointAccountOperationAnalyticsLogger
     private let blockchain: BSDKBlockchain
     private let addressBookWallet: AddressBookWallet
     private let recipientSource: JointAccountOperationRecipientSource
@@ -66,6 +67,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         addressBookWallet: AddressBookWallet,
         recipientSource: JointAccountOperationRecipientSource,
         coordinator: JointAccountOperationDetailsRoutable?,
+        analyticsLogger: any JointAccountOperationAnalyticsLogger,
         addressBookAnalyticsLogger: AddressBookAnalyticsLogger = CommonAddressBookAnalyticsLogger(),
         alertPresenter: AlertPresenter = InjectedValues[\.alertPresenter]
     ) {
@@ -75,6 +77,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         self.coordinator = coordinator
         self.addressBookAnalyticsLogger = addressBookAnalyticsLogger
         self.alertPresenter = alertPresenter
+        self.analyticsLogger = analyticsLogger
         blockchain = pendingOperation.tokenItem.blockchain
         signingActionButtonType = SigningActionButtonViewTypeBuilder().build(userWalletInfo: addressBookWallet.wallet)
         recipientContext = RecipientContext(contacts: recipientSource.contacts, isAddressBookSynced: false, tangemPayDepositOwners: [])
@@ -217,11 +220,13 @@ private extension JointAccountOperationDetailsViewModel {
         defer { isProcessing = false }
 
         do {
-            try await pendingOperation.sign()
+            let operation = try await pendingOperation.sign()
+            analyticsLogger.logOperationSigned(operation)
         } catch let error where error.isCancellationError {
             return
         } catch {
             JointAccountsLogger.error("Failed to sign a joint account operation", error: error)
+            analyticsLogger.logSigningFailed(error: error)
             alertPresenter.present(alert: JointAccountOperationSigningErrorAlert(error: error).alertBinder)
         }
     }
@@ -251,6 +256,8 @@ private extension JointAccountOperationDetailsViewModel {
     func reject() async {
         defer { isProcessing = false }
 
+        let isInitiator = pendingOperation.initiator.isMe
+
         do {
             try await pendingOperation.reject()
         } catch let error where error.isCancellationError {
@@ -260,6 +267,7 @@ private extension JointAccountOperationDetailsViewModel {
             return
         } catch let error as TangemAPIError where error.code == .conflict {
             JointAccountsLogger.error("Failed to reject a joint account operation", error: error)
+            analyticsLogger.logRejectionFailed(error: error, isInitiator: isInitiator)
             alertPresenter.present(alert: AlertBuilder.makeAlertWithDefaultPrimaryButton(
                 title: Localization.jointOperationThresholdReachedTitle,
                 message: Localization.jointOperationThresholdReachedSubtitle,
@@ -269,6 +277,7 @@ private extension JointAccountOperationDetailsViewModel {
             return
         } catch {
             JointAccountsLogger.error("Failed to reject a joint account operation", error: error)
+            analyticsLogger.logRejectionFailed(error: error, isInitiator: isInitiator)
             alertPresenter.present(alert: JointAccountOperationSigningErrorAlert(error: error).alertBinder)
             return
         }
