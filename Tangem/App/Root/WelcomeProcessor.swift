@@ -20,8 +20,11 @@ final class WelcomeProcessor {
 
     private var bag: Set<AnyCancellable> = []
 
-    init(isIdle: AnyPublisher<Bool, Never>) {
-        bind(isIdle: isIdle)
+    init(
+        isIdle: AnyPublisher<Bool, Never>,
+        isMobileWalletAvailable: Bool = MobileWalletFeatureProvider().isAvailable
+    ) {
+        bind(isIdle: isIdle, isMobileWalletAvailable: isMobileWalletAvailable)
     }
 
     deinit {
@@ -32,9 +35,20 @@ final class WelcomeProcessor {
     /// and subscribing in the same call means a flag that flips in between can't slip through. `isIdle` holds
     /// each reaction until the user is back on the Welcome screen, so we don't present over a screen they
     /// navigated to themselves.
-    private func bind(isIdle: AnyPublisher<Bool, Never>) {
+    private func bind(isIdle: AnyPublisher<Bool, Never>, isMobileWalletAvailable: Bool) {
+        guard isMobileWalletAvailable else {
+            bindPromo(isIdle: isIdle)
+            discardTangemPayRequests()
+            return
+        }
+
         state = State(startupOnboarding: WelcomeOnboardingsHelper().getStartupOnboarding())
 
+        bindPromo(isIdle: isIdle)
+        bindTangemPay(isIdle: isIdle)
+    }
+
+    private func bindPromo(isIdle: AnyPublisher<Bool, Never>) {
         AppSettings.shared.$shouldShowMobilePromoWalletSelector
             .filter { $0 }
             .combineLatest(isIdle)
@@ -46,7 +60,9 @@ final class WelcomeProcessor {
                 processor.setDeepLink(.promo)
             }
             .store(in: &bag)
+    }
 
+    private func bindTangemPay(isIdle: AnyPublisher<Bool, Never>) {
         AppSettings.shared.$needsTangemPayMobileOnboarding
             .filter { $0 }
             .combineLatest(isIdle)
@@ -68,6 +84,28 @@ final class WelcomeProcessor {
             .withWeakCaptureOf(self)
             .sink { processor, input in
                 processor.setDeepLink(.tangemPayCampaign(campaignKey: input.0))
+            }
+            .store(in: &bag)
+    }
+
+    private func discardTangemPayRequests() {
+        let onboardingService = TangemPayMobileOnboardingService()
+
+        AppSettings.shared.$needsTangemPayMobileOnboarding
+            .filter { $0 }
+            .receiveOnMain()
+            .sink { _ in
+                onboardingService.markOnboardingShown()
+            }
+            .store(in: &bag)
+
+        let campaignService = TangemPayCampaignService()
+
+        campaignService.pendingCampaignKeyPublisher
+            .compactMap { $0 }
+            .receiveOnMain()
+            .sink { _ in
+                campaignService.clearPending()
             }
             .store(in: &bag)
     }
