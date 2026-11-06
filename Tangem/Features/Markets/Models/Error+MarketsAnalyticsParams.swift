@@ -50,7 +50,7 @@ extension Error {
         if let afError = error as? AFError,
            case .sessionTaskFailed(let urlError as URLError) = afError,
            urlError.code == .timedOut {
-            return .marketsErrorTypeTimeout
+            return .timeout
         }
 
         return .marketsErrorTypeNetwork

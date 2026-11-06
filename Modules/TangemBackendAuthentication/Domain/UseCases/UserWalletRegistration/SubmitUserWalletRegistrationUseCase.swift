@@ -8,7 +8,7 @@
 
 typealias SubmitUserWalletRegistration = @Sendable (
     _ request: UserWalletRegistrationRequest
-) async throws(SubmitUserWalletRegistrationError) -> Void
+) async throws(SubmitUserWalletRegistrationError) -> UserWalletRegistrationResult
 
 public struct SubmitUserWalletRegistrationUseCase: Sendable {
     private let registrationClient: any UserWalletRegistrationClient
@@ -28,7 +28,8 @@ public struct SubmitUserWalletRegistrationUseCase: Sendable {
         self.appAttestationStatusRepository = appAttestationStatusRepository
     }
 
-    public func callAsFunction(request: UserWalletRegistrationRequest) async throws(SubmitUserWalletRegistrationError) {
+    @discardableResult
+    public func callAsFunction(request: UserWalletRegistrationRequest) async throws(SubmitUserWalletRegistrationError) -> UserWalletRegistrationResult {
         let sessionTokens = try await register(request: request)
 
         if let sessionTokens {
@@ -36,6 +37,8 @@ public struct SubmitUserWalletRegistrationUseCase: Sendable {
         }
 
         await registrationStatusRepository.persist(registeredID: request.id)
+
+        return sessionTokens == nil ? .alreadyRegistered : .registered
     }
 
     private func register(request: UserWalletRegistrationRequest) async throws(SubmitUserWalletRegistrationError) -> SessionTokens? {

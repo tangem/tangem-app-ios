@@ -212,20 +212,21 @@ extension BackendAuthenticationRegistrar {
         BackendAuthLogger.info("Unregistered social mobile wallet \(id.stringValue.masked())")
     }
 
+    @discardableResult
     static func registerMobileWallet(
         id: UserWalletId,
         context: MobileWalletContext,
         secp256k1PublicKey: Data?,
         recoveryEnrollment: UserWalletRecoveryEnrollment? = nil,
         mobileWalletSDK: some MobileWalletSdk
-    ) async throws {
+    ) async throws -> UserWalletRegistrationResult {
         let signer = MobileUserWalletRegistrationSigner(
             context: context,
             secp256k1PublicKey: secp256k1PublicKey,
             mobileWalletSDK: mobileWalletSDK
         )
 
-        try await BackendAuthenticationAssembly.registerMobileUserWallet(
+        return try await BackendAuthenticationAssembly.registerMobileUserWallet(
             id: id,
             recoveryEnrollment: recoveryEnrollment,
             signer: signer
@@ -239,17 +240,26 @@ extension BackendAuthenticationRegistrar {
         mobileWalletSDK: some MobileWalletSdk,
         secp256k1PublicKey: Data? = nil
     ) {
+        let analyticsReporter = UserWalletRegistrationAnalyticsReporter()
+
         Task {
             do {
-                try await registerMobileWallet(
+                let result = try await registerMobileWallet(
                     id: id,
                     context: context,
                     secp256k1PublicKey: secp256k1PublicKey,
                     mobileWalletSDK: mobileWalletSDK
                 )
-                BackendAuthLogger.info("Registered mobile wallet \(id.stringValue) \(trigger)")
+                BackendAuthLogger.info("Registered mobile wallet \(id.stringValue.masked()) \(trigger)")
+                analyticsReporter.reportResult(result, id: id)
             } catch {
-                BackendAuthLogger.error("Failed to register mobile wallet \(id.stringValue) \(trigger)", error: error)
+                BackendAuthLogger.error("Failed to register mobile wallet \(id.stringValue.masked()) \(trigger)", error: error)
+                analyticsReporter.reportFailure(
+                    walletType: .walletsTypeMobile,
+                    stage: .backendAuthRegistrationStageRegister,
+                    reason: "\(error)",
+                    id: id
+                )
             }
         }
     }

@@ -15,6 +15,7 @@ actor CardUserWalletRegistrar {
     private typealias NonceTask = Task<Void, Never>
 
     private let analyticsReporter: CommonBackendAuthenticationNonceAnalyticsReporter
+    private nonisolated let registrationAnalyticsReporter = UserWalletRegistrationAnalyticsReporter()
 
     private var nonceTask: NonceTask?
     private var nonceResult: Result<UserWalletRegistrationNonce?, ObtainUserWalletRegistrationNonceError>?
@@ -61,33 +62,51 @@ actor CardUserWalletRegistrar {
 
         // Strongly capture `self` for the duration of the task to ensure that the completion handler is always called
         runTask(priority: .userInitiated) {
-            do {
-                let walletPublicKey = try self.extractSecp256k1Key(for: card)
-                let signer = CardUserWalletRegistrationSigner(session: session, walletPublicKey: walletPublicKey)
-                let userWalletId = UserWalletId(with: walletPublicKey)
-
-                let nonce = await self.nonceForRegistration() // Just an actor hop, no actual await here
-
-                if let nonce {
-                    // No request means the user wallet is already registered
-                    if let request = try await BackendAuthenticationAssembly.attestUserWallet(
-                        id: userWalletId,
-                        nonce: nonce,
-                        recoveryEnrollment: nil,
-                        signer: signer
-                    ) {
-                        BackendAuthLogger.info("Attested user wallet \(userWalletId.stringValue) (card \(card.cardId))")
-                        // Submitted in a fire-and-forget fashion
-                        self.submitRegistrationRequest(request, userWalletId: userWalletId, cardId: card.cardId)
-                    }
-                } else {
-                    BackendAuthLogger.warning("Skipped user wallet registration, no nonce yet (card \(card.cardId))")
-                }
-            } catch {
-                BackendAuthLogger.error("Failed to attest user wallet (card \(card.cardId))", error: error)
-            }
-
+            await self.register(card: card, in: session)
             completion()
+        }
+    }
+
+    private nonisolated func register(card: Card, in session: CardSession) async {
+        let walletPublicKey: Data
+
+        do {
+            walletPublicKey = try extractSecp256k1Key(for: card)
+        } catch {
+            BackendAuthLogger.error("Failed to attest user wallet (card \(card.cardId))", error: error)
+            return
+        }
+
+        let signer = CardUserWalletRegistrationSigner(session: session, walletPublicKey: walletPublicKey)
+        let userWalletId = UserWalletId(with: walletPublicKey)
+
+        // Just an actor hop, no actual await here
+        guard let nonce = await obtainedNonce else {
+            BackendAuthLogger.warning("Skipped user wallet registration, no nonce yet (card \(card.cardId))")
+            await reportNonceFailureIfNeeded(userWalletId: userWalletId)
+            return
+        }
+
+        do {
+            // No request means the user wallet is already registered
+            if let request = try await BackendAuthenticationAssembly.attestUserWallet(
+                id: userWalletId,
+                nonce: nonce,
+                recoveryEnrollment: nil,
+                signer: signer
+            ) {
+                BackendAuthLogger.info("Attested user wallet \(userWalletId.stringValue.masked()) (card \(card.cardId))")
+                // Submitted in a fire-and-forget fashion
+                submitRegistrationRequest(request, userWalletId: userWalletId, cardId: card.cardId)
+            }
+        } catch {
+            BackendAuthLogger.error("Failed to attest user wallet (card \(card.cardId))", error: error)
+            registrationAnalyticsReporter.reportFailure(
+                walletType: .walletsTypeCold,
+                stage: .backendAuthRegistrationStagePrepare,
+                reason: "\(error)",
+                id: userWalletId
+            )
         }
     }
 
@@ -147,33 +166,32 @@ actor CardUserWalletRegistrar {
         }
     }
 
-    private func nonceForRegistration() -> UserWalletRegistrationNonce? {
-        if let obtainedNonce {
-            return obtainedNonce
-        }
-
-        reportNonceTimeoutIfNeeded()
-        return nil
-    }
-
-    private func reportNonceTimeoutIfNeeded() {
-        let isTimeout: Bool
+    private func reportNonceFailureIfNeeded(userWalletId: UserWalletId) async {
+        let failureReason: String
 
         switch nonceResult {
-        case .none:
-            let nonceFetchIsStillInProgress = nonceTask != nil
-            isTimeout = nonceFetchIsStillInProgress
+        case .none where nonceTask != nil,
+             .some(.failure(.clientFailure(.requestNonceTimeout))):
+            failureReason = Analytics.ParameterValue.timeout.rawValue
+            analyticsReporter.reportColdUserWalletNonceTimeout()
 
-        case .some(.failure(.clientFailure(.requestNonceTimeout))):
-            isTimeout = true
+        case .some(.failure(let error)):
+            failureReason = "\(error)"
 
-        case .some(.failure), .some(.success):
-            isTimeout = false
+        case .none, .some(.success):
+            return
         }
 
-        guard isTimeout else { return }
+        guard await !BackendAuthenticationAssembly.retrieveUserWalletRegistrationStatus(id: userWalletId) else {
+            return
+        }
 
-        analyticsReporter.reportColdUserWalletNonceTimeout()
+        registrationAnalyticsReporter.reportFailure(
+            walletType: .walletsTypeCold,
+            stage: .backendAuthRegistrationStageNonce,
+            reason: failureReason,
+            id: userWalletId
+        )
     }
 
     private nonisolated func shouldRegisterWallet(for card: Card) -> Bool {
@@ -195,13 +213,21 @@ actor CardUserWalletRegistrar {
     ) {
         // Strongly capture the use case or the duration of the task to ensure that the registration request is always submitted
         let submitUserWalletRegistration = BackendAuthenticationAssembly.submitUserWalletRegistration
+        let registrationAnalyticsReporter = registrationAnalyticsReporter
 
         runTask(priority: .utility) {
             do {
-                try await submitUserWalletRegistration(request: request)
-                BackendAuthLogger.info("Registered user wallet \(userWalletId.stringValue) (card \(cardId))")
+                let result = try await submitUserWalletRegistration(request: request)
+                BackendAuthLogger.info("Registered user wallet \(userWalletId.stringValue.masked()) (card \(cardId))")
+                registrationAnalyticsReporter.reportResult(result, id: userWalletId)
             } catch {
-                BackendAuthLogger.error("Failed to submit user wallet \(userWalletId.stringValue) registration (card \(cardId))", error: error)
+                BackendAuthLogger.error("Failed to submit user wallet \(userWalletId.stringValue.masked()) registration (card \(cardId))", error: error)
+                registrationAnalyticsReporter.reportFailure(
+                    walletType: .walletsTypeCold,
+                    stage: .backendAuthRegistrationStageSubmit,
+                    reason: "\(error)",
+                    id: userWalletId
+                )
             }
         }
     }

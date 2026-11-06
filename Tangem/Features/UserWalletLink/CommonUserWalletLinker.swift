@@ -31,14 +31,16 @@ final class CommonUserWalletLinker: UserWalletLinker {
         }
 
         do throws(UserWalletLinkError) {
+            let result: UserWalletRegistrationResult
+
             if userWalletModel.config.hasFeature(.nfcInteraction) {
-                try await linkCard(userWalletModel)
+                result = try await linkCard(userWalletModel)
             } else {
-                try await linkMobile(userWalletModel)
+                result = try await linkMobile(userWalletModel)
             }
 
             BackendAuthLogger.info("Linked user wallet")
-            reportLinked(userWalletModel)
+            UserWalletRegistrationAnalyticsReporter().reportResult(result, id: userWalletModel.userWalletId)
         } catch .cancelled {
             reportCanceled(userWalletModel)
             throw .cancelled
@@ -53,21 +55,21 @@ final class CommonUserWalletLinker: UserWalletLinker {
 // MARK: - Card
 
 private extension CommonUserWalletLinker {
-    nonisolated(nonsending) func linkCard(_ userWalletModel: some UserWalletModel) async throws(UserWalletLinkError) {
+    nonisolated(nonsending) func linkCard(_ userWalletModel: some UserWalletModel) async throws(UserWalletLinkError) -> UserWalletRegistrationResult {
         guard let nonce = try await obtainNonce(id: userWalletModel.userWalletId) else {
-            return
+            return .alreadyRegistered
         }
 
         try checkCancellation()
 
         guard let request = try await attest(userWalletModel, nonce: nonce) else {
-            return
+            return .alreadyRegistered
         }
 
         try checkCancellation()
 
         do {
-            try await BackendAuthenticationAssembly.submitUserWalletRegistration(request: request)
+            return try await BackendAuthenticationAssembly.submitUserWalletRegistration(request: request)
         } catch {
             throw .failed(stage: .submit, underlying: error)
         }
@@ -105,12 +107,12 @@ private extension CommonUserWalletLinker {
 // MARK: - Mobile
 
 private extension CommonUserWalletLinker {
-    nonisolated(nonsending) func linkMobile(_ userWalletModel: some UserWalletModel) async throws(UserWalletLinkError) {
+    nonisolated(nonsending) func linkMobile(_ userWalletModel: some UserWalletModel) async throws(UserWalletLinkError) -> UserWalletRegistrationResult {
         let id = userWalletModel.userWalletId
         let isAlreadyRegistered = await BackendAuthenticationAssembly.retrieveUserWalletRegistrationStatus(id: id)
 
         guard !isAlreadyRegistered else {
-            return
+            return .alreadyRegistered
         }
 
         try checkCancellation()
@@ -135,7 +137,7 @@ private extension CommonUserWalletLinker {
         try checkCancellation()
 
         do {
-            try await BackendAuthenticationRegistrar.registerMobileWallet(
+            return try await BackendAuthenticationRegistrar.registerMobileWallet(
                 id: id,
                 context: context,
                 secp256k1PublicKey: secp256k1PublicKey,
@@ -150,25 +152,16 @@ private extension CommonUserWalletLinker {
 // MARK: - Analytics
 
 private extension CommonUserWalletLinker {
-    func reportLinked(_ userWalletModel: some UserWalletModel) {
-        Analytics.log(.backendAuthWalletLinked, contextParams: .userWallet(userWalletModel.userWalletId))
-    }
-
     func reportCanceled(_ userWalletModel: some UserWalletModel) {
         Analytics.log(.backendAuthLinkWalletCanceled, contextParams: .userWallet(userWalletModel.userWalletId))
     }
 
     func reportFailed(_ userWalletModel: some UserWalletModel, stage: UserWalletLinkStage, error: any Error) {
-        let walletType: Analytics.ParameterValue = userWalletModel.config.hasFeature(.nfcInteraction) ? .walletsTypeCold : .walletsTypeMobile
-
-        Analytics.log(
-            event: .backendAuthWalletRegistrationFailed,
-            params: [
-                .walletType: walletType.rawValue,
-                .stage: stage.analyticsValue.rawValue,
-                .reason: "\(error)",
-            ],
-            contextParams: .userWallet(userWalletModel.userWalletId)
+        UserWalletRegistrationAnalyticsReporter().reportFailure(
+            walletType: userWalletModel.config.hasFeature(.nfcInteraction) ? .walletsTypeCold : .walletsTypeMobile,
+            stage: stage.analyticsValue,
+            reason: "\(error)",
+            id: userWalletModel.userWalletId
         )
     }
 }
