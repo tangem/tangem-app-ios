@@ -158,8 +158,7 @@ private extension MarketsPortfolioMultipleTokenViewModel {
         let attributedBalance = AttributedBalanceFormatter.format(
             balance,
             token: DesignSystem.Font.captionMediumToken,
-            integerColor: DesignSystem.Color.textSecondary,
-            fractionalColor: DesignSystem.Color.textSecondary
+            color: DesignSystem.Color.textSecondary
         )
         return .attributed(attributedBalance)
     }
@@ -210,8 +209,7 @@ private extension MarketsPortfolioMultipleTokenViewModel {
         let attributedBalance = AttributedBalanceFormatter.format(
             balance,
             token: DesignSystem.Font.bodyMediumToken,
-            integerColor: DesignSystem.Color.textPrimary,
-            fractionalColor: DesignSystem.Color.textSecondary
+            color: DesignSystem.Color.textPrimary
         )
         return .attributed(attributedBalance)
     }

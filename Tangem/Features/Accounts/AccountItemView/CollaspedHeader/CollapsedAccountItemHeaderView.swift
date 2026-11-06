@@ -79,11 +79,7 @@ struct CollapsedAccountItemHeaderView: View {
             },
             primaryTrailingView: {
                 LoadableBalanceView(
-                    state: AttributedBalanceFormatter.decimalColored(
-                        totalFiatBalance,
-                        integerPart: AttributedBalanceFormatter.PartStyle(font: nil, color: TangemRowConstants.Style.Title.color),
-                        fractionalPart: AttributedBalanceFormatter.PartStyle(font: nil, color: DesignSystem.Color.textSecondary)
-                    ),
+                    state: totalFiatBalance,
                     style: .init(
                         font: TangemRowConstants.Style.Title.font,
                         textColor: TangemRowConstants.Style.Title.color

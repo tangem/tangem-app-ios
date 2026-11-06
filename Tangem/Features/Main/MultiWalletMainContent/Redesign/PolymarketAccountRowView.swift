@@ -76,11 +76,7 @@ private extension PolymarketAccountRowView {
                 .frame(width: unavailableIconSize, height: unavailableIconSize)
         } else if let balance = viewModel.trailingBalanceState {
             LoadableBalanceView(
-                state: AttributedBalanceFormatter.decimalColored(
-                    balance,
-                    integerPart: AttributedBalanceFormatter.PartStyle(font: nil, color: DesignSystem.Color.textPrimary),
-                    fractionalPart: AttributedBalanceFormatter.PartStyle(font: nil, color: DesignSystem.Color.textSecondary)
-                ),
+                state: balance,
                 style: LoadableBalanceView.Style(
                     font: TangemRowConstants.Style.Title.font,
                     textColor: DesignSystem.Color.textPrimary
