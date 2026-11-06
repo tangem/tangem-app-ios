@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 struct FeatureStateRowView: View {
     private let viewModel: FeatureStateRowViewModel
@@ -27,14 +28,14 @@ struct FeatureStateRowView: View {
         VStack(alignment: .leading) {
             VStack(alignment: .leading, spacing: 0) {
                 Text(viewModel.feature.name)
-                    .style(Fonts.Bold.body, color: DesignSystem.Color.textPrimary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
                 Text("Release version: \(viewModel.releaseVersionInfo)")
-                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .padding(.top, 4)
 
                 Text("Default state: \(viewModel.defaultState)")
-                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                     .padding(.top, 2)
             }
 

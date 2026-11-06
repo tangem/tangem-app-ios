@@ -20,6 +20,13 @@ public struct SessionTokens: Equatable, Sendable {
 
     /// The user wallets this session grants access to.
     public let userWalletIDs: [UserWalletId]
+
+    /// A `package` access level due to its use in the `TangemBackendAuthenticationDebugSupport` module.
+    package init(accessToken: Token, refreshToken: Token?, userWalletIDs: [UserWalletId]) {
+        self.accessToken = accessToken
+        self.refreshToken = refreshToken
+        self.userWalletIDs = userWalletIDs
+    }
 }
 
 public extension SessionTokens {
@@ -30,5 +37,11 @@ public extension SessionTokens {
 
         /// When the token stops being valid.
         public let expiresAt: Date
+
+        /// A `package` access level due to its use in the `TangemBackendAuthenticationDebugSupport` module.
+        package init(jwt: String, expiresAt: Date) {
+            self.jwt = jwt
+            self.expiresAt = expiresAt
+        }
     }
 }

@@ -44,8 +44,14 @@ public enum BackendAuthenticationAssembly {
 
     public static let storageCleaner: BackendAuthenticationStorageCleaner = Self.makeStorageCleaner()
 
+    /// A `package` access level due to its use in the `TangemSocialAuthentication` module.
     package static let deviceKeyManager = DeviceKeyManager(privateKeyRepository: Self.devicePrivateKeyRepository)
+
+    /// A `package` access level due to its use in the `TangemSocialAuthentication` module.
     package static let obtainRecoveryNonce: ObtainRecoveryNonceUseCase = Self.makeObtainRecoveryNonceUseCase()
+
+    /// A `package` access level due to its use in the `TangemBackendAuthenticationDebugSupport` module.
+    package static let debugDependencies: BackendAuthenticationDebugDependencies = Self.makeDebugDependencies()
 }
 
 // MARK: - Configuration
@@ -280,6 +286,15 @@ extension BackendAuthenticationAssembly {
             sessionTokensRepository: sessionTokensRepository,
             appAttestKeyIDRepository: appAttestKeyIDRepository,
             logger: configuration.logger
+        )
+    }
+
+    private static func makeDebugDependencies() -> BackendAuthenticationDebugDependencies {
+        BackendAuthenticationDebugDependencies(
+            deviceKeyManager: deviceKeyManager,
+            deviceRegistrationStatusRepository: deviceRegistrationStatusRepository,
+            sessionTokensRepository: sessionTokensRepository,
+            renewSessionTokensUseCase: renewSessionTokensUseCase
         )
     }
 }
