@@ -531,12 +531,17 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
 
     // MARK: - Purchase
 
-    @Test("Purchase addresses point at the cold owner once the vault is ready")
+    @Test("Purchase addresses point at the cold owner and pay out into the vault once it is ready")
     func purchaseAddressesOfReadyVault() async {
         let (sut, _) = await makeSUT()
         let address = Fixtures.coldOwnerKey.base58EncodedString
+        let expected = CollectiblesPurchaseAddresses(
+            player: address,
+            prizeRecipient: address,
+            payoutRecipient: Fixtures.vault().vaultAddress
+        )
 
-        #expect(sut.purchaseAddresses == CollectiblesPurchaseAddresses(player: address, prizeRecipient: address))
+        #expect(sut.purchaseAddresses == expected)
     }
 
     @Test("There are no purchase addresses before the vault is ready", arguments: Start.allCases.filter { $0 != .ready })

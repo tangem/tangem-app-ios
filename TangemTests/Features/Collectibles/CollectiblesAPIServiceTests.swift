@@ -158,7 +158,7 @@ struct CollectiblesAPIServiceTests {
 
     // MARK: - Purchase
 
-    @Test("Low inventory code on generate-purchase-tx surfaces as lowInventory")
+    @Test("Low inventory code on purchase-data surfaces as lowInventory")
     func mapsLowInventory() async throws {
         CollectiblesStubURLProtocol.statusCode = 503
         CollectiblesStubURLProtocol.responses = [
@@ -170,7 +170,7 @@ struct CollectiblesAPIServiceTests {
         }
     }
 
-    @Test("Any other backend code on generate-purchase-tx stays an .http failure")
+    @Test("Any other backend code on purchase-data stays an .http failure")
     func keepsOtherBackendCodes() async throws {
         CollectiblesStubURLProtocol.statusCode = 404
         CollectiblesStubURLProtocol.responses = [
@@ -185,30 +185,43 @@ struct CollectiblesAPIServiceTests {
         }
     }
 
-    @Test("open-pack sends the transaction id in the body and asks for the won card and the auto buyback in the query")
-    func openPackRequest() async throws {
+    @Test(
+        "open-pack sends the transaction id in the body and asks for the won card and, if told to, the auto buyback",
+        arguments: [false, true]
+    )
+    func openPackRequest(includesAutoBuyback: Bool) async throws {
         CollectiblesStubURLProtocol.responses = [
             Data(#"{"txId":"tx-1","status":"pack-opened","nftWon":null}"#.utf8),
         ]
 
-        _ = try await makeSUT().openPack(txID: "tx-1", userWalletID: "wallet-1")
+        _ = try await makeSUT().openPack(
+            txID: "tx-1",
+            includesAutoBuyback: includesAutoBuyback,
+            userWalletID: "wallet-1"
+        )
 
+        let request = CollectiblesStubURLProtocol.requests.first
         let body = try Self.jsonBody(CollectiblesStubURLProtocol.bodies.first)
         #expect(body["txId"] as? String == "tx-1")
         #expect(body.count == 1)
-        #expect(Self.queryValue("includeNftWon", of: CollectiblesStubURLProtocol.requests.first) == "true")
-        #expect(Self.queryValue("includeAutoBuyback", of: CollectiblesStubURLProtocol.requests.first) == "true")
+        #expect(Self.queryValue("includeNftWon", of: request) == "true")
+        #expect(Self.queryValue("includeAutoBuyback", of: request) == String(includesAutoBuyback))
     }
 
-    @Test("The purchase status asks for the won card and the auto buyback in the query")
-    func purchaseStatusAsksForWonCardAndAutoBuyback() async throws {
+    @Test("The purchase status asks for the won card and, if told to, the auto buyback", arguments: [false, true])
+    func purchaseStatusAsksForWonCardAndAutoBuyback(includesAutoBuyback: Bool) async throws {
         CollectiblesStubURLProtocol.responses = [Data(#"{"txId":"tx-1","status":"auto-buybacked"}"#.utf8)]
 
-        _ = try await makeSUT().loadPurchaseStatus(txID: "tx-1", userWalletID: "wallet-1")
+        _ = try await makeSUT().loadPurchaseStatus(
+            txID: "tx-1",
+            includesAutoBuyback: includesAutoBuyback,
+            userWalletID: "wallet-1"
+        )
 
-        #expect(Self.queryValue("txId", of: CollectiblesStubURLProtocol.requests.first) == "tx-1")
-        #expect(Self.queryValue("includeNftWon", of: CollectiblesStubURLProtocol.requests.first) == "true")
-        #expect(Self.queryValue("includeAutoBuyback", of: CollectiblesStubURLProtocol.requests.first) == "true")
+        let request = CollectiblesStubURLProtocol.requests.first
+        #expect(Self.queryValue("txId", of: request) == "tx-1")
+        #expect(Self.queryValue("includeNftWon", of: request) == "true")
+        #expect(Self.queryValue("includeAutoBuyback", of: request) == String(includesAutoBuyback))
     }
 
     @Test("A spin the partner no longer knows surfaces as spinNotFound, other opening failures stay .http", arguments: [
@@ -222,7 +235,7 @@ struct CollectiblesAPIServiceTests {
         ]
 
         do {
-            _ = try await makeSUT().openPack(txID: "tx-1", userWalletID: "wallet-1")
+            _ = try await makeSUT().openPack(txID: "tx-1", includesAutoBuyback: false, userWalletID: "wallet-1")
             Issue.record("Expected the opening to fail")
         } catch CollectiblesPackOpeningError.spinNotFound {
             #expect(isSpinNotFound)
@@ -246,6 +259,20 @@ struct CollectiblesAPIServiceTests {
         #expect(abs(purchase.createdAt.timeIntervalSince1970 - 1_787_646_067.518) < 0.001)
         #expect(Self.queryValue("includeMachine", of: CollectiblesStubURLProtocol.requests.first) == "true")
         #expect(CollectiblesStubURLProtocol.requests.first?.value(forHTTPHeaderField: "user-id") == "wallet-1")
+    }
+
+    @Test("An active purchase takes its Turbo mode from the backend and counts a missing one as off", arguments: [
+        (#", "turboModeEnabled": true"#, true),
+        (#", "turboModeEnabled": false"#, false),
+        ("", false),
+    ])
+    func loadsActivePurchaseTurboMode(turboModeField: String, isTurboModeOn: Bool) async throws {
+        CollectiblesStubURLProtocol.responses = [Self.activePurchase(turboModeField: turboModeField)]
+
+        let purchases = try await makeSUT().loadActivePurchases(userWalletID: "wallet-1")
+
+        let purchase = try #require(purchases.first)
+        #expect(purchase.isTurboModeOn == isTurboModeOn)
     }
 
     // MARK: - Buyback
@@ -279,7 +306,11 @@ struct CollectiblesAPIServiceTests {
             Data(#"{"txId":"tx-1","status":"pack-opened","nftWon":null,"autoBuyback":\#(buyback)}"#.utf8),
         ]
 
-        let transaction = try await makeSUT().loadPurchaseStatus(txID: "tx-1", userWalletID: "wallet-1")
+        let transaction = try await makeSUT().loadPurchaseStatus(
+            txID: "tx-1",
+            includesAutoBuyback: true,
+            userWalletID: "wallet-1"
+        )
 
         #expect(transaction.buybackAmount == payout)
     }
@@ -368,6 +399,17 @@ private extension CollectiblesAPIServiceTests {
         ]}
         """#.utf8
     )
+
+    static func activePurchase(turboModeField: String) -> Data {
+        Data(
+            #"""
+            {"activeTxs": [
+                {"txId": "tx-1", "status": "pack-purchased", "machine": {"externalId": "pokemon_50"},
+                 "createdAt": "2026-08-25T08:21:07.518119Z"\#(turboModeField)}
+            ]}
+            """#.utf8
+        )
+    }
 
     static func queryValue(_ name: String, of request: URLRequest?) -> String? {
         request?.url

@@ -18,12 +18,14 @@ extension CollectiblesDTO {
         let status: String
         let machine: ActiveTransactionMachine?
         let createdAt: Date
+        let turboModeEnabled: Bool?
 
         private enum CodingKeys: String, CodingKey {
             case txID = "txId"
             case status
             case machine
             case createdAt
+            case turboModeEnabled
         }
     }
 

@@ -22,7 +22,7 @@ struct CollectiblesAPITarget: Moya.TargetType {
         case generatePurchaseTx(CollectiblesDTO.GeneratePurchaseTxRequest, userWalletID: String)
         case purchaseTxSent(CollectiblesDTO.PurchaseTxSentRequest, userWalletID: String)
         case purchaseStatus(CollectiblesDTO.PurchaseTransactionRequest, userWalletID: String)
-        case openPack(CollectiblesDTO.PurchaseTransactionRequest, userWalletID: String)
+        case openPack(CollectiblesDTO.PurchaseTransactionRequest, includesAutoBuyback: Bool, userWalletID: String)
         case activeTxs(userWalletID: String)
         case buybackAvailability(CollectiblesDTO.BuybackAvailabilityRequest, userWalletID: String)
         case generateBuybackData(CollectiblesDTO.GenerateBuybackDataRequest, userWalletID: String)
@@ -36,7 +36,7 @@ struct CollectiblesAPITarget: Moya.TargetType {
         case .machines: "api/v1/machine/machines"
         case .machine(let externalID): "api/v1/machine/\(externalID)"
         case .machineNfts(let externalID, _, _): "api/v1/machine/\(externalID)/nfts"
-        case .generatePurchaseTx: "api/v1/collectible/generate-purchase-tx"
+        case .generatePurchaseTx: "api/v1/collectible/purchase-data"
         case .purchaseTxSent: "api/v1/collectible/purchase-tx-sent"
         case .purchaseStatus: "api/v1/collectible/status"
         case .openPack: "api/v1/collectible/open-pack"
@@ -65,12 +65,12 @@ struct CollectiblesAPITarget: Moya.TargetType {
             .requestParameters(request, encoding: URLEncoding(destination: .queryString, boolEncoding: .literal))
         case .generatePurchaseTx(let request, _): .requestJSONEncodable(request)
         case .purchaseTxSent(let request, _): .requestJSONEncodable(request)
-        case .openPack(let request, _):
+        case .openPack(let request, let includesAutoBuyback, _):
             .requestCompositeParameters(
                 body: request,
                 urlParameters: [
                     Constants.includeNftWonKey: Constants.trueValue,
-                    Constants.includeAutoBuybackKey: Constants.trueValue,
+                    Constants.includeAutoBuybackKey: String(includesAutoBuyback),
                 ]
             )
         case .activeTxs:
@@ -92,7 +92,7 @@ struct CollectiblesAPITarget: Moya.TargetType {
              .generatePurchaseTx(_, let userWalletID),
              .purchaseTxSent(_, let userWalletID),
              .purchaseStatus(_, let userWalletID),
-             .openPack(_, let userWalletID),
+             .openPack(_, _, let userWalletID),
              .activeTxs(let userWalletID),
              .buybackAvailability(_, let userWalletID),
              .generateBuybackData(_, let userWalletID),

@@ -133,7 +133,8 @@ extension CollectiblesAPIService {
                 txID: transaction.txID,
                 machineID: machine.externalID,
                 status: mapToPurchaseStatus(transaction.status),
-                createdAt: transaction.createdAt
+                createdAt: transaction.createdAt,
+                isTurboModeOn: transaction.turboModeEnabled ?? false
             )
         }
 

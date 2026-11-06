@@ -13,4 +13,5 @@ struct CollectiblesPendingPurchase {
     let machineID: String
     let status: CollectiblesPurchaseStatus
     let createdAt: Date
+    let isTurboModeOn: Bool
 }
