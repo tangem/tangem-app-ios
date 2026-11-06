@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct SendCoordinatorView: CoordinatorView {
@@ -99,12 +100,30 @@ struct SendCoordinatorView: CoordinatorView {
                 SwapTokenSelectorView(viewModel: $0)
                     .softTopScrollEdgeEffect()
             }
-            .sheet(item: $coordinator.demandSurveySheet) { sheet in
-                NavigationStack {
-                    demandSurvey(sheet)
-                        .withCloseButton(action: coordinator.closeDemandSurvey)
-                }
-            }
+            .modal(
+                item: $coordinator.demandSurveySheet,
+                contentLayout: demandSurveyContentLayout,
+                navigation: demandSurveyNavigation,
+                content: demandSurvey
+            )
+    }
+
+    private func demandSurveyContentLayout(_ sheet: SendCoordinator.DemandSurveySheet) -> ModalContentLayout {
+        switch sheet {
+        case .form:
+            .scrollable
+        case .success:
+            .intrinsic
+        }
+    }
+
+    private func demandSurveyNavigation(_ sheet: SendCoordinator.DemandSurveySheet) -> ModalNavigation? {
+        switch sheet {
+        case .form:
+            .title(Localization.surveyDemandNavigationTitle)
+        case .success:
+            .closeButton()
+        }
     }
 
     @ViewBuilder

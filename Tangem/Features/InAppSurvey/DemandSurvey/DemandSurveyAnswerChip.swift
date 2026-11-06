@@ -8,20 +8,26 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUI
 import TangemUIUtils
 
+// [REDACTED_TODO_COMMENT]
 struct DemandSurveyAnswerChip: View {
     let title: String
     let isSelected: Bool
     let action: () -> Void
 
+    @ScaledMetric private var padding: CGFloat = Layout.padding
+    @ScaledMetric private var textPadding: CGFloat = Layout.textPadding
+
     var body: some View {
         SwiftUI.Button(action: action) {
             Text(title)
                 .style(DesignSystem.Font.subheadingMediumToken, color: textColor)
-                .padding(.horizontal, Layout.horizontalPadding)
-                .padding(.vertical, Layout.verticalPadding)
-                .background(Capsule().fill(backgroundColor))
+                .padding(.horizontal, textPadding)
+                .padding(padding)
+                .frame(minWidth: Layout.minWidth)
+                .tangemMaterialSurface(in: Capsule(), isVisible: isSelected, prefersInset: true)
                 .contentShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -29,11 +35,7 @@ struct DemandSurveyAnswerChip: View {
     }
 
     private var textColor: Color {
-        isSelected ? DesignSystem.Color.textInversePrimary : DesignSystem.Color.textPrimary
-    }
-
-    private var backgroundColor: Color {
-        isSelected ? DesignSystem.Color.bgInverse : DesignSystem.Color.bgTransparentSecondary
+        isSelected ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
     }
 }
 
@@ -41,8 +43,9 @@ struct DemandSurveyAnswerChip: View {
 
 private extension DemandSurveyAnswerChip {
     enum Layout {
-        static let horizontalPadding: CGFloat = 16
-        static let verticalPadding: CGFloat = 10
+        static let padding: CGFloat = 8
+        static let textPadding: CGFloat = 4
+        static let minWidth: CGFloat = 56
     }
 }
 
