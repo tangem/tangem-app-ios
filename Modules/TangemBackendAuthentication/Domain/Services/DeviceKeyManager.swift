@@ -16,6 +16,8 @@ private import enum CryptoKit.P256
 ///
 /// - Invariant: The private key data itself never leaves this type.
 /// ``publicKey`` only ever exposes its public counterpart, and ``sign(data:)`` is the only way to use it.
+///
+/// A `package` access level due to its use in the `TangemSocialAuthentication` and `TangemBackendAuthenticationDebugSupport` modules.
 package actor DeviceKeyManager {
     private let privateKeyRepository: any DevicePrivateKeyRepository
     private var generateOrLoadPrivateKeyTask: Task<Result<any DevicePrivateKey, DevicePrivateKeyRepositoryError>, Never>?
@@ -36,7 +38,9 @@ package actor DeviceKeyManager {
     /// - Note: Cheap to access repeatedly — deriving it from the private key is measured at sub-microsecond.
     /// `async throws` because the very first access may have to wait on the private key itself becoming available.
     /// Secure Enclave key generation or restoration may take tens of milliseconds.
-    var publicKey: DevicePublicKey {
+    ///
+    /// A `package` access level due to its use in the `TangemBackendAuthenticationDebugSupport` module.
+    package var publicKey: DevicePublicKey {
         get async throws(DeviceKeyManagerError) {
             let privateKey = try await resolvePrivateKey()
 
@@ -53,6 +57,8 @@ package actor DeviceKeyManager {
     /// - Note: Unlike ``publicKey``, this isn't cheap:
     /// every call performs a real Secure Enclave signing operation (measured at ~5ms on real hardware).
     /// Avoid calling it more often than the backend contract requires.
+    ///
+    /// A `package` access level due to its use in the `TangemSocialAuthentication` module.
     @concurrent
     package func sign(data: Data) async throws(DeviceKeyManagerError) -> DeviceSignature {
         let privateKey = try await resolvePrivateKey()

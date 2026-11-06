@@ -485,6 +485,18 @@ var featureModules: [PackageDescription.Target] {
             swiftSettings: .swift6StrictSettings
         ),
         .tangemTarget(
+            name: "TangemBackendAuthenticationDebugSupport",
+            dependencies: [
+                "TangemAssets",
+                "TangemBackendAuthentication",
+                "TangemFoundation",
+                "TangemLogger",
+                "TangemUI",
+                "TangemUIUtils",
+            ],
+            swiftSettings: .swift6StrictSettings
+        ),
+        .tangemTarget(
             name: "TangemStories",
             dependencies: [
                 "Kingfisher",

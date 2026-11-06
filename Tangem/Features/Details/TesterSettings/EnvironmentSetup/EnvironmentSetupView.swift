@@ -23,97 +23,94 @@ struct EnvironmentSetupView: View {
         ZStack {
             DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all)
 
-            GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 16)) {
-                if !viewModel.isSearching {
-                    GroupedSection(viewModel.appSettingsTogglesViewModels) {
-                        DefaultToggleRowView(viewModel: $0)
+            ScrollViewReader { proxy in
+                GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 16)) {
+                    if !viewModel.isSearching {
+                        GroupedSection(viewModel.appSettingsTogglesViewModels) {
+                            DefaultToggleRowView(viewModel: $0)
+                        }
+
+                        GroupedSection(viewModel.pickerViewModels) {
+                            DefaultPickerRowView(viewModel: $0)
+                        }
+
+                        GroupedSection(viewModel.additionalSettingsViewModels) { viewModel in
+                            DefaultRowView(viewModel: viewModel)
+                        }
                     }
 
-                    GroupedSection(viewModel.pickerViewModels) {
-                        DefaultPickerRowView(viewModel: $0)
+                    featureTogglesSection
+                        .id(Constants.featureTogglesSectionId)
+
+                    if !viewModel.isSearching {
+                        surveySparrowControls
+
+                        demoCardIdControls
+
+                        appUidControls
+
+                        fcmControls
+
+                        walletIdControls
                     }
-
-                    GroupedSection(viewModel.additionalSettingsViewModels) { viewModel in
-                        DefaultRowView(viewModel: viewModel)
-                    }
                 }
-
-                GroupedSection(viewModel.featureStateViewModels) { viewModel in
-                    FeatureStateRowView(viewModel: viewModel)
-                }
-
-                if viewModel.isSearching, viewModel.featureStateViewModels.isEmpty {
-                    Text("No feature toggles found")
-                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
-                        .padding(.top, 32)
-                }
-
-                if !viewModel.isSearching {
-                    surveySparrowControls
-
-                    demoCardIdControls
-
-                    appUidControls
-
-                    fcmControls
-
-                    walletIdControls
+                .interContentPadding(8)
+                .scrollDismissesKeyboard(.immediately)
+                .onChange(of: viewModel.searchText) { _ in
+                    proxy.scrollTo(Constants.featureTogglesSectionId, anchor: .top)
                 }
             }
-            .interContentPadding(8)
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            searchBar
-        }
+        .tangemSearchable(text: $viewModel.searchText, prompt: "Search feature toggles", placement: .bottom)
+        .autocorrectionDisabled()
+        .textInputAutocapitalization(.never)
         .navigationBarTitle(Text("Environment setup"))
         .navigationBarItems(trailing: exitButton)
         .alert(item: $viewModel.alert) { $0.alert }
     }
 
-    private var searchBar: some View {
-        Search(text: $viewModel.searchText)
-            .placeholder("Search feature toggles")
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+    private var featureTogglesSection: some View {
+        GroupedSection(viewModel.featureStateViewModels) { viewModel in
+            FeatureStateRowView(viewModel: viewModel)
+        } header: {
+            DefaultHeaderView(viewModel.featureTogglesSectionTitle)
+                .padding(.top, 12)
+        } emptyContent: {
+            Text("No feature toggles found")
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 24)
+        }
     }
 
     // [REDACTED_TODO_COMMENT]
     private var surveySparrowControls: some View {
-        VStack(spacing: 16) {
-            Text("SurveySparrow demo token:")
-                .font(.headline)
+        controlsSection("SurveySparrow demo token:") {
+            textField("survey token", text: $viewModel.surveySparrowToken)
 
-            TextField("survey token", text: $viewModel.surveySparrowToken)
-                .padding()
-                .border(.gray, width: 1)
-
-            MainButton(
-                title: "SurveySparrow demo classic",
+            fullWidthButton(
+                "SurveySparrow demo classic",
+                styleType: .primary,
                 action: viewModel.handleSurveySparrowDemoClassicButtonTapped
             )
 
-            MainButton(
-                title: "SurveySparrow demo chat",
+            fullWidthButton(
+                "SurveySparrow demo chat",
+                styleType: .primary,
                 action: viewModel.handleSurveySparrowDemoClassicButtonTapped
             )
 
-            MainButton(
-                title: "SurveySparrow demo NPS",
+            fullWidthButton(
+                "SurveySparrow demo NPS",
+                styleType: .primary,
                 action: viewModel.handleSurveySparrowDemoClassicButtonTapped
             )
         }
-        .padding(.horizontal)
     }
 
     private var demoCardIdControls: some View {
-        VStack(spacing: 10) {
-            Text("Demo card override")
-                .font(.headline)
-                .textCase(.uppercase)
-
-            TextField("Demo card ID", text: $viewModel.forcedDemoCardId)
-                .padding()
-                .border(.gray, width: 1)
+        controlsSection("Demo card override") {
+            textField("Demo card ID", text: $viewModel.forcedDemoCardId)
 
             Text(
                 """
@@ -122,86 +119,91 @@ struct EnvironmentSetupView: View {
                 **Warning**: when demo override is imposed on a regular card it still has all the amounts in the respective blockchain wallets and it is still possible to spend these money even though the displayed amount might be different
                 """
             )
-            .font(.footnote)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         }
-        .padding(.horizontal)
     }
 
     private var appUidControls: some View {
-        VStack(spacing: 10) {
-            Text("Reset application UID")
-                .font(.headline)
-
+        controlsSection("Reset application UID") {
             VStack(spacing: 15) {
-                HStack {
-                    Text("UID: \(viewModel.applicationUid)")
-                        .font(.footnote)
-                }
+                valueText("UID: \(viewModel.applicationUid)")
 
-                SwiftUI.Button("Reset application UID", action: viewModel.resetApplicationUID)
-                    .foregroundColor(Color.red)
+                fullWidthButton(
+                    "Reset application UID",
+                    styleType: .secondary(.error),
+                    action: viewModel.resetApplicationUID
+                )
             }
         }
-        .padding(.horizontal)
     }
 
     private var fcmControls: some View {
-        VStack(spacing: 10) {
-            Text("FCM token")
-                .font(.headline)
-
-            VStack(spacing: 15) {
-                HStack {
-                    Text("FCM token: \(viewModel.fcmToken)")
-                        .font(.footnote)
-
-                    SwiftUI.Button {
-                        viewModel.copyField(\.fcmToken)
-                    } label: {
-                        Image(systemName: "doc.on.doc")
-                            .foregroundColor(Color.blue)
-                    }
-                }
-            }
+        controlsSection("FCM token") {
+            copyableValueRow(title: "FCM token", value: viewModel.fcmToken)
         }
-        .padding(.horizontal)
     }
 
     private var walletIdControls: some View {
-        VStack(spacing: 10) {
-            Text("Wallet IDs")
-                .font(.headline)
-
+        controlsSection("Wallet IDs") {
             VStack(spacing: 15) {
                 ForEach(viewModel.walletIds) { wallet in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(wallet.name)
-                            .font(.footnote)
-                            .bold()
+                            .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
 
-                        walletIdRow(title: "id", value: wallet.id)
+                        copyableValueRow(title: "id", value: wallet.id)
 
-                        walletIdRow(title: "hash", value: wallet.hash)
+                        copyableValueRow(title: "hash", value: wallet.hash)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }
+    }
+
+    private func controlsSection(_ title: String, @ViewBuilder content: () -> some View) -> some View {
+        VStack(spacing: 10) {
+            Text(title)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+
+            content()
+        }
         .padding(.horizontal)
     }
 
-    private func walletIdRow(title: String, value: String) -> some View {
+    private func copyableValueRow(title: String, value: String) -> some View {
         HStack {
-            Text("\(title): \(value)")
-                .font(.footnote)
+            valueText("\(title): \(value)")
 
-            SwiftUI.Button {
+            TangemUI.Button(icon: DesignSystem.Icons.Copy.regular20, accessibilityLabel: "Copy \(title)") {
                 viewModel.copy(value)
-            } label: {
-                Image(systemName: "doc.on.doc")
-                    .foregroundColor(Color.blue)
             }
+            .styleType(.ghost)
+            .size(.x8)
         }
+    }
+
+    private func valueText(_ value: String) -> some View {
+        Text(value)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+    }
+
+    private func textField(_ placeholder: String, text: Binding<String>) -> some View {
+        TextField(placeholder, text: text)
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+            .padding()
+            .border(DesignSystem.Color.borderPrimary, width: 1)
+    }
+
+    private func fullWidthButton(
+        _ label: String,
+        styleType: TangemUI.Button.StyleType,
+        action: @escaping () -> Void
+    ) -> some View {
+        TangemUI.Button(label: label, accessibilityLabel: nil, action: action)
+            .styleType(styleType)
+            .size(.x12)
+            .horizontalLayout(.infinity)
     }
 
     private var exitButton: some View {
@@ -209,6 +211,16 @@ struct EnvironmentSetupView: View {
             .disableAnimations()
     }
 }
+
+// MARK: - Constants
+
+private extension EnvironmentSetupView {
+    enum Constants {
+        static let featureTogglesSectionId = "featureTogglesSection"
+    }
+}
+
+// MARK: - Previews
 
 #Preview {
     NavigationStack {

@@ -8,6 +8,7 @@
 
 import struct Foundation.Data
 
+/// A `package` access level due to its use in the `TangemSocialAuthentication` module.
 package struct ObtainRecoveryNonceUseCase: Sendable {
     private let registerDevice: RegisterDevice
     private let deviceKeyManager: DeviceKeyManager
@@ -26,6 +27,7 @@ package struct ObtainRecoveryNonceUseCase: Sendable {
         self.recoveryClient = recoveryClient
     }
 
+    /// A `package` access level due to its use in the `TangemSocialAuthentication` module.
     package func callAsFunction() async throws(ObtainRecoveryNonceError) -> String {
         do {
             _ = try await registerDevice()
