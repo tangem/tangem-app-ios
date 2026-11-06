@@ -62,8 +62,6 @@ private extension ExpressAPIProviderSessionRenewalTests {
             expressAPIType: .production,
             exchangeDataDecoder: ExchangeDataDecoderStub(),
             featureFlags: ExpressFeatureFlags(
-                isSwapBestRateDefaultProviderEnabled: false,
-                isHideRejectedSwapProvidersEnabled: false,
                 isAPIV2Enabled: isAPIV2Enabled
             ),
             requestInterceptor: interceptor

@@ -266,9 +266,7 @@ private extension WalletModelTokenFeeProvidersManagerProvider {
             yieldModuleBalance: activeInfo.yieldModuleBalanceValue,
             feeTokenBalanceProvider: feeTokenItemBalanceProvider,
             versionChecker: feeWalletModel.yieldModuleManager?.versionChecker,
-            versionResolver: FeatureProvider.isAvailable(.yieldModuleOwnerActionUpgrade)
-                ? feeWalletModel.yieldModuleManager?.versionResolver
-                : nil
+            versionResolver: feeWalletModel.yieldModuleManager?.versionResolver
         )
     }
 }

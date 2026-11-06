@@ -18,19 +18,16 @@ final class CommonWalletCardsBackupReportService {
     private let userWalletRepository: UserWalletRepository
     private let savedCardsCollector: WalletCardsSavedCardsCollector
     private let reachabilityProvider: NetworkReachabilityProvider
-    private let reportsPreviouslySavedWallets: Bool
     private var deliveryTask: Task<Void, Never>?
     private var savedCardsSubscription: AnyCancellable?
 
     init(
         reachabilityProvider: NetworkReachabilityProvider = CommonNetworkReachabilityProvider(),
-        reportsPreviouslySavedWallets: Bool = FeatureProvider.isAvailable(.walletCardsBackupReportOnLogin),
         repository: WalletCardsBackupReportRepository = InjectedValues[\.walletCardsBackupReportRepository],
         apiService: TangemApiService = InjectedValues[\.tangemApiService],
         userWalletRepository: UserWalletRepository = InjectedValues[\.userWalletRepository]
     ) {
         self.reachabilityProvider = reachabilityProvider
-        self.reportsPreviouslySavedWallets = reportsPreviouslySavedWallets
         self.repository = repository
         self.apiService = apiService
         self.userWalletRepository = userWalletRepository
@@ -65,8 +62,6 @@ extension CommonWalletCardsBackupReportService: WalletCardsBackupReportService {
 
 private extension CommonWalletCardsBackupReportService {
     func bindPreviouslySavedWallets() {
-        guard reportsPreviouslySavedWallets else { return }
-
         savedCardsSubscription = savedCardsCollector.incompleteBackupCardsPublisher
             .withWeakCaptureOf(self)
             .sink { service, cards in

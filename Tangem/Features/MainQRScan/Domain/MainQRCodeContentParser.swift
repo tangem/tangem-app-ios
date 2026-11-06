@@ -44,8 +44,7 @@ struct MainQRCodeContentParser {
     }
 
     private func isDeeplink(_ url: URL) -> Bool {
-        guard FeatureProvider.isAvailable(.qrScanDeeplinks),
-              let action = incomingActionParser.parseIncomingURL(url) else {
+        guard let action = incomingActionParser.parseIncomingURL(url) else {
             return false
         }
 

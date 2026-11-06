@@ -19,7 +19,7 @@ struct CommonExpressAPIProviderExchangeDataTests {
             expressAPIService: service,
             expressAPIMapper: ExpressAPIMapper(
                 exchangeDataDecoder: RefusingExchangeDataDecoderStub(),
-                featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false, isAPIV2Enabled: false)
+                featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
             )
         )
 

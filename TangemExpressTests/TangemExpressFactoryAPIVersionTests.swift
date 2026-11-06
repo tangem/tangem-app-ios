@@ -59,8 +59,6 @@ private extension TangemExpressFactoryAPIVersionTests {
             expressAPIType: .production,
             exchangeDataDecoder: ExchangeDataDecoderStub(),
             featureFlags: ExpressFeatureFlags(
-                isSwapBestRateDefaultProviderEnabled: false,
-                isHideRejectedSwapProvidersEnabled: false,
                 isAPIV2Enabled: isAPIV2Enabled
             ),
             requestInterceptor: nil
