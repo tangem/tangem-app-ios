@@ -7,7 +7,9 @@
 //
 
 import TangemPay
+import TangemMacro
 
+@CaseFlagable
 enum TangemPayMoneyAccountState {
     case loading
     case syncNeeded
