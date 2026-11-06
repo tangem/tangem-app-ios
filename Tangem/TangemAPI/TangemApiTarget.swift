@@ -167,8 +167,6 @@ struct TangemApiTarget: TargetType {
             return "/coins/indicators"
 
         // MARK: - Action Buttons
-        case .hotCrypto:
-            return "/hot_crypto"
         case .pushNotificationsEligible:
             return "/notification/push_notifications_eligible_networks"
 
@@ -287,7 +285,6 @@ struct TangemApiTarget: TargetType {
              .tokenMarketsDetails,
              .historyChart,
              .tokenExchangesList,
-             .hotCrypto,
              .earnYieldMarkets,
              .earnNetworks,
              .coinsSettings,
@@ -440,8 +437,6 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(parameters: requestModel.parameters, encoding: URLEncoding.default)
 
         // MARK: - News tasks
-        case .hotCrypto(let requestModel):
-            return .requestParameters(parameters: ["currency": requestModel.currency], encoding: URLEncoding.default)
         case .pushNotificationsEligible:
             return .requestPlain
         case .createUserWalletsApplication(let requestModel):
@@ -578,7 +573,6 @@ struct TangemApiTarget: TargetType {
              .tokenMarketsDetails,
              .historyChart,
              .tokenExchangesList,
-             .hotCrypto,
              .earnYieldMarkets,
              .earnNetworks,
              .coinsSettings,
@@ -691,10 +685,6 @@ extension TangemApiTarget {
 
         case coinsSettings
         case coinIndicators(_ requestModel: CoinIndicatorsDTO.Request)
-
-        // MARK: - Action Buttons
-
-        case hotCrypto(_ requestModel: HotCryptoDTO.Request)
 
         /// Configs
         case apiList
@@ -846,7 +836,6 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .earnNetworks,
              .coinsSettings,
              .coinIndicators,
-             .hotCrypto,
              .apiList,
              .pushNotificationsEligible,
              .applicationVersions,
@@ -882,7 +871,6 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .coinIndicators,
              .story,
              .stories,
-             .hotCrypto,
              .createUserWalletsApplication,
              .updateUserWalletsApplication,
              .getUserWallets,

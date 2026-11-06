@@ -73,10 +73,6 @@ protocol TangemApiService: AnyObject {
     /// - Returns: The fresh ETag, whenever the endpoint reports one back.
     func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String, revision: String) async throws -> String?
 
-    // MARK: - Action Buttons
-
-    func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response
-
     // MARK: - BSDK
 
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError>

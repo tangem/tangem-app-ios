@@ -281,10 +281,6 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {
-        throw "Not implemented"
-    }
-
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {
         throw "Not implemented"
     }

@@ -135,7 +135,7 @@ extension UserWalletConfig {
     }
 
     func makeActionButtonsRole() -> ActionButtonsWalletRole {
-        return ActionButtonsWalletRole(providesHotCryptoTokens: true, forcesActionButtonsRow: false, preselectsUserWalletInBuy: false)
+        return ActionButtonsWalletRole(forcesActionButtonsRow: false, preselectsUserWalletInBuy: false)
     }
 }
 

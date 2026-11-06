@@ -16,6 +16,7 @@ import BlockchainSdk
 /// the kinds apart.
 struct CommonJointAccountDependenciesFactory {
     let userWalletId: UserWalletId
+    let configProvider: UserWalletConfigProvider
     /// A single instance per user wallet
     let derivationManager: DerivationManager?
     let keysRepository: KeysRepository
@@ -76,6 +77,7 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
 
         let userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,
+            configProvider: configProvider,
             userTokensRepository: userTokensRepository,
             derivationPathBuilder: derivationPathBuilder,
             existingCurves: existingCurves,
