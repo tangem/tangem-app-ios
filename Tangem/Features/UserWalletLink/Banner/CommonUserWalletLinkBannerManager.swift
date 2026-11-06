@@ -20,9 +20,14 @@ final class CommonUserWalletLinkBannerManager {
     private var isLinkRequired = false
     private var isLinking = false
     private var onUpdate: (() -> Void)?
+    private var registrationStatusTask: Task<Void, Never>?
 
     init(userWalletModel: any UserWalletModel) {
         self.userWalletModel = userWalletModel
+    }
+
+    deinit {
+        registrationStatusTask?.cancel()
     }
 }
 
@@ -53,10 +58,13 @@ extension CommonUserWalletLinkBannerManager: UserWalletLinkBannerManager {
 
         let userWalletId = userWalletModel.userWalletId
 
-        Task { @MainActor in
-            let isRegistered = await BackendAuthenticationAssembly.retrieveUserWalletRegistrationStatus(id: userWalletId)
-            isLinkRequired = !isRegistered
-            onUpdate()
+        registrationStatusTask?.cancel()
+        registrationStatusTask = Task { @MainActor [weak self] in
+            let updates = await BackendAuthenticationAssembly.retrieveUserWalletRegistrationStatus.updates(id: userWalletId)
+
+            for await isRegistered in updates {
+                self?.updateIsLinkRequired(!isRegistered)
+            }
         }
     }
 
@@ -79,6 +87,15 @@ extension CommonUserWalletLinkBannerManager: UserWalletLinkBannerManager {
 // MARK: - Private
 
 private extension CommonUserWalletLinkBannerManager {
+    func updateIsLinkRequired(_ isLinkRequired: Bool) {
+        guard self.isLinkRequired != isLinkRequired else {
+            return
+        }
+
+        self.isLinkRequired = isLinkRequired
+        onUpdate?()
+    }
+
     func handleLinkResult(_ result: Result<Void, UserWalletLinkError>) {
         isLinking = false
 
