@@ -147,6 +147,7 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
         let machineID: String
         let txID: String
         let signedPurchase: CollectiblesSignedPurchase?
+        let isTurboModeOn: Bool
         var createdAt: Date?
         var stage: Stage
     }
@@ -219,7 +220,11 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
         if order.stage == .reported || order.stage == .paid {
             let packCreatedAt = order.stage == .reported ? order.createdAt : nil
 
-            switch try await tracker.awaitPayment(txID: order.txID, createdAt: packCreatedAt) {
+            switch try await tracker.awaitPayment(
+                txID: order.txID,
+                createdAt: packCreatedAt,
+                isTurboModeOn: order.isTurboModeOn
+            ) {
             case .paid:
                 order.stage = .paid
             case .opened(let wonCard):
@@ -242,12 +247,12 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
             return openedCard
         }
 
-        return try await tracker.awaitWonCard(txID: order.txID)
+        return try await tracker.awaitWonCard(txID: order.txID, isTurboModeOn: order.isTurboModeOn)
     }
 
     func open(_ order: Order) async throws -> CollectiblesWonCard? {
         do {
-            return try await tracker.open(txID: order.txID)
+            return try await tracker.open(txID: order.txID, isTurboModeOn: order.isTurboModeOn)
         } catch CollectiblesPackOpeningError.spinNotFound {
             throw CollectiblesPackPurchaseError.paymentFailed(.refunded)
         }
@@ -301,7 +306,7 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
                 machineID: machineID,
                 fromAddress: addresses.player,
                 toAddress: addresses.prizeRecipient,
-                turboMode: isTurboModeOn ? .on(buybackAddress: addresses.prizeRecipient) : .off
+                turboMode: isTurboModeOn ? .on(buybackAddress: addresses.payoutRecipient) : .off
             )
         } catch CollectiblesPurchaseGenerationError.lowInventory {
             throw CollectiblesPackPurchaseError.lowInventory
@@ -325,6 +330,7 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
             machineID: machineID,
             txID: generated.txID,
             signedPurchase: signedPurchase,
+            isTurboModeOn: isTurboModeOn,
             createdAt: nil,
             stage: .signed
         )
@@ -384,6 +390,7 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
             machineID: pendingPurchase.machineID,
             txID: pendingPurchase.txID,
             signedPurchase: nil,
+            isTurboModeOn: pendingPurchase.isTurboModeOn,
             createdAt: pendingPurchase.createdAt,
             stage: stage
         )

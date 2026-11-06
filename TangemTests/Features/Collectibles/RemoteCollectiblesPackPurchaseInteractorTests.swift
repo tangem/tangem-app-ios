@@ -30,21 +30,43 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         #expect(wonCard.gradingID == Constants.gradingID)
         #expect(steps == [.generating, .confirming, .opening])
         #expect(provider.generatedMachineIDs == [Constants.machineID])
-        #expect(provider.generatedAddresses == [Constants.addresses])
+        #expect(provider.generatedAddresses == [GeneratedAddresses(from: "player", to: "recipient")])
         #expect(signer.sentSignatures == [Constants.signature])
         #expect(provider.reportedHashes == [Constants.signature])
         #expect(provider.openedTxIDs == [Constants.txID])
         #expect(!sut.hasUnfinishedPurchase(machineID: Constants.machineID))
     }
 
-    @Test("Turbo mode sends the auto-sell proceeds to the prize recipient", arguments: [false, true])
+    @Test("Turbo mode sends the auto-sell proceeds to the vault", arguments: [false, true])
     func passesTurboMode(isTurboModeOn: Bool) async throws {
         let (sut, provider, _) = makeSUT()
-        let expected: CollectiblesTurboMode = isTurboModeOn ? .on(buybackAddress: Constants.addresses.prizeRecipient) : .off
+        let payoutRecipient = Constants.addresses.payoutRecipient
+        let expected: CollectiblesTurboMode = isTurboModeOn ? .on(buybackAddress: payoutRecipient) : .off
 
         _ = try await purchase(sut, isTurboModeOn: isTurboModeOn)
 
         #expect(provider.generatedTurboModes == [expected])
+    }
+
+    @Test("Only a Turbo purchase asks the backend for the auto buyback", arguments: [false, true])
+    func asksForAutoBuybackOnlyInTurbo(isTurboModeOn: Bool) async throws {
+        let (sut, provider, _) = makeSUT()
+
+        _ = try await purchase(sut, isTurboModeOn: isTurboModeOn)
+
+        #expect(Set(provider.statusAutoBuybackRequests) == [isTurboModeOn])
+        #expect(provider.openAutoBuybackRequests == [isTurboModeOn])
+    }
+
+    @Test("A restored purchase asks for the auto buyback by its own Turbo mode, not by the toggle", arguments: [false, true])
+    func restoredPurchaseKeepsTurboMode(isTurboModeOn: Bool) async throws {
+        let pendingPurchase = Self.pendingPurchase(.packPurchased, isTurboModeOn: isTurboModeOn)
+        let (sut, provider, _) = makeSUT(pendingPurchase: pendingPurchase)
+
+        _ = try await purchase(sut, isTurboModeOn: !isTurboModeOn)
+
+        #expect(Set(provider.statusAutoBuybackRequests) == [isTurboModeOn])
+        #expect(provider.openAutoBuybackRequests == [isTurboModeOn])
     }
 
     @Test("Signs the shown price and fee in USDC base units", arguments: Self.priceArguments)
@@ -774,7 +796,11 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
         static let price: Decimal = 25
         static let platformFee: Decimal = 1
         static let buybackAmount: Decimal = 35.6
-        static let addresses = CollectiblesPurchaseAddresses(player: "player", prizeRecipient: "recipient")
+        static let addresses = CollectiblesPurchaseAddresses(
+            player: "player",
+            prizeRecipient: "recipient",
+            payoutRecipient: "vault"
+        )
         static let error = URLError(.timedOut)
         static let statusFailures = 3
         static let paymentChecks = 50
@@ -813,13 +839,15 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
         _ status: CollectiblesPurchaseStatus,
         txID: String = Constants.restoredTxID,
         machineID: String = Constants.machineID,
-        createdAt: Date = Constants.now
+        createdAt: Date = Constants.now,
+        isTurboModeOn: Bool = false
     ) -> CollectiblesPendingPurchase {
         CollectiblesPendingPurchase(
             txID: txID,
             machineID: machineID,
             status: status,
-            createdAt: createdAt
+            createdAt: createdAt,
+            isTurboModeOn: isTurboModeOn
         )
     }
 
@@ -947,6 +975,11 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
 
 // MARK: - Stubs
 
+private struct GeneratedAddresses: Equatable {
+    let from: String
+    let to: String
+}
+
 @MainActor
 private final class PurchaseProviderStub: CollectiblesPurchaseGenerator, CollectiblesPurchaseSentReporter,
     CollectiblesPurchaseStatusProvider, CollectiblesPackOpener, CollectiblesPendingPurchaseProvider {
@@ -957,11 +990,13 @@ private final class PurchaseProviderStub: CollectiblesPurchaseGenerator, Collect
     var pendingLookupGate: LookupGate?
 
     private(set) var generatedMachineIDs: [String] = []
-    private(set) var generatedAddresses: [CollectiblesPurchaseAddresses] = []
+    private(set) var generatedAddresses: [GeneratedAddresses] = []
     private(set) var generatedTurboModes: [CollectiblesTurboMode] = []
     private(set) var reportedHashes: [String] = []
     private(set) var openedTxIDs: [String] = []
     private(set) var statusLoadsCount = 0
+    private(set) var statusAutoBuybackRequests: [Bool] = []
+    private(set) var openAutoBuybackRequests: [Bool] = []
 
     private let generateError: (any Error)?
     private var reportResults: [Result<CollectiblesPurchaseStatus, any Error>]
@@ -1006,7 +1041,7 @@ private final class PurchaseProviderStub: CollectiblesPurchaseGenerator, Collect
     ) async throws -> CollectiblesGeneratedPurchase {
         generatedMachineIDs.append(machineID)
         generatedTurboModes.append(turboMode)
-        generatedAddresses.append(CollectiblesPurchaseAddresses(player: fromAddress, prizeRecipient: toAddress))
+        generatedAddresses.append(GeneratedAddresses(from: fromAddress, to: toAddress))
 
         if let generateError {
             throw generateError
@@ -1023,8 +1058,9 @@ private final class PurchaseProviderStub: CollectiblesPurchaseGenerator, Collect
         return try Self.next(from: &reportResults).get()
     }
 
-    func load(txID: String) async throws -> CollectiblesPurchaseTransaction {
+    func load(txID: String, includesAutoBuyback: Bool) async throws -> CollectiblesPurchaseTransaction {
         statusLoadsCount += 1
+        statusAutoBuybackRequests.append(includesAutoBuyback)
 
         guard statusFailures == 0 else {
             statusFailures -= 1
@@ -1034,8 +1070,9 @@ private final class PurchaseProviderStub: CollectiblesPurchaseGenerator, Collect
         return Self.next(from: &statuses)
     }
 
-    func open(txID: String) async throws -> CollectiblesPurchaseTransaction {
+    func open(txID: String, includesAutoBuyback: Bool) async throws -> CollectiblesPurchaseTransaction {
         openedTxIDs.append(txID)
+        openAutoBuybackRequests.append(includesAutoBuyback)
         return try Self.next(from: &openResults).get()
     }
 

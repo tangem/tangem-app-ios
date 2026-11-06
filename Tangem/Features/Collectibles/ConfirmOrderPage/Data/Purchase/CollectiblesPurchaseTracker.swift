@@ -35,11 +35,13 @@ struct CollectiblesPurchaseTracker {
 
     // MARK: - Methods
 
-    func awaitPayment(txID: String, createdAt: Date?) async throws -> Payment {
+    func awaitPayment(txID: String, createdAt: Date?, isTurboModeOn: Bool) async throws -> Payment {
         let checksLimit = paymentChecksLimit(createdAt: createdAt)
         let polling = PollingSequence(
             interval: Constants.retryInterval,
-            request: { [statusProvider] in try await statusProvider.load(txID: txID) },
+            request: { [statusProvider] in
+                try await statusProvider.load(txID: txID, includesAutoBuyback: isTurboModeOn)
+            },
             delayProvider: delayProvider
         )
 
@@ -72,26 +74,26 @@ struct CollectiblesPurchaseTracker {
         throw CancellationError()
     }
 
-    func open(txID: String) async throws -> CollectiblesWonCard? {
+    func open(txID: String, isTurboModeOn: Bool) async throws -> CollectiblesWonCard? {
         try await retrying(
             attempts: Constants.openAttemptsCount,
             exhausted: .openFailed,
             failureMessage: "Collectibles pack \(txID) failed to open"
         ) {
-            let transaction = try await opener.open(txID: txID)
+            let transaction = try await opener.open(txID: txID, includesAutoBuyback: isTurboModeOn)
             try Self.throwIfClosed(transaction)
 
             return Self.outcome(of: transaction.status) == .opened ? .done(transaction.wonCard) : .retry
         }
     }
 
-    func awaitWonCard(txID: String) async throws -> CollectiblesWonCard {
+    func awaitWonCard(txID: String, isTurboModeOn: Bool) async throws -> CollectiblesWonCard {
         try await retrying(
             attempts: Constants.prizeDeliveryChecksCount,
             exhausted: .prizeNotDelivered,
             failureMessage: "Collectibles pack \(txID) prize delivery check failed"
         ) {
-            let transaction = try await statusProvider.load(txID: txID)
+            let transaction = try await statusProvider.load(txID: txID, includesAutoBuyback: isTurboModeOn)
             try Self.throwIfClosed(transaction)
 
             return transaction.wonCard.map { .done($0) } ?? .retry
@@ -102,7 +104,7 @@ struct CollectiblesPurchaseTracker {
         let transaction: CollectiblesPurchaseTransaction
 
         do {
-            transaction = try await statusProvider.load(txID: txID)
+            transaction = try await statusProvider.load(txID: txID, includesAutoBuyback: false)
         } catch is CancellationError {
             throw CancellationError()
         } catch {
