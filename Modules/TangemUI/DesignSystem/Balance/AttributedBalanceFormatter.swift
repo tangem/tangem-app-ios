@@ -79,14 +79,14 @@ public enum AttributedBalanceFormatter {
     }
 
     /// Only plain-string balances are recolored; already-attributed or builder-based values pass through untouched.
-    public static func decimalColored(
+    public static func splitFonts(
         _ state: LoadableBalanceView.State,
         decimalSeparator: String = Locale.current.decimalSeparator ?? ".",
         integerPart: PartStyle,
         fractionalPart: PartStyle,
         fractionalIncludesSeparator: Bool = true
     ) -> LoadableBalanceView.State {
-        func recolor(_ text: LoadableBalanceView.Text) -> LoadableBalanceView.Text {
+        func split(_ text: LoadableBalanceView.Text) -> LoadableBalanceView.Text {
             switch text {
             case .string(let raw):
                 return .attributed(format(
@@ -103,66 +103,38 @@ public enum AttributedBalanceFormatter {
 
         switch state {
         case .loaded(let text):
-            return .loaded(text: recolor(text))
+            return .loaded(text: split(text))
         case .loading(let cached):
-            return .loading(cached: cached.map(recolor))
+            return .loading(cached: cached.map(split))
         case .failed(let cached, let icon):
-            return .failed(cached: recolor(cached), icon: icon)
+            return .failed(cached: split(cached), icon: icon)
         }
     }
 
-    // MARK: - Convenience (canonical colors: integer textPrimary, fractional textSecondary; pass nil to inherit)
+    // MARK: - Convenience
 
     public static func format(
         _ balance: String,
         token: TangemTypographyToken,
-        integerColor: Color? = DesignSystem.Color.textPrimary,
-        fractionalColor: Color? = DesignSystem.Color.textSecondary,
-        decimalSeparator: String = Locale.current.decimalSeparator ?? ".",
-        fractionalIncludesSeparator: Bool = true
+        color: Color = DesignSystem.Color.textPrimary
     ) -> AttributedString {
-        var attributed = format(
-            balance,
-            decimalSeparator: decimalSeparator,
-            integerPart: PartStyle(font: nil, color: integerColor),
-            fractionalPart: PartStyle(font: nil, color: fractionalColor),
-            fractionalIncludesSeparator: fractionalIncludesSeparator
-        )
+        var attributed = AttributedString(balance)
+        attributed.foregroundColor = color
         attributed.setFontStyle(token)
         return attributed
     }
 
-    /// Dims only the decimal tail via color and leaves both parts' font unset, so the caller applies
-    /// a Dynamic Type-aware font through the SwiftUI `.font(_:)`/`.style(_:)` view modifier. The
-    /// integer part is left uncolored so it follows the ambient `foregroundStyle` — e.g. a
-    /// caller-driven price-change flash animation.
-    public static func dimmingDecimals(
-        _ balance: String,
-        decimalColor: Color = DesignSystem.Color.textSecondary,
-        decimalSeparator: String = Locale.current.decimalSeparator ?? ".",
-        fractionalIncludesSeparator: Bool = true
-    ) -> AttributedString {
-        format(
-            balance,
-            decimalSeparator: decimalSeparator,
-            integerPart: PartStyle(font: nil, color: nil),
-            fractionalPart: PartStyle(font: nil, color: decimalColor),
-            fractionalIncludesSeparator: fractionalIncludesSeparator
-        )
-    }
-
-    public static func decimalColored(
+    public static func splitFonts(
         _ state: LoadableBalanceView.State,
         integerFont: TangemTypographyToken,
         fractionalFont: TangemTypographyToken,
-        integerColor: Color? = DesignSystem.Color.textPrimary,
-        fractionalColor: Color? = DesignSystem.Color.textSecondary,
+        color: Color = DesignSystem.Color.textPrimary,
         fractionalIncludesSeparator: Bool = true
     ) -> LoadableBalanceView.State {
-        decimalColored(
+        splitFonts(
             state,
-            integerPart: PartStyle(token: integerFont, color: integerColor),
-            fractionalPart: PartStyle(token: fractionalFont, color: fractionalColor),
+            integerPart: PartStyle(token: integerFont, color: color),
+            fractionalPart: PartStyle(token: fractionalFont, color: color),
             fractionalIncludesSeparator: fractionalIncludesSeparator
         )
     }

@@ -65,7 +65,6 @@ struct TokenRowShowcase: View {
             }
 
             if configuration.contentCase == .balance || (configuration.contentCase == .compact && configuration.compactSubtitle == .balance) {
-                controls.toggle("Attributed balances", $configuration.isAttributed)
                 controls.picker("Fiat balance", $configuration.fiatState, options: BalanceStateOption.allCases, label: \.label)
             }
 
@@ -190,7 +189,7 @@ struct TokenRowShowcase: View {
                 priceChange: configuration.priceChange.value(isUpdating: configuration.isPriceChangeUpdating),
                 balance: TokenRow.Balance(
                     fiat: fiatBalanceValue(configuration),
-                    crypto: configuration.showCrypto ? balanceValue(configuration.cryptoState, configuration.crypto, isAttributed: configuration.isAttributed) : nil
+                    crypto: configuration.showCrypto ? balanceValue(configuration.cryptoState, configuration.crypto) : nil
                 ),
                 indicator: configuration.indicator.value,
                 bubble: configuration.showBubble ? bubbleModel(configuration, isInteractive: isInteractive) : nil,
@@ -273,14 +272,14 @@ struct TokenRowShowcase: View {
     private func compactSubtitleValue(_ configuration: Configuration) -> TokenRow.CompactSubtitle {
         switch configuration.compactSubtitle {
         case .balance:
-            return TokenRow.CompactSubtitle.balance(balanceValue(configuration.fiatState, configuration.fiat, isAttributed: configuration.isAttributed))
+            return TokenRow.CompactSubtitle.balance(balanceValue(configuration.fiatState, configuration.fiat))
         case .message:
             return TokenRow.CompactSubtitle.message(configuration.warningText)
         }
     }
 
     private func fiatBalanceValue(_ configuration: Configuration) -> TokenRow.Balance.Fiat {
-        let text = balanceText(configuration.fiat, isAttributed: configuration.isAttributed)
+        let text = UtilBalance.Value.string(configuration.fiat)
 
         switch configuration.fiatState {
         case .loading:
@@ -292,29 +291,15 @@ struct TokenRowShowcase: View {
         }
     }
 
-    private func balanceValue(_ state: BalanceStateOption, _ string: String, isAttributed: Bool) -> TokenRowValue {
+    private func balanceValue(_ state: BalanceStateOption, _ string: String) -> TokenRowValue {
         switch state {
         case .loading:
             return TokenRowValue.loading
         case .updating:
-            return TokenRowValue.updating(balanceText(string, isAttributed: isAttributed))
+            return TokenRowValue.updating(UtilBalance.Value.string(string))
         case .loaded:
-            return TokenRowValue.loaded(balanceText(string, isAttributed: isAttributed))
+            return TokenRowValue.loaded(UtilBalance.Value.string(string))
         }
-    }
-
-    private func balanceText(_ string: String, isAttributed: Bool) -> UtilBalance.Value {
-        guard isAttributed else {
-            return UtilBalance.Value.string(string)
-        }
-
-        var attributed = AttributedString(string)
-
-        if let separator = attributed.range(of: Locale.current.decimalSeparator ?? ".") {
-            attributed[separator.lowerBound ..< attributed.endIndex].foregroundColor = DesignSystem.Color.textSecondary
-        }
-
-        return UtilBalance.Value.attributed(attributed)
     }
 
     static var iconInfo: TokenIconInfo {
@@ -352,7 +337,6 @@ private extension TokenRowShowcase {
         var fiatState: BalanceStateOption = .loaded
         var cryptoState: BalanceStateOption = .loaded
         var isStale = false
-        var isAttributed = false
         var priceChange: PriceChangeOption = .positive
         var isPriceChangeUpdating = false
         var indicator: IndicatorOption = .none

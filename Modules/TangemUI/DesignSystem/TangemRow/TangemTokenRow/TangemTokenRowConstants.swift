@@ -18,8 +18,7 @@ enum TangemTokenRowConstants {
 
         enum FiatBalance {
             static let font = Font.Tangem.Body15.semibold
-            static let integerColor: Color = .Tangem.Text.Neutral.primary
-            static let decimalColor: Color = .Tangem.Text.Neutral.secondary
+            static let color: Color = .Tangem.Text.Neutral.primary
         }
 
         enum TokenPrice {
