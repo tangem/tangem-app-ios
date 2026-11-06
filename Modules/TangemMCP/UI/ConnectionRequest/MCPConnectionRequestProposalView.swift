@@ -159,7 +159,7 @@ struct MCPConnectionRequestProposalView: View {
                     .foregroundStyle(DesignSystem.Color.iconStatusWarning)
                     .accessibilityHidden(true)
             }
-            .primaryButton(
+            .secondaryButton(
                 MessageBannerButton(title: banner.buttonTitle) {
                     viewModel.handle(action: .openSystemSettingsButtonTapped)
                 }
