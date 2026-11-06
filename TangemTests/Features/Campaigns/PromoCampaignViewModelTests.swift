@@ -57,6 +57,43 @@ final class PromoCampaignViewModelTests: LeakTrackingTestSuite {
         }
     }
 
+    @Test("A payout button title from the backend replaces the local one until a payout token is chosen")
+    func backendPayoutButtonTitle() async {
+        await withSelectedWallet {
+            let sut = makeSUT(isPayoutNeeded: true, payoutButtonTitle: "Choose reward token")
+
+            #expect(sut.actionButtonTitle == "Choose reward token")
+
+            sut.handleSelectedToken(CampaignsFixtures.makeTokenSelectorItem())
+
+            #expect(sut.actionButtonTitle == "Enroll")
+        }
+    }
+
+    @Test("A campaign without a payout keeps its action title even with a payout button title from the backend")
+    func payoutButtonTitleIgnoredWithoutPayout() async {
+        await withSelectedWallet {
+            let sut = makeSUT(isPayoutNeeded: false, payoutButtonTitle: "Choose reward token")
+
+            #expect(sut.actionButtonTitle == "Enroll")
+        }
+    }
+
+    @Test(
+        "The payout account title comes from the backend and falls back to the local one",
+        arguments: [
+            (String?.none, Localization.promoCampaignSelectedCashbackAccount),
+            ("Reward account", "Reward account"),
+        ]
+    )
+    func payoutAccountTitle(backendTitle: String?, expected: String) async {
+        await withSelectedWallet {
+            let sut = makeSUT(isPayoutNeeded: true, payoutAccountTitle: backendTitle)
+
+            #expect(sut.payoutAccountTitle == expected)
+        }
+    }
+
     @Test("With a payout token chosen the action enrolls with that token")
     func enrollWithChosenToken() async {
         await withSelectedWallet {
@@ -308,8 +345,19 @@ private extension PromoCampaignViewModelTests {
         try await withInjectedCampaignDependencies(FakeTangemApiService(), userWalletRepository: repository, operation: operation)
     }
 
-    func makeSUT(isPayoutNeeded: Bool, coordinator: PromoCampaignRoutable? = nil) -> PromoCampaignViewModel {
-        trackForMemoryLeaks(PromoCampaignViewModel(campaign: makeCampaign(isPayoutNeeded: isPayoutNeeded), coordinator: coordinator))
+    func makeSUT(
+        isPayoutNeeded: Bool,
+        payoutButtonTitle: String? = nil,
+        payoutAccountTitle: String? = nil,
+        coordinator: PromoCampaignRoutable? = nil
+    ) -> PromoCampaignViewModel {
+        let campaign = makeCampaign(
+            isPayoutNeeded: isPayoutNeeded,
+            payoutButtonTitle: payoutButtonTitle,
+            payoutAccountTitle: payoutAccountTitle
+        )
+
+        return trackForMemoryLeaks(PromoCampaignViewModel(campaign: campaign, coordinator: coordinator))
     }
 
     func makeSUTWithCoordinator(isPayoutNeeded: Bool) -> (PromoCampaignViewModel, PromoCampaignRoutableSpy) {
@@ -317,7 +365,12 @@ private extension PromoCampaignViewModelTests {
         return (makeSUT(isPayoutNeeded: isPayoutNeeded, coordinator: coordinator), coordinator)
     }
 
-    func makeCampaign(isPayoutNeeded: Bool, payoutTokens: [CampaignEligibleToken]? = nil) -> PromoCampaign {
+    func makeCampaign(
+        isPayoutNeeded: Bool,
+        payoutTokens: [CampaignEligibleToken]? = nil,
+        payoutButtonTitle: String? = nil,
+        payoutAccountTitle: String? = nil
+    ) -> PromoCampaign {
         PromoCampaign(
             id: 42,
             name: "whale_swap_cashback",
@@ -329,7 +382,9 @@ private extension PromoCampaignViewModelTests {
                 blocks: [.text(title: nil, text: "Earn cashback on every swap from $10K", link: nil)],
                 learnMoreLink: nil,
                 termsLink: PromoCampaignContent.Link(title: "Whale Swap Cashback Terms", url: termsURL),
-                actionButtonTitle: "Enroll"
+                actionButtonTitle: "Enroll",
+                payoutButtonTitle: payoutButtonTitle,
+                payoutAccountTitle: payoutAccountTitle
             ),
             isPayoutNeeded: isPayoutNeeded,
             payoutTokens: payoutTokens ?? (isPayoutNeeded ? [PromotionCampaignsFixtures.makeEligibleToken()] : []),

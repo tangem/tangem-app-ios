@@ -102,6 +102,47 @@ struct PromoCampaignsRepositoryTests {
         #expect(currentCampaigns(sut, userWalletId: walletA).isEmpty)
     }
 
+    @Test("Settled campaigns of a wallet stay silent until its answer arrives")
+    func settledCampaignsWaitForTheAnswer() async throws {
+        let loader = CampaignsLoaderStub(gatedWalletIds: [walletA])
+        let sut = makeSUT(wallets: WalletsProviderStub([mobileWallet(walletA)]), loader: loader)
+
+        sut.initialize()
+
+        #expect(settledCampaigns(sut, userWalletId: walletA) == nil)
+
+        loader.openGate()
+
+        #expect(try await sut.settledCampaignsPublisher(for: walletA).async() == .loaded([CampaignsLoaderStub.campaign]))
+    }
+
+    @Test("A wallet whose request fails settles as failed, not as a wallet without campaigns")
+    func failedWalletSettlesAsFailed() async throws {
+        let loader = CampaignsLoaderStub(failures: [walletA: .max])
+        let sut = makeSUT(wallets: WalletsProviderStub([mobileWallet(walletA)]), loader: loader)
+
+        sut.initialize()
+
+        #expect(try await sut.settledCampaignsPublisher(for: walletA).async() == .failed)
+    }
+
+    @Test("A wallet asked about again after a failure settles with the new answer")
+    func retriedWalletSettlesWithNewAnswer() async throws {
+        let loader = CampaignsLoaderStub(failures: [walletA: .max])
+        let wallets = WalletsProviderStub([mobileWallet(walletA)])
+        let sut = makeSUT(wallets: wallets, loader: loader)
+
+        sut.initialize()
+        #expect(try await sut.settledCampaignsPublisher(for: walletA).async() == .failed)
+
+        loader.stopFailing()
+        wallets.set([mobileWallet(walletA), mobileWallet(walletB)])
+
+        let settlement = try await sut.settledCampaignsPublisher(for: walletA).filter { $0 != .failed }.async()
+
+        #expect(settlement == .loaded([CampaignsLoaderStub.campaign]))
+    }
+
     @Test("A wallet whose identity changes drops its campaigns and is asked about again")
     func walletWithChangedIdentityIsReloaded() async throws {
         let loader = CampaignsLoaderStub()
@@ -410,6 +451,13 @@ private extension PromoCampaignsRepositoryTests {
     func currentCampaigns(_ sut: PromoCampaignsRepository, userWalletId: UserWalletId) -> [PromoCampaign] {
         var campaigns: [PromoCampaign] = []
         let cancellable = sut.campaignsPublisher(for: userWalletId).sink { campaigns = $0 }
+        cancellable.cancel()
+        return campaigns
+    }
+
+    func settledCampaigns(_ sut: PromoCampaignsRepository, userWalletId: UserWalletId) -> PromoCampaignsSettlement? {
+        var campaigns: PromoCampaignsSettlement?
+        let cancellable = sut.settledCampaignsPublisher(for: userWalletId).sink { campaigns = $0 }
         cancellable.cancel()
         return campaigns
     }

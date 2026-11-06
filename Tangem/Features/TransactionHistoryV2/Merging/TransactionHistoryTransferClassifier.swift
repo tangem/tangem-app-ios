@@ -67,6 +67,7 @@ private extension TransactionHistoryTransferClassifier {
     enum Constants {
         static let yieldModeSwitchMethodIds = [
             "0x79be55f7",
+            "0x3e44dfd2",
             "0xc65e6dcf",
         ]
 

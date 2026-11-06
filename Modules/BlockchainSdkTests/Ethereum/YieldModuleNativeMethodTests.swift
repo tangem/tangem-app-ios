@@ -24,6 +24,7 @@ struct YieldModuleNativeMethodTests {
             ("entrySuspended(address)", EntrySuspendedMethod(tokenContractAddress: wethAddress)),
             ("pool()", YieldModulePoolMethod()),
             ("enterProtocolByOwnerWithNative()", EnterProtocolByOwnerWithNativeMethod()),
+            ("enterProtocolByOwner(address,uint256)", EnterProtocolWithAmountMethod(tokenContractAddress: wethAddress, amount: .zero)),
             ("withdrawNative(uint256)", WithdrawNativeMethod(amount: .zero)),
             ("withdrawAndDeactivateNative()", WithdrawAndDeactivateNativeMethod()),
             ("getVirtualUnderlyingBalance(address)", VirtualUnderlyingBalanceMethod(assetContractAddress: wethAddress)),
@@ -56,6 +57,15 @@ struct YieldModuleNativeMethodTests {
     @Test("Encodes enterProtocolByOwnerWithNative() without arguments, the amount travels as the transaction value")
     func enterProtocolByOwnerWithNative() {
         #expect(EnterProtocolByOwnerWithNativeMethod().data.hex() == "0921ecd4")
+    }
+
+    @Test("Encodes enterProtocolByOwner(address,uint256) with the token address and the amount as 32-byte words")
+    func enterProtocolByOwnerWithAmount() {
+        let halfEther = BigUInt("500000000000000000")
+
+        let data = EnterProtocolWithAmountMethod(tokenContractAddress: wethAddress, amount: halfEther).data
+
+        #expect(data.hex() == "3e44dfd2" + paddedWethAddress + "00000000000000000000000000000000000000000000000006f05b59d3b20000")
     }
 
     @Test("Encodes withdrawNative(uint256) with the amount in wei")

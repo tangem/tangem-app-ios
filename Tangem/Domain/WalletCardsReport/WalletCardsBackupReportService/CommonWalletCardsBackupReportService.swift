@@ -67,7 +67,7 @@ private extension CommonWalletCardsBackupReportService {
     func bindPreviouslySavedWallets() {
         guard reportsPreviouslySavedWallets else { return }
 
-        savedCardsSubscription = savedCardsCollector.cardLinkedCardsPublisher
+        savedCardsSubscription = savedCardsCollector.incompleteBackupCardsPublisher
             .withWeakCaptureOf(self)
             .sink { service, cards in
                 for card in cards {
