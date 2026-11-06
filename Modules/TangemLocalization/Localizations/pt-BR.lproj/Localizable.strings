@@ -406,6 +406,7 @@
 "common_from_wallet" = "Da carteira";
 "common_from" = "De";
 "common_generate_addresses" = "Sincronizar endereços";
+"common_get_started" = "Comece agora";
 "common_get_token" = "Obter token";
 "common_go_to_provider" = "Ir para o provedor";
 "common_go_to_token" = "Ir para o token";
@@ -858,7 +859,7 @@
 "hw_cloud_backup_permissions_title_v2" = "Permitir acesso completo ao %1$@";
 "hw_cloud_backup_remove_title" = "Backup de %2$@ no %1$@";
 "hw_cloud_backup_removed" = "Backup removido";
-"hw_cloud_backup_restore_all_added_hint" = "Todos os backups desta conta %1$@ já estão no Tangem";
+"hw_cloud_backup_restore_all_added_hint" = "Todos os backups associados à conta %1$@ já estão na Tangem";
 "hw_cloud_backup_restore_error_title" = "Algo deu errado";
 "hw_cloud_backup_restore_error_with_recovery" = "Tente novamente mais tarde ou importe sua frase de recuperação.";
 "hw_cloud_backup_restore_navtitle_v2" = "Backup do %1$@";
@@ -1105,6 +1106,13 @@
 "joint_account_send_slot_busy_title" = "Já existe uma operação em andamento";
 "joint_account_settings_networks_info" = "Esta conta funciona apenas nas redes compatíveis.";
 "joint_account_waiting_activation" = "Aguardando ativação";
+"joint_blockaid_create_anyway" = "Create anyway";
+"joint_blockaid_decline_transaction" = "Decline transaction";
+"joint_blockaid_malicious_body" = "This address has been flagged as malicious. If you send funds to it, you'll most likely lose them.";
+"joint_blockaid_malicious_title" = "Malicious transaction";
+"joint_blockaid_risky_body" = "This recipient address may be unsafe. Only proceed if you trust the recipient.";
+"joint_blockaid_risky_title" = "Potentially risky address";
+"joint_blockaid_sign_anyway" = "Sign anyway";
 "joint_operation_auto_sends_footer" = "Envia automaticamente assim que %1$@ de %2$@ membros assinarem";
 "joint_operation_banner_subtitle" = "%1$@ → %2$@";
 "joint_operation_banner_title_own" = "Você quer enviar %1$@";
@@ -1320,14 +1328,14 @@
 "money_account_add_funds_bank_description" = "Receba USD de uma conta bancária via ACH/Wire ou SPEI";
 "money_account_add_funds_receive_description" = "Envie USDC pela rede Polygon para o endereço da sua conta";
 "money_account_add_funds_swap_description" = "Use criptoativos da sua carteira para adicionar fundos à sua conta em USD";
-"money_account_balance_unavailable_description" = "Estamos com dificuldades para carregar seu saldo. Tente novamente mais tarde";
+"money_account_balance_unavailable_description" = "Estamos com dificuldades para carregar seu saldo. Tente novamente mais tarde.";
 "money_account_balance_unavailable_title" = "Saldo indisponível";
 "money_account_close_account" = "Encerrar conta";
 "money_account_main_name" = "Conta em USD";
 "money_account_main_status_action_required" = "Ação necessária";
 "money_account_main_status_activating" = "Ativando...";
 "money_account_main_status_active_v2" = "ACH";
-"money_account_main_status_awaiting_deposit" = "Opens after your deposit";
+"money_account_main_status_awaiting_deposit" = "Abre após seu depósito";
 "money_account_main_status_dialog_activating_description" = "Estamos preparando sua conta. Isso pode levar algum tempo";
 "money_account_main_status_dialog_activating_title" = "Criando sua conta bancária";
 "money_account_main_status_dialog_country_not_supported_description_template" = "Estamos trabalhando para expandir para mais regiões. Precisa de ajuda? %@";
@@ -2048,7 +2056,7 @@
 "social_login_error_backup_not_saved" = "Não foi possível salvar o backup — verifique se o armazenamento em nuvem está disponível e tente novamente";
 "social_login_error_cloud_access_description" = "Verifique se a Tangem tem acesso ao seu %@ e tente novamente";
 "social_login_error_cloud_access_title" = "Não foi possível restaurar a carteira";
-"social_login_error_generic_v2" = "Please try again. If the problem persists, check your internet connection.";
+"social_login_error_generic_v2" = "Por favor, tente novamente. Se o problema persistir, verifique sua conexão com a internet.";
 "social_login_error_generic" = "Ocorreu um problema. Por favor, tente novamente";
 "social_login_error_network_description" = "Verifique sua conexão e tente novamente.";
 "social_login_error_network_title" = "Sem conexão com a internet";
@@ -2060,7 +2068,7 @@
 "social_login_restoring_wallet" = "Restaurando sua carteira";
 "social_login_toast_wallet_added" = "Carteira adicionada";
 "social_login_toast_wallet_created" = "Carteira criada";
-"social_wallet_already_added_alert_message" = "Apenas uma carteira neste dispositivo pode usar o recurso Iniciar sessão com %1$@. Para usar outra conta, saia da conta atual primeiro.";
+"social_wallet_already_added_alert_message" = "Apenas uma carteira neste dispositivo pode usar o login via %1$@. Para usar outra conta, saia primeiro da conta atual.";
 "social_wallet_already_added_alert_title" = "Você já iniciou sessão com %1$@";
 "social_wallet_delete_anyway" = "Excluir mesmo assim";
 "social_wallet_delete_attention_acknowledge" = "Entendo que, se eu não tiver feito backup da minha frase de recuperação, perderei o acesso a esta carteira para sempre.";
