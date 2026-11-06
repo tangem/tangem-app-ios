@@ -20,9 +20,9 @@ struct OnrampAmountView: View {
             .infinityFrame(axis: .horizontal)
             .animation(.easeInOut, value: viewModel.error)
             .padding(.horizontal, 16)
-            .padding(.vertical, 50)
+            .padding(.vertical, 32)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .fill(DesignSystem.Color.bgSecondary)
             )
     }
@@ -34,79 +34,64 @@ struct OnrampAmountView: View {
             loadedContent(fiatItem: fiatItem)
         case .none:
             loadingContent
-                .environment(\.isShimmerActive, true)
         }
     }
 
-    @ViewBuilder
     private var loadingContent: some View {
-        VStack(spacing: 20) {
-            VStack(spacing: 8) {
-                // Title
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(DesignSystem.Color.bgTransparentSecondary)
-                    .frame(width: 75, height: 16)
-                    .padding(.vertical, 1)
-                    .shimmering()
+        VStack(spacing: 12) {
+            Shimmer().variant(.text(style: .subheading, alignment: .center))
+                .frame(width: 75)
 
-                // Text field
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(DesignSystem.Color.bgTransparentSecondary)
-                    .frame(width: 140, height: 42)
-                    .shimmering()
-            }
+            Shimmer().variant(.text(style: .display, alignment: .center))
+                .frame(width: 140)
 
-            // Fiat token icon
-            Capsule()
-                .fill(DesignSystem.Color.bgTransparentSecondary)
-                .frame(width: 83, height: 28)
-                .shimmering()
+            Shimmer().variant(.custom(width: 83, height: 28, cornerRadius: 14))
         }
     }
 
-    @ViewBuilder
     private func loadedContent(fiatItem: FiatItem) -> some View {
-        VStack(spacing: 20) {
-            VStack(spacing: 8) {
-                Text(Localization.onrampYouWillPayTitle)
-                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
+        VStack(spacing: 12) {
+            Text(Localization.onrampYouWillPayTitle)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
 
-                textView
-            }
+            textView
 
-            tokenIconView(fiatItem: fiatItem)
+            currencyButton(fiatItem: fiatItem)
         }
     }
 
-    @ViewBuilder
-    private func tokenIconView(fiatItem: FiatItem) -> some View {
+    private func currencyButton(fiatItem: FiatItem) -> some View {
         SwiftUI.Button(action: viewModel.onChangeCurrencyTap) {
-            HStack(spacing: 4) {
+            HStack(spacing: 0) {
                 IconView(
                     url: fiatItem.iconURL,
-                    size: CGSize(width: 20, height: 20),
+                    size: CGSize(width: 16, height: 16),
                     // Kingfisher shows a gray background even if it has a cached image
                     forceKingfisher: false
                 )
+                .clipShape(Circle())
 
                 Text(fiatItem.currencyCode)
-                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
+                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                    .padding(.horizontal, 4)
 
-                Assets.Glyphs.chevronDownNew.image
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
-                    .frame(width: 15, height: 20)
+                DesignSystem.Icons.ChevronDown.regular16.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconPrimary)
             }
             .padding(.vertical, 4)
             .padding(.horizontal, 6)
-            .background(Capsule().fill(DesignSystem.Color.bgTransparentSecondary))
+            .frame(minWidth: 40, minHeight: 28)
+            .background(Capsule().fill(DesignSystem.Color.bgTransparentPrimary))
         }
+        .buttonStyle(.plain)
         .accessibilityIdentifier(OnrampAccessibilityIdentifiers.currencySelectorButton)
     }
 
     private var textView: some View {
         VStack(spacing: 4) {
             SendDecimalNumberTextField(viewModel: viewModel.decimalNumberTextFieldViewModel)
-                .appearance(.init(font: Fonts.Regular.largeTitle.weight(.semibold)))
+                .appearance(.init(font: DesignSystem.Font.displayMediumToken.font))
                 .alignment(.center)
                 .prefixSuffixOptions(viewModel.currentFieldOptions)
                 .minTextScale(SendAmountStep.Constants.amountMinTextScale)
@@ -121,7 +106,7 @@ struct OnrampAmountView: View {
     private var errorView: some View {
         if let error = viewModel.error {
             Text(error)
-                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textAccentRed)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
                 .lineLimit(2)
                 .padding(.vertical, 2)
                 .multilineTextAlignment(.center)

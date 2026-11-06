@@ -13,21 +13,21 @@ struct FiatPresetService {
     @Injected(\.onrampRepository)
     private var onrampRepository: OnrampRepository
 
-    private let amounts: [Decimal] = [50, 100, 200, 300, 500]
+    private let amounts: [Decimal] = [50, 100, 200, 300]
     private let balanceFormatter = BalanceFormatter()
 
     func presets() -> [Preset]? {
         switch onrampRepository.preferenceCurrency?.identity.code {
         case "USD":
-            return makePresets(for: "USD")
+            return makePresets(for: "USD", currencySymbol: AppConstants.usdSign)
         case "EUR":
-            return makePresets(for: "EUR")
+            return makePresets(for: "EUR", currencySymbol: AppConstants.eurSign)
         default:
             return nil
         }
     }
 
-    private func makePresets(for currencyCode: String) -> [Preset] {
+    private func makePresets(for currencyCode: String, currencySymbol: String) -> [Preset] {
         let options = BalanceFormattingOptions(
             minFractionDigits: 0,
             maxFractionDigits: 0,
@@ -35,8 +35,11 @@ struct FiatPresetService {
             roundingType: .default(roundingMode: .plain, scale: 0)
         )
 
+        let formatter = balanceFormatter.makeDefaultFiatFormatter(forCurrencyCode: currencyCode, formattingOptions: options)
+        formatter.currencySymbol = currencySymbol
+
         return amounts.map { amount in
-            let formatted = balanceFormatter.formatFiatBalance(amount, currencyCode: currencyCode, formattingOptions: options)
+            let formatted = balanceFormatter.formatFiatBalance(amount, currencyCode: currencyCode, formattingOptions: options, formatter: formatter)
             return Preset(amount: amount, formatted: formatted)
         }
     }
