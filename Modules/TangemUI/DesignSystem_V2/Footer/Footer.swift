@@ -93,6 +93,15 @@ public struct Footer: View, Setupable {
             }
             .padding(.horizontal, utilityBarPadding)
 
+        case .toolbarWithStack(let buttonStack, let end):
+            HStack(spacing: 0) {
+                buttonStack
+
+                Spacer(minLength: Metrics.buttonSpacing)
+
+                end
+            }
+
         case .search(let search):
             search
                 .padding(.horizontal, utilityBarPadding)
