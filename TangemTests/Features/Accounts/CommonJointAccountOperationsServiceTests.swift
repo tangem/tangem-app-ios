@@ -181,6 +181,29 @@ struct CommonJointAccountOperationsServiceTests {
         #expect(signed.signature.count == 65)
     }
 
+    @Test("A co-signer does not sign an operation of an unsupported form")
+    func signAnUnsupportedFormIsRefused() async throws {
+        let context = try makeContext()
+        let operation = Self.operation(innerCall: SafeInnerCall(to: Constants.safeAddress, value: 1, data: Data()))
+
+        await #expect(throws: JointOperationError.unsupportedOperationForm) {
+            try await context.sut.signOperation(operation, in: context.wallet)
+        }
+        #expect(context.repository.signedOperations.isEmpty)
+        #expect(context.signer.signedHashes.isEmpty)
+    }
+
+    @Test("An unsupported form is refused before the operation is checked for being malicious")
+    func signAnUnsupportedFormIsRefusedBeforeTheSecurityCheck() async throws {
+        let context = try makeContext(blockaidVerdict: .malicious)
+        let operation = Self.operation(innerCall: SafeInnerCall(to: Constants.safeAddress, value: 1, data: Data()))
+
+        await #expect(throws: JointOperationError.unsupportedOperationForm) {
+            try await context.sut.signOperation(operation, in: context.wallet)
+        }
+        #expect(context.signer.signedHashes.isEmpty)
+    }
+
     /// The nonce the operation was created with is the one the Safe is still waiting to use.
     @Test("An operation the Safe has moved past is not worth a signature")
     func signOperationTheSafeHasMovedPastIsRefused() async throws {
@@ -366,12 +389,13 @@ private extension CommonJointAccountOperationsServiceTests {
         id: String = "op",
         chainId: Int = Constants.chainId,
         nonce: Int = Constants.nonce,
-        status: JointAccountOperationStatus = .awaitingSignatures
+        status: JointAccountOperationStatus = .awaitingSignatures,
+        innerCall: SafeInnerCall = Constants.innerCall
     ) -> JointAccountOperation {
         JointAccountOperation(
             id: id,
             chainId: chainId,
-            safeTransaction: SafeTransaction(innerCall: Constants.innerCall, feeParameters: Constants.feeParameters, nonce: nonce),
+            safeTransaction: SafeTransaction(innerCall: innerCall, feeParameters: Constants.feeParameters, nonce: nonce),
             status: status,
             txHash: nil,
             finishedAt: nil,

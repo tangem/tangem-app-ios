@@ -24,6 +24,7 @@ final class CommonJointAccountPendingOperationsProvider {
 
     private let cryptoAccountId: String
     private let walletBuilder = JointAccountWalletBuilder()
+    private let formVerifier = JointOperationFormVerifier()
 
     private lazy var sharedPendingOperationsPublisher = makePendingOperationsPublisher()
 
@@ -93,6 +94,7 @@ final class CommonJointAccountPendingOperationsProvider {
         let innerCallType = try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall)
         let walletModel = try walletModel(relatedTo: innerCallType, chainId: operation.chainId, among: walletModels)
         let wallet = try walletBuilder.build(walletModel: walletModel)
+        try verifyForm(of: operation, in: wallet)
         let feeTokenItem = feeTokenItem(of: operation, through: walletModel, among: walletModels)
         let initiator = initiator(of: operation, wallet: wallet, members: members)
 
@@ -104,6 +106,14 @@ final class CommonJointAccountPendingOperationsProvider {
             innerCallType: innerCallType,
             feeTokenItem: feeTokenItem
         )
+    }
+
+    private func verifyForm(of operation: JointAccountOperation, in wallet: JointAccountWallet) throws {
+        guard case .active(let safeAddress) = wallet.account?.jointAccountStatusProvider.status else {
+            throw JointOperationError.accountNotActive
+        }
+
+        try formVerifier.verify(safeTransaction: operation.safeTransaction, safeAddress: safeAddress)
     }
 
     /// The account's wallet of the token a transfer moves: the network's own for the coin, the one at the contract for a

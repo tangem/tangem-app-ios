@@ -160,6 +160,20 @@ struct CommonJointAccountPendingOperationsProviderTests {
         #expect(operations.map(\.id) == ["coin"])
     }
 
+    @Test("An operation aimed at the Safe itself is left out")
+    func operationAimedAtTheSafeIsLeftOut() async throws {
+        let account = makeJointAccount()
+        let toSafe = Self.operation(id: "to-safe", to: Self.safeAddress, value: 1, data: Data())
+        let sut = Self.makeSUT(
+            records: [Self.record(operations: [toSafe, Self.coinTransfer()])],
+            walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]
+        ).provider
+
+        let operations = try await sut.pendingOperationsPublisher.async()
+
+        #expect(operations.map(\.id) == ["coin"])
+    }
+
     @Test("A wallet no operation of a joint account goes through is left out: one without a Safe, or one of the wallet's own accounts")
     func operationThroughAnUnfitWalletIsLeftOut() async throws {
         let account = makeJointAccount()

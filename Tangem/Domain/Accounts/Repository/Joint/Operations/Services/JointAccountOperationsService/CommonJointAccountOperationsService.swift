@@ -17,17 +17,20 @@ struct CommonJointAccountOperationsService {
     private let pendingOperationsRepository: JointAccountPendingOperationsRepository
     private let signerFactory: TangemSignerFactory
     private let compositionVerifier: JointAccountCompositionVerifier
+    private let formVerifier: JointOperationFormVerifier
     private let blockaidGate: JointOperationBlockaidGate
 
     init(
         pendingOperationsRepository: JointAccountPendingOperationsRepository,
         signerFactory: TangemSignerFactory,
         compositionVerifier: JointAccountCompositionVerifier = JointAccountCompositionVerifier(),
+        formVerifier: JointOperationFormVerifier = JointOperationFormVerifier(),
         blockaidGate: JointOperationBlockaidGate = CommonJointOperationBlockaidGate()
     ) {
         self.pendingOperationsRepository = pendingOperationsRepository
         self.signerFactory = signerFactory
         self.compositionVerifier = compositionVerifier
+        self.formVerifier = formVerifier
         self.blockaidGate = blockaidGate
     }
 }
@@ -71,6 +74,8 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
     @discardableResult
     func signOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws -> JointAccountOperation {
         let account = try await activeAccount(of: wallet)
+        try formVerifier.verify(safeTransaction: operation.safeTransaction, safeAddress: account.safeAddress)
+
         let safeOperationsService = try safeOperationsService(of: wallet)
 
         // Checked anew: nothing binds the Safe on chain to what it was when the operation was created
