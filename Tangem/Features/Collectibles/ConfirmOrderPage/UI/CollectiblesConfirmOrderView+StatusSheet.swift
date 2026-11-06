@@ -6,9 +6,13 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Kingfisher
 import SwiftUI
+import TangemAssets
+import TangemCollectibles
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 
 extension CollectiblesConfirmOrderView {
     struct StatusSheet: View {
@@ -24,8 +28,8 @@ extension CollectiblesConfirmOrderView {
                 lowInventory
             case .packUnopened:
                 packUnopened
-            case .buybackComplete(let amount, let price):
-                buybackComplete(amount: amount, price: price)
+            case .buybackComplete(let content):
+                buybackComplete(content)
             }
         }
     }
@@ -56,18 +60,64 @@ private extension CollectiblesConfirmOrderView.StatusSheet {
     }
 
     // [REDACTED_TODO_COMMENT]
-    func buybackComplete(amount: String?, price: String) -> some View {
-        let soldMessage = "Your common card was bought back instantly."
+    @ViewBuilder
+    func buybackComplete(_ content: CollectiblesConfirmOrderViewModel.BuybackComplete) -> some View {
+        let title = [Localization.collectiblesAutoBuybackTitle, content.cardName]
+            .compactMap { $0 }
+            .joined(separator: "\n")
 
-        return ModalStatus(
-            .success,
-            title: "Buyback complete",
-            description: amount.map { "\(soldMessage) +\($0) is in your balance" } ?? soldMessage
-        )
-        .actions(
-            primary: button("Open again for \(price)", action: onOpenAgain),
-            secondary: button(Localization.collectiblesLowInventoryExplorePacks, action: onExplorePacks)
-        )
+        let description = soldMessageText(amount: content.amount)
+
+        if let cardImageURL = content.cardImageURL {
+            ModalStatus(title: title, description: description) { cardImage(url: cardImageURL) }
+                .actions(primary: openAgainButton(price: content.price), secondary: explorePacksButton)
+        } else {
+            ModalStatus(.success, title: title, description: description)
+                .actions(primary: openAgainButton(price: content.price), secondary: explorePacksButton)
+        }
+    }
+
+    func cardImage(url: URL) -> some View {
+        KFImage(url)
+            .resizable()
+            .cancelOnDisappear(true)
+            .cacheOriginalImage()
+            .placeholder { Shimmer() }
+            .onFailureView { missingCardImage }
+            .aspectRatio(contentMode: .fill)
+            .frame(width: Metrics.cardSize.width, height: Metrics.cardSize.height)
+            .clipShape(RoundedRectangle(cornerRadius: Metrics.cardCornerRadius, style: .continuous))
+            .accessibilityHidden(true)
+    }
+
+    var missingCardImage: some View {
+        DesignSystem.Color.bgSecondary
+            .overlay { Avatar(.icon(DesignSystem.Icons.Error.filled20), size: .size40) }
+    }
+
+    func soldMessageText(amount: String?) -> AttributedString {
+        var text = AttributedString("Your common card was sold back instantly.")
+
+        guard let amount else {
+            return text
+        }
+
+        var credited = AttributedString("+\(amount)")
+        credited.foregroundColor = DesignSystem.Color.textPrimary
+
+        text.append(AttributedString("\n"))
+        text.append(credited)
+        let network = CollectiblesChainEnvironment.usdcTokenItem.networkName
+        text.append(AttributedString(" on \(network) has been credited to your main Tangem Wallet"))
+        return text
+    }
+
+    func openAgainButton(price: String) -> TangemUI.Button {
+        button(Localization.collectiblesAutoBuybackOpenAgainButton(price), action: onOpenAgain)
+    }
+
+    var explorePacksButton: TangemUI.Button {
+        button(Localization.collectiblesLowInventoryExplorePacks, action: onExplorePacks)
     }
 
     func button(_ label: String, action: @escaping () -> Void) -> TangemUI.Button {
@@ -75,11 +125,25 @@ private extension CollectiblesConfirmOrderView.StatusSheet {
     }
 }
 
+// MARK: - Metrics
+
+private extension CollectiblesConfirmOrderView.StatusSheet {
+    enum Metrics {
+        static let cardSize = CGSize(width: 97, height: 165)
+        static let cardCornerRadius: CGFloat = 5
+    }
+}
+
 // MARK: - Previews
 
 #Preview {
     CollectiblesConfirmOrderView.StatusSheet(
-        sheet: .buybackComplete(amount: "35.60 USDC", price: "50 USDC"),
+        sheet: .buybackComplete(.init(
+            cardImageURL: nil,
+            cardName: "2024 Series One #216",
+            amount: "40.35 USDC",
+            price: "50 USDC"
+        )),
         onExplorePacks: {},
         onEnableTurboMode: {},
         onOpenPack: {},

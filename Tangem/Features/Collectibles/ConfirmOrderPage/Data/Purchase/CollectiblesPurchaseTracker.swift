@@ -129,6 +129,7 @@ extension CollectiblesPurchaseTracker {
 
     struct AutoSold: Error {
         let amount: Decimal?
+        let wonCard: CollectiblesWonCard?
     }
 }
 
@@ -184,7 +185,7 @@ private extension CollectiblesPurchaseTracker {
         case .failed:
             throw CollectiblesPackPurchaseError.paymentFailed(transaction.status)
         case .autoSold:
-            throw AutoSold(amount: transaction.buybackAmount)
+            throw AutoSold(amount: transaction.buybackAmount, wonCard: transaction.wonCard)
         case .pending, .paid, .opened:
             break
         }

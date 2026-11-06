@@ -16,6 +16,17 @@ public extension ModalStatus where Asset == EmptyView, ExtraBottom == EmptyView,
         self.init(
             appearance: appearance,
             title: title,
+            description: description.map { AttributedString($0) },
+            assetSlot: EmptyView(),
+            extraBottom: EmptyView(),
+            details: EmptyView()
+        )
+    }
+
+    init(_ appearance: ModalStatusAppearance, title: String, description: AttributedString) {
+        self.init(
+            appearance: appearance,
+            title: title,
             description: description,
             assetSlot: EmptyView(),
             extraBottom: EmptyView(),
@@ -26,6 +37,17 @@ public extension ModalStatus where Asset == EmptyView, ExtraBottom == EmptyView,
 
 public extension ModalStatus where ExtraBottom == EmptyView, Details == EmptyView {
     init(title: String, description: String? = nil, @ViewBuilder asset: () -> Asset) {
+        self.init(
+            appearance: nil,
+            title: title,
+            description: description.map { AttributedString($0) },
+            assetSlot: asset(),
+            extraBottom: EmptyView(),
+            details: EmptyView()
+        )
+    }
+
+    init(title: String, description: AttributedString, @ViewBuilder asset: () -> Asset) {
         self.init(
             appearance: nil,
             title: title,

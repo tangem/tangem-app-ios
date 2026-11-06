@@ -404,23 +404,24 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
     func autoBuybackEndsAsSold(stage: FailedStage) async throws {
         let (sut, _, _) = makeSUT(failingAt: stage, with: .autoBuybacked)
 
-        _ = try await soldAmount(of: sut)
+        _ = try await sold(by: sut)
 
         #expect(!sut.hasUnfinishedPurchase(machineID: Constants.machineID))
     }
 
-    @Test("An auto buyback returns the sold amount and does not open the pack")
-    func autoBuybackReturnsAmount() async throws {
-        let sold = CollectiblesPurchaseTransaction(
+    @Test("An auto buyback returns the sold amount and card and does not open the pack")
+    func autoBuybackReturnsAmountAndCard() async throws {
+        let transaction = CollectiblesPurchaseTransaction(
             status: .autoBuybacked,
-            wonCard: nil,
+            wonCard: Self.deliveredTransaction.wonCard,
             buybackAmount: Constants.buybackAmount
         )
-        let (sut, provider, _) = makeSUT(statuses: [sold])
+        let (sut, provider, _) = makeSUT(statuses: [transaction])
 
-        let amount = try await soldAmount(of: sut)
+        let result = try await sold(by: sut)
 
-        #expect(amount == Constants.buybackAmount)
+        #expect(result.amount == Constants.buybackAmount)
+        #expect(result.wonCard?.gradingID == Constants.gradingID)
         #expect(provider.openedTxIDs.isEmpty)
     }
 
@@ -900,7 +901,7 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
         return wonCard
     }
 
-    func soldAmount(of sut: SUT) async throws -> Decimal? {
+    func sold(by sut: SUT) async throws -> (amount: Decimal?, wonCard: CollectiblesWonCard?) {
         let result = try await sut.purchase(
             machineID: Constants.machineID,
             price: Constants.price,
@@ -909,11 +910,11 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
             onStep: { _ in }
         )
 
-        guard case .autoSold(let amount) = result else {
+        guard case .autoSold(let amount, let wonCard) = result else {
             throw UnexpectedResult()
         }
 
-        return amount
+        return (amount: amount, wonCard: wonCard)
     }
 
     func failure(

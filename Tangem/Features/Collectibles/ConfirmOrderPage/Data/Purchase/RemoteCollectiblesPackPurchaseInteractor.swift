@@ -202,7 +202,7 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
         } catch let sold as CollectiblesPurchaseTracker.AutoSold {
             pendingOrder = nil
             deliveredTxIDs.insert(order.txID)
-            return .autoSold(amount: sold.amount)
+            return .autoSold(amount: sold.amount, wonCard: sold.wonCard)
         }
 
         // [REDACTED_TODO_COMMENT]
