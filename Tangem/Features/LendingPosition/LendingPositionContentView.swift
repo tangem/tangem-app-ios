@@ -150,9 +150,9 @@ private extension LendingPositionContentView {
     var chart: some View {
         switch state.chart {
         case .loading:
-            YieldModuleChart(state: .loading)
+            LendingApyChart(state: .loading)
         case .loaded(let data):
-            YieldModuleChart(state: .loaded(apyData: data.buckets, xAxisTicks: data.xTicks, averageApy: data.averageApy), yScale: .fitted)
+            LendingApyChart(state: .loaded(apyData: data.buckets, xAxisTicks: data.xTicks, averageApy: data.averageApy))
         case .error(let retry):
             VStack(spacing: Constants.errorSpacing) {
                 Text(Localization.yieldModuleChartLoadingError)
