@@ -441,12 +441,6 @@ extension CommonTangemApiService: TangemApiService {
         try await request(for: .coinIndicators(requestModel), decoder: decoder)
     }
 
-    // MARK: - Action Buttons
-
-    func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {
-        try await request(for: .hotCrypto(requestModel))
-    }
-
     // MARK: - Notification
 
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {

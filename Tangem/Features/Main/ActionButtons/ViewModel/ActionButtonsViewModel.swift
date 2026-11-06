@@ -24,9 +24,6 @@ final class ActionButtonsViewModel: ObservableObject {
     @Injected(\.expressAvailabilityProvider)
     private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
-    @Injected(\.hotCryptoService)
-    private var hotCryptoService: HotCryptoService
-
     @Injected(\.storyAvailabilityService)
     private var storyAvailabilityService: any StoryAvailabilityService
 
@@ -106,7 +103,6 @@ final class ActionButtonsViewModel: ObservableObject {
     }
 
     func refresh() {
-        hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         // do nothing if already iniitialized
         sellService.initialize()
     }

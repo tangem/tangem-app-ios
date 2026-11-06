@@ -13,7 +13,6 @@ import TangemSdk
 import TangemFoundation
 import TangemLocalization
 
-/// Copy-paste of `CommonUserTokensManager`, but with accounts support.
 final class CommonUserTokensManager {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
@@ -21,6 +20,7 @@ final class CommonUserTokensManager {
     weak var derivationManager: (DerivationManager & DerivationStatusProvider)?
 
     private let userWalletId: UserWalletId
+    private let configProvider: UserWalletConfigProvider
     private let userTokensRepository: UserTokensRepository
     private let derivationPathBuilder: any AccountDerivationPathBuilder
     private let existingCurves: [EllipticCurve]
@@ -44,6 +44,7 @@ final class CommonUserTokensManager {
 
     init(
         userWalletId: UserWalletId,
+        configProvider: UserWalletConfigProvider,
         userTokensRepository: UserTokensRepository,
         derivationPathBuilder: any AccountDerivationPathBuilder,
         existingCurves: [EllipticCurve],
@@ -52,6 +53,7 @@ final class CommonUserTokensManager {
         hardwareLimitationsUtil: HardwareLimitationsUtil
     ) {
         self.userWalletId = userWalletId
+        self.configProvider = configProvider
         self.userTokensRepository = userTokensRepository
         self.derivationPathBuilder = derivationPathBuilder
         self.existingCurves = existingCurves
@@ -91,8 +93,10 @@ final class CommonUserTokensManager {
 
     private func addInternal(_ tokenItems: [TokenItem], using updater: UserTokensRepositoryBatchUpdater) throws {
         let enrichedItems = TokenItemsEnricher.enrichedWithBlockchainNetworksIfNeeded(tokenItems, filter: userTokens)
+        let supportedBlockchains = configProvider.config.supportedBlockchains
 
         for tokenItem in enrichedItems {
+            try validateBlockchain(for: tokenItem, supportedBlockchains: supportedBlockchains)
             try validateDerivation(for: tokenItem)
 
             if tokenItem.isToken {
@@ -134,6 +138,14 @@ final class CommonUserTokensManager {
             forceReload: forceReload,
             userWalletId: userWalletId.stringValue
         )
+    }
+
+    private func validateBlockchain(for tokenItem: TokenItem, supportedBlockchains: Set<Blockchain>) throws {
+        guard supportedBlockchains.contains(tokenItem.blockchain) else {
+            let error = Error.unsupportedBlockchain(blockchain: tokenItem.blockchain, tokenName: tokenItem.name)
+            AccountsLogger.error("Failed to validate blockchain:", error: error)
+            throw error
+        }
     }
 
     private func validateDerivation(for tokenItem: TokenItem) throws {
@@ -576,6 +588,7 @@ extension CommonUserTokensManager {
         case failedSupportedLongHashesTokens(blockchainDisplayName: String)
         case failedSupportedCurve(blockchainDisplayName: String)
         case failedToDeleteNetworkHasTokens(tokenItem: TokenItem)
+        case unsupportedBlockchain(blockchain: Blockchain, tokenName: String)
 
         var errorDescription: String? {
             switch self {
@@ -592,7 +605,8 @@ extension CommonUserTokensManager {
             case .addressNotFound,
                  .derivationNotSupported,
                  .derivationPathNotFound,
-                 .accountDerivationNodeMismatch:
+                 .accountDerivationNodeMismatch,
+                 .unsupportedBlockchain:
                 // Internal programmer/data integrity errors, no localization needed
                 return Localization.genericErrorCode(errorCode)
             }

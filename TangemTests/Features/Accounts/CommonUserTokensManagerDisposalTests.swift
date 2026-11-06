@@ -146,6 +146,7 @@ struct CommonUserTokensManagerDisposalTests {
 
         return CommonUserTokensManager(
             userWalletId: userWalletId,
+            configProvider: CommonUserWalletConfigProvider(config: UserWalletConfigStubs.walletV2Stub),
             userTokensRepository: repository,
             derivationPathBuilder: derivationPathBuilder,
             existingCurves: EllipticCurve.allCases,

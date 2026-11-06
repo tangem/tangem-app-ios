@@ -48,10 +48,6 @@ enum ActionButtonsAnalyticsService {
 
         Analytics.log(event: event, params: [.token: tokenSymbol])
     }
-
-    static func hotTokenError(errorCode: String) {
-        Analytics.log(event: .actionButtonsHotTokenError, params: [.errorCode: errorCode])
-    }
 }
 
 extension ActionButtonsAnalyticsService {

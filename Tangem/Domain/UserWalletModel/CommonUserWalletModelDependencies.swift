@@ -74,9 +74,12 @@ struct CommonUserWalletModelDependencies {
         )
         .buildTangemPayManager()
 
+        let configProvider = CommonUserWalletConfigProvider(config: config)
+
         accountModelsManager = Self.makeAccountModelsManager(
             userWalletId: userWalletId,
             config: config,
+            configProvider: configProvider,
             keysRepository: keysRepository,
             walletModelsFactoryProvider: walletModelsFactoryProvider,
             cryptoAccountsRepository: accountModelsManagerDependencies.cryptoAccountsRepository,
@@ -133,7 +136,8 @@ struct CommonUserWalletModelDependencies {
             tangemSignerFactory: tangemSignerFactory,
             jointAccountDerivationInteractorFactory: jointAccountDerivationInteractorFactory,
             collectiblesColdKeyInteractorFactory: collectiblesColdKeyInteractorFactory,
-            analyticsContextDataProvider: analyticsContextDataProvider
+            analyticsContextDataProvider: analyticsContextDataProvider,
+            configProvider: configProvider
         )
     }
 
@@ -146,6 +150,7 @@ struct CommonUserWalletModelDependencies {
         userWalletModelConfigurableDependencies.jointAccountDerivationInteractorFactory.configure(with: model)
         userWalletModelConfigurableDependencies.collectiblesColdKeyInteractorFactory.configure(with: model)
         userWalletModelConfigurableDependencies.analyticsContextDataProvider.configure(userWalletModel: model)
+        userWalletModelConfigurableDependencies.configProvider.configure(userWalletModel: model)
     }
 }
 
@@ -261,6 +266,7 @@ private extension CommonUserWalletModelDependencies {
     static func makeAccountModelsManager(
         userWalletId: UserWalletId,
         config: UserWalletConfig,
+        configProvider: UserWalletConfigProvider,
         keysRepository: KeysRepository,
         walletModelsFactoryProvider: WalletModelsFactoryProvider,
         cryptoAccountsRepository: CommonCryptoAccountsRepository,
@@ -280,6 +286,7 @@ private extension CommonUserWalletModelDependencies {
 
         let cryptoAccountDependenciesFactory = CommonCryptoAccountDependenciesFactory(
             userWalletId: userWalletId,
+            configProvider: configProvider,
             derivationManager: derivationManager,
             derivationStyle: config.derivationStyle,
             keysRepository: keysRepository,
@@ -296,6 +303,7 @@ private extension CommonUserWalletModelDependencies {
 
         let jointAccountDependenciesFactory = CommonJointAccountDependenciesFactory(
             userWalletId: userWalletId,
+            configProvider: configProvider,
             derivationManager: derivationManager,
             keysRepository: keysRepository,
             cryptoAccountsRepository: cryptoAccountsRepository,
@@ -443,6 +451,7 @@ private extension CommonUserWalletModelDependencies {
         let jointAccountDerivationInteractorFactory: JointAccountDerivationInteractorFactory
         let collectiblesColdKeyInteractorFactory: CommonCollectiblesColdKeyInteractorFactory
         let analyticsContextDataProvider: CommonAnalyticsContextDataProvider
+        let configProvider: CommonUserWalletConfigProvider
     }
 
     /// Represents dependencies related to crypto accounts models that are required for `AccountModelsManager` initialization,
