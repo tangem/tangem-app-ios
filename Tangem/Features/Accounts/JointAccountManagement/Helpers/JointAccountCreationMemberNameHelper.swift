@@ -25,6 +25,7 @@ struct JointAccountCreationMemberNameHelper {
 
 extension JointAccountCreationMemberNameHelper: JointAccountMemberNameHelper {
     var submitButtonTitle: String { Localization.commonCreateAccount }
+    var analyticsFlow: Analytics.JointAccountFlow { .create }
 
     /// Filled in when the step is returned to, so a name typed once does not have to be typed again.
     var initialName: String { creationHelper.creatorName ?? "" }
@@ -40,6 +41,10 @@ extension JointAccountCreationMemberNameHelper: JointAccountMemberNameHelper {
     func submit(name: String) async throws(AccountEditError) {
         creationHelper.update(creatorName: name)
         let jointAccount = try await creationHelper.createAccount()
+        Analytics.log(event: .jointAccountCreated, params: [
+            .membersCount: "\(jointAccount.policy.membersCount)",
+            .threshold: "\(jointAccount.policy.signersCount)",
+        ])
 
         let routable = routable
         let userWalletConfig = creationHelper.userWalletModel.config

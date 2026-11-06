@@ -61,7 +61,7 @@ struct JointAccountPendingOperation: Equatable {
 
 extension JointAccountPendingOperation {
     /// Counts this member's signature towards the threshold.
-    func sign() async throws {
+    func sign() async throws -> JointAccountOperation {
         try await wallet.sign(operation)
     }
 

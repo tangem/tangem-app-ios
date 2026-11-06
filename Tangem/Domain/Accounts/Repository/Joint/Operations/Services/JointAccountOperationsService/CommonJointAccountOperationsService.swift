@@ -68,7 +68,8 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
         return try await pendingOperationsRepository.createOperation(request, forCryptoAccountId: account.cryptoAccountId)
     }
 
-    func signOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws {
+    @discardableResult
+    func signOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws -> JointAccountOperation {
         let account = try await activeAccount(of: wallet)
         let safeOperationsService = try safeOperationsService(of: wallet)
 
@@ -81,7 +82,7 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
         let hash = operation.safeTransaction.signHash(chainId: operation.chainId, safeAddress: account.safeAddress)
         let signature = try await sign(hash: hash, walletPublicKey: wallet.publicKey)
 
-        try await pendingOperationsRepository.signOperation(
+        return try await pendingOperationsRepository.signOperation(
             id: operation.id,
             safeTransaction: operation.safeTransaction,
             signature: signature,

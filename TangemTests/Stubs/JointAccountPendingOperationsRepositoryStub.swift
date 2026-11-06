@@ -94,15 +94,18 @@ final class JointAccountPendingOperationsRepositoryStub: JointAccountPendingOper
         return registeredOperation
     }
 
+    @discardableResult
     func signOperation(
         id: String,
         safeTransaction: SafeTransaction,
         signature: Data,
         forCryptoAccountId cryptoAccountId: String
-    ) async throws {
+    ) async throws -> JointAccountOperation {
         operationCalls.withLock {
             $0.signed.append((id: id, safeTransaction: safeTransaction, signature: signature, cryptoAccountId: cryptoAccountId))
         }
+
+        return registeredOperation ?? JointAccountCompositionFixture.coinTransfer(id: id)
     }
 
     func rejectOperation(id: String, forCryptoAccountId cryptoAccountId: String) async throws {

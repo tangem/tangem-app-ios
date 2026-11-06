@@ -183,8 +183,34 @@ private extension TransferViewModel {
         }
 
         if let alert {
+            logJointAccountFakedoorIfNeeded(for: option)
             alertPresenter.present(alert: alert)
         }
+    }
+
+    func logJointAccountFakedoorIfNeeded(for option: TransferOption) {
+        let action: Analytics.JointAccountFakedoorAction
+        let isJointAccountsComingSoon: Bool
+
+        switch option {
+        case .send:
+            return
+        case .sell:
+            action = .sell
+            isJointAccountsComingSoon = availabilityProvider.sellAvailability.isJointAccountsComingSoon
+        case .swap:
+            action = .swap
+            isJointAccountsComingSoon = availabilityProvider.swapSourceAvailability().isJointAccountsComingSoon
+        case .swapAndSend:
+            action = .swapAndSend
+            isJointAccountsComingSoon = availabilityProvider.swapSourceAvailability().isJointAccountsComingSoon
+        }
+
+        guard isJointAccountsComingSoon else {
+            return
+        }
+
+        Analytics.logJointAccountFakedoorPopupDisplayed(source: .transfer, action: action, tokenItem: walletModel.tokenItem)
     }
 
     static func makeTokenIconInfo(walletModel: any WalletModel) -> TokenIconInfo {

@@ -7,7 +7,9 @@
 //
 
 import Foundation
+import TangemMacro
 
+@RawCaseName
 enum AccountEditError: Error {
     case tooManyAccounts
     case invalidAccountName

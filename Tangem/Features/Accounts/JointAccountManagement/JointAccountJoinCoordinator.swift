@@ -50,6 +50,7 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         self.options = options
+        Analytics.log(.jointAccountInviteLinkOpened)
 
         // The invite is read on behalf of the wallet the app has selected, whichever one ends up joining
         guard let selectedUserWalletModel = userWalletRepository.selectedModel else {

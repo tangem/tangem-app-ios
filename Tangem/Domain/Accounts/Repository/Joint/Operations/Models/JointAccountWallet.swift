@@ -58,7 +58,7 @@ extension JointAccountWallet {
     }
 
     /// Counts this member's signature towards the threshold.
-    func sign(_ operation: JointAccountOperation) async throws {
+    func sign(_ operation: JointAccountOperation) async throws -> JointAccountOperation {
         try await operationsService.signOperation(operation, in: self)
     }
 

@@ -198,7 +198,11 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
             pendingOperation: pendingOperation,
             addressBookWallet: addressBookWallet,
             recipientSource: CommonJointAccountOperationRecipientSource(addressBookWallet: addressBookWallet),
-            coordinator: self
+            coordinator: self,
+            analyticsLogger: CommonJointAccountOperationAnalyticsLogger(
+                tokenItem: pendingOperation.tokenItem,
+                policy: pendingOperation.wallet.account?.policy
+            )
         )
 
         Task { @MainActor in

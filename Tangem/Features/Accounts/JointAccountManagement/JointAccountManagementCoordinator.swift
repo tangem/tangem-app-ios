@@ -47,9 +47,9 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         switch options {
-        case .creation(let creationHelper, let isWalletFixed):
+        case .creation(let creationHelper, let isWalletFixed, let source):
             isCreationWalletFixed = isWalletFixed
-            root = .onboarding(JointAccountOnboardingViewModel(creationHelper: creationHelper, coordinator: self))
+            root = .onboarding(JointAccountOnboardingViewModel(creationHelper: creationHelper, source: source, coordinator: self))
 
         case .members(let jointAccount, let userWalletConfig):
             root = .members(makeMembersViewModel(jointAccount: jointAccount, userWalletConfig: userWalletConfig))
@@ -61,7 +61,7 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
 extension JointAccountManagementCoordinator {
     enum Options {
-        case creation(JointAccountCreationHelper, isWalletFixed: Bool)
+        case creation(JointAccountCreationHelper, isWalletFixed: Bool, source: Analytics.JointAccountCreationSource)
         case members(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
     }
 }
