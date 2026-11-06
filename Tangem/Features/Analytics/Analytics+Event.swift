@@ -1116,6 +1116,9 @@ extension Analytics {
         case userWalletRegistrationUnexpectedCurve = "[Backend Auth] Unexpected Wallet Curve"
         case backendAuthNonceRequestTimeout = "[Backend Auth] Nonce Request Timeout"
         case backendAuthAttestationFailed = "[Backend Auth] Attestation Failed"
+        case backendAuthWalletLinked = "[Backend Auth] Wallet Linked"
+        case backendAuthLinkWalletCanceled = "[Backend Auth] Link Wallet Canceled"
+        case backendAuthWalletRegistrationFailed = "[Backend Auth] Wallet Registration Failed"
         case backendAuthButtonLinkWallet = "[Backend Auth] Button - Link Wallet"
 
         // MARK: - MCP Authorization

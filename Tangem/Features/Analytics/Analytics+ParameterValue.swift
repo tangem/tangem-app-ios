@@ -412,6 +412,11 @@ extension Analytics {
         case backendAuthAttestationStageAttestation = "Attestation"
         case backendAuthAttestationStageAssertion = "Assertion"
 
+        case backendAuthRegistrationStageNonce = "Nonce"
+        case backendAuthRegistrationStagePrepare = "Prepare"
+        case backendAuthRegistrationStageSubmit = "Submit"
+        case backendAuthRegistrationStageRegister = "Register"
+
         // MARK: - Common
 
         static func toggleState(for boolean: Bool) -> ParameterValue {

@@ -33,7 +33,14 @@ extension UserWalletLinker {
 enum UserWalletLinkError: Error {
     case cancelled
     case notSupported
-    case failed(underlying: any Error)
+    case failed(stage: UserWalletLinkStage, underlying: any Error)
+}
+
+enum UserWalletLinkStage {
+    case nonce
+    case prepare
+    case submit
+    case register
 }
 
 // MARK: - Dependency injection

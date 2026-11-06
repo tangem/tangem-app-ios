@@ -38,9 +38,14 @@ final class CommonUserWalletLinker: UserWalletLinker {
             }
 
             BackendAuthLogger.info("Linked user wallet")
-        } catch .failed(let underlying) {
+            reportLinked(userWalletModel)
+        } catch .cancelled {
+            reportCanceled(userWalletModel)
+            throw .cancelled
+        } catch .failed(let stage, let underlying) {
             BackendAuthLogger.error("Failed to link user wallet", error: underlying)
-            throw .failed(underlying: underlying)
+            reportFailed(userWalletModel, stage: stage, error: underlying)
+            throw .failed(stage: stage, underlying: underlying)
         }
     }
 }
@@ -64,7 +69,7 @@ private extension CommonUserWalletLinker {
         do {
             try await BackendAuthenticationAssembly.submitUserWalletRegistration(request: request)
         } catch {
-            throw .failed(underlying: error)
+            throw .failed(stage: .submit, underlying: error)
         }
     }
 
@@ -76,7 +81,7 @@ private extension CommonUserWalletLinker {
                 CommonBackendAuthenticationNonceAnalyticsReporter().reportColdUserWalletNonceTimeout()
             }
 
-            throw .failed(underlying: error)
+            throw .failed(stage: .nonce, underlying: error)
         }
     }
 
@@ -92,7 +97,7 @@ private extension CommonUserWalletLinker {
         } catch .userCancelled {
             throw .cancelled
         } catch {
-            throw .failed(underlying: error)
+            throw .failed(stage: .prepare, underlying: error)
         }
     }
 }
@@ -124,7 +129,7 @@ private extension CommonUserWalletLinker {
         } catch is CancellationError {
             throw .cancelled
         } catch {
-            throw .failed(underlying: error)
+            throw .failed(stage: .register, underlying: error)
         }
 
         try checkCancellation()
@@ -137,7 +142,44 @@ private extension CommonUserWalletLinker {
                 mobileWalletSDK: CommonMobileWalletSdk()
             )
         } catch {
-            throw .failed(underlying: error)
+            throw .failed(stage: .register, underlying: error)
+        }
+    }
+}
+
+// MARK: - Analytics
+
+private extension CommonUserWalletLinker {
+    func reportLinked(_ userWalletModel: some UserWalletModel) {
+        Analytics.log(.backendAuthWalletLinked, contextParams: .userWallet(userWalletModel.userWalletId))
+    }
+
+    func reportCanceled(_ userWalletModel: some UserWalletModel) {
+        Analytics.log(.backendAuthLinkWalletCanceled, contextParams: .userWallet(userWalletModel.userWalletId))
+    }
+
+    func reportFailed(_ userWalletModel: some UserWalletModel, stage: UserWalletLinkStage, error: any Error) {
+        let walletType: Analytics.ParameterValue = userWalletModel.config.hasFeature(.nfcInteraction) ? .walletsTypeCold : .walletsTypeMobile
+
+        Analytics.log(
+            event: .backendAuthWalletRegistrationFailed,
+            params: [
+                .walletType: walletType.rawValue,
+                .stage: stage.analyticsValue.rawValue,
+                .reason: "\(error)",
+            ],
+            contextParams: .userWallet(userWalletModel.userWalletId)
+        )
+    }
+}
+
+private extension UserWalletLinkStage {
+    var analyticsValue: Analytics.ParameterValue {
+        switch self {
+        case .nonce: .backendAuthRegistrationStageNonce
+        case .prepare: .backendAuthRegistrationStagePrepare
+        case .submit: .backendAuthRegistrationStageSubmit
+        case .register: .backendAuthRegistrationStageRegister
         }
     }
 }
