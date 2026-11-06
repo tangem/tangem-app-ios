@@ -106,28 +106,28 @@ enum Feature: String, Hashable, CaseIterable {
         case .ethPolLocalStakingValidation: return .unspecified
         case .collectibles: return .unspecified
         case .totalTokenBalanceV2: return .unspecified
-        case .mobileSocialLogin: return .unspecified
+        case .mobileSocialLogin: return .version("6.8")
         case .jointAccountsGaslessTokenFee: return .unspecified
-        case .mcp: return .unspecified
+        case .mcp: return .version("6.8")
         case .payBundleIntroduction: return .version("6.7")
         case .tangemPayAppleWalletProvisioning: return .unspecified
         case .tronGaslessDEX: return .unspecified
-        case .marketingActivityBinding: return .unspecified
+        case .marketingActivityBinding: return .version("6.8")
         case .qrScanDeeplinks: return .version("6.7")
-        case .yieldModePromo: return .unspecified
+        case .yieldModePromo: return .version("6.8")
         case .swapBestRateDefaultProvider: return .version("6.7")
         case .solanaPNFTAndMetaplexCore: return .version("6.7")
         case .tangemPayMoneyAccount: return .unspecified
         case .hideRejectedSwapProviders: return .version("6.7")
         case .tangemPayCustomerSummary: return .unspecified
         case .yieldModuleOwnerActionUpgrade: return .version("6.7")
-        case .solanaGasless: return .unspecified
-        case .promoPage: return .unspecified
+        case .solanaGasless: return .version("6.8")
+        case .promoPage: return .version("6.8")
         case .dogecoinPsbtBdkFeeRateLimit: return .unspecified
         case .walletCardsBackupReportWithoutRole: return .version("6.7")
         case .yieldModeGasless: return .version("6.7")
-        case .walletLinking: return .unspecified
-        case .expressApiV2: return .unspecified
+        case .walletLinking: return .version("6.8")
+        case .expressApiV2: return .version("6.8")
         }
     }
 }
