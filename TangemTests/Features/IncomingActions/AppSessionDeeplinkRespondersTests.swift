@@ -5,6 +5,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import Testing
 @testable import Tangem
@@ -23,6 +24,22 @@ struct AppSessionDeeplinkRespondersTests {
 
             #expect(responders.takeWaitingAction() == Constants.markets)
             #expect(responders.takeWaitingAction() == nil)
+        }
+    }
+
+    @Test("A promo page link opened after the app locks waits for the main screen")
+    func promoPageWaitsForUnlock() async {
+        let repository = UserWalletRepositoryEventsStub(models: [])
+
+        await withRepository(repository) {
+            let responders = AppSessionDeeplinkResponders()
+            responders.start()
+            responders.beginSession()
+
+            await repository.emit(.locked)
+            handler.handleIncomingURL(Deeplink.promoPage)
+
+            #expect(responders.takeWaitingAction() == Constants.promoPage)
         }
     }
 
@@ -88,10 +105,10 @@ private extension AppSessionDeeplinkRespondersTests {
         InjectedValues[\.incomingActionHandler]
     }
 
-    func withRepository(_ body: () async -> Void) async {
+    func withRepository(_ repository: UserWalletRepository = FakeUserWalletRepository(models: []), _ body: () async -> Void) async {
         await InjectedDependenciesIsolation.shared.run {
             let previousRepository = InjectedValues[\.userWalletRepository]
-            InjectedValues[\.userWalletRepository] = FakeUserWalletRepository(models: [])
+            InjectedValues[\.userWalletRepository] = repository
 
             defer { InjectedValues[\.userWalletRepository] = previousRepository }
 
@@ -104,10 +121,37 @@ private extension AppSessionDeeplinkRespondersTests {
         static let news = URL(string: "tangem://news")!
         static let paymentAccount = URL(string: "tangem://pay-account")!
         static let blockchainScheme = URL(string: "bitcoin:bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq")!
+        static let promoPage = URL(string: "tangem://promo_page?page=https%3A%2F%2Fpromo.tangem.com%2Fprize-draw-status%2F%3Fsuccess")!
     }
 
     enum Constants {
         static let markets = IncomingAction.navigation(.markets(MarketsDeeplink(order: nil, interval: nil)))
         static let news = IncomingAction.navigation(.news(NewsDeeplink(newsId: nil, categoryId: nil)))
+        static let promoPage = IncomingAction.navigation(.promoPage(PromoPageDeeplink(page: "https://promo.tangem.com/prize-draw-status/?success")))
+    }
+}
+
+// MARK: - Stubs
+
+private final class UserWalletRepositoryEventsStub: FakeUserWalletRepository {
+    private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
+
+    override var eventProvider: AnyPublisher<UserWalletRepositoryEvent, Never> {
+        eventSubject.eraseToAnyPublisher()
+    }
+
+    func emit(_ event: UserWalletRepositoryEvent) async {
+        var delivery: AnyCancellable?
+
+        await withCheckedContinuation { continuation in
+            delivery = eventSubject
+                .receive(on: DispatchQueue.main)
+                .first()
+                .sink { _ in continuation.resume() }
+
+            eventSubject.send(event)
+        }
+
+        delivery?.cancel()
     }
 }

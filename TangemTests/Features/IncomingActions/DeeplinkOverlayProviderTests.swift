@@ -42,7 +42,8 @@ struct DeeplinkOverlayProviderTests {
              .jointAccount,
              .token,
              .feed,
-             .support:
+             .support,
+             .promoPage:
             true
 
         // Shown by the main screen or by a responder of its own.
@@ -52,8 +53,7 @@ struct DeeplinkOverlayProviderTests {
              .payCustomCard,
              .tangemPayTransaction,
              .mcpIntent,
-             .mcpAuthorization,
-             .promoPage:
+             .mcpAuthorization:
             false
         }
     }

@@ -34,6 +34,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Injected(\.storiesV2Presenter) private var storiesV2Presenter: any StoriesV2Presenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
+    @Injected(\.overlayViewPresentingStateProvider) private var overlayStateProvider: OverlayViewPresentingStateProvider
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
 
@@ -1255,11 +1256,12 @@ extension MainCoordinator: MainScreenPromoSheetHost {
             hasPresentedModalPublisher,
             isRootHiddenPublisher,
             didEnterBackgroundPublisher,
+            overlayStateProvider.isPresentingPublisher,
         ]
     }
 
     var isSurfaceBusy: Bool {
-        isPresentingOverMain || tangemPayCampaignCoordinator != nil
+        isPresentingOverMain || tangemPayCampaignCoordinator != nil || overlayStateProvider.presentedOverlayId != nil
     }
 
     private var didEnterBackgroundPublisher: AnyPublisher<Bool, Never> {
