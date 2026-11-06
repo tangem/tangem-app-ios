@@ -431,20 +431,32 @@ struct DeeplinkNavigationActionTests {
 
     // MARK: - Survey
 
-    /// SurveySparrow tokens are opaque vendor identifiers of no fixed shape, so anything but emptiness goes.
     @Test(
-        "A survey link takes the token whatever shape it has",
+        "A survey link takes a token of letters, digits, dashes and underscores",
         arguments: [
             "tt-5xtkamxzdOD",
             "ntt-84iF22PDajmervYneMW4kv",
-            "abc+def/ghi=",
-            "token with spaces",
+            "ntt_84iF22PD",
         ]
     )
     func surveyTokenShapes(token: String) throws {
         let encoded = try #require(token.addingPercentEncoding(withAllowedCharacters: .alphanumerics))
 
         #expect(action("tangem://survey?token=\(encoded)") == .survey(SurveyDeeplink(token: token)))
+    }
+
+    @Test(
+        "A survey link whose token carries any other character is turned away",
+        arguments: [
+            "tangem://survey?token=..%2F..%2Fx",
+            "tangem://survey?token=..",
+            "tangem://survey?token=abc%2Bdef%2Fghi%3D",
+            "tangem://survey?token=token%20with%20spaces",
+            "tangem://survey?token=ntt-abc%40x",
+        ]
+    )
+    func surveyWithMalformedToken(urlString: String) {
+        #expect(action(urlString) == nil)
     }
 
     @Test(
