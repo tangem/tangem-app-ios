@@ -34,11 +34,21 @@ final class JointAccountOnboardingViewModel: ObservableObject {
     ]
 
     private let creationHelper: JointAccountCreationHelper
+    private let source: Analytics.JointAccountCreationSource
     private weak var coordinator: JointAccountOnboardingRoutable?
 
-    init(creationHelper: JointAccountCreationHelper, coordinator: JointAccountOnboardingRoutable?) {
+    init(
+        creationHelper: JointAccountCreationHelper,
+        source: Analytics.JointAccountCreationSource,
+        coordinator: JointAccountOnboardingRoutable?
+    ) {
         self.creationHelper = creationHelper
+        self.source = source
         self.coordinator = coordinator
+    }
+
+    func onFirstAppear() {
+        Analytics.log(event: .jointAccountIntroScreenOpened, params: [.source: source.rawValue])
     }
 
     func onContinueTap() {

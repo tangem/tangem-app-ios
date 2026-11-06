@@ -11,6 +11,7 @@ import TangemUI
 /// What the member name step needs from the flow showing it: how to label itself, and what to do with the name.
 protocol JointAccountMemberNameHelper {
     var submitButtonTitle: String { get }
+    var analyticsFlow: Analytics.JointAccountFlow { get }
     var initialName: String { get }
     var signingActionButtonType: SigningActionButtonViewType { get }
     /// Whether leaving the step would throw away what earlier steps of the flow gathered.

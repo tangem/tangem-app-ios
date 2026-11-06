@@ -34,6 +34,7 @@ struct JointAccountJoinMemberNameHelper {
 
 extension JointAccountJoinMemberNameHelper: JointAccountMemberNameHelper {
     var submitButtonTitle: String { Localization.jointAccountJoinToAccountBtnText }
+    var analyticsFlow: Analytics.JointAccountFlow { .join }
 
     var initialName: String { "" }
 
@@ -54,6 +55,10 @@ extension JointAccountJoinMemberNameHelper: JointAccountMemberNameHelper {
 
         let accountModelsManager = userWalletModel.accountModelsManager
         let joinResult = try await accountModelsManager.joinJointAccount(context: context)
+        Analytics.log(event: .jointAccountJoined, params: [
+            .membersCount: "\(signedConfig.membersCount)",
+            .threshold: "\(signedConfig.threshold)",
+        ])
 
         let creationHelper = AccountModelsManagerAccountCreationHelper(accountModelsManager: accountModelsManager)
         let jointAccount = await creationHelper.createdJointAccountModel(with: joinResult.derivationIdentity)

@@ -297,9 +297,12 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
                 return
             }
 
+            Analytics.log(event: .jointAccountButtonCreateJointAccount, params: [.source: Analytics.JointAccountCreationSource.addAccount.rawValue])
+
             let accountModels = userWalletModel.accountModelsManager.accountModels
 
             guard !AccountModelUtils.isAccountsLimitReached(for: .joint, in: accountModels) else {
+                Analytics.logJointAccountAccountsLimitReached(flow: .create)
                 handleAccountsLimitReached()
                 return
             }
@@ -311,7 +314,11 @@ extension UserWalletSettingsCoordinator: AddAccountTypeSelectorRoutable {
                 popToRootAction: popToRootAction
             )
 
-            coordinator.start(with: .creation(JointAccountCreationHelper(userWalletModel: userWalletModel), isWalletFixed: true))
+            coordinator.start(with: .creation(
+                JointAccountCreationHelper(userWalletModel: userWalletModel),
+                isWalletFixed: true,
+                source: .addAccount
+            ))
 
             jointAccountManagementCoordinator = coordinator
         }

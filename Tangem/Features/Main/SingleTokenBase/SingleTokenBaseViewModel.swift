@@ -736,6 +736,13 @@ extension SingleTokenBaseViewModel {
 
     final func openExchange(position: SwapDirection) {
         if let swapUnavailableAlert = swapUnavailableAlert(for: position) {
+            if case .from = position {
+                logJointAccountFakedoorIfNeeded(
+                    isJointAccountsComingSoon: tokenActionAvailabilityProvider.swapSourceAvailability().isJointAccountsComingSoon,
+                    action: .swap
+                )
+            }
+
             alert = swapUnavailableAlert
             return
         }
@@ -755,7 +762,10 @@ extension SingleTokenBaseViewModel {
     }
 
     private func openSell() {
-        if let sellUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.sellAvailability) {
+        let sellAvailability = tokenActionAvailabilityProvider.sellAvailability
+
+        if let sellUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: sellAvailability) {
+            logJointAccountFakedoorIfNeeded(isJointAccountsComingSoon: sellAvailability.isJointAccountsComingSoon, action: .sell)
             alert = sellUnavailableAlert
             return
         }
@@ -803,6 +813,14 @@ extension SingleTokenBaseViewModel {
         ])
 
         openExchange(position: position)
+    }
+
+    private func logJointAccountFakedoorIfNeeded(isJointAccountsComingSoon: Bool, action: Analytics.JointAccountFakedoorAction) {
+        guard isJointAccountsComingSoon else {
+            return
+        }
+
+        Analytics.logJointAccountFakedoorPopupDisplayed(source: .transfer, action: action, tokenItem: walletModel.tokenItem)
     }
 
     private func swapUnavailableAlert(for position: SwapDirection) -> AlertBinder? {
@@ -853,7 +871,10 @@ extension SingleTokenBaseViewModel {
     }
 
     private func openSwapAndSendAction() {
-        if let swapUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: tokenActionAvailabilityProvider.swapSourceAvailability()) {
+        let swapSourceAvailability = tokenActionAvailabilityProvider.swapSourceAvailability()
+
+        if let swapUnavailableAlert = tokenActionAvailabilityAlertBuilder.alert(for: swapSourceAvailability) {
+            logJointAccountFakedoorIfNeeded(isJointAccountsComingSoon: swapSourceAvailability.isJointAccountsComingSoon, action: .swapAndSend)
             alert = swapUnavailableAlert
             return
         }

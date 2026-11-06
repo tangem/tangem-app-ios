@@ -337,6 +337,7 @@ extension TokenActionAvailabilityProvider {
 // MARK: - Sell
 
 extension TokenActionAvailabilityProvider {
+    @CaseFlagable
     enum SellActionAvailabilityStatus {
         case available
         case jointAccountsComingSoon
