@@ -57,6 +57,7 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: jointAccountsRepository,
+            cryptoAccountsRepository: cryptoAccountsRepository,
             userRoleService: userRoleService
         )
 

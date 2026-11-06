@@ -16,3 +16,16 @@ struct JointAccountConfirmationPayload: Codable, Equatable {
     let threshold: Int
     let safeAddress: String
 }
+
+extension JointAccountConfirmationPayload {
+    init(config: JointAccountSignedConfig, safeAddress: String) {
+        self.init(
+            name: config.name,
+            icon: config.icon,
+            iconColor: config.iconColor,
+            membersCount: config.membersCount,
+            threshold: config.threshold,
+            safeAddress: safeAddress.lowercased()
+        )
+    }
+}

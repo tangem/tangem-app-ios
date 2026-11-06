@@ -143,6 +143,7 @@ private final class JointAccountDependenciesFactoryStub: JointAccountDependencie
                 userWalletId: JointAccountModelsRegistryTests.userWalletId,
                 derivationIdentity: derivationIdentity,
                 jointAccountsRepository: repository,
+                cryptoAccountsRepository: CryptoAccountsRepositoryStub(),
                 userRoleService: JointAccountUserRoleServiceMock()
             )
         )

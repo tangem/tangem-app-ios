@@ -468,6 +468,10 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
             .eraseToAnyPublisher()
     }
 
+    var cryptoAccounts: [StoredCryptoAccount] {
+        persistentStorage.getList()
+    }
+
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> {
         storageDidUpdatePublisher
             .eraseToAnyPublisher()
