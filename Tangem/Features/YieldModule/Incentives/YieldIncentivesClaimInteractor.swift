@@ -89,7 +89,11 @@ actor YieldIncentivesClaimInteractor {
         }
     }
 
-    func makeClaimTransaction(prepared: PreparedClaim, isFeeCovered: (Amount) -> Bool) async throws -> BSDKTransaction {
+    func makeClaimTransaction(
+        prepared: PreparedClaim,
+        isGasless: Bool = false,
+        isFeeCovered: (Amount) -> Bool
+    ) async throws -> BSDKTransaction {
         guard Date().timeIntervalSince(prepared.preparedAt) < Constants.preparationValidity else {
             throw ClaimError.preparationExpired
         }
@@ -103,7 +107,12 @@ actor YieldIncentivesClaimInteractor {
                 throw ClaimError.insufficientFee
             }
 
-            let transaction = try await manager.makeClaimTransaction(to: prepared.to, data: prepared.data, fee: prepared.fee)
+            let transaction = try await manager.makeClaimTransaction(
+                to: prepared.to,
+                data: prepared.data,
+                fee: prepared.fee,
+                isGasless: isGasless
+            )
 
             guard transaction.sourceAddress.caseInsensitiveEquals(to: userAddress) else {
                 throw ClaimError.moduleUnavailable

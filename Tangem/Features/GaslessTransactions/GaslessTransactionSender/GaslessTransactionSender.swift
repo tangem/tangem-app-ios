@@ -68,6 +68,52 @@ final class GaslessTransactionSender {
     }
 }
 
+// MARK: - GaslessBatchTransactionSending
+
+protocol GaslessBatchTransactionSending {
+    func send(batch transactions: [BSDKTransaction], fee: BSDKFee) async throws -> TransactionDispatcherResult
+}
+
+extension GaslessTransactionSender: GaslessBatchTransactionSending {
+    func send(batch transactions: [BSDKTransaction], fee: BSDKFee) async throws -> TransactionDispatcherResult {
+        guard fee.amount.type.isToken else {
+            assertionFailure("Gasless fee should be in token")
+            throw TransactionDispatcherResult.Error.actionNotSupported
+        }
+
+        guard let lastTransaction = transactions.last else {
+            throw TransactionDispatcherResult.Error.transactionNotFound
+        }
+
+        if transactions.count == 1 {
+            return try await send(transaction: lastTransaction.withFee(fee))
+        }
+
+        guard let feeRecipientAddress = await gaslessTransactionsNetworkManager.feeRecipientAddress else {
+            throw GaslessTransactionSenderError.noFeeRecipientAddress
+        }
+
+        let batchTransaction = try await gaslessTransactionBuilder.buildGaslessBatchTransaction(
+            bsdkTransactions: transactions,
+            batchFee: fee,
+            feeRecipientAddress: feeRecipientAddress
+        )
+
+        let transactionHash = try await gaslessTransactionsNetworkManager.sendGaslessBatchTransaction(batchTransaction)
+
+        walletModel.pendingTransactionRecordAdder?.addPendingTransaction(lastTransaction.withFee(fee), hash: transactionHash)
+
+        let sendResult = GaslessTransactionSendResult(hash: transactionHash, currentProviderHost: gaslessTransactionsNetworkManager.currentHost)
+
+        return TransactionDispatcherResultMapper().mapResult(
+            sendResult,
+            blockchain: walletModel.tokenItem.blockchain,
+            signer: transactionSigner.latestSignerType,
+            isToken: walletModel.tokenItem.isToken
+        )
+    }
+}
+
 // MARK: - GaslessMultipleTransactionSending
 
 protocol GaslessMultipleTransactionSending {
@@ -148,6 +194,20 @@ extension GaslessTransactionSender: GaslessMultipleTransactionSending {
     private enum Constants {
         static let nonceWaitAttempts = 30
         static let nonceWaitInterval: TimeInterval = 2
+    }
+}
+
+private extension BSDKTransaction {
+    func withFee(_ fee: BSDKFee) -> BSDKTransaction {
+        BSDKTransaction(
+            amount: amount,
+            fee: fee,
+            sourceAddress: sourceAddress,
+            destinationAddress: destinationAddress,
+            changeAddress: changeAddress,
+            contractAddress: contractAddress,
+            params: params
+        )
     }
 }
 

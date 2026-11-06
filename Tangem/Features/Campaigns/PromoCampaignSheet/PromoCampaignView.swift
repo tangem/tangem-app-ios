@@ -119,7 +119,7 @@ struct PromoCampaignView: View {
 
     private func selectedTokenSection(rowViewModel: TokenSelectorItemViewModel) -> some View {
         VStack(spacing: 0) {
-            PromoCampaignBlockTitleView(title: Localization.promoCampaignSelectedCashbackAccount)
+            PromoCampaignBlockTitleView(title: viewModel.payoutAccountTitle)
 
             SwiftUI.Button(action: viewModel.selectToken) {
                 VStack(alignment: .leading, spacing: 16) {

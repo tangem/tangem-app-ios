@@ -43,6 +43,7 @@ enum Feature: String, Hashable, CaseIterable {
     case promoPage
     case dogecoinPsbtBdkFeeRateLimit
     case walletCardsBackupReportWithoutRole
+    case yieldModeGasless
     case walletLinking
     case expressApiV2
 
@@ -83,6 +84,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .promoPage: return "[REDACTED_INFO]_promo_page"
         case .dogecoinPsbtBdkFeeRateLimit: return "[REDACTED_INFO]_dogecoin_psbt_bdk_fee_rate_limit"
         case .walletCardsBackupReportWithoutRole: return "[REDACTED_INFO]_card_backups_without_role"
+        case .yieldModeGasless: return "[REDACTED_INFO]_yield_mode_gasless"
         case .walletLinking: return "[REDACTED_INFO]_wallet_linking"
         case .expressApiV2: return "TWI-1906_express_api_v2"
         }
@@ -123,6 +125,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .promoPage: return .unspecified
         case .dogecoinPsbtBdkFeeRateLimit: return .unspecified
         case .walletCardsBackupReportWithoutRole: return .version("6.7")
+        case .yieldModeGasless: return .version("6.7")
         case .walletLinking: return .unspecified
         case .expressApiV2: return .unspecified
         }
