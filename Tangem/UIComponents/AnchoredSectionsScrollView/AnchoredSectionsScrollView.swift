@@ -151,7 +151,7 @@ private extension AnchoredSectionsScrollView {
                 pendingSection = section
                 settledContentOffset = nil
 
-                withAnimation(.easeInOut(duration: AnchoredSectionsConstants.scrollDuration)) {
+                withAnimation(reduceMotion ? nil : .easeInOut(duration: AnchoredSectionsConstants.scrollDuration)) {
                     proxy.scrollTo(SectionAnchor(section: section), anchor: sectionAnchor)
                 }
 

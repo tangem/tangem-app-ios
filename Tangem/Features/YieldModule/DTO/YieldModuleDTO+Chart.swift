@@ -12,6 +12,7 @@ import TangemFoundation
 extension YieldModuleDTO {
     enum ChartWindow: String, Decodable {
         case lastMonth = "LAST_MONTH"
+        case lastQuarter = "LAST_QUARTER"
         case lastYear = "LAST_YEAR"
     }
 }

@@ -13,18 +13,23 @@ import TangemSnapshotTestSupport
 enum LendingPositionSnapshotScenario: String, SnapshotScenario {
     case loaded
     case loadedLargeText
+    case loadedRightToLeft
     case chartError
     case positionUnavailable
 
     var canvases: [SnapshotCanvas] {
         switch self {
         case .loaded: [.screen(.compact), .screen(.regular)]
-        case .loadedLargeText, .chartError, .positionUnavailable: [.screen(.regular)]
+        case .loadedLargeText, .loadedRightToLeft, .chartError, .positionUnavailable: [.screen(.regular)]
         }
     }
 
     var dynamicTypeSize: DynamicTypeSize {
         self == .loadedLargeText ? .xxxLarge : .large
+    }
+
+    var layoutDirection: LayoutDirection {
+        self == .loadedRightToLeft ? .rightToLeft : .leftToRight
     }
 
     @MainActor
