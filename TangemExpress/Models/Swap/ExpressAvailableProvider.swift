@@ -135,16 +135,6 @@ public extension Array where Element == ExpressAvailableProvider {
         sorted(by: ExpressProviderManagerComparator.isBetter)
     }
 
-    func sortedByAttractivelyPreferringBestDEX() -> [ExpressAvailableProvider] {
-        sorted { lhs, rhs in
-            if lhs.isBestDEX != rhs.isBestDEX {
-                return lhs.isBestDEX
-            }
-
-            return ExpressProviderManagerComparator.isBetter(lhs: lhs, rhs: rhs)
-        }
-    }
-
     func best() -> ExpressAvailableProvider? {
         self.min(by: ExpressProviderManagerComparator.isBetter)
     }

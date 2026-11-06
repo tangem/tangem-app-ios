@@ -14,16 +14,13 @@ public final class MoralisSolanaNetworkService {
     private let networkConfiguration: TangemProviderConfiguration
     private let provider: TangemProvider<MoralisSolanaAPITarget>
     private let mapper: MoralisSolanaNetworkMapper
-    private let isCoreAssetsLoadingEnabled: Bool
     private let decoder = JSONDecoder()
 
     public init(
         networkConfiguration: TangemProviderConfiguration,
-        headers: [APIHeaderKeyInfo],
-        isCoreAssetsLoadingEnabled: Bool
+        headers: [APIHeaderKeyInfo]
     ) {
         self.networkConfiguration = networkConfiguration
-        self.isCoreAssetsLoadingEnabled = isCoreAssetsLoadingEnabled
         provider = TangemProvider(
             configuration: networkConfiguration,
             additionalPlugins: [
@@ -96,10 +93,6 @@ private extension MoralisSolanaNetworkService {
     }
 
     func loadCoreAssets(address: String) async -> LoadedAssets<MoralisSolanaNetworkResult.WalletNFT> {
-        guard isCoreAssetsLoadingEnabled else {
-            return LoadedAssets(assets: [], errors: [])
-        }
-
         let pages = await MoralisCursorPaginator.loadAllPages { cursor in
             let apiTarget = MoralisSolanaAPITarget(
                 target: .getNFTsByWalletEarlyAccess(

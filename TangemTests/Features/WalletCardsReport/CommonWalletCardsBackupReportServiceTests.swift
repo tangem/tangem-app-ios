@@ -134,7 +134,7 @@ struct CommonWalletCardsBackupReportServiceTests {
     func reportsSavedCardOnInitialization() async throws {
         try await withLoginEnvironment { wallets, repository in
             wallets.models = [makeSavedWallet()]
-            let service = CommonWalletCardsBackupReportService(reportsPreviouslySavedWallets: true)
+            let service = CommonWalletCardsBackupReportService()
             service.initialize()
             await drainMainQueue()
 
@@ -149,7 +149,7 @@ struct CommonWalletCardsBackupReportServiceTests {
     @Test("Unlocking reports every saved wallet that was unavailable at launch")
     func unlockReportsSavedWallets() async throws {
         try await withLoginEnvironment { wallets, repository in
-            let service = CommonWalletCardsBackupReportService(reportsPreviouslySavedWallets: true)
+            let service = CommonWalletCardsBackupReportService()
             service.initialize()
             await drainMainQueue()
             #expect(repository.observedSavedCards.isEmpty)
@@ -169,7 +169,7 @@ struct CommonWalletCardsBackupReportServiceTests {
     func ignoresLockedSavedWallet() async throws {
         try await withLoginEnvironment { wallets, repository in
             wallets.models = [makeSavedWallet(isLocked: true)]
-            let service = CommonWalletCardsBackupReportService(reportsPreviouslySavedWallets: true)
+            let service = CommonWalletCardsBackupReportService()
             service.initialize()
             await drainMainQueue()
             #expect(repository.observedSavedCards.isEmpty)
@@ -181,24 +181,11 @@ struct CommonWalletCardsBackupReportServiceTests {
     func reportsActiveCardOfUnfinishedBackup() async throws {
         try await withLoginEnvironment { wallets, repository in
             wallets.models = [makeSavedWallet(status: .active(cardsCount: 2))]
-            let service = CommonWalletCardsBackupReportService(reportsPreviouslySavedWallets: true)
+            let service = CommonWalletCardsBackupReportService()
             service.initialize()
             await drainMainQueue()
             let card = try #require(repository.observedSavedCards.first)
             #expect(card.backupStatus == .active)
-            withExtendedLifetime(service) {}
-        }
-    }
-
-    @Test("The sign-in trigger sends nothing while its toggle is disabled")
-    func disabledLoginTriggerDoesNothing() async throws {
-        try await withLoginEnvironment { wallets, repository in
-            wallets.models = [makeSavedWallet()]
-            let service = CommonWalletCardsBackupReportService(reportsPreviouslySavedWallets: false)
-            service.initialize()
-            wallets.emit(.unlocked)
-            await drainMainQueue()
-            #expect(repository.observedSavedCards.isEmpty)
             withExtendedLifetime(service) {}
         }
     }
@@ -305,7 +292,7 @@ private final class DeliveryEnvironment {
                 InjectedValues[\.userWalletRepository] = previousWallets
             }
 
-            let service = CommonWalletCardsBackupReportService(reachabilityProvider: reachabilityProvider, reportsPreviouslySavedWallets: false)
+            let service = CommonWalletCardsBackupReportService(reachabilityProvider: reachabilityProvider)
             service.initialize()
 
             try await operation()

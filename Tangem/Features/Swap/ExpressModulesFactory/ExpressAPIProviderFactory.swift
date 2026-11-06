@@ -43,8 +43,6 @@ struct ExpressAPIProviderFactory {
         )
 
         let featureFlags = ExpressFeatureFlags(
-            isSwapBestRateDefaultProviderEnabled: FeatureProvider.isAvailable(.swapBestRateDefaultProvider),
-            isHideRejectedSwapProvidersEnabled: FeatureProvider.isAvailable(.hideRejectedSwapProviders),
             isAPIV2Enabled: FeatureProvider.isAvailable(.expressApiV2)
         )
 

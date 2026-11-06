@@ -21,11 +21,7 @@ extension ExpressAPIError {
     }
 
     var localizedMessage: String {
-        guard FeatureProvider.isAvailable(.hideRejectedSwapProviders) else {
-            return legacyLocalizedMessage
-        }
-
-        return localizedMessage(providerName: nil, currencySymbol: nil)
+        localizedMessage(providerName: nil, currencySymbol: nil)
     }
 
     func localizedMessage(providerName: String?, currencySymbol: String?) -> String {
@@ -59,21 +55,6 @@ extension ExpressAPIError {
 
         return BalanceFormatter().formatCryptoBalance(amount, currencyCode: currencySymbol)
     }
-
-    private var legacyLocalizedMessage: String {
-        switch errorCode {
-        case .exchangeInternalError:
-            return Localization.expressErrorSwapUnavailable(errorCode.rawValue)
-        case .exchangeProviderNotActiveError, .exchangeProviderNotAvailableError, .exchangeProviderProviderInternalError:
-            return Localization.expressErrorSwapPairUnavailable(errorCode.rawValue)
-        case .exchangeNotPossibleError:
-            return Localization.warningExpressPairUnavailableMessage(errorCode.rawValue)
-        case .exchangeRoundUpError:
-            return Localization.expressErrorProviderAmountRoundup(errorCode.rawValue, value?.roundUpAmount ?? "")
-        default:
-            return Localization.genericErrorCode(errorCode.localizedDescription)
-        }
-    }
 }
 
 extension ExpressAPIError: BindableError {
@@ -82,17 +63,13 @@ extension ExpressAPIError: BindableError {
     }
 
     func alertBinder(okAction: @escaping () -> Void) -> AlertBinder {
-        guard FeatureProvider.isAvailable(.hideRejectedSwapProviders) else {
-            return BindableErrorWrapper(self).alertBinder(okAction: okAction)
-        }
-
-        return AlertBuilder.makeOkErrorAlert(message: localizedMessage, okAction: okAction)
+        AlertBuilder.makeOkErrorAlert(message: localizedMessage, okAction: okAction)
     }
 }
 
 extension Error {
     var localizedExpressMessage: String {
-        guard FeatureProvider.isAvailable(.hideRejectedSwapProviders), let apiError = self as? ExpressAPIError else {
+        guard let apiError = self as? ExpressAPIError else {
             return localizedDescription
         }
 

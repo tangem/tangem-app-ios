@@ -60,7 +60,7 @@ struct CEXProviderFlowHelper {
         let data: ExpressTransactionData
         do {
             data = try await expressAPIProvider.exchangeData(item: item)
-        } catch where context.featureFlags.isHideRejectedSwapProvidersEnabled && !Task.isCancelled {
+        } catch where !Task.isCancelled {
             throw ExpressExchangeDataError(
                 provider: provider,
                 currencySymbol: pair.currencySymbol(for: adjustedRequest.amountType),

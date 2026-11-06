@@ -244,8 +244,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
     }
 
     func newImplementationAddress(moduleAddress: String) async -> String? {
-        guard FeatureProvider.isAvailable(.yieldModuleOwnerActionUpgrade),
-              let versionResolver = yieldSupplyService.makeVersionResolver() else {
+        guard let versionResolver = yieldSupplyService.makeVersionResolver() else {
             return nil
         }
 

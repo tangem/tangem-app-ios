@@ -124,13 +124,9 @@ private extension CommonSendSwapableTokenFactory {
             return nil
         }
 
-        let versionResolver = FeatureProvider.isAvailable(.yieldModuleOwnerActionUpgrade)
-            ? walletModel.yieldModuleManager?.versionResolver
-            : nil
-
         return CommonYieldModuleUpgradeHandler(
             versionChecker: versionChecker,
-            versionResolver: versionResolver,
+            versionResolver: walletModel.yieldModuleManager?.versionResolver,
             yieldModuleAddress: yieldModuleAddress
         )
     }

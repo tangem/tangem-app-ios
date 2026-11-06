@@ -79,8 +79,6 @@ struct WelcomeView: View {
     @ViewBuilder
     private var videoBackground: some View {
         switch viewModel.videoBackground {
-        case .legacy(let videoViewModel):
-            WelcomeVideoBackgroundView(viewModel: videoViewModel)
         case .shared(let videoViewModel):
             LoopingVideoBackgroundView(viewModel: videoViewModel, fitsWithBlurredBackdropWhenWide: true)
         }

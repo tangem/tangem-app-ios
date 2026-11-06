@@ -167,9 +167,7 @@ private extension SendSwapProvidersSelectorViewModel {
         )
         .map { selectedProvider, providers, currentRateType -> ShowableProvidersState in
             let showable = providers.showableProviders(selectedProviderId: selectedProvider?.provider.id)
-            let sorted = FeatureProvider.isAvailable(.swapBestRateDefaultProvider)
-                ? showable.sortedByAttractively()
-                : showable.sortedByAttractivelyPreferringBestDEX()
+            let sorted = showable.sortedByAttractively()
 
             return ShowableProvidersState(selectedProvider: selectedProvider, providers: sorted)
         }

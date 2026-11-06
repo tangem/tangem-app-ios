@@ -33,8 +33,7 @@ extension WalletCardsBackupReportService {
     }
 
     func reportAddedWalletCard(userWalletModel: UserWalletModel) {
-        guard FeatureProvider.isAvailable(.walletCardsBackupReportWithoutRole),
-              !userWalletModel.config.isDemo,
+        guard !userWalletModel.config.isDemo,
               let card = (userWalletModel.config as? WalletOnboardingStepsBuilderFactory)?.card,
               card.settings.isBackupAllowed,
               card.backupStatus != nil else {
