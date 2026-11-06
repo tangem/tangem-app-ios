@@ -46,9 +46,18 @@ extension CollectiblesAPIService {
         return Mapper.mapToPurchaseStatus(transaction.status)
     }
 
-    func loadPurchaseStatus(txID: String, userWalletID: String) async throws -> CollectiblesPurchaseTransaction {
+    func loadPurchaseStatus(
+        txID: String,
+        includesAutoBuyback: Bool,
+        userWalletID: String
+    ) async throws -> CollectiblesPurchaseTransaction {
+        let statusRequest = CollectiblesDTO.PurchaseTransactionRequest(
+            txID: txID,
+            includeNftWon: true,
+            includeAutoBuyback: includesAutoBuyback
+        )
         let transaction: CollectiblesDTO.PurchaseTransaction = try await request(
-            .purchaseStatus(.init(txID: txID, includeNftWon: true, includeAutoBuyback: true), userWalletID: userWalletID)
+            .purchaseStatus(statusRequest, userWalletID: userWalletID)
         )
 
         return Mapper.mapToPurchaseTransaction(transaction)
@@ -60,11 +69,17 @@ extension CollectiblesAPIService {
         return response.activeTxs.compactMap(Mapper.mapToPendingPurchase)
     }
 
-    func openPack(txID: String, userWalletID: String) async throws -> CollectiblesPurchaseTransaction {
+    func openPack(
+        txID: String,
+        includesAutoBuyback: Bool,
+        userWalletID: String
+    ) async throws -> CollectiblesPurchaseTransaction {
         let transaction: CollectiblesDTO.PurchaseTransaction
 
         do {
-            transaction = try await request(.openPack(.init(txID: txID), userWalletID: userWalletID))
+            transaction = try await request(
+                .openPack(.init(txID: txID), includesAutoBuyback: includesAutoBuyback, userWalletID: userWalletID)
+            )
         } catch Error.http(_, let body) where Self.isSpinNotFound(body) {
             throw CollectiblesPackOpeningError.spinNotFound
         }

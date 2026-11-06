@@ -287,13 +287,17 @@ extension CollectiblesManager: CollectiblesRelinker {
 
 public extension CollectiblesManager {
     var purchaseAddresses: CollectiblesPurchaseAddresses? {
-        guard case .ready = state, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
+        guard case .ready(let vault) = state, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
             return nil
         }
 
         let ownerAddress = coldOwner.base58EncodedString
 
-        return CollectiblesPurchaseAddresses(player: ownerAddress, prizeRecipient: ownerAddress)
+        return CollectiblesPurchaseAddresses(
+            player: ownerAddress,
+            prizeRecipient: ownerAddress,
+            payoutRecipient: vault.vaultAddress
+        )
     }
 }
 
