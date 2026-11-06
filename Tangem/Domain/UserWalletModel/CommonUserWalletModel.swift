@@ -29,6 +29,7 @@ class CommonUserWalletModel {
     let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
     let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
     let accountModelsManager: AccountModelsManager
+    let derivationManager: DerivationManager?
     let addressBookManager: AddressBookManager
 
     var emailConfig: EmailConfig? {
@@ -57,6 +58,7 @@ class CommonUserWalletModel {
         userWalletPushNotificationsManager: UserWalletPushNotificationsManager,
         priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider,
         accountModelsManager: AccountModelsManager,
+        derivationManager: DerivationManager?,
         addressBookManager: AddressBookManager
     ) {
         self.walletInfo = walletInfo
@@ -69,6 +71,7 @@ class CommonUserWalletModel {
         self.userWalletPushNotificationsManager = userWalletPushNotificationsManager
         self.priceAlertsSubscriptionsProvider = priceAlertsSubscriptionsProvider
         self.accountModelsManager = accountModelsManager
+        self.derivationManager = derivationManager
         self.addressBookManager = addressBookManager
     }
 

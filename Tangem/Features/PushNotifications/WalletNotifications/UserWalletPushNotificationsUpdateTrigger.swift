@@ -96,7 +96,7 @@ final class UserWalletPushNotificationsUpdateTrigger {
             .modelsPublisher(from: accountModelsManager)
             .flatMapLatest { cryptoAccountModels -> AnyPublisher<Bool, Never> in
                 let hasPendingDerivationsPublishers = cryptoAccountModels
-                    .compactMap { $0.userTokensManager.derivationManager?.hasPendingDerivations }
+                    .map { $0.pendingDerivationProvider.hasPendingDerivations }
 
                 guard hasPendingDerivationsPublishers.isNotEmpty else {
                     return .just(output: false)

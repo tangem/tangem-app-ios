@@ -21,6 +21,7 @@ struct CommonUserWalletModelDependencies {
     let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
     let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
     let accountModelsManager: AccountModelsManager
+    let derivationManager: DerivationManager?
     let addressBookManager: AddressBookManager
 
     private let userWalletModelConfigurableDependencies: UserWalletModelConfigurableDependencies
@@ -42,6 +43,7 @@ struct CommonUserWalletModelDependencies {
             keysRepository: keysRepository,
             areHDWalletsSupported: areHDWalletsSupported
         )
+        self.derivationManager = derivationManager
 
         let polymarketAccountProvider = PolymarketAccountProvider(
             builder: PolymarketAccountBuilder(
@@ -164,7 +166,7 @@ private extension CommonUserWalletModelDependencies {
     static func makeDerivationManager(
         keysRepository: KeysRepository,
         areHDWalletsSupported: Bool
-    ) -> (DerivationManager & DerivationDependenciesConfigurable)? {
+    ) -> (DerivationManager & DerivationManagerDependenciesConfigurable)? {
         return areHDWalletsSupported ? CommonDerivationManager(keysRepository: keysRepository) : nil
     }
 
@@ -448,7 +450,7 @@ private extension CommonUserWalletModelDependencies {
     /// Represents dependencies that are required for `UserWalletModel` but must be configured later when the model is already created.
     /// This is needed to break circular dependencies between `UserWalletModel` and some of its dependencies (e.g. `KeysRepository`).
     struct UserWalletModelConfigurableDependencies {
-        let derivationManager: DerivationDependenciesConfigurable?
+        let derivationManager: DerivationManagerDependenciesConfigurable?
         let keysRepository: CommonKeysRepository
         let cryptoAccountsRepository: CommonCryptoAccountsRepository
         let keysDerivingInteractorFactory: KeysDerivingInteractorFactory

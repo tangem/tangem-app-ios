@@ -14,12 +14,11 @@ import TangemFoundation
 /// identity, name and the balance the app displays, none of which the module knows about.
 final class CommonCollectiblesAccountModel {
     let id: CollectiblesAccountId
+    let pendingDerivationProvider: AccountPendingDerivationProvider
 
     private let manager: CollectiblesManager
     private let balanceService: any CollectiblesBalanceService
     private let buybackSigningLimits: any CollectiblesBuybackSigningLimits
-    private let coldOwnerNetwork: BlockchainNetwork
-    private let keysPublisher: AnyPublisher<[KeyInfo], Never>
     private let nameSubject: CurrentValueSubject<String, Never>
 
     init(
@@ -27,15 +26,13 @@ final class CommonCollectiblesAccountModel {
         name: String,
         balanceService: any CollectiblesBalanceService,
         buybackSigningLimits: any CollectiblesBuybackSigningLimits,
-        coldOwnerNetwork: BlockchainNetwork,
-        keysPublisher: AnyPublisher<[KeyInfo], Never>
+        pendingDerivationProvider: AccountPendingDerivationProvider
     ) {
         id = CollectiblesAccountId(userWalletId: manager.userWalletId)
         self.manager = manager
         self.balanceService = balanceService
         self.buybackSigningLimits = buybackSigningLimits
-        self.coldOwnerNetwork = coldOwnerNetwork
-        self.keysPublisher = keysPublisher
+        self.pendingDerivationProvider = pendingDerivationProvider
         nameSubject = CurrentValueSubject(name)
     }
 
@@ -72,14 +69,6 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
 
     var isSyncRequiredPublisher: AnyPublisher<Bool, Never> {
         manager.isSyncRequiredPublisher
-    }
-
-    var pendingDerivationNetworksPublisher: AnyPublisher<[BlockchainNetwork], Never> {
-        Self.pendingDerivationNetworks(
-            network: coldOwnerNetwork,
-            isSyncRequiredPublisher: manager.isSyncRequiredPublisher.receiveOnMain().eraseToAnyPublisher(),
-            keysPublisher: keysPublisher.receiveOnMain().eraseToAnyPublisher()
-        )
     }
 
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
@@ -171,24 +160,9 @@ extension CommonCollectiblesAccountModel {
     }
 }
 
-// MARK: - Pending derivation networks
+// MARK: - CollectiblesSyncStatusProvider
 
-extension CommonCollectiblesAccountModel {
-    static func pendingDerivationNetworks(
-        network: BlockchainNetwork,
-        isSyncRequiredPublisher: AnyPublisher<Bool, Never>,
-        keysPublisher: AnyPublisher<[KeyInfo], Never>
-    ) -> AnyPublisher<[BlockchainNetwork], Never> {
-        isSyncRequiredPublisher
-            .combineLatest(keysPublisher)
-            .map { isSyncRequired, keys in
-                let pendingDerivations = PendingDerivationHelper.pendingDerivations(network: network, keys: keys)
-                return isSyncRequired && pendingDerivations.isNotEmpty ? [network] : []
-            }
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-}
+extension CollectiblesManager: CollectiblesSyncStatusProvider {}
 
 // MARK: - CollectiblesPurchaseSigner
 

@@ -34,6 +34,10 @@ enum PendingDerivationHelper {
             }
     }
 
+    static func pendingDerivations(networks: [BlockchainNetwork], keys: [KeyInfo]) -> [PendingDerivation] {
+        networks.flatMap { pendingDerivations(network: $0, keys: keys) }
+    }
+
     static func pendingDerivationPathsKeyedByPublicKeys(_ derivations: [PendingDerivation]) -> [Data: [DerivationPath]] {
         return derivations.reduce(into: [:]) { dict, derivation in
             if let publicKey = derivation.masterKey.publicKey {

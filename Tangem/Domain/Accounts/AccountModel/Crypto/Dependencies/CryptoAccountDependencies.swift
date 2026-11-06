@@ -12,5 +12,5 @@ struct CryptoAccountDependencies: BalanceProvidingAccountDependencies {
     let userTokensManager: UserTokensManager
     let walletModelsManager: WalletModelsManager
     let walletModelsFactoryInput: WalletModelsFactoryInput
-    let derivationManager: (DerivationManager & DerivationStatusProvider)?
+    let pendingDerivationProvider: AccountPendingDerivationProvider
 }

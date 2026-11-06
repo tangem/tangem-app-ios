@@ -1,5 +1,5 @@
 //
-//  DerivationDependenciesConfigurable.swift
+//  DerivationManagerDependenciesConfigurable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 
 /// Represents an entity that can be configured with dependencies required for derivation management.
-protocol DerivationDependenciesConfigurable {
+protocol DerivationManagerDependenciesConfigurable {
     func configure(with keysDerivingProvider: KeysDerivingProvider)
     func configure(with accountModelsManager: AccountModelsManager)
 }

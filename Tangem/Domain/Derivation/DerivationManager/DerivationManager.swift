@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-protocol DerivationManager: AnyObject {
+protocol DerivationManager: PendingDerivationStatusProvider {
     func shouldDeriveKeys(networksToRemove: [BlockchainNetwork], networksToAdd: [BlockchainNetwork]) -> Bool
-    func deriveKeys(completion: @escaping (Result<Void, Error>) -> Void)
+    func deriveKeys() async throws
 }

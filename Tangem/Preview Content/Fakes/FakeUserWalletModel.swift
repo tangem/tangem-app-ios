@@ -85,6 +85,10 @@ class FakeUserWalletModel: UserWalletModel {
         NoopAddressBookManager()
     }
 
+    var derivationManager: DerivationManager? {
+        nil
+    }
+
     var refcodeProvider: RefcodeProvider? {
         return nil
     }

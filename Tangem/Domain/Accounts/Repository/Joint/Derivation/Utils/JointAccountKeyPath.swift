@@ -26,6 +26,10 @@ enum JointAccountKeyPath {
             .nonHardened(accountIndex),
         ])
     }
+
+    static func blockchainNetwork(forAccountAtIndex index: Int) throws -> BlockchainNetwork {
+        try BlockchainNetwork(blockchain, derivationPath: derivationPath(forAccountAtIndex: index))
+    }
 }
 
 // MARK: - Constants

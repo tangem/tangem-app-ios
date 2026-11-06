@@ -129,7 +129,7 @@ private final class JointAccountDependenciesFactoryStub: JointAccountDependencie
             userTokensManager: UserTokensManagerMock(),
             walletModelsManager: walletModelsManager,
             walletModelsFactoryInput: WalletModelsFactoryInputStub(),
-            derivationManager: nil,
+            pendingDerivationProvider: NoopAccountPendingDerivationProvider(),
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: pendingOperationsProvider,
             finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(

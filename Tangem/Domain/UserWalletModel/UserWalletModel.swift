@@ -45,6 +45,7 @@ protocol UserWalletModel:
     var nftManager: NFTManager { get }
     var walletImageProvider: WalletImageProviding { get }
     var accountModelsManager: AccountModelsManager { get }
+    var derivationManager: DerivationManager? { get }
     var addressBookManager: AddressBookManager { get }
     var userWalletPushNotificationsManager: UserWalletPushNotificationsManager { get }
     var priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider { get }

@@ -91,7 +91,7 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
 
     var isSyncRequiredPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
 
-    var pendingDerivationNetworksPublisher: AnyPublisher<[BlockchainNetwork], Never> { Just([]).eraseToAnyPublisher() }
+    var pendingDerivationProvider: AccountPendingDerivationProvider { NoopAccountPendingDerivationProvider() }
 
     func update(name: String) {}
 

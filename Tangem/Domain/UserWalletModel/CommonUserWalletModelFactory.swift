@@ -61,6 +61,7 @@ struct CommonUserWalletModelFactory {
             userWalletPushNotificationsManager: dependencies.userWalletPushNotificationsManager,
             priceAlertsSubscriptionsProvider: dependencies.priceAlertsSubscriptionsProvider,
             accountModelsManager: dependencies.accountModelsManager,
+            derivationManager: dependencies.derivationManager,
             addressBookManager: dependencies.addressBookManager
         )
 

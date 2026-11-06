@@ -62,8 +62,7 @@ private extension CollectiblesAccountModelsRegistry {
             name: Localization.collectiblesMainTitle,
             balanceService: dependencies.balanceService,
             buybackSigningLimits: dependencies.buybackSigningLimits,
-            coldOwnerNetwork: dependencies.coldOwnerNetwork,
-            keysPublisher: dependencies.keysPublisher
+            pendingDerivationProvider: dependencies.pendingDerivationProvider
         )
     }
 

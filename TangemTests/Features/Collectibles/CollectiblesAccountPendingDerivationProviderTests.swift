@@ -1,5 +1,5 @@
 //
-//  CollectiblesPendingDerivationNetworksTests.swift
+//  CollectiblesAccountPendingDerivationProviderTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -14,8 +14,8 @@ import TangemSdk
 import Testing
 @testable import Tangem
 
-@Suite("CommonCollectiblesAccountModel.pendingDerivationNetworks")
-struct CollectiblesPendingDerivationNetworksTests {
+@Suite("CollectiblesAccountPendingDerivationProvider")
+struct CollectiblesAccountPendingDerivationProviderTests {
     @Test("Stops asking for the Packs key once it is stored, while the Packs state still waits for a sync")
     func dropsKeyStoredBeforeStateRefresh() {
         let sut = makeSUT(isSyncRequired: true, isPacksKeyStored: false)
@@ -35,7 +35,7 @@ struct CollectiblesPendingDerivationNetworksTests {
 
 // MARK: - Helpers
 
-private extension CollectiblesPendingDerivationNetworksTests {
+private extension CollectiblesAccountPendingDerivationProviderTests {
     typealias SUT = (
         keys: CurrentValueSubject<[KeyInfo], Never>,
         recorder: NetworksRecorder
@@ -43,11 +43,14 @@ private extension CollectiblesPendingDerivationNetworksTests {
 
     func makeSUT(isSyncRequired: Bool, isPacksKeyStored: Bool) -> SUT {
         let keys = CurrentValueSubject<[KeyInfo], Never>([Constants.masterKey(isPacksKeyStored: isPacksKeyStored)])
-        let publisher = CommonCollectiblesAccountModel.pendingDerivationNetworks(
-            network: Constants.network,
-            isSyncRequiredPublisher: Just(isSyncRequired).eraseToAnyPublisher(),
-            keysPublisher: keys.eraseToAnyPublisher()
+        let provider = CollectiblesAccountPendingDerivationProvider(
+            coldOwnerNetwork: Constants.network,
+            syncStatusProvider: CollectiblesSyncStatusProviderStub(isSyncRequired: isSyncRequired),
+            keysProvider: KeysProviderStub(subject: keys)
         )
+        let publisher = provider.pendingDerivationsPublisher
+            .map { $0.map(\.network) }
+            .eraseToAnyPublisher()
 
         return (keys, NetworksRecorder(publisher: publisher))
     }
@@ -71,6 +74,21 @@ private extension CollectiblesPendingDerivationNetworksTests {
 }
 
 // MARK: - Doubles
+
+private final class CollectiblesSyncStatusProviderStub: CollectiblesSyncStatusProvider {
+    let isSyncRequiredPublisher: AnyPublisher<Bool, Never>
+
+    init(isSyncRequired: Bool) {
+        isSyncRequiredPublisher = Just(isSyncRequired).eraseToAnyPublisher()
+    }
+}
+
+private struct KeysProviderStub: KeysProvider {
+    let subject: CurrentValueSubject<[KeyInfo], Never>
+
+    var keys: [KeyInfo] { subject.value }
+    var keysPublisher: AnyPublisher<[KeyInfo], Never> { subject.eraseToAnyPublisher() }
+}
 
 private final class NetworksRecorder {
     private(set) var values: [[BlockchainNetwork]] = []

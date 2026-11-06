@@ -475,6 +475,10 @@ extension VisaUserWalletModel: UserWalletModel {
         userWalletModel.addressBookManager
     }
 
+    var derivationManager: DerivationManager? {
+        userWalletModel.derivationManager
+    }
+
     func update(type: UpdateRequest) {
         userWalletModel.update(type: type)
     }

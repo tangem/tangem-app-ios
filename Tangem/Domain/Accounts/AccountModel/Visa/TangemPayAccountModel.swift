@@ -50,4 +50,8 @@ extension TangemPayAccountModel {
     var didChangePublisher: AnyPublisher<Void, Never> {
         .empty
     }
+
+    var pendingDerivationProvider: AccountPendingDerivationProvider {
+        NoopAccountPendingDerivationProvider()
+    }
 }

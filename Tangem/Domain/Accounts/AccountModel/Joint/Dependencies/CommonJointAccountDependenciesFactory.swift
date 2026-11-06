@@ -110,16 +110,14 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             derivationPathBuilder: derivationPathBuilder
         )
 
-        // A single instance per unique account, account-specific proxy for `derivationManager`
-        let accountSpecificDerivationManager = derivationManager.map { innerDerivationManager in
-            return AccountDerivationManager(
-                keysRepository: keysRepository,
-                userTokensManager: userTokensManager,
-                innerDerivationManager: innerDerivationManager
-            )
-        }
+        let pendingDerivationProvider = JointAccountPendingDerivationProvider(
+            derivationIndex: derivationIdentity.derivationIndex,
+            userTokensManager: userTokensManager,
+            keysRepository: keysRepository,
+            isDerivationSupported: derivationManager != nil
+        )
 
-        userTokensManager.derivationManager = accountSpecificDerivationManager
+        userTokensManager.derivationManager = derivationManager
         userTokensManager.walletModelsManager = walletModelsManager
 
         let membersService = CommonJointAccountMembersService(
@@ -152,7 +150,7 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             userTokensManager: userTokensManager,
             walletModelsManager: walletModelsManager,
             walletModelsFactoryInput: wrappedWalletModelsFactory,
-            derivationManager: accountSpecificDerivationManager,
+            pendingDerivationProvider: pendingDerivationProvider,
             operationsService: operationsService,
             pendingOperationsProvider: pendingOperationsProvider,
             finishedOperationsWalletUpdater: finishedOperationsWalletUpdater,
