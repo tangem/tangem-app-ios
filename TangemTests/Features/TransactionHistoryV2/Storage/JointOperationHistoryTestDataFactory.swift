@@ -57,7 +57,9 @@ enum JointOperationHistoryTestDataFactory {
             signatures: [
                 JointAccountOperation.Signature(address: initiator, state: .signed, at: "2026-09-08T09:20:37.000Z"),
                 JointAccountOperation.Signature(address: recipient, state: .declined, at: "2026-09-08T09:23:51.000Z"),
-            ]
+            ],
+            createdAt: createdAt,
+            threshold: 2
         )
 
         return JointOperationHistoryItem(

@@ -12,13 +12,13 @@ import TangemFoundation
 
 final class CommonJointOperationsHistoryNetworkService {
     private let networkService: JointAccountsNetworkService
-    private let writer: TransactionHistoryRecordsWriter
+    private let writer: JointOperationsHistoryWriter
     private let syncMetadataStorage: JointOperationsSyncMetadataStorage
     private let pageSize: Int
 
     init(
         networkService: JointAccountsNetworkService,
-        writer: TransactionHistoryRecordsWriter,
+        writer: JointOperationsHistoryWriter,
         syncMetadataStorage: JointOperationsSyncMetadataStorage,
         pageSize: Int
     ) {
@@ -40,7 +40,7 @@ extension CommonJointOperationsHistoryNetworkService: JointOperationsHistoryNetw
 
             TransactionHistoryLogger.debug(self, "Fetched archive page: \(page.items.count) operation(s), hasMore: \(page.hasMore)")
 
-            try await writer.save(page.items)
+            try await writer.save(remote: page.items)
 
             let isFirstPage = cursor == nil
             if isFirstPage {
@@ -67,7 +67,7 @@ extension CommonJointOperationsHistoryNetworkService: JointOperationsHistoryNetw
 
             TransactionHistoryLogger.debug(self, "Fetched delta page: \(page.items.count) operation(s), hasMore: \(page.hasMore)")
 
-            try await writer.save(page.items)
+            try await writer.save(remote: page.items)
             try await syncMetadataStorage.setDeltaCursor(page.nextCursor)
 
             guard page.hasMore else {
