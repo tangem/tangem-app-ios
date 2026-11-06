@@ -77,13 +77,6 @@ private struct MarketsPortfolioBlockContentView: View {
         var attributed = AttributedString(raw)
         attributed.font = DesignSystem.Font.bodyMediumToken.font
         attributed.foregroundColor = DesignSystem.Color.textPrimary
-
-        let separator = Locale.current.decimalSeparator ?? "."
-        if let separatorRange = attributed.range(of: separator) {
-            let fractionalRange = separatorRange.lowerBound ..< attributed.endIndex
-            attributed[fractionalRange].foregroundColor = DesignSystem.Color.textSecondary
-        }
-
         return attributed
     }
 

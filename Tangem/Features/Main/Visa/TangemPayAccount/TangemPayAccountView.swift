@@ -142,14 +142,10 @@ private struct TangemPayAccountTile: View {
             }
 
             LoadableBalanceView(
-                state: AttributedBalanceFormatter.decimalColored(
-                    balance,
-                    integerPart: AttributedBalanceFormatter.PartStyle(font: nil, color: TangemPayAccountTile.balanceIntegerColor),
-                    fractionalPart: AttributedBalanceFormatter.PartStyle(font: nil, color: TangemPayAccountTile.balanceDecimalColor)
-                ),
+                state: balance,
                 style: LoadableBalanceView.Style(
                     font: TangemPayAccountTile.balanceFont,
-                    textColor: TangemPayAccountTile.balanceIntegerColor
+                    textColor: TangemPayAccountTile.balanceColor
                 ),
                 loader: LoadableBalanceView.LoaderStyle(
                     size: CGSize(width: 40, height: 12) * scaleFactor,
@@ -202,6 +198,5 @@ private extension TangemPayAccountTile {
     }
 
     static let balanceFont = TangemRowConstants.Style.Title.font
-    static let balanceIntegerColor: Color = DesignSystem.Color.textPrimary
-    static let balanceDecimalColor: Color = DesignSystem.Color.textSecondary
+    static let balanceColor: Color = DesignSystem.Color.textPrimary
 }

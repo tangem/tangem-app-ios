@@ -712,8 +712,7 @@ private extension TokenDetailsViewModel {
         let attributedFiatBalance = AttributedBalanceFormatter.format(
             formattedFiatBalance,
             token: DesignSystem.Font.bodyMediumToken,
-            integerColor: DesignSystem.Color.textPrimary,
-            fractionalColor: DesignSystem.Color.textSecondary
+            color: DesignSystem.Color.textPrimary
         )
 
         let item = TokenDetailsStakingState.EnableItem(

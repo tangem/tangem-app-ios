@@ -57,20 +57,15 @@ final class MainNavigationBalanceProvider {
 
         case .loading(let cached):
             let formatted = cached.map { formatBalance(balance: $0, currencyCode: currencyCode) }
-            return .loading(text: formatted.map { .attributed($0) })
+            return .loading(text: formatted.map { .string($0) })
 
         case .loaded(let balance):
             let formatted = formatBalance(balance: balance, currencyCode: currencyCode)
-            return .loaded(text: .attributed(formatted))
+            return .loaded(text: .string(formatted))
         }
     }
 
-    /// The font is left unset so the view can apply a Dynamic Type-aware one — an attributed font attribute
-    /// would override the `.style(_:color:)` modifier and freeze the balance at its design size.
-    private func formatBalance(balance: Decimal?, currencyCode: String) -> AttributedString {
-        AttributedBalanceFormatter.dimmingDecimals(
-            balanceFormatter.formatFiatBalance(balance, currencyCode: currencyCode),
-            decimalColor: DesignSystem.Color.textSecondary
-        )
+    private func formatBalance(balance: Decimal?, currencyCode: String) -> String {
+        balanceFormatter.formatFiatBalance(balance, currencyCode: currencyCode)
     }
 }
