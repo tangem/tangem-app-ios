@@ -35,6 +35,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var errorDismissTask: Task<Void, Error>?
     private var sheetDismissal: SheetDismissal?
+    private var presentedSheet: Sheet?
 
     let artworkURL: URL?
     let rows: [OrderRow]
@@ -126,8 +127,8 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
 
                     // [REDACTED_TODO_COMMENT]
                     self?.openReveal(of: wonCard, assets: assets)
-                case .autoSold(let amount):
-                    self?.showBuybackComplete(amount: amount)
+                case .autoSold(let amount, let wonCard):
+                    self?.showBuybackComplete(amount: amount, wonCard: wonCard)
                 }
             } catch {
                 self?.handlePurchaseFailure(error)
@@ -194,7 +195,16 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     }
 
     func sheetDidDismiss() {
-        guard let sheetDismissal else { return }
+        let dismissedSheet = presentedSheet
+        presentedSheet = nil
+
+        guard let sheetDismissal else {
+            if case .buybackComplete = dismissedSheet {
+                routable?.returnToMachine()
+            }
+
+            return
+        }
 
         self.sheetDismissal = nil
         sheetDismissal.action()
@@ -237,9 +247,16 @@ extension CollectiblesConfirmOrderViewModel {
     enum Sheet: Hashable, Identifiable {
         case lowInventory
         case packUnopened
-        case buybackComplete(amount: String?, price: String)
+        case buybackComplete(BuybackComplete)
 
         var id: Self { self }
+    }
+
+    struct BuybackComplete: Hashable {
+        let cardImageURL: URL?
+        let cardName: String?
+        let amount: String?
+        let price: String
     }
 }
 
@@ -319,15 +336,22 @@ private extension CollectiblesConfirmOrderViewModel {
         routable?.openPackReveal(wonCard: wonCard, assets: assets)
     }
 
-    func showBuybackComplete(amount: Decimal?) {
+    func showBuybackComplete(amount: Decimal?, wonCard: CollectiblesWonCard?) {
         orderPhase = .idle
         updateButtonState()
 
         let ticker = CollectiblesChainEnvironment.usdcTokenItem.currencySymbol
-        present(.buybackComplete(
+        present(.buybackComplete(BuybackComplete(
+            cardImageURL: wonCard?.imageFrontURL,
+            cardName: wonCard.flatMap(Self.cardName(of:)),
             amount: amount.map { CollectiblesPriceFormatter.formatAmount($0, ticker: ticker) },
             price: CollectiblesPriceFormatter.formatAmount(price, ticker: ticker)
-        ))
+        )))
+    }
+
+    static func cardName(of wonCard: CollectiblesWonCard) -> String? {
+        let parts = [wonCard.year, wonCard.set, wonCard.serialNumber.map { "#\($0)" }].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " ")
     }
 
     func present(_ sheet: Sheet) {
@@ -336,6 +360,7 @@ private extension CollectiblesConfirmOrderViewModel {
             return
         }
 
+        presentedSheet = sheet
         self.sheet = sheet
     }
 
