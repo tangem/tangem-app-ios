@@ -64,9 +64,9 @@ func makeLockedUserWalletModel(idSeed: String) -> LockedUserWalletModel {
 }
 
 final class SelectorAccountModelsManagerStub: AccountModelsManager {
-    private let accountModelsSubject: CurrentValueSubject<[AccountModel], Never>
+    private let accountModelsSubject: CurrentValueSubject<[AccountModel]?, Never>
 
-    init(accountModels: [AccountModel]) {
+    init(accountModels: [AccountModel]?) {
         accountModelsSubject = CurrentValueSubject(accountModels)
     }
 
@@ -75,8 +75,8 @@ final class SelectorAccountModelsManagerStub: AccountModelsManager {
     }
 
     var canAddCryptoAccounts: Bool { true }
-    var accountModels: [AccountModel] { accountModelsSubject.value }
-    var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { accountModelsSubject.eraseToAnyPublisher() }
+    var accountModels: [AccountModel] { accountModelsSubject.value ?? [] }
+    var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { accountModelsSubject.compactMap { $0 }.eraseToAnyPublisher() }
     var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> { .just(output: true) }
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: accountModels.cryptoAccountsCount) }
@@ -111,17 +111,41 @@ final class SelectorAccountModelsManagerStub: AccountModelsManager {
 
 func withSelectorDependencies<T>(
     userWalletModels: [any UserWalletModel],
+    globalState: CryptoAccounts.State = .single,
+    globalStateProvider: SelectorCryptoAccountsGlobalStateProviderStub? = nil,
     operation: () async throws -> T
 ) async rethrows -> T {
     try await InjectedDependenciesIsolation.shared.run {
         let repository = FakeUserWalletRepository(models: userWalletModels)
 
         let previousRepository = InjectedValues[\.userWalletRepository]
+        let previousGlobalStateProvider = InjectedValues[\.cryptoAccountsGlobalStateProvider]
         InjectedValues[\.userWalletRepository] = repository
-        defer { InjectedValues[\.userWalletRepository] = previousRepository }
+        InjectedValues[\.cryptoAccountsGlobalStateProvider] = globalStateProvider ?? SelectorCryptoAccountsGlobalStateProviderStub(state: globalState)
+        defer {
+            InjectedValues[\.userWalletRepository] = previousRepository
+            InjectedValues[\.cryptoAccountsGlobalStateProvider] = previousGlobalStateProvider
+        }
 
         return try await operation()
     }
+}
+
+final class SelectorCryptoAccountsGlobalStateProviderStub: CryptoAccountsGlobalStateProvider {
+    private let stateSubject: CurrentValueSubject<CryptoAccounts.State, Never>
+
+    init(state: CryptoAccounts.State) {
+        stateSubject = CurrentValueSubject(state)
+    }
+
+    func send(_ state: CryptoAccounts.State) {
+        stateSubject.send(state)
+    }
+
+    func register<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable {}
+    func unregister<T, U>(_ manager: T, forIdentifier identifier: U) where T: AccountModelsManager, U: Hashable {}
+    func globalCryptoAccountsStatePublisher() -> AnyPublisher<CryptoAccounts.State, Never> { stateSubject.eraseToAnyPublisher() }
+    func globalCryptoAccountsState() -> CryptoAccounts.State { stateSubject.value }
 }
 
 extension Publisher where Failure == Never {
