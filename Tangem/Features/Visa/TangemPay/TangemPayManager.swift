@@ -121,6 +121,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     private let stateSubject = CurrentValueSubject<TangemPayLocalState?, Never>(nil)
     private let moneyAccountStateSubject = CurrentValueSubject<TangemPayMoneyAccountState?, Never>(nil)
     private let moneyAccountSubject = CurrentValueSubject<TangemPayMoneyAccount?, Never>(nil)
+    private let onboardingPollingService = TangemPayOnboardingPollingService()
 
     private var bag = Set<AnyCancellable>()
 
@@ -366,6 +367,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         }
 
         updateMoneyAccountState(summary: summary)
+        startOnboardingPollingIfNeeded()
     }
 
     func loadProductsAvailability() async throws -> TangemPayProductsAvailability {
@@ -564,6 +566,21 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         await refreshState()
     }
 
+    private func startOnboardingPollingIfNeeded() {
+        guard moneyAccountStateSubject.value?.isActivating == true else {
+            return
+        }
+
+        onboardingPollingService.start { [weak self] in
+            guard let self else {
+                return true
+            }
+
+            await refreshState()
+            return moneyAccountStateSubject.value?.isActivating != true
+        }
+    }
+
     private func makeWeakReferenceHolder() -> TangemPayManagerWeakReferenceHolder {
         TangemPayManagerWeakReferenceHolder(tangemPayManager: self, waitlistService: waitlistService)
     }
@@ -632,6 +649,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         tangemPayRecentOperationsStore.clear(customerWalletId: customerWalletId)
         stateSubject.value = nil
         resetMoneyAccount()
+        onboardingPollingService.cancel()
     }
 
     private func makePaymentAccount(
@@ -714,7 +732,12 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             .publisher(for: UIApplication.willEnterForegroundNotification)
             .sink { [weak self] _ in
                 runTask { [weak self] in
-                    guard let account = self?.state?.tangemPayAccount else { return }
+                    guard let account = self?.state?.tangemPayAccount else {
+                        if self?.moneyAccountStateSubject.value?.isActivating == true {
+                            await self?.refreshState()
+                        }
+                        return
+                    }
                     await account.loadCustomerInfo()
                     await account.loadOffers()
                     await account.resumeActiveIssueOrderPolling()
