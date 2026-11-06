@@ -87,7 +87,7 @@ enum ExpressAvailableProviderFixture {
             expressFeeProvider: expressFeeProvider,
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false, isAPIV2Enabled: false)
+            featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
         )
 
         return ExpressAvailableProvider(context: context, manager: ExpressProviderManagerStub(state: state))

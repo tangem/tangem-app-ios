@@ -162,7 +162,7 @@ private extension CommonExpressAPIService {
     func tryMapErrorFromBody(response: Response) -> ExpressAPIError? {
         do {
             let error = try decoder.decode(ExpressDTO.APIError.Response.self, from: response.data)
-            return featureFlags.isHideRejectedSwapProvidersEnabled ? error.error.withoutDescription : error.error
+            return error.error.withoutDescription
         } catch {
             return nil
         }

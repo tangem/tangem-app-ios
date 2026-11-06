@@ -31,13 +31,9 @@ final class WelcomeViewModel: ObservableObject {
     ) {
         self.coordinator = coordinator
 
-        if FeatureProvider.isAvailable(.payBundleIntroduction) {
-            videoBackground = .shared(
-                LoopingVideoBackgroundViewModel(provider: WelcomeLoopingVideoProvider(urlProvider: videoProvider))
-            )
-        } else {
-            videoBackground = .legacy(WelcomeVideoBackgroundViewModel(videoProvider: videoProvider))
-        }
+        videoBackground = .shared(
+            LoopingVideoBackgroundViewModel(provider: WelcomeLoopingVideoProvider(urlProvider: videoProvider))
+        )
 
         bind()
     }
@@ -84,12 +80,10 @@ final class WelcomeViewModel: ObservableObject {
 
 extension WelcomeViewModel {
     enum VideoBackground {
-        case legacy(WelcomeVideoBackgroundViewModel)
         case shared(LoopingVideoBackgroundViewModel)
 
         var playbackTime: AnyPublisher<TimeInterval, Never> {
             switch self {
-            case .legacy(let viewModel): viewModel.playbackTime
             case .shared(let viewModel): viewModel.playbackTime
             }
         }

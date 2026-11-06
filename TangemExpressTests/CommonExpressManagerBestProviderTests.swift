@@ -67,57 +67,17 @@ struct CommonExpressManagerBestProviderTests {
 
         #expect(selected.provider.id == "dex")
     }
-
-    @Test("With the toggle off the ready DEX is preselected over a better CEX")
-    func toggleOffPreselectsReadyDEX() async throws {
-        let sut = makeSUT(isSwapBestRateDefaultProviderEnabled: false)
-
-        _ = try await sut.update(pair: makePair())
-        let state = try await sut.update(amountType: .from(1))
-
-        guard case .swap(.some(let selected), _) = state else {
-            Issue.record("Expected a selected swap provider, got \(state)")
-            return
-        }
-
-        #expect(selected.provider.id == "dex")
-    }
-
-    @Test("With the toggle off turning the DEX preference on keeps a CEX the user picked")
-    func toggleOffKeepsUserPickedCEX() async throws {
-        let sut = makeSUT(isSwapBestRateDefaultProviderEnabled: false)
-
-        _ = try await sut.update(pair: makePair())
-        let loaded = try await sut.update(amountType: .from(1))
-
-        guard case .swap(_, let providers) = loaded,
-              let cex = providers.availableProviders(rate: .float).first(where: { $0.provider.id == "cex" }) else {
-            Issue.record("Expected a CEX among the providers, got \(loaded)")
-            return
-        }
-
-        _ = await sut.updateSelectedProvider(provider: cex)
-        await sut.update(prefersDEX: true)
-        let state = await sut.update(type: .autoupdate)
-
-        guard case .swap(.some(let selected), _) = state else {
-            Issue.record("Expected a selected swap provider, got \(state)")
-            return
-        }
-
-        #expect(selected === cex)
-    }
 }
 
 // MARK: - Helpers
 
 private extension CommonExpressManagerBestProviderTests {
-    func makeSUT(isSwapBestRateDefaultProviderEnabled: Bool = true) -> CommonExpressManager {
+    func makeSUT() -> CommonExpressManager {
         CommonExpressManager(
             expressAPIProvider: ExpressAPIProviderStub(),
             expressProviderManagerFactory: QuotedProviderManagerFactory(expectAmounts: ["dex": 90, "cex": 100]),
             expressRepository: ProvidersRepositoryStub(providers: [makeProvider(id: "dex", type: .dex), makeProvider(id: "cex", type: .cex)]),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: isSwapBestRateDefaultProviderEnabled, isHideRejectedSwapProvidersEnabled: false, isAPIV2Enabled: false)
+            featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
         )
     }
 
@@ -180,7 +140,7 @@ private struct QuotedProviderManagerFactory: ExpressProviderManagerFactory {
             expressFeeProvider: FeeProviderFactoryStub().makeExpressFeeProvider(),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false, isAPIV2Enabled: false)
+            featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
         )
 
         let quote = ExpressQuote(

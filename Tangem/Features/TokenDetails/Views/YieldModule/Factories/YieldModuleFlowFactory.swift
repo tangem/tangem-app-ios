@@ -157,8 +157,7 @@ final class CommonYieldModuleFlowFactory {
     }
 
     private func makeGaslessFeeService(transactionReleasesSourceToken: Bool) -> YieldGaslessFeeService? {
-        guard FeatureProvider.isAvailable(.yieldModeGasless),
-              walletModel.tokenItem.blockchain.isGaslessTransactionSupported,
+        guard walletModel.tokenItem.blockchain.isGaslessTransactionSupported,
               !walletModel.isDemo,
               !walletModel.isJointAccountParticipant else {
             return nil
