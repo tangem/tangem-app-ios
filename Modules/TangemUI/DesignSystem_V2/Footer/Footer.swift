@@ -56,7 +56,20 @@ public struct Footer: View, Setupable {
     @ViewBuilder
     private var mainContent: some View {
         switch content.kind {
-        case .buttons(let group):
+        case .buttons(let primary, let secondary):
+            VStack(spacing: Metrics.buttonSpacing) {
+                if let secondary {
+                    secondary
+                        .size(.x12)
+                        .horizontalLayout(.infinity)
+                }
+
+                primary
+                    .size(.x12)
+                    .horizontalLayout(.infinity)
+            }
+
+        case .buttonGroup(let group):
             group
 
         case .signingButton(let button, let secondary):

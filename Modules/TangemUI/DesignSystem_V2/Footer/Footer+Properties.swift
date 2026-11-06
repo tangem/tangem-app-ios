@@ -16,7 +16,12 @@ public struct FooterContent {
         secondary: Button? = nil,
         orientation: ButtonGroup.Orientation = .vertical
     ) -> FooterContent {
-        FooterContent(kind: .buttons(ButtonGroup(start: secondary, end: primary).orientation(orientation)))
+        switch orientation {
+        case .vertical:
+            FooterContent(kind: .buttons(primary: primary, secondary: secondary))
+        case .horizontal:
+            FooterContent(kind: .buttonGroup(ButtonGroup(start: secondary, end: primary).orientation(orientation)))
+        }
     }
 
     public static func signingButton(_ button: SigningActionButtonView, secondary: Button? = nil) -> FooterContent {
@@ -42,7 +47,8 @@ public struct FooterContent {
 
 extension FooterContent {
     enum Kind {
-        case buttons(ButtonGroup)
+        case buttons(primary: Button, secondary: Button?)
+        case buttonGroup(ButtonGroup)
         case signingButton(SigningActionButtonView, secondary: Button?)
         case toolbar(start: Button?, end: Button?)
         case search(Search)
