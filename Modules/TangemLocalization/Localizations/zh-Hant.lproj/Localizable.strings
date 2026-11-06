@@ -406,6 +406,7 @@
 "common_from_wallet" = "來源錢包";
 "common_from" = "從";
 "common_generate_addresses" = "同步地址";
+"common_get_started" = "開始使用";
 "common_get_token" = "取得代幣";
 "common_go_to_provider" = "前往提供商";
 "common_go_to_token" = "前往代幣";
@@ -1105,6 +1106,13 @@
 "joint_account_send_slot_busy_title" = "操作已在進行中";
 "joint_account_settings_networks_info" = "此帳戶僅在支援的網路中運作。";
 "joint_account_waiting_activation" = "等待啟用";
+"joint_blockaid_create_anyway" = "Create anyway";
+"joint_blockaid_decline_transaction" = "Decline transaction";
+"joint_blockaid_malicious_body" = "This address has been flagged as malicious. If you send funds to it, you'll most likely lose them.";
+"joint_blockaid_malicious_title" = "Malicious transaction";
+"joint_blockaid_risky_body" = "This recipient address may be unsafe. Only proceed if you trust the recipient.";
+"joint_blockaid_risky_title" = "Potentially risky address";
+"joint_blockaid_sign_anyway" = "Sign anyway";
 "joint_operation_auto_sends_footer" = "當 %1$@ / %2$@ 位成員簽署後自動傳送";
 "joint_operation_banner_subtitle" = "%1$@ → %2$@";
 "joint_operation_banner_title_own" = "您想要傳送 %1$@";

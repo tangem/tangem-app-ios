@@ -406,6 +406,7 @@
 "common_from_wallet" = "Aus der Wallet";
 "common_from" = "Vom";
 "common_generate_addresses" = "Adressen synchronisieren";
+"common_get_started" = "Erste Schritte";
 "common_get_token" = "Token erhalten";
 "common_go_to_provider" = "Zum Anbieter gehen";
 "common_go_to_token" = "Zum Token";
@@ -1105,6 +1106,13 @@
 "joint_account_send_slot_busy_title" = "Die Operation ist bereits im Gange";
 "joint_account_settings_networks_info" = "Dieses Konto funktioniert nur in den unterstützten Netzwerken.";
 "joint_account_waiting_activation" = "Warten auf die Aktivierung";
+"joint_blockaid_create_anyway" = "Create anyway";
+"joint_blockaid_decline_transaction" = "Decline transaction";
+"joint_blockaid_malicious_body" = "This address has been flagged as malicious. If you send funds to it, you'll most likely lose them.";
+"joint_blockaid_malicious_title" = "Malicious transaction";
+"joint_blockaid_risky_body" = "This recipient address may be unsafe. Only proceed if you trust the recipient.";
+"joint_blockaid_risky_title" = "Potentially risky address";
+"joint_blockaid_sign_anyway" = "Sign anyway";
 "joint_operation_auto_sends_footer" = "Wird automatisch versendet, sobald sich %1$@ der %2$@ -Mitglieder angemeldet haben";
 "joint_operation_banner_subtitle" = "%1$@ → %2$@";
 "joint_operation_banner_title_own" = "Du möchtest etwas verschicken %1$@";
