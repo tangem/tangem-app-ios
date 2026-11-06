@@ -184,6 +184,29 @@ struct TangemPaySelectPlanView: View {
         NavigationToolbarButton.close(placement: .topBarTrailing, action: viewModel.close)
     }
 
+    @ViewBuilder
+    private var selectButton: some View {
+        if let signingType = viewModel.selectButtonSigningType {
+            SigningActionButtonView(
+                type: signingType,
+                title: Localization.tangempaySelectPlanBtnSelect,
+                isLoading: viewModel.isPlacingOrder,
+                isDisabled: false,
+                action: viewModel.select
+            )
+        } else {
+            TangemUI.Button(
+                label: AttributedString(Localization.tangempaySelectPlanBtnSelect),
+                accessibilityLabel: Localization.tangempaySelectPlanBtnSelect,
+                action: viewModel.select
+            )
+            .size(.x12)
+            .styleType(.primary)
+            .horizontalLayout(.infinity)
+            .loading(.spinner(if: viewModel.isPlacingOrder))
+        }
+    }
+
     private var footer: some View {
         VStack(spacing: 8) {
             TangemUI.Button(
@@ -197,16 +220,8 @@ struct TangemPaySelectPlanView: View {
             .disabled(viewModel.isPlacingOrder)
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.selectPlanCompareButton)
 
-            TangemUI.Button(
-                label: AttributedString(Localization.tangempaySelectPlanBtnSelect),
-                accessibilityLabel: Localization.tangempaySelectPlanBtnSelect,
-                action: viewModel.select
-            )
-            .size(.x12)
-            .styleType(.primary)
-            .horizontalLayout(.infinity)
-            .loading(.spinner(if: viewModel.isPlacingOrder))
-            .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.selectPlanSelectButton)
+            selectButton
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.selectPlanSelectButton)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
