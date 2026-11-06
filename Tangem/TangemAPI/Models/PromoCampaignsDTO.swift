@@ -89,6 +89,8 @@ extension PromoCampaignsDTO {
         let learnMoreLink: Link?
         let tncLink: Link?
         let actionButtonName: String
+        let payoutButtonName: String?
+        let payoutAccountTitle: String?
     }
 
     struct Link: Decodable {

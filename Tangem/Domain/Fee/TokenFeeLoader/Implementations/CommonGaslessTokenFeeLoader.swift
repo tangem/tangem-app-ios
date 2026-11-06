@@ -18,6 +18,7 @@ struct CommonGaslessTokenFeeLoader {
     let feeToken: Token?
     let gaslessTransactionFeeProvider: any GaslessTransactionFeeProvider
     let yieldFeeContext: GaslessYieldFeeContext?
+    var isFeeTokenFundedByTransaction = false
 
     private let balanceConverter = BalanceConverter()
 }
@@ -104,6 +105,15 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
 extension CommonGaslessTokenFeeLoader: EthereumTokenFeeLoader {
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee {
         let params = try await resolveGaslessParameters()
+
+        if isFeeTokenFundedByTransaction {
+            return try await gaslessTransactionFeeProvider.getEstimatedGaslessTransactionFeeFundedByTransaction(
+                feeToken: params.feeToken,
+                estimatedGasLimit: estimatedGasLimit,
+                feeRecipientAddress: params.feeRecipientAddress,
+                nativeToFeeTokenRate: params.nativeToFeeTokenRate
+            )
+        }
 
         return try await resolveGaslessFee(
             spentAmount: 0,
@@ -351,6 +361,7 @@ extension CommonGaslessTokenFeeLoader: CustomStringConvertible {
             "feeToken": feeToken?.name ?? "nil",
             "gaslessTransactionFeeProvider": String(describing: gaslessTransactionFeeProvider),
             "yieldFeeContext": yieldFeeContext?.description ?? "nil",
+            "isFeeTokenFundedByTransaction": isFeeTokenFundedByTransaction,
         ])
     }
 }
