@@ -13,4 +13,5 @@ protocol TransactionHistoryRecordsWriter: Sendable {
     func save(_ transactions: [ExchangeTransaction]) async throws
     func save(_ transactions: [OnrampTransaction]) async throws
     func save(_ items: [JointOperationHistoryItem]) async throws
+    func write(_ resolver: some TransactionHistoryRecordsWriteResolver) async throws
 }

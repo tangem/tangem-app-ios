@@ -13,10 +13,14 @@ import TangemFoundation
 
 final class TransactionHistoryRecordsWriterStub: TransactionHistoryRecordsWriter {
     private let isFailing: Bool
-    private let state = OSAllocatedUnfairLock(initialState: [[String]]())
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     var savedOperationIds: [[String]] {
-        state.withLock { $0 }
+        state.withLock { $0.savedOperationIds }
+    }
+
+    var writtenResolvers: [any TransactionHistoryRecordsWriteResolver] {
+        state.withLock { $0.writtenResolvers }
     }
 
     init(isFailing: Bool) {
@@ -32,6 +36,19 @@ final class TransactionHistoryRecordsWriterStub: TransactionHistoryRecordsWriter
             throw "The database refused the page"
         }
 
-        state.withLock { $0.append(items.map(\.operation.id)) }
+        state.withLock { $0.savedOperationIds.append(items.map(\.operation.id)) }
+    }
+
+    func write(_ resolver: some TransactionHistoryRecordsWriteResolver) async throws {
+        state.withLock { $0.writtenResolvers.append(resolver) }
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension TransactionHistoryRecordsWriterStub {
+    struct State {
+        var savedOperationIds: [[String]] = []
+        var writtenResolvers: [any TransactionHistoryRecordsWriteResolver] = []
     }
 }

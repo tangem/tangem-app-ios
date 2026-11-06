@@ -211,8 +211,13 @@ private extension CommonUserWalletModelDependencies {
         )
 
         let jointAccountsNetworkService = CommonJointAccountsNetworkService(userWalletId: userWalletId)
+        let jointAccountsPersistentStorage = CommonJointAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
         let jointAccountPendingOperationsSynchronizer = CommonJointAccountPendingOperationsSynchronizer(
-            persistentStorage: CommonJointAccountsPendingOperationsPersistentStorage(storageIdentifier: userWalletId.stringValue)
+            persistentStorage: CommonJointAccountsPendingOperationsPersistentStorage(storageIdentifier: userWalletId.stringValue),
+            historyEnricherFactory: TransactionHistoryJointAccountDataEnricherFactory.make(
+                persistentStorage: jointAccountsPersistentStorage,
+                isJointAccountsAvailable: isJointAccountsAvailable
+            )
         )
 
         let jointAccountPendingOperationsRepository = CommonJointAccountPendingOperationsRepository(
@@ -225,7 +230,7 @@ private extension CommonUserWalletModelDependencies {
             userWalletId: userWalletId,
             networkService: jointAccountsNetworkService,
             derivationInteractorFactory: jointAccountDerivationInteractorFactory,
-            persistentStorage: CommonJointAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue),
+            persistentStorage: jointAccountsPersistentStorage,
             pendingOperationsSynchronizer: jointAccountPendingOperationsSynchronizer,
             eTagStorage: InjectedValues[\.eTagStorage],
             isJointAccountsAvailable: isJointAccountsAvailable

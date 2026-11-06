@@ -519,7 +519,9 @@ private extension CommonJointAccountPendingOperationsProviderTests {
             finishedAt: nil,
             cancelReason: nil,
             initiator: initiator,
-            signatures: []
+            signatures: [],
+            createdAt: nil,
+            threshold: nil
         )
     }
 

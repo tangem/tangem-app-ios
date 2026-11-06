@@ -100,7 +100,10 @@ struct CommonJointAccountsRepositoryTests {
         let sut = Self.makeSUT(
             networkService: networkService,
             storage: storage,
-            pendingOperationsSynchronizer: CommonJointAccountPendingOperationsSynchronizer(persistentStorage: pendingOperationsStorage)
+            pendingOperationsSynchronizer: CommonJointAccountPendingOperationsSynchronizer(
+                persistentStorage: pendingOperationsStorage,
+                historyEnricherFactory: { nil }
+            )
         )
 
         try await sut.loadJointAccountsFromRemote()
@@ -119,7 +122,10 @@ struct CommonJointAccountsRepositoryTests {
         let sut = Self.makeSUT(
             networkService: networkService,
             storage: storage,
-            pendingOperationsSynchronizer: CommonJointAccountPendingOperationsSynchronizer(persistentStorage: pendingOperationsStorage)
+            pendingOperationsSynchronizer: CommonJointAccountPendingOperationsSynchronizer(
+                persistentStorage: pendingOperationsStorage,
+                historyEnricherFactory: { nil }
+            )
         )
 
         try await sut.loadJointAccountsFromRemote()
@@ -279,7 +285,7 @@ struct CommonJointAccountsRepositoryTests {
         let operation = Self.operation()
         let storage = JointAccountsPersistentStorageStub(accounts: [])
         let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub()
-        let synchronizer = CommonJointAccountPendingOperationsSynchronizer(persistentStorage: pendingOperationsStorage)
+        let synchronizer = CommonJointAccountPendingOperationsSynchronizer(persistentStorage: pendingOperationsStorage, historyEnricherFactory: { nil })
         let eTagStorage = JointAccountsETagStorageStub()
         let networkService = JointAccountsNetworkServiceStub(
             suspendedFirstAnswer: .changed([Self.remoteAccount(status: .active(safeAddress: Self.safeAddress))], eTag: "stale-etag")
@@ -307,7 +313,7 @@ struct CommonJointAccountsRepositoryTests {
     func theReadAfterAReplayedListingIsAFullOne() async throws {
         let storage = JointAccountsPersistentStorageStub(accounts: [])
         let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub()
-        let synchronizer = CommonJointAccountPendingOperationsSynchronizer(persistentStorage: pendingOperationsStorage)
+        let synchronizer = CommonJointAccountPendingOperationsSynchronizer(persistentStorage: pendingOperationsStorage, historyEnricherFactory: { nil })
         let eTagStorage = JointAccountsETagStorageStub()
         let networkService = JointAccountsNetworkServiceStub(
             suspendedFirstAnswer: .changed([Self.remoteAccount(status: .active(safeAddress: Self.safeAddress))], eTag: "stale-etag")
@@ -375,7 +381,8 @@ private extension CommonJointAccountsRepositoryTests {
         networkService: JointAccountsNetworkService,
         storage: JointAccountsPersistentStorage,
         pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer = CommonJointAccountPendingOperationsSynchronizer(
-            persistentStorage: JointAccountsPendingOperationsPersistentStorageStub()
+            persistentStorage: JointAccountsPendingOperationsPersistentStorageStub(),
+            historyEnricherFactory: { nil }
         ),
         eTagStorage: ETagStorage = JointAccountsETagStorageStub(),
         isJointAccountsAvailable: Bool = true
@@ -471,7 +478,9 @@ private extension CommonJointAccountsRepositoryTests {
             finishedAt: nil,
             cancelReason: nil,
             initiator: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
-            signatures: [JointAccountOperation.Signature(address: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", state: .signed, at: "2026-09-02T10:15:00Z")]
+            signatures: [JointAccountOperation.Signature(address: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", state: .signed, at: "2026-09-02T10:15:00Z")],
+            createdAt: nil,
+            threshold: nil
         )
     }
 

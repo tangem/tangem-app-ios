@@ -92,7 +92,7 @@ private extension JointOperationsHistorySyncIntegrationTests {
         return JointOperationsHistorySyncService(
             networkService: CommonJointOperationsHistoryNetworkService(
                 networkService: CommonJointAccountsNetworkService(userWalletId: Self.userWalletId),
-                writer: CommonTransactionHistoryRecordsWriter(),
+                writer: CommonJointOperationsHistoryWriter(writer: CommonTransactionHistoryRecordsWriter()),
                 syncMetadataStorage: syncMetadataStorage,
                 pageSize: 100
             ),

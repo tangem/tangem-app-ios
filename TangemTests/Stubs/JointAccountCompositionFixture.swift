@@ -111,7 +111,9 @@ enum JointAccountCompositionFixture {
         status: JointAccountOperationStatus = .awaitingSignatures,
         finishedAt: Date? = nil,
         initiator: String = "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
-        signatures: [JointAccountOperation.Signature] = []
+        signatures: [JointAccountOperation.Signature] = [],
+        createdAt: Date? = nil,
+        threshold: Int? = nil
     ) -> JointAccountOperation {
         JointAccountOperation(
             id: id,
@@ -133,7 +135,9 @@ enum JointAccountCompositionFixture {
             finishedAt: finishedAt,
             cancelReason: nil,
             initiator: initiator,
-            signatures: signatures
+            signatures: signatures,
+            createdAt: createdAt,
+            threshold: threshold
         )
     }
 }

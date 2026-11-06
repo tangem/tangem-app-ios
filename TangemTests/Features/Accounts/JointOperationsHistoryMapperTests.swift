@@ -38,6 +38,8 @@ struct JointOperationsHistoryMapperTests {
         #expect(item.safeAddress == Constants.safeAddress)
         #expect(item.threshold == 2)
         #expect(item.createdAt == Constants.createdAt)
+        #expect(item.operation.createdAt == Constants.createdAt)
+        #expect(item.operation.threshold == 2)
         #expect(item.operation.finishedAt == Constants.finishedAt)
         #expect(item.operation.cancelReason == nil)
     }

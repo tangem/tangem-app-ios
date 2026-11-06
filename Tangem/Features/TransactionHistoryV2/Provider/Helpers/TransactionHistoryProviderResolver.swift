@@ -115,7 +115,7 @@ actor TransactionHistoryProviderResolver {
 
         let networkService = CommonJointOperationsHistoryNetworkService(
             networkService: CommonJointAccountsNetworkService(userWalletId: userWalletId),
-            writer: CommonTransactionHistoryRecordsWriter(),
+            writer: CommonJointOperationsHistoryWriter(writer: CommonTransactionHistoryRecordsWriter()),
             syncMetadataStorage: syncMetadataStorage,
             pageSize: Constants.jointOperationsPageSize
         )

@@ -8,7 +8,6 @@
 
 import Foundation
 import Testing
-import TangemExpress
 import TangemFoundation
 @testable import Tangem
 
@@ -25,7 +24,7 @@ struct CommonJointOperationsHistoryNetworkServiceTests {
         try await sut.syncInitial()
 
         #expect(networkService.requestedHistoryCursors == [nil, "archive-1"])
-        #expect(writer.savedOperationIds == [["op-1"], ["op-2"]])
+        #expect(writer.savedRemoteOperationIds == [["op-1"], ["op-2"]])
         #expect(storage.archiveCursorValue == "archive-2")
         #expect(storage.deltaCursorValue == "delta-0")
         #expect(storage.isInitialSyncDoneValue)
@@ -67,13 +66,13 @@ struct CommonJointOperationsHistoryNetworkServiceTests {
         let networkService = JointAccountsNetworkServiceStub(historyPages: [
             Self.page(ids: ["op-1"], nextCursor: "archive-1", startDeltaCursor: "delta-0", hasMore: false),
         ])
-        let (sut, writer, storage) = makeSUT(networkService: networkService, writer: TransactionHistoryRecordsWriterStub(isFailing: true))
+        let (sut, writer, storage) = makeSUT(networkService: networkService, writer: JointOperationsHistoryWriterStub(isFailing: true))
 
         await #expect(throws: (any Error).self) {
             try await sut.syncInitial()
         }
 
-        #expect(writer.savedOperationIds.isEmpty)
+        #expect(writer.savedRemoteOperationIds.isEmpty)
         #expect(storage.archiveCursorValue == nil)
         #expect(storage.deltaCursorValue == nil)
         #expect(!storage.isInitialSyncDoneValue)
@@ -169,7 +168,7 @@ struct CommonJointOperationsHistoryNetworkServiceTests {
         try await sut.syncDelta()
 
         #expect(networkService.requestedHistoryDeltaCursors == ["delta-0", "delta-1"])
-        #expect(writer.savedOperationIds == [["op-3"], []])
+        #expect(writer.savedRemoteOperationIds == [["op-3"], []])
         #expect(storage.deltaCursorValue == nil)
     }
 
@@ -180,7 +179,7 @@ struct CommonJointOperationsHistoryNetworkServiceTests {
         ])
         let (sut, _, storage) = makeSUT(
             networkService: networkService,
-            writer: TransactionHistoryRecordsWriterStub(isFailing: true),
+            writer: JointOperationsHistoryWriterStub(isFailing: true),
             storage: JointOperationsSyncMetadataStorageStub(archiveCursor: nil, deltaCursor: "delta-0")
         )
 
@@ -197,9 +196,9 @@ struct CommonJointOperationsHistoryNetworkServiceTests {
 private extension CommonJointOperationsHistoryNetworkServiceTests {
     func makeSUT(
         networkService: JointAccountsNetworkServiceStub,
-        writer: TransactionHistoryRecordsWriterStub = TransactionHistoryRecordsWriterStub(isFailing: false),
+        writer: JointOperationsHistoryWriterStub = JointOperationsHistoryWriterStub(isFailing: false),
         storage: JointOperationsSyncMetadataStorageStub = JointOperationsSyncMetadataStorageStub(archiveCursor: nil, deltaCursor: nil)
-    ) -> (CommonJointOperationsHistoryNetworkService, TransactionHistoryRecordsWriterStub, JointOperationsSyncMetadataStorageStub) {
+    ) -> (CommonJointOperationsHistoryNetworkService, JointOperationsHistoryWriterStub, JointOperationsSyncMetadataStorageStub) {
         let sut = CommonJointOperationsHistoryNetworkService(
             networkService: networkService,
             writer: writer,
@@ -222,12 +221,12 @@ private extension CommonJointOperationsHistoryNetworkServiceTests {
 
 // MARK: - Stubs
 
-private struct CancellingRecordsWriterStub: TransactionHistoryRecordsWriter {
-    func save(_ transactions: [ExchangeTransaction]) async throws {}
-
-    func save(_ transactions: [OnrampTransaction]) async throws {}
-
-    func save(_ items: [JointOperationHistoryItem]) async throws {
+private struct CancellingRecordsWriterStub: JointOperationsHistoryWriter {
+    func save(remote items: [JointOperationHistoryItem]) async throws {
         withUnsafeCurrentTask { $0?.cancel() }
     }
+
+    func save(local items: [JointOperationHistoryItem]) async throws {}
+
+    func delete(operationIds: [String]) async throws {}
 }

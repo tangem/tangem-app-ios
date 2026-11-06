@@ -374,7 +374,9 @@ private extension CommonJointAccountPendingOperationsRepositoryTests {
             finishedAt: nil,
             cancelReason: nil,
             initiator: initiator,
-            signatures: signatures
+            signatures: signatures,
+            createdAt: nil,
+            threshold: nil
         )
     }
 }
