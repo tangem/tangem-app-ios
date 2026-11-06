@@ -26,8 +26,10 @@ final class LendingPositionViewModelTests: LeakTrackingTestSuite {
         await sut.positionTask?.value
 
         let formatter = BalanceFormatter()
-        #expect(sut.state.balance?.crypto == formatter.formatCryptoBalance(2, currencyCode: "ETH"))
-        #expect(sut.state.balance?.fiat == formatter.formatFiatBalance(4000, currencyCode: "USD"))
+        #expect(sut.state.balance == LendingPositionContentView.StateModel.Balance(
+            fiat: formatter.formatFiatBalance(4000, currencyCode: "USD"),
+            crypto: formatter.formatCryptoBalance(2, currencyCode: "ETH")
+        ))
         #expect(sut.state.availableBalance == formatter.formatCryptoBalance(Decimal(15) / 10, currencyCode: "ETH"))
         #expect(sut.state.canWithdraw)
     }
@@ -86,6 +88,24 @@ final class LendingPositionViewModelTests: LeakTrackingTestSuite {
 
         #expect(!sut.state.canWithdraw)
         #expect(router.withdrawnPositions.isEmpty)
+    }
+
+    @Test("While the position is read again Withdraw stays off, so it never opens with the old position")
+    func reloadKeepsWithdrawOff() async {
+        let router = RouterSpy()
+        let sut = makeSUT(position: .success(2), router: router)
+        sut.onAppear()
+        await sut.positionTask?.value
+
+        sut.onAppear()
+        sut.handle(.withdraw)
+
+        #expect(!sut.state.canWithdraw)
+        #expect(router.withdrawnPositions.isEmpty)
+
+        await sut.positionTask?.value
+
+        #expect(sut.state.canWithdraw)
     }
 
     @Test("Withdraw opens the withdrawal with the loaded position")

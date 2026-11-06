@@ -83,7 +83,7 @@ final class LendingPositionViewModel: ObservableObject {
             state.period = period
             loadChart()
         case .withdraw:
-            guard let position else { return }
+            guard state.canWithdraw, let position else { return }
             router?.openWithdraw(position: position)
         case .addFunds:
             router?.openAddFunds()
@@ -121,6 +121,7 @@ private extension LendingPositionViewModel {
 private extension LendingPositionViewModel {
     func loadPosition() {
         positionTask?.cancel()
+        state.canWithdraw = false
         positionTask = Task { [weak self, liquidityProvider, fiatConverter, tokenItem, currencyCode] in
             do {
                 let position = try await liquidityProvider.nativePosition()
