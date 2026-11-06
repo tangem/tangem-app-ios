@@ -502,7 +502,9 @@ extension ConnectionsViewModel {
         userWalletRepository: some UserWalletRepository,
         cryptoAccountsState: CryptoAccounts.State
     ) -> ConnectionsViewState {
-        let tabs = userWalletRepository.models.map { userWalletModel in
+        let unlockedUserWalletModels = userWalletRepository.models.filter { !$0.isUserWalletLocked }
+
+        let tabs = unlockedUserWalletModels.map { userWalletModel in
             makeUserWalletTab(
                 for: userWalletModel,
                 prefetchedConnectedDApps: prefetchedConnectedDApps,
@@ -511,7 +513,7 @@ extension ConnectionsViewModel {
         }
 
         guard let firstTab = tabs.first else {
-            preconditionFailure("Connections screen requires at least one user wallet. Developer mistake.")
+            preconditionFailure("Connections screen requires at least one unlocked user wallet. Developer mistake.")
         }
 
         let selectedUserWalletID = userWalletRepository.selectedModel?.userWalletId
