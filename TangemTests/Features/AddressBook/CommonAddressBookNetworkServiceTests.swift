@@ -244,7 +244,6 @@ private final class MockTangemApiService: TangemApiService {
     func loadNewsDetails(requestModel: NewsDTO.Details.Request) async throws -> NewsDTO.Details.Response { fatalError("unused") }
     func loadNewsCategories() async throws -> NewsDTO.Categories.Response { fatalError("unused") }
     func saveTokensV2(list: AccountsDTO.Request.UserTokens, for key: String, revision: String) async throws -> String? { fatalError("unused") }
-    func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response { fatalError("unused") }
     func createAccount(networkId: String, publicKey: String) -> AnyPublisher<BlockchainAccountCreateResult, TangemAPIError> { fatalError("unused") }
     func loadReferralProgramInfo(for userWalletId: String, expectedAwardsLimit: Int) async throws -> ReferralProgramInfo { fatalError("unused") }
     func participateInReferralProgram(using token: AwardToken, for address: String, with userWalletId: String) async throws -> ReferralProgramInfo { fatalError("unused") }

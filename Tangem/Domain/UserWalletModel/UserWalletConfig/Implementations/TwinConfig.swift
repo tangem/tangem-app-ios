@@ -215,6 +215,6 @@ extension TwinConfig: UserWalletConfig {
 
 extension TwinConfig {
     func makeActionButtonsRole() -> ActionButtonsWalletRole {
-        return ActionButtonsWalletRole(providesHotCryptoTokens: false, forcesActionButtonsRow: true, preselectsUserWalletInBuy: true)
+        return ActionButtonsWalletRole(forcesActionButtonsRow: true, preselectsUserWalletInBuy: true)
     }
 }

@@ -168,6 +168,8 @@ extension CommonUserTokensManager.Error: UniversalError {
             100011005
         case .failedToDeleteNetworkHasTokens:
             100011006
+        case .unsupportedBlockchain:
+            100011007
         }
     }
 }
