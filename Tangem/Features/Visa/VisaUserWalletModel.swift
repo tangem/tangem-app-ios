@@ -415,6 +415,8 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { userWalletModel.totalBalancePublisher }
 
+    var notificationBadgeCountPublisher: AnyPublisher<Int, Never> { userWalletModel.notificationBadgeCountPublisher }
+
     var cardSetLabel: String { config.cardSetLabel }
 
     var hasImportedWallets: Bool { false }

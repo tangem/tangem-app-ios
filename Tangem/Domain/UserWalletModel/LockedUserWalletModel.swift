@@ -64,6 +64,10 @@ final class LockedUserWalletModel: UserWalletModel {
         .just(output: totalBalance)
     }
 
+    var notificationBadgeCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: 0)
+    }
+
     var analyticsContextData: AnalyticsContextData {
         userWallet.walletInfo.analyticsContextData
     }

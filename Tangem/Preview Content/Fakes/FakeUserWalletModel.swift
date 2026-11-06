@@ -131,6 +131,10 @@ class FakeUserWalletModel: UserWalletModel {
         .just(output: totalBalance)
     }
 
+    var notificationBadgeCountPublisher: AnyPublisher<Int, Never> {
+        .just(output: 0)
+    }
+
     var backupState: UserWalletBackupState { .valid }
 
     func update(type: UpdateRequest) {

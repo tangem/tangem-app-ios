@@ -42,6 +42,7 @@ final class CommonServicesManager {
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.userWalletPushNotificationsService) private var userWalletPushNotificationsService: UserWalletPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
+    @Injected(\.notificationBadgeService) private var notificationBadgeService: NotificationBadgeService
     @Injected(\.mainScreenPromoSheetInteractor) private var mainScreenPromoSheetInteractor: MainScreenPromoSheetInteractor
     @Injected(\.wcService) private var wcService: any WCService
     @Injected(\.openTelemetryWrapper) private var openTelemetryWrapper: OpenTelemetryWrapper
@@ -241,6 +242,7 @@ extension CommonServicesManager: ServicesManager {
         apiListProvider.initialize()
         userWalletPushNotificationsService.initialize()
         pushNotificationsInteractor.initialize()
+        notificationBadgeService.initialize()
         stakingPendingHashesSender?.sendHashesIfNeeded()
         storiesPrefetchManager.prefetch(for: .appStart)
         geoEligibilityService.initialize()

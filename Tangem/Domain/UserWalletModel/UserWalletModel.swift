@@ -17,6 +17,7 @@ import TangemCollectibles
 protocol UserWalletModel:
     MainHeaderSupplementInfoProvider,
     TotalBalanceProvider,
+    NotificationBadgeCounter,
     AnalyticsContextDataProvider,
     MainHeaderUserWalletStateInfoProvider,
     EmailDataProvider,

@@ -25,6 +25,7 @@ class CommonUserWalletModel {
     let nftManager: NFTManager
     let keysRepository: KeysRepository
     let totalBalanceProvider: TotalBalanceProvider
+    let notificationBadgeCounter: NotificationBadgeCounter
 
     let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
     let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
@@ -55,6 +56,7 @@ class CommonUserWalletModel {
         nftManager: NFTManager,
         keysRepository: KeysRepository,
         totalBalanceProvider: TotalBalanceProvider,
+        notificationBadgeCounter: NotificationBadgeCounter,
         userWalletPushNotificationsManager: UserWalletPushNotificationsManager,
         priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider,
         accountModelsManager: AccountModelsManager,
@@ -68,6 +70,7 @@ class CommonUserWalletModel {
         self.nftManager = nftManager
         self.keysRepository = keysRepository
         self.totalBalanceProvider = totalBalanceProvider
+        self.notificationBadgeCounter = notificationBadgeCounter
         self.userWalletPushNotificationsManager = userWalletPushNotificationsManager
         self.priceAlertsSubscriptionsProvider = priceAlertsSubscriptionsProvider
         self.accountModelsManager = accountModelsManager
@@ -405,6 +408,14 @@ extension CommonUserWalletModel: TotalBalanceProvider {
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> {
         totalBalanceProvider.totalBalancePublisher
+    }
+}
+
+// MARK: - NotificationBadgeCounter
+
+extension CommonUserWalletModel: NotificationBadgeCounter {
+    var notificationBadgeCountPublisher: AnyPublisher<Int, Never> {
+        notificationBadgeCounter.notificationBadgeCountPublisher
     }
 }
 

@@ -17,6 +17,7 @@ import TangemPay
 struct CommonUserWalletModelDependencies {
     let keysRepository: KeysRepository
     let totalBalanceProvider: TotalBalanceProvider
+    let notificationBadgeCounter: NotificationBadgeCounter
     let nftManager: NFTManager
     let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
     let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
@@ -117,6 +118,12 @@ struct CommonUserWalletModelDependencies {
             userWalletId: userWalletId,
             analyticsContextDataProvider: analyticsContextDataProvider,
             accountModelsManager: accountModelsManager
+        )
+
+        notificationBadgeCounter = CompositeNotificationBadgeCounter(
+            counters: [
+                JointAccountsNotificationBadgeCounter(accountModelsManager: accountModelsManager),
+            ]
         )
 
         nftManager = Self.makeNFTManager(
