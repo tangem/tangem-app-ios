@@ -400,6 +400,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemUI",
                 "TangemFoundation",
                 "TangemAccessibilityIdentifiers",
+                "TangemMacro",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
