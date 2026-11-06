@@ -40,6 +40,10 @@ public struct FooterContent {
         FooterContent(kind: .toolbar(start: nil, end: end))
     }
 
+    public static func toolbar(start: ButtonStack, end: Button) -> FooterContent {
+        FooterContent(kind: .toolbarWithStack(buttonStack: start, end: end))
+    }
+
     public static func search(_ search: Search) -> FooterContent {
         FooterContent(kind: .search(search))
     }
@@ -51,6 +55,7 @@ extension FooterContent {
         case buttonGroup(ButtonGroup)
         case signingButton(SigningActionButtonView, secondary: Button?)
         case toolbar(start: Button?, end: Button?)
+        case toolbarWithStack(buttonStack: ButtonStack?, end: Button?)
         case search(Search)
     }
 }
