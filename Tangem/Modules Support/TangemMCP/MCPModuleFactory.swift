@@ -88,7 +88,8 @@ enum MCPModuleFactory {
             unregisteredUserWalletSelectedAction: { [weak alertPresenter] in
                 let alert = Alert(
                     title: Text(Localization.mcpConnectionRequestWalletNeedsSyncTitle),
-                    message: Text(Localization.mcpConnectionRequestWalletNeedsSyncDescription)
+                    message: Text(Localization.mcpConnectionRequestWalletNeedsSyncDescription),
+                    dismissButton: .default(Text(Localization.commonGotIt))
                 )
 
                 alertPresenter?.present(alert: AlertBinder(alert: alert))
