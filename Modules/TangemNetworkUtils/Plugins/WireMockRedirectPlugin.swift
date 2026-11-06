@@ -27,6 +27,12 @@ struct WireMockRedirectPlugin: PluginType {
         "api.etherscan.io",
         "deep-index.moralis.io",
         "eth-blockbook.nownodes.io",
+        "polymarket.com",
+        "relayer-v2.polymarket.com",
+        "clob.polymarket.com",
+        "bridge.polymarket.com",
+        "data-api.polymarket.com",
+        "gamma-api.polymarket.com",
     ]
 
     private let overrideComponents: URLComponents?

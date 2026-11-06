@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemPolymarketUI
 import TangemUI
@@ -73,6 +74,7 @@ struct PolymarketMainView: View {
         VStack(spacing: Constants.titleSpacing) {
             Text(Localization.predictionAccountTitle)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.mainScreenTitle)
 
             Text(Localization.predictionMainSubtitle)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
@@ -115,6 +117,7 @@ struct PolymarketMainView: View {
         .glowRing(.warning)
         .slotEnd { bannerInfoIcon }
         .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
+        .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.regionRestrictionBanner)
     }
 
     private var bannerInfoIcon: some View {

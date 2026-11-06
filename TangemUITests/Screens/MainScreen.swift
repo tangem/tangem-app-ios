@@ -527,6 +527,17 @@ final class MainScreen: ScreenBase<MainScreenElement> {
     }
 
     @discardableResult
+    func verifyAccountNotVisible(_ accountName: String) -> Self {
+        XCTContext.runActivity(named: "Verify account '\(accountName)' is not visible on main screen") { _ in
+            XCTAssertTrue(
+                accountElement(named: accountName).staysAbsent(for: .absenceCheck),
+                "Account '\(accountName)' should not be visible on main screen"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func expandAccount(_ accountName: String) -> Self {
         XCTContext.runActivity(named: "Expand account '\(accountName)'") { _ in
             let account = accountElement(named: accountName)

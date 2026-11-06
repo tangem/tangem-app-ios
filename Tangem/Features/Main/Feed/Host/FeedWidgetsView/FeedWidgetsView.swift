@@ -95,7 +95,9 @@ struct FeedWidgetsView: View {
             MainAccessibilityIdentifiers.feedForYouWidget
         case .tangemPay:
             TangemPayAccessibilityIdentifiers.feedBanner
-        case .startEarning, .referFriend, .polymarket, .collectibles:
+        case .polymarket:
+            PolymarketAccessibilityIdentifiers.feedWidget
+        case .startEarning, .referFriend, .collectibles:
             nil
         }
     }

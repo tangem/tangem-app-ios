@@ -165,6 +165,8 @@ final class CommonServicesManager {
         FeatureStorage.instance.availableFeatures = [:]
         applyFeatureToggleOverrides(from: arguments)
 
+        UITestExperimentServiceConfigurator().initialize()
+
         persistEnvironmentForSystemLaunch()
 
         UIView.setAnimationsEnabled(false)

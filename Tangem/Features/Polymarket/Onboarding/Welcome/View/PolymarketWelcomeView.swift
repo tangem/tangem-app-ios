@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemPolymarketUI
 import TangemUI
@@ -98,6 +99,7 @@ struct PolymarketWelcomeView: View {
         VStack(alignment: .leading, spacing: Constants.titleSpacing) {
             Text(viewModel.copy.title)
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.onboardingTitle)
 
             Text(viewModel.copy.subtitle)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
@@ -216,6 +218,7 @@ struct PolymarketWelcomeView: View {
                 isDisabled: false,
                 action: { viewModel.handleViewAction(.startOnboarding) }
             )
+            .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.onboardingActionButton)
         }
     }
 }

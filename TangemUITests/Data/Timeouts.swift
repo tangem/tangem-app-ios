@@ -14,6 +14,7 @@ enum Timeouts {
     static let conditional = 10.0
     static let robustUIUpdate = 60.0
     static let networkRequest = 80.0
+    static let absenceCheck = 3.0
 }
 
 extension TimeInterval {
@@ -22,4 +23,5 @@ extension TimeInterval {
     static let conditional: TimeInterval = Timeouts.conditional
     static let robustUIUpdate: TimeInterval = Timeouts.robustUIUpdate
     static let networkRequest: TimeInterval = Timeouts.networkRequest
+    static let absenceCheck: TimeInterval = Timeouts.absenceCheck
 }

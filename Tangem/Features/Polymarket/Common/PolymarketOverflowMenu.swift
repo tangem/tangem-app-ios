@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -42,6 +43,7 @@ struct PolymarketOverflowMenu: View {
             NavigationBarButton.details {}
                 .allowsHitTesting(false)
         }
+        .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.overflowMenuButton)
     }
 }
 
