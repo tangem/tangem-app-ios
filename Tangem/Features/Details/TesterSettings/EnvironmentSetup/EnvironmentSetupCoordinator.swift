@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemBackendAuthenticationDebugSupport
 import TangemFoundation
 import TangemNFT
 import SurveySparrowSdk
@@ -31,6 +32,7 @@ final class EnvironmentSetupCoordinator: CoordinatorObject {
     #endif
     @Published var storiesV2DemoViewModel: StoriesV2DemoViewModel?
     @Published var silentPushTesterViewModel: SilentPushTesterViewModel?
+    @Published var backendAuthenticationDebugViewModel: BackendAuthenticationDebugViewModel?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -84,6 +86,12 @@ extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
 
     func openSilentPushTester() {
         silentPushTesterViewModel = SilentPushTesterViewModel()
+    }
+
+    func openBackendAuthentication() {
+        Task { @MainActor in
+            backendAuthenticationDebugViewModel = BackendAuthenticationDebugModuleFactory.makeViewModel()
+        }
     }
 
     #if INTERNAL || DEBUG
