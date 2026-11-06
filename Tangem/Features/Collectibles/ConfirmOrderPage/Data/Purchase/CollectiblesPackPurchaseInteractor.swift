@@ -26,7 +26,7 @@ protocol CollectiblesPackPurchaseInteractor: AnyObject {
 
 enum CollectiblesPackPurchaseResult {
     case wonCard(CollectiblesWonCard)
-    case autoSold(amount: Decimal?)
+    case autoSold(amount: Decimal?, wonCard: CollectiblesWonCard?)
 }
 
 enum CollectiblesPackPurchaseStep {

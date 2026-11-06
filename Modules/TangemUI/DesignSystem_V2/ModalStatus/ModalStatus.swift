@@ -13,7 +13,7 @@ import TangemUIUtils
 public struct ModalStatus<Asset: View, ExtraBottom: View, Details: View>: View, Setupable {
     let appearance: ModalStatusAppearance?
     let title: String
-    let description: String?
+    let description: AttributedString?
     let assetContent: Asset
     let extraBottomContent: ExtraBottom
     let detailsContent: Details
@@ -24,7 +24,7 @@ public struct ModalStatus<Asset: View, ExtraBottom: View, Details: View>: View, 
     init(
         appearance: ModalStatusAppearance?,
         title: String,
-        description: String?,
+        description: AttributedString?,
         assetSlot: Asset,
         extraBottom: ExtraBottom,
         details: Details
