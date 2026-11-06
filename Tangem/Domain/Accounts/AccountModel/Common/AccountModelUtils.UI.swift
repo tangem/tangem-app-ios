@@ -63,6 +63,8 @@ extension AccountModelUtils {
             switch standaloneIcon {
             case .tangemPay:
                 return Assets.Visa.accountAvatar
+            case .moneyAccount:
+                return Assets.Visa.accountMoneyAvatar
             case .polymarket:
                 return Assets.Polymarket.accountAvatar
             case .collectibles:

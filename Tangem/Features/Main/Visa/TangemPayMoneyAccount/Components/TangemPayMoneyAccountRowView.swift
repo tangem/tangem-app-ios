@@ -31,10 +31,10 @@ struct TangemPayMoneyAccountRowView: View {
     }
 
     private var avatar: some View {
-        Avatar(
-            .account(DesignSystem.Icons.accountSafe, fill: Colors.Accounts.vitalGreen),
-            size: .size40
-        )
+        Assets.Visa.accountMoneyAvatar.image
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 40, height: 40)
     }
 
     private var subtitle: String {

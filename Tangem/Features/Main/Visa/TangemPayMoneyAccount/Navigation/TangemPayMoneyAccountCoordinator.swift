@@ -33,13 +33,18 @@ final class TangemPayMoneyAccountCoordinator: CoordinatorObject {
 
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var contactManagementCoordinator: AddressBookContactManagementCoordinator? = nil
+    @Published var sendCoordinator: SendCoordinator? = nil
+
+    // MARK: - Modals
+
+    @Published var addFundsViewModel: TangemPayMoneyAccountAddFundsViewModel? = nil
 
     private(set) var options: Options!
 
-    var isTopUpPickerPresenting = false
     var isWithdrawHubPresenting = false
     var isYieldModePresenting = false
 
+    private var pendingAddFundsOption: TangemPayMoneyAccountAddFundsOption?
     private var safariHandle: SafariHandle?
     private var transactionDetailsPresentationTask: Task<Void, Never>?
     private var transactionDetailsSheetId: String?
@@ -77,13 +82,79 @@ extension TangemPayMoneyAccountCoordinator {
 extension TangemPayMoneyAccountCoordinator {
     func handle(_ output: TangemPayMoneyAccountViewModel.Output) {
         switch output {
-        case .topup: break
+        case .topup:
+            openAddFunds()
         case .withdraw: break
         case .openTransactionDetails(let id):
             openTransactionDetails(id: id)
         }
     }
 }
+
+// MARK: - Add funds
+
+extension TangemPayMoneyAccountCoordinator {
+    func addFundsDidDismiss() {
+        guard let option = pendingAddFundsOption else { return }
+
+        pendingAddFundsOption = nil
+        openAddFundsFlow(for: option)
+    }
+}
+
+private extension TangemPayMoneyAccountCoordinator {
+    func openAddFunds() {
+        addFundsViewModel = TangemPayMoneyAccountAddFundsViewModel { [weak self] option in
+            self?.pendingAddFundsOption = option
+            self?.addFundsViewModel = nil
+        }
+    }
+
+    func openAddFundsFlow(for option: TangemPayMoneyAccountAddFundsOption) {
+        switch option {
+        case .swap:
+            openSwap()
+        case .receive:
+            openReceive()
+        case .bankTransfer: break
+        }
+    }
+
+    func openSwap() {
+        let parameters = TangemPayMoneyAccountAddFundsSwapPredefinedParametersBuilder(
+            userWalletModel: options.userWalletModel,
+            moneyAccount: options.moneyAccount
+        ).make()
+
+        let coordinator = makeSendCoordinator()
+        coordinator.start(with: .init(type: .swap(parameters), source: .main))
+        sendCoordinator = coordinator
+    }
+
+    func openReceive() {
+        let moneyAccount = options.moneyAccount
+        let viewModel = ReceiveMainViewModel(
+            options: .init(
+                tokenItem: moneyAccount.tokenItem,
+                flow: .crypto,
+                addressTypesProvider: SingleAddressReceiveAddressTypesProvider(
+                    address: moneyAccount.walletModel.defaultAddressString,
+                    colorScheme: .whiteBlack
+                )
+            ),
+            receiveTokenWithdrawNoticeInteractor: TangemPayReceiveTokenWithdrawNoticeInteractor()
+        )
+        viewModel.start()
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - SendFeeCurrencyNavigating
+
+extension TangemPayMoneyAccountCoordinator: SendFeeCurrencyNavigating {}
 
 // MARK: - Transaction details
 
