@@ -446,7 +446,9 @@ enum TransactionHistoryRecordsMapper {
                     state: JointAccountOperation.Signature.State(rawValue: signature.state) ?? .unknown,
                     at: signature.at
                 )
-            }
+            },
+            createdAt: record.createdAt,
+            threshold: record.threshold
         )
 
         return JointOperationHistoryItem(

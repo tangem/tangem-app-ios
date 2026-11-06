@@ -155,7 +155,9 @@ private extension CommonJointOperationBlockaidGateTests {
             finishedAt: nil,
             cancelReason: nil,
             initiator: Constants.recipient,
-            signatures: []
+            signatures: [],
+            createdAt: nil,
+            threshold: nil
         )
     }
 }

@@ -377,7 +377,9 @@ private extension CommonJointAccountOperationsServiceTests {
             finishedAt: nil,
             cancelReason: nil,
             initiator: Constants.members[0],
-            signatures: []
+            signatures: [],
+            createdAt: nil,
+            threshold: nil
         )
     }
 }

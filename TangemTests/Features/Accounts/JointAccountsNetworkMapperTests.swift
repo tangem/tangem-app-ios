@@ -268,6 +268,30 @@ struct JointAccountsNetworkMapperTests {
         #expect(operation.safeTransaction.data.isEmpty)
         #expect(try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall) == .transfer(.coin(destination: "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", value: 1_000_000_000_000_000)))
         #expect(operation.signatures.map(\.state) == [.signed, .declined])
+        #expect(operation.createdAt == ISO8601DateFormatter().date(from: "2026-09-02T10:15:00Z"))
+        #expect(operation.threshold == 2)
+    }
+
+    @Test("An operation stored before it kept its creation date and threshold is still read")
+    func operationStoredWithoutCreationDateAndThresholdIsRead() throws {
+        let operation = JointAccountCompositionFixture.coinTransfer()
+        let storedBlob = try JSONEncoder().encode(StoredJointAccountPendingOperations(cryptoAccountId: "account", operations: [operation]))
+        let storedJSON = String(decoding: storedBlob, as: UTF8.self)
+
+        let decoded = try JSONDecoder().decode(StoredJointAccountPendingOperations.self, from: storedBlob)
+
+        #expect(!storedJSON.contains("createdAt"))
+        #expect(!storedJSON.contains("threshold"))
+        #expect(decoded.operations == [operation])
+    }
+
+    @Test("An operation is stored with its creation date and threshold")
+    func operationIsStoredWithCreationDateAndThreshold() throws {
+        let operation = JointAccountCompositionFixture.coinTransfer(createdAt: ISO8601DateFormatter().date(from: "2026-09-02T10:15:00Z"), threshold: 2)
+
+        let decoded = try JSONDecoder().decode(JointAccountOperation.self, from: JSONEncoder().encode(operation))
+
+        #expect(decoded == operation)
     }
 
     @Test("An operation of a form this version cannot read keeps its place, with no call to show")
