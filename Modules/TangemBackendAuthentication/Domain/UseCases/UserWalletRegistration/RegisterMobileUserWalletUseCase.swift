@@ -31,22 +31,23 @@ public struct RegisterMobileUserWalletUseCase: Sendable {
         self.logger = logger
     }
 
+    @discardableResult
     public func callAsFunction(
         id: UserWalletId,
         recoveryEnrollment: UserWalletRecoveryEnrollment?,
         signer: some UserWalletRegistrationSigner
-    ) async throws(RegisterUserWalletError) {
+    ) async throws(RegisterUserWalletError) -> UserWalletRegistrationResult {
         guard let nonce = try await obtainNonce(for: id) else {
             logger.debug("Skipping user wallet registration: already registered locally")
-            return
+            return .alreadyRegistered
         }
 
         guard let registrationRequest = try await attestUserWallet(withID: id, nonce: nonce, recoveryEnrollment: recoveryEnrollment, signer: signer) else {
             logger.debug("Skipping user wallet registration submission: already registered on the backend")
-            return
+            return .alreadyRegistered
         }
 
-        try await submitRegistration(request: registrationRequest)
+        return try await submitRegistration(request: registrationRequest)
     }
 
     private func obtainNonce(for id: UserWalletId) async throws(RegisterUserWalletError) -> UserWalletRegistrationNonce? {
@@ -82,9 +83,9 @@ public struct RegisterMobileUserWalletUseCase: Sendable {
         }
     }
 
-    private func submitRegistration(request: UserWalletRegistrationRequest) async throws(RegisterUserWalletError) {
+    private func submitRegistration(request: UserWalletRegistrationRequest) async throws(RegisterUserWalletError) -> UserWalletRegistrationResult {
         do {
-            try await submitRegistration(request)
+            return try await submitRegistration(request)
         } catch {
             throw RegisterUserWalletError.submitFailure(error)
         }

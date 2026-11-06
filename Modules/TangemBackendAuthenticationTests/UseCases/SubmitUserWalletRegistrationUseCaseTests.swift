@@ -31,8 +31,9 @@ struct SubmitUserWalletRegistrationUseCaseTests {
             sessionTokensRepository: sessionTokensRepository
         )
 
-        try await sut(request: request)
+        let result = try await sut(request: request)
 
+        #expect(result == .registered)
         #expect(registrationClient.receivedMessages == [.register(request)])
         #expect(sessionTokensRepository.receivedMessages == [.persist(expectedSessionTokens)])
         #expect(registrationStatusRepository.receivedMessages == [.persist(request.id)])
@@ -54,8 +55,9 @@ struct SubmitUserWalletRegistrationUseCaseTests {
             sessionTokensRepository: sessionTokensRepository
         )
 
-        try await sut(request: request)
+        let result = try await sut(request: request)
 
+        #expect(result == .alreadyRegistered)
         #expect(sessionTokensRepository.receivedMessages.isEmpty)
         #expect(registrationStatusRepository.receivedMessages == [.persist(request.id)])
     }
