@@ -75,6 +75,7 @@ extension OnrampOfferViewModel {
 
     struct Provider: Hashable {
         let name: String
+        let iconURL: URL?
         let paymentType: OnrampPaymentMethod
         let timeFormatted: String
     }

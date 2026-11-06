@@ -33,6 +33,7 @@ enum AppConstants {
     static let usdSign = "$"
     static let audCurrencyCode = "AUD"
     static let eurCurrencyCode = "EUR"
+    static let eurSign = "€"
     static let cadCurrencyCode = "CAD"
     static let gbpCurrencyCode = "GBP"
 

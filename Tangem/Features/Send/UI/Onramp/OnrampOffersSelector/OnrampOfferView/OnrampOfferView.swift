@@ -17,33 +17,38 @@ struct OnrampOfferView: View {
 
     let viewModel: OnrampOfferViewModel
 
+    private static let cornerRadius: CGFloat = 24
+
     var body: some View {
         VStack(spacing: 0) {
             cardContent
-                .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 12, horizontalPadding: 14)
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
+                        .fill(DesignSystem.Color.bgSecondary)
+                )
                 .environment(\.colorScheme, resolvedColorScheme)
                 .zIndex(1)
 
             if let linkedBanner = viewModel.linkedBanner {
-                LinkedMarketingBannerView(viewModel: linkedBanner)
+                LinkedMarketingBannerView(viewModel: linkedBanner, cardCornerRadius: Self.cornerRadius)
             }
         }
     }
 
     private var cardContent: some View {
-        VStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             topView
 
-            if viewModel.legalNotice == nil {
-                Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
-            }
+            VStack(alignment: .leading, spacing: 12) {
+                bottomView
 
-            bottomView
-
-            if let legalNotice = viewModel.legalNotice {
-                Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
-                legalNoticeView(legalNotice)
+                if let legalNotice = viewModel.legalNotice {
+                    Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
+                    legalNoticeView(legalNotice)
+                }
             }
+            .padding(.top, 12)
         }
     }
 
@@ -56,14 +61,13 @@ struct OnrampOfferView: View {
     }
 
     private var topView: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 title
 
                 amount
             }
-
-            Spacer(minLength: 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             buyButton
         }
@@ -74,31 +78,40 @@ struct OnrampOfferView: View {
         switch viewModel.title {
         case .text(let text):
             Text(text)
-                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
 
         case .great:
             Text(Localization.expressProviderGreatRate)
-                .style(Fonts.Bold.caption1, color: DesignSystem.Color.textAccentBlue)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusInfo)
 
         case .bestRate:
-            HStack(alignment: .center, spacing: 4) {
-                Assets.Express.bestRateStarIcon16.image
-                    .renderingMode(.template)
-                    .foregroundStyle(DesignSystem.Color.iconAccentBlue)
-
-                Text(Localization.expressProviderBestRate)
-                    .style(Fonts.Bold.caption1, color: DesignSystem.Color.textAccentBlue)
-            }
+            titleWithIcon(
+                DesignSystem.Icons.Star.filled16,
+                text: Localization.expressProviderBestRate,
+                iconColor: DesignSystem.Color.iconStatusInfo,
+                textColor: DesignSystem.Color.textStatusInfo
+            )
 
         case .fastest:
-            HStack(alignment: .center, spacing: 4) {
-                Assets.Express.fastestIcon16.image
-                    .renderingMode(.template)
-                    .foregroundStyle(DesignSystem.Color.iconAccentYellow)
+            titleWithIcon(
+                DesignSystem.Icons.Lightning.regular12,
+                text: Localization.onrampOfferTypeFastet,
+                iconColor: DesignSystem.Color.iconStatusWarning,
+                textColor: DesignSystem.Color.textStatusWarning
+            )
+        }
+    }
 
-                Text(Localization.onrampOfferTypeFastet)
-                    .style(Fonts.Bold.caption1, color: DesignSystem.Color.textAccentYellow)
-            }
+    private func titleWithIcon(_ icon: ImageType, text: String, iconColor: Color, textColor: Color) -> some View {
+        HStack(spacing: 4) {
+            icon.image
+                .resizable()
+                .renderingMode(.template)
+                .frame(width: 12, height: 12)
+                .foregroundStyle(iconColor)
+
+            Text(text)
+                .style(DesignSystem.Font.captionMediumToken, color: textColor)
         }
     }
 
@@ -106,7 +119,7 @@ struct OnrampOfferView: View {
         HStack(spacing: 4) {
             Text(viewModel.amount.formatted)
                 .style(
-                    Fonts.Bold.callout,
+                    DesignSystem.Font.bodyMediumToken,
                     color: viewModel.isAvailable ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
                 )
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.provider.name))
@@ -116,7 +129,7 @@ struct OnrampOfferView: View {
 
             if let infoAction = viewModel.amount.infoAction {
                 SwiftUI.Button(action: infoAction) {
-                    Assets.infoCircle16.image
+                    DesignSystem.Icons.Info.regular16.image
                         .renderingMode(.template)
                         .foregroundStyle(DesignSystem.Color.iconSecondary)
                 }
@@ -129,6 +142,7 @@ struct OnrampOfferView: View {
     private func legalNoticeView(_ notice: OnrampOfferViewModel.LegalNotice) -> some View {
         let attributed = Self.makeLegalNoticeAttributedString(notice)
         return Text(attributed)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 
@@ -141,8 +155,6 @@ struct OnrampOfferView: View {
         var attributed = AttributedString(
             Localization.onrampNativePaymentLegalNotice(notice.providerName, tos, privacy)
         )
-        attributed.font = Fonts.Regular.caption1
-        attributed.foregroundColor = DesignSystem.Color.textSecondary
 
         formatLink(in: &attributed, text: tos, url: notice.termsOfUse)
         formatLink(in: &attributed, text: privacy, url: notice.privacyPolicy)
@@ -152,7 +164,7 @@ struct OnrampOfferView: View {
     private static func formatLink(in attributed: inout AttributedString, text: String, url: URL?) {
         guard let url, let range = attributed.range(of: text) else { return }
         attributed[range].link = url
-        attributed[range].foregroundColor = DesignSystem.Color.textAccentBlue
+        attributed[range].foregroundColor = DesignSystem.Color.textStatusInfo
     }
 
     private var bottomView: some View {
@@ -169,14 +181,14 @@ struct OnrampOfferView: View {
     private var buyButton: some View {
         switch viewModel.buyAction {
         case .button(let action):
-            CapsuleButton(title: Localization.commonBuy, action: action)
-                .size(.medium)
-                .style(.primary)
-                .disabled(!viewModel.isAvailable)
+            TangemUI.Button(label: Localization.commonBuy, accessibilityLabel: nil, action: action)
+                .size(.x10)
+                .styleType(.primary)
+                .enabled(viewModel.isAvailable)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerBuyButton(name: viewModel.provider.name))
         case .nativeApplePay(let onTap):
             PKPaymentButtonRepresentable(action: onTap)
-                .frame(width: 66, height: 32)
+                .frame(width: 66, height: 40)
                 .clipShape(Capsule())
                 .disabled(!viewModel.isAvailable)
                 .opacity(viewModel.isAvailable ? 1 : 0.4)
@@ -185,21 +197,26 @@ struct OnrampOfferView: View {
     }
 
     private var leadingBottomView: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 8) {
             HStack(spacing: 2) {
-                Assets.Express.providerTimeIcon.image
+                DesignSystem.Icons.Clock.regular16.image
                     .renderingMode(.template)
                     .foregroundStyle(DesignSystem.Color.iconSecondary)
 
                 Text(viewModel.provider.timeFormatted)
-                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
 
-            Text(AppConstants.dotSign)
-                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
+            HStack(spacing: 2) {
+                if let iconURL = viewModel.provider.iconURL {
+                    IconView(url: iconURL, size: CGSize(width: 16, height: 16), forceKingfisher: false)
+                        .clipShape(Circle())
+                        .accessibilityHidden(true)
+                }
 
-            Text(Localization.onrampViaProvider(viewModel.provider.name))
-                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
+                Text(Localization.onrampViaProvider(viewModel.provider.name))
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            }
         }
     }
 
@@ -207,11 +224,11 @@ struct OnrampOfferView: View {
     private var trailingBottomView: some View {
         if viewModel.isNativePayment {
             Text(Localization.onrampPaymentMethodSubtitle)
-                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         } else {
             HStack(spacing: 4) {
                 Text(Localization.onrampPayWith)
-                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
                 IconView(url: viewModel.provider.paymentType.themedImageURL(isDark: resolvedColorScheme == .dark), size: .height(16)) {
                     Shimmer().variant(.custom(width: 30, height: 16, cornerRadius: 6))
