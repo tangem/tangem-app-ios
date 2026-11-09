@@ -709,16 +709,11 @@ private extension TokenDetailsViewModel {
             balanceConverter.convertToFiat(balance, currencyId: currencyId)
         }
         let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
-        let attributedFiatBalance = AttributedBalanceFormatter.format(
-            formattedFiatBalance,
-            token: DesignSystem.Font.bodyMediumToken,
-            color: DesignSystem.Color.textPrimary
-        )
 
         let item = TokenDetailsStakingState.EnableItem(
             title: Localization.stakingEnabled,
             rewardsState: rewardsState,
-            fiatBalance: attributedFiatBalance,
+            fiatBalance: formattedFiatBalance,
             cryptoBalance: cryptoBalance,
             action: weakify(self, forFunction: TokenDetailsViewModel.openStaking)
         )

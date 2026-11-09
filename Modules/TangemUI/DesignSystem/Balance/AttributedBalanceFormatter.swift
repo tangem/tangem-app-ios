@@ -113,17 +113,6 @@ public enum AttributedBalanceFormatter {
 
     // MARK: - Convenience
 
-    public static func format(
-        _ balance: String,
-        token: TangemTypographyToken,
-        color: Color = DesignSystem.Color.textPrimary
-    ) -> AttributedString {
-        var attributed = AttributedString(balance)
-        attributed.foregroundColor = color
-        attributed.setFontStyle(token)
-        return attributed
-    }
-
     public static func splitFonts(
         _ state: LoadableBalanceView.State,
         integerFont: TangemTypographyToken,

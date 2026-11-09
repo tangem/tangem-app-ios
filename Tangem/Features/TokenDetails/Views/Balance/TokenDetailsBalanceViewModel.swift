@@ -115,9 +115,9 @@ private extension TokenDetailsBalanceViewModel {
         .compactMap { [weak self] totalFiatBalance, availableFiatBalance, balanceMode in
             switch balanceMode {
             case .total:
-                self?.balanceState(balanceType: totalFiatBalance, balanceKind: .fiat)
+                self?.balanceState(balanceType: totalFiatBalance)
             case .available:
-                self?.balanceState(balanceType: availableFiatBalance, balanceKind: .fiat)
+                self?.balanceState(balanceType: availableFiatBalance)
             }
         }
         .withWeakCaptureOf(self)
@@ -135,9 +135,9 @@ private extension TokenDetailsBalanceViewModel {
         .compactMap { [weak self] totalFiatBalance, availableFiatBalance, balanceMode in
             switch balanceMode {
             case .total:
-                self?.balanceState(balanceType: totalFiatBalance, balanceKind: .crypto)
+                self?.balanceState(balanceType: totalFiatBalance)
             case .available:
-                self?.balanceState(balanceType: availableFiatBalance, balanceKind: .crypto)
+                self?.balanceState(balanceType: availableFiatBalance)
             }
         }
         .withWeakCaptureOf(self)
@@ -165,10 +165,7 @@ private extension TokenDetailsBalanceViewModel {
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, formattedBalance in
-                let balanceState = viewModel.balanceState(
-                    balanceType: .loaded(formattedBalance),
-                    balanceKind: .crypto
-                )
+                let balanceState = viewModel.balanceState(balanceType: .loaded(formattedBalance))
                 viewModel.cryptoBalanceState = balanceState
             }
             .store(in: &yieldStateBag)
@@ -177,10 +174,7 @@ private extension TokenDetailsBalanceViewModel {
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, formattedBalance in
-                let balanceState = viewModel.balanceState(
-                    balanceType: .loaded(formattedBalance),
-                    balanceKind: .fiat
-                )
+                let balanceState = viewModel.balanceState(balanceType: .loaded(formattedBalance))
                 viewModel.fiatBalanceState = balanceState
             }
             .store(in: &yieldStateBag)
@@ -192,17 +186,14 @@ private extension TokenDetailsBalanceViewModel {
 // MARK: - BalanceState
 
 private extension TokenDetailsBalanceViewModel {
-    func balanceState(
-        balanceType: FormattedTokenBalanceType,
-        balanceKind: BalanceKind
-    ) -> TokenDetailsBalanceState {
+    func balanceState(balanceType: FormattedTokenBalanceType) -> TokenDetailsBalanceState {
         let hasLoadingBalance = hasLoadingBalance(balanceType: balanceType)
         let hasBalance = hasBalance(balanceType: balanceType)
-        let attributedBalance = attributedBalance(balanceType.value, kind: balanceKind)
+        let balance = Text.string(balanceType.value)
 
         if hasLoadingBalance {
             if hasBalance {
-                return .loadingCached(attributedBalance)
+                return .loadingCached(balance)
             } else {
                 return .loading
             }
@@ -211,39 +202,14 @@ private extension TokenDetailsBalanceViewModel {
                 let hasFailedBalance = hasFailedBalance(balanceType: balanceType)
 
                 if hasFailedBalance {
-                    return .failed(attributedBalance)
+                    return .failed(balance)
                 } else {
-                    return .loaded(attributedBalance)
+                    return .loaded(balance)
                 }
             } else {
-                return .failed(attributedBalance)
+                return .failed(balance)
             }
         }
-    }
-
-    func attributedBalance(_ balance: String, kind: BalanceKind) -> Text {
-        switch kind {
-        case .crypto: attributedCryptoBalance(balance)
-        case .fiat: attributedFiatBalance(balance)
-        }
-    }
-
-    func attributedFiatBalance(_ balance: String) -> Text {
-        let attributedBalance = AttributedBalanceFormatter.format(
-            balance,
-            token: DesignSystem.Font.displayMediumToken,
-            color: DesignSystem.Color.textPrimary
-        )
-        return .attributed(attributedBalance)
-    }
-
-    func attributedCryptoBalance(_ balance: String) -> Text {
-        let attributedBalance = AttributedBalanceFormatter.format(
-            balance,
-            token: DesignSystem.Font.bodyMediumToken,
-            color: DesignSystem.Color.textSecondary
-        )
-        return .attributed(attributedBalance)
     }
 }
 
@@ -335,10 +301,5 @@ extension TokenDetailsBalanceViewModel {
             case .available: return Localization.tokenDetailsBalanceAvailable
             }
         }
-    }
-
-    enum BalanceKind {
-        case crypto
-        case fiat
     }
 }

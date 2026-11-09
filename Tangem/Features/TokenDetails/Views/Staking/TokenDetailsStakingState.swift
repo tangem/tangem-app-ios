@@ -28,7 +28,7 @@ extension TokenDetailsStakingState {
     struct EnableItem {
         let title: String
         let rewardsState: RewardsState
-        let fiatBalance: AttributedString
+        let fiatBalance: String
         let cryptoBalance: String
         let action: () -> Void
     }

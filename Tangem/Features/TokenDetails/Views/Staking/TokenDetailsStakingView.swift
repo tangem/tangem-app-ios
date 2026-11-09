@@ -15,6 +15,8 @@ import TangemAccessibilityIdentifiers
 struct TokenDetailsStakingView: View {
     let state: TokenDetailsStakingState
 
+    @ObservedObject private var visibilityState = SensitiveTextVisibilityState.shared
+
     @ScaledMetric private var horizontalSpacing: CGFloat = 8
     @ScaledMetric private var verticalSpacing: CGFloat = 4
     @ScaledMetric private var padding: CGFloat = 16
@@ -123,9 +125,12 @@ private extension TokenDetailsStakingView {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 VStack(alignment: .trailing, spacing: verticalSpacing) {
-                    SensitiveText(item.fiatBalance)
+                    UtilBalance(item.fiatBalance)
+                        .masked(visibilityState.isHidden)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
-                    SensitiveText(item.cryptoBalance)
+                    UtilBalance(item.cryptoBalance)
+                        .masked(visibilityState.isHidden)
                         .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 }
                 .accessibilityIdentifier(TokenAccessibilityIdentifiers.stakingBalance)

@@ -79,8 +79,11 @@ private extension TokenDetailsBalanceView {
         TokenDetailsBalanceStateView(
             state: viewModel.fiatBalanceState,
             skeletonSize: CGSize(width: 243, height: 48) * scaleFactor,
+            token: DesignSystem.Font.displayMediumToken,
+            color: DesignSystem.Color.textPrimary,
             minimumScaleFactor: Constants.fiatBalanceMinimumScaleFactor
         )
+        .dynamicTypeSize(...DynamicTypeSize.large)
         .accessibilityIdentifier(fiatBalanceAccessibilityIdentifier)
     }
 
@@ -96,7 +99,9 @@ private extension TokenDetailsBalanceView {
     var cryptoBalance: some View {
         TokenDetailsBalanceStateView(
             state: viewModel.cryptoBalanceState,
-            skeletonSize: CGSize(width: 115, height: 24) * scaleFactor
+            skeletonSize: CGSize(width: 115, height: 24) * scaleFactor,
+            token: DesignSystem.Font.bodyMediumToken,
+            color: DesignSystem.Color.textSecondary
         )
     }
 }

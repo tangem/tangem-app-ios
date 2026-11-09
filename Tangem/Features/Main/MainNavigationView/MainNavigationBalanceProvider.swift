@@ -7,8 +7,6 @@
 //
 
 import Foundation
-import SwiftUI
-import TangemAssets
 import Combine
 import TangemFoundation
 import TangemUI

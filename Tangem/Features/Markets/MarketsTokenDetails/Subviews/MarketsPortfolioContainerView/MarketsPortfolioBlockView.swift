@@ -41,15 +41,18 @@ struct MarketsPortfolioBlockView: View {
 }
 
 private struct MarketsPortfolioBlockContentView: View {
-    let balanceText: String?
+    let balanceText: String
     let onAddFundsTap: () -> Void
     let onExpandTap: () -> Void
+
+    @ObservedObject private var visibilityState = SensitiveTextVisibilityState.shared
 
     var body: some View {
         HStack(spacing: Constants.contentSpacing) {
             VStack(alignment: .leading, spacing: Constants.textSpacing) {
-                SensitiveText(attributedBalance)
-                    .lineLimit(1)
+                UtilBalance(balanceText)
+                    .masked(visibilityState.isHidden)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                     .minimumScaleFactor(0.6)
 
                 Text(Localization.marketsPortfolioBlockSubtitle)
@@ -70,14 +73,6 @@ private struct MarketsPortfolioBlockContentView: View {
             Capsule()
                 .fill(DesignSystem.Color.bgTertiary)
         )
-    }
-
-    private var attributedBalance: AttributedString {
-        let raw = balanceText ?? BalanceFormatter().formatFiatBalance(.zero)
-        var attributed = AttributedString(raw)
-        attributed.font = DesignSystem.Font.bodyMediumToken.font
-        attributed.foregroundColor = DesignSystem.Color.textPrimary
-        return attributed
     }
 
     private var addFundsButton: some View {

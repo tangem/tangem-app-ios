@@ -145,33 +145,33 @@ private extension MarketsPortfolioSingleTokenViewModel {
         if hasLoadingBalance {
             if hasBalance {
                 let formattedBalance = formattedCryptoBalance(balanceType, currencyCode: currencyCode)
-                let attributedBalance = attributedCryptoBalance(formattedBalance)
-                return .loadingCached(attributedBalance)
+                let balanceText = Text.string(formattedBalance)
+                return .loadingCached(balanceText)
             } else {
                 return .loading
             }
         } else {
             if hasBalance {
                 let formattedBalance = formattedCryptoBalance(balanceType, currencyCode: currencyCode)
-                let attributedBalance = attributedCryptoBalance(formattedBalance)
-                return .loaded(attributedBalance)
+                let balanceText = Text.string(formattedBalance)
+                return .loaded(balanceText)
             }
 
             let hasFailedBalance = hasFailedBalance(balanceType: balanceType)
 
             if hasFailedBalance {
-                let attributedBalance = attributedUnreachableBalance()
+                let balanceText = attributedUnreachableBalance()
                 let icon = BalanceState.Icon(
                     type: Assets.DesignSystem.attention,
                     // [DS3] kept until new DS component lands
                     color: DesignSystem.Color.iconAccentYellow,
                     location: .trailing
                 )
-                return .failed(attributedBalance, icon)
+                return .failed(balanceText, icon)
             } else {
                 let formattedBalance = balanceFormatter.formatCryptoBalance(nil, currencyCode: currencyCode)
-                let attributedBalance = attributedCryptoBalance(formattedBalance)
-                return .failed(attributedBalance)
+                let balanceText = Text.string(formattedBalance)
+                return .failed(balanceText)
             }
         }
     }
@@ -181,18 +181,8 @@ private extension MarketsPortfolioSingleTokenViewModel {
         return balanceFormatter.formatCryptoBalance(balance, currencyCode: currencyCode)
     }
 
-    func attributedCryptoBalance(_ balance: String) -> Text {
-        let attributedBalance = AttributedBalanceFormatter.format(
-            balance,
-            token: DesignSystem.Font.captionMediumToken,
-            color: DesignSystem.Color.textSecondary
-        )
-        return .attributed(attributedBalance)
-    }
-
     func attributedUnreachableBalance() -> Text {
         var attributed = AttributedString(Localization.commonUnreachable)
-        attributed.setFontStyle(DesignSystem.Font.captionMediumToken)
         // [DS3] kept until new DS component lands
         attributed.foregroundColor = DesignSystem.Color.textAccentYellow
         return .attributed(attributed)
@@ -209,15 +199,15 @@ private extension MarketsPortfolioSingleTokenViewModel {
         if hasLoadingBalance {
             if hasBalance {
                 let formattedBalance = formattedFiatBalance(balanceType)
-                let attributedBalance = attributedFiatBalance(formattedBalance)
-                return .loadingCached(attributedBalance)
+                let balanceText = Text.string(formattedBalance)
+                return .loadingCached(balanceText)
             } else {
                 return .loading
             }
         } else {
             if hasBalance {
                 let formattedBalance = formattedFiatBalance(balanceType)
-                let attributedBalance = attributedFiatBalance(formattedBalance)
+                let balanceText = Text.string(formattedBalance)
                 let hasFailedBalance = hasFailedBalance(balanceType: balanceType)
 
                 if hasFailedBalance {
@@ -226,14 +216,14 @@ private extension MarketsPortfolioSingleTokenViewModel {
                         color: DesignSystem.Color.iconSecondary,
                         location: .leading
                     )
-                    return .failed(attributedBalance, icon)
+                    return .failed(balanceText, icon)
                 } else {
-                    return .loaded(attributedBalance)
+                    return .loaded(balanceText)
                 }
             } else {
                 let formattedBalance = balanceFormatter.formatFiatBalance(nil)
-                let attributedBalance = attributedFiatBalance(formattedBalance)
-                return .failed(attributedBalance)
+                let balanceText = Text.string(formattedBalance)
+                return .failed(balanceText)
             }
         }
     }
@@ -241,15 +231,6 @@ private extension MarketsPortfolioSingleTokenViewModel {
     func formattedFiatBalance(_ balanceType: TokenBalanceType) -> String {
         let balance = totalBalance(balanceType: balanceType)
         return balanceFormatter.formatFiatBalance(balance)
-    }
-
-    func attributedFiatBalance(_ balance: String) -> Text {
-        let attributedBalance = AttributedBalanceFormatter.format(
-            balance,
-            token: DesignSystem.Font.bodyMediumToken,
-            color: DesignSystem.Color.textPrimary
-        )
-        return .attributed(attributedBalance)
     }
 }
 

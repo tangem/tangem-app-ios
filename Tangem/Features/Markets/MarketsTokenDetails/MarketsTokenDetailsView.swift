@@ -289,7 +289,7 @@ struct MarketsTokenDetailsView: View {
         MarketsTokenDetailsHeaderView(
             tokenName: viewModel.tokenName,
             tokenSymbol: viewModel.tokenSymbol,
-            price: viewModel.attributedPrice,
+            price: viewModel.price,
             priceDate: viewModel.priceDate,
             priceChangeState: viewModel.priceChangeState,
             priceChangeAnimation: viewModel.$priceChangeAnimation,
