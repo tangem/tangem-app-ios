@@ -8,6 +8,7 @@
 
 import Foundation
 import WalletCore
+import TangemFoundation
 
 struct WalletCoreUTXOTransactionSerializer {
     typealias _Transaction = (transaction: Transaction, preImage: PreImageTransaction)
@@ -83,18 +84,27 @@ extension WalletCoreUTXOTransactionSerializer: UTXOTransactionSerializer {
 
 private extension WalletCoreUTXOTransactionSerializer {
     func buildSigningInputInput(transaction: _Transaction) throws -> BitcoinSigningInput {
-        let utxo = transaction.preImage.inputs.map { input in
-            BitcoinUnspentTransaction.with {
+        let utxo: [BitcoinUnspentTransaction] = try transaction.preImage.inputs.map { input in
+            guard
+                let index = UInt32(exactly: input.index),
+                let amount = Int64(exactly: input.amount)
+            else {
+                throw UTXOTransactionSerializerError.invalidInput
+            }
+
+            return BitcoinUnspentTransaction.with {
                 $0.outPoint = .with {
                     $0.hash = Data(input.hash.reversed())
-                    $0.index = UInt32(input.index)
+                    $0.index = index
                     $0.sequence = sequence.value
                 }
 
-                $0.amount = Int64(input.amount)
+                $0.amount = amount
                 $0.script = input.script.data
             }
         }
+
+        let availableAmount = try utxo.sumReportingOverflow(by: \.amount)
 
         let scripts: [String: Data] = transaction.preImage.inputs.reduce(into: [:]) { result, input in
             if case .redeemScript(let redeemScript) = input.script.spendable {
@@ -129,7 +139,7 @@ private extension WalletCoreUTXOTransactionSerializer {
 
         input.plan = .with {
             $0.amount = Int64(destination.value)
-            $0.availableAmount = utxo.sum(by: \.amount)
+            $0.availableAmount = availableAmount
             $0.fee = Int64(transaction.preImage.fee)
             $0.utxos = utxo
 

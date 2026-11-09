@@ -23,7 +23,7 @@ struct OnrampAmountView: View {
             .padding(.vertical, 50)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Colors.Background.action)
+                    .fill(DesignSystem.Color.bgSecondary)
             )
     }
 
@@ -44,21 +44,21 @@ struct OnrampAmountView: View {
             VStack(spacing: 8) {
                 // Title
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(Colors.Field.focused)
+                    .fill(DesignSystem.Color.bgTransparentSecondary)
                     .frame(width: 75, height: 16)
                     .padding(.vertical, 1)
                     .shimmering()
 
                 // Text field
                 RoundedRectangle(cornerRadius: 4)
-                    .fill(Colors.Field.focused)
+                    .fill(DesignSystem.Color.bgTransparentSecondary)
                     .frame(width: 140, height: 42)
                     .shimmering()
             }
 
             // Fiat token icon
             Capsule()
-                .fill(Colors.Field.focused)
+                .fill(DesignSystem.Color.bgTransparentSecondary)
                 .frame(width: 83, height: 28)
                 .shimmering()
         }
@@ -69,7 +69,7 @@ struct OnrampAmountView: View {
         VStack(spacing: 20) {
             VStack(spacing: 8) {
                 Text(Localization.onrampYouWillPayTitle)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
                 textView
             }
@@ -90,15 +90,15 @@ struct OnrampAmountView: View {
                 )
 
                 Text(fiatItem.currencyCode)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
 
                 Assets.Glyphs.chevronDownNew.image
-                    .foregroundStyle(Colors.Icon.informative)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
                     .frame(width: 15, height: 20)
             }
             .padding(.vertical, 4)
             .padding(.horizontal, 6)
-            .background(Capsule().fill(Colors.Button.secondary))
+            .background(Capsule().fill(DesignSystem.Color.bgTransparentSecondary))
         }
         .accessibilityIdentifier(OnrampAccessibilityIdentifiers.currencySelectorButton)
     }
@@ -121,7 +121,7 @@ struct OnrampAmountView: View {
     private var errorView: some View {
         if let error = viewModel.error {
             Text(error)
-                .style(Fonts.Regular.caption1, color: Colors.Text.warning)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textAccentRed)
                 .lineLimit(2)
                 .padding(.vertical, 2)
                 .multilineTextAlignment(.center)

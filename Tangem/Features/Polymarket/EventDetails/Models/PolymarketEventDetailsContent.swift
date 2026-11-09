@@ -49,9 +49,12 @@ extension PolymarketEventDetailsContent {
     static func make(
         event: PolymarketEvent,
         category: PolymarketCategory?,
+        abbreviatesHugeVolumeChange: Bool = false,
         onSelectOutcome: @escaping (PolymarketMarket, PolymarketOutcome) -> Void
     ) -> Self {
         let ordered = event.markets.orderedForDisplay
+        let shown = ordered.filter { $0.displaySection != .hidden }
+        let visible = shown.isEmpty ? ordered : shown
 
         return Self(
             iconURL: event.iconURL ?? event.imageURL,
@@ -59,8 +62,8 @@ extension PolymarketEventDetailsContent {
             isLive: event.isLive,
             categoryName: category?.label,
             volumeText: event.volume.map(MappingConstants.volumeFormatter.formatMarketCap),
-            volumeChange: volumeChange(event: event),
-            activeMarkets: ordered.filter(\.isTradable).map { market in
+            volumeChange: volumeChange(event: event, abbreviatesHugeChange: abbreviatesHugeVolumeChange),
+            activeMarkets: visible.filter { $0.displaySection == .active }.map { market in
                 makeCard(
                     market: market,
                     event: event,
@@ -68,7 +71,7 @@ extension PolymarketEventDetailsContent {
                     onSelectOutcome: onSelectOutcome
                 )
             },
-            closedMarkets: ordered.filter { !$0.isTradable }.map { market in
+            closedMarkets: visible.filter { $0.displaySection != .active }.map { market in
                 makeCard(market: market, event: event, areOutcomesEnabled: false, onSelectOutcome: onSelectOutcome)
             },
             description: event.description?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
@@ -85,7 +88,7 @@ extension PolymarketEventDetailsContent {
     ) -> PolymarketMarketCard.Model {
         .make(
             market: market,
-            title: market.listLabel,
+            title: event.listLabel(for: market),
             fallbackImageURL: event.iconURL ?? event.imageURL,
             areOutcomesEnabled: areOutcomesEnabled,
             outcomeTitles: event.buttonTitles(for: market),
@@ -93,7 +96,7 @@ extension PolymarketEventDetailsContent {
         )
     }
 
-    private static func volumeChange(event: PolymarketEvent) -> VolumeChange {
+    private static func volumeChange(event: PolymarketEvent, abbreviatesHugeChange: Bool) -> VolumeChange {
         guard
             let volume = event.volume,
             let volume24h = event.volume24h,
@@ -106,9 +109,23 @@ extension PolymarketEventDetailsContent {
         let ratio = volume24h / previous
 
         return VolumeChange(
-            text: MappingConstants.percentFormatter.format(ratio, option: .priceChange),
+            text: abbreviatesHugeChange ? compactVolumeChangeText(ratio: ratio) : MappingConstants.percentFormatter.format(ratio, option: .priceChange),
             type: PriceChangeView.ChangeType(from: ratio)
         )
+    }
+
+    private static func compactVolumeChangeText(ratio: Decimal) -> String {
+        let percent = ratio * MappingConstants.percentMultiplier
+
+        guard abs(percent) >= MappingConstants.compactPercentThreshold else {
+            return MappingConstants.percentFormatter.format(ratio, option: .priceChange)
+        }
+
+        let notation = MappingConstants.percentNotationFormatter.formatWithNotation(percent)
+        let number = MappingConstants.compactPercentNumberFormatter.string(from: notation.decimal as NSDecimalNumber)
+            ?? "\(notation.decimal)"
+
+        return number + notation.suffix + PercentFormatter.Suffix.default.value
     }
 }
 
@@ -128,11 +145,18 @@ private extension [PolymarketMarket] {
     }
 }
 
+private enum MarketDisplaySection {
+    case active
+    case closed
+    case hidden
+}
+
 private extension PolymarketMarket {
-    var isTradable: Bool {
+    var displaySection: MarketDisplaySection {
         switch status {
-        case .active, .unknown: true
-        case .closed, .archived: false
+        case .active, .unknown: .active
+        case .closed: .closed
+        case .archived: .hidden
         }
     }
 }
@@ -142,6 +166,18 @@ private extension PolymarketMarket {
 private extension PolymarketEventDetailsContent {
     enum MappingConstants {
         static let percentFormatter = PercentFormatter()
+        static let percentMultiplier: Decimal = 100
+        static let compactPercentThreshold: Decimal = 1000
+        static let percentNotationFormatter = AmountNotationSuffixFormatter()
+        static let compactPercentNumberFormatter: NumberFormatter = {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            formatter.locale = .current
+            formatter.minimumFractionDigits = 0
+            formatter.maximumFractionDigits = 2
+            return formatter
+        }()
+
         static let volumeFormatter = MarketCapFormatter(
             divisorsList: AmountNotationSuffixFormatter.Divisor.defaultList,
             baseCurrencyCode: AppConstants.usdCurrencyCode,

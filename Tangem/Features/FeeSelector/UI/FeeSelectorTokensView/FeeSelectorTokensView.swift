@@ -34,7 +34,7 @@ private struct RowSection: View {
         VStack(alignment: .leading, spacing: 10) {
             if let title {
                 Text(title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                     .padding(.leading, 12)
             }
 

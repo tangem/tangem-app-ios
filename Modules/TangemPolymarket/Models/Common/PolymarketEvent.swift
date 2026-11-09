@@ -39,6 +39,8 @@ public struct PolymarketEvent: Hashable, Sendable, Identifiable {
 
     public let teams: [PolymarketTeam]
 
+    public let game: PolymarketEventGame?
+
     public var hasMoreMarkets: Bool {
         markets.count < totalMarketsCount
     }
@@ -62,7 +64,8 @@ public struct PolymarketEvent: Hashable, Sendable, Identifiable {
         isNegRisk: Bool,
         displayMode: PolymarketDisplayMode,
         markets: [PolymarketMarket],
-        teams: [PolymarketTeam] = []
+        teams: [PolymarketTeam] = [],
+        game: PolymarketEventGame? = nil
     ) {
         self.id = id
         self.slug = slug
@@ -83,5 +86,6 @@ public struct PolymarketEvent: Hashable, Sendable, Identifiable {
         self.displayMode = displayMode
         self.markets = markets
         self.teams = teams
+        self.game = game
     }
 }

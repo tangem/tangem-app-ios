@@ -14,13 +14,13 @@ struct LoadingProvidersRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(Localization.expressProvider)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
             HStack(spacing: 4) {
                 progressView
 
                 Text(Localization.expressFetchBestRates)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -38,5 +38,5 @@ struct LoadingProvidersRow: View {
 #Preview {
     LoadingProvidersRow()
         .padding()
-        .background(Colors.Background.secondary)
+        .background(DesignSystem.Color.bgPrimary)
 }

@@ -77,7 +77,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     private let tokensNotificationManager: NotificationManager
     private let promotionNotificationsManager: PromotionNotificationsManager
     private let tangemPayNotificationManager: NotificationManager
-    private let forceUpdateBannerNotificationManager: NotificationManager
     private let yieldApyBoostBannerNotificationManager: YieldAPYBoostBannerService
     private let tokenRouter: SingleTokenRoutable
     private let rateAppController: RateAppInteractionController
@@ -109,7 +108,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         promotionNotificationsManager: PromotionNotificationsManager,
         tangemPayNotificationManager: NotificationManager,
         yieldApyBoostBannerNotificationManager: YieldAPYBoostBannerService,
-        forceUpdateBannerNotificationManager: NotificationManager,
         rateAppController: RateAppInteractionController,
         nftFeatureLifecycleHandler: NFTFeatureLifecycleHandling,
         tokenRouter: SingleTokenRoutable,
@@ -124,7 +122,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         self.promotionNotificationsManager = promotionNotificationsManager
         self.tangemPayNotificationManager = tangemPayNotificationManager
         self.yieldApyBoostBannerNotificationManager = yieldApyBoostBannerNotificationManager
-        self.forceUpdateBannerNotificationManager = forceUpdateBannerNotificationManager
         self.rateAppController = rateAppController
         self.tokenRouter = tokenRouter
         self.coordinator = coordinator
@@ -330,12 +327,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             accountSectionsPublisher: accountSectionsPublisher
         )
 
-        // Force-update banner is prepended so it always renders above the wallet notifications.
-        forceUpdateBannerNotificationManager
+        userWalletNotificationManager
             .notificationPublisher
-            .removeDuplicates()
-            .combineLatest(userWalletNotificationManager.notificationPublisher.removeDuplicates())
-            .map { forceUpdateInputs, userWalletInputs in forceUpdateInputs + userWalletInputs }
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .assign(to: \.notificationInputs, on: self, ownership: .weak)
@@ -859,6 +852,18 @@ extension MultiWalletMainContentViewModel {
     }
 }
 
+// MARK: - Money account
+
+extension MultiWalletMainContentViewModel {
+    var isTangemPayMoneyAccountVisible: Bool {
+        FeatureProvider.isAvailable(.tangemPayMoneyAccount)
+    }
+
+    func openTangemPayMoneyAccount() {
+        coordinator?.openTangemPayMoneyAccount(userWalletModel: userWalletModel)
+    }
+}
+
 // MARK: - TangemPayAccountRoutable
 
 extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
@@ -1101,8 +1106,7 @@ private extension MultiWalletMainContentViewModel {
 
         return .init(
             coordinator: coordinator,
-            userWalletModel: userWalletModel,
-            swapAvailabilityChecker: CommonSwapAvailabilityChecker(userWalletInfo: userWalletModel.userWalletInfo)
+            userWalletModel: userWalletModel
         )
     }
 }

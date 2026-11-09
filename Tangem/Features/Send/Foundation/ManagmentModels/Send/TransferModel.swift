@@ -93,6 +93,9 @@ private extension TransferModel {
             _destinationAdditionalField,
             _sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher.compactMap { $0.value }
         )
+        // Inputs rebuild the transaction only until it is sent: the balance refresh that follows the send
+        // can fail the fee, and a sent transaction must not be rebuilt from it behind the finish screen.
+        .prefix(untilOutputFrom: _transactionTime)
         .withWeakCaptureOf(self)
         .sink { manager, args in
             let (amount, destination, additionalField, fee) = args
@@ -411,6 +414,10 @@ extension TransferModel: SendDestinationInput {
 
     var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> {
         _destinationAdditionalField.eraseToAnyPublisher()
+    }
+
+    var destinationTokenItemPublisher: AnyPublisher<TokenItem, Never> {
+        .just(output: _sourceToken.tokenItem)
     }
 }
 

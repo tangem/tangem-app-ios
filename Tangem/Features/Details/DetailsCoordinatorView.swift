@@ -61,9 +61,11 @@ struct DetailsCoordinatorView: CoordinatorView {
                     .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
+                    .softTopScrollEdgeEffect()
             }
             .fullScreenCover(item: $coordinator.tangemPayOnboardingCoordinator) {
                 TangemPayOnboardingCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             .floatingSheetContent(for: AddWalletTypeSelectorSheetViewModel.self) {
                 AddWalletTypeSelectorSheetView(viewModel: $0)

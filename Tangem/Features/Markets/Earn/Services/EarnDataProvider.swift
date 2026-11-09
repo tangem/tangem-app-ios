@@ -91,7 +91,7 @@ final class CommonEarnDataService: EarnDataProvider {
                     limit: Constants.mostlyUsedLimit,
                     type: nil,
                     networkIds: nil,
-                    apyType: FeatureProvider.isAvailable(.merklIncentives) ? .gross : nil
+                    apyType: .gross
                 )
 
                 let response = try await provider.tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)
@@ -169,7 +169,7 @@ final class CommonEarnDataService: EarnDataProvider {
             limit: limitPerPage,
             type: filter.type.apiValue,
             networkIds: filter.networkIds,
-            apyType: FeatureProvider.isAvailable(.merklIncentives) ? .gross : nil
+            apyType: .gross
         )
 
         let response = try await tangemApiService.loadEarnYieldMarkets(requestModel: requestModel)

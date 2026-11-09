@@ -19,7 +19,7 @@ enum EthereumMapper {
            let responseData = moyaError.response?.data,
            let ethereumResponse = try? JSONDecoder().decode(JSONRPC.Response<String, JSONRPC.APIError>.self, from: responseData),
            let errorMessage = ethereumResponse.result.error?.message,
-           errorMessage.contains("gas required exceeds allowance", ignoreCase: true) {
+           errorMessage.caseInsensitiveContains("gas required exceeds allowance") {
             return ETHError.gasRequiredExceedsAllowance
         }
 

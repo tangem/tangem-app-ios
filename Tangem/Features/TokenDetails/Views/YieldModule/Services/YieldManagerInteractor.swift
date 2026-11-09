@@ -27,17 +27,20 @@ actor YieldManagerInteractor {
     private let manager: YieldModuleManager
     private let claimInteractor: YieldIncentivesClaimInteractor?
     private let chartMapper = YieldIncentiveChartMapper()
+    private let gaslessFeeService: YieldGaslessFeeService?
 
     // MARK: - Init
 
     init(
         transactionDispatcher: any TransactionDispatcher,
         manager: YieldModuleManager,
-        claimInteractor: YieldIncentivesClaimInteractor?
+        claimInteractor: YieldIncentivesClaimInteractor?,
+        gaslessFeeService: YieldGaslessFeeService? = nil
     ) {
         self.transactionDispatcher = transactionDispatcher
         self.manager = manager
         self.claimInteractor = claimInteractor
+        self.gaslessFeeService = gaslessFeeService
     }
 
     // MARK: - Public Implementation
@@ -162,6 +165,10 @@ actor YieldManagerInteractor {
         )
     }
 
+    func supportsEnterWithAmount(fee: YieldTransactionFee) async -> Bool {
+        await manager.supportsEnterWithAmount(fee: fee)
+    }
+
     func getApproveFee() async throws -> YieldTransactionFee {
         try await loadFee(
             getTask: { approveFeeTask },
@@ -193,7 +200,7 @@ actor YieldManagerInteractor {
             return nil
         }
 
-        return try await claimInteractor.prepare()
+        return try await claimInteractor.prepare(includingModuleUpgrade: false)
     }
 
     func approve(with token: TokenItem) async throws {
@@ -209,7 +216,11 @@ actor YieldManagerInteractor {
             throw YieldModuleError.feeNotFound
         }
 
-        _ = try await manager.enter(fee: fee, transactionDispatcher: transactionDispatcher)
+        if let gaslessFeeService, let gaslessFee = try gaslessFeeService.selectedGaslessFee() {
+            _ = try await manager.enter(fee: fee, gaslessFee: gaslessFee, transactionSender: gaslessFeeService.transactionSender)
+        } else {
+            _ = try await manager.enter(fee: fee, transactionDispatcher: transactionDispatcher)
+        }
     }
 
     func exit(with token: TokenItem) async throws {
@@ -217,7 +228,11 @@ actor YieldManagerInteractor {
             throw YieldModuleError.feeNotFound
         }
 
-        _ = try await manager.exit(fee: fee, transactionDispatcher: transactionDispatcher)
+        if let gaslessFeeService, let gaslessFee = try gaslessFeeService.selectedGaslessFee() {
+            _ = try await manager.exit(fee: fee, gaslessFee: gaslessFee, transactionSender: gaslessFeeService.transactionSender)
+        } else {
+            _ = try await manager.exit(fee: fee, transactionDispatcher: transactionDispatcher)
+        }
     }
 
     func exitClaimingRewards(
@@ -236,6 +251,28 @@ actor YieldManagerInteractor {
         var isClaimTransactionBuilt = false
 
         do {
+            if let gaslessFeeService, let gaslessFee = try gaslessFeeService.selectedGaslessFee() {
+                let hash = try await manager.exit(
+                    fee: fee,
+                    gaslessFee: gaslessFee,
+                    precedingTransaction: {
+                        let claimTransaction = try await claimInteractor.makeClaimTransaction(
+                            prepared: prepared,
+                            isGasless: true,
+                            isFeeCovered: { _ in true }
+                        )
+
+                        isClaimTransactionBuilt = true
+
+                        return claimTransaction
+                    },
+                    transactionSender: gaslessFeeService.transactionSender
+                )
+
+                await claimInteractor.claimTransactionSubmitted(hash: hash, claimedAgainst: prepared.summary)
+                return
+            }
+
             let result = try await manager.exit(
                 fee: fee,
                 precedingTransaction: {

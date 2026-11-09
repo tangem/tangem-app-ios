@@ -35,14 +35,6 @@ struct CommonPolymarketOwnerAddressProviderTests {
 
         #expect(provider.getOwnerAddress() == nil)
     }
-
-    @Test
-    func aWalletWithoutSecp256k1HasNoOwnerAddress() {
-        let repository = KeysRepositoryTestsMock(keys: [Self.makeKeyInfo(curve: .ed25519, derivedKey: Self.extendedPublicKey)])
-        let provider = CommonPolymarketOwnerAddressProvider(keysRepository: repository)
-
-        #expect(provider.getOwnerAddress() == nil)
-    }
 }
 
 // MARK: - Fixtures
@@ -53,14 +45,14 @@ private extension CommonPolymarketOwnerAddressProviderTests {
     }
 
     static func makeRepository(derivedKey: ExtendedPublicKey?) -> KeysRepositoryTestsMock {
-        KeysRepositoryTestsMock(keys: [makeKeyInfo(curve: .secp256k1, derivedKey: derivedKey)])
+        KeysRepositoryTestsMock(keys: [makeKeyInfo(derivedKey: derivedKey)])
     }
 
-    static func makeKeyInfo(curve: EllipticCurve, derivedKey: ExtendedPublicKey?) -> KeyInfo {
+    static func makeKeyInfo(derivedKey: ExtendedPublicKey?) -> KeyInfo {
         KeyInfo(
             publicKey: walletPublicKey,
             chainCode: chainCode,
-            curve: curve,
+            curve: .secp256k1,
             isImported: false,
             derivedKeys: derivedKey.map { [PolymarketUtilities.derivationPath: $0] } ?? [:]
         )

@@ -66,7 +66,15 @@ final class PromoCampaignViewModel: ObservableObject {
     }
 
     var actionButtonTitle: String {
-        isAwaitingPayoutToken ? Localization.promoCampaignSelectToken : campaign.content.actionButtonTitle
+        guard isAwaitingPayoutToken else {
+            return campaign.content.actionButtonTitle
+        }
+
+        return campaign.content.payoutButtonTitle ?? Localization.promoCampaignSelectToken
+    }
+
+    var payoutAccountTitle: String {
+        campaign.content.payoutAccountTitle ?? Localization.promoCampaignSelectedCashbackAccount
     }
 
     var selectedTokenNetworkName: String {

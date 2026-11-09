@@ -17,15 +17,16 @@ protocol PolymarketWebSocketChannel: Sendable {
     var url: URL { get }
     var keepalive: PolymarketWebSocketConnectionManager.Keepalive { get }
     var subscribing: (any PolymarketWebSocketSubscribing<Topic>)? { get }
-    var silenceTimeout: Duration { get }
+    var silenceTimeout: Duration? { get }
 
     func updates(from message: WebSocketMessage) throws -> [Update]
+    func isKeepaliveReply(_ message: WebSocketMessage) -> Bool
     func topic(of update: Update) -> Topic
     func value(applying update: Update, to previous: Value?) -> Value
 }
 
 extension PolymarketWebSocketChannel {
-    var silenceTimeout: Duration {
+    var silenceTimeout: Duration? {
         .seconds(60)
     }
 }

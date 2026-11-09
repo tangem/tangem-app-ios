@@ -24,7 +24,7 @@ struct DefaultToggleRowView: View {
             Text(viewModel.title)
                 .style(
                     Fonts.Regular.callout,
-                    color: viewModel.isDisabled ? Colors.Text.disabled : Colors.Text.primary1
+                    color: viewModel.isDisabled ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
                 )
 
             Spacer()

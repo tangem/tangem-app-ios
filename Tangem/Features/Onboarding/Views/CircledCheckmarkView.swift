@@ -11,7 +11,7 @@ import TangemAssets
 
 struct CircledCheckmarkView: View {
     var borderColor: Color = .white
-    var foregroundColor: Color = Colors.Icon.accent
+    var foregroundColor: Color = DesignSystem.Color.iconAccentBlue
     var filled: Bool
 
     var body: some View {

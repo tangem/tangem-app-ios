@@ -87,6 +87,13 @@ public protocol GaslessTransactionFeeProvider {
         nativeToFeeTokenRate: Decimal
     ) async throws -> Fee
 
+    func getEstimatedGaslessTransactionFeeFundedByTransaction(
+        feeToken: Token,
+        estimatedGasLimit: Int,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> Fee
+
     /// Estimates the gasless fee when the fee token should be withdrawn from Yield Mode in the gasless batch.
     func getGaslessYieldFee(
         feeToken: Token,

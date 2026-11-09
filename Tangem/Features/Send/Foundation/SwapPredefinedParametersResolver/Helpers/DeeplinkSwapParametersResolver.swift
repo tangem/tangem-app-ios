@@ -34,21 +34,36 @@ struct DeeplinkSwapParametersResolver {
         return builder.make()
     }
 
-    /// `from_amount` / `provider_id` are honored only for a fully-specified held pair — both sides requested
-    /// and matched. With a best-effort source or a manual TO the pair is ambiguous, so they're dropped.
+    /// `from_amount` / `to_amount` / `provider_id` are honored only for a fully-specified held pair — both sides
+    /// requested and matched. With a best-effort source or a manual TO the pair is ambiguous, so they're dropped.
     private func makeExtras(deeplink: SwapDeeplink, isApplicable: Bool) -> PredefinedSwapParameters.Extras? {
         guard isApplicable else {
             return nil
         }
 
-        let sourceAmount = Decimal(stringValue: deeplink.fromAmount).flatMap { $0 > 0 ? $0 : nil }
+        let specifiedAmount = Self.makeSpecifiedAmount(deeplink: deeplink)
         let providerId = deeplink.providerId?.nilIfEmpty
+        let intentId = deeplink.intentId?.nilIfEmpty
 
-        guard sourceAmount != nil || providerId != nil else {
+        guard specifiedAmount != nil || providerId != nil || intentId != nil else {
             return nil
         }
 
-        return .init(sourceAmount: sourceAmount, providerId: providerId)
+        return .init(specifiedAmount: specifiedAmount, providerId: providerId, mcpIntentID: intentId)
+    }
+
+    /// `from_amount` wins when a malformed link somehow carries both sides — `SwapDeeplink` never invalidates
+    /// on bad input, it just ignores what it can't use.
+    private static func makeSpecifiedAmount(deeplink: SwapDeeplink) -> PredefinedSwapParameters.SpecifiedAmount? {
+        if let sourceAmount = Decimal(stringValue: deeplink.fromAmount), sourceAmount > 0 {
+            return .source(sourceAmount)
+        }
+
+        if let receiveAmount = Decimal(stringValue: deeplink.toAmount), receiveAmount > 0 {
+            return .receive(receiveAmount)
+        }
+
+        return nil
     }
 }
 
@@ -72,7 +87,9 @@ private extension DeeplinkSwapParametersResolver {
         let expressAvailabilityProvider = InjectedValues[\.expressAvailabilityProvider]
 
         let candidates = walletModels.enumerated().map { index, walletModel in
-            Candidate(
+            let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
+
+            return Candidate(
                 index: index,
                 // Lowercased to match against the deeplink's already-lowercased token/network ids.
                 tokenId: walletModel.tokenItem.id?.lowercased(),
@@ -80,8 +97,8 @@ private extension DeeplinkSwapParametersResolver {
                 accountId: DeeplinkWalletModelLocator.accountIdentifier(of: walletModel.account),
                 fiatBalance: walletModel.fiatAvailableBalanceProvider.balanceType.value ?? 0,
                 isSwappable: expressAvailabilityProvider.swapState(for: walletModel.tokenItem) == .available,
-                canBeSource: Self.canBecomeSource(walletModel: walletModel, userWalletInfo: userWalletInfo),
-                canBeReceive: Self.canBecomeReceive(walletModel: walletModel, userWalletInfo: userWalletInfo)
+                canBeSource: SwapSourcePreselectionEligibility.canBecomeSource(for: availabilityProvider.swapSourceAvailability()),
+                canBeReceive: SwapReceivePreselectionEligibility.canBecomeReceive(for: availabilityProvider.swapReceiveAvailability())
             )
         }
 
@@ -107,43 +124,6 @@ private extension DeeplinkSwapParametersResolver {
             .models(from: accountModelsManager)
             .compactMap { DeeplinkWalletModelLocator.accountIdentifier(of: $0) }
             .toSet()
-    }
-}
-
-// MARK: - Availability gates
-
-extension DeeplinkSwapParametersResolver {
-    static func canBecomeSource(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> Bool {
-        let availability = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
-            .swapSourceAvailability()
-
-        switch availability {
-        case .available,
-             .blockchainLoading,
-             .blockchainUnreachable,
-             .hasOnlyCachedBalance,
-             .expressLoading,
-             .expressUnreachable,
-             .missingAssetRequirement:
-            return true
-        case .jointAccountsComingSoon,
-             .customToken,
-             .yieldModuleApproveNeeded,
-             .cantSignLongTransactions:
-            return false
-        }
-    }
-
-    static func canBecomeReceive(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> Bool {
-        let availability = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
-            .swapReceiveAvailability()
-
-        switch availability {
-        case .available, .expressLoading, .expressUnreachable, .missingAssetRequirement:
-            return true
-        case .customToken:
-            return false
-        }
     }
 }
 

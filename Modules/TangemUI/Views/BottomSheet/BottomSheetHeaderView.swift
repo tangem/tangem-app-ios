@@ -21,7 +21,7 @@ public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
     private let titleAccessibilityIdentifier: String?
 
     private var titleStyle = TangemFontStyle(font: Fonts.Bold.body)
-    private var titleColor: Color = Colors.Text.primary1
+    private var titleColor: Color = DesignSystem.Color.textPrimary
     private var horizontalSpacing: CGFloat = 8
     private var subtitleSpacing: CGFloat = 12
     private var verticalPadding: CGFloat = 12
@@ -67,7 +67,7 @@ private extension BottomSheetHeaderView {
 
                 if let subtitle {
                     Text(subtitle)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 }
             }
             .lineLimit(nil)
@@ -93,7 +93,7 @@ private extension BottomSheetHeaderView {
 
                 if let subtitle {
                     Text(subtitle)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 }
             }
 

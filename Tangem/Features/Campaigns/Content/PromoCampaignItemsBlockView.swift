@@ -24,8 +24,8 @@ struct PromoCampaignItemsBlockView: View {
             VStack(spacing: Constants.tileSpacing) {
                 ForEach(Array(stride(from: 0, to: items.count, by: Constants.tilesPerRow)), id: \.self) { rowStart in
                     HStack(spacing: Constants.tileSpacing) {
-                        ForEach(rowStart ..< min(rowStart + Constants.tilesPerRow, items.count), id: \.self) { index in
-                            tile(items[index])
+                        ForEach(indexed: items[rowStart ..< min(rowStart + Constants.tilesPerRow, items.count)], id: \.0) { _, item in
+                            tile(item)
                         }
                     }
                     .fixedSize(horizontal: false, vertical: true)

@@ -75,7 +75,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
         }
 
         @Test(
-            "Enabling and disabling Yield Mode keep their caption and get no fiat line",
+            "Enabling and disabling Yield Mode keep their caption and price the amount in fiat",
             arguments: [("yieldEnter", true), ("yieldWithdraw", false)]
         )
         func enableAndDisableKeepTheirLayout(methodName: String, isOutgoing: Bool) async throws {
@@ -84,7 +84,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             }
 
             #expect(content.tokens.caption != nil)
-            #expect(content.tokens.fiatText == nil)
+            #expect(content.tokens.fiatText != nil)
         }
 
         @Test(

@@ -198,7 +198,8 @@ struct PolymarketDepositAssetCatalogTokenItemTests {
             return tokenItem.blockchain.chainId.map { (entry.networkId, entry.bridgeChainId, $0) }
         }
 
-        #expect(evmEntries.count == PolymarketDepositAssetCatalog.entries.count - 1)
+        let nonEVMNetworkIds = Set(PolymarketDepositAssetCatalog.entries.map(\.networkId)).subtracting(evmEntries.map(\.0))
+        #expect(nonEVMNetworkIds == [PolymarketDepositAssetCatalog.usdcOnSolana.networkId])
 
         for (networkId, bridgeChainId, chainId) in evmEntries {
             #expect(bridgeChainId == "\(chainId)", "\(networkId) names a chain id its blockchain does not")

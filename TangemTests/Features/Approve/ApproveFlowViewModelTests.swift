@@ -159,8 +159,8 @@ struct ApproveFlowViewModelTests {
     @Test("logPermissionScreenOpened fires once on init with isRevoke true for .revokeAndApprove state")
     func init_logsPermissionScreenOpened_withRevokeAndApproveState() {
         let feeUnit = Fee(Amount(with: .ethereum(testnet: false), value: 0.001))
-        let revokeData = ApproveTransactionData(txData: Data([0x00]), spender: "0xSpender", toContractAddress: "0xContract")
-        let approveData = ApproveTransactionData(txData: Data([0x01]), spender: "0xSpender", toContractAddress: "0xContract")
+        let revokeData = ApproveTransactionData(txData: Data([0x00]), spender: "0xSpender", toContractAddress: "0xContract", amountRaw: 0)
+        let approveData = ApproveTransactionData(txData: Data([0x01]), spender: "0xSpender", toContractAddress: "0xContract", amountRaw: 1)
         let state = ApproveInteractor.ApproveInteractorState.revokeAndApprove(revoke: revokeData, approve: approveData, feeUnit: feeUnit, policy: ApprovePolicy.specified)
 
         let (_, env) = makeSUT(interactorState: state)
@@ -197,7 +197,8 @@ struct ApproveFlowViewModelTests {
         let defaultApproveData = ApproveTransactionData(
             txData: Data([0x01]),
             spender: "0xSpender",
-            toContractAddress: "0xContract"
+            toContractAddress: "0xContract",
+            amountRaw: 1
         )
 
         let interactor = ApproveInteractor(

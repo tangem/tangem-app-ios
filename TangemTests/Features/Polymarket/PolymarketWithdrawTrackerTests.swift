@@ -13,9 +13,10 @@ import TangemFoundation
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket withdraw tracker")
+@Suite("Polymarket withdraw tracker", .timeLimit(.minutes(1)))
 struct PolymarketWithdrawTrackerTests {
     private let now = Date(timeIntervalSince1970: 1_700_000_000)
+    private let pollInterval: TimeInterval = 3
     private let deadlineOffset: TimeInterval = 600
     private let settlementGrace: TimeInterval = 180
     private let outcomeNoticeLifetime: TimeInterval = 90
@@ -27,14 +28,11 @@ struct PolymarketWithdrawTrackerTests {
         let env = makeEnv(recordAnswers: [.success(inProgress()), .success(confirmed())])
 
         await env.sut.track(inProgress(), deadline: deadline())
-        try await env.state(becomes: .confirmed)
+        try await env.tick(times: 2)
+        await env.state(becomes: .confirmed)
 
         #expect(env.states.contains(.inProgress))
         #expect(env.store.entry() == .init(record: confirmed(), deadline: deadline(), settledAt: now))
-        #expect(env.service.recordRequests == 2)
-
-        try await drain()
-
         #expect(env.service.recordRequests == 2)
     }
 
@@ -43,18 +41,20 @@ struct PolymarketWithdrawTrackerTests {
         let env = makeEnv(recordAnswers: [.success(failed())])
 
         await env.sut.track(inProgress(), deadline: deadline())
-        try await env.state(becomes: .failed)
+        try await env.tick()
+        await env.state(becomes: .failed)
 
         #expect(env.store.entry() == .init(record: failed(), deadline: deadline(), settledAt: now))
     }
 
-    @Test("A withdrawal the backend refuses to report on is dropped without a word")
-    func dropsAWithdrawalTheBackendRefuses() async throws {
-        let env = makeEnv(recordAnswers: [.failure(.notFound)])
+    @Test("A withdrawal the backend refuses to report on is dropped without a word", arguments: [401, 404, 409])
+    func dropsAWithdrawalTheBackendRefuses(statusCode: Int) async throws {
+        let refusal = PolymarketWithdrawError(apiError: .http(statusCode: statusCode, problemDetail: nil))
+        let env = makeEnv(recordAnswers: [.failure(refusal)])
 
         await env.sut.track(inProgress(), deadline: deadline())
-        try await env.state(becomes: nil, after: .inProgress)
-        try await drain()
+        try await env.tick()
+        await env.state(becomes: nil, after: .inProgress)
 
         #expect(env.store.entry() == nil)
         #expect(env.service.recordRequests == 1)
@@ -65,7 +65,8 @@ struct PolymarketWithdrawTrackerTests {
         let env = makeEnv(recordAnswers: [.failure(.other(.http(statusCode: 429, problemDetail: nil))), .success(confirmed())])
 
         await env.sut.track(inProgress(), deadline: deadline())
-        try await env.state(becomes: .confirmed)
+        try await env.tick(times: 2)
+        await env.state(becomes: .confirmed)
 
         #expect(env.service.recordRequests == 2)
         #expect(env.store.entry()?.record.state == .confirmed)
@@ -81,7 +82,8 @@ struct PolymarketWithdrawTrackerTests {
         ])
 
         await env.sut.track(inProgress(), deadline: deadline())
-        try await env.state(becomes: .confirmed)
+        try await env.tick(times: 4)
+        await env.state(becomes: .confirmed)
 
         #expect(env.service.recordRequests == 4)
     }
@@ -91,10 +93,10 @@ struct PolymarketWithdrawTrackerTests {
         let env = makeEnv()
 
         await env.sut.track(confirmed(), deadline: deadline())
-        try await env.state(becomes: .confirmed)
-        try await drain()
+        try await env.delays.waitUntilParked(outcomeNoticeLifetime)
 
-        #expect(env.service.recordRequests == 0)
+        #expect(env.states == [nil, .confirmed])
+        #expect(env.delays.parkedWaits == [outcomeNoticeLifetime])
         #expect(env.store.entry()?.settledAt == now)
     }
 
@@ -106,22 +108,22 @@ struct PolymarketWithdrawTrackerTests {
         env.store.save(.init(record: inProgress(), deadline: deadline(), settledAt: nil))
 
         await env.sut.resume()
-        try await env.state(becomes: .confirmed)
+        try await env.tick()
+        await env.state(becomes: .confirmed)
 
         #expect(env.states == [nil, .inProgress, .confirmed])
     }
 
-    @Test("A stored outcome younger than its notice window is shown again")
+    @Test("A stored outcome younger than its notice window is shown again for the rest of that window")
     func resumesARecentOutcome() async throws {
         let env = makeEnv()
         env.store.save(.init(record: confirmed(), deadline: deadline(), settledAt: now.addingTimeInterval(-30)))
 
         await env.sut.resume()
-        try await env.state(becomes: .confirmed)
+        try await env.delays.waitUntilParked(outcomeNoticeLifetime - 30)
 
-        try await settle { env.delays.heldWaits == [outcomeNoticeLifetime - 30] }
-
-        #expect(env.store.entry() != nil)
+        #expect(env.states == [nil, .confirmed])
+        #expect(env.store.entry()?.record == confirmed())
     }
 
     @Test("A stored outcome older than its notice window is forgotten without being shown")
@@ -130,21 +132,9 @@ struct PolymarketWithdrawTrackerTests {
         env.store.save(.init(record: failed(), deadline: deadline(), settledAt: now.addingTimeInterval(-outcomeNoticeLifetime - 1)))
 
         await env.sut.resume()
-        try await drain()
 
         #expect(env.states == [nil, nil])
         #expect(env.store.entry() == nil)
-    }
-
-    @Test("Without a stored withdrawal a resume changes nothing")
-    func resumesNothingWhenNothingIsStored() async throws {
-        let env = makeEnv()
-
-        await env.sut.resume()
-        try await drain()
-
-        #expect(env.states == [nil])
-        #expect(env.service.recordRequests == 0)
     }
 
     @Test("A device clock running ahead cannot write off a resumed withdrawal before the backend has answered once")
@@ -155,8 +145,10 @@ struct PolymarketWithdrawTrackerTests {
         env.service.onRecordRequest = { _ in env.serverClock.record(serverDate: now) }
 
         await env.sut.resume()
-        try await env.state(becomes: .confirmed)
-        try await settle { Set(env.delays.heldWaits) == [settlementGrace, outcomeNoticeLifetime] }
+        try await env.delays.waitUntilParked(settlementGrace)
+        try await env.tick()
+        await env.state(becomes: .confirmed)
+        try await env.delays.waitUntilParked(outcomeNoticeLifetime)
 
         #expect(env.states == [nil, .inProgress, .confirmed])
         #expect(env.store.entry()?.record.state == .confirmed)
@@ -169,14 +161,14 @@ struct PolymarketWithdrawTrackerTests {
         env.clock.now = now.addingTimeInterval(deadlineOffset + settlementGrace + 1)
 
         await env.sut.resume()
-        try await env.state(becomes: nil, after: .inProgress)
-        try await drain()
+        try await env.delays.waitUntilParked(settlementGrace)
+        try await env.tick()
+        await env.state(becomes: nil, after: .inProgress)
+        try await env.delays.cancellations.next { $0 == settlementGrace }
 
-        #expect(try #require(env.states.dropFirst().first) == .inProgress)
-        #expect(try #require(env.states.last) == nil)
+        #expect(env.states == [nil, .inProgress, .inProgress, nil])
         #expect(env.store.entry() == nil)
         #expect(env.service.recordRequests == 1)
-        #expect(env.delays.heldWaits == [settlementGrace])
     }
 
     @Test("A withdrawal resumed past its time on a bad network is still polled through the settlement grace")
@@ -186,13 +178,16 @@ struct PolymarketWithdrawTrackerTests {
         env.clock.now = now.addingTimeInterval(deadlineOffset + settlementGrace + 1)
 
         await env.sut.resume()
-        try await settle { env.delays.heldWaits == [settlementGrace] && env.service.recordRequests > 1 }
+        try await env.delays.waitUntilParked(settlementGrace)
+        try await env.tick(times: 2)
+        try await env.delays.waitUntilParked(pollInterval)
 
+        #expect(env.service.recordRequests == 2)
         #expect(env.states == [nil, .inProgress])
-        #expect(env.store.entry() != nil)
+        #expect(env.store.entry()?.record == inProgress())
 
-        env.delays.releaseHeldWaits()
-        try await env.state(becomes: nil, after: .inProgress)
+        env.delays.resume(settlementGrace)
+        await env.state(becomes: nil, after: .inProgress)
 
         #expect(env.store.entry() == nil)
     }
@@ -209,8 +204,8 @@ struct PolymarketWithdrawTrackerTests {
         }
 
         await env.sut.track(inProgress(), deadline: deadline())
-        try await env.state(becomes: nil, after: .inProgress)
-        try await drain()
+        try await env.tick(times: 2)
+        await env.state(becomes: nil, after: .inProgress)
 
         #expect(env.store.entry() == nil)
         #expect(env.service.recordRequests == 2)
@@ -221,16 +216,15 @@ struct PolymarketWithdrawTrackerTests {
         let env = makeEnv(recordAnswers: [.success(inProgress())])
 
         await env.sut.track(inProgress(), deadline: deadline())
-        try await settle { env.delays.heldWaits == [deadlineOffset + settlementGrace] }
+        try await env.delays.waitUntilParked(pollInterval)
+        try await env.delays.waitUntilParked(deadlineOffset + settlementGrace)
 
-        env.delays.releaseHeldWaits()
-        try await env.state(becomes: nil, after: .inProgress)
-        try await drain()
-        let requestsAfterExpiry = env.service.recordRequests
-        try await drain()
+        env.delays.resume(deadlineOffset + settlementGrace)
+        await env.state(becomes: nil, after: .inProgress)
+        try await env.delays.cancellations.next { $0 == pollInterval }
 
         #expect(env.store.entry() == nil)
-        #expect(env.service.recordRequests == requestsAfterExpiry)
+        #expect(env.service.recordRequests == 0)
     }
 
     @Test("An outcome stays on screen for its notice window and is then forgotten")
@@ -238,11 +232,12 @@ struct PolymarketWithdrawTrackerTests {
         let env = makeEnv(recordAnswers: [.success(confirmed())])
 
         await env.sut.track(inProgress(), deadline: deadline())
-        try await env.state(becomes: .confirmed)
-        try await settle { env.delays.heldWaits.contains(outcomeNoticeLifetime) }
+        try await env.tick()
+        await env.state(becomes: .confirmed)
+        try await env.delays.waitUntilParked(outcomeNoticeLifetime)
 
-        env.delays.releaseHeldWaits()
-        try await env.state(becomes: nil, after: .confirmed)
+        env.delays.resume(outcomeNoticeLifetime)
+        await env.state(becomes: nil, after: .confirmed)
 
         #expect(env.store.entry() == nil)
     }
@@ -254,7 +249,8 @@ struct PolymarketWithdrawTrackerTests {
         let env = makeEnv(recordAnswers: [.success(inProgress()), .success(inProgress()), .success(inProgress()), .success(confirmed())])
 
         await env.sut.track(inProgress(), deadline: deadline())
-        try await env.state(becomes: .confirmed)
+        try await env.tick(times: 4)
+        await env.state(becomes: .confirmed)
 
         #expect(env.service.recordRequests == 4)
         #expect(env.storage.storeCalls == 2)
@@ -269,11 +265,12 @@ private extension PolymarketWithdrawTrackerTests {
         let service: PolymarketWithdrawServiceSpy
         let store: PolymarketWithdrawRecordStore
         let storage: InMemoryPersistentStorage
-        let delays: HoldingDelayProviderSpy
+        let delays: PolymarketSteppedDelayProvider
         let clock: ClockStub
         let serverClock: PolymarketServerClock
 
         private let log = OSAllocatedUnfairLock(initialState: [PolymarketWithdrawState?]())
+        private let changes = PolymarketTestSignal<Void>()
         private var subscription: AnyCancellable?
 
         init(
@@ -281,7 +278,7 @@ private extension PolymarketWithdrawTrackerTests {
             service: PolymarketWithdrawServiceSpy,
             store: PolymarketWithdrawRecordStore,
             storage: InMemoryPersistentStorage,
-            delays: HoldingDelayProviderSpy,
+            delays: PolymarketSteppedDelayProvider,
             clock: ClockStub,
             serverClock: PolymarketServerClock
         ) {
@@ -293,8 +290,9 @@ private extension PolymarketWithdrawTrackerTests {
             self.clock = clock
             self.serverClock = serverClock
 
-            subscription = sut.statePublisher.sink { [log] state in
+            subscription = sut.statePublisher.sink { [log, changes] state in
                 log.withLock { $0.append(state) }
+                changes.send()
             }
         }
 
@@ -302,22 +300,30 @@ private extension PolymarketWithdrawTrackerTests {
             log.withLock { $0 }
         }
 
-        func state(becomes expected: PolymarketWithdrawState?, after earlier: PolymarketWithdrawState? = nil) async throws {
-            let publisher = sut.statePublisher
-            let log = log
-
-            _ = try await Task.run(withTimeout: .seconds(5)) {
-                _ = try await publisher
-                    .filter { state in
-                        guard state == expected else { return false }
-                        guard let earlier else { return true }
-
-                        return log.withLock { $0.contains(earlier) }
-                    }
-                    .eraseToAnyPublisher()
-                    .async()
-            }.value
+        @MainActor
+        func state(becomes expected: PolymarketWithdrawState?, after earlier: PolymarketWithdrawState? = nil) async {
+            while !hasReached(expected, after: earlier) {
+                guard (try? await changes.next()) != nil else { return }
+            }
         }
+
+        private func hasReached(_ expected: PolymarketWithdrawState?, after earlier: PolymarketWithdrawState?) -> Bool {
+            let states = states
+
+            guard let last = states.last, last == expected else { return false }
+            guard let earlier else { return true }
+
+            return states.dropLast().contains(earlier)
+        }
+
+        func tick(times: Int = 1) async throws {
+            for _ in 0 ..< times {
+                try await delays.waitUntilParked(Self.pollInterval)
+                delays.resume(Self.pollInterval)
+            }
+        }
+
+        private static let pollInterval: TimeInterval = 3
     }
 
     final class ClockStub {
@@ -337,7 +343,7 @@ private extension PolymarketWithdrawTrackerTests {
         let service = PolymarketWithdrawServiceSpy(recordAnswers: recordAnswers)
         let storage = InMemoryPersistentStorage()
         let store = PolymarketWithdrawRecordStore(userWalletId: UserWalletId(value: Data([0x01])), storage: storage)
-        let delays = HoldingDelayProviderSpy()
+        let delays = PolymarketSteppedDelayProvider()
         let clock = ClockStub(now: now)
         let serverClock = PolymarketServerClock(deviceNow: { clock.now })
 

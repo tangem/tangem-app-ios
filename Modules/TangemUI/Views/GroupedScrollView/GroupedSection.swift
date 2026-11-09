@@ -153,12 +153,12 @@ public struct GroupedSection<Model: Identifiable, Content: View, Footer: View, H
         case .none:
             EmptyView()
         case .single:
-            Colors.Stroke.primary
+            DesignSystem.Color.borderSecondary
                 .frame(maxWidth: .infinity)
                 .frame(height: 1)
                 .padding(.leading, settings.horizontalPadding)
         case .minimum:
-            Separator(height: .minimal, color: Colors.Stroke.primary)
+            Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
                 .padding(.horizontal, settings.horizontalPadding)
         }
     }
@@ -178,9 +178,9 @@ public extension GroupedSection {
         public var interItemSpacing: CGFloat = 0
         public var innerContentPadding: CGFloat = 0
 
-        // Use "Colors.Background.primary" as default with "Colors.Background.secondary" background
-        // Use "Colors.Background.action" on sheets with "Colors.Background.tertiary" background
-        public var backgroundColor: Color = Colors.Background.primary
+        // Use "DesignSystem.Color.bgSecondary" as default with "DesignSystem.Color.bgPrimary" background
+        // Use "DesignSystem.Color.bgSecondary" on sheets with "DesignSystem.Color.bgPrimary" background
+        public var backgroundColor: Color = DesignSystem.Color.bgSecondary
         public var contentAlignment: HorizontalAlignment = .leading
         public var innerHeaderPadding: CGFloat = GroupedSectionConstants.headerSpacing
 

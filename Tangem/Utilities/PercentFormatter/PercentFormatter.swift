@@ -95,6 +95,12 @@ extension PercentFormatter.Option {
         suffix: PercentFormatter.Suffix(value: "%")
     )
 
+    static let predictionPrice = PercentFormatter.Option(
+        fractionDigits: .init(min: 0, max: 2),
+        prefix: .empty,
+        suffix: PercentFormatter.Suffix(value: "%")
+    )
+
     static let predictionSlippage = PercentFormatter.Option(
         fractionDigits: .init(min: 0, max: 2),
         prefix: .empty,

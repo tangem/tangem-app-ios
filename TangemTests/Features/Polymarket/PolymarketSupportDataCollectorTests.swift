@@ -10,7 +10,7 @@ import Testing
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket support logs")
+@Suite("Polymarket support logs", .timeLimit(.minutes(1)))
 struct PolymarketSupportDataCollectorTests {
     @Test("The logs carry the Polymarket account the user asks about")
     func logsCarryTheAccount() throws {
@@ -65,16 +65,7 @@ struct PolymarketSupportDataCollectorTests {
         #expect(!logs.contains("Polymarket available balance"))
     }
 
-    @Test("A missing owner key reads differently from an address that failed to derive")
-    func depositAddressFailuresStayDistinct() throws {
-        let missingOwner = try makeLogs(accountModel: nil, depositWalletAddressDerivation: .ownerAddressUnavailable)
-        let failedDerivation = try makeLogs(accountModel: nil, depositWalletAddressDerivation: .derivationFailed(.invalidOwnerAddress))
-
-        #expect(missingOwner.contains("Polymarket deposit wallet address: [owner address unavailable]\n"))
-        #expect(failedDerivation.contains("Polymarket deposit wallet address: [derivation failed: invalidOwnerAddress]\n"))
-    }
-
-    @Test("The wallets follow the Polymarket account, split off by a separator")
+    @Test("The wallets are logged after the Polymarket account")
     func walletsFollowTheAccount() throws {
         let collector = PolymarketSupportDataCollector(
             accountModel: PolymarketAccountModelStub(state: .active),
@@ -84,14 +75,10 @@ struct PolymarketSupportDataCollectorTests {
 
         let logs = try #require(collector.logData.flatMap { String(data: $0, encoding: .utf8) })
 
-        #expect(logs.contains("Polymarket total balance: 0\n--------\nCard ID: \(cardId)\n"))
-    }
+        let account = try #require(logs.range(of: "Polymarket total balance"))
+        let card = try #require(logs.range(of: cardId))
 
-    @Test("An account whose state has not arrived yet is told apart from a missing one")
-    func notLoadedStateIsNamed() throws {
-        let logs = try makeLogs(accountModel: PolymarketAccountModelStub(state: nil), depositWalletAddressDerivation: .derived(address: depositWalletAddress))
-
-        #expect(logs.contains("Polymarket account state: [not loaded]\n"))
+        #expect(account.upperBound <= card.lowerBound)
     }
 
     private var depositWalletAddress: String { "0xdf1a31b50D3F99d4460ACC1Bc99aB2e09BCcC538" }

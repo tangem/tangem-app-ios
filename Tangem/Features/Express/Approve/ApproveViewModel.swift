@@ -105,10 +105,10 @@ final class ApproveViewModel: ObservableObject {
     func approveInfoSubtitle() -> AttributedString {
         var attr = AttributedString(Localization.givePermissionPolicyTypeFooter + " " + Localization.commonLearnMore)
         attr.font = Fonts.Regular.footnote
-        attr.foregroundColor = Colors.Text.tertiary
+        attr.foregroundColor = DesignSystem.Color.textSecondary
 
         if let range = attr.range(of: Localization.commonLearnMore) {
-            attr[range].foregroundColor = Colors.Text.accent
+            attr[range].foregroundColor = DesignSystem.Color.textAccentBlue
             attr[range].link = URL(string: " ")
         }
 

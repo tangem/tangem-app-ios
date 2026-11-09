@@ -248,6 +248,26 @@ struct PromoCampaignContentMapperTests {
         #expect(content.termsLink == nil)
         #expect(content.imageURL == nil)
     }
+
+    @Test(
+        "Payout texts come from the campaign, and missing or blank ones stay absent",
+        arguments: [
+            (
+                #""payoutButtonName": "Choose reward token", "payoutAccountTitle": "Reward account","#,
+                String?.some("Choose reward token"),
+                String?.some("Reward account")
+            ),
+            ("", nil, nil),
+            (#""payoutButtonName": "", "payoutAccountTitle": "","#, nil, nil),
+            (#""payoutButtonName": " ", "payoutAccountTitle": "\n","#, nil, nil),
+        ]
+    )
+    func payoutTexts(payoutFields: String, expectedButtonTitle: String?, expectedAccountTitle: String?) throws {
+        let content = try map(blocks: "[]", payoutFields: payoutFields)
+
+        #expect(content.payoutButtonTitle == expectedButtonTitle)
+        #expect(content.payoutAccountTitle == expectedAccountTitle)
+    }
 }
 
 // MARK: - Helpers
@@ -259,7 +279,12 @@ private extension PromoCampaignContentMapperTests {
     "tncLink": { "text": "Terms and conditions", "url": "https://tangem.com/campaigns/example_campaign/terms" },
     """
 
-    func map(blocks: String, links: String = Self.links, payoutTokenSymbols: [String] = []) throws -> PromoCampaignContent {
+    func map(
+        blocks: String,
+        links: String = Self.links,
+        payoutFields: String = "",
+        payoutTokenSymbols: [String] = []
+    ) throws -> PromoCampaignContent {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
 
@@ -271,6 +296,7 @@ private extension PromoCampaignContentMapperTests {
                   "campaignName": "Summer staking bonus",
                   "publicDescription": \(blocks),
                   \(links)
+                  \(payoutFields)
                   "actionButtonName": "Select cashback token"
                 }
                 """.utf8

@@ -58,7 +58,7 @@ private extension ForYouView {
             leadingContent: NavigationBarButton.back(action: onBackButtonAction).redesigned,
             principalContent: {
                 Text(Localization.forYouTitle)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.body, color: DesignSystem.Color.textPrimary)
             },
             trailingContent: EmptyView.init
         )

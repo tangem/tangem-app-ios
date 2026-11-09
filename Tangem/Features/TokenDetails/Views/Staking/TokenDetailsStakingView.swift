@@ -75,9 +75,9 @@ private extension TokenDetailsStakingView {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                TangemButton(content: .text(AttributedString(item.actionTitle)), action: item.action)
-                    .setStyleType(.accent)
-                    .setSize(.x9)
+                TangemUI.Button(label: item.actionTitle, accessibilityLabel: nil, action: item.action)
+                    .styleType(.brand)
+                    .size(.x9)
             }
             .padding(padding)
             .background(DesignSystem.Color.bgStatusInfoSubtle, in: RoundedRectangle(cornerRadius: cornerRadius))

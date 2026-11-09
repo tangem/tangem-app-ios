@@ -39,10 +39,10 @@ struct VisaOnboardingAccessCodeSetupView: View {
     private var descriptionContent: some View {
         VStack(spacing: 10) {
             Text(viewModel.viewState.title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
 
             Text(viewModel.viewState.description)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
         }
         .multilineTextAlignment(.center)
     }
@@ -51,7 +51,7 @@ struct VisaOnboardingAccessCodeSetupView: View {
         VStack(alignment: .leading, spacing: 8) {
             CustomPasswordTextField(
                 placeholder: Localization.detailsManageSecurityAccessCode,
-                color: Colors.Text.primary1,
+                color: DesignSystem.Color.textPrimary,
                 password: $viewModel.accessCode,
                 onCommit: {}
             )
@@ -61,7 +61,7 @@ struct VisaOnboardingAccessCodeSetupView: View {
             Text(viewModel.errorMessage ?? " ")
                 .multilineTextAlignment(.leading)
                 .lineLimit(2)
-                .style(Fonts.Regular.footnote, color: Colors.Text.warning)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textAccentRed)
                 .id("error_\(viewModel.errorMessage ?? " ")")
                 .hidden(viewModel.errorMessage == nil)
         }

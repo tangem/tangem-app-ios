@@ -625,6 +625,10 @@ private final class CampaignsRepositorySpy: PromoCampaignsProviding {
         Just([]).eraseToAnyPublisher()
     }
 
+    func settledCampaignsPublisher(for userWalletId: UserWalletId) -> AnyPublisher<PromoCampaignsSettlement, Never> {
+        Just(.loaded([])).eraseToAnyPublisher()
+    }
+
     func reloadCampaigns(for userWalletIds: [UserWalletId]) {
         state.withLock { $0.reloadedWalletIds.append(userWalletIds) }
     }

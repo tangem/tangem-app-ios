@@ -11,12 +11,17 @@ import TangemFoundation
 
 final class HoldingDelayProviderSpy: PollDelayProvider {
     var heldWaits: [TimeInterval] { state.withLock { $0.heldWaits } }
+    var parkedCount: Int { state.withLock { $0.parked.count } }
+
+    let parks: AsyncStream<TimeInterval>
 
     private let holdThreshold: TimeInterval
+    private let parksContinuation: AsyncStream<TimeInterval>.Continuation
     private let state = OSAllocatedUnfairLock(initialState: State())
 
     init(holdThreshold: TimeInterval = 3) {
         self.holdThreshold = holdThreshold
+        (parks, parksContinuation) = AsyncStream.makeStream()
     }
 
     func wait(for seconds: TimeInterval) async throws {
@@ -36,6 +41,8 @@ final class HoldingDelayProviderSpy: PollDelayProvider {
 
                 if resumesNow {
                     continuation.resume()
+                } else {
+                    parksContinuation.yield(seconds)
                 }
             }
         } onCancel: {
@@ -46,6 +53,15 @@ final class HoldingDelayProviderSpy: PollDelayProvider {
     func releaseHeldWaits() {
         let parked = state.withLock { state -> [CheckedContinuation<Void, Error>] in
             state.isReleased = true
+            defer { state.parked.removeAll() }
+            return Array(state.parked.values)
+        }
+
+        parked.forEach { $0.resume() }
+    }
+
+    func resumeParkedWaits() {
+        let parked = state.withLock { state -> [CheckedContinuation<Void, Error>] in
             defer { state.parked.removeAll() }
             return Array(state.parked.values)
         }

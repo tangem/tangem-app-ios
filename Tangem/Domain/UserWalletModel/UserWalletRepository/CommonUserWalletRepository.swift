@@ -27,6 +27,8 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private var tangemPayRecentOperationsStore: TangemPayRecentOperationsStore
     @Injected(\.tangemPayPendingWithdrawExchangesStore)
     private var tangemPayPendingWithdrawExchangesStore: TangemPayPendingWithdrawExchangesStore
+    @Injected(\.walletCardsBackupReportService)
+    private var walletCardsBackupReportService: WalletCardsBackupReportService
 
     var shouldLockOnBackground: Bool {
         if isLocked {
@@ -74,6 +76,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let polymarketAccountPresenceStore: PolymarketAccountPresenceStore = AppSettings.shared
     private let tangemPayResidencyStatusStorage: TangemPayResidencyStatusStorage = AppSettings.shared
     private let tangemPayStorageCleaner: TangemPayStorageCleaner = AppSettings.shared
+    private let tangemPayCustomerSummaryCacheStorage: TangemPayCustomerSummaryCacheStorage = AppSettings.shared
     private let mobileWalletSdk = CommonMobileWalletSdk()
     private let eventSubject = PassthroughSubject<UserWalletRepositoryEvent, Never>()
     private let collectiblesSessionKeyWalletStore: any CollectiblesSessionKeyWalletStore = CommonCollectiblesSessionKeyWalletStore()
@@ -138,6 +141,12 @@ final class CommonUserWalletRepository: UserWalletRepository {
             throw UserWalletRepositoryError.duplicateWalletAdded
         }
 
+        if FeatureProvider.isAvailable(.mobileWalletMultiCreation) {
+            guard !isMobileWalletsLimitReached(for: userWalletModel) else {
+                throw UserWalletRepositoryError.mobileWalletLimitReached
+            }
+        }
+
         let shouldShowInsertedEvent = models.isNotEmpty
         models.append(userWalletModel)
         if shouldShowInsertedEvent {
@@ -146,6 +155,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
 
         select(userWalletId: userWalletModel.userWalletId)
         save(userWalletModel: userWalletModel)
+        walletCardsBackupReportService.reportAddedWalletCard(userWalletModel: userWalletModel)
 
         if isLocked {
             unlockInternal()
@@ -224,6 +234,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         tangemPayPendingWithdrawExchangesStore.clear(userWalletId: userWalletId)
         tangemPayStorageCleaner.clear(customerWalletId: userWalletId.stringValue)
         tangemPayResidencyStatusStorage.deleteResidencyStatuses(userWalletId: userWalletId)
+        tangemPayCustomerSummaryCacheStorage.clearCachedCustomerSummary(userWalletId: userWalletId)
         polymarketCredentialsRepository.delete(userWalletId: userWalletId)
         polymarketAccountPresenceStore.delete(userWalletId: userWalletId)
         PolymarketWithdrawRecordStore(userWalletId: userWalletId).delete()

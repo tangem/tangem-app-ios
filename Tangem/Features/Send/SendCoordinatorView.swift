@@ -29,12 +29,12 @@ struct SendCoordinatorView: CoordinatorView {
             NavigationStack {
                 content
             }
-            .tint(Colors.Text.primary1)
+            .tint(DesignSystem.Color.textPrimary)
             .interactiveDismissDisabled(interactiveDismissDisabled)
 
         case .pushed:
             content
-                .tint(Colors.Text.primary1)
+                .tint(DesignSystem.Color.textPrimary)
         }
     }
 
@@ -69,28 +69,51 @@ struct SendCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.onrampCountryDetectionCoordinator) {
                 OnrampCountryDetectionCoordinatorView(coordinator: $0)
                     .interactiveDismissDisabled(true)
-                    .presentationBackground(Colors.Background.tertiary)
+                    .presentationBackground(DesignSystem.Color.bgPrimary)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.qrScanViewCoordinator) {
                 QRScanViewCoordinatorView(coordinator: $0).ignoresSafeArea()
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.onrampCountrySelectorViewModel) {
                 OnrampCountrySelectorView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.onrampCurrencySelectorViewModel) {
                 OnrampCurrencySelectorView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.sendReceiveTokenCoordinator, onDismiss: coordinator.onReceiveTokensListDismissed) {
                 SendReceiveTokenCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.addressBooksCoordinator) { coordinator in
                 NavigationStack {
                     AddressBooksCoordinatorView(coordinator: coordinator)
                 }
+                .softTopScrollEdgeEffect()
             }
             .addressBookContactManagementSheet($coordinator.contactManagementCoordinator)
             .sheet(item: $coordinator.swapTokenSelectorViewModel) {
                 SwapTokenSelectorView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
             }
+            .sheet(item: $coordinator.demandSurveySheet) { sheet in
+                NavigationStack {
+                    demandSurvey(sheet)
+                        .withCloseButton(action: coordinator.closeDemandSurvey)
+                }
+            }
+    }
+
+    @ViewBuilder
+    private func demandSurvey(_ sheet: SendCoordinator.DemandSurveySheet) -> some View {
+        switch sheet {
+        case .form(let viewModel):
+            DemandSurveyView(viewModel: viewModel)
+        case .success:
+            DemandSurveySuccessView(onDone: coordinator.closeDemandSurvey)
+        }
     }
 }

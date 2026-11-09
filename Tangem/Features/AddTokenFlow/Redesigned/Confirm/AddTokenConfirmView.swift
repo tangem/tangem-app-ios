@@ -51,10 +51,10 @@ struct AddTokenConfirmView: View {
             .padding(.bottom, AddTokenRedesignedConstants.tokenIconToTitleSpacing)
 
             Text(viewModel.tokenName)
-                .style(Fonts.Bold.title2, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title2, color: DesignSystem.Color.textPrimary)
 
             Text(viewModel.tokenSubtitle)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, AddTokenRedesignedConstants.tokenHeaderTopPadding)
@@ -129,10 +129,10 @@ struct AddTokenConfirmView: View {
 
                     VStack(alignment: .leading, spacing: AddTokenRedesignedConstants.selectorRowLabelValueSpacing) {
                         Text(label)
-                            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
 
                         Text(value)
-                            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                            .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                     }
 
                     Spacer(minLength: 0)
@@ -145,7 +145,7 @@ struct AddTokenConfirmView: View {
                                 width: AddTokenRedesignedConstants.chevronIconSize,
                                 height: AddTokenRedesignedConstants.chevronIconSize
                             )
-                            .foregroundStyle(Colors.Icon.informative)
+                            .foregroundStyle(DesignSystem.Color.iconSecondary)
                     }
                 }
                 .padding(.vertical, AddTokenRedesignedConstants.selectorRowVerticalPadding)
@@ -160,14 +160,17 @@ struct AddTokenConfirmView: View {
     // MARK: - Confirm Button
 
     private var confirmButton: some View {
-        TangemButton(
-            content: viewModel.confirmButtonContent,
+        TangemUI.Button(
+            label: Localization.commonConfirm,
+            accessibilityLabel: nil,
             action: viewModel.handleConfirmTap
         )
-        .setStyleType(.primary)
-        .setHorizontalLayout(.infinity)
-        .setSize(.x12)
-        .setButtonState(isLoading: viewModel.isSaving, isDisabled: viewModel.isTokenAlreadyAdded)
+        .iconEnd(viewModel.confirmButtonIcon)
+        .styleType(.primary)
+        .horizontalLayout(.infinity)
+        .size(.x12)
+        .loading(.spinner(if: viewModel.isSaving))
+        .disabled(viewModel.isTokenAlreadyAdded)
         .accessibilityIdentifier(TokenAccessibilityIdentifiers.addTokenButton)
     }
 }

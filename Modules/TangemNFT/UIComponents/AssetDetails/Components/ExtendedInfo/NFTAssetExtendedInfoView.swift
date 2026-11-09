@@ -24,13 +24,13 @@ public struct NFTAssetExtendedInfoView: View {
         VStack(spacing: 10) {
             NavigationBar(settings: .init(backgroundColor: .clear)) {
                 Text(viewData.title)
-                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.body, color: DesignSystem.Color.textPrimary)
             } rightButtons: {
                 CloseTextButton(action: dismissAction)
             }
 
             Text(viewData.text)
-                .style(Fonts.Regular.callout, color: Colors.Text.primary1)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textPrimary)
         }
         .padding(.horizontal, 16)
     }

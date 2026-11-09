@@ -10,7 +10,6 @@ import Combine
 import TangemFoundation
 import TangemUIUtils
 import Foundation
-import UIKit
 
 @MainActor
 final class CollectiblesMainViewModel: ObservableObject {
@@ -50,27 +49,15 @@ final class CollectiblesMainViewModel: ObservableObject {
     // MARK: - Init
 
     init(
-        routable: (any CollectiblesMainRoutable)?,
-        accountModel: (any CollectiblesBalanceSource & CollectiblesVaultUsdcAccountProvider)?,
-        catalogueProvider: any CollectiblesLoresProvider & CollectiblesPacksProvider = CollectiblesAPIService()
+        accountViewModel: CollectiblesAccountViewModel,
+        loreTabsViewModel: CollectiblesLoreTabsViewModel,
+        packsViewModel: CollectiblesPacksViewModel,
+        searchResultsViewModel: CollectiblesPacksViewModel
     ) {
-        let openMachine: (CollectiblesPack) -> Void = { [weak routable] pack in
-            routable?.openMachine(for: pack)
-        }
-
-        accountViewModel = CollectiblesAccountViewModel(accountModel: accountModel, routable: routable)
-        loreTabsViewModel = CollectiblesLoreTabsViewModel(provider: catalogueProvider)
-        packsViewModel = CollectiblesPacksViewModel(
-            model: CollectiblesPacksModel(provider: catalogueProvider),
-            packSelectionHandler: openMachine
-        )
-        searchResultsViewModel = CollectiblesPacksViewModel(
-            model: CollectiblesPacksModel(provider: catalogueProvider),
-            packSelectionHandler: { pack in
-                UIApplication.shared.endEditing()
-                openMachine(pack)
-            }
-        )
+        self.accountViewModel = accountViewModel
+        self.loreTabsViewModel = loreTabsViewModel
+        self.packsViewModel = packsViewModel
+        self.searchResultsViewModel = searchResultsViewModel
     }
 
     deinit {

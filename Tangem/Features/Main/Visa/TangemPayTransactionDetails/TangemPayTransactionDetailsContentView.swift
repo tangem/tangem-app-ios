@@ -152,7 +152,7 @@ private extension TangemPayTransactionDetailsContentView {
 
     func rowsView(_ rows: [TangemPayTransactionDetailsDisplayModel.Row]) -> some View {
         VStack(spacing: 0) {
-            ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
+            ForEach(indexed: rows, id: \.0) { index, row in
                 Row(title: row.title, value: row.value)
                     .showDivider(rows.count == 1 || index < rows.count - 1)
                     .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
@@ -233,6 +233,7 @@ private extension TangemPayTransactionDetailsContentView {
                         .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
                 }
                 .showDivider()
+                .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.transactionDetailsCashback)
         case .text(let text):
             Row(title: Localization.tangempayCashbackTitle, value: text, subvalue: row.subvalue)
                 .verticalAlignment(verticalAlignment)

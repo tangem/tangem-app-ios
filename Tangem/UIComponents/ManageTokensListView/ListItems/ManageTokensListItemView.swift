@@ -37,7 +37,7 @@ struct ManageTokensListItemView: View {
     }
 
     private var nameColor: Color {
-        isRedesign ? DesignSystem.Color.textPrimary : Colors.Text.primary1
+        DesignSystem.Color.textPrimary
     }
 
     private var symbolFont: TangemFontStyle {
@@ -45,7 +45,7 @@ struct ManageTokensListItemView: View {
     }
 
     private var symbolColor: Color {
-        isRedesign ? DesignSystem.Color.textSecondary : Colors.Text.tertiary
+        DesignSystem.Color.textSecondary
     }
 
     private var subtitleFont: TangemFontStyle {
@@ -53,11 +53,11 @@ struct ManageTokensListItemView: View {
     }
 
     private var subtitleColor: Color {
-        isRedesign ? DesignSystem.Color.textSecondary : Colors.Text.secondary
+        DesignSystem.Color.textSecondary
     }
 
     private var chevronColor: Color {
-        isRedesign ? DesignSystem.Color.iconSecondary : Colors.Icon.informative
+        DesignSystem.Color.iconSecondary
     }
 
     var body: some View {

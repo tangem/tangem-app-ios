@@ -23,7 +23,7 @@ struct OnrampAmountBadge: View {
                 .resizable()
                 .frame(width: 8, height: 8)
                 .padding(2)
-                .background(Circle().fill(Colors.Icon.accent))
+                .background(Circle().fill(DesignSystem.Color.bgAccentBlue))
 
         case .loss(let percent, let signType):
             Text(percent)
@@ -37,13 +37,13 @@ struct OnrampAmountBadge: View {
 
         case .restricted:
             Text(Localization.commonNotAvailable)
-                .style(Fonts.Bold.caption2, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.caption2, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
                 .padding(.vertical, 1)
                 .padding(.horizontal, 4)
                 .background(
                     RoundedRectangle(cornerRadius: 4, style: .continuous)
-                        .fill(Colors.Text.tertiary.opacity(0.1))
+                        .fill(DesignSystem.Color.bgTransparentPrimary)
                 )
         }
     }

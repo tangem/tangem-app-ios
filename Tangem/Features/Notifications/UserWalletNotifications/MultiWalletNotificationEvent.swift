@@ -78,7 +78,7 @@ extension MultiWalletNotificationEvent: NotificationEvent {
         case .someNetworksUnreachable:
             return .init(iconType: .image(Assets.attention))
         case .someTokenBalancesNotUpdated:
-            return .init(iconType: .image(Assets.failedCloud), color: Colors.Icon.attention)
+            return .init(iconType: .image(Assets.failedCloud), color: DesignSystem.Color.iconAccentYellow)
         }
     }
 

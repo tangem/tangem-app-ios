@@ -21,7 +21,7 @@ struct NetworkSelectorView: View {
                 }
             }
         }
-        .roundedBackground(with: Colors.Background.action, padding: 0)
+        .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 0)
         .scrollBounceBehavior(.basedOnSize)
         .padding(.bottom, 16)
         .padding(.top, 12)

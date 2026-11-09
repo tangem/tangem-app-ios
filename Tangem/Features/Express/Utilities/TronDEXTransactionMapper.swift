@@ -70,17 +70,13 @@ extension TronDEXContractCall {
     /// A cap below the quoted fee reverts with `OUT_OF_ENERGY` and the energy already burnt, while
     /// raising the cap costs nothing — it isn't itself charged. The provider's limit is in turn bounded
     /// by a multiple of our own estimate, so it can't set an arbitrarily high burn ceiling.
-    func adjustedFeeLimit(covering fee: BSDKFee, blockchain: Blockchain) -> Int64 {
-        let estimatedSun = ((fee.amount.value * blockchain.decimalValue).rounded(roundingMode: .up) as NSDecimalNumber).int64Value
-        let ceiling = max(estimatedSun * Self.feeLimitCeilingMultiplier, TronTransactionParams.defaultSmartContractFeeLimit)
-
-        return min(
-            max(feeLimit ?? TronTransactionParams.defaultSmartContractFeeLimit, estimatedSun),
-            ceiling
+    func adjustedFeeLimit(covering fee: BSDKFee, blockchain: Blockchain) throws -> Int64 {
+        try TronFeeLimitCalculator().calculate(
+            providerFeeLimit: feeLimit,
+            covering: fee,
+            blockchain: blockchain
         )
     }
-
-    private static let feeLimitCeilingMultiplier: Int64 = 3
 }
 
 struct TronDEXTransfer {

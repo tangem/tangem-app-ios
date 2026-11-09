@@ -27,11 +27,11 @@ class SendDestinationCompactViewModel: ObservableObject, Identifiable {
 
     func bind(input: SendDestinationInput) {
         inputSubscription = Publishers
-            .CombineLatest3(input.destinationPublisher, input.additionalFieldPublisher, addressBooksChangePublisher)
+            .CombineLatest4(input.destinationPublisher, input.additionalFieldPublisher, input.destinationTokenItemPublisher, addressBooksChangePublisher)
             .withWeakCaptureOf(self)
             .receiveOnMain()
             .sink { viewModel, args in
-                viewModel.updateView(address: args.0, additionalField: args.1)
+                viewModel.updateView(address: args.0, additionalField: args.1, tokenItem: args.2)
             }
     }
 
@@ -43,9 +43,12 @@ class SendDestinationCompactViewModel: ObservableObject, Identifiable {
             .eraseToAnyPublisher()
     }
 
-    private func updateView(address: SendDestination?, additionalField: SendDestinationAdditionalField) {
+    private func updateView(address: SendDestination?, additionalField: SendDestinationAdditionalField, tokenItem: TokenItem) {
         self.address = address?.value.typedAddress ?? ""
-        addressIconType = AddressIconProvider.makeViewType(address: self.address, networkId: nil)
+        addressIconType = AddressIconProvider.makeViewType(
+            address: self.address,
+            networkId: AddressBookNetworkID(tokenItem.blockchain.networkId)
+        )
         resolved = address?.value.showableResolved
 
         switch additionalField {

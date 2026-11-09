@@ -608,8 +608,12 @@ struct TransactionHistoryExpressDataMerger {
         switch exchangeTransaction.status {
         case .created:
             return exchangeTransaction.payIn.hash != nil
-        case .unknown,
-             .preview,
+        case .txFailed,
+             .refunded,
+             .unknown,
+             .paused:
+            return expressLeg(of: exchangeTransaction) != .payOut
+        case .preview,
              .exchangeTxSent,
              .waiting,
              .waitingTxHash,
@@ -619,10 +623,7 @@ struct TransactionHistoryExpressDataMerger {
              .sending,
              .finished,
              .failed,
-             .txFailed,
-             .refunded,
-             .verifying,
-             .paused:
+             .verifying:
             return true
         }
     }

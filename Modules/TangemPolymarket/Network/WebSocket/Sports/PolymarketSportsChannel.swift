@@ -20,7 +20,11 @@ struct PolymarketSportsChannel: PolymarketWebSocketChannel {
         .protocolPing(interval: Constants.pingInterval, timeout: Constants.pingTimeout)
     }
 
-    var subscribing: (any PolymarketWebSocketSubscribing<Int>)? {
+    var subscribing: (any PolymarketWebSocketSubscribing<String>)? {
+        nil
+    }
+
+    var silenceTimeout: Duration? {
         nil
     }
 
@@ -31,14 +35,14 @@ struct PolymarketSportsChannel: PolymarketWebSocketChannel {
 
         let game = try decoder.decode(PolymarketDTO.SportsChannelGame.self, from: Data(text.utf8))
 
+        guard let gameId = game.gameId else {
+            return []
+        }
+
         return [
             PolymarketLiveGame(
-                gameId: game.gameId,
-                leagueAbbreviation: game.leagueAbbreviation,
-                homeTeam: game.homeTeam,
-                awayTeam: game.awayTeam,
-                status: game.status,
-                score: game.score,
+                gameId: String(gameId),
+                score: PolymarketGameScore(parsing: game.score, period: game.period),
                 period: game.period,
                 isLive: game.live,
                 hasEnded: game.ended
@@ -46,7 +50,11 @@ struct PolymarketSportsChannel: PolymarketWebSocketChannel {
         ]
     }
 
-    func topic(of update: PolymarketLiveGame) -> Int {
+    func isKeepaliveReply(_ message: WebSocketMessage) -> Bool {
+        false
+    }
+
+    func topic(of update: PolymarketLiveGame) -> String {
         update.gameId
     }
 

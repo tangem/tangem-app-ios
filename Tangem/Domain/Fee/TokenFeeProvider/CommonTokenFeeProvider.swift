@@ -222,52 +222,24 @@ extension CommonTokenFeeProvider: TokenFeeProvider {
     }
 
     private func loadFees(input: TokenFeeProviderInputData) async throws -> [BSDKFee] {
-        switch input {
-        case .common(let amount, let destination):
-            return try await updateFees(amount: amount, destination: destination)
+        let fees = try await tokenFeeLoader.loadFees(input, feeBlockchain: feeTokenItem.blockchain)
+        try Task.checkCancellation()
 
-        case .cex(let amount):
-            return try await updateFees(amount: amount)
-
-        case .dex(.ethereumEstimate(let estimatedGasLimit, let otherNativeFee)):
-            return try await updateFees(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee)
-
-        case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee)):
-            return try await updateFees(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee)
-
-        case .approveWithSwap(let amount, let destination, let txData, let otherNativeFee, let approveInput):
-            return try await updateApproveWithSwapFees(
-                amount: amount,
-                destination: destination,
-                txData: txData,
-                otherNativeFee: otherNativeFee,
-                approveInput: approveInput
-            )
-
-        case .dex(.solana(let data)):
-            return try await updateFees(compiledTransaction: data)
-
-        case .dex(.bitcoinPsbt(let psbtBase64)):
-            return try await updateFees(psbtBase64: psbtBase64)
-
-        case .dex(.tron(let request)):
-            return try await updateFees(request: request)
-
-        case .approve(let txData, let toContractAddress, let feeMultiplier):
-            let allFees = try await updateApproveFees(txData: txData, toContractAddress: toContractAddress)
-
-            // Approve flow never shows a speed selector — only market fee is needed.
-            // [safe: 1] = market for EIP-1559 (3 fees), fallback to [safe: 0] for single-fee (gasless).
-            guard let marketFee = allFees[safe: 1] ?? allFees[safe: 0] else {
-                throw TokenFeeProviderError.feeNotFound
-            }
-
-            guard feeMultiplier != .single else { return [marketFee] }
-
-            var scaledAmount = marketFee.amount
-            scaledAmount.value *= feeMultiplier.rawValue
-            return [BSDKFee(scaledAmount, parameters: marketFee.parameters)]
+        guard case .approve(_, _, _, _, let feeMultiplier) = input else {
+            return fees
         }
+
+        // Approve flow never shows a speed selector — only market fee is needed.
+        // [safe: 1] = market for EIP-1559 (3 fees), fallback to [safe: 0] for single-fee (gasless).
+        guard let marketFee = fees[safe: 1] ?? fees[safe: 0] else {
+            throw TokenFeeProviderError.feeNotFound
+        }
+
+        guard feeMultiplier != .single else { return [marketFee] }
+
+        var scaledAmount = marketFee.amount
+        scaledAmount.value *= feeMultiplier.rawValue
+        return [BSDKFee(scaledAmount, parameters: marketFee.parameters)]
     }
 }
 
@@ -312,40 +284,14 @@ private extension CommonTokenFeeProvider {
         switch input {
         case .none:
             updateState(state: .unavailable(.inputDataNotSet))
-        case .common, .cex:
-            // Always available. Do nothing
-            break
-        case .dex(.ethereumEstimate) where tokenFeeLoader is EthereumTokenFeeLoader,
-             .dex(.ethereum) where tokenFeeLoader is EthereumTokenFeeLoader:
-            // Is available. Do nothing
-            break
-        case .dex(.solana) where tokenFeeLoader is SolanaTokenFeeLoader:
-            // Is available. Do nothing
-            break
-        case .dex(.bitcoinPsbt) where tokenFeeLoader is BitcoinTokenFeeLoader:
-            // Is available. Do nothing
-            break
-        case .dex(.tron) where tokenFeeLoader is TronTokenFeeLoader:
-            // Is available. Do nothing
-            break
-        case .dex:
-            // DEX but tokenFeeLoader isn't one of the loaders supported above
+        case .approve(_, _, _, _, let feeMultiplier)
+            where tokenFeeLoader.tripleApproveFeeRequiresFeature
+            && feeMultiplier == .triple
+            && !FeatureProvider.isAvailable(.usdtRevokeGaslessFee):
             updateState(state: .unavailable(.notSupported))
-        case .approve(_, _, let feeMultiplier) where tokenFeeLoader is CommonGaslessTokenFeeLoader && feeMultiplier == .triple && !FeatureProvider.isAvailable(.usdtRevokeGaslessFee):
-            updateState(state: .unavailable(.notSupported))
-        case .approve where tokenFeeLoader is EthereumTokenFeeLoader:
-            // ERC-20 approve — available for Ethereum loaders (includes gasless)
+        case let input? where tokenFeeLoader.supports(input):
             break
-        case .approve where tokenFeeLoader is TronTokenFeeLoader:
-            // Is available. Do nothing
-            break
-        case .approve:
-            // Approve but tokenFeeLoader isn't one of the loaders supported above
-            updateState(state: .unavailable(.notSupported))
-        case .approveWithSwap where tokenFeeLoader is EthereumTokenFeeLoader:
-            // One-tap approve+swap is EVM-only (allowance + state override)
-            break
-        case .approveWithSwap:
+        default:
             updateState(state: .unavailable(.notSupported))
         }
     }
@@ -358,7 +304,7 @@ private extension CommonTokenFeeProvider {
     /// The withdrawal restores the balance verdict rather than a plain `.idle`: for an unchanged
     /// zero balance the balance publisher never re-emits, so nothing else would bring it back
     func updateBridgeFeeSupportingState(input: TokenFeeProviderInputData?) {
-        guard tokenFeeLoader is CommonGaslessTokenFeeLoader else {
+        guard tokenFeeLoader.rejectsBridgeCoinFee else {
             return
         }
 
@@ -384,7 +330,7 @@ private extension CommonTokenFeeProvider {
              .dex(.ethereumEstimate(_, let otherNativeFee)),
              .approveWithSwap(_, _, _, let otherNativeFee, _):
             otherNativeFee ?? 0
-        case .dex(.tron(let request)):
+        case .dex(.tron(let request, _, _)):
             request.otherNativeFee ?? 0
         default:
             0
@@ -467,100 +413,6 @@ private extension CommonTokenFeeProvider {
         }()
 
         return TokenFee(option: selectedFeeOption, tokenItem: feeTokenItem, value: loadableTokenFeeState)
-    }
-}
-
-// MARK: - Updating
-
-private extension CommonTokenFeeProvider {
-    // MARK: - Common
-
-    func updateFees(amount: Decimal, destination: String) async throws -> [BSDKFee] {
-        let fees = try await tokenFeeLoader.getFee(amount: amount, destination: destination)
-        try Task.checkCancellation()
-        return fees
-    }
-
-    func updateFees(amount: Decimal) async throws -> [BSDKFee] {
-        let fees = try await tokenFeeLoader.estimatedFee(amount: amount)
-        try Task.checkCancellation()
-        return fees
-    }
-
-    // MARK: - Ethereum
-
-    private func updateFees(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
-        let fee = try await tokenFeeLoader.asEthereumTokenFeeLoader().estimatedFee(
-            estimatedGasLimit: estimatedGasLimit,
-            otherNativeFee: otherNativeFee
-        )
-        try Task.checkCancellation()
-        return [fee]
-    }
-
-    private func updateFees(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?) async throws -> [BSDKFee] {
-        let fees = try await tokenFeeLoader.asEthereumTokenFeeLoader().getFee(
-            request: EthereumFeeRequestData(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee)
-        )
-        try Task.checkCancellation()
-        return fees
-    }
-
-    private func updateApproveWithSwapFees(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?, approveInput: ApproveWithSwapInput) async throws -> [BSDKFee] {
-        let fees = try await tokenFeeLoader.asEthereumTokenFeeLoader().getApproveWithSwapFee(
-            request: EthereumFeeRequestData(amount: amount, destination: destination, txData: txData, otherNativeFee: otherNativeFee),
-            approveInput: approveInput
-        )
-        try Task.checkCancellation()
-        return fees
-    }
-
-    // MARK: - Solana
-
-    func updateFees(compiledTransaction data: Data) async throws -> [BSDKFee] {
-        let fees = try await tokenFeeLoader.asSolanaTokenFeeLoader().getFee(compiledTransaction: data)
-        try Task.checkCancellation()
-        return fees
-    }
-
-    // MARK: - Bitcoin
-
-    func updateFees(psbtBase64: String) async throws -> [BSDKFee] {
-        let fees = try await tokenFeeLoader.asBitcoinTokenFeeLoader().getFee(psbtBase64: psbtBase64)
-        try Task.checkCancellation()
-        return fees
-    }
-
-    // MARK: - Tron
-
-    func updateFees(request: TronFeeRequestData) async throws -> [BSDKFee] {
-        let fees = try await tokenFeeLoader.asTronTokenFeeLoader().getFee(request: request)
-        try Task.checkCancellation()
-        return fees
-    }
-
-    // MARK: - Approve
-
-    /// Pricing an approve is chain-specific: `eth_estimateGas` on EVM, a `triggerconstantcontract` simulation on Tron.
-    func updateApproveFees(txData: Data, toContractAddress: String) async throws -> [BSDKFee] {
-        let zeroAmount = BSDKAmount(with: feeTokenItem.blockchain, type: .coin, value: 0)
-
-        switch tokenFeeLoader {
-        case is EthereumTokenFeeLoader:
-            return try await updateFees(amount: zeroAmount, destination: toContractAddress, txData: txData, otherNativeFee: nil)
-
-        case is TronTokenFeeLoader:
-            return try await updateFees(request: TronFeeRequestData(
-                amount: zeroAmount,
-                destination: toContractAddress,
-                callData: txData,
-                memo: nil,
-                otherNativeFee: nil
-            ))
-
-        default:
-            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
-        }
     }
 }
 

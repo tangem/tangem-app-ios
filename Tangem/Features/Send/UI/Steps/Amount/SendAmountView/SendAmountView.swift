@@ -94,12 +94,12 @@ struct SendAmountView: View {
                     Assets.Glyphs.convertMiniNew.image
                         .resizable()
                         .frame(width: 14, height: 14)
-                        .foregroundStyle(Colors.Text.tertiary)
+                        .foregroundStyle(DesignSystem.Color.iconSecondary)
                         .padding(.all, 3)
-                        .background(Circle().fill(Colors.Icon.secondary.opacity(0.1)))
+                        .background(Circle().fill(DesignSystem.Color.bgTransparentPrimary))
 
                     Text(Localization.sendAmountConvertToAnotherToken)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textSecondary)
                 }
                 .padding(.vertical, 13)
                 .infinityFrame()
@@ -111,7 +111,7 @@ struct SendAmountView: View {
                 SendAmountTokenView(data: $0)
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.receiveTokenBlock)
             }
-            .backgroundColor(Colors.Background.action)
+            .backgroundColor(DesignSystem.Color.bgSecondary)
             .innerContentPadding(0)
 
         case .selectedEditableAmount(let expandedDestinationData, _):
@@ -132,7 +132,7 @@ struct SendAmountView: View {
     private var destinationHeaderWithInput: some View {
         VStack(alignment: .center, spacing: 12) {
             Text(Localization.sendWithSwapRecipientAmountTitle)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                 .frame(minHeight: Constants.headerMinHeight)
 
             if let destinationField = viewModel.destinationAmountField {

@@ -10,6 +10,7 @@ import UIKit
 import Foundation
 import Combine
 import TangemFoundation
+import TangemUIUtils
 
 final class NotificationSettingsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>

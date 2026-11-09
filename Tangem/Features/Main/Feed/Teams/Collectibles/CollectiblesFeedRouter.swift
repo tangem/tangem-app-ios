@@ -69,7 +69,7 @@ private extension CollectiblesFeedRouter {
                 host?.openCollectibles(with: options)
 
             case .regionRestricted:
-                widgetSheetPresenter.enqueue(CollectiblesInfoSheetViewModel(model: .regionRestrictions))
+                widgetSheetPresenter.presentStatus(.collectiblesRegionRestricted)
             }
         }
     }

@@ -41,7 +41,7 @@ actor PolymarketUnauthorizedEvents {
 // MARK: - PolymarketUnauthorizedObserving protocol conformance
 
 extension PolymarketUnauthorizedEvents: PolymarketUnauthorizedObserving {
-    nonisolated func backendRejectedAuthorization(walletId: String) {
+    nonisolated func exchangeRejectedCredentials(walletId: String) {
         Task { await publish(walletId: walletId) }
     }
 }

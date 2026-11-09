@@ -115,7 +115,7 @@ struct SendSummaryView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .infinityFrame(axis: .horizontal)
-                .background(Colors.Background.tertiary)
+                .background(DesignSystem.Color.bgPrimary)
                 .visible(viewModel.transactionDescriptionIsVisible)
         }
     }

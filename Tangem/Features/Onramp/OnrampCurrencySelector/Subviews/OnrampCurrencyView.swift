@@ -31,11 +31,11 @@ struct OnrampCurrencyView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(data.code)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                 Text(data.name)
                     .lineLimit(1)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
             }
             .padding(.trailing, 6)
 
@@ -45,7 +45,7 @@ struct OnrampCurrencyView: View {
                 Assets.checkmark20.image
                     .resizable()
                     .frame(size: .init(bothDimensions: 24))
-                    .foregroundColor(Colors.Icon.accent)
+                    .foregroundColor(DesignSystem.Color.iconAccentBlue)
             }
         }
         .padding(.vertical, 14)

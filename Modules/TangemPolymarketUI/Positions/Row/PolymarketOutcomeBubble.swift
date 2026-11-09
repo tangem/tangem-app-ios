@@ -46,7 +46,7 @@ public struct PolymarketOutcomeBubble: View {
 
     private var backgroundColor: Color {
         switch (palette, style) {
-        case (.outcome, _): style.backgroundColor
+        case (.outcome, _), (.bet, .neutral): style.backgroundColor
         case (.bet, .affirmative): DesignSystem.Color.bgStatusSuccessSubtle
         case (.bet, .negative): DesignSystem.Color.bgStatusErrorSubtle
         }
@@ -54,7 +54,7 @@ public struct PolymarketOutcomeBubble: View {
 
     private var foregroundColor: Color {
         switch (palette, style) {
-        case (.outcome, _): style.foregroundColor
+        case (.outcome, _), (.bet, .neutral): style.foregroundColor
         case (.bet, .affirmative): DesignSystem.Color.textStatusSuccess
         case (.bet, .negative): DesignSystem.Color.textStatusError
         }

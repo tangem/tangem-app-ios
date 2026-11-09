@@ -25,18 +25,14 @@ enum JointAccountCompositionFixture {
         return String(identifier.map { $0.isUppercase ? Character($0.lowercased()) : Character($0.uppercased()) })
     }
 
-    /// - Parameter inviteIds: Nil on a wallet that was handed no invites at all, which is anyone's but the creator's;
-    /// empty on the creator's own wallet for an account created with every slot taken.
     static func makeMembersService(
         status: JointAccountStatus = .pending,
         membersCount: Int,
         members: [JointAccountMember],
-        inviteIds: [String]?,
         keysProvider: KeysProvider = KeysRepositoryTestsMock(keys: [])
     ) -> CommonJointAccountMembersService {
         let repository = JointAccountsRepositoryStub(
-            jointAccounts: [storedAccount(status: status, membersCount: membersCount, members: members)],
-            invites: invitesRecords(inviteIds: inviteIds)
+            jointAccounts: [storedAccount(status: status, membersCount: membersCount, members: members)]
         )
 
         return makeMembersService(repository: repository, keysProvider: keysProvider)
@@ -72,7 +68,8 @@ enum JointAccountCompositionFixture {
                     name: member.name,
                     address: member.address,
                     role: member.role == .creator ? .creator : .member,
-                    inviteId: member.role.inviteId
+                    slot: nil,
+                    signature: nil
                 )
             }
         )
@@ -82,7 +79,13 @@ enum JointAccountCompositionFixture {
         StoredJointAccountPendingOperations(cryptoAccountId: caseFlippedCryptoAccountId, operations: operations)
     }
 
-    static func coinTransfer(id: String = "coin", status: JointAccountOperationStatus = .awaitingSignatures) -> JointAccountOperation {
+    static func coinTransfer(
+        id: String = "coin",
+        status: JointAccountOperationStatus = .awaitingSignatures,
+        finishedAt: Date? = nil,
+        initiator: String = "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
+        signatures: [JointAccountOperation.Signature] = []
+    ) -> JointAccountOperation {
         JointAccountOperation(
             id: id,
             chainId: 1,
@@ -100,21 +103,10 @@ enum JointAccountCompositionFixture {
             ),
             status: status,
             txHash: nil,
-            initiator: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
-            signatures: []
+            finishedAt: finishedAt,
+            cancelReason: nil,
+            initiator: initiator,
+            signatures: signatures
         )
-    }
-
-    private static func invitesRecords(inviteIds: [String]?) -> [StoredJointAccountInvites] {
-        guard let inviteIds else {
-            return []
-        }
-
-        return [
-            StoredJointAccountInvites(
-                cryptoAccountId: caseFlippedCryptoAccountId,
-                invites: inviteIds.map(StoredJointAccountInvite.init(id:))
-            ),
-        ]
     }
 }

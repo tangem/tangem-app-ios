@@ -22,7 +22,7 @@ final class CommonJointAccountsRepository {
     private let derivationInteractorFactory: JointAccountDerivationInteractorFactory
     private let persistentStorage: JointAccountsPersistentStorage
     private let invitesPersistentStorage: JointAccountsInvitesPersistentStorage
-    private let pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage
+    private let pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer
     private let eTagStorage: ETagStorage
     private let isJointAccountsAvailable: Bool
 
@@ -69,25 +69,13 @@ final class CommonJointAccountsRepository {
         .share(replay: 1)
         .eraseToAnyPublisher()
 
-    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
-    private lazy var pendingOperationsStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> = pendingOperationsPersistentStorage
-        .didUpdatePublisher
-        .prepend(()) // An initial value to trigger loading from storage
-        .receive(on: storageReadingQueue)
-        .withWeakCaptureOf(self)
-        .map { repository, _ in repository.pendingOperationsPersistentStorage.getList() }
-        .removeDuplicates()
-        .receiveOnMain()
-        .share(replay: 1)
-        .eraseToAnyPublisher()
-
     init(
         userWalletId: UserWalletId,
         networkService: JointAccountsNetworkService,
         derivationInteractorFactory: JointAccountDerivationInteractorFactory,
         persistentStorage: JointAccountsPersistentStorage,
         invitesPersistentStorage: JointAccountsInvitesPersistentStorage,
-        pendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage,
+        pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer,
         eTagStorage: ETagStorage,
         isJointAccountsAvailable: Bool
     ) {
@@ -96,7 +84,7 @@ final class CommonJointAccountsRepository {
         self.derivationInteractorFactory = derivationInteractorFactory
         self.persistentStorage = persistentStorage
         self.invitesPersistentStorage = invitesPersistentStorage
-        self.pendingOperationsPersistentStorage = pendingOperationsPersistentStorage
+        self.pendingOperationsSynchronizer = pendingOperationsSynchronizer
         self.eTagStorage = eTagStorage
         self.isJointAccountsAvailable = isJointAccountsAvailable
 
@@ -104,7 +92,6 @@ final class CommonJointAccountsRepository {
         _ = loadJointAccountsDebouncer
         _ = storageDidUpdatePublisher
         _ = invitesStorageDidUpdatePublisher
-        _ = pendingOperationsStorageDidUpdatePublisher
 
         _ = autoupdater
     }
@@ -127,14 +114,6 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
 
     var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> {
         invitesStorageDidUpdatePublisher
-    }
-
-    var jointAccountsPendingOperations: [StoredJointAccountPendingOperations] {
-        pendingOperationsPersistentStorage.getList()
-    }
-
-    var jointAccountsPendingOperationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
-        pendingOperationsStorageDidUpdatePublisher
     }
 
     func initialize() {
@@ -181,12 +160,9 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
 
         let blob = JointAccountCreationBlob(payload: result.payload, signature: result.signature)
 
-        let creationResult = try await networkService.createJointAccount(blob: blob)
+        let account = try await networkService.createJointAccount(blob: blob)
 
-        // The invites go first: they are handed out once and never read back, whereas the account itself is reported
-        // by every list read, so a failure here costs a record that comes back on its own rather than one that cannot
-        try invitesPersistentStorage.save(creationResult.invites, forCryptoAccountId: creationResult.account.cryptoAccountId)
-        try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: creationResult.account))
+        try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
     }
 
     func joinJointAccount(withConfig config: JointAccountJoinConfig) async throws {
@@ -245,39 +221,6 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
 
         try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
     }
-
-    func createOperation(_ request: JointAccountOperationRequest, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation {
-        guard isJointAccountsAvailable else {
-            throw InternalError.featureUnavailable
-        }
-
-        let operation = try await networkService.createOperation(request)
-        try pendingOperationsPersistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
-
-        return operation
-    }
-
-    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data, forCryptoAccountId cryptoAccountId: String) async throws {
-        guard isJointAccountsAvailable else {
-            throw InternalError.featureUnavailable
-        }
-
-        let operation = try await networkService.signOperation(id: id, safeTransaction: safeTransaction, signature: signature)
-        try pendingOperationsPersistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
-    }
-
-    func rejectOperation(id: String, forCryptoAccountId cryptoAccountId: String) async throws {
-        guard isJointAccountsAvailable else {
-            throw InternalError.featureUnavailable
-        }
-
-        guard let operation = try await networkService.rejectOperation(id: id) else {
-            try pendingOperationsPersistentStorage.remove(operationWithId: id, forCryptoAccountId: cryptoAccountId)
-            return
-        }
-
-        try pendingOperationsPersistentStorage.appendNewOrUpdateExisting(operation, forCryptoAccountId: cryptoAccountId)
-    }
 }
 
 // MARK: - Private
@@ -315,6 +258,7 @@ private extension CommonJointAccountsRepository {
         let eTagKey = ETagStorageKey.jointAccounts(walletId: userWalletId)
         let hasStoredAccounts = persistentStorage.getList().isNotEmpty
         let knownETag = hasStoredAccounts ? eTagStorage.loadETag(for: eTagKey) : nil
+        let pendingOperationsCheckpoint = await pendingOperationsSynchronizer.checkpoint
 
         let remoteState = try await networkService.getJointAccounts(knownETag: knownETag)
         try Task.checkCancellation()
@@ -329,17 +273,18 @@ private extension CommonJointAccountsRepository {
         JointAccountsLogger.info("Loaded \(remoteJointAccounts.count) joint accounts from API.")
         JointAccountsLogger.debug("Accounts: \(remoteJointAccounts)")
 
-        // The invites are not the endpoint's to report, so a read leaves them where they are and says nothing of them
         let accounts = remoteJointAccounts.map(StoredJointAccount.init(remote:))
         let pendingOperations = remoteJointAccounts.compactMap(StoredJointAccountPendingOperations.init(remote:))
 
         eTagStorage.clearETag(for: eTagKey)
 
         // The operations go first, so that an account arriving in the list finds what is in flight for it already there
-        try pendingOperationsPersistentStorage.replace(with: pendingOperations)
+        try await pendingOperationsSynchronizer.apply(listing: pendingOperations, requestedAt: pendingOperationsCheckpoint)
         try persistentStorage.replace(with: accounts)
 
-        if let eTag {
+        let hasLocalWritesSinceRequest = await pendingOperationsSynchronizer.checkpoint != pendingOperationsCheckpoint
+
+        if let eTag, !hasLocalWritesSinceRequest {
             eTagStorage.saveETag(eTag, for: eTagKey)
         }
     }
@@ -363,7 +308,8 @@ extension CommonJointAccountsRepository {
 private extension CommonJointAccountsRepository {
     enum Constants {
         static let debounceInterval = 0.3
-        /// The listing is the only place an operation's progress shows up, so it is re-read this often while one is in flight.
+        /// The listing is the only place an account waiting for its members or its activation moves on, so it is re-read
+        /// this often until every account has settled.
         static let regularPollingInterval: Duration = .seconds(60)
         static let frequentPollingInterval: Duration = .seconds(2)
     }
@@ -376,6 +322,7 @@ extension CommonJointAccountsRepository {
         private let frequentPollingProcessor = RepeatedTaskProcessor(duration: Constants.frequentPollingInterval)
         private let frequentUpdatesRequestsCount = OSAllocatedUnfairLock(initialState: 0)
         private let frequentUpdatesRequestsCountSubject = CurrentValueSubject<Int, Never>(0)
+        private let pollingModeResolver = PollingModeResolver()
 
         private var pollingModeSubscription: Task<Void, Never>?
         private var foregroundSubscription: AnyCancellable?
@@ -400,25 +347,6 @@ extension CommonJointAccountsRepository {
             }
         }
 
-        static func pollingMode(
-            pendingOperations: [StoredJointAccountPendingOperations],
-            accounts: [StoredJointAccount],
-            frequentUpdatesRequestsCount: Int
-        ) -> PollingMode {
-            if frequentUpdatesRequestsCount > 0 {
-                return .frequent
-            }
-
-            let hasPendingAccounts = accounts.contains { account in
-                switch account.status {
-                case .pending, .confirming: true
-                case .active, .cancelled, .unknown: false
-                }
-            }
-
-            return hasPendingAccounts || !pendingOperations.isEmpty ? .regular : .idle
-        }
-
         private func changeFrequentUpdatesRequestsCount(by delta: Int) {
             frequentUpdatesRequestsCount.withLockUnchecked { count in
                 count += delta
@@ -429,12 +357,8 @@ extension CommonJointAccountsRepository {
         /// One task reads the publisher in order, so a stop cannot overtake the start it follows.
         private func bind(innerRepository: CommonJointAccountsRepository) {
             let publisher = Publishers
-                .CombineLatest3(
-                    innerRepository.jointAccountsPendingOperationsPublisher,
-                    innerRepository.jointAccountsPublisher,
-                    frequentUpdatesRequestsCountSubject
-                )
-                .map(Self.pollingMode(pendingOperations:accounts:frequentUpdatesRequestsCount:))
+                .CombineLatest(innerRepository.jointAccountsPublisher, frequentUpdatesRequestsCountSubject)
+                .map(pollingModeResolver.pollingMode(accounts:frequentUpdatesRequestsCount:))
                 .removeDuplicates()
 
             pollingModeSubscription = Task { [weak self] in
@@ -480,5 +404,22 @@ extension CommonJointAccountsRepository.JointAccountsRepositoryAutoupdater {
         case idle
         case regular
         case frequent
+    }
+
+    struct PollingModeResolver {
+        func pollingMode(accounts: [StoredJointAccount], frequentUpdatesRequestsCount: Int) -> PollingMode {
+            if frequentUpdatesRequestsCount > 0 {
+                return .frequent
+            }
+
+            let hasPendingAccounts = accounts.contains { account in
+                switch account.status {
+                case .pending, .confirming: true
+                case .active, .cancelled, .unknown: false
+                }
+            }
+
+            return hasPendingAccounts ? .regular : .idle
+        }
     }
 }

@@ -26,43 +26,43 @@ struct RewardView: View {
         switch data.state {
         case .noRewards where data.networkType == .cardano:
             Text(Localization.stakingCardanoDetailsRewardsInfoText)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
         case .noRewards:
             Text(Localization.stakingDetailsNoRewardsToClaim)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .accessibilityIdentifier(StakingAccessibilityIdentifiers.noRewardsToClaim)
 
         case .automaticRewards where data.networkType == .solana:
             Text(Localization.stakingSolanaDetailsAutoClaimingRewardsDailyText)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
         case .automaticRewards:
             Text(Localization.stakingDetailsAutoClaimingRewardsDailyText)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
         case .compoundedRewardsEarned(let cryptoFormatted):
             SensitiveText(builder: Localization.stakingDetailsAutocompoundRewardsEarned, sensitive: cryptoFormatted)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
         case .rewards(let claimable, let fiatFormatted, let cryptoFormatted, let action):
             SwiftUI.Button(action: action) {
                 HStack(spacing: 4) {
                     SensitiveText(fiatFormatted)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
 
                     Text(AppConstants.dotSign)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
 
                     SensitiveText(cryptoFormatted)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
 
                     Spacer(minLength: 12)
 
                     if claimable {
                         Assets.chevron.image
                             .renderingMode(.template)
-                            .foregroundColor(Colors.Icon.informative)
+                            .foregroundColor(DesignSystem.Color.iconSecondary)
                     }
                 }
             }
@@ -73,7 +73,7 @@ struct RewardView: View {
 
 #Preview("RewardView") {
     ZStack {
-        Colors.Background.secondary.ignoresSafeArea()
+        DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
         GroupedSection(
             [

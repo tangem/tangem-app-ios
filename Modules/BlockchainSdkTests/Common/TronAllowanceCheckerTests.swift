@@ -8,6 +8,8 @@
 import Foundation
 import Combine
 import Testing
+import BigInt
+import TangemFoundation
 @testable import BlockchainSdk
 
 struct TronAllowanceCheckerTests {
@@ -74,6 +76,7 @@ struct TronAllowanceCheckerTests {
 
         #expect(data.spender == anySpender)
         #expect(data.toContractAddress == token.contractAddress)
+        #expect(data.amountRaw == 100_000_000)
     }
 
     /// `.unlimited` must encode the maximum uint256 — the requested amount must not leak into the calldata.
@@ -86,6 +89,7 @@ struct TronAllowanceCheckerTests {
         #expect(data.txData.count == 68)
         #expect(data.txData.prefix(4) == approveSelector)
         #expect(data.txData[36 ..< 68] == Data(repeating: 0xFF, count: 32))
+        #expect(data.amountRaw == BigUInt.maxUInt256)
     }
 
     @Test("coin amount type is rejected")

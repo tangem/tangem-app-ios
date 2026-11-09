@@ -13,12 +13,14 @@ import TangemUI
 import TangemAccessibilityIdentifiers
 
 struct OnrampOfferView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let viewModel: OnrampOfferViewModel
 
     var body: some View {
         VStack(spacing: 0) {
             cardContent
-                .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
+                .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 12, horizontalPadding: 14)
                 .environment(\.colorScheme, resolvedColorScheme)
                 .zIndex(1)
 
@@ -33,30 +35,24 @@ struct OnrampOfferView: View {
             topView
 
             if viewModel.legalNotice == nil {
-                Separator(height: .minimal, color: Colors.Stroke.primary)
+                Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
             }
 
             bottomView
 
             if let legalNotice = viewModel.legalNotice {
-                Separator(height: .minimal, color: Colors.Stroke.primary)
+                Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
                 legalNoticeView(legalNotice)
             }
         }
     }
 
     private var resolvedColorScheme: ColorScheme {
-        let current = Self.appColorScheme
-        guard viewModel.isNativePayment else { return current }
-        return current == .light ? .dark : .light
-    }
-
-    private static var appColorScheme: ColorScheme {
-        switch AppSettings.shared.appTheme {
-        case .light: return .light
-        case .dark: return .dark
-        case .system: return UITraitCollection.current.userInterfaceStyle == .dark ? .dark : .light
+        guard viewModel.isNativePayment else {
+            return colorScheme
         }
+
+        return colorScheme == .light ? .dark : .light
     }
 
     private var topView: some View {
@@ -78,30 +74,30 @@ struct OnrampOfferView: View {
         switch viewModel.title {
         case .text(let text):
             Text(text)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
 
         case .great:
             Text(Localization.expressProviderGreatRate)
-                .style(Fonts.Bold.caption1, color: Colors.Text.accent)
+                .style(Fonts.Bold.caption1, color: DesignSystem.Color.textAccentBlue)
 
         case .bestRate:
             HStack(alignment: .center, spacing: 4) {
                 Assets.Express.bestRateStarIcon16.image
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.accent)
+                    .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
                 Text(Localization.expressProviderBestRate)
-                    .style(Fonts.Bold.caption1, color: Colors.Text.accent)
+                    .style(Fonts.Bold.caption1, color: DesignSystem.Color.textAccentBlue)
             }
 
         case .fastest:
             HStack(alignment: .center, spacing: 4) {
                 Assets.Express.fastestIcon16.image
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.attention)
+                    .foregroundStyle(DesignSystem.Color.iconAccentYellow)
 
                 Text(Localization.onrampOfferTypeFastet)
-                    .style(Fonts.Bold.caption1, color: Colors.Text.attention)
+                    .style(Fonts.Bold.caption1, color: DesignSystem.Color.textAccentYellow)
             }
         }
     }
@@ -111,7 +107,7 @@ struct OnrampOfferView: View {
             Text(viewModel.amount.formatted)
                 .style(
                     Fonts.Bold.callout,
-                    color: viewModel.isAvailable ? Colors.Text.primary1 : Colors.Text.tertiary
+                    color: viewModel.isAvailable ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
                 )
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.provider.name))
 
@@ -122,7 +118,7 @@ struct OnrampOfferView: View {
                 SwiftUI.Button(action: infoAction) {
                     Assets.infoCircle16.image
                         .renderingMode(.template)
-                        .foregroundStyle(Colors.Icon.informative)
+                        .foregroundStyle(DesignSystem.Color.iconSecondary)
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerInfoButton(name: viewModel.provider.name))
@@ -146,7 +142,7 @@ struct OnrampOfferView: View {
             Localization.onrampNativePaymentLegalNotice(notice.providerName, tos, privacy)
         )
         attributed.font = Fonts.Regular.caption1
-        attributed.foregroundColor = Colors.Text.tertiary
+        attributed.foregroundColor = DesignSystem.Color.textSecondary
 
         formatLink(in: &attributed, text: tos, url: notice.termsOfUse)
         formatLink(in: &attributed, text: privacy, url: notice.privacyPolicy)
@@ -156,7 +152,7 @@ struct OnrampOfferView: View {
     private static func formatLink(in attributed: inout AttributedString, text: String, url: URL?) {
         guard let url, let range = attributed.range(of: text) else { return }
         attributed[range].link = url
-        attributed[range].foregroundColor = Colors.Text.accent
+        attributed[range].foregroundColor = DesignSystem.Color.textAccentBlue
     }
 
     private var bottomView: some View {
@@ -193,17 +189,17 @@ struct OnrampOfferView: View {
             HStack(spacing: 2) {
                 Assets.Express.providerTimeIcon.image
                     .renderingMode(.template)
-                    .foregroundStyle(Colors.Icon.informative)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
 
                 Text(viewModel.provider.timeFormatted)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
             }
 
             Text(AppConstants.dotSign)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
 
             Text(Localization.onrampViaProvider(viewModel.provider.name))
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
         }
     }
 
@@ -211,16 +207,16 @@ struct OnrampOfferView: View {
     private var trailingBottomView: some View {
         if viewModel.isNativePayment {
             Text(Localization.onrampPaymentMethodSubtitle)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
         } else {
             HStack(spacing: 4) {
                 Text(Localization.onrampPayWith)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
 
                 IconView(url: viewModel.provider.paymentType.themedImageURL(isDark: resolvedColorScheme == .dark), size: .height(16)) {
                     Shimmer().variant(.custom(width: 30, height: 16, cornerRadius: 6))
                 }
-                .foregroundStyle(Colors.Icon.secondary)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
             }
         }
     }

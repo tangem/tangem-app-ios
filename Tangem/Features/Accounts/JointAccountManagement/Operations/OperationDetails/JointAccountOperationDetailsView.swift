@@ -66,6 +66,18 @@ struct JointAccountOperationDetailsView: View {
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
 }
 
+#Preview("Failed") {
+    JointAccountOperationDetailsView(viewModel: .preview(answer: .signed, status: .failed(at: Date())))
+        .frame(maxHeight: .infinity, alignment: .bottom)
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+}
+
+#Preview("Cancelled") {
+    JointAccountOperationDetailsView(viewModel: .preview(answer: .signed, status: .cancelled(at: Date())))
+        .frame(maxHeight: .infinity, alignment: .bottom)
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+}
+
 private extension JointAccountOperationDetailsViewModel {
     static func preview(answer: Answer, status: Status = .awaitingSignatures) -> JointAccountOperationDetailsViewModel {
         JointAccountOperationDetailsViewModel(
@@ -107,7 +119,7 @@ private extension JointAccountOperationDetailsViewModel {
                 status: status
             ),
             contentPublisher: .empty,
-            pendingOperationsProvider: nil,
+            poller: JointAccountPendingOperationPollerMock(),
             coordinator: nil,
             sign: {},
             reject: {}

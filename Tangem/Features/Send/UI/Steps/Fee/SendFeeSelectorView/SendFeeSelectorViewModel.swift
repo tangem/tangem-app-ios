@@ -161,12 +161,12 @@ extension SendFeeSelectorViewModel {
         static func makeDescription(text: String) -> AttributedString {
             var attr = AttributedString(text)
             attr.font = Fonts.Regular.footnote
-            attr.foregroundColor = Colors.Text.tertiary
+            attr.foregroundColor = DesignSystem.Color.textSecondary
 
             if let range = attr.range(of: Localization.commonLearnMore) {
                 // Temporarily replace with an empty string because the final URL isn't ready yet
                 attr.replaceSubrange(range, with: AttributedString(""))
-//                attr[range].foregroundColor = Colors.Text.accent
+//                attr[range].foregroundColor = DesignSystem.Color.textAccentBlue
 //                attr[range].link = URL(string: " ")
             }
 

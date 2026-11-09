@@ -9,7 +9,7 @@ import Foundation
 
 private typealias Shared = IncomingActionConstants.DeeplinkParams
 
-/// `tangem://swap[?from_*&to_*&from_amount&provider_id&user_wallet_id]`
+/// `tangem://swap[?from_*&to_*&from_amount&to_amount&provider_id&user_wallet_id&intent_id]`
 ///
 /// No parameter can invalidate the link: whatever can't be used is ignored when the link is handled,
 /// which opens the default swap instead of leaving the user where they were.
@@ -26,7 +26,9 @@ struct SwapDeeplink: HostNamedDeeplink, Equatable {
     let fromUserAccountId: String?
     let toUserAccountId: String?
     let fromAmount: String?
+    let toAmount: String?
     let providerId: String?
+    let intentId: String?
 
     var action: DeeplinkNavigationAction { .swap(self) }
 
@@ -41,7 +43,9 @@ struct SwapDeeplink: HostNamedDeeplink, Equatable {
         fromUserAccountId: String? = nil,
         toUserAccountId: String? = nil,
         fromAmount: String? = nil,
-        providerId: String? = nil
+        toAmount: String? = nil,
+        providerId: String? = nil,
+        intentId: String? = nil
     ) {
         self.userWalletId = userWalletId
         self.fromTokenId = fromTokenId
@@ -53,7 +57,38 @@ struct SwapDeeplink: HostNamedDeeplink, Equatable {
         self.fromUserAccountId = fromUserAccountId
         self.toUserAccountId = toUserAccountId
         self.fromAmount = fromAmount
+        self.toAmount = toAmount
         self.providerId = providerId
+        self.intentId = intentId
+    }
+
+    func toURL() -> URL? {
+        var queryItems = [URLQueryItem]()
+
+        if let userWalletId { queryItems.append(URLQueryItem(name: Shared.userWalletId, value: userWalletId)) }
+        if let fromTokenId { queryItems.append(URLQueryItem(name: Keys.fromTokenId, value: fromTokenId)) }
+        if let fromNetworkId { queryItems.append(URLQueryItem(name: Keys.fromNetworkId, value: fromNetworkId)) }
+        if let toTokenId { queryItems.append(URLQueryItem(name: Keys.toTokenId, value: toTokenId)) }
+        if let toNetworkId { queryItems.append(URLQueryItem(name: Keys.toNetworkId, value: toNetworkId)) }
+        if let fromUserWalletId { queryItems.append(URLQueryItem(name: Keys.fromUserWalletId, value: fromUserWalletId)) }
+        if let toUserWalletId { queryItems.append(URLQueryItem(name: Keys.toUserWalletId, value: toUserWalletId)) }
+        if let fromUserAccountId { queryItems.append(URLQueryItem(name: Keys.fromUserAccountId, value: fromUserAccountId)) }
+        if let toUserAccountId { queryItems.append(URLQueryItem(name: Keys.toUserAccountId, value: toUserAccountId)) }
+        if let fromAmount { queryItems.append(URLQueryItem(name: Keys.fromAmount, value: fromAmount)) }
+        if let toAmount { queryItems.append(URLQueryItem(name: Keys.toAmount, value: toAmount)) }
+        if let providerId { queryItems.append(URLQueryItem(name: Keys.providerId, value: providerId)) }
+        if let intentId { queryItems.append(URLQueryItem(name: Keys.intentId, value: intentId)) }
+
+        guard !queryItems.isEmpty else {
+            return nil
+        }
+
+        var components = URLComponents()
+        components.scheme = "tangem"
+        components.host = Self.host
+        components.queryItems = queryItems
+
+        return components.url
     }
 }
 
@@ -71,7 +106,9 @@ extension SwapDeeplink {
         static let fromUserAccountId = "from_user_account_id"
         static let toUserAccountId = "to_user_account_id"
         static let fromAmount = "from_amount"
+        static let toAmount = "to_amount"
         static let providerId = "provider_id"
+        static let intentId = "intent_id"
     }
 
     init(link: DeeplinkURL) {
@@ -88,7 +125,9 @@ extension SwapDeeplink {
             fromUserAccountId: query.unchecked(Keys.fromUserAccountId, lowercased: true),
             toUserAccountId: query.unchecked(Keys.toUserAccountId, lowercased: true),
             fromAmount: query.unchecked(Keys.fromAmount),
-            providerId: query.unchecked(Keys.providerId)
+            toAmount: query.unchecked(Keys.toAmount),
+            providerId: query.unchecked(Keys.providerId),
+            intentId: query.unchecked(Keys.intentId)
         )
     }
 }

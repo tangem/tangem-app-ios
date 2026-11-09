@@ -17,7 +17,7 @@ struct OnrampAmountCompactView: View {
 
     var body: some View {
         amountContent
-            .defaultRoundedBackground(with: Colors.Background.action)
+            .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
     }
 
     private var amountContent: some View {
@@ -50,7 +50,7 @@ struct OnrampAmountCompactView: View {
 
             // Keep empty text so that the view maintains its place in the layout
             Text(viewModel.alternativeAmount ?? " ")
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.finishCryptoAmount)
         }
@@ -59,7 +59,7 @@ struct OnrampAmountCompactView: View {
     private var providerView: some View {
         HStack(spacing: 6) {
             Text(Localization.commonWith)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
             IconView(
                 url: viewModel.providerIconURL,
@@ -70,7 +70,7 @@ struct OnrampAmountCompactView: View {
             .accessibilityIdentifier(OnrampAccessibilityIdentifiers.finishProviderIcon)
 
             Text(viewModel.providerName ?? "")
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.finishProviderName)
         }
     }

@@ -36,6 +36,7 @@ struct EarnDeeplinkContainerView: View {
                         }
                 }
                 .tint(DesignSystem.Color.textPrimary)
+                .softTopScrollEdgeEffect()
             }
             .fullScreenCover(item: $coordinator.yieldModulePromoCoordinator) { promoCoordinator in
                 NavigationStack {
@@ -48,12 +49,14 @@ struct EarnDeeplinkContainerView: View {
                         }
                 }
                 .tint(DesignSystem.Color.textPrimary)
+                .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.yieldModuleActiveCoordinator) { activeCoordinator in
                 YieldModuleActiveCoordinatorView(coordinator: activeCoordinator)
                     .onDisappear {
                         activeCoordinator.dismiss()
                     }
+                    .softTopScrollEdgeEffect()
             }
     }
 }

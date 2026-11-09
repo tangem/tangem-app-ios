@@ -47,7 +47,8 @@ struct SolanaNFTTransferBuilder {
                 payer: payer
             ))
 
-        case PublicKey.tokenProgramId.base58EncodedString:
+        case PublicKey.tokenProgramId.base58EncodedString, PublicKey.token2022ProgramId.base58EncodedString:
+            let tokenProgram = try publicKey(assetAccount.owner)
             let metadataAddress = try MetaplexTokenMetadataProgram.metadataAddress(mint: asset)
 
             guard
@@ -65,14 +66,12 @@ struct SolanaNFTTransferBuilder {
 
             return .program(try await programmableTransfer(
                 mint: asset,
+                tokenProgram: tokenProgram,
                 ruleSet: metadata.ruleSet,
                 owner: owner,
                 destination: destination,
                 payer: payer
             ))
-
-        case PublicKey.token2022ProgramId.base58EncodedString:
-            return .splToken
 
         default:
             throw SolanaNFTTransferError.unsupportedAsset
@@ -126,14 +125,15 @@ struct SolanaNFTTransferBuilder {
 
     private func programmableTransfer(
         mint: PublicKey,
+        tokenProgram: PublicKey,
         ruleSet: PublicKey?,
         owner: PublicKey,
         destination: PublicKey,
         payer: PublicKey
     ) async throws -> SolanaNFTTransferPlan {
-        let token = try MetaplexTokenMetadataProgram.associatedTokenAddress(owner: owner, mint: mint)
+        let token = try MetaplexTokenMetadataProgram.associatedTokenAddress(owner: owner, mint: mint, tokenProgram: tokenProgram)
         let ownerTokenRecord = try MetaplexTokenMetadataProgram.tokenRecordAddress(mint: mint, token: token)
-        let destinationToken = try MetaplexTokenMetadataProgram.associatedTokenAddress(owner: destination, mint: mint)
+        let destinationToken = try MetaplexTokenMetadataProgram.associatedTokenAddress(owner: destination, mint: mint, tokenProgram: tokenProgram)
         let destinationTokenRecord = try MetaplexTokenMetadataProgram.tokenRecordAddress(mint: mint, token: destinationToken)
 
         async let ownerTokenRecordAccount = accountProvider.rawAccountInfo(address: ownerTokenRecord.base58EncodedString)
@@ -149,7 +149,7 @@ struct SolanaNFTTransferBuilder {
         }
 
         let createdAccountSpaces = [
-            try await destinationTokenAccount == nil ? MetaplexTokenMetadataProgram.tokenAccountSpace : nil,
+            try await destinationTokenAccount == nil ? MetaplexTokenMetadataProgram.tokenAccountSpace(tokenProgram: tokenProgram) : nil,
             try await destinationTokenRecordAccount == nil ? MetaplexTokenMetadataProgram.tokenRecordSpace : nil,
         ].compactMap { $0 }
 
@@ -157,6 +157,7 @@ struct SolanaNFTTransferBuilder {
             instructions: [
                 try MetaplexTokenMetadataProgram.transferInstruction(
                     mint: mint,
+                    tokenProgram: tokenProgram,
                     owner: owner,
                     destinationOwner: destination,
                     authority: owner,

@@ -57,16 +57,16 @@ class StakingDetailsStakeViewDataBuilder {
             balance.targetType == .disabled
                 ? .icon(
                     Assets.stakingIconFilled,
-                    colors: .init(foreground: Colors.Icon.inactive, background: Colors.Icon.primary1)
+                    colors: .init(foreground: DesignSystem.Color.iconInverse, background: DesignSystem.Color.bgInverse)
                 )
                 : .image(StakingTargetIconViewData(target?.image))
         case .locked:
             .icon(
                 inProgress ? Assets.stakingUnlockingIcon : Assets.stakingLockIcon,
-                colors: .init(foreground: inProgress ? Colors.Icon.accent : Colors.Icon.informative)
+                colors: .init(foreground: inProgress ? DesignSystem.Color.iconAccentBlue : DesignSystem.Color.iconSecondary)
             )
-        case .unbonding: .icon(Assets.unstakedIcon, colors: .init(foreground: Colors.Icon.accent))
-        case .unstaked: .icon(Assets.unstakedIcon, colors: .init(foreground: Colors.Icon.informative))
+        case .unbonding: .icon(Assets.unstakedIcon, colors: .init(foreground: DesignSystem.Color.iconAccentBlue))
+        case .unstaked: .icon(Assets.unstakedIcon, colors: .init(foreground: DesignSystem.Color.iconSecondary))
         }
 
         let balanceCryptoFormatted = balanceFormatter.formatCryptoBalance(

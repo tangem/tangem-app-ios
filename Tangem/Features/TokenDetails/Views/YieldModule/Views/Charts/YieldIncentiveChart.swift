@@ -53,7 +53,7 @@ struct YieldIncentiveChart: View {
                 if let index = tick.as(Int.self), let label = xTicks[index] {
                     AxisValueLabel {
                         Text(label)
-                            .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
                             .shimmerPlaceholder(data == nil)
                     }
 
@@ -70,7 +70,7 @@ struct YieldIncentiveChart: View {
                 AxisValueLabel {
                     if let value = mark.as(Double.self) {
                         Text(value, format: .percent.precision(.fractionLength(0)))
-                            .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
                             .shimmerPlaceholder(data == nil)
                     }
                 }

@@ -18,6 +18,7 @@ struct TangemPayCurrentPlanCoordinatorView: CoordinatorView {
                 .navigationLinks(links)
                 .sheet(item: $coordinator.termsAndLimitsViewModel) {
                     WebViewContainer(viewModel: $0)
+                        .softTopScrollEdgeEffect()
                 }
         }
     }

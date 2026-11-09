@@ -15,11 +15,11 @@ struct TokenListLoadingPlaceholderView: View {
             TokenListSectionLoadingPlaceholderView()
 
             TokenListItemLoadingPlaceholderView(
-                style: .tokenList(hasNetworkItemPlaceholder: false)
+                hasNetworkItemPlaceholder: false
             )
 
             TokenListItemLoadingPlaceholderView(
-                style: .tokenList(hasNetworkItemPlaceholder: true)
+                hasNetworkItemPlaceholder: true
             )
         }
     }
@@ -29,8 +29,7 @@ struct TokenListLoadingPlaceholderView: View {
 
 #Preview {
     ZStack {
-        Colors.Background
-            .secondary
+        DesignSystem.Color.bgPrimary
             .ignoresSafeArea()
 
         TokenListLoadingPlaceholderView()

@@ -11,17 +11,23 @@ import SwiftUI
 public extension View {
     /// Gives the navigation bar a translucent background on every supported OS version.
     ///
-    /// On iOS 26 the native scroll edge effect draws the background correctly. iOS 27 resolves the same effect's
-    /// automatic style to a nearly opaque fill, so there it gives way to the blur overlay used on pre-26 versions.
+    /// From iOS 26 the native scroll edge effect draws the background. iOS 27 resolves its automatic style to the hard
+    /// one, so the soft style is pinned explicitly; pre-26 versions get the blur overlay instead.
     @ViewBuilder
     func translucentNavigationBar() -> some View {
-        if #available(iOS 27.0, *) {
-            scrollEdgeEffectHidden(true, for: .top)
-                .backportTranslucentNavigationBar()
-        } else if #available(iOS 26.0, *) {
-            self
+        if #available(iOS 26.0, *) {
+            softTopScrollEdgeEffect()
         } else {
             backportTranslucentNavigationBar()
+        }
+    }
+
+    @ViewBuilder
+    func softTopScrollEdgeEffect() -> some View {
+        if #available(iOS 26.0, *) {
+            scrollEdgeEffectStyle(.soft, for: .top)
+        } else {
+            self
         }
     }
 }

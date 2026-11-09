@@ -41,10 +41,10 @@ private extension MobileCreateWalletView {
             VStack(spacing: 0) {
                 Assets.MobileWallet.mobileWalletWithoutFrame.image
                     .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.secondary)
+                    .foregroundColor(DesignSystem.Color.iconSecondary)
 
                 Text(viewModel.title)
-                    .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.center)
                     .padding(.top, 20)
 
@@ -74,16 +74,16 @@ private extension MobileCreateWalletView {
                 item.icon.image
                     .resizable()
                     .renderingMode(.template)
-                    .foregroundColor(Colors.Icon.primary1)
+                    .foregroundColor(DesignSystem.Color.iconPrimary)
                     .frame(width: 24, height: 24)
             }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title)
-                    .style(Fonts.Bold.callout, color: Colors.Icon.primary1)
+                    .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
 
                 Text(item.subtitle)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.leading)
             }
         }

@@ -33,9 +33,12 @@ public final class CollectiblesManager: @unchecked Sendable {
 
     private let stateSubject = CurrentValueSubject<CollectiblesState, Never>(.unresolved)
     private let vaultUsdcStateSubject = CurrentValueSubject<CollectiblesVaultUsdcState, Never>(.loading)
+    private let isOnboardingSubject = CurrentValueSubject<Bool, Never>(false)
+    private let isInAccountListSubject = CurrentValueSubject<Bool, Never>(false)
     private let lastVaultUsdcBalance = OSAllocatedUnfairLock<UInt64?>(initialState: nil)
 
     private let refreshProcessor = SingleTaskProcessor<Bool, Never>()
+    private let onboardingProcessor = SingleTaskProcessor<Void, any Error>()
     private let purchaseSigningTasks = OSAllocatedUnfairLock<[String: Task<CollectiblesSignedPurchase, any Error>]>(
         initialState: [:]
     )
@@ -87,16 +90,38 @@ public extension CollectiblesManager {
     }
 
     var hasAccount: Bool {
-        state.hasAccount(markedLocally: isMarkedLocally)
+        state.hasAccount(isRecorded: isRecorded)
     }
 
     var hasAccountPublisher: AnyPublisher<Bool, Never> {
-        stateSubject
-            .map { [presenceStore, userWalletId] state in
-                state.hasAccount(markedLocally: presenceStore.contains(userWalletId))
-            }
+        recordedStatePublisher
+            .map { state, isRecorded in state.hasAccount(isRecorded: isRecorded) }
             .removeDuplicates()
             .eraseToAnyPublisher()
+    }
+
+    var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> {
+        recordedStatePublisher
+            .map { state, isRecorded in state.isRelinkRequired(isRecorded: isRecorded) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    var isSyncRequiredPublisher: AnyPublisher<Bool, Never> {
+        recordedStatePublisher
+            .map { state, isRecorded in state.isSyncRequired(isRecorded: isRecorded) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    var isInAccountListPublisher: AnyPublisher<Bool, Never> {
+        isInAccountListSubject
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    func update(isInAccountList: Bool) {
+        isInAccountListSubject.send(isInAccountList)
     }
 
     /// Concurrent callers await the same resolve rather than each starting their own — independent reads can
@@ -138,10 +163,29 @@ public extension CollectiblesManager {
 // MARK: - CollectiblesOnboarder protocol conformance
 
 extension CollectiblesManager: CollectiblesOnboarder {
+    public var isOnboardingPublisher: AnyPublisher<Bool, Never> {
+        isOnboardingSubject
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     /// Walks the resolved state toward `.ready`, applying the one thing it is missing and resolving again —
     /// the loop the agreed onboarding flow is drawn as. Every step reads before it writes, so an interrupted
     /// run is resumed by calling this again rather than repaired.
     public func onboard() async throws {
+        try await onboardingProcessor.execute { [weak self] in
+            guard let self else {
+                return
+            }
+
+            try await runOnboarding()
+        }
+    }
+
+    private func runOnboarding() async throws {
+        isOnboardingSubject.send(true)
+        defer { isOnboardingSubject.send(false) }
+
         var performedSteps: Set<CollectiblesOnboardingInteractor.OnboardingStep> = []
 
         while true {
@@ -404,7 +448,7 @@ private extension CollectiblesManager {
     /// which is not the same answer as a balance of zero.
     func refreshBalance(for state: CollectiblesState, silent: Bool) async {
         guard state.isAccountVisible, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
-            vaultUsdcStateSubject.send(.missing)
+            vaultUsdcStateSubject.send(.unavailable)
             balanceUpdater.update(.unavailable)
             return
         }
@@ -412,7 +456,7 @@ private extension CollectiblesManager {
         if !silent {
             balanceUpdater.update(.loading)
 
-            if vaultUsdcStateSubject.value == .failed {
+            if vaultUsdcStateSubject.value == .failed || vaultUsdcStateSubject.value == .unavailable {
                 vaultUsdcStateSubject.send(.loading)
             }
         }
@@ -470,8 +514,23 @@ private extension CollectiblesManager {
         }
     }
 
-    var isMarkedLocally: Bool {
-        presenceStore.contains(userWalletId)
+    var isRecorded: Bool {
+        isRecorded(isInAccountList: isInAccountListSubject.value)
+    }
+
+    var recordedStatePublisher: AnyPublisher<(CollectiblesState, Bool), Never> {
+        stateSubject
+            .combineLatest(isInAccountListPublisher)
+            .withWeakCaptureOf(self)
+            .map { manager, input in
+                let (state, isInAccountList) = input
+                return (state, manager.isRecorded(isInAccountList: isInAccountList))
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func isRecorded(isInAccountList: Bool) -> Bool {
+        isInAccountList || presenceStore.contains(userWalletId)
     }
 
     /// A node serves the transaction it accepted before it serves the account that transaction created, so the
@@ -507,7 +566,7 @@ private extension CollectiblesManager {
 
 // MARK: - Error
 
-private extension CollectiblesManager {
+extension CollectiblesManager {
     enum PurchaseError: Error {
         case vaultNotReady
         case conflictingPurchase

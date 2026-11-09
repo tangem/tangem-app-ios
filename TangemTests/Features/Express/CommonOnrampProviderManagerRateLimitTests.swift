@@ -113,6 +113,7 @@ private final class QuoteStubExpressAPIProvider: ExpressAPIProvider {
     func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { throw UnexpectedCall() }
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote { throw UnexpectedCall() }
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData { throw UnexpectedCall() }
+    func exchangeIntent(mcpIntentID: String) async throws -> ExchangeMCPIntent { throw UnexpectedCall() }
     func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction { throw UnexpectedCall() }
     func exchangeSent(result: ExpressTransactionSentResult) async throws { throw UnexpectedCall() }
     func onrampCurrencies() async throws -> [OnrampFiatCurrency] { throw UnexpectedCall() }

@@ -98,7 +98,7 @@ public struct PriceChangeView: View {
     }
 
     private var defaultTextColor: Color {
-        useRedesignColors ? DesignSystem.Color.textSecondary : Colors.Text.tertiary
+        DesignSystem.Color.textSecondary
     }
 
     private var styledDashText: some View {
@@ -196,11 +196,11 @@ public extension PriceChangeView {
         public var legacyColor: Color {
             switch self {
             case .positive:
-                Colors.Text.accent
+                DesignSystem.Color.textAccentBlue
             case .neutral:
-                Colors.Text.tertiary
+                DesignSystem.Color.textSecondary
             case .negative:
-                Colors.Text.warning
+                DesignSystem.Color.textAccentRed
             }
         }
     }

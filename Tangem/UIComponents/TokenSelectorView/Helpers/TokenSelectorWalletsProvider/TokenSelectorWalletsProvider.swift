@@ -11,6 +11,7 @@ import TangemAccounts
 import TangemLocalization
 import TangemPay
 import TangemExpress
+import TangemFoundation
 
 protocol TokenSelectorWalletsProvider {
     var wallets: [TokenSelectorWallet] { get }
@@ -99,8 +100,8 @@ struct TokenSelectorItem: Hashable, Identifiable {
     }
 
     func isMatching(searchText: String) -> Bool {
-        let matchingName = tokenItem.name.lowercased().contains(searchText.lowercased())
-        let matchingSymbol = tokenItem.currencySymbol.lowercased().contains(searchText.lowercased())
+        let matchingName = tokenItem.name.caseInsensitiveContains(searchText)
+        let matchingSymbol = tokenItem.currencySymbol.caseInsensitiveContains(searchText)
 
         return matchingName || matchingSymbol
     }

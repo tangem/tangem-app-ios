@@ -27,11 +27,11 @@ struct AddCustomTokenNetworksListItemView: View {
                 Text(viewModel.networkName)
                     .lineLimit(1)
                     .layoutPriority(-1)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                 Text(viewModel.currencySymbol)
                     .lineLimit(1)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
             }
 
             Spacer(minLength: 0)
@@ -39,7 +39,7 @@ struct AddCustomTokenNetworksListItemView: View {
             if viewModel.isSelected {
                 Assets.check.image
                     .frame(width: 20, height: 20)
-                    .foregroundColor(Colors.Icon.accent)
+                    .foregroundColor(DesignSystem.Color.iconAccentBlue)
             }
         }
         .padding(16)

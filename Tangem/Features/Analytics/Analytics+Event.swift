@@ -395,6 +395,7 @@ extension Analytics {
 
         case swapProviderClicked = "[Swap] Provider Clicked"
         case swapProviderChosen = "[Swap] Provider Chosen"
+        case swapProviderHidden = "[Swap] Provider Hidden"
         case swapButtonStatus = "[Swap] Button - Status"
         case swapButtonExplore = "[Swap] Button - Explore"
         case swapNoticeExchangeRateHasExpired = "[Swap] Notice - Exchange Rate Has Expired"
@@ -485,6 +486,12 @@ extension Analytics {
         case walletPromoAppear = "[Main Screen] Notice - Note Promo"
         case mainButtonFinalizeActivation = "[Main Screen] Button - Finalize Activation"
         case addFundsBannerAppear = "[Main Screen] Notice - Add Funds"
+        case mainNoticeSoftUpdate = "[Main Screen] Notice - Soft Update"
+        case mainNoticeCriticalUpdate = "[Main Screen] Notice - Critical update"
+        case mainNoticeUnsupportedDevice = "[Main Screen] Notice - Unsupported Device"
+        case mainNoticeOSUpdate = "[Main Screen] Notice - OS Update"
+        case mainButtonUpdateApp = "[Main Screen] Button - Update App"
+        case mainButtonLater = "[Main Screen] Button - Later"
 
         // MARK: - BlockchainSdk exceptions
 
@@ -1029,6 +1036,8 @@ extension Analytics {
         case earningNoticeHighNetworkFee = "[Earning] Notice - High Network Fee"
         case earningErrors = "[Earning] Earn Errors"
         case earningNoticeAmountNotDeposited = "[Earning] Notice - Amount Not Deposited"
+        case earningPromoScreenClosed = "[Earning] Promo Screen Closed"
+        case earningButtonTryYieldMode = "[Earning] Button - Try Yield Mode"
         case mainNoticeYieldPromo = "[Main Screen] Yield Promo"
         case mainNoticeYieldPromoClicked = "[Main Screen] Yield Promo Clicked"
         case mainScreenButtonExploreYieldMode = "[Main Screen] Button - Explore Yield mode"

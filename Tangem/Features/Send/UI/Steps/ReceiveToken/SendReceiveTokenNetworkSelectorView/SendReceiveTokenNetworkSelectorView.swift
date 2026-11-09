@@ -35,7 +35,7 @@ struct SendReceiveTokenNetworkSelectorView: View {
                 .animation(.easeInOut, value: viewModel.state)
         }
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(Colors.Background.primary)
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.sheetFrameUpdateAnimation = .easeInOut
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
@@ -49,12 +49,13 @@ struct SendReceiveTokenNetworkSelectorView: View {
                     if let notification = viewModel.notification {
                         NotificationView(input: notification)
                             .padding(.horizontal, 16)
+                            .padding(.bottom, 14)
                     }
 
                     GroupedSection(items) {
                         SendReceiveTokenNetworkSelectorNetworkView(viewModel: $0)
                     }
-                    .backgroundColor(Colors.Background.primary)
+                    .backgroundColor(DesignSystem.Color.bgSecondary)
                     .interItemSpacing(16)
                     .innerContentPadding(16)
                     .padding(.horizontal, 16)

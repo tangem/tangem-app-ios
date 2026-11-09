@@ -365,6 +365,7 @@ private actor TransferExpressManagerStub: ExpressManager {
 
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState { .transfer }
     func update(slippage: Decimal?) async -> ExpressManagerState { .transfer }
+    func update(prefersDEX: Bool) async {}
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState { .transfer }
     func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState { .transfer }
 

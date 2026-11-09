@@ -31,7 +31,21 @@ extension PolymarketMapper {
             isNegRisk: isNegRisk,
             displayMode: displayMode(from: dto.displayMode, isNegRisk: isNegRisk),
             markets: (dto.markets ?? []).map(mapMarket),
-            teams: (dto.teams ?? []).compactMap(mapTeam)
+            teams: (dto.teams ?? []).compactMap(mapTeam),
+            game: mapGame(dto)
+        )
+    }
+
+    func mapGame(_ dto: PolymarketDTO.Event) -> PolymarketEventGame? {
+        guard let gameId = dto.gameId?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty else {
+            return nil
+        }
+
+        return PolymarketEventGame(
+            gameId: gameId,
+            score: PolymarketGameScore(parsing: dto.score, period: dto.period),
+            period: dto.period,
+            hasEnded: dto.ended ?? false
         )
     }
 
@@ -65,6 +79,7 @@ extension PolymarketMapper {
             isAcceptingOrders: (dto.acceptingOrders ?? false) && version.isSupported,
             startDate: date(from: dto.startDate ?? dto.startDateIso),
             endDate: date(from: dto.endDate),
+            closedDate: date(from: dto.closedTime),
             volume: dto.volume,
             volume24h: dto.volume24hr,
             liquidity: dto.liquidity,

@@ -10,9 +10,15 @@ import Foundation
 import TangemFoundation
 
 public struct ExpressAPIError: Decodable, LocalizedError, Error, Hashable {
-    let code: Int?
+    public let code: Int?
     let description: String?
     public let value: Value?
+
+    init(code: Int?, description: String? = nil, value: Value?) {
+        self.code = code
+        self.description = description
+        self.value = value
+    }
 
     public var errorCode: Code {
         if let code, let codeCase = Code(rawValue: code) {
@@ -24,6 +30,10 @@ public struct ExpressAPIError: Decodable, LocalizedError, Error, Hashable {
 
     public var errorDescription: String? {
         "\(description ?? "Error"). Code: \(errorCode.errorDescription ?? "")"
+    }
+
+    var withoutDescription: ExpressAPIError {
+        ExpressAPIError(code: code, value: value)
     }
 }
 
@@ -44,7 +54,7 @@ public extension ExpressAPIError {
             return Decimal(stringValue: fromAmountProvider).map { $0 / pow(10, decimals) }
         }
 
-        var amount: Decimal? {
+        public var amount: Decimal? {
             guard let amount = minAmount ?? maxAmount, let decimals else {
                 return nil
             }
@@ -85,11 +95,14 @@ public extension ExpressAPIError {
         case exchangeNotPossibleError = 2240
         case exchangeTooSmallAmountError = 2250
         case exchangeTooBigAmountError = 2251
+        case exchangeInvalidAmountError = 2252
         case exchangeInvalidAddressError = 2260
+        case exchangeProviderAddressRejectedError = 2264
         case exchangeNotEnoughBalanceError = 2270
         case exchangeNotEnoughAllowanceError = 2280
         case exchangeInvalidDecimalsError = 2290
         case exchangeUnsupportedRateType = 2300
+        case exchangeNotEnoughBalanceForGasFeeError = 2310
         case exchangeRoundUpError = 2320
         case networkNotFound = 2330
 

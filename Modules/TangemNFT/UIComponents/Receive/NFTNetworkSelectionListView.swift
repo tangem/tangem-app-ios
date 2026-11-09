@@ -30,7 +30,7 @@ public struct NFTNetworkSelectionListView: View {
                     navigationBarTitle
                 }
             }
-            .background(Colors.Background.tertiary)
+            .background(DesignSystem.Color.bgPrimary)
             .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: searchFieldDisplayMode))
             .bindAlert($viewModel.alert)
             .onAppear {
@@ -45,10 +45,10 @@ public struct NFTNetworkSelectionListView: View {
     private var navigationBarTitle: some View {
         VStack(spacing: 4.0) {
             Text(viewModel.title)
-                .style(Fonts.Bold.body.weight(.semibold), color: Colors.Text.primary1)
+                .style(Fonts.Bold.body.weight(.semibold), color: DesignSystem.Color.textPrimary)
 
             Text(viewModel.subtitle)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
         }
     }
 
@@ -64,7 +64,7 @@ public struct NFTNetworkSelectionListView: View {
                 }
             )
             .settings(\.separatorStyle, .none)
-            .settings(\.backgroundColor, Colors.Background.action)
+            .settings(\.backgroundColor, DesignSystem.Color.bgSecondary)
 
             GroupedSection(
                 viewModel.availableItems,
@@ -76,7 +76,7 @@ public struct NFTNetworkSelectionListView: View {
                 }
             )
             .settings(\.separatorStyle, .none)
-            .settings(\.backgroundColor, Colors.Background.action)
+            .settings(\.backgroundColor, DesignSystem.Color.bgSecondary)
 
             GroupedSection(
                 viewModel.unavailableItems,
@@ -88,7 +88,7 @@ public struct NFTNetworkSelectionListView: View {
                 }
             )
             .settings(\.separatorStyle, .none)
-            .settings(\.backgroundColor, Colors.Background.action)
+            .settings(\.backgroundColor, DesignSystem.Color.bgSecondary)
         }
         .scrollIndicators(.hidden)
     }
@@ -105,7 +105,7 @@ public struct NFTNetworkSelectionListView: View {
 
     private func makeSectionTitle(_ title: String) -> some View {
         Text(title)
-            .style(Fonts.Bold.footnote.weight(.semibold), color: Colors.Text.tertiary)
+            .style(Fonts.Bold.footnote.weight(.semibold), color: DesignSystem.Color.textSecondary)
             .padding(.top, 12.0)
             .padding(.bottom, 8.0)
     }

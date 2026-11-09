@@ -33,10 +33,10 @@ struct PendingExpressTxIdCopyButtonView: View {
                     .resizable()
                     .renderingMode(.template)
                     .frame(width: 16, height: 16)
-                    .foregroundColor(Colors.Icon.informative)
+                    .foregroundColor(DesignSystem.Color.iconSecondary)
 
                 Text(Localization.expressTransactionId(viewModel.transactionID))
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
             }
         }
         .lineLimit(1)

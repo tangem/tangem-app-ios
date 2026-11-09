@@ -102,7 +102,6 @@ final class YieldModuleActiveViewModel: ObservableObject {
     private let notificationManager: YieldModuleNotificationManager
     private let marketingBannerManager = MarketingBannerManager()
     private let logger: YieldAnalyticsLogger
-    private let usesIncentiveDesign: Bool
 
     // MARK: - Properties
 
@@ -123,8 +122,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         marketInfoPublisher: AnyPublisher<YieldModuleMarketInfo?, Never>,
         claimInteractor: YieldIncentivesClaimInteractor?,
         notificationManager: YieldModuleNotificationManager,
-        logger: YieldAnalyticsLogger,
-        usesIncentiveDesign: Bool
+        logger: YieldAnalyticsLogger
     ) {
         self.walletModel = walletModel
         self.coordinator = coordinator
@@ -134,7 +132,6 @@ final class YieldModuleActiveViewModel: ObservableObject {
         self.claimInteractor = claimInteractor
         self.logger = logger
         self.notificationManager = notificationManager
-        self.usesIncentiveDesign = usesIncentiveDesign
 
         logger.logEarningInProgressScreenOpened()
 
@@ -195,8 +192,7 @@ final class YieldModuleActiveViewModel: ObservableObject {
         coordinator?.openAboutApySheet(
             viewModel: YieldModuleAboutApyViewModel(
                 baseApy: apyBreakdown.baseApy,
-                rewardsApy: apyBreakdown.rewardsApy,
-                usesIncentiveDesign: usesIncentiveDesign
+                rewardsApy: apyBreakdown.rewardsApy
             )
         )
     }
@@ -232,10 +228,10 @@ final class YieldModuleActiveViewModel: ObservableObject {
 
         var attr = AttributedString(fullString)
         attr.font = Fonts.Regular.caption1
-        attr.foregroundColor = Colors.Text.tertiary
+        attr.foregroundColor = DesignSystem.Color.textSecondary
 
         if let range = attr.range(of: Localization.commonReadMore) {
-            attr[range].foregroundColor = Colors.Text.accent
+            attr[range].foregroundColor = DesignSystem.Color.textAccentBlue
             attr[range].link = readMoreURL
         }
 
@@ -270,8 +266,8 @@ final class YieldModuleActiveViewModel: ObservableObject {
             .store(in: &bag)
 
         marketInfoPublisher
-            .map { [usesIncentiveDesign] marketInfo -> YieldModuleEarnInfoChartContainer.Kind in
-                usesIncentiveDesign && marketInfo?.incentive != nil ? .incentive : .legacy
+            .map { marketInfo -> YieldModuleEarnInfoChartContainer.Kind in
+                marketInfo?.incentive != nil ? .incentive : .legacy
             }
             .removeDuplicates()
             .receiveOnMain()

@@ -24,7 +24,7 @@ struct SendDestinationView: View {
                     SendDestinationAddressView(viewModel: viewModel)
                 case .destinationResolvedAddress(let resolved):
                     Text(resolved)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .accessibilityIdentifier(SendAccessibilityIdentifiers.addressResolvedAddress)
@@ -35,7 +35,7 @@ struct SendDestinationView: View {
             }
             .interItemSpacing(12)
             .innerContentPadding(12)
-            .backgroundColor(Colors.Background.action)
+            .backgroundColor(DesignSystem.Color.bgSecondary)
 
             GroupedSection(viewModel.additionalFieldViewModel) {
                 SendDestinationAdditionalFieldView(viewModel: $0)
@@ -43,7 +43,7 @@ struct SendDestinationView: View {
                 DefaultFooterView(Localization.sendRecipientMemoFooter)
             }
             .innerContentPadding(12)
-            .backgroundColor(Colors.Background.action)
+            .backgroundColor(DesignSystem.Color.bgSecondary)
 
             if let addressBookViewModel = viewModel.addressBookViewModel {
                 if viewModel.shouldShowSuggestedDestination {

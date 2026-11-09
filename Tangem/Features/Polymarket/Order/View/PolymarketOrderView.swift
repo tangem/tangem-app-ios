@@ -24,6 +24,14 @@ struct PolymarketOrderView: View {
     }
 
     var body: some View {
+        withBottomBar(screen)
+            .onWillAppear { viewModel.handleViewAction(.onAppear) }
+            .bindAlert($viewModel.alert)
+            .if(viewModel.isSingleSheet) { $0.interactiveDismissDisabled(viewModel.isPlacing) }
+            .onWillDisappear { viewModel.handleViewAction(.onDisappear) }
+    }
+
+    private var screen: some View {
         VStack(spacing: 0) {
             topBar
                 .disabled(viewModel.isPlacing)
@@ -33,11 +41,6 @@ struct PolymarketOrderView: View {
                 .disabled(viewModel.isPlacing)
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .safeAreaInset(edge: .bottom, spacing: .zero) { bottomContainer }
-        .onWillAppear { viewModel.handleViewAction(.onAppear) }
-        .bindAlert($viewModel.alert)
-        .if(viewModel.isSingleSheet) { $0.interactiveDismissDisabled(viewModel.isPlacing) }
-        .onWillDisappear { viewModel.handleViewAction(.onDisappear) }
     }
 
     // MARK: - Top bar
@@ -53,63 +56,31 @@ struct PolymarketOrderView: View {
 
     // MARK: - Bottom
 
-    private var bottomContainer: some View {
-        VStack(spacing: 0) {
-            if let signingButtonType = viewModel.flowStyle.singleSheet?.signingButtonType {
-                placeFooter(signingButtonType: signingButtonType)
-            } else {
-                nextButton
-            }
+    @ViewBuilder
+    private func withBottomBar(_ screen: some View) -> some View {
+        if let signingButtonType = viewModel.flowStyle.singleSheet?.signingButtonType {
+            screen
+                .footer { placeFooter(signingButtonType: signingButtonType) }
+                .environment(\.openURL, PolymarketLegalLine.openURLAction { viewModel.handleViewAction(.openLegalTerms($0)) })
+        } else {
+            screen.safeAreaInset(edge: .bottom, spacing: .zero) {
+                VStack(spacing: 0) {
+                    nextButton
 
-            keyboardBar
+                    keyboardBar
+                }
+            }
         }
     }
 
     // MARK: - Content
 
     private var content: some View {
-        GroupedScrollView(contentType: .plain(spacing: Constants.blockSpacing)) {
-            if !viewModel.isSingleSheet {
-                PolymarketOrderMarketRow(model: viewModel.marketRow)
+        GroupedScrollView(contentType: .plain()) {
+            VStack(spacing: Constants.blockSpacing) {
+                blocks
             }
-
-            PolymarketOrderAmountBlock(
-                title: viewModel.amountTitle,
-                payment: viewModel.payment,
-                isAddFundsEnabled: viewModel.isAddFundsEnabled,
-                onAddFunds: { viewModel.handleViewAction(.openAddFunds) }
-            ) {
-                VStack(spacing: Constants.captionSpacing) {
-                    if viewModel.isAmountEditable {
-                        amountField
-                    } else {
-                        proceedsAmount
-                    }
-
-                    if viewModel.amountCaption != nil {
-                        amountCaption
-                            .transition(.opacity)
-                    }
-                }
-            } footer: {
-                if !viewModel.isAmountEditable {
-                    sellControls
-                }
-            } bottom: {
-                if !viewModel.amountPresets.isEmpty {
-                    amountPresets
-                }
-            }
-
-            PolymarketOrderNotificationsView(notifications: viewModel.notifications) {
-                viewModel.handleViewAction(.retryQuote)
-            }
-
-            detailsBlock
-
-            if viewModel.isAwaitingFunds {
-                PolymarketOrderNotificationsView(notifications: [.awaitingFunds])
-            }
+            .padding(.bottom, viewModel.isSingleSheet ? Constants.sheetContentBottomPadding : 0)
         }
         .horizontalPadding(Constants.horizontalPadding)
         .padding(.top, Constants.contentTopPadding)
@@ -117,6 +88,66 @@ struct PolymarketOrderView: View {
         .animation(.easeInOut(duration: Constants.notificationsAnimationDuration), value: viewModel.notifications)
         .animation(.easeInOut(duration: Constants.notificationsAnimationDuration), value: viewModel.isAwaitingFunds)
         .animation(.curve(.easeInOutRefined, duration: Constants.captionAnimationDuration), value: captionIdentity)
+    }
+
+    @ViewBuilder
+    private var blocks: some View {
+        if !viewModel.isSingleSheet {
+            PolymarketOrderMarketRow(model: viewModel.marketRow)
+        }
+
+        PolymarketOrderAmountBlock(
+            title: viewModel.amountTitle,
+            style: blockStyle,
+            payment: viewModel.payment,
+            isAddFundsEnabled: viewModel.isAddFundsEnabled,
+            onAddFunds: { viewModel.handleViewAction(.openAddFunds) }
+        ) {
+            VStack(spacing: Constants.captionSpacing) {
+                if viewModel.isAmountEditable {
+                    amountField
+                } else {
+                    proceedsAmount
+                }
+
+                if viewModel.amountCaption != nil {
+                    amountCaption
+                        .transition(.opacity)
+                }
+            }
+        } footer: {
+            if !viewModel.isAmountEditable {
+                sellControls
+            }
+        } bottom: {
+            if !viewModel.amountPresets.isEmpty {
+                amountPresets
+            }
+        }
+
+        if !viewModel.isSingleSheet {
+            notificationsView
+        }
+
+        detailsBlock
+
+        if viewModel.isSingleSheet {
+            notificationsView
+        }
+
+        if viewModel.isAwaitingFunds {
+            PolymarketOrderNotificationsView(notifications: [.awaitingFunds])
+        }
+    }
+
+    private var blockStyle: PolymarketOrderBlockStyle {
+        viewModel.isSingleSheet ? .sheet : .regular
+    }
+
+    private var notificationsView: some View {
+        PolymarketOrderNotificationsView(notifications: viewModel.notifications) {
+            viewModel.handleViewAction(.retryQuote)
+        }
     }
 
     private var detailsBlock: some View {
@@ -135,7 +166,7 @@ struct PolymarketOrderView: View {
                     .transition(.opacity)
             }
         }
-        .background(DesignSystem.Color.bgSecondary)
+        .background(blockStyle.background)
         .clipShape(RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous))
         .animation(.curve(.easeInOutRefined, duration: Constants.captionAnimationDuration), value: viewModel.isTotalLoading)
     }
@@ -144,6 +175,7 @@ struct PolymarketOrderView: View {
         PolymarketOrderFeeRow(
             title: Localization.predictionFeeSheetTotal,
             valueText: viewModel.totalText,
+            currencyBadgeText: viewModel.isSingleSheet ? AppConstants.usdCurrencyCode : nil,
             showsDivider: false,
             onTap: viewModel.isFeeBreakdownAvailable ? { viewModel.handleViewAction(.openFeeBreakdown) } : nil
         )
@@ -207,13 +239,27 @@ struct PolymarketOrderView: View {
                 .polymarketStateTransition(viewModel.isProceedsLoading)
 
             if let sellingText = viewModel.sellingText {
-                Text(sellingText)
+                Text(highlighted(sellingText))
                     .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
                     .contentTransition(.numericText())
                     .animation(.contentFrameUpdate, value: sellingText)
             }
         }
+    }
+
+    private func highlighted(_ sellingText: PolymarketOrderViewModel.SellingText) -> AttributedString {
+        var text = AttributedString(sellingText.text)
+
+        guard
+            let sellingRange = text.range(of: sellingText.selling),
+            let totalRange = text[sellingRange.upperBound...].range(of: sellingText.total)
+        else {
+            return text
+        }
+
+        text[sellingRange.lowerBound ..< totalRange.upperBound].foregroundColor = DesignSystem.Color.textPrimary
+        return text
     }
 
     @ViewBuilder
@@ -235,6 +281,19 @@ struct PolymarketOrderView: View {
     }
 
     private var sellControls: some View {
+        VStack(spacing: 0) {
+            if viewModel.isSingleSheet {
+                PolymarketOrderBlockSeparator(style: blockStyle)
+            }
+
+            sellControlsRow
+                .padding(.horizontal, Constants.horizontalPadding)
+                .padding(.top, viewModel.isSingleSheet ? Constants.sheetControlsTopPadding : 0)
+                .padding(.bottom, viewModel.isSingleSheet ? Constants.sheetControlsBottomPadding : Constants.sellControlsBottomPadding)
+        }
+    }
+
+    private var sellControlsRow: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: Constants.sellControlsSpacing) {
                 fractionChips(fillsWidth: true)
@@ -254,13 +313,11 @@ struct PolymarketOrderView: View {
                 }
             }
         }
-        .padding(.horizontal, Constants.horizontalPadding)
-        .padding(.bottom, Constants.sellControlsBottomPadding)
     }
 
     private var amountPresets: some View {
         VStack(spacing: 0) {
-            Separator(color: DesignSystem.Color.borderPrimary)
+            PolymarketOrderBlockSeparator(style: blockStyle)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Constants.sellControlsSpacing) {
@@ -277,7 +334,8 @@ struct PolymarketOrderView: View {
                 }
                 .padding(.horizontal, Constants.horizontalPadding)
             }
-            .padding(.vertical, Constants.amountPresetsVerticalPadding)
+            .padding(.top, viewModel.isSingleSheet ? Constants.sheetControlsTopPadding : Constants.amountPresetsVerticalPadding)
+            .padding(.bottom, viewModel.isSingleSheet ? Constants.sheetControlsBottomPadding : Constants.amountPresetsVerticalPadding)
         }
     }
 
@@ -291,7 +349,7 @@ struct PolymarketOrderView: View {
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                     .lineLimit(1)
                     .fixedSize()
-                    .padding(.horizontal, Constants.chipHorizontalPadding)
+                    .padding(.horizontal, viewModel.isSingleSheet ? Constants.sheetChipHorizontalPadding : Constants.chipHorizontalPadding)
             } action: {
                 viewModel.handleViewAction(.selectFraction(option.fraction))
             }
@@ -362,30 +420,19 @@ struct PolymarketOrderView: View {
         }
     }
 
-    private func placeFooter(signingButtonType: SigningActionButtonViewType) -> some View {
-        VStack(spacing: Constants.footerSpacing) {
-            PolymarketLegalLine { viewModel.handleViewAction(.openLegalTerms($0)) }
-
-            SigningActionButtonView(
-                type: signingButtonType,
-                title: viewModel.nextButtonTitle,
-                isLoading: viewModel.isPlacing,
-                isDisabled: !viewModel.isNextEnabled,
-                action: {
-                    isAmountFocused = false
-                    viewModel.handleViewAction(.placeOrder)
-                }
-            )
-        }
-        .padding(.horizontal, Constants.horizontalPadding)
-        .padding(.top, Constants.buttonTopPadding)
-        .padding(.bottom, Constants.buttonBottomPadding)
-        .background {
-            Fade(position: .bottom)
-                .variant(.hard)
-                .padding(.top, -Constants.footerFadeOverhang)
-                .ignoresSafeArea(edges: .bottom)
-        }
+    private func placeFooter(signingButtonType: SigningActionButtonViewType) -> Footer {
+        Footer(.signingButton(SigningActionButtonView(
+            type: signingButtonType,
+            title: viewModel.nextButtonTitle,
+            isLoading: viewModel.isPlacing,
+            isDisabled: !viewModel.isNextEnabled,
+            action: {
+                isAmountFocused = false
+                viewModel.handleViewAction(.placeOrder)
+            }
+        )))
+        .caption(PolymarketLegalLine.text())
+        .showFade()
     }
 
     private var nextButton: some View {
@@ -418,7 +465,7 @@ private extension Animation {
 private extension PolymarketOrderView {
     enum Constants {
         static let topBarTopPadding: CGFloat = 8
-        static let sheetHeaderTopPadding: CGFloat = 20
+        static let sheetHeaderTopPadding: CGFloat = 16
         static let amountMinTextScale: CGFloat = 0.5
         static let horizontalPadding: CGFloat = 16
         static let sellControlsSpacing: CGFloat = 4
@@ -426,6 +473,10 @@ private extension PolymarketOrderView {
         static let chipMinWidth: CGFloat = 56
         static let chipHorizontalPadding: CGFloat = 8
         static let amountPresetsVerticalPadding: CGFloat = 14
+        static let sheetChipHorizontalPadding: CGFloat = 14
+        static let sheetControlsTopPadding: CGFloat = 12
+        static let sheetControlsBottomPadding: CGFloat = 16
+        static let sheetContentBottomPadding: CGFloat = 24
         // [REDACTED_TODO_COMMENT]
         static let decreaseAccessibilityLabel = "Decrease"
         // [REDACTED_TODO_COMMENT]
@@ -448,8 +499,6 @@ private extension PolymarketOrderView {
         static let buttonBottomPadding: CGFloat = 12
         static let notificationsAnimationDuration: TimeInterval = 0.3
         static let cornerRadius: CGFloat = 24
-        static let footerSpacing: CGFloat = 12
-        static let footerFadeOverhang: CGFloat = 16
         static let totalSkeletonVerticalPadding: CGFloat = 12
     }
 }

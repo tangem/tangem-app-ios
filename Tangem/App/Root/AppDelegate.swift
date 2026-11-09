@@ -22,9 +22,9 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         UISwitch.appearance().onTintColor = .tangemBlue
         UITableView.appearance().backgroundColor = .clear
         UIScrollView.appearance().keyboardDismissMode = AppConstants.defaultScrollViewKeyboardDismissMode
-        UINavigationBar.appearance().tintColor = UIColor(Colors.Text.primary1)
+        UINavigationBar.appearance().tintColor = UIColor(DesignSystem.Color.textPrimary)
         UINavigationBar.appearance().titleTextAttributes = [
-            .foregroundColor: UIColor(Colors.Text.primary1),
+            .foregroundColor: UIColor(DesignSystem.Color.textPrimary),
         ]
         UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = UIColor.textAccent
 
