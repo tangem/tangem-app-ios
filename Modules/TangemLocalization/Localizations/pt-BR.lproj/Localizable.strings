@@ -259,6 +259,8 @@
 "collectibles_main_search_load_error" = "Não foi possível carregar a lista de cartões.";
 "collectibles_main_title" = "Conta de pacotes";
 "collectibles_open_pack_buyback_unavailable" = "Recompra indisponível";
+"collectibles_open_pack_failed_subtitle" = "Our partner has an issue. Please contact support for further guidance";
+"collectibles_open_pack_failed_title" = "Failed to open pack";
 "collectibles_open_pack_keep_card_button" = "Ficar com o cartão";
 "collectibles_open_pack_market_value" = "Valor de mercado %@ · Segurado";
 "collectibles_open_pack_pull_common" = "Item comum obtido";
@@ -270,6 +272,8 @@
 "collectibles_pack_unopened_open_pack" = "Abrir pacote";
 "collectibles_pack_unopened_subtitle" = "Seu pagamento foi concluído, mas você ainda não terminou de abrir o pacote. Receba sua carta para continuar abrindo pacotes.";
 "collectibles_pack_unopened_title" = "Você tem um pacote fechado";
+"collectibles_refund_on_the_way_subtitle" = "Our partner should have issued refund for your unopened pack. If you haven’t received a refund within a day, please contact support";
+"collectibles_refund_on_the_way_title" = "Your refund is on the way";
 "collectibles_region_restrictions_subtitle" = "O Tangem Packs não é compatível com sua região. Você ainda pode visualizar os eventos";
 "collectibles_region_restrictions_title" = "Restrições regionais";
 "collectibles_stories_browse_packs_button" = "Explorar pacotes";
@@ -940,8 +944,8 @@
 "hw_upgrade_to_cold_banner_description" = "Proteja suas criptomoedas com a carteira de hardware de alta qualidade da Tangem.";
 "hw_upgrade_to_cold_banner_title" = "Atualize a segurança da sua carteira para hardware.";
 "hw_upgrade" = "Atualizar";
-"hw_wallets_limit_alert_message" = "You can have up to %1$@ mobile wallets in Tangem. To add another one, remove one of your current mobile wallets first.";
-"hw_wallets_limit_alert_title" = "Mobile wallet limit reached";
+"hw_wallets_limit_alert_message" = "Você pode ter até %1$@ carteiras mobile na Tangem. Para adicionar outra, remova primeiro uma das suas carteiras mobile atuais.";
+"hw_wallets_limit_alert_title" = "Limite de carteiras mobile atingido";
 "information_generated_with_ai" = "Esta informação foi gerada com IA.\nToque aqui se encontrar algum erro.";
 "initial_message_change_access_code_body" = "Para alterar o código de acesso, aproxime o cartão ou anel conforme mostrado acima e não o remova até o final da operação.";
 "initial_message_change_passcode_body" = "Para alterar a senha, aproxime o cartão conforme mostrado acima e não o remova até o final da operação.";
@@ -1503,6 +1507,8 @@
 "onboarding_wallet_info_title_second" = "Cartões idênticos";
 "onboarding_wallet_info_title_third" = "Código de acesso";
 "onramp_all_offers_button_title" = "Todas as ofertas";
+"onramp_buy_title_subtitle_network" = "%@ network";
+"onramp_buy_title_subtitle_standard" = "%1$@ in %2$@ network";
 "onramp_country_search" = "Pesquisar por país";
 "onramp_country_unavailable" = "Indisponível";
 "onramp_currency_other" = "Outras moedas";
@@ -1794,11 +1800,13 @@
 "prediction_session_key_revoke" = "Revoke";
 "prediction_session_key_settings_title" = "Settings";
 "prediction_session_key_status_activating" = "Activating";
+"prediction_session_key_status_activation_failed" = "Activation failed";
 "prediction_session_key_status_active" = "Active";
 "prediction_session_key_status_expired" = "Expired";
 "prediction_session_key_status_extending" = "Extending";
 "prediction_session_key_status_paused" = "Paused";
 "prediction_session_key_status_pausing" = "Pausing";
+"prediction_session_key_status_reconnect_needed" = "Reconnect needed";
 "prediction_session_key_status_resuming" = "Resuming";
 "prediction_session_key_status_revoking" = "Revoking";
 "prediction_session_key_this_device" = "This device";
@@ -1816,6 +1824,9 @@
 "prediction_session_key_toast_revoked" = "Successfully revoked. Activate it any time";
 "prediction_session_key_toast_revoking" = "Revoking fast trading";
 "prediction_session_key_unknown_device" = "Unknown device";
+"prediction_session_key_unknown_signer" = "Unknown signer";
+"prediction_session_key_unknown_signers_text" = "Someone else can trade with your predictions balance. If you didn't allow it, revoke these signers now";
+"prediction_session_key_unknown_signers_title" = "Unknown signers can trade";
 "prediction_session_key_until" = "Until %@";
 "prediction_session_key_what_is" = "What is fast trading?";
 "prediction_sports_draw" = "Draw";
@@ -2691,8 +2702,8 @@
 "tangempay_unified_onboarding_fees_caption" = "Dólar por dólar";
 "tangempay_unified_onboarding_fees_subtitle" = "Sem taxas de câmbio nem mensalidades";
 "tangempay_unified_onboarding_fees_title" = "1 USD vira 1 USDC\n%1$@";
-"tangempay_unified_onboarding_interest_caption" = "Rendimento";
-"tangempay_unified_onboarding_interest_title" = "Mantenha o saldo e ganhe até 4%% ao ano";
+"tangempay_unified_onboarding_interest_caption" = "Em breve";
+"tangempay_unified_onboarding_interest_title" = "Ganhe com o Modo de rendimento até 4%% ao ano";
 "tangempay_unified_onboarding_legal" = "Os recursos disponíveis dependem de onde você mora. Confirmaremos isso logo após a verificação";
 "tangempay_unified_onboarding_money_account_caption" = "Compra de cripto";
 "tangempay_unified_onboarding_money_account_header" = "Conta";

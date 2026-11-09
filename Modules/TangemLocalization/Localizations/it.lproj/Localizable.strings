@@ -259,6 +259,8 @@
 "collectibles_main_search_load_error" = "Caricamento dell'elenco delle carte non riuscito.";
 "collectibles_main_title" = "Account Packs";
 "collectibles_open_pack_buyback_unavailable" = "Riacquisto non disponibile";
+"collectibles_open_pack_failed_subtitle" = "Our partner has an issue. Please contact support for further guidance";
+"collectibles_open_pack_failed_title" = "Failed to open pack";
 "collectibles_open_pack_keep_card_button" = "Tieni la carta";
 "collectibles_open_pack_market_value" = "Valore di mercato %@ · Assicurato";
 "collectibles_open_pack_pull_common" = "Estrazione comune";
@@ -270,6 +272,8 @@
 "collectibles_pack_unopened_open_pack" = "Apri pack";
 "collectibles_pack_unopened_subtitle" = "Il pagamento è andato a buon fine, ma non ha terminato l'apertura del pack. Riceva la sua carta per continuare ad aprire i pack";
 "collectibles_pack_unopened_title" = "Ha un pack non aperto";
+"collectibles_refund_on_the_way_subtitle" = "Our partner should have issued refund for your unopened pack. If you haven’t received a refund within a day, please contact support";
+"collectibles_refund_on_the_way_title" = "Your refund is on the way";
 "collectibles_region_restrictions_subtitle" = "I Tangem Packs non sono disponibili nella sua regione, ma può comunque visualizzare gli eventi";
 "collectibles_region_restrictions_title" = "Restrizioni regionali";
 "collectibles_stories_browse_packs_button" = "Sfoglia i pack";
@@ -1503,6 +1507,8 @@
 "onboarding_wallet_info_title_second" = "Carte identiche";
 "onboarding_wallet_info_title_third" = "Codice di accesso";
 "onramp_all_offers_button_title" = "Tutte le offerte";
+"onramp_buy_title_subtitle_network" = "%@ network";
+"onramp_buy_title_subtitle_standard" = "%1$@ in %2$@ network";
 "onramp_country_search" = "Cerca per paese";
 "onramp_country_unavailable" = "Non disponibile";
 "onramp_currency_other" = "Altre valute";
@@ -1794,11 +1800,13 @@
 "prediction_session_key_revoke" = "Revoke";
 "prediction_session_key_settings_title" = "Settings";
 "prediction_session_key_status_activating" = "Activating";
+"prediction_session_key_status_activation_failed" = "Activation failed";
 "prediction_session_key_status_active" = "Active";
 "prediction_session_key_status_expired" = "Expired";
 "prediction_session_key_status_extending" = "Extending";
 "prediction_session_key_status_paused" = "Paused";
 "prediction_session_key_status_pausing" = "Pausing";
+"prediction_session_key_status_reconnect_needed" = "Reconnect needed";
 "prediction_session_key_status_resuming" = "Resuming";
 "prediction_session_key_status_revoking" = "Revoking";
 "prediction_session_key_this_device" = "This device";
@@ -1816,6 +1824,9 @@
 "prediction_session_key_toast_revoked" = "Successfully revoked. Activate it any time";
 "prediction_session_key_toast_revoking" = "Revoking fast trading";
 "prediction_session_key_unknown_device" = "Unknown device";
+"prediction_session_key_unknown_signer" = "Unknown signer";
+"prediction_session_key_unknown_signers_text" = "Someone else can trade with your predictions balance. If you didn't allow it, revoke these signers now";
+"prediction_session_key_unknown_signers_title" = "Unknown signers can trade";
 "prediction_session_key_until" = "Until %@";
 "prediction_session_key_what_is" = "What is fast trading?";
 "prediction_sports_draw" = "Pareggio";
@@ -2691,8 +2702,8 @@
 "tangempay_unified_onboarding_fees_caption" = "Dollaro per dollaro";
 "tangempay_unified_onboarding_fees_subtitle" = "Nessuna commissione di cambio o mensile";
 "tangempay_unified_onboarding_fees_title" = "1 USD diventa 1 USDC\n%1$@";
-"tangempay_unified_onboarding_interest_caption" = "Interessi";
-"tangempay_unified_onboarding_interest_title" = "Fondi sul conto, fino al 4%% annuo";
+"tangempay_unified_onboarding_interest_caption" = "Prossimamente";
+"tangempay_unified_onboarding_interest_title" = "Guadagna con Yield Mode fino al 4%% annuo";
 "tangempay_unified_onboarding_legal" = "I prodotti disponibili dipendono dal Paese di residenza. Li confermeremo subito dopo la verifica";
 "tangempay_unified_onboarding_money_account_caption" = "Acquisto di crypto";
 "tangempay_unified_onboarding_money_account_header" = "Conto";

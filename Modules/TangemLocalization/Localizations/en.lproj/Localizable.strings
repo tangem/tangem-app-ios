@@ -259,6 +259,8 @@
 "collectibles_main_search_load_error" = "Failed to load cards list.";
 "collectibles_main_title" = "Packs account";
 "collectibles_open_pack_buyback_unavailable" = "Buyback unavailable";
+"collectibles_open_pack_failed_subtitle" = "Our partner has an issue. Please contact support for further guidance";
+"collectibles_open_pack_failed_title" = "Failed to open pack";
 "collectibles_open_pack_keep_card_button" = "Keep card";
 "collectibles_open_pack_market_value" = "Market value %@ · Insured";
 "collectibles_open_pack_pull_common" = "Common pull";
@@ -270,6 +272,8 @@
 "collectibles_pack_unopened_open_pack" = "Open pack";
 "collectibles_pack_unopened_subtitle" = "Your payment went through, but you haven’t finished opening pack. Please receive your card in order to continue ripping packs";
 "collectibles_pack_unopened_title" = "You have pack unopened";
+"collectibles_refund_on_the_way_subtitle" = "Our partner should have issued refund for your unopened pack. If you haven’t received a refund within a day, please contact support";
+"collectibles_refund_on_the_way_title" = "Your refund is on the way";
 "collectibles_region_restrictions_subtitle" = "Tangem Packs are not supported in your region, you can still view events";
 "collectibles_region_restrictions_title" = "Region restrictions";
 "collectibles_stories_browse_packs_button" = "Browse packs";
@@ -1503,6 +1507,8 @@
 "onboarding_wallet_info_title_second" = "Identical cards";
 "onboarding_wallet_info_title_third" = "Access code";
 "onramp_all_offers_button_title" = "All offers";
+"onramp_buy_title_subtitle_network" = "%@ network";
+"onramp_buy_title_subtitle_standard" = "%1$@ in %2$@ network";
 "onramp_country_search" = "Search by country";
 "onramp_country_unavailable" = "Unavailable";
 "onramp_currency_other" = "Other currencies";
@@ -1794,11 +1800,13 @@
 "prediction_session_key_revoke" = "Revoke";
 "prediction_session_key_settings_title" = "Settings";
 "prediction_session_key_status_activating" = "Activating";
+"prediction_session_key_status_activation_failed" = "Activation failed";
 "prediction_session_key_status_active" = "Active";
 "prediction_session_key_status_expired" = "Expired";
 "prediction_session_key_status_extending" = "Extending";
 "prediction_session_key_status_paused" = "Paused";
 "prediction_session_key_status_pausing" = "Pausing";
+"prediction_session_key_status_reconnect_needed" = "Reconnect needed";
 "prediction_session_key_status_resuming" = "Resuming";
 "prediction_session_key_status_revoking" = "Revoking";
 "prediction_session_key_this_device" = "This device";
@@ -1816,6 +1824,9 @@
 "prediction_session_key_toast_revoked" = "Successfully revoked. Activate it any time";
 "prediction_session_key_toast_revoking" = "Revoking fast trading";
 "prediction_session_key_unknown_device" = "Unknown device";
+"prediction_session_key_unknown_signer" = "Unknown signer";
+"prediction_session_key_unknown_signers_text" = "Someone else can trade with your predictions balance. If you didn't allow it, revoke these signers now";
+"prediction_session_key_unknown_signers_title" = "Unknown signers can trade";
 "prediction_session_key_until" = "Until %@";
 "prediction_session_key_what_is" = "What is fast trading?";
 "prediction_sports_draw" = "Draw";
@@ -2691,8 +2702,8 @@
 "tangempay_unified_onboarding_fees_caption" = "Dollar for dollar";
 "tangempay_unified_onboarding_fees_subtitle" = "No exchange and monthly fees";
 "tangempay_unified_onboarding_fees_title" = "1 USD becomes 1 USDC\n%1$@";
-"tangempay_unified_onboarding_interest_caption" = "Interest";
-"tangempay_unified_onboarding_interest_title" = "Hold and earn up to 4%% APY";
+"tangempay_unified_onboarding_interest_caption" = "Coming soon";
+"tangempay_unified_onboarding_interest_title" = "Earn with Yield mode up to 4%% a year";
 "tangempay_unified_onboarding_legal" = "What you can open depends on where you live. We'll confirm right after verification";
 "tangempay_unified_onboarding_money_account_caption" = "Crypto on-ramp";
 "tangempay_unified_onboarding_money_account_header" = "Account";

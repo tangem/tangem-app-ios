@@ -259,6 +259,8 @@
 "collectibles_main_search_load_error" = "Failed to load cards list.";
 "collectibles_main_title" = "Packs account";
 "collectibles_open_pack_buyback_unavailable" = "Buyback unavailable";
+"collectibles_open_pack_failed_subtitle" = "Our partner has an issue. Please contact support for further guidance";
+"collectibles_open_pack_failed_title" = "Failed to open pack";
 "collectibles_open_pack_keep_card_button" = "Keep card";
 "collectibles_open_pack_market_value" = "Market value %@ · Insured";
 "collectibles_open_pack_pull_common" = "Common pull";
@@ -270,6 +272,8 @@
 "collectibles_pack_unopened_open_pack" = "Open pack";
 "collectibles_pack_unopened_subtitle" = "Your payment went through, but you haven’t finished opening pack. Please receive your card in order to continue ripping packs";
 "collectibles_pack_unopened_title" = "You have pack unopened";
+"collectibles_refund_on_the_way_subtitle" = "Our partner should have issued refund for your unopened pack. If you haven’t received a refund within a day, please contact support";
+"collectibles_refund_on_the_way_title" = "Your refund is on the way";
 "collectibles_region_restrictions_subtitle" = "Tangem Packs are not supported in your region, you can still view events";
 "collectibles_region_restrictions_title" = "Region restrictions";
 "collectibles_stories_browse_packs_button" = "Browse packs";
@@ -1503,6 +1507,8 @@
 "onboarding_wallet_info_title_second" = "Ідентичні картки";
 "onboarding_wallet_info_title_third" = "Код доступу";
 "onramp_all_offers_button_title" = "Усі пропозиції";
+"onramp_buy_title_subtitle_network" = "%@ network";
+"onramp_buy_title_subtitle_standard" = "%1$@ in %2$@ network";
 "onramp_country_search" = "Пошук за країною";
 "onramp_country_unavailable" = "Недоступно";
 "onramp_currency_other" = "Інші валюти";
@@ -1794,11 +1800,13 @@
 "prediction_session_key_revoke" = "Revoke";
 "prediction_session_key_settings_title" = "Settings";
 "prediction_session_key_status_activating" = "Activating";
+"prediction_session_key_status_activation_failed" = "Activation failed";
 "prediction_session_key_status_active" = "Active";
 "prediction_session_key_status_expired" = "Expired";
 "prediction_session_key_status_extending" = "Extending";
 "prediction_session_key_status_paused" = "Paused";
 "prediction_session_key_status_pausing" = "Pausing";
+"prediction_session_key_status_reconnect_needed" = "Reconnect needed";
 "prediction_session_key_status_resuming" = "Resuming";
 "prediction_session_key_status_revoking" = "Revoking";
 "prediction_session_key_this_device" = "This device";
@@ -1816,6 +1824,9 @@
 "prediction_session_key_toast_revoked" = "Successfully revoked. Activate it any time";
 "prediction_session_key_toast_revoking" = "Revoking fast trading";
 "prediction_session_key_unknown_device" = "Unknown device";
+"prediction_session_key_unknown_signer" = "Unknown signer";
+"prediction_session_key_unknown_signers_text" = "Someone else can trade with your predictions balance. If you didn't allow it, revoke these signers now";
+"prediction_session_key_unknown_signers_title" = "Unknown signers can trade";
 "prediction_session_key_until" = "Until %@";
 "prediction_session_key_what_is" = "What is fast trading?";
 "prediction_sports_draw" = "Draw";
@@ -2059,7 +2070,7 @@
 "social_login_error_generic_v2" = "Будь ласка, спробуйте ще раз. Якщо проблема не зникне, перевірте підключення до інтернету.";
 "social_login_error_generic" = "Щось пішло не так. Будь ласка, спробуйте ще раз";
 "social_login_error_network_description" = "Перевірте підключення та спробуйте ще раз.";
-"social_login_error_network_title" = "Немає з’єднання з інтернетом";
+"social_login_error_network_title" = "Немає підключення до інтернету";
 "social_login_error_no_account" = "Щоб продовжити, додайте на цей пристрій акаунт %@.";
 "social_login_error_restore_failed_description" = "Не вдалося відновити гаманець для цього акаунта. Спробуйте ще раз або зверніться до служби підтримки";
 "social_login_error_support" = "Звернутися до служби підтримки";
@@ -2691,8 +2702,8 @@
 "tangempay_unified_onboarding_fees_caption" = "Долар за долар";
 "tangempay_unified_onboarding_fees_subtitle" = "Без комісій за обмін і щомісячної плати";
 "tangempay_unified_onboarding_fees_title" = "1 USD стає 1 USDC\n%1$@";
-"tangempay_unified_onboarding_interest_caption" = "Відсотки";
-"tangempay_unified_onboarding_interest_title" = "Зберігайте кошти й отримуйте до 4%% річних";
+"tangempay_unified_onboarding_interest_caption" = "Незабаром";
+"tangempay_unified_onboarding_interest_title" = "Заробляйте з Режимом дохідності до 4%% річних";
 "tangempay_unified_onboarding_legal" = "Що вам доступно, залежить від вашого регіону. Ми підтвердимо це одразу після верифікації";
 "tangempay_unified_onboarding_money_account_caption" = "Купівля криптовалюти";
 "tangempay_unified_onboarding_money_account_header" = "Рахунок";
