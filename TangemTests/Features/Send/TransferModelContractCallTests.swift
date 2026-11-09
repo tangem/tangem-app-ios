@@ -160,38 +160,10 @@ private final class ContractCallTokenStub: SendSourceTokenStub, SendTransferable
     }
 
     override var availableBalanceProvider: TokenBalanceProvider {
-        LoadedBalanceProviderStub(balance: balance)
+        TokenBalanceProviderStub(balanceType: .loaded(balance))
     }
 
     override var transactionDispatcherProvider: any TransactionDispatcherProvider {
         RecordingTransactionDispatcherProvider(recorder: recorder)
-    }
-}
-
-private struct LoadedBalanceProviderStub: TokenBalanceProvider {
-    let balance: Decimal
-
-    var balanceType: TokenBalanceType { .loaded(balance) }
-    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { .just(output: balanceType) }
-    var formattedBalanceType: FormattedTokenBalanceType { .loading(.empty("-")) }
-    var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { .just(output: formattedBalanceType) }
-}
-
-private struct BuildingTransactionCreatorStub: SendTransactionCreator {
-    func createTransaction(
-        amount: Amount,
-        fee: Fee,
-        destinationAddress: String,
-        params: TransactionParams?
-    ) async throws -> BSDKTransaction {
-        Transaction(
-            amount: amount,
-            fee: fee,
-            sourceAddress: "",
-            destinationAddress: destinationAddress,
-            changeAddress: "",
-            contractAddress: nil,
-            params: params
-        )
     }
 }

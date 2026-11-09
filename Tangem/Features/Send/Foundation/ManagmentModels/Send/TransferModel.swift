@@ -317,6 +317,16 @@ private extension TransferModel {
 
 // MARK: - Fee input
 
+extension TransferModel {
+    func updateFees(amountOrBalance amount: Decimal?) {
+        guard let destination = _destination.value?.value.transactionAddress else {
+            return
+        }
+
+        updateFees(amountValue: amount ?? _sourceToken.availableBalanceProvider.balanceType.value ?? 0, destination: destination)
+    }
+}
+
 private extension TransferModel {
     func feeInput(amount: Decimal, destination: String) -> TokenFeeProviderInputData {
         guard let contractCallData else {

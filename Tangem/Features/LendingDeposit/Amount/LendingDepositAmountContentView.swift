@@ -1,0 +1,353 @@
+//
+//  LendingDepositAmountContentView.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+import TangemAssets
+import TangemLocalization
+import TangemUI
+import TangemUIUtils
+import struct TangemAccounts.AccountIconView
+
+struct LendingDepositAmountContentView: View {
+    @ObservedObject var field: AmountInputFieldModel
+
+    let state: StateModel
+    let action: (Action) -> Void
+
+    @FocusState private var isAmountFocused: Bool
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: Constants.sectionSpacing) {
+                amountCard
+                feeRow
+            }
+            .padding(.horizontal, Constants.horizontalPadding)
+        }
+        .scrollIndicators(.hidden)
+        .scrollBounceBehavior(.basedOnSize)
+        .legacyFooter {
+            VStack(spacing: .zero) {
+                if isAmountFocused {
+                    shareChips
+                }
+
+                Footer(.buttons(primary: depositButton))
+                    .disabled(!state.isDepositEnabled)
+            }
+        }
+        .background { DesignSystem.Color.bgPrimary.ignoresSafeArea() }
+        .topNavigation(
+            // [REDACTED_TODO_COMMENT]
+            title: "Deposit to Lending on Aave",
+            leading: .custom(TopNavigation.Action(
+                icon: DesignSystem.Icons.Info.regular20,
+                accessibilityLabel: Localization.commonLearnMore,
+                action: { action(.info) }
+            )),
+            close: .enabled { action(.close) }
+        )
+        .onAppear(perform: focusAmount)
+    }
+}
+
+// MARK: - Amount card
+
+private extension LendingDepositAmountContentView {
+    var amountCard: some View {
+        VStack(spacing: .zero) {
+            header
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, Constants.cardPadding)
+                .padding(.top, Constants.cardPadding)
+                .padding(.bottom, Constants.headerBottomPadding)
+
+            VStack(spacing: Constants.amountSpacing) {
+                textField
+                bottomInfo
+            }
+            .padding(.vertical, Constants.amountVerticalPadding)
+            .padding(.horizontal, Constants.cardPadding)
+
+            Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
+                .padding(.horizontal, Constants.cardPadding)
+
+            tokenRow
+        }
+        .background(DesignSystem.Color.bgSecondary)
+        .cornerRadiusContinuous(Constants.cornerRadius)
+    }
+
+    @ViewBuilder
+    var header: some View {
+        switch state.header {
+        case .wallet(let name):
+            Text(Localization.commonFromWalletName(name))
+        case .account(let name, let icon):
+            HStack(spacing: Constants.headerSpacing) {
+                Text(Localization.commonFrom)
+
+                AccountIconView(data: icon)
+                    .settings(.smallSized)
+                    .accessibilityHidden(true)
+
+                Text(name)
+            }
+            .accessibilityElement(children: .combine)
+        }
+    }
+
+    @ViewBuilder
+    var textField: some View {
+        switch field.amountType {
+        case .crypto:
+            makeTextField(viewModel: field.cryptoTextFieldViewModel, options: field.cryptoTextFieldOptions)
+        case .fiat:
+            makeTextField(viewModel: field.fiatTextFieldViewModel, options: field.fiatTextFieldOptions)
+        }
+    }
+
+    func makeTextField(
+        viewModel: DecimalNumberTextFieldViewModel,
+        options: SendDecimalNumberTextField.PrefixSuffixOptions
+    ) -> some View {
+        SendDecimalNumberTextField(viewModel: viewModel)
+            .prefixSuffixOptions(options)
+            .appearance(.init(
+                font: DesignSystem.Font.displayMediumToken.font,
+                textColor: DesignSystem.Color.textPrimary,
+                placeholderColor: DesignSystem.Color.textTertiary
+            ))
+            .alignment(.center)
+            .minTextScale(Constants.amountMinTextScale)
+            .focused($isAmountFocused)
+    }
+
+    @ViewBuilder
+    var bottomInfo: some View {
+        switch field.bottomInfoText {
+        case .error(let text):
+            HStack(spacing: Constants.errorSpacing) {
+                if field.possibleToConvertToFiat {
+                    alternativeToggle
+
+                    Text("·")
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                        .accessibilityHidden(true)
+                }
+
+                Text(text)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusError)
+                    .multilineTextAlignment(.center)
+            }
+        case .info(let text):
+            Text(text)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textStatusWarning)
+                .multilineTextAlignment(.center)
+        case .none where field.possibleToConvertToFiat:
+            alternativeToggle
+        case .none:
+            Text(" ")
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                .hidden()
+        }
+    }
+
+    var alternativeToggle: some View {
+        SwiftUI.Button {
+            field.amountType = field.amountType == .crypto ? .fiat : .crypto
+        } label: {
+            HStack(spacing: Constants.alternativeSpacing) {
+                Text(field.alternativeAmount)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .lineLimit(1)
+
+                DesignSystem.Icons.ArrowRightLeft.regular16.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconBrand)
+                    .accessibilityHidden(true)
+            }
+        }
+        // [REDACTED_TODO_COMMENT]
+        .accessibilityHint("Switches the amount between crypto and fiat")
+    }
+
+    var tokenRow: some View {
+        Row(title: state.tokenSymbol, subtitle: state.balance)
+            .start {
+                TokenIconV2(tokenIconInfo: state.tokenIconInfo, size: .size40)
+            }
+            .end {
+                TangemUI.Button(
+                    label: Localization.sendMaxAmount,
+                    accessibilityLabel: nil,
+                    action: { action(.share(100)) }
+                )
+                .size(.x8)
+                .styleType(.secondary(.default))
+            }
+    }
+}
+
+// MARK: - Fee row
+
+private extension LendingDepositAmountContentView {
+    var feeRow: some View {
+        Row(title: Localization.commonNetworkFeeTitle)
+            .end {
+                HStack(spacing: Constants.feeValueSpacing) {
+                    feeValue
+
+                    if state.canChangeFeeSpeed {
+                        DesignSystem.Icons.ChevronDoubleVertical.regular20.image
+                            .renderingMode(.template)
+                            .foregroundStyle(DesignSystem.Color.iconSecondary)
+                            .accessibilityHidden(true)
+                    }
+                }
+            }
+            .includeInnerPadding(false)
+            .onTap(action: state.canChangeFeeSpeed ? openFeeSpeed : nil)
+            .padding(.vertical, Constants.feeVerticalPadding)
+            .padding(.horizontal, Constants.cardPadding)
+            .background(DesignSystem.Color.bgSecondary)
+            .cornerRadiusContinuous(Constants.cornerRadius)
+    }
+
+    @ViewBuilder
+    var feeValue: some View {
+        switch state.fee {
+        case .loading:
+            Shimmer()
+                .variant(.custom(width: Constants.feeShimmerSize.width, height: Constants.feeShimmerSize.height))
+        case .loaded(let symbol, let value):
+            Badge(label: symbol, accessibilityLabel: nil)
+
+            Text(value)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+        case .unavailable:
+            Text(BalanceFormatter.defaultEmptyBalanceString)
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+        }
+    }
+
+    func openFeeSpeed() {
+        isAmountFocused = false
+        action(.fee)
+    }
+}
+
+// MARK: - Footer
+
+private extension LendingDepositAmountContentView {
+    var shareChips: some View {
+        HStack(spacing: Constants.chipSpacing) {
+            ForEach(Constants.sharePercents, id: \.self) { percent in
+                TangemUI.Button(
+                    label: "\(percent)%",
+                    accessibilityLabel: nil,
+                    action: { action(.share(percent)) }
+                )
+                .size(.x8)
+                .styleType(.secondary(.default))
+                .horizontalLayout(.infinity)
+            }
+
+            TangemUI.Button(
+                icon: DesignSystem.Icons.KeyboardDown.regular20,
+                accessibilityLabel: Localization.commonHide,
+                action: { isAmountFocused = false }
+            )
+            .size(.x8)
+            .styleType(.secondary(.default))
+        }
+        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.top, Constants.chipsTopPadding)
+    }
+
+    var depositButton: TangemUI.Button {
+        TangemUI.Button(
+            // [REDACTED_TODO_COMMENT]
+            label: "Deposit",
+            accessibilityLabel: nil,
+            action: {
+                isAmountFocused = false
+                action(.deposit)
+            }
+        )
+        .styleType(.primary)
+    }
+
+    func focusAmount() {
+        guard !isAmountFocused else { return }
+
+        Task {
+            try? await Task.sleep(for: .seconds(Constants.keyboardAppearDelay))
+            isAmountFocused = true
+        }
+    }
+}
+
+// MARK: - State Model
+
+extension LendingDepositAmountContentView {
+    struct StateModel {
+        let header: Header
+        let tokenIconInfo: TokenIconInfo
+        let tokenSymbol: String
+        var balance: String
+        var fee: Fee
+        var canChangeFeeSpeed: Bool
+        var isDepositEnabled: Bool
+    }
+
+    enum Header {
+        case account(name: String, icon: AccountIconView.ViewData)
+        case wallet(name: String)
+    }
+
+    enum Fee {
+        case loading
+        case loaded(symbol: String, value: String)
+        case unavailable
+    }
+
+    enum Action {
+        case info
+        case close
+        case share(Int)
+        case fee
+        case deposit
+    }
+}
+
+// MARK: - Constants
+
+private extension LendingDepositAmountContentView {
+    enum Constants {
+        static let sharePercents = [25, 50, 75, 100]
+        static let sectionSpacing: CGFloat = 8
+        static let horizontalPadding: CGFloat = 16
+        static let cardPadding: CGFloat = 16
+        static let cornerRadius: CGFloat = 24
+        static let headerSpacing: CGFloat = 4
+        static let headerBottomPadding: CGFloat = 4
+        static let amountSpacing: CGFloat = 8
+        static let amountVerticalPadding: CGFloat = 40
+        static let amountMinTextScale: CGFloat = 0.5
+        static let alternativeSpacing: CGFloat = 2
+        static let errorSpacing: CGFloat = 6
+        static let feeVerticalPadding: CGFloat = 12
+        static let feeValueSpacing: CGFloat = 8
+        static let feeShimmerSize = CGSize(width: 64, height: 20)
+        static let chipSpacing: CGFloat = 4
+        static let chipsTopPadding: CGFloat = 8
+        static let keyboardAppearDelay: TimeInterval = 0.5
+    }
+}
