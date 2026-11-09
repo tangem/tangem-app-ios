@@ -1,0 +1,14 @@
+//
+//  YieldModuleMarketsLoadState.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+enum YieldModuleMarketsLoadState {
+    case idle
+    case loading
+    case loaded
+    case failed
+}

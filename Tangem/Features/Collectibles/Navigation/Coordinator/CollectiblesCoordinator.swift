@@ -39,6 +39,7 @@ final class CollectiblesCoordinator: CoordinatorObject {
     @Published private(set) var state: ViewState?
     @Published var machineViewModel: CollectiblesMachineViewModel?
     @Published var confirmOrderViewModel: CollectiblesConfirmOrderViewModel?
+    @Published var reconnectionViewModel: CollectiblesWelcomeViewModel?
 
     // MARK: - Init
 
@@ -61,8 +62,15 @@ final class CollectiblesCoordinator: CoordinatorObject {
 
     @MainActor
     func openMain() {
+        let factory = CollectiblesMainFactory(
+            accountModel: accountModel,
+            catalogueProvider: CollectiblesAPIService(),
+            signingActionButtonType: signingActionButtonType
+        )
+
         state = .main(
-            CollectiblesMainViewModel(routable: self, accountModel: accountModel),
+            factory.makeViewModel(routable: self),
+            banners: factory.makeBanners(routable: self),
             // [REDACTED_TODO_COMMENT]
             actionsMenu: CollectiblesActionsMenuViewModel(routable: self, devnet: makeDevnetMenuViewModel())
         )
@@ -79,9 +87,22 @@ extension CollectiblesCoordinator: CollectiblesWelcomeRoutable {
     func openLegalTerms(url: URL) {
         safariManager.openURL(url)
     }
+
+    func closeReconnection() {
+        reconnectionViewModel = nil
+    }
 }
 
 extension CollectiblesCoordinator: CollectiblesMainRoutable {
+    func openReconnection() {
+        reconnectionViewModel = CollectiblesWelcomeViewModel(
+            routable: self,
+            onboarder: accountModel,
+            signingActionButtonType: signingActionButtonType,
+            purpose: .reconnection
+        )
+    }
+
     func openMachine(for pack: CollectiblesPack) {
         guard machineViewModel == nil else { return }
 
@@ -89,7 +110,11 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
         machineViewModel = CollectiblesMachineViewModel(
             pack: pack,
             routable: self,
-            prizePoolProvider: CommonCollectiblesPrizePoolProvider(userWalletID: userWalletID)
+            prizePoolProvider: CommonCollectiblesPrizePoolProvider(userWalletID: userWalletID),
+            relinkStatusProvider: accountModel,
+            hasUnfinishedPurchase: { [purchaseInteractor = accountModel?.purchaseInteractor] in
+                purchaseInteractor?.hasUnfinishedPurchase(machineID: pack.id) ?? false
+            }
         )
     }
 
@@ -172,8 +197,7 @@ private extension CollectiblesCoordinator {
         let coordinator = FundsCoordinator(dismissAction: {}, popToRootAction: popToRootAction)
         coordinator.start(with: .init(
             accountModel: accountModel,
-            userWalletInfo: options.userWalletModel.userWalletInfo,
-            walletModelsProvider: MainScreenUIOrderedWalletModelsProvider(userWalletModel: options.userWalletModel)
+            userWalletModel: options.userWalletModel
         ))
         fundsCoordinator = coordinator
     }
@@ -235,6 +259,10 @@ extension CollectiblesCoordinator {
 
     enum ViewState {
         case welcome(CollectiblesWelcomeViewModel)
-        case main(CollectiblesMainViewModel, actionsMenu: CollectiblesActionsMenuViewModel)
+        case main(
+            CollectiblesMainViewModel,
+            banners: CollectiblesAccountView.Banners,
+            actionsMenu: CollectiblesActionsMenuViewModel
+        )
     }
 }

@@ -43,7 +43,7 @@ struct OrganizeTokensListItemView: View {
             if viewModel.isDraggable {
                 Assets.OrganizeTokens.itemDragAndDropIcon
                     .image
-                    .foregroundColor(Colors.Icon.informative)
+                    .foregroundColor(DesignSystem.Color.iconSecondary)
                     .overlay(
                         OrganizeTokensDragAndDropGestureMarkView(context: .init(identifier: viewModel.id))
                             .frame(size: Constants.dragAndDropTapZoneSize)
@@ -56,7 +56,7 @@ struct OrganizeTokensListItemView: View {
     @ViewBuilder
     private var tokenName: some View {
         Text(viewModel.name)
-            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+            .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
     }
 
@@ -66,7 +66,7 @@ struct OrganizeTokensListItemView: View {
 
         LoadableBalanceView(
             state: viewModel.balance,
-            style: .init(font: Fonts.Regular.footnote, textColor: Colors.Text.tertiary),
+            style: .init(font: Fonts.Regular.footnote, textColor: DesignSystem.Color.textSecondary),
             loader: .init(size: .init(width: 52, height: 12))
         )
     }
@@ -76,7 +76,7 @@ struct OrganizeTokensListItemView: View {
         tokenName
 
         Text(errorMessage)
-            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
             .lineLimit(1)
     }
 }
@@ -127,13 +127,13 @@ struct OrganizeTokensListItemView_Previews: PreviewProvider {
                             }
                         }
                     }
-                    .background(Colors.Background.primary)
+                    .background(DesignSystem.Color.bgSecondary)
                 }
             }
             .padding()
             .previewLayout(.sizeThatFits)
             .previewDisplayName(name)
-            .background(Colors.Background.secondary.ignoresSafeArea())
+            .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         }
     }
 }

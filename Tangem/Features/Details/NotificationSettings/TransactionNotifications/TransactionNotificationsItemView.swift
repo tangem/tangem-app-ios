@@ -53,11 +53,11 @@ struct TransactionNotificationsItemView: View {
     private var text: some View {
         HStack(alignment: .firstTextBaseline, spacing: 2) {
             Text(viewModel.networkName.uppercased())
-                .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
 
             Text(viewModel.networkSymbol.uppercased())
-                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.caption1, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
         }
     }

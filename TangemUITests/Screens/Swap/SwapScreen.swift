@@ -302,23 +302,39 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
 
     /// Picks a token via the empty "Choose token" pill, expanding the hosting account group if collapsed.
     @discardableResult
-    func chooseTokenFromEmptySelector(_ tokenName: String, accountHeaderLabelPrefix: String = "Main account") -> Self {
+    func chooseTokenFromEmptySelector(_ tokenName: String, accountHeaderLabelPrefix: String = Localization.accountMainAccountTitle) -> Self {
         XCTContext.runActivity(named: "Choose token '\(tokenName)' via empty selector") { _ in
-            let emptyPill = app.buttons.matching(NSPredicate(format: "label == %@", "Choose token")).firstMatch
-            waitAndAssertTrue(emptyPill, "Empty 'Choose token' pill should exist")
-            emptyPill.waitAndTap()
+            revealTokenInEmptySelector(tokenName, accountHeaderLabelPrefix: accountHeaderLabelPrefix).waitAndTap()
+            return self
+        }
+    }
 
-            let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
-            if !tokenButton.waitForExistence(timeout: .quick) {
-                let accountHeader = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", accountHeaderLabelPrefix)).firstMatch
-                XCTAssertTrue(
-                    accountHeader.waitForExistence(timeout: .robustUIUpdate),
-                    "Account header '\(accountHeaderLabelPrefix)' should be displayed in token selector"
-                )
-                accountHeader.waitAndTap()
-            }
-            waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible in token selector")
-            tokenButton.waitAndTap()
+    func openEmptyTokenSelector(revealing tokenName: String, accountHeaderLabelPrefix: String = Localization.accountMainAccountTitle) -> SwapTokenSelectorScreen {
+        XCTContext.runActivity(named: "Open the empty token selector showing '\(tokenName)'") { _ in
+            revealTokenInEmptySelector(tokenName, accountHeaderLabelPrefix: accountHeaderLabelPrefix)
+            return SwapTokenSelectorScreen(app)
+        }
+    }
+
+    @discardableResult
+    func verifyFromBalance(contains expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify 'You swap' section balance contains '\(expected)'") { _ in
+            let balance = fromContainerElements()
+                .matching(NSPredicate(format: "label CONTAINS %@", expected))
+                .firstMatch
+            waitAndAssertTrue(balance, timeout: .networkRequest, "'You swap' section balance should contain '\(expected)'")
+            return self
+        }
+    }
+
+    @discardableResult
+    func verifyReceiveBalance(contains expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify 'You receive' section balance contains '\(expected)'") { _ in
+            waitAndAssertTrue(toAmountTextField, "Receive section container should exist")
+            let balance = toAmountTextField.staticTexts
+                .matching(NSPredicate(format: "label CONTAINS %@", expected))
+                .firstMatch
+            waitAndAssertTrue(balance, timeout: .networkRequest, "'You receive' section balance should contain '\(expected)'")
             return self
         }
     }
@@ -908,6 +924,26 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
         app.descendants(matching: .any)
             .matching(identifier: SwapAccessibilityIdentifiers.fromAmountTextField)
             .matching(NSPredicate(format: "elementType != %d", XCUIElement.ElementType.textField.rawValue))
+    }
+
+    @discardableResult
+    private func revealTokenInEmptySelector(_ tokenName: String, accountHeaderLabelPrefix: String) -> XCUIElement {
+        let emptyPill = app.buttons.matching(NSPredicate(format: "label == %@", Localization.commonChooseToken)).firstMatch
+        waitAndAssertTrue(emptyPill, "Empty 'Choose token' pill should exist")
+        emptyPill.waitAndTap()
+
+        let tokenButton = app.buttons[CommonUIAccessibilityIdentifiers.tokenSelectorItem(name: tokenName)].firstMatch
+        if !tokenButton.waitForExistence(timeout: .quick) {
+            let accountHeader = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", accountHeaderLabelPrefix)).firstMatch
+            waitAndAssertTrue(
+                accountHeader,
+                timeout: .robustUIUpdate,
+                "Account header '\(accountHeaderLabelPrefix)' should be displayed in token selector"
+            )
+            accountHeader.waitAndTap()
+        }
+        waitAndAssertTrue(tokenButton, "Token '\(tokenName)' should be visible in token selector")
+        return tokenButton
     }
 
     private func focusFromAmountField(_ field: XCUIElement) -> Bool {

@@ -11,11 +11,12 @@ public struct PolymarketEventsPage: Hashable, Sendable {
 
     public let cursor: String?
 
-    public let hasNext: Bool
+    public var hasNext: Bool {
+        cursor != nil
+    }
 
-    public init(events: [PolymarketEvent], cursor: String?, hasNext: Bool) {
+    public init(events: [PolymarketEvent], cursor: String?) {
         self.events = events
         self.cursor = cursor
-        self.hasNext = hasNext
     }
 }

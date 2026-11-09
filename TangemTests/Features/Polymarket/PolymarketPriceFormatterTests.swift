@@ -10,7 +10,7 @@ import Foundation
 import Testing
 @testable import Tangem
 
-@Suite("Polymarket price display")
+@Suite("Polymarket price display", .timeLimit(.minutes(1)))
 struct PolymarketPriceFormatterTests {
     @Test("A price under the lowest tenth of a cent is held at it rather than shown as nothing")
     func aPriceUnderTheFloorIsHeldAtTheFloor() {
@@ -22,11 +22,14 @@ struct PolymarketPriceFormatterTests {
         #expect(PolymarketPriceFormatter.cents(probability("0.9996")) == PolymarketPriceFormatter.cents(probability("0.999")))
     }
 
-    @Test("A resolved market keeps the certainty it has earned", arguments: ["0", "1"])
-    func aResolvedMarketKeepsItsCertainty(_ value: String) {
-        let probability = probability(value)
+    @Test("A resolved market keeps the certainty it has earned", arguments: [
+        ("0", "0"),
+        ("1", "100"),
+    ])
+    func aResolvedMarketKeepsItsCertainty(_ value: String, _ expectedDigits: String) {
+        let text = PolymarketPriceFormatter.cents(probability(value), isResolved: true)
 
-        #expect(PolymarketPriceFormatter.cents(probability, isResolved: true) != PolymarketPriceFormatter.cents(probability))
+        #expect(text.filter(\.isNumber) == expectedDigits)
     }
 
     @Test("A whole number of cents drops the tenth")
@@ -57,6 +60,26 @@ struct PolymarketPriceFormatterTests {
     ])
     func halfAPercentRoundsUp(_ raw: String, _ expected: String) {
         #expect(PolymarketPriceFormatter.percentText(probability(raw)) == PolymarketPriceFormatter.percentText(probability(expected)))
+    }
+
+    @Test("Phase two feed buttons show whole cents, half a cent rounding away from zero", arguments: [
+        ("0.425", "0.43"),
+        ("0.415", "0.42"),
+        ("0.424", "0.42"),
+    ])
+    func wholeCentsRoundHalfUp(_ raw: String, _ expected: String) {
+        let text = PolymarketPriceFormatter.wholeCentsText(probability(raw))
+
+        #expect(text == PolymarketPriceFormatter.wholeCentsText(probability(expected)))
+        #expect(!hasFraction(text))
+    }
+
+    @Test("Phase two feed buttons never show an unresolved price as 0 or 100 cents", arguments: [
+        ("0.004", "0.01"),
+        ("0.996", "0.99"),
+    ])
+    func wholeCentsStayBetweenOneAndNinetyNine(_ raw: String, _ expected: String) {
+        #expect(PolymarketPriceFormatter.wholeCentsText(probability(raw)) == PolymarketPriceFormatter.wholeCentsText(probability(expected)))
     }
 }
 

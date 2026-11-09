@@ -11,9 +11,9 @@ import TangemStories
 
 /// Warms the disk cache for a story and rewrites its assets to local files, slide by slide.
 struct StoryAssetPrefetchService {
-    private let cache: StoryAssetCaching
+    private let cache: FileAssetCaching
 
-    init(cache: StoryAssetCaching) {
+    init(cache: FileAssetCaching) {
         self.cache = cache
     }
 

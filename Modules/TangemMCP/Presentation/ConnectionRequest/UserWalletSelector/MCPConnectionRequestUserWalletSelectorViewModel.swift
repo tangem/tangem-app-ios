@@ -40,7 +40,7 @@ final class MCPConnectionRequestUserWalletSelectorViewModel: ObservableObject, H
                         futureSelf?.handle(action: .selectionChanged(selectedUserWalletState))
                     }
                 )
-            },
+            }
         )
 
         futureSelf = self

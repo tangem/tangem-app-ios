@@ -8,69 +8,141 @@
 
 import Foundation
 import Testing
-import UIKit
 @testable import Tangem
 
-@Suite("Polymarket foreground poller")
+@Suite("Polymarket foreground poller", .timeLimit(.minutes(1)))
 @MainActor
 struct PolymarketForegroundPollerTests {
     @Test("The poller ticks on its interval without ticking at start")
-    func ticksOnInterval() async throws {
+    func ticksOnInterval() async {
         let context = Self.makeSUT()
 
-        #expect(context.log.ticks == 0)
+        #expect(await context.next() == .parked)
 
-        try await settle { context.log.ticks >= 2 }
+        context.delayProvider.resume()
+        #expect(await context.next(2) == [.tick, .parked])
+
+        context.delayProvider.resume()
+        #expect(await context.next(2) == [.tick, .parked])
     }
 
     @Test("Going to background pauses the poller, coming back ticks at once and resumes")
-    func pausesInBackground() async throws {
-        let context = Self.makeSUT(interval: 0.2)
+    func pausesInBackground() async {
+        let context = Self.makeSUT()
+        #expect(await context.next() == .parked)
 
-        try await settle { context.log.ticks >= 1 }
+        context.appState.enterBackground()
+        #expect(await context.next(2) == [.cancelled, .pause])
 
-        context.notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-        try await settle { context.log.pauses == 1 }
+        context.appState.enterForeground()
+        #expect(await context.next(2) == [.tick, .parked])
 
-        let ticksBeforeBackground = context.log.ticks
-        try await Task.sleep(nanoseconds: 500_000_000)
-        #expect(context.log.ticks == ticksBeforeBackground)
+        context.delayProvider.resume()
+        #expect(await context.next(2) == [.tick, .parked])
+    }
 
-        context.notificationCenter.post(name: UIApplication.willEnterForegroundNotification, object: nil)
-        try await settle { context.log.ticks == ticksBeforeBackground + 1 }
+    @Test("A suspended poller stops ticking, stays quiet on coming back from background and ticks at once when resumed")
+    func pausesWhileSuspended() async {
+        let context = Self.makeSUT()
+        #expect(await context.next() == .parked)
 
-        try await settle { context.log.ticks >= ticksBeforeBackground + 2 }
-        withExtendedLifetime(context.poller) {}
+        context.poller.setSuspended(true)
+        #expect(await context.next(2) == [.cancelled, .pause])
+
+        context.appState.enterBackground()
+        context.appState.enterForeground()
+        #expect(await context.next() == .pause)
+
+        context.poller.setSuspended(false)
+        #expect(await context.next(2) == [.tick, .parked])
+
+        context.delayProvider.resume()
+        #expect(await context.next(2) == [.tick, .parked])
+    }
+
+    @Test("Suspending again right after resuming drops the queued tick")
+    func quickResumeAndSuspendDoesNotTick() async {
+        let context = Self.makeSUT()
+        #expect(await context.next() == .parked)
+
+        context.poller.setSuspended(true)
+        #expect(await context.next(2) == [.cancelled, .pause])
+
+        context.poller.setSuspended(false)
+        context.poller.setSuspended(true)
+        #expect(await context.next() == .pause)
+
+        context.poller.setSuspended(false)
+        #expect(await context.next(2) == [.tick, .parked])
     }
 }
 
 // MARK: - Helpers
 
 private extension PolymarketForegroundPollerTests {
-    struct Context {
-        let poller: PolymarketForegroundPoller
-        let log: PollLog
-        let notificationCenter: NotificationCenter
+    enum Event: Equatable {
+        case tick
+        case pause
+        case parked
+        case cancelled
     }
 
-    static func makeSUT(interval: TimeInterval = 0.02) -> Context {
-        let notificationCenter = NotificationCenter()
-        let poller = PolymarketForegroundPoller(interval: interval, notificationCenter: notificationCenter)
-        let log = PollLog()
+    @MainActor
+    final class Context {
+        let poller: PolymarketForegroundPoller
+        let appState: AppStateObserverStub
+        let delayProvider: PolymarketSteppedDelayProvider
+
+        private var iterator: AsyncStream<Event>.Iterator
+
+        init(
+            poller: PolymarketForegroundPoller,
+            appState: AppStateObserverStub,
+            delayProvider: PolymarketSteppedDelayProvider,
+            events: AsyncStream<Event>
+        ) {
+            self.poller = poller
+            self.appState = appState
+            self.delayProvider = delayProvider
+            iterator = events.makeAsyncIterator()
+        }
+
+        func next() async -> Event? {
+            await next(1).first
+        }
+
+        func next(_ count: Int) async -> [Event] {
+            var iterator = iterator
+            var events: [Event] = []
+
+            for _ in 0 ..< count {
+                guard let event = await iterator.next() else { break }
+
+                events.append(event)
+            }
+
+            self.iterator = iterator
+            return events
+        }
+    }
+
+    static func makeSUT() -> Context {
+        let (events, continuation) = AsyncStream<Event>.makeStream()
+        let appState = AppStateObserverStub()
+        let delayProvider = PolymarketSteppedDelayProvider(onEvent: { event in
+            switch event {
+            case .parked: continuation.yield(.parked)
+            case .cancelled: continuation.yield(.cancelled)
+            }
+        })
+
+        let poller = PolymarketForegroundPoller(interval: 10, appStateObserver: appState, delayProvider: delayProvider)
 
         poller.start(
-            onTick: { log.ticks += 1 },
-            onPause: { log.pauses += 1 }
+            onTick: { continuation.yield(.tick) },
+            onPause: { continuation.yield(.pause) }
         )
 
-        return Context(poller: poller, log: log, notificationCenter: notificationCenter)
+        return Context(poller: poller, appState: appState, delayProvider: delayProvider, events: events)
     }
-}
-
-// MARK: - Doubles
-
-@MainActor
-private final class PollLog {
-    var ticks = 0
-    var pauses = 0
 }

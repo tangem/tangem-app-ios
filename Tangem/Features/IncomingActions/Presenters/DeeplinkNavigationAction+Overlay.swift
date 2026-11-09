@@ -33,8 +33,9 @@ extension DeeplinkNavigationAction {
         case .support(let deeplink): deeplink
         case .feed(let deeplink): deeplink
         // Shown by whoever owns them: the payment account and the co-brand campaign from the main screen,
-        // campaigns, the survey and a payment transaction by responders of their own.
-        case .tangemPayAccount, .campaigns, .survey, .payCustomCard, .tangemPayTransaction: nil
+        // campaigns, the survey and a payment transaction, an agent's intent or an MCP pairing request by
+        // responders of their own.
+        case .tangemPayAccount, .campaigns, .survey, .payCustomCard, .tangemPayTransaction, .mcpIntent, .mcpAuthorization: nil
         }
     }
 }

@@ -22,13 +22,13 @@ struct WalletSelectorView: View {
                     WalletSelectorItemView(viewModel: itemViewModel)
                 }
             }
-            .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: .zero)
+            .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: .zero)
 
             Spacer()
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 14)
-        .background(Colors.Background.tertiary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .navigationBarTitle(Text(Localization.manageTokensWalletSelectorTitle), displayMode: .inline)
     }
 }

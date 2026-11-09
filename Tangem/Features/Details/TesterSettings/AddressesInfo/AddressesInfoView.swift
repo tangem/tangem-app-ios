@@ -16,7 +16,7 @@ struct AddressesInfoView: View {
 
     var body: some View {
         ZStack {
-            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+            DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all)
             ScrollView {
                 Text(viewModel.text)
                     .font(.system(.footnote, design: .monospaced))

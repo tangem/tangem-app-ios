@@ -35,7 +35,7 @@ struct SendAmountCompactTokenView: View {
             switch viewModel.title {
             case .text(let text):
                 Text(text)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
             case .header(let header):
                 SendTokenHeaderView(header: header)
             }
@@ -45,7 +45,7 @@ struct SendAmountCompactTokenView: View {
             if let balance = viewModel.balance {
                 LoadableBalanceView(
                     state: balance,
-                    style: .init(font: Fonts.Regular.footnote, textColor: Colors.Text.tertiary),
+                    style: .init(font: Fonts.Regular.footnote, textColor: DesignSystem.Color.textSecondary),
                     loader: .init(size: CGSize(width: 100, height: 18))
                 )
             }
@@ -58,18 +58,18 @@ struct SendAmountCompactTokenView: View {
             ZStack {
                 // We use hidden `Text` here to calculate constant height without `minimumScaleFactor`
                 Text(viewModel.formattedAmount ?? " ")
-                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.title1, color: DesignSystem.Color.textPrimary)
                     .hidden(true)
 
                 Text(viewModel.formattedAmount ?? " ")
-                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.title1, color: DesignSystem.Color.textPrimary)
                     .minimumScaleFactor(SendAmountStep.Constants.amountMinTextScale)
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.sendAmountViewValue)
             }
 
             HStack(spacing: 4) {
                 Text(viewModel.formattedAlternativeAmount ?? " ")
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
 
                 highPriceImpactWarningView
             }
@@ -82,7 +82,7 @@ struct SendAmountCompactTokenView: View {
             TokenIcon(tokenIconInfo: viewModel.tokenIconInfo, size: CGSize(width: 36, height: 36))
 
             Text(viewModel.tokenCurrencySymbol)
-                .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
                 .lineLimit(1)
         }
     }
@@ -94,9 +94,9 @@ struct SendAmountCompactTokenView: View {
             case .negligible:
                 InfoButtonView(size: .small, tooltipText: highPriceImpactWarning.infoMessage)
             case .warningLoss:
-                priceImpactHStack(warning: highPriceImpactWarning, color: Colors.Text.attention)
+                priceImpactHStack(warning: highPriceImpactWarning, color: DesignSystem.Color.textAccentYellow)
             case .highLossLowAmount, .highLossHighAmount:
-                priceImpactHStack(warning: highPriceImpactWarning, color: Colors.Text.warning)
+                priceImpactHStack(warning: highPriceImpactWarning, color: DesignSystem.Color.textAccentRed)
             }
         }
     }

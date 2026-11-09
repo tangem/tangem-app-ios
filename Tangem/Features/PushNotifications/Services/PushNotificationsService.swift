@@ -42,14 +42,14 @@ extension PushNotificationsPermissionService {
 
 extension InjectedValues {
     var pushNotificationsPermission: PushNotificationsPermissionService {
-        service
+        pushNotificationsService
     }
 
     var pushNotificationsEventsPublisher: PushNotificationEventsPublishing {
-        service
+        pushNotificationsService
     }
 
-    private var service: PushNotificationsService {
+    var pushNotificationsService: PushNotificationsService {
         get { Self[Key.self] }
         set { Self[Key.self] = newValue }
     }

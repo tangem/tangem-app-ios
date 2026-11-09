@@ -24,13 +24,15 @@ final class PolymarketSearchBlockViewModel: ObservableObject {
     }
 
     @Published private(set) var isSearching = false
-    @Published private(set) var eventCards: [PolymarketEventCard.Model] = []
+    @Published private(set) var eventCards: [PolymarketFeedCard] = []
     @Published private(set) var state: State = .prompt
 
     private let apiProvider: PolymarketAPIProvider
     private let activityHandler: PolymarketMainActivityHandler
     private let isRegionRestricted: () -> Bool
+    private let usesPhaseTwoCards: Bool
     private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
+    private let delayProvider: PollDelayProvider
     private weak var routable: PolymarketEventOpeningRoutable?
 
     private var events: [PolymarketEvent] = []
@@ -41,21 +43,27 @@ final class PolymarketSearchBlockViewModel: ObservableObject {
     private var searchTask: Task<Void, Never>?
     private var refreshTask: Task<Void, Never>?
     private var visibleResultsRefreshTask: Task<Void, Never>?
-    private let appStateObserver = AppStateObserver()
+    private let appStateObserver: AppStateObserving
     private var bag: Set<AnyCancellable> = []
 
     init(
         apiProvider: PolymarketAPIProvider,
         activityHandler: PolymarketMainActivityHandler,
         isRegionRestricted: @escaping () -> Bool,
+        usesPhaseTwoCards: Bool,
         routable: PolymarketEventOpeningRoutable,
-        debounceInterval: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(Constants.debounceMilliseconds)
+        debounceInterval: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(Constants.debounceMilliseconds),
+        appStateObserver: AppStateObserving = AppStateObserver(),
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.apiProvider = apiProvider
         self.activityHandler = activityHandler
         self.isRegionRestricted = isRegionRestricted
+        self.usesPhaseTwoCards = usesPhaseTwoCards
         self.routable = routable
         self.debounceInterval = debounceInterval
+        self.delayProvider = delayProvider
+        self.appStateObserver = appStateObserver
 
         bind()
         startRefreshing()
@@ -127,6 +135,7 @@ private extension PolymarketSearchBlockViewModel {
 
         routable?.openEventDetails(
             eventID: eventID,
+            placeholder: events.first { $0.id == eventID }.map(PolymarketEventPlaceholder.init(event:)),
             category: nil,
             onOrderPlaced: { [weak activityHandler] indexing in activityHandler?.orderPlaced(awaiting: indexing) }
         )
@@ -228,9 +237,11 @@ private extension PolymarketSearchBlockViewModel {
     func startRefreshing() {
         refreshTask?.cancel()
 
+        let delayProvider = delayProvider
+
         refreshTask = Task { @MainActor [weak self] in
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(Constants.refreshInterval))
+                try? await delayProvider.wait(for: Constants.refreshInterval)
 
                 guard !Task.isCancelled, let self else { return }
 
@@ -310,11 +321,12 @@ private extension PolymarketSearchBlockViewModel {
         hasNext = false
     }
 
-    func makeCard(for event: PolymarketEvent) -> PolymarketEventCard.Model {
+    func makeCard(for event: PolymarketEvent) -> PolymarketFeedCard {
         .make(
             event: event,
-            category: nil,
-            isInActivePredicts: false,
+            usesPhaseTwoCards: usesPhaseTwoCards,
+            liveGame: nil,
+            liveQuotesByAssetId: [:],
             onSelectOutcome: { [weak self, eventID = event.id] market, outcome in
                 self?.openOrder(eventID: eventID, marketID: market.id, assetId: outcome.assetId)
             }

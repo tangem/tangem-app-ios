@@ -21,7 +21,7 @@ struct AddressForRewardsSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(Localization.referralAddressForRewards)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                 .padding(.bottom, 8)
 
             tokenView
@@ -45,7 +45,7 @@ struct AddressForRewardsSection: View {
             .padding(.top, 12)
             .accessibilityIdentifier(ReferralAccessibilityIdentifiers.addressForRewardsAccountRow)
         }
-        .roundedBackground(with: Colors.Background.primary, verticalPadding: 12, horizontalPadding: 14)
+        .roundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 12, horizontalPadding: 14)
     }
 
     @ViewBuilder
@@ -57,9 +57,9 @@ struct AddressForRewardsSection: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(name)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
                     Text(network)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                 }
             }
             .padding(.vertical, 14)

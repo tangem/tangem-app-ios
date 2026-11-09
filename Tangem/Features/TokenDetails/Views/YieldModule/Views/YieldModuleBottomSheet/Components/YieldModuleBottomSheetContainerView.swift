@@ -48,8 +48,8 @@ struct YieldModuleBottomSheetContainerView<
         @ViewBuilder content: () -> BodyContent = { EmptyView() },
         contentTopPadding: CGFloat = 24,
         buttonTopPadding: CGFloat = 16,
-        headerBackgroundColor: Color = Colors.Background.tertiary,
-        footerBackgroundColor: Color = Colors.Background.primary
+        headerBackgroundColor: Color = DesignSystem.Color.bgPrimary,
+        footerBackgroundColor: Color = DesignSystem.Color.bgPrimary
     ) {
         self.header = header()
         self.topContent = topContent()
@@ -110,7 +110,7 @@ struct YieldModuleBottomSheetContainerView<
     @ViewBuilder
     private var titleView: some View {
         if let title {
-            Text(title).style(Fonts.Bold.title2, color: Colors.Text.primary1)
+            Text(title).style(Fonts.Bold.title2, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)
         }
     }
@@ -120,7 +120,7 @@ struct YieldModuleBottomSheetContainerView<
         if let subtitle {
             Text(subtitle)
                 .multilineTextAlignment(.center)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
         }
     }
 }

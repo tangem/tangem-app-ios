@@ -257,29 +257,29 @@ private extension SendDecimalNumberTextField {
 
 #Preview {
     ZStack {
-        Colors.Background.tertiary.ignoresSafeArea()
+        DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
         VStack(alignment: .leading, spacing: 16) {
             SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
                 .prefixSuffixOptions(.suffix(text: "WEI", hasSpace: true))
                 .padding()
-                .background(Colors.Background.action)
+                .background(DesignSystem.Color.bgSecondary)
 
             SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
                 .padding()
-                .background(Colors.Background.action)
+                .background(DesignSystem.Color.bgSecondary)
 
             SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
                 .prefixSuffixOptions(.suffix(text: "USDT", hasSpace: true))
                 .padding()
-                .background(Colors.Background.action)
+                .background(DesignSystem.Color.bgSecondary)
 
             SendDecimalNumberTextField(viewModel: .init(maximumFractionDigits: 8))
                 .prefixSuffixOptions(.suffix(text: "WEI", hasSpace: true))
                 .appearance(.init(font: Fonts.Regular.body))
                 .alignment(.leading)
                 .padding()
-                .background(Colors.Background.action)
+                .background(DesignSystem.Color.bgSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()

@@ -133,22 +133,14 @@ struct TangemPayMainView: View {
     @ViewBuilder
     private var transactionList: some View {
         if !viewModel.isDeactivated {
-            switch viewModel.tangemPayTransactionHistoryState {
-            case .error:
-                TangemPayTransactionHistoryErrorView(reloadAction: viewModel.reloadHistory)
-                    .frame(maxWidth: .infinity, minHeight: max(0, visibleBodyHeight - headerHeight), alignment: .center)
-                    .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
-            case .loading, .loaded, .notSupported:
-                TransactionsListViewRedesigned(
-                    state: viewModel.tangemPayTransactionHistoryState,
-                    exploreAction: nil,
-                    openTransactionDetailsAction: { viewModel.openTransactionDetails(id: $0.hash) },
-                    reloadButtonAction: viewModel.reloadHistory,
-                    isReloadButtonBusy: false,
-                    fetchMore: viewModel.fetchNextTransactionHistoryPage()
-                )
-                .frame(maxWidth: .infinity, minHeight: visibleBodyHeight, alignment: .top)
-            }
+            TangemPayTransactionHistoryView(
+                state: viewModel.tangemPayTransactionHistoryState,
+                visibleBodyHeight: visibleBodyHeight,
+                headerHeight: headerHeight,
+                fetchMore: viewModel.fetchNextTransactionHistoryPage(),
+                reloadAction: viewModel.reloadHistory,
+                openTransactionDetailsAction: { viewModel.openTransactionDetails(id: $0) }
+            )
         }
     }
 
@@ -399,7 +391,7 @@ struct TangemPayMainView: View {
                 }
             } label: {
                 Image(systemName: "ellipsis")
-                    .foregroundColor(Colors.Icon.primary1)
+                    .foregroundColor(DesignSystem.Color.iconPrimary)
                     .accessibilityLabel(Localization.commonMore)
             }
             .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.moreActionsButton)

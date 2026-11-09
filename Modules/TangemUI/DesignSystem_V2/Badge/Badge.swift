@@ -14,7 +14,7 @@ import TangemUIUtils
 ///
 /// Use ``size(_:)`` to pick one of the three discrete sizes (x9 / x6 / x4),
 /// ``variant(_:)`` for tinted / solid / outline, and ``appearance(_:)`` for
-/// neutral / info / error / warning / success. Defaults match the Figma
+/// neutral / info / error / warning / success / violet. Defaults match the Figma
 /// component: size `.x6`, variant `.tinted`, appearance `.neutral`, both
 /// slots empty.
 ///
@@ -104,7 +104,7 @@ public struct Badge<SlotStart: View, SlotEnd: View>: View, Setupable {
     @ViewBuilder
     private var borderOverlay: some View {
         if let borderColor {
-            Capsule().stroke(borderColor, lineWidth: 1)
+            Capsule().strokeBorder(borderColor, lineWidth: 1)
         }
     }
 }
@@ -260,6 +260,7 @@ public enum BadgeAppearance: Sendable, Hashable, CaseIterable {
     case error
     case warning
     case success
+    case violet
 }
 
 public extension Badge {
@@ -272,7 +273,7 @@ public extension Badge {
 
 private extension Badge {
     /// Three visual states span the variant × appearance space. Picking a state
-    /// is what reduces the 15-cell matrix to a handful of branches per style.
+    /// is what reduces the 18-cell matrix to a handful of branches per style.
     enum VisualState {
         /// tinted/outline + any appearance → muted bg with status-tinted content.
         case subtle
@@ -370,6 +371,14 @@ private extension BadgeAppearance {
                 outlineBorder: DesignSystem.Color.borderStatusSuccessSubtle,
                 subtleContent: DesignSystem.Color.textStatusSuccess,
                 subtleIcon: DesignSystem.Color.iconStatusSuccess
+            )
+        case .violet:
+            AppearancePalette(
+                solidBackground: DesignSystem.Color.bgAccentViolet,
+                subtleBackground: DesignSystem.Color.bgAccentVioletSubtle,
+                outlineBorder: DesignSystem.Color.borderAccentVioletSubtle,
+                subtleContent: DesignSystem.Color.textAccentViolet,
+                subtleIcon: DesignSystem.Color.iconAccentViolet
             )
         }
     }

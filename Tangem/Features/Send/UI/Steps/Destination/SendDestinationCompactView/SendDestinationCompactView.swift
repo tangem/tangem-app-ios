@@ -24,14 +24,14 @@ struct SendDestinationCompactView<Footer: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(Localization.sendRecipient)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
             address
 
             footer
         }
         .infinityFrame()
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 12, horizontalPadding: 14)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 12, horizontalPadding: 14)
     }
 
     private var address: some View {
@@ -47,7 +47,7 @@ struct SendDestinationCompactView<Footer: View>: View {
 
                 if let resolved = viewModel.resolved {
                     Text(resolved)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                         .lineLimit(1)
                         .multilineTextAlignment(.leading)
                         .truncationMode(.middle)
@@ -55,7 +55,7 @@ struct SendDestinationCompactView<Footer: View>: View {
 
                 if let additionalField = viewModel.additionalField {
                     Text(additionalField)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                         .lineLimit(1)
                         .padding(.top, 6) // extra space
                 }

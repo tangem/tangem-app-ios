@@ -12,20 +12,49 @@ import TangemUI
 
 public struct PolymarketDetailsRowsBlock: View {
     private let rows: [Row]
+    private let rowVerticalPadding: CGFloat?
 
-    public init(rows: [Row]) {
+    public init(rows: [Row], rowVerticalPadding: CGFloat? = nil) {
         self.rows = rows
+        self.rowVerticalPadding = rowVerticalPadding
     }
 
     public var body: some View {
         VStack(spacing: 0) {
             ForEach(rows) { row in
-                TangemUI.Row(title: row.title, subtitle: row.subtitle, value: row.value, subvalue: row.subvalue)
-                    .valueAccessory { valueAccessory(for: row) }
-                    .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
-                    .showDivider(row.id != rows.last?.id)
+                rowView(row)
             }
         }
+    }
+
+    @ViewBuilder
+    private func rowView(_ row: Row) -> some View {
+        let baseRow = TangemUI.Row(title: row.title, subtitle: row.subtitle, value: row.value, subvalue: row.subvalue)
+            .valueAccessory { valueAccessory(for: row) }
+            .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+        let showsDivider = row.id != rows.last?.id
+
+        if let rowVerticalPadding {
+            baseRow
+                .includeInnerPadding(false)
+                .padding(.horizontal, Constants.rowHorizontalPadding)
+                .padding(.vertical, rowVerticalPadding)
+                .overlay(alignment: .bottom) {
+                    if showsDivider {
+                        divider
+                    }
+                }
+        } else {
+            baseRow
+                .showDivider(showsDivider)
+        }
+    }
+
+    private var divider: some View {
+        Rectangle()
+            .fill(DesignSystem.Color.borderSecondary)
+            .frame(height: Constants.dividerHeight)
+            .padding(.horizontal, Constants.rowHorizontalPadding)
     }
 
     @ViewBuilder
@@ -61,5 +90,14 @@ public extension PolymarketDetailsRowsBlock {
             self.subvalue = subvalue
             self.hasHint = hasHint
         }
+    }
+}
+
+// MARK: - Constants
+
+private extension PolymarketDetailsRowsBlock {
+    enum Constants {
+        static let rowHorizontalPadding: CGFloat = 16
+        static let dividerHeight: CGFloat = 1
     }
 }

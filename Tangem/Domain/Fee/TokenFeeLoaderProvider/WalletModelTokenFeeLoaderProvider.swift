@@ -11,6 +11,15 @@ import BlockchainSdk
 
 struct WalletModelTokenFeeLoaderProvider {
     let walletModel: any WalletModel
+    private let isTronGaslessDEXEnabled: () -> Bool
+
+    init(
+        walletModel: any WalletModel,
+        isTronGaslessDEXEnabled: @escaping () -> Bool = { FeatureProvider.isAvailable(.tronGaslessDEX) }
+    ) {
+        self.walletModel = walletModel
+        self.isTronGaslessDEXEnabled = isTronGaslessDEXEnabled
+    }
 }
 
 // MARK: - TokenFeeLoaderProvider
@@ -20,22 +29,26 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
         let tokenItem = walletModel.tokenItem
 
         if walletModel.isDemo {
-            return DemoTokenFeeLoader(tokenItem: tokenItem)
+            return DefaultTokenFeeLoader(loader: DemoTokenFeeLoader(tokenItem: tokenItem))
         }
 
         // A wallet living at a joint account's Safe pays its relayer, not the network
         if walletModel.isJointAccountParticipant, let safeOperationsService = walletModel.safeWalletManagerOperationsService {
-            return JointAccountOperationTokenFeeLoader(
-                tokenItem: tokenItem,
-                feeTokenItem: .blockchain(tokenItem.blockchainNetwork),
-                safeOperationsService: safeOperationsService,
-                parametersProvider: CommonJointOperationParametersProvider()
+            return DefaultTokenFeeLoader(
+                loader: JointAccountOperationTokenFeeLoader(
+                    tokenItem: tokenItem,
+                    feeTokenItem: .blockchain(tokenItem.blockchainNetwork),
+                    safeOperationsService: safeOperationsService,
+                    parametersProvider: CommonJointOperationParametersProvider()
+                )
             )
         }
 
-        let tokenFeeLoader = CommonTokenFeeLoader(
-            tokenItem: tokenItem,
-            transactionFeeProvider: walletModel.transactionFeeProvider
+        let tokenFeeLoader = DefaultTokenFeeLoader(
+            loader: CommonTokenFeeLoader(
+                tokenItem: tokenItem,
+                transactionFeeProvider: walletModel.transactionFeeProvider
+            )
         )
 
         if let compiledTransactionFeeProvider = walletModel.compiledTransactionFeeProvider {
@@ -48,7 +61,10 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
         if let ethereumNetworkProvider = walletModel.ethereumNetworkProvider {
             return CommonEthereumTokenFeeLoader(
                 feeBlockchain: tokenItem.blockchain,
-                tokenFeeLoader: tokenFeeLoader,
+                tokenFeeLoader: makeYieldModuleSendTokenFeeLoader(
+                    tokenFeeLoader: tokenFeeLoader,
+                    ethereumNetworkProvider: ethereumNetworkProvider
+                ),
                 ethereumNetworkProvider: ethereumNetworkProvider
             )
         }
@@ -64,7 +80,29 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
         return tokenFeeLoader
     }
 
-    func makeGaslessTokenFeeLoader(feeToken: BSDKToken, yieldFeeContext: GaslessYieldFeeContext?) -> TokenFeeLoader? {
+    private func makeYieldModuleSendTokenFeeLoader(
+        tokenFeeLoader: TokenFeeLoader,
+        ethereumNetworkProvider: EthereumNetworkProvider
+    ) -> TokenFeeLoader {
+        guard let yieldModuleManager = walletModel.yieldModuleManager else {
+            return tokenFeeLoader
+        }
+
+        return DefaultTokenFeeLoader(
+            loader: YieldModuleSendTokenFeeLoader(
+                tokenItem: walletModel.tokenItem,
+                tokenFeeLoader: tokenFeeLoader,
+                yieldModuleManager: yieldModuleManager,
+                ethereumNetworkProvider: ethereumNetworkProvider
+            )
+        )
+    }
+
+    func makeGaslessTokenFeeLoader(
+        feeToken: BSDKToken,
+        yieldFeeContext: GaslessYieldFeeContext?,
+        isFeeTokenFundedByTransaction: Bool
+    ) -> TokenFeeLoader? {
         let tokenItem = walletModel.tokenItem
 
         // Until paying in a token is turned on, a Safe refunds its relayer in the coin and no token option is offered.
@@ -74,11 +112,13 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
                 return nil
             }
 
-            return JointAccountOperationTokenFeeLoader(
-                tokenItem: tokenItem,
-                feeTokenItem: .token(feeToken, tokenItem.blockchainNetwork),
-                safeOperationsService: safeOperationsService,
-                parametersProvider: CommonJointOperationParametersProvider()
+            return DefaultTokenFeeLoader(
+                loader: JointAccountOperationTokenFeeLoader(
+                    tokenItem: tokenItem,
+                    feeTokenItem: .token(feeToken, tokenItem.blockchainNetwork),
+                    safeOperationsService: safeOperationsService,
+                    parametersProvider: CommonJointOperationParametersProvider()
+                )
             )
         }
 
@@ -87,7 +127,8 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
                 tokenItem: tokenItem,
                 feeToken: feeToken,
                 sourceAddress: walletModel.defaultAddressString,
-                userWalletId: walletModel.userWalletId
+                userWalletId: walletModel.userWalletId,
+                isDEXEnabled: isTronGaslessDEXEnabled()
             )
         }
 
@@ -100,7 +141,8 @@ extension WalletModelTokenFeeLoaderProvider: TokenFeeLoaderProvider {
             tokenItem: tokenItem,
             feeToken: feeToken,
             gaslessTransactionFeeProvider: gaslessTransactionFeeProvider,
-            yieldFeeContext: yieldFeeContext
+            yieldFeeContext: yieldFeeContext,
+            isFeeTokenFundedByTransaction: isFeeTokenFundedByTransaction
         )
     }
 

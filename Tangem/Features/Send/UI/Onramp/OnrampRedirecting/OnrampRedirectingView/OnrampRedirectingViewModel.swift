@@ -59,7 +59,7 @@ final class OnrampRedirectingViewModel: ObservableObject {
             try await interactor.loadRedirectData(theme: theme)
         } catch {
             await runOnMain {
-                alert = AlertBuilder.makeOkErrorAlert(message: error.localizedDescription) { [weak self] in
+                alert = AlertBuilder.makeOkErrorAlert(message: error.localizedExpressMessage) { [weak self] in
                     self?.coordinator?.dismissOnrampRedirecting()
                 }
             }

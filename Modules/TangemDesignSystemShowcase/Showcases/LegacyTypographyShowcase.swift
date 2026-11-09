@@ -35,7 +35,7 @@ struct LegacyTypographyShowcase: View {
 
     private func sample(_ text: String, font: Font) -> some View {
         Text(text)
-            .style(font, color: Colors.Text.primary1)
+            .style(font, color: DesignSystem.Color.textPrimary)
             .background(highlightsBounds ? Color.red.opacity(0.25) : Color.clear)
             .frame(maxWidth: .infinity, alignment: .leading)
     }

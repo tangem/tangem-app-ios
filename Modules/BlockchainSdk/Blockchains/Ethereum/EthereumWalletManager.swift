@@ -726,6 +726,30 @@ extension EthereumWalletManager: GaslessTransactionFeeProvider {
         return fee
     }
 
+    func getEstimatedGaslessTransactionFeeFundedByTransaction(
+        feeToken: Token,
+        estimatedGasLimit: Int,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> Fee {
+        let feeHistory = try await networkService.getFeeHistory().async()
+        let eip1559Params = EthereumEIP1559FeeParameters(
+            gasLimit: BigUInt(estimatedGasLimit),
+            baseFee: feeHistory.marketBaseFee,
+            priorityFee: feeHistory.marketPriorityFee
+        )
+        .applyingFeeRules(for: wallet.blockchain)
+
+        return try await buildGaslessFee(
+            feeToken: feeToken,
+            feeRecipientAddress: feeRecipientAddress,
+            nativeToFeeTokenRate: nativeToFeeTokenRate,
+            transactionFeeParameters: eip1559Params,
+            yieldFeeOptions: nil,
+            allowsFeeTransferGasFallback: true
+        )
+    }
+
     func getEstimatedGaslessYieldTransactionFee(
         feeToken: Token,
         estimatedGasLimit: Int,
@@ -768,7 +792,8 @@ private extension EthereumWalletManager {
         feeRecipientAddress: String,
         nativeToFeeTokenRate: Decimal,
         transactionFeeParameters: EthereumEIP1559FeeParameters,
-        yieldFeeOptions: GaslessYieldFeeOptions?
+        yieldFeeOptions: GaslessYieldFeeOptions?,
+        allowsFeeTransferGasFallback: Bool = false
     ) async throws -> Fee {
         // Addresses
         let ourAddress = wallet.defaultAddress.value
@@ -793,7 +818,7 @@ private extension EthereumWalletManager {
                 value: nil,
                 data: tokenTransferData
             ).async()
-        } catch let error where yieldFeeOptions != nil && error.isEVMExecutionReverted {
+        } catch let error where (yieldFeeOptions != nil || allowsFeeTransferGasFallback) && error.isEVMExecutionReverted {
             feeTransferGasLimit = EthereumFeeParametersConstants.gaslessYieldFallbackFeeTransferGasLimit
         }
 
@@ -948,7 +973,7 @@ private extension EthereumWalletManager {
         }
 
         let transactionData = data ?? Data()
-        guard !UpgradeToAndCallMethod.isEncodedCall(transactionData.hexString.addHexPrefix()) else {
+        guard !UpgradeToAndCallMethod.isEncodedCall(transactionData) else {
             return nil
         }
 

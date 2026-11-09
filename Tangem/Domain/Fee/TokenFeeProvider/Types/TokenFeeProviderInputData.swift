@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BigInt
 import TangemMacro
 
 @RawCaseName
@@ -16,7 +17,13 @@ enum TokenFeeProviderInputData: Hashable {
     case cex(amount: Decimal)
     case dex(_ type: TokenFeeProviderInputDataDEXType)
     /// Fee multiplier applied after estimation (e.g. 3x for revoke+approve flows).
-    case approve(txData: Data, toContractAddress: String, feeMultiplier: FeeMultiplier = .single)
+    case approve(
+        txData: Data,
+        toContractAddress: String,
+        spender: String?,
+        amountRaw: BigUInt,
+        feeMultiplier: FeeMultiplier
+    )
     /// One-tap approve+swap: the swap is estimated with an unlimited-allowance state override
     /// (the estimate would revert while the allowance is missing); the approve fee is estimated
     /// by the same loader — always in its own fee currency — and folded into every option's total.
@@ -48,5 +55,5 @@ enum TokenFeeProviderInputDataDEXType: Hashable {
     case ethereumEstimate(estimatedGasLimit: Int, otherNativeFee: Decimal?)
     case solana(compiledTransaction: Data)
     case bitcoinPsbt(psbtBase64: String)
-    case tron(request: TronFeeRequestData)
+    case tron(request: TronFeeRequestData, sourceAmount: Decimal, spender: String?)
 }

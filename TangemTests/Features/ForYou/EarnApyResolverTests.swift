@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Testing
+import BigInt
 import BlockchainSdk
 @testable import Tangem
 @testable import TangemStaking
@@ -357,12 +358,17 @@ private final class YieldModuleManagerStub: YieldModuleManager {
 
     func enterFee() async throws -> YieldTransactionFee { fatalError() }
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] { fatalError() }
+    func enter(fee: YieldTransactionFee, gaslessFee: BSDKFee, transactionSender: GaslessBatchTransactionSending) async throws -> String { fatalError() }
+    func supportsEnterWithAmount(fee: YieldTransactionFee) async -> Bool { fatalError() }
     func exitFee() async throws -> YieldTransactionFee { fatalError() }
     func exit(fee: YieldTransactionFee, precedingTransaction: () async throws -> BSDKTransaction?, transactionDispatcher: TransactionDispatcher) async throws -> YieldExitResult { fatalError() }
+    func exit(fee: YieldTransactionFee, gaslessFee: BSDKFee, precedingTransaction: () async throws -> BSDKTransaction?, transactionSender: GaslessBatchTransactionSending) async throws -> String { fatalError() }
     func approveFee() async throws -> YieldTransactionFee { fatalError() }
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String { fatalError() }
-    func claimFee(to: String, data: Data) async throws -> YieldTransactionFee { fatalError() }
-    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction { fatalError() }
+    func newImplementationAddress(moduleAddress: String) async -> String? { fatalError() }
+    func upgradingSendCallData(destination: String, amount: BigUInt) async throws -> YieldModuleSendCallData? { fatalError() }
+    func claimFee(to: String, data: Data, includingModuleUpgrade: Bool) async throws -> YieldTransactionFee { fatalError() }
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee, isGasless: Bool) async throws -> BSDKTransaction { fatalError() }
     func submitClaim(transaction: BSDKTransaction, transactionDispatcher: TransactionDispatcher) async throws -> String { fatalError() }
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters { fatalError() }
     func fetchYieldTokenInfo() async throws -> YieldModuleTokenInfo { fatalError() }

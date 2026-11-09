@@ -21,7 +21,7 @@ extension PolymarketMapper {
                 }
             },
             receivedCount: response.positions.count,
-            nextCursor: response.nextCursor?.nilIfEmpty
+            nextCursor: cursor(from: response.nextCursor)
         )
     }
 
@@ -36,7 +36,7 @@ extension PolymarketMapper {
                 }
             },
             receivedCount: response.positions.count,
-            nextCursor: response.nextCursor?.nilIfEmpty
+            nextCursor: cursor(from: response.nextCursor)
         )
     }
 

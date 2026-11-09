@@ -24,7 +24,7 @@ struct OnboardingSeedPhraseImportView: View {
                 VStack(spacing: 0) {
                     VStack(spacing: 0) {
                         Text(Localization.onboardingSeedImportMessage)
-                            .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                            .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 30)
                             .padding(.top, 26)
@@ -37,7 +37,7 @@ struct OnboardingSeedPhraseImportView: View {
                         .screenCaptureProtection()
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
-                        .background(Colors.Field.primary)
+                        .background(DesignSystem.Color.bgTertiary)
                         .cornerRadiusContinuous(14)
                         .frame(minHeight: 114, maxHeight: 154)
                         .padding(.top, 20)
@@ -50,7 +50,7 @@ struct OnboardingSeedPhraseImportView: View {
 
                         if let inputError = viewModel.inputError {
                             Text(inputError)
-                                .style(Fonts.Regular.footnote, color: Colors.Text.warning)
+                                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textAccentRed)
                                 .padding(.top, 8)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .transition(.opacity)
@@ -99,7 +99,7 @@ struct OnboardingSeedPhraseImportView: View {
         })
         .bottomSheet(
             item: $viewModel.passphraseBottomSheetModel,
-            backgroundColor: Colors.Background.primary
+            backgroundColor: DesignSystem.Color.bgPrimary
         ) { model in
             OnboardingSeedPassphraseInfoBottomSheetView(model: model)
         }
@@ -109,11 +109,11 @@ struct OnboardingSeedPhraseImportView: View {
         VStack(spacing: 2) {
             HStack(alignment: .center, spacing: 0) {
                 Text(Localization.commonPassphrase)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
                 SwiftUI.Button(action: viewModel.openPassphraseInfo, label: {
                     Assets.infoCircle20.image
-                        .foregroundStyle(Colors.Icon.informative)
+                        .foregroundStyle(DesignSystem.Color.iconSecondary)
                         .padding(.horizontal, 4)
                 })
                 Spacer()
@@ -133,7 +133,7 @@ struct OnboardingSeedPhraseImportView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .background(Colors.Field.primary)
+        .background(DesignSystem.Color.bgTertiary)
         .cornerRadiusContinuous(14)
     }
 }

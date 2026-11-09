@@ -14,12 +14,7 @@ enum MCPConnectionRequestMapper {
     static func mapToDomainRequest(
         _ fetchResponse: FetchMCPConnectionRequestDTO.Response
     ) -> MCPConnectionRequest {
-        let agent = MCPConnectionRequest.Agent(
-            id: fetchResponse.clientId,
-            name: fetchResponse.clientName,
-            host: fetchResponse.clientOrigin,
-            iconURL: fetchResponse.clientIconUrl
-        )
+        let agent = MCPAgentMapper.mapToDomain(fetchResponse)
 
         let scopes = fetchResponse.scope.split(separator: " ").map(String.init)
 

@@ -141,7 +141,7 @@ private extension CollectiblesPurchaseTransactionDispatcher {
 
 // MARK: - Error
 
-private extension CollectiblesPurchaseTransactionDispatcher {
+extension CollectiblesPurchaseTransactionDispatcher {
     enum ValidationError: Error {
         case mintMismatch
         case amountMismatch

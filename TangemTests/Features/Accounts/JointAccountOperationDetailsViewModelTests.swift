@@ -21,7 +21,7 @@ import TangemUIUtils
 struct JointAccountOperationDetailsViewModelTests {
     private let updates = PassthroughSubject<JointAccountOperationDetailsViewModel.Content, Never>()
     private let coordinator = RoutableSpy()
-    private let provider = PendingOperationsProviderSpy()
+    private let poller = PollerSpy()
     private let alertPresenter = AlertPresenterSpy()
 
     @Test("A new signature on the open operation reaches the sheet", .timeLimit(.minutes(1)))
@@ -76,7 +76,7 @@ struct JointAccountOperationDetailsViewModelTests {
         _ = try await viewModel.$answer.first { $0 == .signed }.async()
 
         #expect(coordinator.closeCount.value == 0)
-        #expect(provider.activeRequestsCount == 1)
+        #expect(poller.activeRequestsCount == 1)
     }
 
     @Test("Closing the sheet twice closes it once")
@@ -88,7 +88,7 @@ struct JointAccountOperationDetailsViewModelTests {
         viewModel.handleViewAction(.close)
 
         #expect(coordinator.closeCount.value == 1)
-        #expect(provider.activeRequestsCount == 0)
+        #expect(poller.activeRequestsCount == 0)
     }
 
     @Test("An operation being sent can no longer be signed", .timeLimit(.minutes(1)))
@@ -117,6 +117,41 @@ struct JointAccountOperationDetailsViewModelTests {
         #expect(viewModel.header.date == TransactionDetailsFactory.headerDateFormatter.string(from: sentAt))
         #expect(signButton(in: viewModel) == nil)
         #expect(viewModel.blocks.contains { if case .caption(let text) = $0 { text == Localization.jointOperationSentFooter(3, 3) } else { false } })
+    }
+
+    @Test("An operation that failed is shown as a failed send, with nothing left to sign or decline", .timeLimit(.minutes(1)))
+    func failedOperationIsShownAsFailed() async throws {
+        let viewModel = makeViewModel()
+        let failedAt = Date(timeIntervalSince1970: 1_791_379_800)
+
+        updates.send(makeContent(collectedSignaturesCount: 3, canReject: true, status: .failed(at: failedAt)))
+
+        _ = try await viewModel.$content.first { $0.status.isFailed }.async()
+
+        #expect(viewModel.header.title == Localization.transactionHistoryStatusSendFailed)
+        #expect(viewModel.header.titleStyle == .failed)
+        #expect(viewModel.header.date == TransactionDetailsFactory.headerDateFormatter.string(from: failedAt))
+        #expect(isAmountStruckThrough(in: viewModel) == true)
+        #expect(signButton(in: viewModel) == nil)
+        #expect(rejectAction(in: viewModel) == nil)
+        #expect(!viewModel.blocks.contains { if case .caption = $0 { true } else { false } })
+    }
+
+    @Test("An operation called off is shown as cancelled, with nothing left to sign or decline", .timeLimit(.minutes(1)))
+    func cancelledOperationIsShownAsCancelled() async throws {
+        let viewModel = makeViewModel()
+        let cancelledAt = Date(timeIntervalSince1970: 1_791_379_800)
+
+        updates.send(makeContent(collectedSignaturesCount: 1, canReject: true, status: .cancelled(at: cancelledAt)))
+
+        _ = try await viewModel.$content.first { $0.status.isCancelled }.async()
+
+        #expect(viewModel.header.titleStyle == .neutral)
+        #expect(viewModel.header.date == TransactionDetailsFactory.headerDateFormatter.string(from: cancelledAt))
+        #expect(isAmountStruckThrough(in: viewModel) == false)
+        #expect(signButton(in: viewModel) == nil)
+        #expect(rejectAction(in: viewModel) == nil)
+        #expect(!viewModel.blocks.contains { if case .caption = $0 { true } else { false } })
     }
 
     @Test("The Sign button is confirmed the way the wallet signs")
@@ -218,13 +253,13 @@ struct JointAccountOperationDetailsViewModelTests {
     func frequentUpdatesFollowVisibility() {
         let viewModel = makeViewModel()
 
-        #expect(provider.activeRequestsCount == 0)
+        #expect(poller.activeRequestsCount == 0)
 
         viewModel.onAppear()
-        #expect(provider.activeRequestsCount == 1)
+        #expect(poller.activeRequestsCount == 1)
 
         viewModel.onDisappear()
-        #expect(provider.activeRequestsCount == 0)
+        #expect(poller.activeRequestsCount == 0)
     }
 
     @Test("A signature that fails tells the member so", .timeLimit(.minutes(1)))
@@ -275,7 +310,7 @@ struct JointAccountOperationDetailsViewModelTests {
             signingActionButtonType: signingActionButtonType,
             content: makeContent(collectedSignaturesCount: 1, isInitiator: isInitiator),
             contentPublisher: updates.eraseToAnyPublisher(),
-            pendingOperationsProvider: provider,
+            poller: poller,
             coordinator: coordinator,
             alertPresenter: alertPresenter,
             sign: sign,
@@ -332,6 +367,16 @@ struct JointAccountOperationDetailsViewModelTests {
         viewModel.header.menuSections.flatMap(\.actions).first { $0.action == .rejectOperation }
     }
 
+    private func isAmountStruckThrough(in viewModel: JointAccountOperationDetailsViewModel) -> Bool? {
+        viewModel.blocks.lazy.compactMap { block -> Bool? in
+            guard case .tokens(let data) = block, case .single(let amount) = data.content else {
+                return nil
+            }
+
+            return amount.isAmountStrikethrough
+        }.first
+    }
+
     private func signaturesRow(in viewModel: JointAccountOperationDetailsViewModel) -> TransactionDetailsSignaturesViewData? {
         viewModel.blocks.lazy.compactMap { block in
             if case .signatures(let data) = block { data } else { nil }
@@ -357,16 +402,10 @@ private final class AlertPresenterSpy: AlertPresenter {
     }
 }
 
-private final class PendingOperationsProviderSpy: JointAccountPendingOperationsProvider {
+private final class PollerSpy: JointAccountPendingOperationPoller {
     private(set) var activeRequestsCount = 0
 
-    var pendingOperations: [JointAccountPendingOperation] { [] }
-
-    var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
-        Empty().eraseToAnyPublisher()
-    }
-
-    func requestFrequentUpdates() -> AnyCancellable {
+    func requestFrequentUpdates() -> AnyCancellable? {
         activeRequestsCount += 1
 
         return AnyCancellable { [weak self] in

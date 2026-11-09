@@ -14,8 +14,8 @@ import TangemLocalization
 
 struct MultiWalletTokenItemsEmptyView: View {
     // [REDACTED_INFO]: Remove legacy defaults and use redesign colors (Graphic/Neutral/quaternary, Text/Neutral/tertiary) and spacing (.x5)
-    private var iconColor: Color = Colors.Icon.inactive
-    private var textColor: Color = Colors.Text.tertiary
+    private var iconColor: Color = DesignSystem.Color.iconTertiary
+    private var textColor: Color = DesignSystem.Color.textSecondary
     private var spacing: CGFloat = 16
 
     var body: some View {

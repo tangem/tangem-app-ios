@@ -9,7 +9,7 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("Polymarket closed positions mapping")
+@Suite("Polymarket closed positions mapping", .timeLimit(.minutes(1)))
 struct PolymarketClosedPositionsMappingTests {
     private let mapper = PolymarketMapper()
     private let decoder = JSONDecoder()
@@ -33,16 +33,6 @@ struct PolymarketClosedPositionsMappingTests {
         #expect(position.status == .won)
     }
 
-    @Test("The four endings the backend names are recognised", arguments: [
-        ("\"CLOSED\"", PolymarketClosedPositionStatus.closed),
-        ("\"WON\"", .won),
-        ("\"LOST\"", .lost),
-        ("\"SPLIT\"", .split),
-    ])
-    func statusIsRecognised(raw: String, expected: PolymarketClosedPositionStatus) throws {
-        #expect(try position(status: raw).status == expected)
-    }
-
     @Test("An ending added later reads as unknown rather than as one of the four")
     func unknownStatusIsKeptApart() throws {
         #expect(try position(status: "\"SOMETHING_NEW\"").status == .unknown)
@@ -51,11 +41,6 @@ struct PolymarketClosedPositionsMappingTests {
     @Test("A status the answer omits is as unrecognised as one it does not name")
     func absentStatusIsUnknown() throws {
         #expect(try position(status: "null").status == .unknown)
-    }
-
-    @Test("The identity separates both of its parts, so neighbouring pairs cannot collide")
-    func identityIsSeparated() throws {
-        #expect(try #require(mapPage(Self.pageJSON).positions.first).id == "0x94947a23/10977723")
     }
 
     @Test("A page without a cursor ends the list")

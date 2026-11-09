@@ -83,7 +83,7 @@ struct OnboardingPinStackView: View {
 }
 
 private struct PinStackColorKey: EnvironmentKey {
-    static let defaultValue: Color = Colors.Text.primary1
+    static let defaultValue: Color = DesignSystem.Color.textPrimary
 }
 
 private struct PinStackSecuredKey: EnvironmentKey {
@@ -91,7 +91,7 @@ private struct PinStackSecuredKey: EnvironmentKey {
 }
 
 private struct PinStackDigitBackground: EnvironmentKey {
-    static let defaultValue: Color = Colors.Field.primary
+    static let defaultValue: Color = DesignSystem.Color.bgTertiary
 }
 
 extension EnvironmentValues {

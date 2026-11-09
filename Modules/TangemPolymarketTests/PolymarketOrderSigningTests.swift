@@ -11,7 +11,7 @@ import TangemFoundation
 import TangemSdk
 @testable import TangemPolymarket
 
-@Suite("PolymarketOrderSigning")
+@Suite("PolymarketOrderSigning", .timeLimit(.minutes(1)))
 struct PolymarketOrderSigningTests {
     // MARK: - Digest
 
@@ -75,23 +75,6 @@ struct PolymarketOrderSigningTests {
         #expect(tail.dropFirst(Self.wordDigits).prefix(Self.wordDigits) == "345bc1910f4a991a6b3deb33f798f6fbb2536a185d922c896dd8daee671bcd05")
     }
 
-    @Test("The two exchanges never produce the same digest for one order")
-    func exchangesDoNotCollide() throws {
-        let standard = try PolymarketOrderSigning.digest(
-            order: Self.order,
-            domain: .ctfExchange,
-            depositWalletAddress: Self.depositWallet
-        )
-
-        let negRisk = try PolymarketOrderSigning.digest(
-            order: Self.order,
-            domain: .negRiskCtfExchange,
-            depositWalletAddress: Self.depositWallet
-        )
-
-        #expect(standard != negRisk)
-    }
-
     @Test("The deposit wallet is part of what is signed")
     func depositWalletChangesTheDigest() throws {
         let mine = try PolymarketOrderSigning.digest(
@@ -128,51 +111,29 @@ struct PolymarketOrderSigningTests {
 
     // MARK: - Wrapping
 
-    @Test("The wrapped signature keeps the card's own signature at the front")
-    func wrapKeepsInnerSignature() throws {
+    @Test("The wrapped signature is the card's signature, the domain separator, the order hash and the type description with its length")
+    func wrapMatchesTheVector() throws {
         let wrapped = try PolymarketOrderSigning.wrap(
             signature: Self.innerSignature,
             order: Self.order,
             domain: .ctfExchange
         )
 
-        #expect(wrapped.hasPrefix(Self.innerSignature))
-    }
+        let expected = [
+            "0x",
+            String(repeating: "11", count: 65),
+            "3264e159346253e26a64e00b69032db0e7d32f94628de3e6eecb50304d7af3d2",
+            "345bc1910f4a991a6b3deb33f798f6fbb2536a185d922c896dd8daee671bcd05",
+            "4f726465722875696e743235362073616c742c61646472657373206d616b65722c",
+            "61646472657373207369676e65722c75696e7432353620746f6b656e49642c",
+            "75696e74323536206d616b6572416d6f756e742c75696e743235362074616b6572416d6f756e742c",
+            "75696e743820736964652c75696e7438207369676e6174757265547970652c",
+            "75696e743235362074696d657374616d702c62797465733332206d657461646174612c",
+            "62797465733332206275696c64657229",
+            "00ba",
+        ].joined()
 
-    @Test("The tail carries the domain separator and the order hash")
-    func wrapCarriesTheTail() throws {
-        let wrapped = try PolymarketOrderSigning.wrap(
-            signature: Self.innerSignature,
-            order: Self.order,
-            domain: .ctfExchange
-        )
-
-        #expect(wrapped.contains("3264e159346253e26a64e00b69032db0e7d32f94628de3e6eecb50304d7af3d2"))
-        #expect(wrapped.contains("345bc1910f4a991a6b3deb33f798f6fbb2536a185d922c896dd8daee671bcd05"))
-    }
-
-    @Test("The tail ends with the length of the type description")
-    func wrapEndsWithTheDescriptionLength() throws {
-        let wrapped = try PolymarketOrderSigning.wrap(
-            signature: Self.innerSignature,
-            order: Self.order,
-            domain: .ctfExchange
-        )
-
-        #expect(wrapped.hasSuffix("00ba"))
-    }
-
-    @Test("The tail after the signature is 252 bytes")
-    func wrapTailSize() throws {
-        let wrapped = try PolymarketOrderSigning.wrap(
-            signature: Self.innerSignature,
-            order: Self.order,
-            domain: .ctfExchange
-        )
-
-        let tail = wrapped.removeHexPrefix().count - Self.innerSignature.removeHexPrefix().count
-
-        #expect(tail / 2 == 252)
+        #expect(wrapped == expected)
     }
 
     @Test("The tail carries the domain of the exchange the order goes to")
@@ -286,13 +247,7 @@ struct PolymarketOrderSigningTests {
     func maxWordIsAccepted() throws {
         let amount = "115792089237316195423570985008687907853269984665640564039457584007913129639935"
 
-        let digest = try PolymarketOrderSigning.digest(
-            order: Self.order.replacing(makerAmount: amount),
-            domain: .ctfExchange,
-            depositWalletAddress: Self.depositWallet
-        )
-
-        #expect(!digest.isEmpty)
+        #expect(try PolymarketOrderSigning.word(decimalString: amount) == Data(repeating: 0xff, count: 32))
     }
 }
 

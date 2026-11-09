@@ -17,7 +17,7 @@ struct WCTransactionSendLoadingView: View {
 
     var body: some View {
         content
-            .background(Colors.Background.tertiary)
+            .background(DesignSystem.Color.bgPrimary)
             .frame(maxWidth: .infinity)
             .onAppear {
                 requestIconIsRotating = true
@@ -31,12 +31,12 @@ struct WCTransactionSendLoadingView: View {
 
             VStack(spacing: 8) {
                 Text(Localization.walletConnectSendingMultipleTx)
-                    .style(Fonts.Bold.title3.weight(.semibold), color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title3.weight(.semibold), color: DesignSystem.Color.textPrimary)
                     .lineLimit(2)
                     .padding(.horizontal, 16)
 
                 Text(LocalizedStringKey(Localization.walletConnectSendingMultipleExplanation))
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                     .lineLimit(6)
                     .padding(.init(top: 0, leading: 16, bottom: 50, trailing: 16))
             }
@@ -49,7 +49,7 @@ struct WCTransactionSendLoadingView: View {
         Assets.Glyphs.load.image
             .resizable()
             .frame(width: 32, height: 32)
-            .foregroundStyle(Colors.Icon.accent)
+            .foregroundStyle(DesignSystem.Color.iconAccentBlue)
             .frame(width: 56, height: 56)
             .rotationEffect(.degrees(requestIconIsRotating ? 360 : 0))
             .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: requestIconIsRotating)

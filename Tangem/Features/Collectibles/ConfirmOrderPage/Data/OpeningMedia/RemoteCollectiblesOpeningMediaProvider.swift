@@ -8,12 +8,11 @@
 
 import Foundation
 import TangemFoundation
-import TangemStories
 
 struct RemoteCollectiblesOpeningMediaProvider: CollectiblesOpeningMediaProvider {
-    private let cache: any StoryAssetCaching
+    private let cache: any FileAssetCaching
 
-    init(cache: any StoryAssetCaching = Self.sharedCache) {
+    init(cache: any FileAssetCaching = Self.sharedCache) {
         self.cache = cache
     }
 
@@ -25,7 +24,7 @@ struct RemoteCollectiblesOpeningMediaProvider: CollectiblesOpeningMediaProvider 
 // MARK: - Shared cache
 
 private extension RemoteCollectiblesOpeningMediaProvider {
-    static let sharedCache = CommonStoryAssetCache(directory: .collectiblesOpeningMedia)
+    static let sharedCache = CommonFileAssetCache(directory: .collectiblesOpeningMedia)
 }
 
 // MARK: - Directory

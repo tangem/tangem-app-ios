@@ -23,6 +23,23 @@ extension MarketingBanner {
     enum Placement {
         case standalone
         case linkedToProvider(providerIds: [String])
+        case pseudoProvider(PseudoProvider)
+        case standaloneCTA(StandaloneCTA)
+    }
+
+    struct PseudoProvider {
+        let categoryLabel: String?
+        let subtitle: String?
+        let etaLabel: String?
+        let partnerLabel: String?
+        let buttonText: String
+        let isGlowing: Bool
+    }
+
+    struct StandaloneCTA {
+        let subtitle: String?
+        let buttonText: String
+        let isGlowing: Bool
     }
 
     enum Action {
@@ -37,6 +54,23 @@ extension MarketingBanner {
         return false
     }
 
+    var isLinkedToProvider: Bool {
+        if case .linkedToProvider = placement {
+            return true
+        }
+
+        return false
+    }
+
+    var isCallToAction: Bool {
+        switch placement {
+        case .pseudoProvider, .standaloneCTA:
+            true
+        case .standalone, .linkedToProvider:
+            false
+        }
+    }
+
     func matchesProvider(id: String) -> Bool {
         if case .linkedToProvider(let providerIds) = placement {
             return providerIds.contains(id)
@@ -49,11 +83,13 @@ extension MarketingBanner {
 struct MarketingBanners {
     let standalone: [MarketingBanner]
     let linked: [MarketingBanner]
+    let callToAction: [MarketingBanner]
 
     func removing(hiddenCampaignIds: Set<Int>) -> MarketingBanners {
         MarketingBanners(
             standalone: standalone.filter { !hiddenCampaignIds.contains($0.id) },
-            linked: linked.filter { !hiddenCampaignIds.contains($0.id) }
+            linked: linked.filter { !hiddenCampaignIds.contains($0.id) },
+            callToAction: callToAction.filter { !hiddenCampaignIds.contains($0.id) }
         )
     }
 }

@@ -35,7 +35,7 @@ struct SUITextView: View {
         ZStack(alignment: .leading) {
             if text.isEmpty {
                 Text(viewModel.placeholder)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.disabled)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textTertiary)
                     .lineLimit(1)
             }
 

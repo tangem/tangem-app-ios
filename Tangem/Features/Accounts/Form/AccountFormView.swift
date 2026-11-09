@@ -285,5 +285,6 @@ extension AccountFormView {
             NavigationStack {
                 AccountFormView(viewModel: viewModel)
             }
+            .softTopScrollEdgeEffect()
         }
 }

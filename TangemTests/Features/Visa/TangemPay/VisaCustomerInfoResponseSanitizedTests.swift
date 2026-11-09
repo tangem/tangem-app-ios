@@ -9,6 +9,7 @@
 import Foundation
 import Testing
 import TangemPay
+import TangemFoundation
 @testable import Tangem
 
 @Suite("VisaCustomerInfoResponse.sanitizedForDiskCache")
@@ -184,7 +185,7 @@ struct VisaCustomerInfoResponseSanitizedTests {
         let data = try VisaCustomerInfoResponseFixture.makeEncoder().encode(sanitized)
         let json = try #require(String(data: data, encoding: .utf8))
 
-        #expect(!json.contains(secret), "Sanitized JSON must not contain the original card token")
+        #expect(!json.caseInsensitiveContains(secret), "Sanitized JSON must not contain the original card token")
     }
 
     @Test("encoded sanitized JSON does not contain the original emboss name")
@@ -196,6 +197,6 @@ struct VisaCustomerInfoResponseSanitizedTests {
         let data = try VisaCustomerInfoResponseFixture.makeEncoder().encode(sanitized)
         let json = try #require(String(data: data, encoding: .utf8))
 
-        #expect(!json.contains(unique), "Sanitized JSON must not contain the original emboss name")
+        #expect(!json.caseInsensitiveContains(unique), "Sanitized JSON must not contain the original emboss name")
     }
 }

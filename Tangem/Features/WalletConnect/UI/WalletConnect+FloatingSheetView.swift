@@ -43,7 +43,7 @@ private extension WalletConnectErrorView {
     func includingHeaderAndFooter() -> some View {
         safeAreaInset(edge: .top, spacing: .zero) {
             FloatingSheetNavigationBarView(
-                backgroundColor: Colors.Background.tertiary,
+                backgroundColor: DesignSystem.Color.bgPrimary,
                 bottomSeparatorLineIsVisible: false,
                 closeButtonAction: { viewModel.handle(viewEvent: .closeButtonTapped) },
                 titleAccessibilityIdentifier: WalletConnectAccessibilityIdentifiers.headerTitle

@@ -104,9 +104,9 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
     private var backgroundColor: Color {
         switch params {
         case .highFees:
-            return Colors.Button.disabled
+            return DesignSystem.Color.bgDisabled
         default:
-            return Colors.Background.action
+            return DesignSystem.Color.bgSecondary
         }
     }
 
@@ -130,7 +130,7 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
 
     private var titleView: some View {
         Text(title)
-            .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+            .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
             .accessibilityIdentifier(YieldModuleAccessibilityIdentifiers.notificationTitle)
     }
 
@@ -138,7 +138,7 @@ struct YieldModuleBottomSheetNotificationBannerView: View {
     private var descriptionView: some View {
         if let description {
             Text(description)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
         }
     }
 

@@ -14,15 +14,21 @@ import TangemPolymarket
 @testable import Tangem
 
 @MainActor
-@Suite("Polymarket order amount entry")
+@Suite("Polymarket order amount entry", .timeLimit(.minutes(1)))
 struct PolymarketOrderAmountEntryTests {
+    @Test("A bet stops at the cent, a position keeps the precision its shares are held in")
+    func onlyTheBuyAmountIsCappedAtCents() {
+        #expect(PolymarketOrderIntent.buy(balance: .just(output: nil)).fractionDigits == 2)
+        #expect(PolymarketOrderIntent.sell(shares: 1).fractionDigits == PolymarketCollateral.decimalCount)
+    }
+
     @Test("A bet is typed down to the cent, however much the collateral could carry")
     func typedAmountStopsAtCents() async throws {
         let model = try await makeModel()
 
         type("1.2345", into: model.amountField)
 
-        try await settle { model.state.enteredAmount != nil }
+        _ = await model.$state.firstValue { $0.enteredAmount != nil }
 
         #expect(model.amountField.value == Decimal(string: "1.23")!)
         #expect(model.state.enteredAmount == Decimal(string: "1.23")!)
@@ -34,16 +40,10 @@ struct PolymarketOrderAmountEntryTests {
 
         type("0.019", into: model.amountField)
 
-        try await settle { model.state.enteredAmount != nil }
+        _ = await model.$state.firstValue { $0.enteredAmount != nil }
 
         #expect(model.amountField.value == Decimal(string: "0.01")!)
         #expect(model.state.enteredAmount == Decimal(string: "0.01")!)
-    }
-
-    @Test("A bet stops at the cent, a position keeps the precision its shares are held in")
-    func onlyTheBuyAmountIsCappedAtCents() {
-        #expect(PolymarketOrderIntent.buy(balance: .just(output: nil)).fractionDigits == 2)
-        #expect(PolymarketOrderIntent.sell(shares: 1).fractionDigits == PolymarketCollateral.decimalCount)
     }
 }
 
@@ -62,10 +62,11 @@ private extension PolymarketOrderAmountEntryTests {
             clobService: PolymarketCLOBServiceStub(),
             isAwaitingFundsPublisher: .just(output: false),
             collateralBalancePublisher: .just(output: 200),
-            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() }
+            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() },
+            delayProvider: PolymarketSteppedDelayProvider()
         )
 
-        try await settle { model.state.balance != nil }
+        _ = await model.$state.firstValue { $0.balance != nil }
 
         return model
     }

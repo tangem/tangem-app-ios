@@ -67,7 +67,7 @@ struct DefaultRowView: View {
                 SwiftUI.Button(action: secondaryAction) {
                     Assets.infoCircle16.image
                         .padding(.horizontal, 4)
-                        .foregroundColor(Colors.Icon.informative)
+                        .foregroundColor(DesignSystem.Color.iconSecondary)
                 }
             }
         }
@@ -133,15 +133,15 @@ extension DefaultRowView {
         let leadingIcon: LeadingIcon?
 
         static let plainButton = Appearance(isChevronVisible: false)
-        static let destructiveButton = Appearance(isChevronVisible: false, textColor: Colors.Text.warning)
-        static let disabledDestructiveButton = Appearance(isChevronVisible: false, textColor: Colors.Text.tertiary)
-        static let accentButton = Appearance(isChevronVisible: false, textColor: Colors.Text.accent)
+        static let destructiveButton = Appearance(isChevronVisible: false, textColor: DesignSystem.Color.textAccentRed)
+        static let disabledDestructiveButton = Appearance(isChevronVisible: false, textColor: DesignSystem.Color.textSecondary)
+        static let accentButton = Appearance(isChevronVisible: false, textColor: DesignSystem.Color.textAccentBlue)
 
         init(
             isChevronVisible: Bool = true,
             font: Font = Fonts.Regular.callout,
-            textColor: Color = Colors.Text.primary1,
-            detailsColor: Color = Colors.Text.tertiary,
+            textColor: Color = DesignSystem.Color.textPrimary,
+            detailsColor: Color = DesignSystem.Color.textSecondary,
             hasVerticalPadding: Bool = true,
             leadingIcon: LeadingIcon? = nil
         ) {
@@ -157,7 +157,7 @@ extension DefaultRowView {
 
 #Preview {
     ZStack {
-        Colors.Background.secondary.ignoresSafeArea()
+        DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
         GroupedSection(
             [

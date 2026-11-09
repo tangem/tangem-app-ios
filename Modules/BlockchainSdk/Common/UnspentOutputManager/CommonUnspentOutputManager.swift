@@ -48,14 +48,13 @@ class CommonUnspentOutputManager {
 extension CommonUnspentOutputManager: UnspentOutputManager {
     func update(outputs newOutputs: [UnspentOutput], for address: String) throws {
         let script = try lockingScriptBuilder.lockingScript(for: address)
-        outputs { dict in
-            dict[script] = newOutputs
-        }
+        update(outputs: newOutputs, for: script)
     }
 
     func update(outputs newOutputs: [UnspentOutput], for script: UTXOLockingScript) {
+        let validOutputs = validated(outputs: newOutputs)
         outputs { dict in
-            dict[script] = newOutputs
+            dict[script] = validOutputs
         }
     }
 
@@ -71,15 +70,15 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
         return try await preImage(amount: amount, fee: .calculate(feeRate: feeRate), destination: destination, changeAddress: changeAddress, opReturn: opReturn)
     }
 
-    func confirmedBalance() -> UInt64 {
-        outputs { dict in
-            dict.flatMap { $0.value }.filter { $0.isConfirmed }.sum(by: \.amount)
+    func confirmedBalance() throws -> UInt64 {
+        try outputs { dict in
+            try dict.flatMap { $0.value }.filter { $0.isConfirmed }.sumReportingOverflow(by: \.amount)
         }
     }
 
-    func unconfirmedBalance() -> UInt64 {
-        outputs { dict in
-            dict.flatMap { $0.value }.filter { !$0.isConfirmed }.sum(by: \.amount)
+    func unconfirmedBalance() throws -> UInt64 {
+        try outputs { dict in
+            try dict.flatMap { $0.value }.filter { !$0.isConfirmed }.sumReportingOverflow(by: \.amount)
         }
     }
 
@@ -93,6 +92,20 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
 // MARK: - Private
 
 private extension CommonUnspentOutputManager {
+    func validated(outputs unspentOutputs: [UnspentOutput]) -> [UnspentOutput] {
+        unspentOutputs.filter { output in
+            guard
+                UInt32(exactly: output.index) != nil,
+                Int64(exactly: output.amount) != nil
+            else {
+                BSDKLogger.warning("Skipping unspent output \(output.txId):\(output.index) with out-of-range index or amount \(output.amount)")
+                return false
+            }
+
+            return true
+        }
+    }
+
     func preImage(amount: Int, fee: UTXOPreImageTransactionBuilderFee, destination: String, changeAddress: String, opReturn: Data?) async throws -> PreImageTransaction {
         let changeScript = try lockingScriptBuilder.lockingScript(for: changeAddress)
         let destinationScript = try lockingScriptBuilder.lockingScript(for: destination)

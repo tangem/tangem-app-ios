@@ -40,7 +40,7 @@ public struct NotificationBannerStack<Item: Identifiable, Content: View>: View {
     public var body: some View {
         VStack(spacing: 20) {
             ZStack {
-                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                ForEach(indexed: items) { index, item in
                     let position = distanceFromTop(index)
                     let isTop = position == 0
 

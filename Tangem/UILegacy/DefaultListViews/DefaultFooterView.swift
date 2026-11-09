@@ -18,7 +18,7 @@ struct DefaultFooterView: View {
 
     var body: some View {
         Text(.init(title))
-            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
             // We've calculation height problem here
             // SUI BottomSheet can't do it normally without this `fixedSize`
             .fixedSize(horizontal: false, vertical: true)

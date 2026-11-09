@@ -21,7 +21,7 @@ struct OrganizeTokensListOuterSectionView: View {
     var body: some View {
         AccountIconWithContentView(iconData: iconData, name: title)
             .iconSettings(.smallSized)
-            .style(Fonts.BoldStatic.caption1.weight(.medium), color: Colors.Text.primary1)
+            .style(Fonts.BoldStatic.caption1.weight(.medium), color: DesignSystem.Color.textPrimary)
             .padding(.horizontal, 14.0)
             .padding(.top, 14.0)
             .padding(.bottom, 6.0)

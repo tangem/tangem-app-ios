@@ -18,7 +18,7 @@ struct PolymarketOrderPlacementFactory {
             ownerAddressProvider: CommonPolymarketOwnerAddressProvider(keysRepository: userWalletModel.keysRepository),
             credentialsRepository: CommonPolymarketCredentialsRepository(),
             placer: PolymarketOrderPlacer(
-                clobService: services.makeCLOBService(),
+                clobService: services.makeCLOBService(walletId: userWalletModel.userWalletId.stringValue),
                 digestSigner: CommonPolymarketOrderDigestSigner(
                     keysRepository: userWalletModel.keysRepository,
                     signer: userWalletModel.signer

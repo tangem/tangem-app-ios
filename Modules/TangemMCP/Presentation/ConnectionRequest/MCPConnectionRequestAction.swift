@@ -11,8 +11,8 @@ import struct TangemFoundation.UserWalletId
 enum MCPConnectionRequestAction {
     case viewDidLoad
 
-    case backButtonTapped
-    case closeButtonTapped
+    case navigationBackButtonTapped
+    case navigationCloseButtonTapped
     case openSystemSettingsButtonTapped
 
     case userWalletSelectorTapped

@@ -22,13 +22,13 @@ struct NewProviderSelectorView: View {
         learnMore.font = Fonts.Regular.footnote
 
         if let range = learnMore.range(of: Localization.commonLearnMore) {
-            learnMore[range].foregroundColor = Colors.Text.accent
+            learnMore[range].foregroundColor = DesignSystem.Color.textAccentBlue
             learnMore[range].link = URL(string: " ")
         }
 
         var subtitle = AttributedString(Localization.givePermissionSwapSubtitleV2(""))
         subtitle.font = Fonts.Regular.footnote
-        subtitle.foregroundColor = Colors.Text.tertiary
+        subtitle.foregroundColor = DesignSystem.Color.textSecondary
 
         return subtitle + "\n" + learnMore
     }
@@ -165,10 +165,10 @@ struct NewProviderSelectorView: View {
         SwiftUI.Button(action: viewModel.openApprove) {
             Assets.sliders.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.informative)
+                .foregroundColor(DesignSystem.Color.iconSecondary)
                 .padding(.horizontal, 20)
                 .frame(maxHeight: .infinity)
-                .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Colors.Background.action))
+                .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(DesignSystem.Color.bgSecondary))
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(SendAccessibilityIdentifiers.swapProviderSelectorApproveButton(name: name))
@@ -179,7 +179,7 @@ struct NewProviderSelectorView: View {
             DefaultMenuRowView(viewModel: $0, selection: $viewModel.selectedApprovePolicy, titleFont: Fonts.Regular.body)
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.swapApprovePolicyRow)
         }
-        .backgroundColor(Colors.Background.action)
+        .backgroundColor(DesignSystem.Color.bgSecondary)
         .padding(.horizontal, 16)
     }
 }

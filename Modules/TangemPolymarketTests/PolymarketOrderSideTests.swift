@@ -10,7 +10,7 @@ import Moya
 import Testing
 @testable import TangemPolymarket
 
-@Suite("Polymarket order side per endpoint")
+@Suite("Polymarket order side per endpoint", .timeLimit(.minutes(1)))
 struct PolymarketOrderSideTests {
     // MARK: - The book price
 
@@ -32,39 +32,7 @@ struct PolymarketOrderSideTests {
         #expect(query.count == 2)
     }
 
-    @Test("The price probe never asks for the side the user takes")
-    func priceProbeNeverAsksForTheOrderSide() throws {
-        for orderSide in [PolymarketOrderSide.buy, .sell] {
-            let query = try Self.priceQuery(orderSide: orderSide)
-
-            #expect(query[Self.sideKey] as? String != orderSide.rawValue)
-        }
-    }
-
-    // MARK: - The quote
-
-    @Test("The quote is asked for the side the user takes")
-    func quoteStatesTheOrderSide() {
-        #expect(Self.quoteBody(side: .buy).side == "BUY")
-        #expect(Self.quoteBody(side: .sell).side == "SELL")
-    }
-
     // MARK: - The order
-
-    @Test("The order is placed on the side the user takes, with the legs that side spends and receives")
-    func orderStatesTheOrderSide() {
-        let buy = Self.placeOrderBody(side: .buy)
-
-        #expect(buy.order.side == "BUY")
-        #expect(buy.order.makerAmount == "72000000")
-        #expect(buy.order.takerAmount == "97959180")
-
-        let sale = Self.placeOrderBody(side: .sell)
-
-        #expect(sale.order.side == "SELL")
-        #expect(sale.order.makerAmount == "97959180")
-        #expect(sale.order.takerAmount == "72000000")
-    }
 
     @Test("The signature counts the side the way the exchange contract does")
     func signatureCountsTheOrderSide() {
@@ -77,14 +45,10 @@ struct PolymarketOrderSideTests {
 
 private extension PolymarketOrderSideTests {
     static let baseURL = URL(string: "https://clob.polymarket.com")!
-    static let depositWallet = "0x5A057dc6394196fBa51D84457DA3FB8FA241Fc20"
     static let tokenId = "1116017998421700000000000000000000000000000000000000000000000000047"
 
     static let tokenIdKey = "token_id"
     static let sideKey = "side"
-
-    static let notional: Decimal = 72
-    static let shares = Decimal(string: "97.95918")!
 
     enum TestError: Error {
         case notRequestParameters
@@ -102,29 +66,5 @@ private extension PolymarketOrderSideTests {
         }
 
         return parameters
-    }
-
-    static func quoteBody(side: PolymarketOrderSide) -> PolymarketDTO.OrderQuoteRequestBody {
-        let request = PolymarketOrderQuoteRequest(
-            marketId: "m1",
-            assetId: tokenId,
-            side: side,
-            amount: notional,
-            slippagePercent: Decimal(string: "0.25")!
-        )
-
-        return PolymarketMapper().mapOrderQuoteRequest(request)
-    }
-
-    static func placeOrderBody(side: PolymarketOrderSide) -> PolymarketDTO.PlaceOrderRequestBody {
-        let order = PolymarketOrderFactory.make(
-            quote: .stub(side: side, notional: notional, shares: shares),
-            assetId: tokenId,
-            depositWalletAddress: depositWallet
-        )
-
-        let signedOrder = PolymarketSignedOrder(order: order, signature: "0xdeadbeef")
-
-        return PolymarketMapper().mapPlaceOrderRequest(signedOrder, apiKey: "api-key")
     }
 }

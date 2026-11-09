@@ -23,16 +23,16 @@ struct OnboardingSeedPassphraseInfoBottomSheetView: View {
         VStack(spacing: 56) {
             VStack(spacing: 30) {
                 Assets.infoCircle36.image
-                    .foregroundStyle(Colors.Text.accent)
+                    .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                     .padding(.top, 50)
 
                 VStack(spacing: 10) {
                     Text(Localization.commonPassphrase)
-                        .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.title1, color: DesignSystem.Color.textPrimary)
 
                     Text(Localization.onboardingBottomSheetPassphraseDescription)
                         .multilineTextAlignment(.center)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                 }
                 .padding(.horizontal, 34)
             }

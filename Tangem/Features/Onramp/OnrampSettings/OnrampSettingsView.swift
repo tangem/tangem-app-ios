@@ -24,14 +24,14 @@ struct OnrampSettingsView: View {
             .accessibilityIdentifier(OnrampAccessibilityIdentifiers.residenceButton)
 
             Text(Localization.onrampSettingsResidenceDescription)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .padding(.horizontal, 14)
 
             Spacer()
         }
         .padding(.horizontal, 16)
         .background(
-            Colors.Background.tertiary
+            DesignSystem.Color.bgPrimary
                 .ignoresSafeArea()
         )
         .navigationBarTitle(Localization.onrampSettingsTitle, displayMode: .inline)
@@ -43,7 +43,7 @@ struct OnrampSettingsView: View {
         HStack(spacing: 6) {
             Text(Localization.onrampSettingsResidence)
                 .lineLimit(1)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
             Spacer()
 
@@ -55,18 +55,18 @@ struct OnrampSettingsView: View {
 
                 Text(country.name)
                     .lineLimit(1)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
             }
 
             Assets.chevronRightWithOffset24.image
                 .resizable()
                 .frame(size: .init(bothDimensions: 24))
-                .foregroundColor(Colors.Icon.informative)
+                .foregroundColor(DesignSystem.Color.iconSecondary)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .background(
-            Colors.Background.action
+            DesignSystem.Color.bgSecondary
                 .cornerRadiusContinuous(14)
         )
     }

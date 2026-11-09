@@ -41,7 +41,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
         .coordinateSpace(name: Layout.scrollViewCoordinateSpace)
         .animation(.contentFrameUpdate, value: viewModel.state)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(Colors.Background.tertiary)
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
@@ -81,7 +81,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
         case .dAppDetails(let viewState):
             title = viewState.navigationBar.title
             subtitle = viewState.navigationBar.connectedTime
-            backgroundColor = Colors.Background.tertiary
+            backgroundColor = DesignSystem.Color.bgPrimary
             closeButtonAction = { viewModel.handle(viewEvent: .closeButtonTapped) }
 
         case .verifiedDomain(let viewModel):
@@ -116,16 +116,16 @@ struct WalletConnectConnectedDAppDetailsView: View {
             .padding(.vertical, 16)
 
             if let walletSectionState = viewState.walletSection {
-                Separator(color: Colors.Stroke.primary)
+                Separator(color: DesignSystem.Color.borderSecondary)
 
                 walletSection(walletSectionState)
             } else if let connectionTargetSectionState = viewState.connectionTargetSection {
-                Separator(color: Colors.Stroke.primary)
+                Separator(color: DesignSystem.Color.borderSecondary)
 
                 connectionTargetSection(connectionTargetSectionState)
             }
         }
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
@@ -168,7 +168,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
             .settings(.smallSized)
 
             Text(accountName)
-                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
         }
     }
 
@@ -179,10 +179,10 @@ struct WalletConnectConnectedDAppDetailsView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 24, height: 24)
-                    .foregroundStyle(Colors.Icon.accent)
+                    .foregroundStyle(DesignSystem.Color.iconAccentBlue)
 
                 Text(walletSectionState.labelText)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
             }
 
             Spacer(minLength: 12)
@@ -195,7 +195,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
 
     private func walletSectionTrailingView(_ userWalletName: String) -> some View {
         Text(userWalletName)
-            .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+            .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
     }
 
     @ViewBuilder
@@ -203,14 +203,14 @@ struct WalletConnectConnectedDAppDetailsView: View {
         if let connectedNetworksSection = viewState.connectedNetworksSection {
             LazyVStack(alignment: .leading, spacing: .zero) {
                 Text(connectedNetworksSection.headerTitle)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                     .padding(.top, 12)
                     .padding(.bottom, 8)
 
                 ForEach(connectedNetworksSection.blockchains, content: blockchainRow)
             }
             .padding(.horizontal, 14)
-            .background(Colors.Background.action)
+            .background(DesignSystem.Color.bgSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }
     }
@@ -223,10 +223,10 @@ struct WalletConnectConnectedDAppDetailsView: View {
 
             HStack(spacing: 4) {
                 Text(blockchain.name)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                 Text(blockchain.currencySymbol)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
 
                 Spacer(minLength: .zero)
             }
@@ -249,7 +249,7 @@ struct WalletConnectConnectedDAppDetailsView: View {
         }
         .background {
             ListFooterOverlayShadowView(
-                color: Colors.Background.tertiary,
+                color: DesignSystem.Color.bgPrimary,
                 opacities: [0.0, 0.95, 1]
             )
             .padding(.top, 6)

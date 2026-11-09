@@ -14,20 +14,23 @@ final class MarketingBannerService {
     @Injected(\.tangemApiService) private var apiService: TangemApiService
 
     private let balanceConverter: BalanceConverter
+    private let fiatToUsdRateProvider: FiatToUsdRateProvider
     private let language: String?
 
     init(
         balanceConverter: BalanceConverter = BalanceConverter(),
+        fiatToUsdRateProvider: FiatToUsdRateProvider = FiatToUsdRateProvider(),
         language: String? = Locale.current.language.languageCode?.identifier
     ) {
         self.balanceConverter = balanceConverter
+        self.fiatToUsdRateProvider = fiatToUsdRateProvider
         self.language = language
     }
 }
 
-struct MarketingBannerAmount: Equatable {
-    let value: Decimal
-    let currencyId: String
+enum MarketingBannerAmount: Equatable {
+    case crypto(value: Decimal, currencyId: String)
+    case fiat(value: Decimal, currencyCode: String)
 }
 
 extension MarketingBannerService {
@@ -78,10 +81,19 @@ private extension MarketingBannerService {
             .switchToLatest()
 
         let balanceConverter = balanceConverter
+        let fiatToUsdRateProvider = fiatToUsdRateProvider
 
         let banners = Publishers.CombineLatest(campaigns, amount.prepend(nil).removeDuplicates())
             .asyncMap { campaigns, amount -> MarketingBanners in
-                let usdAmount = await Self.usdValue(amount, balanceConverter: balanceConverter)
+                guard campaigns.contains(where: Self.hasAmountBounds) else {
+                    return Self.selectBanners(from: campaigns, usdAmount: nil)
+                }
+
+                let usdAmount = await Self.usdValue(
+                    amount,
+                    balanceConverter: balanceConverter,
+                    fiatToUsdRateProvider: fiatToUsdRateProvider
+                )
                 return Self.selectBanners(from: campaigns, usdAmount: usdAmount)
             }
 
@@ -127,12 +139,19 @@ private extension MarketingBannerService {
         return (try? await apiService.loadMarketingCampaigns(request: dtoRequest).campaigns) ?? []
     }
 
-    static func usdValue(_ amount: MarketingBannerAmount?, balanceConverter: BalanceConverter) async -> Decimal? {
-        guard let amount else {
+    static func usdValue(
+        _ amount: MarketingBannerAmount?,
+        balanceConverter: BalanceConverter,
+        fiatToUsdRateProvider: FiatToUsdRateProvider
+    ) async -> Decimal? {
+        switch amount {
+        case .none:
             return nil
+        case .crypto(let value, let currencyId):
+            return try? await balanceConverter.convertToUsd(value, currencyId: currencyId)
+        case .fiat(let value, let currencyCode):
+            return try? await value * fiatToUsdRateProvider.rate(for: currencyCode)
         }
-
-        return try? await balanceConverter.convertToUsd(amount.value, currencyId: amount.currencyId)
     }
 
     static func selectBanners(
@@ -146,8 +165,12 @@ private extension MarketingBannerService {
 // MARK: - Amount filter
 
 extension MarketingBannerService {
+    static func hasAmountBounds(_ campaign: MarketingCampaignsDTO.Campaign) -> Bool {
+        campaign.minAmount != nil || campaign.maxAmount != nil
+    }
+
     static func satisfiesAmount(_ campaign: MarketingCampaignsDTO.Campaign, usd: Decimal?) -> Bool {
-        if campaign.minAmount == nil, campaign.maxAmount == nil {
+        if !hasAmountBounds(campaign) {
             return true
         }
 

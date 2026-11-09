@@ -11,7 +11,7 @@ public final class PolymarketLiveGames: Sendable {
 
     public init() {}
 
-    public func games(for gameIds: Set<Int>) async -> AsyncStream<PolymarketLiveGame> {
+    public func games(for gameIds: Set<String>) async -> AsyncStream<PolymarketLiveGame> {
         await client.values(for: gameIds)
     }
 

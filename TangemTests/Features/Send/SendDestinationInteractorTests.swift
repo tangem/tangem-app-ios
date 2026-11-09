@@ -252,6 +252,7 @@ private final class SendDestinationInputStub: SendDestinationInput {
     var destinationAdditionalField: SendDestinationAdditionalField { additionalFieldSubject.value }
     var destinationPublisher: AnyPublisher<SendDestination?, Never> { destinationSubject.eraseToAnyPublisher() }
     var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> { additionalFieldSubject.eraseToAnyPublisher() }
+    var destinationTokenItemPublisher: AnyPublisher<TokenItem, Never> { Empty().eraseToAnyPublisher() }
 
     func send(destination: SendDestination?) {
         destinationSubject.send(destination)

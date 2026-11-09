@@ -30,9 +30,9 @@ extension WalletConnectErrorViewState {
         let asset: ImageType
         let color: SwiftUI.Color
 
-        static let walletConnect = Icon(asset: Assets.WalletConnect.walletConnectNew, color: Colors.Icon.informative)
-        static let blockchain = Icon(asset: Assets.Glyphs.networkNew, color: Colors.Icon.informative)
-        static let warning = Icon(asset: Assets.attention, color: Colors.Icon.attention)
+        static let walletConnect = Icon(asset: Assets.WalletConnect.walletConnectNew, color: DesignSystem.Color.iconSecondary)
+        static let blockchain = Icon(asset: Assets.Glyphs.networkNew, color: DesignSystem.Color.iconSecondary)
+        static let warning = Icon(asset: Assets.attention, color: DesignSystem.Color.iconAccentYellow)
     }
 
     struct Button {

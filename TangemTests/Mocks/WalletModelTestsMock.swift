@@ -18,6 +18,7 @@ final class WalletModelTestsMock: WalletModel {
     private let _priceChange24h: Decimal?
     private let _fiatBalanceProvider: TokenBalanceProvider
     private let _tokenItem: TokenItem
+    private let _publicKey: Wallet.PublicKey
     private let _id: WalletModelId
     private let _isEmpty: Bool
     private let _fiatAvailableBalance: Decimal
@@ -27,9 +28,11 @@ final class WalletModelTestsMock: WalletModel {
 
     var transactionCreatorMock: TransactionCreator?
     var multipleTransactionsSenderMock: MultipleTransactionsSender?
+    var availableBalanceProviderMock: TokenBalanceProvider?
     var stakingManagerMock: StakingManager?
     var yieldModuleManagerMock: (any YieldModuleManager)?
     var tronAccountActivationStateProviderMock: (any TronAccountActivationStateProvider)?
+    var tronGaslessTransactionsBuilderMock: (any TronGaslessTransactionsBuilder)?
     var isCustomMock = false
     var sendingRestrictionsMock: SendingRestrictions?
     private let _updateAfterSendingTransactionCalls = OSAllocatedUnfairLock(initialState: [Bool]())
@@ -44,6 +47,7 @@ final class WalletModelTestsMock: WalletModel {
         _priceChange24h = priceChange24h
         _fiatBalanceProvider = TokenBalanceProviderTestsMock(balance: fiatBalance)
         _tokenItem = .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil))
+        _publicKey = Wallet.PublicKey(seedKey: Data(), derivationType: .none)
         _id = WalletModelId(tokenItem: .blockchain(.init(.alephium(testnet: false), derivationPath: nil)))
         _isEmpty = false
         _fiatAvailableBalance = 0
@@ -57,6 +61,7 @@ final class WalletModelTestsMock: WalletModel {
         _priceChange24h = priceChange24h
         _fiatBalanceProvider = fiatBalanceProvider
         _tokenItem = .blockchain(.init(.bitcoin(testnet: false), derivationPath: nil))
+        _publicKey = Wallet.PublicKey(seedKey: Data(), derivationType: .none)
         _id = WalletModelId(tokenItem: .blockchain(.init(.alephium(testnet: false), derivationPath: nil)))
         _isEmpty = false
         _fiatAvailableBalance = 0
@@ -73,10 +78,12 @@ final class WalletModelTestsMock: WalletModel {
         account: (any CryptoAccountModel)? = nil,
         addresses: [Address] = [PlainAddress(value: "mock", type: .default)],
         safeWalletManagerOperationsService: (any SafeWalletManagerOperationsService)? = nil,
-        isCustom: Bool = false
+        isCustom: Bool = false,
+        publicKey: Wallet.PublicKey = Wallet.PublicKey(seedKey: Data(), derivationType: .none)
     ) {
         _safeWalletManagerOperationsService = safeWalletManagerOperationsService
         _tokenItem = tokenItem
+        _publicKey = publicKey
         _id = WalletModelId(tokenItem: tokenItem)
         _isEmpty = isEmpty
         _fiatBalance = fiatBalance
@@ -187,7 +194,7 @@ final class WalletModelTestsMock: WalletModel {
     var feeTokenItem: TokenItem { tokenItem }
     var canUseQuotes: Bool { true }
     var isEmpty: Bool { _isEmpty }
-    var publicKey: Wallet.PublicKey { Wallet.PublicKey(seedKey: Data(), derivationType: .none) }
+    var publicKey: Wallet.PublicKey { _publicKey }
     var isCustom: Bool { isCustomMock }
     var actionsUpdatePublisherMock: AnyPublisher<Void, Never> = .empty
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { actionsUpdatePublisherMock }
@@ -202,7 +209,10 @@ final class WalletModelTestsMock: WalletModel {
     var account: (any CryptoAccountModel)? { _account }
     var yieldModuleManager: YieldModuleManager? { yieldModuleManagerMock }
     var feeTokenItemBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
-    var availableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
+    var availableBalanceProvider: TokenBalanceProvider {
+        availableBalanceProviderMock ?? TokenBalanceProviderTestsMock(balance: 0)
+    }
+
     var stakingBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var totalTokenBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var fiatAvailableBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: _fiatAvailableBalance) }
@@ -243,7 +253,7 @@ final class WalletModelTestsMock: WalletModel {
     var hasRent: Bool { false }
     var existentialDepositWarning: String? { nil }
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { nil }
-    var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { nil }
+    var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { tronGaslessTransactionsBuilderMock }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { nil }
 
     // MARK: - CustomStringConvertible

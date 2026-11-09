@@ -32,8 +32,9 @@ struct CollectiblesWelcomeView: View {
         .safeAreaInset(edge: .bottom) {
             Footer(
                 signingActionButtonType: viewModel.signingActionButtonType,
+                actionTitle: viewModel.actionTitle,
                 isLoading: viewModel.isOnboarding,
-                onCreateAccountTap: viewModel.onCreateAccountTap,
+                onActionTap: viewModel.onActionTap,
                 onTermsTap: viewModel.onLegalTermsTap(url:)
             )
         }
@@ -102,7 +103,7 @@ private extension CollectiblesWelcomeView {
 
     var titleBlock: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(Localization.collectiblesWelcomeTitle)
+            Text(viewModel.title)
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
 
             Text(Localization.collectiblesWelcomeDescription)

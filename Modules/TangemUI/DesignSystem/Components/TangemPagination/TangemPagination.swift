@@ -33,7 +33,7 @@ public struct TangemPagination: View {
         content
             .padding(.horizontal, hasBackground ? horizontalPadding : 0)
             .padding(.vertical, hasBackground ? verticalPadding : 0)
-            .background(hasBackground ? Color.Tangem.Tabs.backgroundSecondary : .clear)
+            .background(hasBackground ? DesignSystem.Color.bgTransparentSecondary : .clear)
             .clipShape(.capsule)
             .animation(.easeInOut(duration: 0.3), value: currentIndex)
     }

@@ -20,19 +20,20 @@ extension PolymarketEvent {
         return abbreviations
     }
 
-    private func teamAbbreviation(for outcome: PolymarketOutcome) -> String? {
-        let label = Self.normalized(outcome.title)
+    func team(named text: String) -> PolymarketTeam? {
+        let label = Self.normalized(text)
 
-        guard
-            !label.isEmpty,
-            let team = teams.first(where: { team in
-                [team.name, team.alias].compactMap { $0 }.contains { Self.normalized($0) == label }
-            })
-        else {
+        guard !label.isEmpty else {
             return nil
         }
 
-        return team.abbreviation?.uppercased()
+        return teams.first { team in
+            [team.name, team.alias].compactMap { $0 }.contains { Self.normalized($0) == label }
+        }
+    }
+
+    private func teamAbbreviation(for outcome: PolymarketOutcome) -> String? {
+        team(named: outcome.title)?.abbreviation?.uppercased()
     }
 
     private static func normalized(_ text: String) -> String {

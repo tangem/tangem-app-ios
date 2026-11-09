@@ -35,7 +35,7 @@ public struct PlusIconView: View {
             return textAndIconColor.opacity(Constants.iconBackgroundOpacity)
         }
 
-        return Colors.Field.focused
+        return DesignSystem.Color.bgTransparentSecondary
     }
 }
 
@@ -50,12 +50,12 @@ private extension PlusIconView {
 // MARK: - Previews
 
 #Preview("Default") {
-    PlusIconView(textAndIconColor: Colors.Text.accent)
+    PlusIconView(textAndIconColor: DesignSystem.Color.textAccentBlue)
         .padding()
 }
 
 #Preview("Disabled") {
-    PlusIconView(textAndIconColor: Colors.Text.disabled, isEnabled: false)
+    PlusIconView(textAndIconColor: DesignSystem.Color.textTertiary, isEnabled: false)
         .padding()
 }
 
@@ -64,13 +64,13 @@ private extension PlusIconView {
         HStack {
             Text("Enabled:")
             Spacer()
-            PlusIconView(textAndIconColor: Colors.Text.accent)
+            PlusIconView(textAndIconColor: DesignSystem.Color.textAccentBlue)
         }
 
         HStack {
             Text("Disabled:")
             Spacer()
-            PlusIconView(textAndIconColor: Colors.Text.disabled, isEnabled: false)
+            PlusIconView(textAndIconColor: DesignSystem.Color.textTertiary, isEnabled: false)
         }
     }
     .padding()

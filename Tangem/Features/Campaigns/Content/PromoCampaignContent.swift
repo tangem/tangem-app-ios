@@ -16,6 +16,8 @@ struct PromoCampaignContent: Equatable {
     let learnMoreLink: Link?
     let termsLink: Link?
     let actionButtonTitle: String
+    var payoutButtonTitle: String? = nil
+    var payoutAccountTitle: String? = nil
 }
 
 extension PromoCampaignContent {

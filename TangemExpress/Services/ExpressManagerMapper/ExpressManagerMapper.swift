@@ -63,7 +63,8 @@ struct ExpressManagerMapper {
             providerInfo: .init(id: providerId, type: providerType),
             operationType: request.operationType,
             quoteId: quoteId,
-            slippage: request.slippage
+            slippage: request.slippage,
+            mcpIntentID: request.mcpIntentID
         )
     }
 }

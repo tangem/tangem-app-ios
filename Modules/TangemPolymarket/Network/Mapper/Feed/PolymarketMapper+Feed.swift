@@ -10,8 +10,7 @@ extension PolymarketMapper {
     func mapEventsPage(_ dto: PolymarketDTO.EventsPageResponse) -> PolymarketEventsPage {
         PolymarketEventsPage(
             events: dto.events.map(mapEvent),
-            cursor: dto.cursor,
-            hasNext: dto.hasNext
+            cursor: dto.hasNext ? cursor(from: dto.cursor) : nil
         )
     }
 }

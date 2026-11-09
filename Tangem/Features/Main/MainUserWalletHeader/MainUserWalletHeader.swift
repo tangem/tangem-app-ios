@@ -244,9 +244,9 @@ extension MainUserWalletHeader {
     @Previewable @State var provider = FakeCardHeaderPreviewProvider()
 
     VStack(spacing: 20) {
-        ForEach(provider.models.indices, id: \.self) { index in
+        ForEach(indexed: provider.models, id: \.0) { index, model in
             MainUserWalletHeader(
-                headerViewModel: provider.models[index],
+                headerViewModel: model,
                 actionButtonsViewModel: nil,
                 showPagingIndicatorStub: false
             )

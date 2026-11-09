@@ -22,6 +22,7 @@ struct PolymarketCoordinatorView: CoordinatorView {
             .navigationLinks(links)
             .fullScreenCover(item: $coordinator.redeem) { viewModel in
                 PolymarketRedeemView(viewModel: viewModel)
+                    .softTopScrollEdgeEffect()
             }
             .polymarketOrderSheet(presenter: coordinator.orderPresenter, host: nil)
             .background(PolymarketMainSheetHost(coordinator: coordinator, isActive: coordinator.orderPresenter.order == nil))

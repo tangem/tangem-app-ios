@@ -134,11 +134,12 @@ private extension AccountDetailsCoordinator {
     struct EditAccountResolver: AccountModelResolving {
         let coordinator: AccountDetailsCoordinator
 
-        func resolve(accountModel: any CryptoAccountModel) {
-            coordinator.editAccountViewModel = AccountFormViewModel(
-                flowType: .edit(account: accountModel),
-                coordinator: coordinator
-            )
+        func resolve(accountModel: any StandardCryptoAccountModel) {
+            openAccountForm(for: accountModel)
+        }
+
+        func resolve(accountModel: any JointAccountModel) {
+            openAccountForm(for: accountModel)
         }
 
         /// TangemPay does not support editing
@@ -149,6 +150,13 @@ private extension AccountDetailsCoordinator {
 
         /// Collectibles does not support editing
         func resolve(accountModel: any CollectiblesAccountModel) {}
+
+        private func openAccountForm(for accountModel: some CryptoAccountModel) {
+            coordinator.editAccountViewModel = AccountFormViewModel(
+                flowType: .edit(account: accountModel),
+                coordinator: coordinator
+            )
+        }
     }
 }
 
@@ -159,7 +167,24 @@ private extension AccountDetailsCoordinator {
         let coordinator: AccountDetailsCoordinator
         let options: Options
 
-        func resolve(accountModel: any CryptoAccountModel) {
+        func resolve(accountModel: any StandardCryptoAccountModel) {
+            openManageTokens(for: accountModel)
+        }
+
+        func resolve(accountModel: any JointAccountModel) {
+            openManageTokens(for: accountModel)
+        }
+
+        /// TangemPay does not support token management
+        func resolve(accountModel: any TangemPayAccountModel) {}
+
+        /// Polymarket does not support token management
+        func resolve(accountModel: any PolymarketAccountModel) {}
+
+        /// Collectibles does not support token management
+        func resolve(accountModel: any CollectiblesAccountModel) {}
+
+        private func openManageTokens(for accountModel: some CryptoAccountModel) {
             let manageTokensCoordinator = ManageTokensCoordinator(
                 dismissAction: { [weak coordinator] in
                     coordinator?.manageTokensCoordinator = nil
@@ -182,14 +207,5 @@ private extension AccountDetailsCoordinator {
 
             coordinator.manageTokensCoordinator = manageTokensCoordinator
         }
-
-        /// TangemPay does not support token management
-        func resolve(accountModel: any TangemPayAccountModel) {}
-
-        /// Polymarket does not support token management
-        func resolve(accountModel: any PolymarketAccountModel) {}
-
-        /// Collectibles does not support token management
-        func resolve(accountModel: any CollectiblesAccountModel) {}
     }
 }

@@ -24,7 +24,7 @@ final class PolymarketOrderPreviewAPIProvider: PolymarketAPIProvider {
     func categories(locale: String?) async throws -> [PolymarketCategory] { [] }
 
     func events(request: PolymarketEventsRequest) async throws -> PolymarketEventsPage {
-        PolymarketEventsPage(events: [], cursor: nil, hasNext: false)
+        PolymarketEventsPage(events: [], cursor: nil)
     }
 
     func event(id: String) async throws -> PolymarketEvent {

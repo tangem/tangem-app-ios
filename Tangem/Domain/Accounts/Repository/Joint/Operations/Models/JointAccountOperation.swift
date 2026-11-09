@@ -16,10 +16,28 @@ struct JointAccountOperation: Hashable, Identifiable, Codable {
     let safeTransaction: SafeTransaction
     let status: JointAccountOperationStatus
     let txHash: String?
+    let finishedAt: Date?
+    let cancelReason: JointOperationCancelReason?
     /// The member who created the operation, by the address they sign with.
     let initiator: String
     /// Only the members who have answered — the rest are the account's members not listed here.
     let signatures: [Signature]
+}
+
+extension JointAccountOperation {
+    func settingFinishedAt(_ finishedAt: Date) -> JointAccountOperation {
+        JointAccountOperation(
+            id: id,
+            chainId: chainId,
+            safeTransaction: safeTransaction,
+            status: status,
+            txHash: txHash,
+            finishedAt: finishedAt,
+            cancelReason: cancelReason,
+            initiator: initiator,
+            signatures: signatures
+        )
+    }
 }
 
 extension JointAccountOperation {

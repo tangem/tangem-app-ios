@@ -14,18 +14,18 @@ import TangemFoundation
 /// Settles what an operation is and whether it may be made, and signs it; sending it and keeping what comes back is
 /// the repository's.
 struct CommonJointAccountOperationsService {
-    private let jointAccountsRepository: JointAccountsRepository
+    private let pendingOperationsRepository: JointAccountPendingOperationsRepository
     private let signerFactory: TangemSignerFactory
     private let compositionVerifier: JointAccountCompositionVerifier
     private let blockaidGate: JointOperationBlockaidGate
 
     init(
-        jointAccountsRepository: JointAccountsRepository,
+        pendingOperationsRepository: JointAccountPendingOperationsRepository,
         signerFactory: TangemSignerFactory,
         compositionVerifier: JointAccountCompositionVerifier = JointAccountCompositionVerifier(),
         blockaidGate: JointOperationBlockaidGate = CommonJointOperationBlockaidGate()
     ) {
-        self.jointAccountsRepository = jointAccountsRepository
+        self.pendingOperationsRepository = pendingOperationsRepository
         self.signerFactory = signerFactory
         self.compositionVerifier = compositionVerifier
         self.blockaidGate = blockaidGate
@@ -65,7 +65,7 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
             signature: signature
         )
 
-        return try await jointAccountsRepository.createOperation(request, forCryptoAccountId: account.cryptoAccountId)
+        return try await pendingOperationsRepository.createOperation(request, forCryptoAccountId: account.cryptoAccountId)
     }
 
     func signOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws {
@@ -81,7 +81,7 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
         let hash = operation.safeTransaction.signHash(chainId: operation.chainId, safeAddress: account.safeAddress)
         let signature = try await sign(hash: hash, walletPublicKey: wallet.publicKey)
 
-        try await jointAccountsRepository.signOperation(
+        try await pendingOperationsRepository.signOperation(
             id: operation.id,
             safeTransaction: operation.safeTransaction,
             signature: signature,
@@ -94,7 +94,7 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
     func rejectOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws {
         let account = try activeAccount(of: wallet)
 
-        try await jointAccountsRepository.rejectOperation(
+        try await pendingOperationsRepository.rejectOperation(
             id: operation.id,
             forCryptoAccountId: account.cryptoAccountId
         )
@@ -160,7 +160,7 @@ private extension CommonJointAccountOperationsService {
     /// - Note: Read off the store rather than off the list the screens are given, which leaves out an operation in a
     /// token this device has not added — an operation nobody here can show holds the network all the same.
     func ensureNetworkIsFree(chainId: Int, cryptoAccountId: String) async throws {
-        let records = try await jointAccountsRepository.jointAccountsPendingOperationsPublisher.async()
+        let records = try await pendingOperationsRepository.operationsPublisher.async()
         let operations = records.first(by: cryptoAccountId)?.operations ?? []
         let isBusy = operations.contains { $0.chainId == chainId && $0.status.isInFlight }
 
@@ -180,7 +180,7 @@ private extension CommonJointAccountOperationsService {
         let verdict = await blockaidGate.verdict(
             on: operation,
             safeAddress: safeAddress,
-            ownerAddress: JointAccountOperationSignersResolver().ownAddress(of: wallet),
+            ownerAddress: wallet.ownAddress,
             blockchain: wallet.tokenItem.blockchain
         )
 

@@ -54,7 +54,7 @@ extension SwapMarketingBannerManager {
                 return nil
             }
 
-            return MarketingBannerAmount(value: value, currencyId: currencyId)
+            return .crypto(value: value, currencyId: currencyId)
         }
         .eraseToAnyPublisher()
 

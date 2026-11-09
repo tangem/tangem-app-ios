@@ -56,7 +56,7 @@ struct WalletConnectQRScanView: View {
     }
 
     private var dimmingBackground: some View {
-        Colors.Overlays.overlaySecondary
+        DesignSystem.Color.overlayModal
             .ignoresSafeArea()
             .reverseMask(alignment: .center) {
                 scannerRectangle(fillColor: .black)
@@ -69,7 +69,7 @@ struct WalletConnectQRScanView: View {
                 navigationCloseButton
 
                 Text(viewModel.state.navigationBar.title)
-                    .style(Fonts.Bold.body, color: Colors.Text.constantWhite)
+                    .style(Fonts.Bold.body, color: DesignSystem.Color.textStaticDarkPrimary)
             }
             .frame(height: 44)
             .padding(.horizontal, 16)
@@ -82,7 +82,7 @@ struct WalletConnectQRScanView: View {
         HStack {
             SwiftUI.Button(action: { viewModel.handle(viewEvent: .navigationCloseButtonTapped) }) {
                 Text(viewModel.state.navigationBar.closeButtonTitle)
-                    .style(Fonts.Regular.body, color: Colors.Text.constantWhite)
+                    .style(Fonts.Regular.body, color: DesignSystem.Color.textStaticDarkPrimary)
                     .contentShape(.rect)
             }
 
@@ -94,7 +94,7 @@ struct WalletConnectQRScanView: View {
         scannerRectangle()
             .overlay {
                 CornerArcsBorder(cornerSize: CGSize(width: 30, height: 30), cornerRadius: 16, lineWidth: 4)
-                    .stroke(Colors.Icon.constant, lineWidth: 4)
+                    .stroke(DesignSystem.Color.iconStaticDark, lineWidth: 4)
                     .padding(.horizontal, 38)
                     .padding(.vertical, -2)
             }
@@ -116,7 +116,7 @@ struct WalletConnectQRScanView: View {
 
     private var scannerHint: some View {
         Text(viewModel.state.hint)
-            .style(Fonts.Regular.subheadline, color: Colors.Text.constantWhite)
+            .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textStaticDarkPrimary)
             .frame(maxWidth: 200)
             .multilineTextAlignment(.center)
     }

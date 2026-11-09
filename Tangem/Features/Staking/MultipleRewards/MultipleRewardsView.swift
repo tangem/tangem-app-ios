@@ -23,13 +23,13 @@ struct MultipleRewardsView: View {
                 }
                 .interItemSpacing(0)
                 .innerContentPadding(0)
-                .backgroundColor(Colors.Background.action)
+                .backgroundColor(DesignSystem.Color.bgSecondary)
             }
             .navigationTitle(Localization.commonClaimRewards)
             .navigationBarTitleDisplayMode(.inline)
             .confirmationDialog(viewModel: $viewModel.confirmationDialog)
             .alert(item: $viewModel.alert) { $0.alert }
-            .background(Colors.Background.tertiary)
+            .background(DesignSystem.Color.bgPrimary)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     CloseToolbarButton(action: viewModel.dismiss)

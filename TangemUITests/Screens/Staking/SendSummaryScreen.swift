@@ -616,6 +616,47 @@ extension SendSummaryScreen {
     }
 
     @discardableResult
+    func assertStakingActionConfirm(_ action: StakingConfirmAction) -> Self {
+        XCTContext.runActivity(named: "Assert '\(action.title)' confirm screen is displayed") { _ in
+            waitAndAssertTrue(title, "Title should exist")
+            XCTAssertEqual(title.label, action.title, "Confirm screen title should be '\(action.title)'")
+
+            let notification = app.descendants(matching: .any)[action.notificationIdentifier].firstMatch
+            waitAndAssertTrue(notification, "'\(action.title)' notification should be displayed on the confirm screen")
+
+            let amountBlock = app.descendants(matching: .any)[SendAccessibilityIdentifiers.fromWalletButton].firstMatch
+            waitAndAssertTrue(amountBlock, "Amount block should be displayed")
+            if action.isAmountEditable {
+                amountBlock.tapEvenIfNotHittable()
+                let amountField = app.textFields[SendAccessibilityIdentifiers.decimalNumberTextField]
+                waitAndAssertTrue(amountField, "Amount should be editable: tapping the amount block must open the amount input")
+                finishButton.waitAndTap()
+                waitForStakingConfirm()
+            } else {
+                amountBlock.tapEvenIfNotHittable()
+                XCTAssertFalse(
+                    app.textFields[SendAccessibilityIdentifiers.decimalNumberTextField].waitForExistence(timeout: .shortUIUpdate),
+                    "Amount should not be editable: tapping the amount block must not open the amount input"
+                )
+            }
+
+            XCTAssertTrue(networkFeeBlock.exists, "Network fee block should be displayed")
+            networkFeeBlock.tapEvenIfNotHittable()
+            XCTAssertFalse(
+                app.descendants(matching: .any)[FeeAccessibilityIdentifiers.marketFeeOption].waitForExistence(timeout: .shortUIUpdate),
+                "Network fee should not be editable: tapping the fee block must not open the fee selector"
+            )
+
+            waitAndAssertTrue(finishButton, "Confirm button should exist")
+            XCTAssertTrue(
+                finishButton.label.contains(action.title),
+                "Confirm button should be labelled '\(action.title)' but was '\(finishButton.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func assertRentFeeWarningAndConfirmDisabled() -> Self {
         XCTContext.runActivity(named: "Assert rent-fee 'Invalid amount' warning is shown and confirm is blocked") { _ in
             let rentBanner = app.descendants(matching: .any)[SendAccessibilityIdentifiers.remainingAmountIsLessThanRentExemptionBanner].firstMatch
@@ -625,6 +666,32 @@ extension SendSummaryScreen {
             XCTAssertFalse(finishButton.isEnabled, "Confirm button should be blocked while the rent-fee warning is shown")
             return self
         }
+    }
+}
+
+enum StakingConfirmAction {
+    case unstake
+    case claimRewards
+    case withdraw
+
+    var title: String {
+        switch self {
+        case .unstake: Localization.commonUnstake
+        case .claimRewards: Localization.commonClaimRewards
+        case .withdraw: Localization.stakingWithdraw
+        }
+    }
+
+    var notificationIdentifier: String {
+        switch self {
+        case .unstake: StakingAccessibilityIdentifiers.unstakeNotification
+        case .claimRewards: StakingAccessibilityIdentifiers.claimRewardsNotification
+        case .withdraw: StakingAccessibilityIdentifiers.withdrawNotification
+        }
+    }
+
+    var isAmountEditable: Bool {
+        self == .unstake
     }
 }
 

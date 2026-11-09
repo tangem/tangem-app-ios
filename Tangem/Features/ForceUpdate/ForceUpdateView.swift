@@ -79,13 +79,13 @@ struct ForceUpdateView: View {
 // MARK: - Previews
 
 #Preview("Requires app update") {
-    ForceUpdateView(viewModel: ForceUpdateViewModel(reason: .requiresAppUpdate, coordinator: nil))
+    ForceUpdateView(viewModel: ForceUpdateViewModel(reason: .requiresAppUpdate, analyticsLogger: CommonForceUpdateAnalyticsLogger(), coordinator: nil))
 }
 
 #Preview("Requires OS update") {
-    ForceUpdateView(viewModel: ForceUpdateViewModel(reason: .requiresOSUpdate, coordinator: nil))
+    ForceUpdateView(viewModel: ForceUpdateViewModel(reason: .requiresOSUpdate, analyticsLogger: CommonForceUpdateAnalyticsLogger(), coordinator: nil))
 }
 
 #Preview("Brick") {
-    ForceUpdateView(viewModel: ForceUpdateViewModel(reason: .brick, coordinator: nil))
+    ForceUpdateView(viewModel: ForceUpdateViewModel(reason: .brick, analyticsLogger: CommonForceUpdateAnalyticsLogger(), coordinator: nil))
 }

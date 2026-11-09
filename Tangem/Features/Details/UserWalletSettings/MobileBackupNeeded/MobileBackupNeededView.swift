@@ -25,7 +25,7 @@ struct MobileBackupNeededView: View {
                 .padding(.top, 72)
         }
         .padding(16)
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgPrimary)
         .floatingSheetConfiguration { configuration in
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
@@ -48,13 +48,13 @@ private extension MobileBackupNeededView {
                 .frame(width: 56, height: 56)
 
             Text(viewModel.title)
-                .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 24)
 
             Text(viewModel.description)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 8)
                 .fixedSize(horizontal: false, vertical: true)

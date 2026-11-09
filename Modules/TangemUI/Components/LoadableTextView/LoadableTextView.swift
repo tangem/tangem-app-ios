@@ -232,7 +232,7 @@ public extension LoadableTextView {
 
         Divider()
 
-        ForEach(states.indexed(), id: \.1.1) { _, state in
+        ForEach(states, id: \.1) { state in
             LoadableTextView(
                 state: state.0,
                 token: DesignSystem.Font.captionMediumToken,

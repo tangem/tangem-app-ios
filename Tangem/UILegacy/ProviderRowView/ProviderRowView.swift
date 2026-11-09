@@ -54,12 +54,12 @@ struct ProviderRowView: View {
                     Text(text)
                         .style(
                             Fonts.Bold.footnote,
-                            color: viewModel.isDisabled ? Colors.Text.secondary : Colors.Text.tertiary
+                            color: viewModel.isDisabled ? DesignSystem.Color.textTertiary : DesignSystem.Color.textSecondary
                         )
                 }
 
                 Text(viewModel.provider.type)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
             }
 
             badgeView
@@ -73,7 +73,7 @@ struct ProviderRowView: View {
                 switch subtitle {
                 case .text(let text):
                     Text(text)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                         .multilineTextAlignment(.leading)
                 case .percent(let text, let signType):
                     Text(text)
@@ -93,33 +93,33 @@ struct ProviderRowView: View {
             Text(Localization.expressProviderPermissionNeeded)
                 .style(
                     Fonts.Bold.caption2,
-                    color: viewModel.isDisabled ? Colors.Icon.inactive : Colors.Icon.informative
+                    color: viewModel.isDisabled ? DesignSystem.Color.textTertiary : DesignSystem.Color.textSecondary
                 )
                 .padding(.vertical, 2)
                 .padding(.horizontal, 6)
-                .background(Colors.Background.secondary)
+                .background(DesignSystem.Color.bgPrimary)
                 .cornerRadiusContinuous(8)
         case .fcaWarning:
             Text(Localization.expressProviderFcaWarningList)
                 .style(
                     Fonts.Bold.caption2,
-                    color: viewModel.isDisabled ? Colors.Icon.inactive : Colors.Icon.informative
+                    color: viewModel.isDisabled ? DesignSystem.Color.textTertiary : DesignSystem.Color.textSecondary
                 )
                 .padding(.vertical, 2)
                 .padding(.horizontal, 6)
-                .background(Colors.Background.secondary)
+                .background(DesignSystem.Color.bgPrimary)
                 .cornerRadiusContinuous(8)
         case .bestRate:
             Text(Localization.expressProviderBestRate)
-                .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
+                .style(Fonts.Bold.caption2, color: DesignSystem.Color.textAccentBlue)
                 .accentBadgeStyle()
         case .bestDexRate:
             Text(Localization.expressProviderBestDexRate)
-                .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
+                .style(Fonts.Bold.caption2, color: DesignSystem.Color.textAccentBlue)
                 .accentBadgeStyle()
         case .recommended:
             Text(Localization.expressProviderRecommended)
-                .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
+                .style(Fonts.Bold.caption2, color: DesignSystem.Color.textAccentBlue)
                 .accentBadgeStyle()
         }
     }
@@ -132,11 +132,11 @@ struct ProviderRowView: View {
         case .selected:
             Assets.check.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.accent)
+                .foregroundColor(DesignSystem.Color.iconAccentBlue)
         case .chevron:
             Assets.chevron.image
                 .renderingMode(.template)
-                .foregroundColor(Colors.Icon.informative)
+                .foregroundColor(DesignSystem.Color.iconSecondary)
         }
     }
 }
@@ -186,7 +186,7 @@ struct ProviderRowView: View {
     .interItemSpacing(14)
     .innerContentPadding(12)
     .padding()
-    .background(Colors.Background.secondary)
+    .background(DesignSystem.Color.bgPrimary)
     .preferredColorScheme(.light)
 }
 
@@ -235,6 +235,6 @@ struct ProviderRowView: View {
     .interItemSpacing(14)
     .innerContentPadding(12)
     .padding()
-    .background(Colors.Background.secondary)
+    .background(DesignSystem.Color.bgPrimary)
     .preferredColorScheme(.dark)
 }

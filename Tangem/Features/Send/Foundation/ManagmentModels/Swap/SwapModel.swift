@@ -480,6 +480,7 @@ private extension SwapModel {
         }
 
         try await balanceRestrictionHandler.refreshDexOnlyProvidersMode(for: sourceToken)
+        await expressManager.update(prefersDEX: balanceRestrictionHandler.isDexOnlyProvidersMode)
     }
 
     private func destinationTrustlineRestrictedProvidersState() async throws -> ProvidersState? {
@@ -1274,6 +1275,11 @@ extension SwapModel {
 
         do {
             return try await body()
+        } catch let error as ExpressExchangeDataError where error.hidesProvider {
+            analyticsLogger.logSwapProviderHidden(providerName: error.provider.name, errorCode: error.apiError?.code)
+            reloadRates()
+
+            throw error
         } catch {
             switch _providersState.value {
             // A tick that slipped in right before the stop left the state loading with its update cancelled,

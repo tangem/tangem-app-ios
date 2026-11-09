@@ -65,6 +65,16 @@ struct ResumableOnceCheckedContinuationWrapperTests {
         }
     }
 
+    @Test("resumeIfNeeded() resumes a Void continuation exactly once")
+    func resumesVoidOnce() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            let wrapper = ResumableOnceCheckedContinuationWrapper(continuation)
+            wrapper.resumeIfNeeded()
+            wrapper.resumeIfNeeded()
+            wrapper.resumeIfNeeded(throwing: TestError())
+        }
+    }
+
     @Test("Concurrent resume(returning:) calls produce exactly one result")
     func concurrentReturningProducesOneResult() async throws {
         let iterations = 100

@@ -21,10 +21,10 @@ struct ScanCardWarningView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(Localization.mainScanCardWarningViewTitle)
-                            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                            .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                         Text(Localization.mainScanCardWarningViewSubtitle)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     }
                     .fixedSize(horizontal: false, vertical: true)
                 }
@@ -35,7 +35,7 @@ struct ScanCardWarningView: View {
             }
             .frame(maxWidth: .infinity)
             .padding([.vertical, .horizontal], 16)
-            .background(Colors.Background.primary)
+            .background(DesignSystem.Color.bgSecondary)
             .cornerRadius(14)
         }
         .buttonStyle(PlainButtonStyle())
@@ -44,7 +44,7 @@ struct ScanCardWarningView: View {
     private var icon: some View {
         ZStack(alignment: .topTrailing) {
             Circle()
-                .fill(Colors.Background.secondary)
+                .fill(DesignSystem.Color.bgPrimary)
                 .frame(size: CGSize(bothDimensions: 42))
                 .overlay(
                     Assets.tangemIcon.image
@@ -53,9 +53,9 @@ struct ScanCardWarningView: View {
                 )
 
             Circle()
-                .fill(Colors.Text.attention)
+                .fill(DesignSystem.Color.iconAccentYellow)
                 .padding(3)
-                .background(Colors.Background.primary)
+                .background(DesignSystem.Color.bgSecondary)
                 .frame(width: 12, height: 12)
                 .cornerRadius(6)
         }
@@ -64,7 +64,7 @@ struct ScanCardWarningView: View {
 
 #Preview {
     ZStack {
-        Colors.Background.secondary
+        DesignSystem.Color.bgPrimary
 
         ScanCardWarningView {}.padding()
     }

@@ -75,7 +75,7 @@ public final class KYCService {
         sdk.theme.fonts.body = UIFonts.Regular.subheadline
 
         sdk.theme.colors.contentStrong = .textPrimary1 // Title
-        sdk.theme.colors.contentNeutral = .textSecondary // Subtitle
+        sdk.theme.colors.contentNeutral = UIColor(DesignSystem.Color.textSecondary) // Subtitle
         sdk.theme.colors.contentSuccess = .buttonPositive.withDynamicAlphaComponent(0.33) // Status color when accepted
         sdk.theme.colors.primaryButtonContent = .textPrimary2
         sdk.theme.colors.primaryButtonBackground = .textPrimary1

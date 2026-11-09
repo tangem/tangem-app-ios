@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 
+/// - Warning: An abstract protocol, DO NOT conform to it directly, conform to one of its refinements instead.
 protocol CryptoAccountModel: BaseAccountModel, AccountModelEditable, BalanceProvidingAccountModel, DisposableEntity, AnyObject where Icon == AccountModel.CompositeIcon, ID == CryptoAccountModelId, Editor: AccountModelEditor {
     var isMainAccount: Bool { get }
 
@@ -21,12 +22,4 @@ protocol CryptoAccountModel: BaseAccountModel, AccountModelEditable, BalanceProv
     var userTokensManager: UserTokensManager { get }
 
     func archive() async throws(AccountArchivationError)
-}
-
-// MARK: - AccountModelResolvable protocol conformance
-
-extension CryptoAccountModel {
-    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
-        resolver.resolve(accountModel: self)
-    }
 }

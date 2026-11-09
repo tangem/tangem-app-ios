@@ -47,6 +47,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         }
         return tangemPayAccountBuilder.makeTangemPayAccount(
             customerInfo: cached,
+            summary: cachedCustomerSummary,
             account: self,
             accountRemover: self
         )
@@ -54,6 +55,14 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
 
     private var customerWalletId: String {
         userWalletId.stringValue
+    }
+
+    private var cachedCustomerSummary: TangemPayCustomerSummaryResponse? {
+        guard FeatureProvider.isAvailable(.tangemPayCustomerSummary) else {
+            return nil
+        }
+
+        return customerSummaryCacheStorage.cachedCustomerSummary(userWalletId: userWalletId)
     }
 
     @Injected(\.tangemPayAssembly)
@@ -82,6 +91,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     private let paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository
     private let cachedStateStorage: TangemPayCachedStateStorage
     private let customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage
+    private let customerSummaryCacheStorage: TangemPayCustomerSummaryCacheStorage
     private let cashbackCacheStorage: TangemPayCashbackCacheStorage
     private let residencyStatusStorage: TangemPayResidencyStatusStorage
     private let waitlistService: TangemPayWaitlistService
@@ -104,6 +114,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         paeraCustomerFlagRepository: TangemPayPaeraCustomerFlagRepository,
         cachedStateStorage: TangemPayCachedStateStorage,
         customerInfoCacheStorage: TangemPayCustomerInfoCacheStorage,
+        customerSummaryCacheStorage: TangemPayCustomerSummaryCacheStorage,
         cashbackCacheStorage: TangemPayCashbackCacheStorage,
         residencyStatusStorage: TangemPayResidencyStatusStorage,
         waitlistService: TangemPayWaitlistService,
@@ -121,6 +132,7 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         self.paeraCustomerFlagRepository = paeraCustomerFlagRepository
         self.cachedStateStorage = cachedStateStorage
         self.customerInfoCacheStorage = customerInfoCacheStorage
+        self.customerSummaryCacheStorage = customerSummaryCacheStorage
         self.cashbackCacheStorage = cashbackCacheStorage
         self.residencyStatusStorage = residencyStatusStorage
         self.waitlistService = waitlistService
@@ -267,17 +279,20 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         let weakReferenceHolder = makeWeakReferenceHolder()
 
         switch enrollmentState {
-        case .enrolled(let customerInfo):
-            let account = makePaymentAccount(customerInfo: customerInfo)
+        case .enrolled(let customerInfo, let summary):
+            let account = makePaymentAccount(customerInfo: customerInfo, summary: summary)
             customerInfoCacheStorage.saveCachedCustomerInfo(
                 customerInfo,
                 customerWalletId: customerWalletId
             )
+            if let summary {
+                customerSummaryCacheStorage.saveCachedCustomerSummary(summary, userWalletId: userWalletId)
+            }
             stateSubject.value = .tangemPayAccount(account)
             Analytics.log(.visaOnboardingVisaKYCPassedAndOrderCreated, analyticsSystems: .all, contextParams: .userWallet(userWalletId))
 
-        case .cardDeactivated(let customerInfo):
-            let account = makePaymentAccount(customerInfo: customerInfo)
+        case .cardDeactivated(let customerInfo, let summary):
+            let account = makePaymentAccount(customerInfo: customerInfo, summary: summary)
             stateSubject.value = .cardDeactivated(account)
 
         case .kycRequired:
@@ -469,18 +484,21 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         paeraCustomerFlagRepository.setIsPaeraCustomer(false, for: customerWalletId)
         paeraCustomerFlagRepository.setShouldShowGetBanner(false)
         customerInfoCacheStorage.clearCachedCustomerInfo(customerWalletId: customerWalletId)
+        customerSummaryCacheStorage.clearCachedCustomerSummary(userWalletId: userWalletId)
         cashbackCacheStorage.clearCachedCashbackSummary(customerWalletId: customerWalletId)
         tangemPayRecentOperationsStore.clear(customerWalletId: customerWalletId)
         stateSubject.value = nil
     }
 
     private func makePaymentAccount(
-        customerInfo: VisaCustomerInfoResponse
+        customerInfo: VisaCustomerInfoResponse,
+        summary: TangemPayCustomerSummaryResponse?
     ) -> TangemPayAccount {
         orderStatusPollingService.cancel()
         orderIdStorage.deleteCardIssuingOrderId(customerWalletId: customerWalletId)
         let account = tangemPayAccountBuilder.makeTangemPayAccount(
             customerInfo: customerInfo,
+            summary: summary,
             account: self,
             accountRemover: self
         )
@@ -571,6 +589,14 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
                 )
             }
             .store(in: &bag)
+    }
+}
+
+// MARK: - AccountModelResolvable protocol conformance
+
+extension TangemPayManager {
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
     }
 }
 

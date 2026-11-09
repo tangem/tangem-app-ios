@@ -281,6 +281,135 @@ final class MarketingBannerServicePublisherTests: LeakTrackingTestSuite {
             #expect(emissions?.last?.standalone.map(\.id) == [2])
         }
     }
+
+    @Test("Fiat amount is converted to USD before it is compared with the campaign bounds", arguments: [
+        (Decimal(150), [1]),
+        (Decimal(100), [3]),
+    ])
+    func fiatAmountIsComparedInUsd(eurAmount: Decimal, expectedIds: [Int]) async throws {
+        let apiSpy = MarketingCampaignsApiSpy(campaigns: [
+            Fixtures.makeCampaign(id: 1, minAmount: 180, uiType: .standaloneCTA, buttonText: "Join"),
+            Fixtures.makeCampaign(id: 2, minAmount: 200, uiType: .pseudoProvider, buttonText: "Request"),
+            Fixtures.makeCampaign(id: 3, minAmount: 120, maxAmount: 130, uiType: .standaloneCTA, buttonText: "Join"),
+        ])
+        apiSpy.fake.loadQuotesHandler = Self.quotes(price: 80000, priceUsd: 100_000)
+
+        await withInjectedTangemApiService(apiSpy.fake) {
+            let sut = makeSUT()
+            let requests = CurrentValueSubject<OnrampMarketingBannerRequest?, Never>(onrampRequest)
+
+            let emissions = await awaitEmissions(of: {
+                sut.bannerPublisher(
+                    for: requests.eraseToAnyPublisher(),
+                    amount: Just<MarketingBannerAmount?>(.fiat(value: eurAmount, currencyCode: "EUR")).eraseToAnyPublisher()
+                )
+            }) {
+                $0.last?.callToAction.map(\.id) == expectedIds
+            }
+
+            #expect(emissions != nil)
+        }
+    }
+
+    @Test("Amount changes re-filter the fetched campaigns without fetching them again")
+    func amountChangesDoNotRefetchCampaigns() async throws {
+        let apiSpy = MarketingCampaignsApiSpy(campaigns: [
+            Fixtures.makeCampaign(id: 1, minAmount: 100, uiType: .standaloneCTA, buttonText: "Join"),
+        ])
+
+        await withInjectedTangemApiService(apiSpy.fake) {
+            let sut = makeSUT()
+            let requests = CurrentValueSubject<OnrampMarketingBannerRequest?, Never>(onrampRequest)
+            let amount = CurrentValueSubject<MarketingBannerAmount?, Never>(.fiat(value: 50, currencyCode: "USD"))
+
+            let recorder = PublisherRecorder(sut.bannerPublisher(
+                for: requests.eraseToAnyPublisher(),
+                amount: amount.eraseToAnyPublisher()
+            ))
+
+            let fetched = await waitUntilConditionMet { apiSpy.callCount == 1 }
+            #expect(fetched)
+
+            amount.send(.fiat(value: 150, currencyCode: "USD"))
+            amount.send(.fiat(value: 250, currencyCode: "USD"))
+
+            let shown = await waitUntilConditionMet { recorder.values.last?.callToAction.map(\.id) == [1] }
+            #expect(shown)
+
+            let refetched = await waitUntilConditionMet(timeout: 0.3) { apiSpy.callCount > 1 }
+            #expect(!refetched)
+        }
+    }
+
+    @Test("Bounded campaign stays hidden when the fiat rate cannot be loaded")
+    func boundedCampaignHiddenWithoutFiatRate() async throws {
+        let apiSpy = MarketingCampaignsApiSpy(campaigns: [
+            Fixtures.makeCampaign(id: 1, minAmount: 100, uiType: .standaloneCTA, buttonText: "Join"),
+            Fixtures.makeCampaign(id: 2, uiType: .standaloneCTA, buttonText: "Join"),
+        ])
+        let quotesRequestCount = OSAllocatedUnfairLock(initialState: 0)
+        apiSpy.fake.loadQuotesHandler = { _ in
+            quotesRequestCount.withLock { $0 += 1 }
+            throw TestError.sample
+        }
+
+        await withInjectedTangemApiService(apiSpy.fake) {
+            let sut = makeSUT()
+            let requests = CurrentValueSubject<OnrampMarketingBannerRequest?, Never>(onrampRequest)
+
+            let emissions = await awaitEmissions(of: {
+                sut.bannerPublisher(
+                    for: requests.eraseToAnyPublisher(),
+                    amount: Just<MarketingBannerAmount?>(.fiat(value: 1000, currencyCode: "EUR")).eraseToAnyPublisher()
+                )
+            }) {
+                quotesRequestCount.withLock { $0 } >= 1 && $0.last?.callToAction.map(\.id) == [2]
+            }
+
+            #expect(emissions != nil)
+        }
+    }
+
+    @Test("Campaigns without amount bounds are emitted without loading the fiat rate")
+    func unboundedCampaignsSkipFiatRate() async throws {
+        let apiSpy = MarketingCampaignsApiSpy(campaigns: [
+            Fixtures.makeCampaign(id: 1, uiType: .standaloneCTA, buttonText: "Join"),
+        ])
+        let quotesRequestCount = OSAllocatedUnfairLock(initialState: 0)
+        apiSpy.fake.loadQuotesHandler = { request in
+            quotesRequestCount.withLock { $0 += 1 }
+            return try Self.quotes(price: 80000, priceUsd: 100_000)(request)
+        }
+
+        await withInjectedTangemApiService(apiSpy.fake) {
+            let sut = makeSUT()
+            let requests = CurrentValueSubject<OnrampMarketingBannerRequest?, Never>(onrampRequest)
+
+            let emissions = await awaitEmissions(of: {
+                sut.bannerPublisher(
+                    for: requests.eraseToAnyPublisher(),
+                    amount: Just<MarketingBannerAmount?>(.fiat(value: 1000, currencyCode: "EUR")).eraseToAnyPublisher()
+                )
+            }) {
+                $0.last?.callToAction.map(\.id) == [1]
+            }
+
+            #expect(emissions != nil)
+            #expect(quotesRequestCount.withLock { $0 } == 0)
+        }
+    }
+
+    private var onrampRequest: OnrampMarketingBannerRequest {
+        OnrampMarketingBannerRequest(destination: sourceTokenItem, fiatCurrencyCode: "EUR")
+    }
+
+    private static func quotes(price: Decimal, priceUsd: Decimal) -> (QuotesDTO.Request) throws -> [Quote] {
+        { request in
+            request.coinIds.map {
+                Quote(id: $0, price: price, priceUsd: priceUsd, priceChange: nil, priceChange7d: nil, priceChange30d: nil, prices24h: nil)
+            }
+        }
+    }
 }
 
 private enum TestError: Error {

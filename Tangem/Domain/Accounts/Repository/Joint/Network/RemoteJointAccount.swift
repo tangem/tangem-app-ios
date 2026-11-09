@@ -6,17 +6,23 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemFoundation
 
-/// A joint account as the endpoint keeps it, which is everything about one except the invites — those a wallet
-/// remembers for itself in `StoredJointAccountInvites`, since they are handed out once and never reported again.
+/// A joint account as the endpoint keeps it.
 struct RemoteJointAccount: Equatable {
+    struct Invite: Equatable {
+        let slot: JointAccountMemberSlotID
+        let expiresAt: Date
+    }
+
     let cryptoAccountId: String
     let membersCount: Int
     let threshold: Int
     let status: JointAccountStatus
     /// Only the slots that are taken, in the order they were taken, the creator first.
     let members: [StoredJointAccount.Member]
+    let invites: [Invite]
     /// The unfinished operations, at most one per network.
     let operations: [JointAccountOperation]
 }
@@ -33,6 +39,7 @@ extension RemoteJointAccount: CustomStringConvertible {
             "threshold": threshold,
             "status": status,
             "Taken slots count": members.count,
+            "Invites count": invites.count,
             "Operations count": operations.count,
         ])
     }

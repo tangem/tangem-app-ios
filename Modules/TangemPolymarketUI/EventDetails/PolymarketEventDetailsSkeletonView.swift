@@ -11,12 +11,32 @@ import TangemAssets
 import TangemUI
 
 public struct PolymarketEventDetailsSkeletonView: View {
-    public init() {}
+    private let title: String?
+    private let showsChart: Bool
+    private let showsVolumeChange: Bool
+    private let legendLineCount: Int
+
+    public init(
+        title: String? = nil,
+        showsChart: Bool = false,
+        showsVolumeChange: Bool = false,
+        legendLineCount: Int = 2
+    ) {
+        self.title = title
+        self.showsChart = showsChart
+        self.showsVolumeChange = showsVolumeChange
+        self.legendLineCount = legendLineCount
+    }
 
     public var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 header
+
+                if showsChart {
+                    PolymarketProbabilityChart.skeleton(legendLineCount: legendLineCount)
+                        .padding(.horizontal, Constants.horizontalPadding)
+                }
 
                 VStack(spacing: Constants.cardSpacing) {
                     ForEach(0 ..< Constants.cardCount, id: \.self) { _ in
@@ -35,19 +55,40 @@ public struct PolymarketEventDetailsSkeletonView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: Constants.headerSpacing) {
-            VStack(alignment: .leading, spacing: 0) {
-                Shimmer().variant(.text(style: .headingMedium))
-                Shimmer().variant(.text(style: .headingMedium))
-            }
+            titleView
 
             HStack(spacing: Constants.metaSpacing) {
                 bar(width: Constants.badgeWidth, height: Constants.metaLineHeight)
-                bar(width: Constants.volumeWidth, height: Constants.metaLineHeight)
+
+                if showsVolumeChange {
+                    bar(width: Constants.volumeWidth, height: Constants.metaLineHeight)
+
+                    bar(width: Constants.changeWidth, height: Constants.metaLineHeight)
+                } else {
+                    bar(width: Constants.singleMetaWidth, height: Constants.metaLineHeight)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, Constants.textHorizontalPadding)
         .padding(.vertical, Constants.headerVerticalPadding)
+    }
+
+    @ViewBuilder
+    private var titleView: some View {
+        if let title {
+            Text(title)
+                .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
+                .lineLimit(Constants.titleLineLimit)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            VStack(alignment: .leading, spacing: 0) {
+                Shimmer().variant(.text(style: .headingMedium))
+
+                Shimmer().variant(.text(style: .headingMedium))
+            }
+        }
     }
 
     private var summary: some View {
@@ -76,9 +117,7 @@ public struct PolymarketEventDetailsSkeletonView: View {
     }
 
     private func bar(width: CGFloat, height: CGFloat) -> some View {
-        Shimmer()
-            .frame(width: width, height: height)
-            .clipShape(Capsule())
+        Shimmer().variant(.custom(width: width, height: height))
     }
 }
 
@@ -90,11 +129,14 @@ private extension PolymarketEventDetailsSkeletonView {
         static let textHorizontalPadding: CGFloat = 20
 
         static let headerSpacing: CGFloat = 8
+        static let titleLineLimit = 3
         static let headerVerticalPadding: CGFloat = 16
         static let metaLineHeight: CGFloat = 16
         static let metaSpacing: CGFloat = 8
         static let badgeWidth: CGFloat = 40
-        static let volumeWidth: CGFloat = 140
+        static let volumeWidth: CGFloat = 110
+        static let singleMetaWidth: CGFloat = 140
+        static let changeWidth: CGFloat = 100
 
         static let marketsVerticalPadding: CGFloat = 16
         static let cardSpacing: CGFloat = 8
@@ -117,4 +159,14 @@ private extension PolymarketEventDetailsSkeletonView {
     PolymarketEventDetailsSkeletonView()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+}
+
+#Preview("With chart") {
+    PolymarketEventDetailsSkeletonView(
+        title: "Who will win the 2026 FIFA World Cup?",
+        showsChart: true,
+        showsVolumeChange: true
+    )
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
 }

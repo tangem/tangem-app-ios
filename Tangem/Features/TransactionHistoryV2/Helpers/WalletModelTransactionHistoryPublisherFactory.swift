@@ -116,7 +116,10 @@ enum WalletModelTransactionHistoryPublisherFactory {
                         onrampTransactions: onrampTransactions,
                         using: merger
                     )
-                    return .loaded(items: mergedTransactions)
+                    guard let oldestOnChainDate = bsdkTransactions.compactMap(\.date).min() else {
+                        return .loaded(items: mergedTransactions)
+                    }
+                    return .loaded(items: mergedTransactions.filter { ($0.date ?? .distantFuture) >= oldestOnChainDate })
                 case .notSupported:
                     // Merging can add synthetic transactions even without matching BSDK transactions.
                     let mergedTransactions = merge(

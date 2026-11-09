@@ -10,7 +10,7 @@ import TangemExpress
 import TangemLocalization
 import struct TangemUI.TokenIconInfo
 
-class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
+final class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
 
     let sourceToken: SendSourceToken
@@ -64,7 +64,11 @@ class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
             }
         )
 
-        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(
+            userWalletInfo: sourceToken.userWalletInfo,
+            preferredProviderId: nil,
+            mcpIntentID: nil
+        )
     }
 }
 
@@ -105,9 +109,9 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
 
         marketingBannerManager.setup(
             tokenItem: tokenItem,
-            amountInput: onrampModel,
-            providersInput: onrampModel
+            amountInput: onrampModel
         )
+        marketingBannerManager.router = router
 
         // Logger setup
         analyticsLogger.setup(onrampProvidersInput: onrampModel)

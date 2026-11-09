@@ -83,7 +83,7 @@ struct TangemPayCurrentPlanView: View {
                 .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.currentPlanSection(section.title))
 
             VStack(spacing: 0) {
-                ForEach(Array(section.rows.enumerated()), id: \.element.id) { index, row in
+                ForEach(indexed: section.rows) { index, row in
                     Row(subtitle: row.label)
                         .titleAccessory {
                             Text(row.value)

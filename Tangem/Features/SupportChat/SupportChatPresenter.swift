@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 final class SupportChatPresenter: ObservableObject {
     @Published var supportTypeSelectionModel: SupportTypeSelectionModel?
@@ -71,6 +72,7 @@ private struct SupportChatPresentationModifier: ViewModifier {
             }
             .sheet(item: $presenter.supportTypeSelectionModel) {
                 SupportTypeSelectionView(model: $0)
+                    .softTopScrollEdgeEffect()
             }
     }
 }

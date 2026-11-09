@@ -28,7 +28,7 @@ struct AddressBookContactManagementView: View {
             header
         }
         .infinityFrame(axis: .vertical, alignment: .top)
-        .background(DesignSystem.Color.bgBase.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .safeAreaInset(edge: .bottom) { bottomButton }
         .navigationBarHidden(true)
         .alert(item: $viewModel.alert) { $0.alert }
@@ -157,35 +157,34 @@ struct AddressBookContactManagementView: View {
     }
 
     private var bottomButton: some View {
-        TangemButton(
-            content: doneButtonContent,
+        TangemUI.Button(
+            label: viewModel.mainButtonTitle,
+            accessibilityLabel: nil,
             action: viewModel.userDidRequestDone
         )
-        .setHorizontalLayout(.infinity)
-        .setSize(.x12)
-        .setStyleType(.primary)
-        .setButtonState(
-            isLoading: viewModel.isProcessing,
-            isDisabled: !viewModel.isMainButtonEnabled
-        )
+        .iconStart(doneButtonIcons.start)
+        .iconEnd(doneButtonIcons.end)
+        .horizontalLayout(.infinity)
+        .size(.x12)
+        .styleType(.primary)
+        .loading(.spinner(if: viewModel.isProcessing))
+        .disabled(!viewModel.isMainButtonEnabled)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
     }
 
-    private var doneButtonContent: TangemButton.Content {
-        let title = AttributedString(viewModel.mainButtonTitle)
-
+    private var doneButtonIcons: (start: ImageType?, end: ImageType?) {
         guard viewModel.isMainButtonEnabled else {
-            return .text(title)
+            return (nil, nil)
         }
 
         switch viewModel.mainButtonIcon {
         case .leading(let image):
-            return .combined(text: title, icon: image, iconPosition: .left)
+            return (image, nil)
         case .trailing(let image):
-            return .combined(text: title, icon: image, iconPosition: .right)
+            return (nil, image)
         case .none:
-            return .text(title)
+            return (nil, nil)
         }
     }
 }

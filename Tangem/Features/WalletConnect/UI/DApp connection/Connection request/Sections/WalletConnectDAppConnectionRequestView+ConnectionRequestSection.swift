@@ -36,14 +36,14 @@ extension WalletConnectDAppConnectionRequestView {
                     viewModel.iconAsset.image
                         .resizable()
                         .frame(width: 24, height: 24)
-                        .foregroundStyle(Colors.Icon.accent)
+                        .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                         .rotationEffect(.degrees(connectionRequestIconIsRotating ? 360 : 0))
                         .id(viewModel.id)
                         .animation(connectionRequestIconAnimation, value: connectionRequestIconIsRotating)
                         .transition(.opacity)
 
                     Text(viewModel.label)
-                        .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
                         .id(viewModel.id)
                         .transition(.opacity)
                         .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.connectionRequestLabel)
@@ -54,7 +54,7 @@ extension WalletConnectDAppConnectionRequestView {
                         contentState.trailingIconAsset.image
                             .resizable()
                             .frame(width: 18, height: 24)
-                            .foregroundStyle(Colors.Icon.informative)
+                            .foregroundStyle(DesignSystem.Color.iconSecondary)
                             .rotationEffect(.degrees(contentState.isExpanded ? 180 : 0))
                             .animation(titleRowArrowRotationAnimation, value: contentState.isExpanded)
                     }
@@ -82,7 +82,7 @@ extension WalletConnectDAppConnectionRequestView {
 
                 Divider()
                     .frame(height: 1)
-                    .overlay(Colors.Stroke.primary)
+                    .overlay(DesignSystem.Color.borderSecondary)
                     .padding(.horizontal, 14)
 
                 Spacer()
@@ -103,7 +103,7 @@ extension WalletConnectDAppConnectionRequestView {
         ) -> some View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(bulletGroup.label)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
                 VStack(spacing: 12) {
                     ForEach(bulletGroup.points, id: \.self) { bulletPoint in
@@ -118,7 +118,7 @@ extension WalletConnectDAppConnectionRequestView {
                                 }
 
                             Text(bulletPoint.title)
-                                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }

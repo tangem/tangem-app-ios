@@ -75,10 +75,10 @@ public struct StoryView: View {
     private func pageProgressView(_ pageIndex: Int) -> some View {
         GeometryReader { proxy in
             Capsule()
-                .fill(Colors.Icon.primary1.opacity(0.2))
+                .fill(DesignSystem.Color.iconPrimary.opacity(0.2))
                 .overlay(alignment: .leading) {
                     Capsule()
-                        .fill(Colors.Icon.primary1)
+                        .fill(DesignSystem.Color.iconPrimary)
                         .frame(width: pageProgressWidth(for: pageIndex, proxy: proxy))
                 }
                 .clipped()
@@ -95,7 +95,7 @@ public struct StoryView: View {
             Spacer(minLength: .zero)
             closeButton
         }
-        .foregroundStyle(Colors.Icon.primary1)
+        .foregroundStyle(DesignSystem.Color.iconPrimary)
         .padding(.top, 12)
     }
 

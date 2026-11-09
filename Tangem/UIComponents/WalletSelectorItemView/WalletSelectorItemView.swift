@@ -45,18 +45,18 @@ struct WalletSelectorItemView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(viewModel.name)
                 .lineLimit(1)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
             HStack(spacing: 4) {
                 Text(viewModel.cardSetLabel)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
 
                 Text(AppConstants.dotSign)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
 
                 LoadableBalanceView(
                     state: viewModel.balanceState,
-                    style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                    style: .init(font: Fonts.Regular.caption1, textColor: DesignSystem.Color.textSecondary),
                     loader: .init(size: CGSize(width: 40, height: 12))
                 )
             }
@@ -69,7 +69,7 @@ struct WalletSelectorItemView: View {
             if viewModel.isSelected {
                 Assets.check.image
                     .frame(width: 24, height: 24)
-                    .foregroundColor(Colors.Icon.accent)
+                    .foregroundColor(DesignSystem.Color.iconAccentBlue)
             }
         }
     }

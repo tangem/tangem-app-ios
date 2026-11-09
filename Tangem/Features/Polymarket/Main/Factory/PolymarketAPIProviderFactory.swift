@@ -25,8 +25,7 @@ struct PolymarketAPIProviderFactory {
             ),
             headers: environment.headers.map { APIHeaderKeyInfo(headerName: $0.key, headerValue: $0.value) },
             walletId: walletId,
-            builderCodeStore: builderCodeStore,
-            unauthorizedObserver: InjectedValues[\.polymarketUnauthorizedEvents]
+            builderCodeStore: builderCodeStore
         )
     }
 }

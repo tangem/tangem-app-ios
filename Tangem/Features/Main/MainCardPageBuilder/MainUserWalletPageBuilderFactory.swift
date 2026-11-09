@@ -134,7 +134,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             )
 
             let yieldApyBoostBannerNotificationManager = YieldAPYBoostBannerService(userWalletId: model.userWalletId)
-            let forceUpdateBannerNotificationManager = ForceUpdateBannerNotificationManager()
 
             let tokenItemPromoProvider = YieldTokenItemPromoProvider(
                 userWalletModel: model,
@@ -149,7 +148,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 // Order defines display priority — force-update banner renders above the rest.
                 systemBannerItemsProvider: NotificationBannerItemsProvider(
                     managers: [
-                        forceUpdateBannerNotificationManager,
                         userWalletNotificationManager,
                         yieldApyBoostBannerNotificationManager,
                         multiWalletNotificationManager,
@@ -167,7 +165,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
                 promotionNotificationsManager: promotionNotificationsManager,
                 tangemPayNotificationManager: tangemPayNotificationManager,
                 yieldApyBoostBannerNotificationManager: yieldApyBoostBannerNotificationManager,
-                forceUpdateBannerNotificationManager: forceUpdateBannerNotificationManager,
                 rateAppController: rateAppController,
                 nftFeatureLifecycleHandler: nftLifecycleHandler,
                 tokenRouter: tokenRouter,
@@ -220,13 +217,10 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             return AccountModelsAggregator(.crypto).models(from: model.accountModelsManager).first(where: \.isMainAccount)
         }()
 
-        let forceUpdateBannerNotificationManager = ForceUpdateBannerNotificationManager()
-
         let mainNotificationsViewModel = MainNotificationsViewModel(
             promotionNotificationsManager: promotionNotificationsManager,
             systemBannerItemsProvider: NotificationBannerItemsProvider(
                 managers: [
-                    forceUpdateBannerNotificationManager,
                     userWalletNotificationManager,
                 ]
             ),
@@ -238,7 +232,6 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
             walletModel: dependencies.walletModel,
             userWalletNotificationManager: userWalletNotificationManager,
             promotionNotificationsManager: promotionNotificationsManager,
-            forceUpdateBannerNotificationManager: forceUpdateBannerNotificationManager,
             pendingExpressTransactionsManager: expressStatusTracking.manager,
             expressStatusPollingHelper: expressStatusTracking.pollingHelper,
             tokenNotificationManager: singleWalletNotificationManager,

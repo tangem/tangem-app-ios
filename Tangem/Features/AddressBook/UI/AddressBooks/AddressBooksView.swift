@@ -20,7 +20,7 @@ struct AddressBooksView: View {
             .navigationTitle(Text(Localization.addressBookTitle))
             .navigationBarTitleDisplayMode(.inline)
             .translucentNavigationBar()
-            .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
+            .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
             .toolbar {
                 if let trailingToolbarButton = viewModel.trailingToolbarButton {
                     trailingToolbarItem(trailingToolbarButton: trailingToolbarButton)

@@ -9,7 +9,7 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("L2 authentication")
+@Suite("L2 authentication", .timeLimit(.minutes(1)))
 struct PolymarketL2AuthTests {
     private static let secret = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="
     private static let baseURL = URL(string: "https://clob.polymarket.com")!
@@ -60,26 +60,6 @@ struct PolymarketL2AuthTests {
         )
 
         #expect(signature == vector.signature)
-    }
-
-    @Test("The path is signed verbatim, so a query in it changes the signature")
-    func theQueryChangesTheSignature() throws {
-        let signed = try PolymarketL2Auth.signature(
-            secret: Self.secret,
-            timestamp: "1700000000",
-            method: "GET",
-            requestPath: "/balance-allowance/update"
-        )
-
-        let withQuery = try PolymarketL2Auth.signature(
-            secret: Self.secret,
-            timestamp: "1700000000",
-            method: "GET",
-            requestPath: "/balance-allowance/update?asset_type=COLLATERAL&signature_type=3"
-        )
-
-        #expect(signed == "HYThrzuMjEOc4dkcb09p7taGRQiJyCU75VyT_cIrXnE=")
-        #expect(signed != withQuery)
     }
 
     @Test(

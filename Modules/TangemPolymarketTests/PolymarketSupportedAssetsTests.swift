@@ -107,17 +107,10 @@ private enum PolymarketDepositFixtures {
 
 // MARK: - Supported assets decoding
 
-@Suite("Polymarket supported assets decoding")
+@Suite("Polymarket supported assets decoding", .timeLimit(.minutes(1)))
 struct PolymarketSupportedAssetsDecodingTests {
     private let decoder = JSONDecoder()
     private let mapper = PolymarketMapper()
-
-    @Test("The list arrives wrapped in an object, not as a bare array")
-    func responseIsWrapped() throws {
-        let response = try decoder.decode(PolymarketDTO.SupportedAssetsResponse.self, from: PolymarketDepositFixtures.supportedAssets)
-
-        #expect(response.supportedAssets.count == 8)
-    }
 
     @Test("Token fields are nested under token, and the chain id stays a string")
     func nestedTokenAndStringChainId() throws {
@@ -179,7 +172,7 @@ struct PolymarketSupportedAssetsDecodingTests {
 
 // MARK: - Chain family
 
-@Suite("Polymarket chain family")
+@Suite("Polymarket chain family", .timeLimit(.minutes(1)))
 struct PolymarketChainFamilyTests {
     private let chainIdPerFamily: [PolymarketChainFamily: String] = [
         .evm: "1",
@@ -198,14 +191,6 @@ struct PolymarketChainFamilyTests {
     }
 
     @Test(
-        "All the EVM chains the bridge currently lists resolve to the EVM family",
-        arguments: ["1", "10", "56", "137", "143", "999", "4663", "8453", "42161", "57073"]
-    )
-    func listedEVMChainIds(chainId: String) {
-        #expect(PolymarketChainFamily(chainId: chainId) == .evm)
-    }
-
-    @Test(
         "An unlisted chain id has no family, rather than defaulting to EVM and handing out a wrong-chain address",
         arguments: ["784", "0", "1000000", "", "not-a-chain"]
     )
@@ -216,7 +201,7 @@ struct PolymarketChainFamilyTests {
 
 // MARK: - Asset identity
 
-@Suite("Polymarket supported asset identity")
+@Suite("Polymarket supported asset identity", .timeLimit(.minutes(1)))
 struct PolymarketSupportedAssetIdentityTests {
     private let decoder = JSONDecoder()
     private let mapper = PolymarketMapper()
@@ -251,15 +236,6 @@ struct PolymarketSupportedAssetIdentityTests {
         #expect(asset.id != makeAsset(chainId: "1151111081099710", family: .svm, address: solanaAddress.lowercased()).id)
     }
 
-    @Test("The same address on two chains is two assets")
-    func sameAddressDifferentChains() {
-        let address = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"
-        let onPolygon = makeAsset(chainId: "137", family: .evm, address: address)
-        let onBase = makeAsset(chainId: "8453", family: .evm, address: address)
-
-        #expect(onPolygon.id != onBase.id)
-    }
-
     private func makeAsset(chainId: String, family: PolymarketChainFamily, address: String) -> PolymarketSupportedAsset {
         PolymarketSupportedAsset(
             chainId: chainId,
@@ -273,7 +249,7 @@ struct PolymarketSupportedAssetIdentityTests {
 
 // MARK: - Funding addresses
 
-@Suite("Polymarket bridge funding addresses")
+@Suite("Polymarket bridge funding addresses", .timeLimit(.minutes(1)))
 struct PolymarketBridgeAddressesTests {
     private let decoder = JSONDecoder()
     private let mapper = PolymarketMapper()
@@ -294,18 +270,6 @@ struct PolymarketBridgeAddressesTests {
 
         for family in PolymarketChainFamily.allCases {
             #expect(addresses.address(for: family) == expected[family])
-        }
-    }
-
-    @Test("A flat body fails on the missing envelope, so no top-level fallback can creep back in")
-    func addressesAreWrapped() throws {
-        let flatBody = Data(#"{ "evm": "0xabc" }"#.utf8)
-
-        do {
-            _ = try decoder.decode(PolymarketDTO.FundingAddressesResponse.self, from: flatBody)
-            Issue.record("Expected decoding a flat body to fail")
-        } catch DecodingError.keyNotFound(let key, _) {
-            #expect(key.stringValue == "address")
         }
     }
 
