@@ -20,7 +20,6 @@ final class AddTokenFlowRedesignedViewModel: ObservableObject, FloatingSheetCont
 
     // MARK: - Private
 
-    private let tokenItem: TokenItem
     private let oneAndOnlyAccount: AccountSelectorCellModel?
     private let userWalletModels: [any UserWalletModel]
     private let userWalletModelsKeyedById: [UserWalletId: any UserWalletModel]
@@ -34,7 +33,6 @@ final class AddTokenFlowRedesignedViewModel: ObservableObject, FloatingSheetCont
     /// Returns `nil` when no wallet is eligible to receive the token; the caller is
     /// expected to surface an error to the user in that case.
     init?(
-        tokenItem: TokenItem,
         userWalletModels: [any UserWalletModel],
         preferredWalletId: UserWalletId? = nil,
         configuration: AddTokenFlowConfiguration,
@@ -60,7 +58,15 @@ final class AddTokenFlowRedesignedViewModel: ObservableObject, FloatingSheetCont
             return nil
         }
 
-        self.tokenItem = tokenItem
+        let availableTokenItems = configuration.getAvailableTokenItems(resolvedInitialAccount)
+        let notAddedTokenItem = availableTokenItems.first { tokenItem in
+            !configuration.isTokenAdded(tokenItem, resolvedInitialAccount.cryptoAccountModel)
+        }
+
+        guard let tokenItem = notAddedTokenItem ?? availableTokenItems.first else {
+            return nil
+        }
+
         oneAndOnlyAccount = oneAndOnly
         self.userWalletModels = userWalletModels
         userWalletModelsKeyedById = userWalletModels.toDictionary(keyedBy: \.userWalletId)
@@ -78,25 +84,6 @@ final class AddTokenFlowRedesignedViewModel: ObservableObject, FloatingSheetCont
         )
 
         openConfirm(tokenItem: tokenItem, accountSelectorCell: resolvedInitialAccount)
-    }
-
-    convenience init?(
-        tokenItem: TokenItem,
-        userWalletModels: [any UserWalletModel],
-        getAvailableTokenItems: @escaping (AccountSelectorCellModel) -> [TokenItem],
-        postAddBehavior: AddTokenFlowConfiguration.PostAddBehavior,
-        coordinator: AddTokenFlowRedesignedRoutable?
-    ) {
-        let configuration = AddTokenFlowConfiguration(
-            getAvailableTokenItems: getAvailableTokenItems,
-            postAddBehavior: postAddBehavior
-        )
-        self.init(
-            tokenItem: tokenItem,
-            userWalletModels: userWalletModels,
-            configuration: configuration,
-            coordinator: coordinator
-        )
     }
 }
 

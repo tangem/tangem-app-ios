@@ -65,7 +65,6 @@ final class CampaignTokenSelectorViewModel: ObservableObject, Identifiable {
             )
 
             guard let viewModel = AddTokenFlowRedesignedViewModel(
-                tokenItem: tokenItem,
                 userWalletModels: walletModelsWithSelectedFirst,
                 configuration: configuration,
                 coordinator: self

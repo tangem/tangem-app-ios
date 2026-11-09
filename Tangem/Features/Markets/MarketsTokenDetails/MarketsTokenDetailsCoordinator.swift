@@ -161,31 +161,17 @@ extension MarketsTokenDetailsCoordinator: MarketsTokenDetailsRoutable {
         )
 
         openRedesignedAddTokenFlow(
-            inputData: inputData,
             configuration: configuration,
             walletDataProvider: walletDataProvider
         )
     }
 
     private func openRedesignedAddTokenFlow(
-        inputData: MarketsAddTokenFlowConfigurationFactory.InputData,
         configuration: AddTokenFlowConfiguration,
         walletDataProvider: MarketsWalletDataProvider
     ) {
-        guard let tokenItem = MarketsAddTokenFlowConfigurationFactory.makePreselectedTokenItem(
-            inputData: inputData,
-            userWalletModels: walletDataProvider.userWalletModels,
-            isTokenAdded: configuration.isTokenAdded
-        ) else {
-            Task { @MainActor in
-                self.presentErrorToast(with: Localization.commonSomethingWentWrong)
-            }
-            return
-        }
-
         Task { @MainActor in
             guard let viewModel = AddTokenFlowRedesignedViewModel(
-                tokenItem: tokenItem,
                 userWalletModels: walletDataProvider.userWalletModels,
                 configuration: configuration,
                 coordinator: self
@@ -440,13 +426,7 @@ extension MarketsTokenDetailsCoordinator: MarketsPortfolioContainerRoutable {
         let configuration = MarketsAddTokenFlowConfigurationFactory.make(inputData: inputData, coordinator: self)
 
         guard
-            let tokenItem = MarketsAddTokenFlowConfigurationFactory.makePreselectedTokenItem(
-                inputData: inputData,
-                userWalletModels: walletDataProvider.userWalletModels,
-                isTokenAdded: configuration.isTokenAdded
-            ),
             let viewModel = AddTokenFlowRedesignedViewModel(
-                tokenItem: tokenItem,
                 userWalletModels: walletDataProvider.userWalletModels,
                 configuration: configuration,
                 coordinator: self
@@ -852,7 +832,6 @@ extension MarketsTokenDetailsCoordinator {
         )
 
         openRedesignedAddTokenFlow(
-            inputData: input.addTokenInputData,
             configuration: configuration,
             walletDataProvider: walletDataProvider
         )

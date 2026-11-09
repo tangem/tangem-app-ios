@@ -66,13 +66,11 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     init(
         widgetsUpdateHandler: MarketsMainWidgetsUpdateHandler,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
-        analyticsService: PulseMarketWidgetAnalyticsProvider,
-        coordinator: PulseMarketWidgetRoutable?
+        analyticsService: PulseMarketWidgetAnalyticsProvider
     ) {
         self.widgetsUpdateHandler = widgetsUpdateHandler
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
         self.analyticsService = analyticsService
-        self.coordinator = coordinator
 
         filterProvider = MarketsListDataFilterProvider(
             initialOrderType: .rating
@@ -99,6 +97,10 @@ final class PulseMarketWidgetViewModel: ObservableObject {
     }
 
     // MARK: - Public Implementation
+
+    func setup(router: PulseMarketWidgetRoutable) {
+        coordinator = router
+    }
 
     func bind(searchTextPublisher: some Publisher<String, Never>) {
         searchTextPublisher
