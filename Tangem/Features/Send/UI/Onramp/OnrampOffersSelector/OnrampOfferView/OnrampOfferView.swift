@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct OnrampOfferView: View {
@@ -26,9 +27,11 @@ struct OnrampOfferView: View {
                 .padding(16)
                 .background(
                     RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
-                        .fill(viewModel.isNativePayment ? DesignSystem.Color.bgSecondary : cardBackground)
+                        .fill(cardBackground)
                 )
-                .environment(\.colorScheme, resolvedColorScheme)
+                .if(viewModel.isNativePayment) { card in
+                    card.glowRing(size: .card(cornerRadius: Self.cornerRadius), isVisible: viewModel.isAvailable)
+                }
                 .zIndex(1)
 
             if let linkedBanner = viewModel.linkedBanner {
@@ -51,14 +54,6 @@ struct OnrampOfferView: View {
             }
             .padding(.top, 12)
         }
-    }
-
-    private var resolvedColorScheme: ColorScheme {
-        guard viewModel.isNativePayment else {
-            return colorScheme
-        }
-
-        return colorScheme == .light ? .dark : .light
     }
 
     private var topView: some View {
@@ -156,10 +151,13 @@ struct OnrampOfferView: View {
     }
 
     private func legalNoticeView(_ notice: OnrampOfferViewModel.LegalNotice) -> some View {
-        let attributed = Self.makeLegalNoticeAttributedString(notice)
-        return Text(attributed)
-            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: 4) {
+            Text(Self.makeLegalNoticeAttributedString(notice))
+
+            Text(Localization.onrampNativePaymentIdentityVerification(notice.providerName))
+        }
+        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private static func makeLegalNoticeAttributedString(
@@ -258,7 +256,7 @@ struct OnrampOfferView: View {
                 Text(Localization.onrampPayWith)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-                IconView(url: viewModel.provider.paymentType.themedImageURL(isDark: resolvedColorScheme == .dark), size: .height(16)) {
+                IconView(url: viewModel.provider.paymentType.themedImageURL(isDark: colorScheme == .dark), size: .height(16)) {
                     Shimmer().variant(.custom(width: 30, height: 16, cornerRadius: 6))
                 }
                 .foregroundStyle(DesignSystem.Color.iconSecondary)

@@ -134,7 +134,7 @@ private extension OnrampSummaryViewModel {
         case .success(let offers):
             return .suggestedOffers(.init(
                 recent: offers.recent.map { mapToRecentOnrampOfferViewModel(provider: $0, linkedBanners: linkedBanners) },
-                recommended: offers.recommended.map { mapToRecommendedItem(suggestedOfferType: $0, linkedBanners: linkedBanners) },
+                recommended: offers.recommended.map { mapToRecommendedOffer(suggestedOfferType: $0, linkedBanners: linkedBanners) },
             ))
         }
     }
@@ -152,10 +152,13 @@ private extension OnrampSummaryViewModel {
             }
         )
 
+        let legalNotice = buyAction.isNativeApplePay ? OnrampNativePaymentLegalLinks.legalNotice(for: provider) : nil
+
         return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
             title: title,
             provider: provider,
             buyAction: buyAction,
+            legalNotice: legalNotice,
             linkedBanner: linkedBanner(for: provider, in: linkedBanners)
         )
     }
@@ -168,7 +171,7 @@ private extension OnrampSummaryViewModel {
         )
     }
 
-    func mapToRecommendedItem(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem, linkedBanners: [MarketingBanner]) -> RecommendedItem {
+    func mapToRecommendedOffer(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem, linkedBanners: [MarketingBanner]) -> OnrampOfferViewModel {
         let provider = suggestedOfferType.provider
         let title = onrampOfferViewModelBuilder.mapToRecommendedOnrampOfferViewModelTitle(suggestedOfferType: suggestedOfferType)
 
@@ -190,9 +193,8 @@ private extension OnrampSummaryViewModel {
         let isNativeApplePay = suggestedOfferType.isNativeApplePay
         let infoAction: (() -> Void)? = isNativeApplePay ? { [weak self] in self?.openProviderRequirementsSheet() } : nil
         let legalNotice = isNativeApplePay ? OnrampNativePaymentLegalLinks.legalNotice(for: provider) : nil
-        let footnote = isNativeApplePay ? makeIdentityVerificationFootnote(for: provider) : nil
 
-        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
+        return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
             title: title,
             provider: provider,
             buyAction: buyAction,
@@ -200,12 +202,6 @@ private extension OnrampSummaryViewModel {
             legalNotice: legalNotice,
             linkedBanner: linkedBanner(for: provider, in: linkedBanners)
         )
-
-        return RecommendedItem(viewModel: viewModel, footnote: footnote)
-    }
-
-    func makeIdentityVerificationFootnote(for provider: OnrampProvider) -> String {
-        Localization.onrampNativePaymentIdentityVerification(provider.provider.name)
     }
 
     func openProviderRequirementsSheet() {
@@ -229,13 +225,6 @@ extension OnrampSummaryViewModel {
 
     struct SuggestedOffers: Hashable {
         let recent: OnrampOfferViewModel?
-        let recommended: [RecommendedItem]
-    }
-
-    struct RecommendedItem: Hashable, Identifiable {
-        let viewModel: OnrampOfferViewModel
-        let footnote: String?
-
-        var id: Int { hashValue }
+        let recommended: [OnrampOfferViewModel]
     }
 }
