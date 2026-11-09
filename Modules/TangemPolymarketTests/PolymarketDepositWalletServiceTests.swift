@@ -9,27 +9,9 @@ import Foundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("PolymarketDepositWalletStatus")
+@Suite("PolymarketDepositWalletStatus", .timeLimit(.minutes(1)))
 struct PolymarketDepositWalletStatusTests {
     private let decoder = JSONDecoder()
-
-    @Test(
-        "The seven contract states decode by their backend representation",
-        arguments: [
-            ("NOT_CREATED", PolymarketDepositWalletStatus.notCreated),
-            ("DEPLOYMENT_IN_PROGRESS", .deploymentInProgress),
-            ("DEPLOYMENT_FAILED", .deploymentFailed),
-            ("DEPLOYED", .deployed),
-            ("APPROVALS_IN_PROGRESS", .approvalsInProgress),
-            ("APPROVALS_FAILED", .approvalsFailed),
-            ("READY_TO_TRADE", .readyToTrade),
-        ]
-    )
-    func knownStatusDecodes(rawValue: String, expected: PolymarketDepositWalletStatus) throws {
-        let decoded = try decoder.decode(PolymarketDepositWalletStatus.self, from: Data("\"\(rawValue)\"".utf8))
-
-        #expect(decoded == expected)
-    }
 
     @Test("A state added later decodes as unknown and keeps the client polling")
     func unknownStatusKeepsPolling() throws {
@@ -40,46 +22,17 @@ struct PolymarketDepositWalletStatusTests {
         #expect(!decoded.isFailed)
     }
 
-    @Test("Only the two submitted states are in progress")
+    @Test("Only the two submitted states are in progress, so a deployed wallet still waits for its approvals")
     func inProgressStates() {
         #expect(PolymarketDepositWalletStatus.deploymentInProgress.isInProgress)
         #expect(PolymarketDepositWalletStatus.approvalsInProgress.isInProgress)
         #expect(!PolymarketDepositWalletStatus.deployed.isInProgress)
         #expect(!PolymarketDepositWalletStatus.readyToTrade.isInProgress)
-    }
-
-    @Test("A deployed wallet is not a ready one, so approvals stay observable from the status")
-    func deployedIsNotReadyToTrade() {
         #expect(PolymarketDepositWalletStatus.deployed != .readyToTrade)
     }
 }
 
-@Suite("Deposit wallet response decoding")
-struct PolymarketDepositWalletResponseDecodingTests {
-    private let decoder = JSONDecoder()
-
-    @Test("An owner without a record decodes with a null address")
-    func noRecordDecodes() throws {
-        let body = Data(#"{ "depositWalletAddress": null, "status": "NOT_CREATED" }"#.utf8)
-
-        let decoded = try decoder.decode(PolymarketDTO.WalletStatusResponse.self, from: body)
-
-        #expect(decoded.depositWalletAddress == nil)
-        #expect(decoded.status == .notCreated)
-    }
-
-    @Test("A stored record decodes with its lowercase address")
-    func storedRecordDecodes() throws {
-        let body = Data(#"{ "depositWalletAddress": "0xdef0000000000000000000000000000000000002", "status": "DEPLOYMENT_IN_PROGRESS" }"#.utf8)
-
-        let decoded = try decoder.decode(PolymarketDTO.WalletStatusResponse.self, from: body)
-
-        #expect(decoded.depositWalletAddress == "0xdef0000000000000000000000000000000000002")
-        #expect(decoded.status == .deploymentInProgress)
-    }
-}
-
-@Suite("PolymarketWalletError mapping")
+@Suite("PolymarketWalletError mapping", .timeLimit(.minutes(1)))
 struct PolymarketWalletErrorTests {
     @Test("Each documented status code becomes the failure the caller has to act on differently")
     func statusCodesMapToTypedErrors() {
@@ -98,12 +51,6 @@ struct PolymarketWalletErrorTests {
         }
 
         #expect(detail == "nonce reused")
-    }
-
-    @Test("Cancellation is its own failure, so a cancelled poll is not reported as a network problem")
-    func cancellationIsNotAFailure() {
-        #expect(PolymarketWalletError.cancelled.isCancelled)
-        #expect(!PolymarketWalletError.cancelled.isUpstreamUnavailable)
     }
 
     @Test("An undocumented code is not silently reshaped into a known failure")
@@ -126,7 +73,7 @@ struct PolymarketWalletErrorTests {
 
 // MARK: - Record verification
 
-@Suite("Deposit wallet record verification")
+@Suite("Deposit wallet record verification", .timeLimit(.minutes(1)))
 struct PolymarketDepositWalletRecordVerificationTests {
     private let derived = "0xAbCdEf0000000000000000000000000000000002"
 

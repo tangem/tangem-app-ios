@@ -34,31 +34,17 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     private var revealColorScheme: ColorScheme?
     private var bag = Set<AnyCancellable>()
     private var errorDismissTask: Task<Void, Error>?
+    private var sheetDismissal: SheetDismissal?
 
     let artworkURL: URL?
     let rows: [OrderRow]
-
-    private(set) lazy var lowInventorySheetViewModel = CollectiblesInfoSheetViewModel(
-        model: .lowInventory(
-            explorePacks: { [weak self] in self?.routable?.closePackFlow() },
-            enableTurboMode: { [weak self] in self?.routable?.returnToMachine() }
-        )
-    )
-
-    private(set) lazy var buybackCompleteSheetViewModel = CollectiblesInfoSheetViewModel(
-        model: buybackCompleteModel(amount: nil)
-    )
-
-    private(set) lazy var packUnopenedSheetViewModel = CollectiblesInfoSheetViewModel(
-        model: .packUnopened(openPack: { [weak self] in self?.approve() }),
-        actionTiming: .immediately
-    )
 
     // MARK: - Publishers
 
     @Published private(set) var buttonState: ButtonState = .balanceLoading
     @Published private(set) var revealViewModel: CollectiblesPackRevealViewModel?
     @Published private(set) var errorMessage: String?
+    @Published var sheet: Sheet?
 
     // MARK: - Init
 
@@ -185,6 +171,36 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
             await refreshBalance()
         }
     }
+
+    func explorePacks() {
+        dismissSheet { [weak self] in self?.routable?.closePackFlow() }
+    }
+
+    func enableTurboMode() {
+        dismissSheet { [weak self] in self?.routable?.returnToMachine() }
+    }
+
+    func openUnopenedPack() {
+        guard sheet != nil else { return }
+
+        dismissSheet()
+        approve()
+    }
+
+    func openAgain() {
+        dismissSheet { [weak self] in self?.approve() }
+    }
+
+    func sheetDidDismiss() {
+        guard let sheetDismissal else { return }
+
+        self.sheetDismissal = nil
+        sheetDismissal.action()
+
+        if let queuedSheet = sheetDismissal.queuedSheet {
+            present(queuedSheet)
+        }
+    }
 }
 
 // MARK: - Nested types
@@ -214,6 +230,14 @@ extension CollectiblesConfirmOrderViewModel {
         case opening
         case packGenerated
     }
+
+    enum Sheet: Hashable, Identifiable {
+        case lowInventory
+        case packUnopened
+        case buybackComplete(amount: String?, price: String)
+
+        var id: Self { self }
+    }
 }
 
 // MARK: - Order phase
@@ -231,6 +255,11 @@ private extension CollectiblesConfirmOrderViewModel {
         case loading
         case known(Decimal)
         case unavailable
+    }
+
+    struct SheetDismissal {
+        let action: () -> Void
+        var queuedSheet: Sheet?
     }
 }
 
@@ -273,18 +302,28 @@ private extension CollectiblesConfirmOrderViewModel {
     func showBuybackComplete(amount: Decimal?) {
         orderPhase = .idle
         updateButtonState()
-        buybackCompleteSheetViewModel.present(with: buybackCompleteModel(amount: amount))
+
+        let ticker = CollectiblesChainEnvironment.usdcTokenItem.currencySymbol
+        present(.buybackComplete(
+            amount: amount.map { CollectiblesPriceFormatter.formatAmount($0, ticker: ticker) },
+            price: CollectiblesPriceFormatter.formatAmount(price, ticker: ticker)
+        ))
     }
 
-    func buybackCompleteModel(amount: Decimal?) -> CollectiblesInfoSheetView.Model {
-        let ticker = CollectiblesChainEnvironment.usdcTokenItem.currencySymbol
+    func present(_ sheet: Sheet) {
+        guard sheetDismissal == nil else {
+            sheetDismissal?.queuedSheet = sheet
+            return
+        }
 
-        return .buybackComplete(
-            amount: amount.map { CollectiblesPriceFormatter.formatAmount($0, ticker: ticker) },
-            price: CollectiblesPriceFormatter.formatAmount(price, ticker: ticker),
-            explorePacks: { [weak self] in self?.routable?.closePackFlow() },
-            openAgain: { [weak self] in self?.approve() }
-        )
+        self.sheet = sheet
+    }
+
+    func dismissSheet(then action: @escaping () -> Void = {}) {
+        guard sheet != nil else { return }
+
+        sheetDismissal = SheetDismissal(action: action)
+        sheet = nil
     }
 
     func handlePurchaseFailure(_ error: any Error) {
@@ -294,9 +333,9 @@ private extension CollectiblesConfirmOrderViewModel {
 
         switch error as? CollectiblesPackPurchaseError {
         case .lowInventory:
-            lowInventorySheetViewModel.present()
+            present(.lowInventory)
         case .packUnopened, .openFailed, .prizeNotDelivered:
-            packUnopenedSheetViewModel.present()
+            present(.packUnopened)
         // [REDACTED_TODO_COMMENT]
         case .paymentFailed(.expired):
             showError(message: "Your purchase has expired")

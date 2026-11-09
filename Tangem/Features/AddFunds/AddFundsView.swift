@@ -133,13 +133,14 @@ struct AddFundsView: View {
     }
 
     private func tangemButton(title: String) -> some View {
-        TangemButton(
-            content: .text(AttributedString(title)),
+        TangemUI.Button(
+            label: title,
+            accessibilityLabel: nil,
             action: viewModel.userDidTapPrimary
         )
-        .setStyleType(.secondary)
-        .setHorizontalLayout(.infinity)
-        .setSize(.x12)
+        .styleType(.secondary(.default))
+        .horizontalLayout(.infinity)
+        .size(.x12)
     }
 }
 

@@ -75,7 +75,7 @@ struct AccountRowButtonView<Trailing: View>: View {
     private func makeLoadableBalanceView(state: LoadableBalanceView.State) -> some View {
         LoadableBalanceView(
             state: state,
-            style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+            style: .init(font: Fonts.Regular.caption1, textColor: DesignSystem.Color.textSecondary),
             loader: .init(size: CGSize(width: balanceLoaderWidth, height: balanceLoaderHeight))
         )
     }

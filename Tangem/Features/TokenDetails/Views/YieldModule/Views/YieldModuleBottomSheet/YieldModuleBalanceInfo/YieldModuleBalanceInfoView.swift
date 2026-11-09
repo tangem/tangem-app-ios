@@ -28,7 +28,7 @@ struct YieldModuleBalanceInfoView: View {
             content: { Color.clear.frame(height: 6) }
         )
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(Colors.Background.tertiary)
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
         }
     }
 }

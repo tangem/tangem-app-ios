@@ -340,6 +340,28 @@ extension CommonTangemApiService: TangemApiService {
         try await self.request(for: .marketingCampaigns(parameters: request.parameters), decoder: decoder)
     }
 
+    func bindMarketingActivityWallets(uid: String, request: MarketingActivityDTO.BindWallets.Request) async throws {
+        let target = TangemApiTarget(type: .bindMarketingActivityWallets(uid: uid, request))
+
+        try await withErrorLoggingPipeline(target: target) {
+            _ = try await provider.asyncRequest(target).filterSuccessfulStatusCodes()
+        }
+    }
+
+    // MARK: - Survey responses
+
+    func submitSurveyResponse(request: SurveyResponsesDTO.Submit.Request) async throws {
+        let target = TangemApiTarget(type: .submitSurveyResponse(request))
+
+        try await withErrorLoggingPipeline(target: target) {
+            _ = try await protectedProvider.asyncRequest(target).filterResponseThrowingTangemAPIError(allowRedirectCodes: false)
+        }
+    }
+
+    func loadSurveyResponseStatus(request: SurveyResponsesDTO.Status.Request) async throws -> SurveyResponsesDTO.Status.Response {
+        try await requestProtected(for: .surveyResponseStatus(request), decoder: decoder)
+    }
+
     func loadAPIList() async throws -> APIListDTO {
         try await request(for: .apiList)
     }
@@ -608,6 +630,17 @@ extension CommonTangemApiService: TangemApiService {
         }
     }
 
+    func issueJointAccountInvite(
+        walletId: String, body: JointAccountsDTO.Request.IssueInvite
+    ) async throws -> JointAccountsDTO.Response.IssuedInvite {
+        let target = TangemApiTarget(type: .issueJointAccountInvite(walletId: walletId, body: body))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
     func getJointAccountInvite(
         walletId: String, inviteId: String
     ) async throws -> JointAccountsDTO.Response.InvitePreview {
@@ -634,6 +667,17 @@ extension CommonTangemApiService: TangemApiService {
         walletId: String, body: JointAccountsDTO.Request.Activate
     ) async throws -> JointAccountsDTO.Response.JointAccount {
         let target = TangemApiTarget(type: .activateJointAccount(walletId: walletId, body: body))
+
+        return try await withErrorLoggingPipeline(target: target) {
+            let response = try await provider.asyncRequest(target)
+            return try response.mapAPIResponseThrowingTangemAPIError(allowRedirectCodes: true, decoder: decoder)
+        }
+    }
+
+    func confirmJointAccount(
+        walletId: String, body: JointAccountsDTO.Request.Confirm
+    ) async throws -> JointAccountsDTO.Response.JointAccount {
+        let target = TangemApiTarget(type: .confirmJointAccount(walletId: walletId, body: body))
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)

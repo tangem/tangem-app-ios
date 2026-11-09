@@ -28,7 +28,7 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         let (sut, doubles) = await makeSUT(start: start, isMarkedLocally: true)
 
         #expect(sut.state == start.expectedState)
-        #expect(sut.hasAccount == start.hasVisibleVault)
+        #expect(sut.hasAccount == start.hasAccountWhenMarked)
         #expect(doubles.presenceStore.contains(Fixtures.userWalletId) == start.keepsPresenceMark)
     }
 
@@ -46,7 +46,7 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         } else {
             #expect(doubles.balanceUpdater.updates.map(\.testDescription) == ["unavailable"])
             #expect(doubles.usdcReader.requestedColdOwners.isEmpty)
-            #expect(usdcStates.recorded == [.missing])
+            #expect(usdcStates.recorded == [.unavailable])
         }
     }
 
@@ -90,6 +90,21 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         #expect(!doubles.presenceStore.contains(Fixtures.userWalletId))
     }
 
+    @Test("An account in the account list counts before its key is derived and asks for a sync and a relink")
+    func accountListRecordCountsBeforeDerivation() async {
+        let (sut, _) = await makeSUT(start: .coldOwnerNotDerived)
+        let accountAnswers = PublisherRecorder(sut.hasAccountPublisher)
+        let syncAnswers = PublisherRecorder(sut.isSyncRequiredPublisher)
+        let relinkAnswers = PublisherRecorder(sut.isRelinkRequiredPublisher)
+
+        sut.update(isInAccountList: true)
+
+        #expect(sut.hasAccount)
+        #expect(accountAnswers.recorded == [false, true])
+        #expect(syncAnswers.recorded == [false, true])
+        #expect(relinkAnswers.recorded == [false, true])
+    }
+
     @Test("While nothing has resolved, the account answer comes from the local mark", arguments: [true, false])
     func unresolvedAccountFallsBackToLocalMark(isMarkedLocally: Bool) async {
         let (sut, _) = await makeSUT(vaultReadError: TestError.chain, isMarkedLocally: isMarkedLocally)
@@ -108,6 +123,19 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
 
         #expect(usdcStates.recorded == [.failed, .loading, .ready(Fixtures.usdcAccount)])
         #expect(sut.state == .ready(Fixtures.vault()))
+    }
+
+    @Test("A failed first read once the key is derived marks the USDC state failed")
+    func usdcStateFailsOnFirstReadAfterDerivation() async {
+        let (sut, doubles) = await makeSUT(start: .coldOwnerNotDerived)
+        let usdcStates = PublisherRecorder(sut.vaultUsdcStatePublisher)
+        doubles.coldOwnerProvider.set(Fixtures.coldOwner)
+        doubles.vaultReader.vault = Fixtures.vault()
+        doubles.usdcReader.enqueue([.failure(TestError.chain)])
+
+        await sut.refreshState()
+
+        #expect(usdcStates.recorded == [.unavailable, .loading, .failed])
     }
 
     // MARK: - Onboarding
@@ -175,6 +203,41 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         #expect(doubles.sessionKeySigner.generateCount == 0)
         #expect(doubles.chainService.broadcasts.first?.startSendingTimestamp == Fixtures.blockhashFetchedAt)
         #expect(sut.state == .ready(Fixtures.vault()))
+    }
+
+    @Test("An onboarding started while another runs joins it instead of signing again")
+    func concurrentOnboardingRunsOnce() async throws {
+        let (sut, doubles) = await makeSUT(start: .rekeyMismatch)
+        let sendGate = SendGate()
+        doubles.chainService.sendGate = sendGate
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+
+        async let first: Void = sut.onboard()
+        let isFirstSending = await waitUntilConditionMet { doubles.chainService.broadcasts.count == 1 }
+
+        async let second: Void = sut.onboard()
+        let isSecondSending = await waitUntilConditionMet(timeout: .milliseconds(300)) {
+            doubles.chainService.broadcasts.count > 1
+        }
+
+        sendGate.open()
+        _ = try await (first, second)
+
+        #expect(isFirstSending)
+        #expect(!isSecondSending)
+        #expect(doubles.chainService.broadcasts.count == 1)
+        #expect(sut.state == .ready(Fixtures.vault()))
+    }
+
+    @Test("Reports the onboarding as running only while it runs")
+    func onboardingProgressIsReported() async throws {
+        let (sut, doubles) = await makeSUT(start: .rekeyMismatch)
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+        let recorder = PublisherRecorder(sut.isOnboardingPublisher)
+
+        try await sut.onboard()
+
+        #expect(recorder.recorded == [false, true, false])
     }
 
     @Test("A step that landed is not repeated while the chain catches up")
@@ -462,6 +525,13 @@ extension CollectiblesManagerTests {
             self != .notOnboarded
         }
 
+        var hasAccountWhenMarked: Bool {
+            switch self {
+            case .ready, .rekeyMismatch, .rekeyUnreadable, .coldOwnerNotDerived: true
+            case .notOnboarded: false
+            }
+        }
+
         var hasVisibleVault: Bool {
             switch self {
             case .ready, .rekeyMismatch, .rekeyUnreadable: true
@@ -699,7 +769,7 @@ private extension CollectiblesManagerTests {
 
         await settle(sut, doubles: doubles)
 
-        let isReleasedByInitRefresh = await waitUntil { isKnownUniquelyReferenced(&sut) }
+        let isReleasedByInitRefresh = await waitUntilConditionMet { isKnownUniquelyReferenced(&sut) }
         #expect(isReleasedByInitRefresh, "The refresh started by init still holds the manager")
 
         trackForMemoryLeaks(doubles.coldOwnerProvider)
@@ -716,7 +786,7 @@ private extension CollectiblesManagerTests {
     }
 
     func settle(_ sut: SUT, doubles: Doubles) async {
-        let didSettle = await waitUntil { doubles.balanceUpdater.updates.contains { !$0.isLoading } }
+        let didSettle = await waitUntilConditionMet { doubles.balanceUpdater.updates.contains { !$0.isLoading } }
         #expect(didSettle, "The refresh started by init did not finish in time")
 
         await sut.refreshState()
@@ -727,7 +797,7 @@ private extension CollectiblesManagerTests {
     }
 }
 
-private func waitUntil(timeout: Duration = .seconds(5), _ condition: () -> Bool) async -> Bool {
+private func waitUntilConditionMet(timeout: Duration = .seconds(5), _ condition: () -> Bool) async -> Bool {
     let clock = ContinuousClock()
     let deadline = clock.now + timeout
 
@@ -1111,6 +1181,45 @@ private final class ChainServiceProviderStub: CollectiblesChainServiceProvider {
     }
 }
 
+private final class SendGate {
+    private struct State {
+        var isOpen = false
+        var waiters: [CheckedContinuation<Void, Never>] = []
+    }
+
+    private let state = OSAllocatedUnfairLock(uncheckedState: State())
+
+    func pass() async {
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            let isOpen = state { state -> Bool in
+                guard !state.isOpen else {
+                    return true
+                }
+
+                state.waiters.append(continuation)
+                return false
+            }
+
+            guard isOpen else {
+                return
+            }
+
+            continuation.resume()
+        }
+    }
+
+    func open() {
+        let waiters = state { state -> [CheckedContinuation<Void, Never>] in
+            state.isOpen = true
+            let waiters = state.waiters
+            state.waiters.removeAll()
+            return waiters
+        }
+
+        waiters.forEach { $0.resume() }
+    }
+}
+
 private final class ChainServiceFake: CollectiblesChainService {
     struct BuiltTransaction {
         let instructions: [SolanaRawInstruction]
@@ -1127,6 +1236,7 @@ private final class ChainServiceFake: CollectiblesChainService {
         var blockhashFetchedAt: Date
         var sendError: (any Error)?
         var onSend: (() -> Void)?
+        var sendGate: SendGate?
         var transactions: [BuiltTransaction] = []
         var broadcasts: [Broadcast] = []
     }
@@ -1152,6 +1262,11 @@ private final class ChainServiceFake: CollectiblesChainService {
     var onSend: (() -> Void)? {
         get { state { $0.onSend } }
         set { state { $0.onSend = newValue } }
+    }
+
+    var sendGate: SendGate? {
+        get { state { $0.sendGate } }
+        set { state { $0.sendGate = newValue } }
     }
 
     var transactions: [BuiltTransaction] {
@@ -1197,10 +1312,12 @@ private final class ChainServiceFake: CollectiblesChainService {
     }
 
     func send(serializedTransaction: Data, startSendingTimestamp: Date) async throws -> String {
-        let (error, onSend) = state { state -> ((any Error)?, (() -> Void)?) in
+        let (error, onSend, sendGate) = state { state -> ((any Error)?, (() -> Void)?, SendGate?) in
             state.broadcasts.append(Broadcast(serializedTransaction: serializedTransaction, startSendingTimestamp: startSendingTimestamp))
-            return (state.sendError, state.onSend)
+            return (state.sendError, state.onSend, state.sendGate)
         }
+
+        await sendGate?.pass()
 
         if let error {
             throw error

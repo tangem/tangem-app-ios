@@ -12,6 +12,6 @@ import TangemAssets
 struct NavbarDotsImage: View {
     var body: some View {
         Assets.verticalDots.image
-            .foregroundColor(Colors.Icon.primary1)
+            .foregroundColor(DesignSystem.Color.iconPrimary)
     }
 }

@@ -31,10 +31,10 @@ struct AmountSummaryView: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(data.amount)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
 
                     Text(data.amountFiat)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 }
                 .truncationMode(.middle)
                 .lineLimit(1)
@@ -87,5 +87,5 @@ struct AmountSummaryView: View {
         }
         .innerContentPadding(12)
     }
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }

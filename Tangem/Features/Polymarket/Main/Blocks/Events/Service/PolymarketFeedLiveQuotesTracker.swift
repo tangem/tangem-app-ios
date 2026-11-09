@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
+import TangemFoundation
 import TangemPolymarket
 import TangemPolymarketUI
 
@@ -13,27 +15,30 @@ import TangemPolymarketUI
 final class PolymarketFeedLiveQuotesTracker {
     let updates: AsyncStream<Update>
 
-    private let quotes: @Sendable (Set<String>) async -> AsyncStream<PolymarketOutcomeQuote>
+    private let reader: PolymarketLiveTopicsReader<String, PolymarketOutcomeQuote>
     private let updatesContinuation: AsyncStream<Update>.Continuation
+    private let delayProvider: PollDelayProvider
 
-    private(set) var trackedAssetIds: Set<String> = []
-    private var quotesTask: Task<Void, Never>?
-    private var statusTask: Task<Void, Never>?
+    private var readerTask: Task<Void, Never>?
     private var pendingQuotes: [String: PolymarketOutcomeQuote] = [:]
     private var flushTask: Task<Void, Never>?
-    private var isConnected = false
-    private var isPaused = false
+
+    var trackedAssetIds: Set<String> {
+        reader.trackedTopics
+    }
 
     init(
         quotes: @escaping @Sendable (Set<String>) async -> AsyncStream<PolymarketOutcomeQuote>,
-        statusChanges: @escaping @Sendable () async -> AsyncStream<PolymarketWebSocketConnectionStatus>
+        statusChanges: @escaping @Sendable () async -> AsyncStream<PolymarketWebSocketConnectionStatus>,
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
-        self.quotes = quotes
+        self.delayProvider = delayProvider
+        reader = PolymarketLiveTopicsReader(values: quotes, statusChanges: statusChanges)
         (updates, updatesContinuation) = AsyncStream.makeStream(of: Update.self)
 
-        statusTask = Task { [weak self] in
-            for await status in await statusChanges() {
-                self?.connectionStatusChanged(status)
+        readerTask = Task { [weak self, readerUpdates = reader.updates] in
+            for await update in readerUpdates {
+                self?.handle(update)
             }
         }
     }
@@ -46,43 +51,27 @@ final class PolymarketFeedLiveQuotesTracker {
     }
 
     deinit {
-        quotesTask?.cancel()
-        statusTask?.cancel()
+        readerTask?.cancel()
         flushTask?.cancel()
         updatesContinuation.finish()
     }
 
-    func update(events: [PolymarketEvent], visibleEventIDs: Set<String>) {
-        guard !isPaused else {
-            return
-        }
-
-        let assetIds = Set(
-            eventsAround(visibleEventIDs, in: events)
-                .filter(\.isLive)
-                .flatMap(\.feedCardAssetIds)
-        )
-
-        guard assetIds != trackedAssetIds else {
-            return
-        }
-
-        trackedAssetIds = assetIds
-        pendingQuotes = pendingQuotes.filter { assetIds.contains($0.key) }
-        startReadingQuotes(for: assetIds)
+    func update(
+        events: [PolymarketEvent],
+        visibleEventIDs: Set<String>,
+        isLive: (PolymarketEvent) -> Bool
+    ) {
+        reader.track(Set(eventsAround(visibleEventIDs, in: events).filter(isLive).flatMap(\.feedCardAssetIds)))
+        pendingQuotes = pendingQuotes.filter { trackedAssetIds.contains($0.key) }
     }
 
     func pause() {
-        isPaused = true
-        trackedAssetIds = []
-        flushTask?.cancel()
-        flushTask = nil
-        pendingQuotes = [:]
-        startReadingQuotes(for: [])
+        reader.pause()
+        dropPendingQuotes()
     }
 
     func resume() {
-        isPaused = false
+        reader.resume()
     }
 }
 
@@ -114,39 +103,32 @@ private extension PolymarketFeedLiveQuotesTracker {
         return events[lowerBound ... upperBound]
     }
 
-    func startReadingQuotes(for assetIds: Set<String>) {
-        let previousTask = quotesTask
-
-        guard !assetIds.isEmpty else {
-            previousTask?.cancel()
-            quotesTask = nil
-            return
-        }
-
-        quotesTask = Task { [weak self, quotes] in
-            let stream = await quotes(assetIds)
-            previousTask?.cancel()
-
-            for await quote in stream {
-                guard !Task.isCancelled else {
-                    return
-                }
-
-                self?.enqueue(quote)
-            }
+    func handle(_ update: PolymarketLiveTopicsReader<String, PolymarketOutcomeQuote>.Update) {
+        switch update {
+        case .value(let quote):
+            enqueue(quote)
+        case .connectionLost:
+            dropPendingQuotes()
+            updatesContinuation.yield(.connectionLost)
+        case .reconnected:
+            break
         }
     }
 
     func enqueue(_ quote: PolymarketOutcomeQuote) {
+        guard trackedAssetIds.contains(quote.assetId) else {
+            return
+        }
+
         pendingQuotes[quote.assetId] = quote
 
         guard flushTask == nil else {
             return
         }
 
-        flushTask = Task { [weak self] in
+        flushTask = Task { [weak self, delayProvider] in
             do {
-                try await Task.sleep(for: Constants.batchInterval)
+                try await delayProvider.wait(for: Constants.batchInterval)
             } catch {
                 return
             }
@@ -166,29 +148,10 @@ private extension PolymarketFeedLiveQuotesTracker {
         pendingQuotes = [:]
     }
 
-    func connectionStatusChanged(_ status: PolymarketWebSocketConnectionStatus) {
-        guard status != .connected else {
-            isConnected = true
-            return
-        }
-
-        guard isConnected else {
-            return
-        }
-
-        isConnected = false
+    func dropPendingQuotes() {
         flushTask?.cancel()
         flushTask = nil
         pendingQuotes = [:]
-
-        quotesTask?.cancel()
-        quotesTask = nil
-
-        if status != .stopped {
-            startReadingQuotes(for: trackedAssetIds)
-        }
-
-        updatesContinuation.yield(.connectionLost)
     }
 }
 
@@ -197,6 +160,7 @@ private extension PolymarketEvent {
         PolymarketEventCard.Model.displayedMarkets(of: self)
             .flatMap(\.outcomes)
             .map(\.assetId)
+            + (moneyline?.picks ?? []).map(\.outcome.assetId)
     }
 }
 
@@ -204,5 +168,5 @@ private extension PolymarketEvent {
 
 private enum Constants {
     static let prefetchedNeighbours = 5
-    static let batchInterval: Duration = .milliseconds(300)
+    static let batchInterval: TimeInterval = 0.3
 }

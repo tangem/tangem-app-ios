@@ -28,7 +28,7 @@ struct AddCustomTokenCoordinatorView: CoordinatorView {
                 sheets
             }
         }
-        .accentColor(Colors.Text.primary1)
+        .accentColor(DesignSystem.Color.textPrimary)
     }
 
     @ViewBuilder

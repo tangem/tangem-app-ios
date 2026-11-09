@@ -240,6 +240,42 @@ class BranchAndBoundPreImageTransactionBuilderTests {
         }
     }
 
+    @Test
+    func testThrowsWhenOutputsTotalExceedsIntRange() async throws {
+        let outputs: [ScriptUnspentOutput] = (0 ..< 2).map { index in
+            .init(output: UnspentOutput(blockId: 1, txId: "", index: index, amount: UInt64(Int64.max)), script: script)
+        }
+        let selector = BranchAndBoundPreImageTransactionBuilder(calculator: TestCalculator())
+
+        await #expect(throws: UTXOPreImageTransactionBuilderError.outputsTotalOverflow) {
+            try await selector.preImage(
+                outputs: outputs,
+                changeScript: .p2wpkh,
+                destination: .init(amount: 100_000, script: .p2wpkh),
+                fee: .exactly(fee: 1000)
+            )
+        }
+    }
+
+    @Test
+    func testSelectionFromLargeOutputsDoesNotOverflow() async throws {
+        let outputs: [ScriptUnspentOutput] = (0 ..< 3).map { index in
+            .init(output: UnspentOutput(blockId: 1, txId: "", index: index, amount: 3_000_000_000_000_000_000), script: script)
+        }
+        let selector = BranchAndBoundPreImageTransactionBuilder(calculator: TestCalculator())
+
+        let selected = try await selector.preImage(
+            outputs: outputs,
+            changeScript: .p2wpkh,
+            destination: .init(amount: 8_000_000_000_000_000_000, script: .p2wpkh),
+            fee: .exactly(fee: 1000)
+        )
+
+        #expect(selected.outputs.count == 3)
+        #expect(selected.destination == 8_000_000_000_000_000_000)
+        #expect(selected.change == 1_000_000_000_000_000_000 - 1000)
+    }
+
     // MARK: - Dogecoin Core fork hard dust limits
 
     /// Regression for [REDACTED_INFO]: change that clears the Bitcoin dust floor (546) but

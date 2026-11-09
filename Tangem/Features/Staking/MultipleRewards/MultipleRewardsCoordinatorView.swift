@@ -37,6 +37,7 @@ struct MultipleRewardsCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
     }
 }

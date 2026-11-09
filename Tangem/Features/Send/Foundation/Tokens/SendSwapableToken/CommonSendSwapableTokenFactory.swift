@@ -100,8 +100,9 @@ private extension CommonSendSwapableTokenFactory {
     }
 
     func makeSendYieldModuleHelper() -> SendYieldModuleHelper? {
-        guard walletModel.yieldModuleManager?.state?.state.isEffectivelyActive == true,
-              let yieldContractAddress = walletModel.yieldModuleManager?.state?.state.activeInfo?.yieldContractAddress
+        guard let yieldModuleManager = walletModel.yieldModuleManager,
+              yieldModuleManager.state?.state.isEffectivelyActive == true,
+              let yieldContractAddress = yieldModuleManager.state?.state.activeInfo?.yieldContractAddress
         else {
             return nil
         }
@@ -109,7 +110,8 @@ private extension CommonSendSwapableTokenFactory {
         return CommonSendYieldModuleHelper(
             yieldContractAddress: yieldContractAddress,
             currency: walletModel.tokenItem.expressCurrency,
-            swapExecutionRegistryProvider: walletModel.yieldModuleManager?.swapExecutionRegistryProvider,
+            newImplementationAddress: { await yieldModuleManager.newImplementationAddress(moduleAddress: yieldContractAddress) },
+            swapExecutionRegistryProvider: yieldModuleManager.swapExecutionRegistryProvider,
             yieldModuleUpgradeHandler: makeYieldModuleUpgradeHandler()
         )
     }
@@ -122,8 +124,13 @@ private extension CommonSendSwapableTokenFactory {
             return nil
         }
 
+        let versionResolver = FeatureProvider.isAvailable(.yieldModuleOwnerActionUpgrade)
+            ? walletModel.yieldModuleManager?.versionResolver
+            : nil
+
         return CommonYieldModuleUpgradeHandler(
             versionChecker: versionChecker,
+            versionResolver: versionResolver,
             yieldModuleAddress: yieldModuleAddress
         )
     }

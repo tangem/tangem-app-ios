@@ -13,19 +13,12 @@ import TangemExpress
 final class PolymarketDepositSourceResolver {
     private let userWalletInfo: UserWalletInfo
     private let walletModelsProvider: MainScreenUIOrderedWalletModelsProvider
-    private let availabilityChecker: FundingSourceAvailabilityChecker
     private let depositCurrencies: Set<ExpressWalletCurrency>
 
-    init(
-        userWalletInfo: UserWalletInfo,
-        walletModelsProvider: MainScreenUIOrderedWalletModelsProvider,
-        depositCurrencies: Set<ExpressWalletCurrency>,
-        availabilityChecker: FundingSourceAvailabilityChecker
-    ) {
-        self.userWalletInfo = userWalletInfo
-        self.walletModelsProvider = walletModelsProvider
+    init(userWalletModel: UserWalletModel, depositCurrencies: Set<ExpressWalletCurrency>) {
+        userWalletInfo = userWalletModel.userWalletInfo
+        walletModelsProvider = MainScreenUIOrderedWalletModelsProvider(userWalletModel: userWalletModel)
         self.depositCurrencies = depositCurrencies
-        self.availabilityChecker = availabilityChecker
     }
 }
 
@@ -51,20 +44,20 @@ extension PolymarketDepositSourceResolver {
     static func chooseSource(
         from walletModels: [any WalletModel],
         depositCurrencies: Set<ExpressWalletCurrency>,
-        availabilityChecker: FundingSourceAvailabilityChecker
+        userWalletInfo: UserWalletInfo
     ) -> (any WalletModel)? {
-        let selectable = walletModels.filter { !$0.isJointAccountParticipant }
-
-        let matching = selectable.filter {
+        let matching = walletModels.filter {
             depositCurrencies.contains($0.tokenItem.expressCurrency)
-                && availabilityChecker.isTransferAvailable(walletModel: $0)
+                && isTransferAvailable(walletModel: $0, userWalletInfo: userWalletInfo)
         }
 
         if let matchingSource = matching.mostFiatFundedOrFirst {
             return matchingSource
         }
 
-        let candidates = selectable.filter { availabilityChecker.isSwapAvailable(walletModel: $0) }
+        let candidates = walletModels.filter {
+            TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: $0).isSwapAvailable(direction: .from)
+        }
         return candidates.mostFiatFundedOrFirst
     }
 }
@@ -72,11 +65,18 @@ extension PolymarketDepositSourceResolver {
 // MARK: - Private implementation
 
 private extension PolymarketDepositSourceResolver {
+    static func isTransferAvailable(walletModel: any WalletModel, userWalletInfo: UserWalletInfo) -> Bool {
+        let availabilityProvider = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel)
+
+        return SwapSourcePreselectionEligibility.canBecomeSource(for: availabilityProvider.swapSourceAvailability())
+            && availabilityProvider.isSendAvailable
+    }
+
     func resolveSourceToken(from walletModels: [any WalletModel]) -> SendSwapableToken? {
         let chosen = Self.chooseSource(
             from: walletModels,
             depositCurrencies: depositCurrencies,
-            availabilityChecker: availabilityChecker
+            userWalletInfo: userWalletInfo
         )
 
         guard let chosen else {

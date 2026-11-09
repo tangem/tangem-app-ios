@@ -33,7 +33,13 @@ enum MarketingCampaignsFixtures {
         icon: URL? = nil,
         bgColor: String? = nil,
         deeplink: URL? = nil,
-        dismissible: Bool = false
+        dismissible: Bool = false,
+        categoryLabel: String? = nil,
+        subtitle: String? = nil,
+        etaLabel: String? = nil,
+        partnerLabel: String? = nil,
+        buttonText: String? = nil,
+        glow: Bool? = nil
     ) -> MarketingCampaignsDTO.Campaign {
         MarketingCampaignsDTO.Campaign(
             id: id,
@@ -51,7 +57,13 @@ enum MarketingCampaignsFixtures {
                 icon: icon,
                 bgColor: bgColor,
                 deeplink: deeplink,
-                dismissible: dismissible
+                dismissible: dismissible,
+                categoryLabel: categoryLabel,
+                subtitle: subtitle,
+                etaLabel: etaLabel,
+                partnerLabel: partnerLabel,
+                buttonText: buttonText,
+                glow: glow
             )
         )
     }

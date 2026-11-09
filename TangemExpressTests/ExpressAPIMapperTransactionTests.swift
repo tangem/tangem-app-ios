@@ -16,7 +16,7 @@ import TangemFoundation
 struct ExpressAPIMapperTransactionTests {
     private let mapper = ExpressAPIMapper(
         exchangeDataDecoder: StubExpressExchangeDataDecoder(),
-        featureFlags: ExpressFeatureFlags()
+        featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
     )
 
     // MARK: - Exchange

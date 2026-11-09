@@ -16,7 +16,7 @@ extension CollectiblesAccountView {
         let cryptoBalanceText: String
         let collectionCountText: String
         let isWithdrawalAvailable: Bool
-        let isBalanceUpdating: Bool
+        let isUsdcLoading: Bool
 
         static let placeholder = Summary(
             fiatBalance: .loading(),
@@ -24,7 +24,7 @@ extension CollectiblesAccountView {
             cryptoBalanceText: BalanceFormatter.defaultEmptyBalanceString,
             collectionCountText: BalanceFormatter.defaultEmptyBalanceString,
             isWithdrawalAvailable: false,
-            isBalanceUpdating: true
+            isUsdcLoading: true
         )
     }
 }

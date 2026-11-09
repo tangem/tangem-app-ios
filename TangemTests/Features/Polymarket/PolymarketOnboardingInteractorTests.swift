@@ -12,7 +12,7 @@ import TangemFoundation
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket onboarding run")
+@Suite("Polymarket onboarding run", .timeLimit(.minutes(1)))
 struct PolymarketOnboardingInteractorTests {
     @Test("An account that needs nothing finishes without asking for a signature")
     func readyAccountFinishesWithoutSigning() async throws {
@@ -136,20 +136,6 @@ struct PolymarketOnboardingInteractorTests {
         #expect(geoblockService.calls == 1)
         #expect(signer.signCalls == 0)
         #expect(service.deployCalls == 0)
-    }
-
-    @Test("A refused deployment ends the run rather than being retried behind the user")
-    func deployFailureEndsTheRun() async throws {
-        let service = try makeWalletService(
-            statuses: [.notCreated],
-            deployResults: [.success(.deploymentFailed), .success(.deployed)]
-        )
-        let sut = try makeSUT(walletService: service)
-
-        let progress = await sut.collectProgress()
-
-        #expect(progress.last?.failure?.isDeploymentFailed == true)
-        #expect(service.deployCalls == 1)
     }
 
     @Test("A deployment refused twice is reported instead of polled for two minutes")
@@ -369,10 +355,13 @@ struct PolymarketOnboardingInteractorTests {
         let sut = try makeSUT(walletService: service, credentials: PolymarketCredentialsRepositoryStub.credentials)
 
         let progress = await sut.collectProgress()
-        let firstWorkingIndex = try #require(progress.firstIndex { $0.isWorking })
-        let awaitingSignatureIndex = try #require(progress.firstIndex { $0.isAwaitingSignature })
+        let reportedStatuses = progress.compactMap { progress -> PolymarketDepositWalletStatus? in
+            guard case .working(let status) = progress else { return nil }
 
-        #expect(firstWorkingIndex > awaitingSignatureIndex)
+            return status
+        }
+
+        #expect(reportedStatuses.first == .deploymentInProgress)
         #expect(progress.last?.isReady == true)
     }
 

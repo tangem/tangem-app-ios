@@ -108,7 +108,7 @@ public struct IconView<Placeholder: View>: View {
                     .frame(width: size.width, height: size.height)
                     .overlay(
                         Circle()
-                            .stroke(Colors.Icon.informative, lineWidth: 1)
+                            .stroke(DesignSystem.Color.iconSecondary, lineWidth: 1)
                     )
                     .cornerRadius(size.height / 2)
             @unknown default:
@@ -157,7 +157,7 @@ public extension IconView where Placeholder == CircleImageTextView {
             forceKingfisher: forceKingfisher,
             geometryEffect: geometryEffect
         ) {
-            CircleImageTextView(name: "", color: Colors.Button.secondary, size: size)
+            CircleImageTextView(name: "", color: DesignSystem.Color.bgTransparentSecondary, size: size)
         }
     }
 
@@ -175,7 +175,7 @@ public extension IconView where Placeholder == CircleImageTextView {
             lowContrastBackgroundColor: lowContrastBackgroundColor,
             forceKingfisher: forceKingfisher
         ) {
-            CircleImageTextView(name: "", color: Colors.Button.secondary, size: sizeSettings.iconSize)
+            CircleImageTextView(name: "", color: DesignSystem.Color.bgTransparentSecondary, size: sizeSettings.iconSize)
         }
     }
 }

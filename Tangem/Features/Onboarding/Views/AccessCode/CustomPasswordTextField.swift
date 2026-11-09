@@ -13,7 +13,7 @@ import TangemUIUtils
 struct CustomPasswordTextField: View {
     let placeholder: String
     let color: Color
-    var backgroundColor: Color = Colors.Field.primary
+    var backgroundColor: Color = DesignSystem.Color.bgTertiary
 
     var password: Binding<String>
     var shouldBecomeFirstResponder: Bool = true

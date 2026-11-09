@@ -29,7 +29,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
                 .padding(.top, 30)
                 .readGeometry(\.size.height) { contentHeight = $0 }
         }
-        .background(Colors.Background.tertiary)
+        .background(DesignSystem.Color.bgPrimary)
         .modifier(ShareButtonModifier(contentHeight: contentHeight, shareAction: viewModel.share))
         .onAppear(perform: viewModel.onAppear)
         // This animations are set explicitly to synchronise them with the delayed appearance of the notification
@@ -44,11 +44,11 @@ struct PendingExpressTxStatusBottomSheetView: View {
         VStack(spacing: 0) {
             VStack(spacing: 12) {
                 Text(viewModel.sheetTitle)
-                    .style(Fonts.Regular.headline, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.headline, color: DesignSystem.Color.textPrimary)
                     .accessibilityIdentifier(TokenAccessibilityIdentifiers.expressStatusSheetTitle)
 
                 Text(Localization.expressExchangeStatusSubtitle)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
             }
             .padding(.horizontal, 50)
@@ -82,12 +82,12 @@ struct PendingExpressTxStatusBottomSheetView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 0) {
                 Text(Localization.expressEstimatedAmount)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
                 Spacer(minLength: 8)
 
                 Text(viewModel.timeString)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
             }
 
             HStack(spacing: 12) {
@@ -101,7 +101,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
                     .renderingMode(.template)
                     .resizable()
                     .frame(size: .init(bothDimensions: 12))
-                    .foregroundColor(Colors.Icon.informative)
+                    .foregroundColor(DesignSystem.Color.iconSecondary)
 
                 PendingExpressTxTokenInfoView(
                     tokenIconInfo: viewModel.destinationTokenIconInfo,
@@ -110,14 +110,14 @@ struct PendingExpressTxStatusBottomSheetView: View {
                 )
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
     }
 
     private var providerView: some View {
         VStack(spacing: 12) {
             HStack {
                 Text(Localization.expressProvider)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
                 Spacer()
 
@@ -128,7 +128,7 @@ struct PendingExpressTxStatusBottomSheetView: View {
 
             ProviderRowView(viewModel: viewModel.providerRowViewModel)
         }
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
     }
 
     private var statusesView: some View {
@@ -152,7 +152,7 @@ private extension PendingExpressTxStatusBottomSheetView {
                 action: viewModel.showHideTransactionAlert,
                 label: {
                     Text(Localization.expressStatusHideButtonText)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.tertiary)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textSecondary)
                 }
             )
         }

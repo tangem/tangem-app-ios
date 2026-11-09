@@ -26,7 +26,7 @@ struct QuickTopUpBannerView: View {
                             viewModel.onChipSelected(chip.id)
                         } label: {
                             Text(chip.title)
-                                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                                 .lineLimit(1)
                                 .padding(.horizontal, Constants.chipHorizontalPadding)
                                 .padding(.vertical, Constants.chipVerticalPadding)

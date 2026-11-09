@@ -50,6 +50,7 @@ Chevron Left / 12, 16, 20, 24, 28, 32 / Regular
 Chevron Right / 12, 16, 20, 24, 28, 32 / Regular
 Chevron Up / 12, 16, 20, 24, 28, 32 / Regular
 Clapper Board / 12, 16, 20, 24, 28, 32 / Regular
+Clock Hands / 12 / Regular
 Clock / 12, 16, 20, 24, 28, 32 / Regular
 Clothing / 12, 16, 20, 24, 28, 32 / Regular
 Cloud Exclamation / 12, 16, 20, 24, 28, 32 / Regular
@@ -109,7 +110,7 @@ Mask / 12, 16, 20, 24, 28, 32 / Regular
 Monitor / 12, 16, 20, 24, 28, 32 / Regular
 New / 12, 16, 20, 24, 28, 32 / Regular
 Percent Backward / 20, 24, 28 / Regular
-Percent / 16, 20, 24, 28 / Regular
+Percent / 12, 16, 20, 24, 28 / Regular
 Perps / 16, 20, 24, 28 / Regular
 Pie Chart / 16, 20, 24, 28 / Regular
 Pincode / 16, 20, 24 / Regular

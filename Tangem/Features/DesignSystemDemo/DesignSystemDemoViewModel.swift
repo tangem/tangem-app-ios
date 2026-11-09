@@ -21,6 +21,9 @@ final class DesignSystemDemoViewModel: ObservableObject, Identifiable {
                 NotificationBannerCatalogView()
                     .navigationTitle("App notifications")
             },
+            DemoEntry("Earn calculator", section: .ds3) {
+                EarnCalculatorDemoView()
+            },
         ]
     }
 

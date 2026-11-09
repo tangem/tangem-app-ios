@@ -14,7 +14,7 @@ import TangemAssets
 public extension View {
     private var tangemLogo: some View {
         Assets.newTangemLogo.image
-            .foregroundColor(Colors.Icon.primary1)
+            .foregroundColor(DesignSystem.Color.iconPrimary)
     }
 
     /// Adds a navigation toolbar with a Tangem logo at leading position.

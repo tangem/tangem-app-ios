@@ -14,6 +14,20 @@ import TangemFoundation
 struct CommonJointAccountsNetworkServiceTests {
     private static let userWalletId = UserWalletId(value: Data(repeating: 0xCD, count: 32))
     private static let listingETag = "listing-etag"
+    private static let memberConfirmation = "0x" + String(repeating: "cd", count: 65)
+    private static let confirmedAccountJSON = """
+    {
+      "cryptoAccountId": "ACCOUNT",
+      "membersCount": 2,
+      "threshold": 2,
+      "safeAddress": "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b",
+      "status": "active",
+      "members": [
+        { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator", "slot": null, "signature": "\(memberConfirmation)" },
+        { "name": "Bob", "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "role": "member", "slot": null, "signature": "\(memberConfirmation)" }
+      ]
+    }
+    """
 
     @Test("A write drops the listing's tag, so the next read is answered in full rather than with a 304")
     func aWriteDropsTheListingETag() async throws {
@@ -29,6 +43,60 @@ struct CommonJointAccountsNetworkServiceTests {
             _ = try await sut.rejectOperation(id: "operation-id")
         }
 
+        #expect(eTagStorage.loadETag(for: .jointAccounts(walletId: Self.userWalletId)) == nil)
+    }
+
+    @Test("Issuing an invite drops the listing's tag, so the next read brings the new invite")
+    func issuingAnInviteDropsTheListingETag() async throws {
+        let apiService = FakeTangemApiService()
+        let eTagStorage = ETagStorageStub()
+        eTagStorage.saveETag(Self.listingETag, for: .jointAccounts(walletId: Self.userWalletId))
+        var sentBodies: [JointAccountsDTO.Request.IssueInvite] = []
+
+        apiService.issueJointAccountInviteHandler = { body in
+            sentBodies.append(body)
+            return JointAccountsDTO.Response.IssuedInvite(id: "A1B2C3", slot: body.slot, expiresAt: "2026-10-29T12:00:00.000Z")
+        }
+
+        let invite = try await Self.withInjected(apiService: apiService, eTagStorage: eTagStorage) {
+            try await CommonJointAccountsNetworkService(userWalletId: Self.userWalletId).issueInvite(cryptoAccountId: "ACCOUNT", slot: JointAccountMemberSlotID(2))
+        }
+
+        #expect(sentBodies.map(\.cryptoAccountId) == ["ACCOUNT"])
+        #expect(sentBodies.map(\.slot) == [2])
+        #expect(invite.slot == JointAccountMemberSlotID(2))
+        #expect(eTagStorage.loadETag(for: .jointAccounts(walletId: Self.userWalletId)) == nil)
+    }
+
+    @Test("Confirming an account sends the payload as it was signed and drops the listing's tag")
+    func confirmingSendsTheSignedPayload() async throws {
+        let apiService = FakeTangemApiService()
+        let eTagStorage = ETagStorageStub()
+        eTagStorage.saveETag(Self.listingETag, for: .jointAccounts(walletId: Self.userWalletId))
+        let payload = JointAccountConfirmationPayload(
+            name: "Family",
+            icon: "Family",
+            iconColor: "Azure",
+            membersCount: 2,
+            threshold: 2,
+            safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
+        )
+        var sentBodies: [JointAccountsDTO.Request.Confirm] = []
+
+        apiService.confirmJointAccountHandler = { body in
+            sentBodies.append(body)
+            return try JSONDecoder().decode(JointAccountsDTO.Response.JointAccount.self, from: Data(Self.confirmedAccountJSON.utf8))
+        }
+
+        let account = try await Self.withInjected(apiService: apiService, eTagStorage: eTagStorage) {
+            try await CommonJointAccountsNetworkService(userWalletId: Self.userWalletId)
+                .confirmJointAccount(blob: JointAccountConfirmationBlob(payload: payload, signature: Data(repeating: 0xAB, count: 65)))
+        }
+
+        #expect(sentBodies.map(\.payload) == [payload])
+        #expect(sentBodies.map(\.signature) == ["0x" + String(repeating: "AB", count: 65)])
+        #expect(account.status == .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"))
+        #expect(account.members.map(\.signature) == [Self.memberConfirmation, Self.memberConfirmation])
         #expect(eTagStorage.loadETag(for: .jointAccounts(walletId: Self.userWalletId)) == nil)
     }
 

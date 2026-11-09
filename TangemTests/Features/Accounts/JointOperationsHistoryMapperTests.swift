@@ -38,8 +38,8 @@ struct JointOperationsHistoryMapperTests {
         #expect(item.safeAddress == Constants.safeAddress)
         #expect(item.threshold == 2)
         #expect(item.createdAt == Constants.createdAt)
-        #expect(item.finishedAt == Constants.finishedAt)
-        #expect(item.cancelReason == nil)
+        #expect(item.operation.finishedAt == Constants.finishedAt)
+        #expect(item.operation.cancelReason == nil)
     }
 
     @Test("An empty history is a page with nothing to go on from")
@@ -64,7 +64,7 @@ struct JointOperationsHistoryMapperTests {
 
         #expect(item.operation.id == Constants.operationId)
         #expect(item.operation.txHash == Constants.txHash)
-        #expect(item.finishedAt == Constants.finishedAt)
+        #expect(item.operation.finishedAt == Constants.finishedAt)
     }
 
     @Test("A delta page continues from its own cursor and never starts a delta")
@@ -113,7 +113,7 @@ struct JointOperationsHistoryMapperTests {
         let item = try mapper.mapToHistoryItem(from: response)
 
         #expect(item.operation.status == .cancelled)
-        #expect(item.cancelReason == expected)
+        #expect(item.operation.cancelReason == expected)
     }
 
     @Test("An item the mapper cannot read is skipped, and the page keeps the others")
@@ -147,7 +147,7 @@ struct JointOperationsHistoryMapperTests {
         let item = try mapper.mapToHistoryItem(from: response)
 
         #expect(item.operation.txHash == nil)
-        #expect(item.finishedAt == nil)
+        #expect(item.operation.finishedAt == nil)
     }
 
     @Test("The hash and the Safe address are read lower-cased, however the endpoint spells them")

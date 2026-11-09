@@ -209,6 +209,44 @@ extension MoralisSolanaFixtures {
     }
     """
 
+    static let corePreviewFallbackResponse = """
+    {
+      "cursor": null,
+      "result": [
+        {
+          "tokenAddress": "CoreAsset8888888888888888888888888888888888",
+          "tokenStandard": "MplCore",
+          "name": "Empty original",
+          "metadata": { "image": "https://example.com/3.png", "attributes": [] },
+          "media": {
+            "mimetype": "image/png",
+            "originalMediaUrl": "",
+            "mediaCollection": {
+              "low": null,
+              "medium": { "width": 250, "height": 250, "url": "https://media.moralis.io/medium3.png" },
+              "high": { "width": 500, "height": 500, "url": "" }
+            }
+          },
+          "collection": { "address": "CoreCollection88888888888888888888888888888", "name": "Fallbacks" }
+        },
+        {
+          "tokenAddress": "CoreAsset9999999999999999999999999999999999",
+          "tokenStandard": "MplCore",
+          "name": "Preview only",
+          "metadata": { "attributes": [] },
+          "media": {
+            "mimetype": "image/png",
+            "originalMediaUrl": null,
+            "mediaCollection": {
+              "low": { "width": 100, "height": 100, "url": "https://media.moralis.io/low4.png" }
+            }
+          },
+          "collection": { "address": "CoreCollection88888888888888888888888888888", "name": "Fallbacks" }
+        }
+      ]
+    }
+    """
+
     static let regularAssetInNamedCollectionWithoutAddress = """
     [
       {

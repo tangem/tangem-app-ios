@@ -25,10 +25,10 @@ struct ProviderRowViewModel: Identifiable {
             let attributeContainer = AttributeContainer()
             var attributedString = AttributedString(text, attributes: attributeContainer)
             attributedString.font = Fonts.Regular.footnote
-            attributedString.foregroundColor = Colors.Text.tertiary
+            attributedString.foregroundColor = DesignSystem.Color.textSecondary
 
             if let range = attributedString.range(of: provider.name) {
-                attributedString[range].foregroundColor = Colors.Text.primary1
+                attributedString[range].foregroundColor = DesignSystem.Color.textPrimary
             }
 
             return .attributed(attributedString)

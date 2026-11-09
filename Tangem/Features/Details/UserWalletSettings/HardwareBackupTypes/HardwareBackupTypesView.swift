@@ -19,7 +19,7 @@ struct HardwareBackupTypesView: View {
         content
             .padding(.horizontal, 16)
             .navigationTitle(viewModel.navigationTitle)
-            .background(Colors.Background.secondary)
+            .background(DesignSystem.Color.bgPrimary)
             .onFirstAppear(perform: viewModel.onFirstAppear)
             .alert(item: $viewModel.alert) { $0.alert }
     }
@@ -41,11 +41,11 @@ private extension HardwareBackupTypesView {
     func info(item: ViewModel.InfoItem) -> some View {
         VStack(spacing: 0) {
             Text(item.title)
-                .style(Fonts.Bold.title2, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title2, color: DesignSystem.Color.textPrimary)
                 .padding(.horizontal, 24)
 
             Text(item.description)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 8)
@@ -74,7 +74,7 @@ private extension HardwareBackupTypesView {
             .padding(.top, 4)
         }
         .padding(EdgeInsets(top: 24, leading: 14, bottom: 16, trailing: 14))
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadius(14, corners: .allCorners)
         .colorScheme(.dark)
     }
@@ -97,11 +97,11 @@ private extension HardwareBackupTypesView {
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                 .frame(width: 16, height: 16)
 
             Text(item.title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.secondary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
     }
@@ -114,11 +114,11 @@ private extension HardwareBackupTypesView {
                 Assets.chevronRightWithOffset24.image
                     .renderingMode(.template)
                     .resizable()
-                    .foregroundStyle(Colors.Text.tertiary)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
                     .frame(width: 24, height: 24)
             }
             .padding(14)
-            .background(Colors.Background.primary)
+            .background(DesignSystem.Color.bgSecondary)
             .cornerRadius(14, corners: .allCorners)
         }
         .buttonStyle(.plain)
@@ -135,7 +135,7 @@ private extension HardwareBackupTypesView {
             }
 
             Text(item.description)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -145,7 +145,7 @@ private extension HardwareBackupTypesView {
     func backupTypeInfoHeader(title: String, badge: BadgeView.Item?) -> some View {
         Group {
             Text(title)
-                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                .style(Fonts.Bold.body, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
 

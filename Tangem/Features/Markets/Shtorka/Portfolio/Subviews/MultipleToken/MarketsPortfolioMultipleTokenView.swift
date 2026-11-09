@@ -55,12 +55,13 @@ private extension MarketsPortfolioMultipleTokenView {
     }
 
     var arrow: some View {
-        TangemButton(
-            content: .icon(Assets.DesignSystem.chevronDown),
+        TangemUI.Button(
+            icon: Assets.DesignSystem.chevronDown,
+            accessibilityLabel: nil,
             action: viewModel.onTap
         )
-        .setStyleType(.secondary)
-        .setSize(.x9)
+        .styleType(.secondary(.default))
+        .size(.x9)
         .allowsHitTesting(false)
     }
 

@@ -21,7 +21,6 @@ struct TangemPayMobileOnboardingView: View {
 
     var body: some View {
         TangemPayOnboardingContentView(
-            showsLegalLine: true,
             usesBundleIntroductionLayout: isBundleIntroductionEnabled,
             getCardIcon: nil,
             titleAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.mobileOnboardingTitle,

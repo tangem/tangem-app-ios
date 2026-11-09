@@ -60,5 +60,5 @@ struct AddressBookContactSkeletonView: View {
     GroupedScrollView(contentType: .lazy(spacing: 8)) {
         AddressBooksLoadingView()
     }
-    .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }

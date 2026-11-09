@@ -19,7 +19,7 @@ struct MainQRScanTokenSelectorWalletHeaderView: View {
         SwiftUI.Button(action: toggleAction) {
             HStack(spacing: .zero) {
                 Text(walletName)
-                    .style(Fonts.Bold.headline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.headline, color: DesignSystem.Color.textPrimary)
 
                 Spacer(minLength: Constants.horizontalSpacing)
 
@@ -35,12 +35,12 @@ struct MainQRScanTokenSelectorWalletHeaderView: View {
             Assets.Glyphs.chevronDownNew.image
                 .resizable()
                 .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.informative)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(width: 20.0, height: 20.0)
                 .frame(width: 28.0, height: 28.0)
                 .background {
                     Circle()
-                        .fill(Colors.Button.secondary)
+                        .fill(DesignSystem.Color.bgTransparentSecondary)
                 }
         }
         .rotationEffect(.degrees(isOpen ? 0.0 : 180.0))

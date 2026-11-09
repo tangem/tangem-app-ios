@@ -15,6 +15,7 @@ public struct ExpressManagerSwappingPairRequest {
     public let approvePolicy: ApprovePolicy
     public let operationType: ExpressOperationType
     public let slippage: Decimal?
+    public let mcpIntentID: String?
 
     public var amount: Decimal {
         amountType.amount

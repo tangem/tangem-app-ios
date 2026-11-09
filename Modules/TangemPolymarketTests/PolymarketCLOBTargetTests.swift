@@ -8,6 +8,7 @@
 
 import Foundation
 import Testing
+import Alamofire
 import Moya
 @testable import TangemPolymarket
 
@@ -43,6 +44,57 @@ struct PolymarketCLOBTargetBalanceAllowanceTests {
         #expect(PolymarketBalanceAllowanceAsset.position(tokenId: "47", version: .v1) == .conditional(tokenId: "47"))
         #expect(PolymarketBalanceAllowanceAsset.position(tokenId: "47", version: .v2) == .conditionalV2(tokenId: "47"))
         #expect(PolymarketBalanceAllowanceAsset.position(tokenId: "47", version: .unknown("v3")) == nil)
+    }
+}
+
+@Suite("PolymarketCLOBTarget price history")
+struct PolymarketCLOBTargetPriceHistoryTests {
+    @Test("Price history asks for the token's market over the interval on the given grid")
+    func priceHistoryQuery() throws {
+        let target = PolymarketCLOBTarget.Target.priceHistory(tokenId: "47", query: .interval(.week, fidelityMinutes: 30))
+        let sut = PolymarketCLOBTarget(baseURL: URL(string: "https://clob.polymarket.com")!, target: target, authHeaders: [:])
+        let parameters = try PolymarketCLOBTargetBalanceAllowanceTests.parameters(target)
+
+        #expect(sut.signedPath == "/prices-history")
+        #expect(sut.method == .get)
+        #expect(parameters["market"] as? String == "47")
+        #expect(parameters["interval"] as? String == "1w")
+        #expect(parameters["fidelity"] as? Int == 30)
+        #expect(parameters.count == 3)
+    }
+
+    @Test("A closed market's history is asked between its start and its close, with no interval")
+    func boundedRangeQuery() throws {
+        let query = PolymarketPriceHistoryQuery.range(
+            start: Date(timeIntervalSince1970: 1_787_490_038),
+            end: Date(timeIntervalSince1970: 1_788_034_666.9),
+            fidelityMinutes: 30
+        )
+        let target = PolymarketCLOBTarget.Target.priceHistory(tokenId: "47", query: query)
+        let sut = PolymarketCLOBTarget(baseURL: URL(string: "https://clob.polymarket.com")!, target: target, authHeaders: [:])
+        let parameters = try PolymarketCLOBTargetBalanceAllowanceTests.parameters(target)
+
+        #expect(sut.signedPath == "/prices-history")
+        #expect(sut.method == .get)
+        #expect(parameters["market"] as? String == "47")
+        #expect(parameters["startTs"] as? Int == 1_787_490_038)
+        #expect(parameters["endTs"] as? Int == 1_788_034_666)
+        #expect(parameters["fidelity"] as? Int == 30)
+        #expect(parameters["interval"] == nil)
+        #expect(parameters.count == 4)
+    }
+
+    @Test("A history that runs up to now is asked from the market's start only")
+    func openRangeQuery() throws {
+        let query = PolymarketPriceHistoryQuery.range(start: Date(timeIntervalSince1970: 1_792_641_610), end: nil, fidelityMinutes: 5)
+        let parameters = try PolymarketCLOBTargetBalanceAllowanceTests.parameters(.priceHistory(tokenId: "47", query: query))
+
+        #expect(parameters["market"] as? String == "47")
+        #expect(parameters["startTs"] as? Int == 1_792_641_610)
+        #expect(parameters["fidelity"] as? Int == 5)
+        #expect(parameters["endTs"] == nil)
+        #expect(parameters["interval"] == nil)
+        #expect(parameters.count == 3)
     }
 }
 

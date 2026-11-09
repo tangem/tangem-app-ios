@@ -25,7 +25,7 @@ struct TokenItemView: View {
                     Text(viewModel.name)
                         .style(
                             Fonts.Bold.subheadline,
-                            color: viewModel.hasError ? Colors.Text.tertiary : Colors.Text.primary1
+                            color: viewModel.hasError ? DesignSystem.Color.textSecondary : DesignSystem.Color.textPrimary
                         )
                         .lineLimit(1)
                         .accessibilityIdentifier(MainAccessibilityIdentifiers.tokenTitle)
@@ -37,14 +37,14 @@ struct TokenItemView: View {
             primaryTrailingView: {
                 if viewModel.hasError, let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 } else {
                     HStack(spacing: 6) {
                         trailingBadge
 
                         LoadableBalanceView(
                             state: viewModel.balanceFiat,
-                            style: .init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1),
+                            style: .init(font: Fonts.Regular.subheadline, textColor: DesignSystem.Color.textPrimary),
                             loader: .init(size: .init(width: 40, height: 12)),
                             accessibilityIdentifier: MainAccessibilityIdentifiers.tokenBalance(for: viewModel.name)
                         )
@@ -58,7 +58,7 @@ struct TokenItemView: View {
                         LoadableTextView(
                             state: viewModel.tokenPrice,
                             font: Fonts.Regular.caption1,
-                            textColor: Colors.Text.tertiary,
+                            textColor: DesignSystem.Color.textSecondary,
                             loaderSize: .init(width: 52, height: 12)
                         )
 
@@ -75,7 +75,7 @@ struct TokenItemView: View {
                 if !viewModel.hasError {
                     LoadableBalanceView(
                         state: viewModel.balanceCrypto,
-                        style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                        style: .init(font: Fonts.Regular.caption1, textColor: DesignSystem.Color.textSecondary),
                         loader: .init(size: .init(width: 40, height: 12))
                     )
                     .layoutPriority(3)
@@ -85,7 +85,7 @@ struct TokenItemView: View {
         .padding(14)
         .background(background)
         .onTapGesture(perform: viewModel.tapAction)
-        .highlightable(color: Colors.Button.primary.opacity(0.03))
+        .highlightable(color: DesignSystem.Color.bgInverse.opacity(0.03))
         // `previewContentShape` must be called just before `contextMenu` call, otherwise visual glitches may occur
         .previewContentShape(cornerRadius: previewContentShapeCornerRadius)
         .contextMenu {
@@ -110,7 +110,7 @@ struct TokenItemView: View {
             TokenItemEarnBadgeView(
                 rewardType: rewardsInfo.type,
                 rewardValue: rewardsInfo.rewardValue,
-                color: rewardsInfo.isActive ? Colors.Text.accent : Colors.Text.secondary,
+                color: rewardsInfo.isActive ? DesignSystem.Color.textAccentBlue : DesignSystem.Color.textSecondary,
                 isUpdating: rewardsInfo.isUpdating
             )
         case .none:
@@ -136,7 +136,7 @@ struct TokenItemView: View {
     @ViewBuilder
     private var background: some View {
         if let roundedCornersConfiguration = roundedCornersConfiguration {
-            Colors.Background.primary
+            DesignSystem.Color.bgSecondary
                 .cornerRadiusContinuous(
                     topLeadingRadius: roundedCornersConfiguration.topLeadingRadius,
                     bottomLeadingRadius: roundedCornersConfiguration.bottomLeadingRadius,
@@ -144,7 +144,7 @@ struct TokenItemView: View {
                     topTrailingRadius: roundedCornersConfiguration.topTrailingRadius
                 )
         } else {
-            Colors.Background.primary
+            DesignSystem.Color.bgSecondary
         }
     }
 
@@ -246,9 +246,9 @@ extension TokenItemView {
 
             Spacer()
         }
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadiusContinuous(14)
         .padding(16)
     }
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }

@@ -7,8 +7,10 @@
 //
 
 import Foundation
+import Combine
 import Testing
 import UIKit
+import TangemFoundation
 import TangemTestKit
 @testable import Tangem
 
@@ -100,13 +102,18 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
 
     @Test("Returning to the foreground fetches at once and resumes polling")
     func foregroundFetchesAndResumes() async {
-        let notificationCenter = NotificationCenter()
+        let notificationCenter = ObservedNotificationCenter()
         let provider = MachineProviderStub(results: [.success(Self.machine(name: "Fresh pack"))])
         let sut = makeSUT(provider: provider, notificationCenter: notificationCenter)
 
         sut.onWillAppear()
-        await waitUntil { notificationCenter.post(.didEnterBackground) && sut.pollingTask == nil }
-        await waitUntil { notificationCenter.post(.willEnterForeground) && sut.title == "Fresh pack" }
+        await waitUntil { notificationCenter.isObserving(.didEnterBackground, .willEnterForeground) }
+
+        notificationCenter.post(.didEnterBackground)
+        await waitUntil { sut.pollingTask == nil }
+
+        notificationCenter.post(.willEnterForeground)
+        await waitUntil { sut.title == "Fresh pack" }
 
         #expect(provider.loadCallsCount == 1)
         #expect(sut.pollingTask != nil)
@@ -130,6 +137,24 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
         #expect(sut.pollingTask == nil)
         #expect(provider.loadCallsCount == 0)
     }
+
+    @Test("A pack can't be opened while the account has to be relinked")
+    func relinkLocksOpening() async {
+        let sut = makeSUT(relinkStatusProvider: RelinkStatusProviderStub())
+
+        await waitUntil { sut.isRelinkRequired }
+
+        #expect(sut.isOpenLocked)
+    }
+
+    @Test("A pack with an unfinished purchase can still be opened while the account has to be relinked")
+    func unfinishedPurchaseKeepsOpeningAvailable() async {
+        let sut = makeSUT(relinkStatusProvider: RelinkStatusProviderStub(), hasUnfinishedPurchase: { true })
+
+        await waitUntil { sut.isRelinkRequired }
+
+        #expect(!sut.isOpenLocked)
+    }
 }
 
 // MARK: - Helpers
@@ -137,6 +162,8 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
 private extension CollectiblesMachineViewModelTests {
     func makeSUT(
         provider: (any CollectiblesMachineProvider)? = nil,
+        relinkStatusProvider: (any CollectiblesRelinkStatusProvider)? = nil,
+        hasUnfinishedPurchase: @escaping @MainActor () -> Bool = { false },
         pollInterval: Duration = .seconds(60),
         notificationCenter: NotificationCenter = NotificationCenter()
     ) -> SUT {
@@ -144,6 +171,8 @@ private extension CollectiblesMachineViewModelTests {
             pack: Self.pack(),
             routable: nil,
             prizePoolProvider: PrizePoolProviderStub(),
+            relinkStatusProvider: relinkStatusProvider,
+            hasUnfinishedPurchase: hasUnfinishedPurchase,
             provider: provider ?? MachineProviderStub(results: [.success(Self.machine())]),
             pollInterval: pollInterval,
             notificationCenter: notificationCenter
@@ -158,25 +187,6 @@ private extension CollectiblesMachineViewModelTests {
             currencyCode: "USD",
             machine: machine()
         )
-    }
-
-    func waitUntil(
-        timeout: Duration = .seconds(5),
-        _ condition: @escaping @MainActor () -> Bool
-    ) async {
-        let deadline = ContinuousClock.now + timeout
-        while !condition() {
-            if ContinuousClock.now >= deadline {
-                Issue.record("waitUntil timed out")
-                return
-            }
-            // Respects the suite's time limit: swallowing the cancellation would spin the loop to its own deadline.
-            do {
-                try await Task.sleep(for: .milliseconds(10))
-            } catch {
-                return
-            }
-        }
     }
 
     /// Waits for the loop to unwind so the leak check does not race the in-flight request.
@@ -221,6 +231,11 @@ private extension CollectiblesMachineViewModelTests {
 
 // MARK: - Stubs
 
+private final class RelinkStatusProviderStub: CollectiblesRelinkStatusProvider {
+    var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> { Just(true).eraseToAnyPublisher() }
+    var isRelinkingPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
+}
+
 /// The pool is not under test here, an empty page keeps its view model quiet.
 private struct PrizePoolProviderStub: CollectiblesPrizePoolProvider {
     func load(machineID: String, page: Int) async throws -> CollectiblesPrizePoolPage {
@@ -247,18 +262,43 @@ private final class MachineProviderStub: CollectiblesMachineProvider {
     }
 }
 
+private final class ObservedNotificationCenter: NotificationCenter, @unchecked Sendable {
+    private let observedNames = OSAllocatedUnfairLock(initialState: Set<Notification.Name>())
+
+    func isObserving(_ events: AppEvent...) -> Bool {
+        observedNames.withLock { $0.isSuperset(of: events.map(\.name)) }
+    }
+
+    override func addObserver(
+        forName name: NSNotification.Name?,
+        object obj: Any?,
+        queue: OperationQueue?,
+        using block: @escaping @Sendable (Notification) -> Void
+    ) -> any NSObjectProtocol {
+        if let name {
+            observedNames.withLock { _ = $0.insert(name) }
+        }
+
+        return super.addObserver(forName: name, object: obj, queue: queue, using: block)
+    }
+}
+
 private extension NotificationCenter {
     enum AppEvent {
         case didEnterBackground
         case willEnterForeground
+
+        var name: Notification.Name {
+            switch self {
+            case .didEnterBackground: UIApplication.didEnterBackgroundNotification
+            case .willEnterForeground: UIApplication.willEnterForegroundNotification
+            }
+        }
     }
 
     @discardableResult
     func post(_ event: AppEvent) -> Bool {
-        switch event {
-        case .didEnterBackground: post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-        case .willEnterForeground: post(name: UIApplication.willEnterForegroundNotification, object: nil)
-        }
+        post(name: event.name, object: nil)
         return true
     }
 }

@@ -81,12 +81,13 @@ private extension MarketsPortfolioTokenListView {
                 }
             }
 
-            TangemButton(
-                content: .icon(Assets.DesignSystem.close),
+            TangemUI.Button(
+                icon: Assets.DesignSystem.close,
+                accessibilityLabel: Localization.commonClose,
                 action: viewModel.onCloseTap
             )
-            .setStyleType(.secondary)
-            .setSize(.x10)
+            .styleType(.secondary(.default))
+            .size(.x10)
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
@@ -141,13 +142,14 @@ private extension MarketsPortfolioTokenListView {
 
             Spacer(minLength: 8)
 
-            TangemButton(
-                content: .text(AttributedString(Localization.marketsAddToken)),
+            TangemUI.Button(
+                label: Localization.marketsAddToken,
+                accessibilityLabel: nil,
                 action: action ?? {}
             )
-            .setSize(.x9)
-            .setStyleType(.secondary)
-            .setButtonState(isLoading: false, isDisabled: action == nil)
+            .size(.x9)
+            .styleType(.secondary(.default))
+            .disabled(action == nil)
             .accessibilityIdentifier(MainAccessibilityIdentifiers.addToPortfolioButton)
         }
         .padding(.horizontal, 24)
@@ -255,7 +257,7 @@ private extension MarketsPortfolioTokenListView {
 private extension MarketsPortfolioTokenListView {
     func tokenRows(_ items: [ViewModel.TokenRow]) -> some View {
         VStack(spacing: tokenRowsSpacing) {
-            ForEach(Array(items.enumerated()), id: \.offset) { _, item in
+            ForEach(indexed: items, id: \.0) { _, item in
                 token(row: item)
             }
         }

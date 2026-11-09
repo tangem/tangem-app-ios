@@ -31,9 +31,9 @@ struct BlockchainAccountInitializationView: View {
 
             VStack(spacing: 14) {
                 Text(Localization.stakingAccountInitializationTitle)
-                    .style(Fonts.Bold.title2, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title2, color: DesignSystem.Color.textPrimary)
                 Text(Localization.stakingAccountInitializationMessage)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                     .lineLimit(nil)
                     .multilineTextAlignment(.center)
             }
@@ -45,7 +45,7 @@ struct BlockchainAccountInitializationView: View {
                 } footer: {
                     DefaultFooterView(Localization.stakingAccountInitializationFooter)
                 }
-                .backgroundColor(Colors.Background.action)
+                .backgroundColor(DesignSystem.Color.bgSecondary)
 
                 SigningActionButtonView(
                     type: viewModel.signingActionButtonType,
@@ -58,7 +58,7 @@ struct BlockchainAccountInitializationView: View {
             .padding(.vertical, 16)
         }
         .padding(.horizontal, 16)
-        .background(Colors.Background.tertiary)
+        .background(DesignSystem.Color.bgPrimary)
         .onAppear {
             viewModel.onAppear()
         }

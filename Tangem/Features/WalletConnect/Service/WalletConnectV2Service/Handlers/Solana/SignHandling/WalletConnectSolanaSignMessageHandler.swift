@@ -34,7 +34,13 @@ struct WalletConnectSolanaSignMessageHandler {
                 throw WalletConnectTransactionRequestProcessingError.walletModelNotFound(blockchainNetworkID: blockchainId)
             }
 
-            guard !SolanaTransactionHelper().isTransactionMessage(parameters.message.base58DecodedData) else {
+            let payload = parameters.message.base58DecodedData
+
+            if walletModel.publicKey.isSharedAcrossBlockchains, !payload.isPlainTextMessage {
+                throw WalletConnectTransactionRequestProcessingError.invalidPayload("solana_signMessage payload must be a text message on a wallet whose key is shared across blockchains")
+            }
+
+            guard !SolanaTransactionHelper().isTransactionMessage(payload) else {
                 throw WalletConnectTransactionRequestProcessingError.invalidPayload("solana_signMessage payload is a serialized Solana transaction")
             }
 
@@ -80,4 +86,33 @@ extension WalletConnectSolanaSignMessageHandler: WalletConnectMessageHandler {
             return .error(.internalError)
         }
     }
+}
+
+// MARK: - Shared key detection
+
+private extension Wallet.PublicKey {
+    var isSharedAcrossBlockchains: Bool {
+        derivationType == nil
+    }
+}
+
+// MARK: - Plain text message detection
+
+private extension Data {
+    var isPlainTextMessage: Bool {
+        guard count != Constants.digestLength, let text = String(data: self, encoding: .utf8), !text.isEmpty else {
+            return false
+        }
+
+        return text.unicodeScalars.allSatisfy { scalar in
+            Constants.allowedControlCharacters.contains(scalar) || !CharacterSet.controlCharacters.contains(scalar)
+        }
+    }
+}
+
+// MARK: - Constants
+
+private enum Constants {
+    static let digestLength = 32
+    static let allowedControlCharacters: Set<Unicode.Scalar> = ["\n", "\r", "\t"]
 }

@@ -12,6 +12,7 @@ import Combine
 
 final class CommonPushNotificationsInteractor {
     @Injected(\.pushNotificationsPermission) private var pushNotificationsPermissionsService: PushNotificationsPermissionService
+    @Injected(\.pushNotificationsEventsPublisher) private var pushNotificationsEventsPublisher: PushNotificationEventsPublishing
 
     @AppStorageCompat(StorageKeys.canRequestAuthorization)
     private var canRequestAuthorization = Constants.canRequestAuthorizationDefaultValue
@@ -33,6 +34,7 @@ final class CommonPushNotificationsInteractor {
 
     private var didPostponeAuthorizationRequestOnWalletOnboardingInCurrentSession = false
     private var didSuppressAfterLoginRequestsInCurrentSession = false
+    private var authorizationSubscription: AnyCancellable?
 
     private func registerIfPossible() {
         runTask(in: self) { interactor in
@@ -169,6 +171,38 @@ extension CommonPushNotificationsInteractor: Initializable {
     func initialize() {
         resetPushNotificationsAuthorizationRequestCounterIfNeeded()
         registerIfPossible()
+        bindAuthorizationUpdates()
+    }
+
+    private func bindAuthorizationUpdates() {
+        let grantedOnRequest = pushNotificationsEventsPublisher
+            .eventsPublisher
+            .compactMap { event -> Void? in
+                switch event {
+                case .authorization(.granted):
+                    return ()
+                case .authorization, .receivedResponse:
+                    return nil
+                }
+            }
+
+        let authorizedOnActivation = pushNotificationsPermissionsService
+            .isAuthorizedPublisher
+            .compactMap { isAuthorized -> Void? in
+                isAuthorized ? () : nil
+            }
+
+        authorizationSubscription = grantedOnRequest
+            .merge(with: authorizedOnActivation)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { interactor, _ in
+                guard interactor.canRequestAuthorization else {
+                    return
+                }
+
+                interactor.stopAllFeatureAuthorizationRequests()
+            }
     }
 
     private func resetPushNotificationsAuthorizationRequestCounterIfNeeded() {

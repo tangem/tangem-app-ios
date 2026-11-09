@@ -27,12 +27,12 @@ struct CryptoAccountNameUniquenessChecker {
     }
 
     private func existingNames(from remoteState: CryptoAccountsRemoteState) -> [String] {
-        var existingNames = remoteState
-            .accounts
+        let ownAccounts = remoteState.accounts.filter { $0.derivationIdentity.type != .collectibles }
+        var existingNames = ownAccounts
             .compactMap { $0.name?.trimmed() }
 
         // Default localized name for main accounts should be considered only if it is actually used
-        if remoteState.accounts.contains(where: { $0.name == nil }) {
+        if ownAccounts.contains(where: { $0.name == nil }) {
             existingNames.append(Localization.accountMainAccountTitle)
         }
 

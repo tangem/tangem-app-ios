@@ -65,7 +65,7 @@ struct TangemPayAddToAppPayGuideView: View {
     var steps: some View {
         VStack(alignment: .leading, spacing: 24) {
             Text(Localization.tangempayCardDetailsOpenWalletTitleApple)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.leading)
 
             VStack(alignment: .leading, spacing: 16) {
@@ -93,7 +93,7 @@ struct TangemPayAddToAppPayGuideView: View {
             .fixedSize()
 
             Text(text)
-                .style(DesignSystem.Font.subheadingMediumToken, color: Colors.Text.primary1)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.leading)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

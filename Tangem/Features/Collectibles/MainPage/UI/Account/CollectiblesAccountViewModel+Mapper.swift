@@ -15,18 +15,14 @@ extension CollectiblesAccountViewModel {
     enum Mapper {
         private static let balanceFormatter = BalanceFormatter()
 
-        static func map(
-            fiat: FormattedTokenBalanceType,
-            usdc: TokenBalanceType,
-            isRefreshing: Bool
-        ) -> CollectiblesAccountView.Summary {
+        static func map(fiat: FormattedTokenBalanceType, usdc: TokenBalanceType) -> CollectiblesAccountView.Summary {
             CollectiblesAccountView.Summary(
                 fiatBalance: fiatBalanceState(settled(fiat, usdc: usdc)),
                 fiatBalancePlainText: fiat.value,
                 cryptoBalanceText: cryptoBalanceText(usdc.value),
                 collectionCountText: collectionCountText(Constants.collectionCardsCount),
                 isWithdrawalAvailable: usdc.mayHaveFunds,
-                isBalanceUpdating: isRefreshing || usdc.isLoading
+                isUsdcLoading: usdc.isLoading
             )
         }
     }

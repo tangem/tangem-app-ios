@@ -24,7 +24,7 @@ struct PromoCampaignTableBlockView: View {
                 row(cells: table.headers, color: DesignSystem.Color.textSecondary, showsDivider: true)
             }
 
-            ForEach(Array(table.rows.enumerated()), id: \.offset) { index, cells in
+            ForEach(indexed: table.rows, id: \.0) { index, cells in
                 row(cells: cells, color: DesignSystem.Color.textPrimary, showsDivider: index < table.rows.count - 1)
             }
         }
@@ -54,7 +54,7 @@ struct PromoCampaignTableBlockView: View {
 
     private func valuesView(_ values: [String], color: Color) -> some View {
         HStack(alignment: .top, spacing: 8) {
-            ForEach(Array(values.enumerated()), id: \.offset) { _, value in
+            ForEach(indexed: values, id: \.0) { _, value in
                 Text(value)
                     .style(DesignSystem.Font.bodyMediumToken, color: color)
                     .multilineTextAlignment(.trailing)

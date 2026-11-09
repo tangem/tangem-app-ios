@@ -327,7 +327,7 @@ private extension WCTransactionViewModel {
     }
 }
 
-extension WCTransactionViewModel: @preconcurrency WCFeeInteractorOutput {
+extension WCTransactionViewModel: @MainActor WCFeeInteractorOutput {
     func feeDidChanged(fee: WCFee) {
         Task { @MainActor in
             selectedFee = fee

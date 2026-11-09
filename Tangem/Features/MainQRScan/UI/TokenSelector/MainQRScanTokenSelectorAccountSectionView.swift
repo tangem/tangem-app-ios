@@ -37,7 +37,7 @@ struct MainQRScanTokenSelectorAccountSectionView: View {
         } header: {
             TokenSelectorAccountHeaderView(header: headerOverride ?? viewModel.header)
         }
-        .backgroundColor(Colors.Background.action)
+        .backgroundColor(DesignSystem.Color.bgSecondary)
     }
 
     private func makeRows(

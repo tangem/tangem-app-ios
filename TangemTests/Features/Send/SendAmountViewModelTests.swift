@@ -53,6 +53,67 @@ struct SendAmountViewModelTests {
         #expect(rebuildCount == 1)
         cancellable.cancel()
     }
+
+    @MainActor
+    @Test(
+        "Losing the fixed rate after a receive amount was entered quotes the send amount instead",
+        .enabled(if: FeatureProvider.isAvailable(.hideRejectedSwapProviders))
+    )
+    func losingFixedRateQuotesSendAmount() async throws {
+        let (sut, interactor) = try await loseFixedRateAfterEnteringReceiveAmount()
+
+        #expect(sut.activeField == .send)
+        #expect(interactor.sourceAmountUpdates == [2])
+    }
+
+    @MainActor
+    @Test(
+        "A failed provider load after a receive amount was entered keeps the receive amount",
+        .enabled(if: FeatureProvider.isAvailable(.hideRejectedSwapProviders))
+    )
+    func failedProviderLoadKeepsReceiveAmount() async throws {
+        let (_, interactor) = try await loseFixedRateAfterEnteringReceiveAmount(then: [[]])
+
+        #expect(interactor.sourceAmountUpdates.isEmpty)
+    }
+
+    @MainActor
+    @Test(
+        "Only float providers loading after a failed load quotes the send amount instead",
+        .enabled(if: FeatureProvider.isAvailable(.hideRejectedSwapProviders))
+    )
+    func floatOnlyAfterFailedLoadQuotesSendAmount() async throws {
+        let (_, interactor) = try await loseFixedRateAfterEnteringReceiveAmount(then: [[], [.float]])
+
+        #expect(interactor.sourceAmountUpdates == [2])
+    }
+
+    @MainActor
+    @Test(
+        "Without the toggle, losing the fixed rate after a receive amount was entered does not quote the send amount",
+        .enabled(if: !FeatureProvider.isAvailable(.hideRejectedSwapProviders))
+    )
+    func losingFixedRateWithoutToggleKeepsReceiveAmount() async throws {
+        let (_, interactor) = try await loseFixedRateAfterEnteringReceiveAmount()
+
+        #expect(interactor.sourceAmountUpdates.isEmpty)
+    }
+
+    @MainActor
+    @Test("Losing the fixed rate after a send amount was entered does not quote again")
+    func losingFixedRateKeepsSendAmountQuote() async throws {
+        let rateTypes = CurrentValueSubject<Set<ExpressProviderRateType>, Never>([.fixed, .float])
+        let interactor = InteractorStub()
+        let sut = makeSUT(providerRateTypesPublisher: rateTypes.eraseToAnyPublisher(), interactor: interactor)
+        _ = try await sut.$providerRateTypes.first { $0.contains(.fixed) }.async()
+
+        sut.sourceAmountField.onValueChanged?(2)
+
+        rateTypes.send([.float])
+        _ = try await sut.$providerRateTypes.first { !$0.contains(.fixed) }.async()
+
+        #expect(interactor.sourceAmountUpdates == [2])
+    }
 }
 
 private extension SendAmountViewModelTests {
@@ -61,18 +122,47 @@ private extension SendAmountViewModelTests {
         return .token(token, .init(blockchain, derivationPath: nil))
     }
 
+    @MainActor
+    func loseFixedRateAfterEnteringReceiveAmount(
+        then updates: [Set<ExpressProviderRateType>] = [[.float]]
+    ) async throws -> (SendAmountViewModel, InteractorStub) {
+        let rateTypes = CurrentValueSubject<Set<ExpressProviderRateType>, Never>([.fixed, .float])
+        let interactor = InteractorStub()
+        let sut = makeSUT(providerRateTypesPublisher: rateTypes.eraseToAnyPublisher(), interactor: interactor)
+        _ = try await sut.$providerRateTypes.first { $0.contains(.fixed) }.async()
+
+        let usdt = Self.usdt(contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7", blockchain: .ethereum(testnet: false))
+        sut.updateDestinationToken(destinationToken: SendSourceTokenStub(tokenItem: usdt), amount: .loading, isApproximate: false)
+        sut.destinationAmountField?.onValueChanged?(23)
+        sut.sourceAmountField.updateAmountsUI(amount: SendAmount(type: .typical(crypto: 2, fiat: 23)))
+
+        updates.forEach(rateTypes.send)
+        _ = try await sut.$providerRateTypes.first { $0 == updates.last }.async()
+
+        return (sut, interactor)
+    }
+
     func makeSUT(providerRateTypes: Set<ExpressProviderRateType>) -> SendAmountViewModel {
+        makeSUT(providerRateTypesPublisher: .just(output: providerRateTypes), interactor: InteractorStub())
+    }
+
+    func makeSUT(
+        providerRateTypesPublisher: AnyPublisher<Set<ExpressProviderRateType>, Never>,
+        interactor: InteractorStub
+    ) -> SendAmountViewModel {
         SendAmountViewModel(
             sourceToken: SendSourceTokenStub(),
             flowActionType: .send,
-            interactor: InteractorStub(),
+            interactor: interactor,
             analyticsLogger: AnalyticsLoggerStub(),
             shouldStartFromTokensList: false,
-            providerRateTypesPublisher: .just(output: providerRateTypes)
+            providerRateTypesPublisher: providerRateTypesPublisher
         )
     }
 
     final class InteractorStub: SendAmountInteractor {
+        private(set) var sourceAmountUpdates: [Decimal?] = []
+
         var isReceiveTokenSelectionAvailable: Bool { true }
         var sourceFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { .just(output: nil) }
         var receiveFieldInfoPublisher: AnyPublisher<SendAmountViewModel.BottomInfoTextType?, Never> { .just(output: nil) }
@@ -84,11 +174,18 @@ private extension SendAmountViewModelTests {
         var highPriceImpactPublisher: AnyPublisher<HighPriceImpactCalculator.Result?, Never> { .just(output: nil) }
         var isReceiveAmountApproximatePublisher: AnyPublisher<Bool, Never> { .just(output: false) }
 
-        func update(sourceAmount: Decimal?) throws -> SendAmount? { nil }
+        func update(sourceAmount: Decimal?) throws -> SendAmount? {
+            sourceAmountUpdates.append(sourceAmount)
+            return sourceAmount.map { SendAmount(type: .typical(crypto: $0, fiat: $0)) }
+        }
+
         func update(sourceCryptoAmount: Decimal?) throws -> SendAmount? { nil }
         func update(sourceType: SendAmountCalculationType) throws -> SendAmount? { nil }
         func updateToMaxAmount() throws -> SendAmount { SendAmount(type: .typical(crypto: 0, fiat: 0)) }
-        func update(receiveAmount: Decimal?) -> SendAmount? { nil }
+        func update(receiveAmount: Decimal?) -> SendAmount? {
+            receiveAmount.map { SendAmount(type: .typical(crypto: $0, fiat: $0)) }
+        }
+
         func update(receiveType: SendAmountCalculationType) {}
         func validateExternalSourceAmount(_ amount: SendAmount?) {}
         func userDidRequestClearReceiveToken() {}

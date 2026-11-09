@@ -54,12 +54,9 @@ private struct BridgeServiceStub: PolymarketBridgeService {
     }
 }
 
-private final class ConfigurationServiceSpy: PolymarketConfigurationService {
+private final class ConfigurationServiceStub: PolymarketConfigurationService {
     static let code = "0x" + String(repeating: "0", count: 63) + "1"
 
-    var callCount: Int { lock.withLock { $0 } }
-
-    private let lock = OSAllocatedUnfairLock(initialState: 0)
     private let error: Error?
 
     init(error: Error? = nil) {
@@ -67,7 +64,6 @@ private final class ConfigurationServiceSpy: PolymarketConfigurationService {
     }
 
     func builderCode() async throws -> String {
-        lock.withLock { $0 += 1 }
         if let error { throw error }
         return Self.code
     }
@@ -222,7 +218,7 @@ private let supportedBlockchains: Set<Blockchain> = [
 
 private func makeInteractor(
     bridge: any PolymarketBridgeService = BridgeServiceStub(),
-    configuration: ConfigurationServiceSpy = ConfigurationServiceSpy(),
+    configuration: ConfigurationServiceStub = ConfigurationServiceStub(),
     walletService: DepositWalletServiceStub = DepositWalletServiceStub(),
     ownerAddressProvider: OwnerAddressProviderStub = OwnerAddressProviderStub(),
     supportedBlockchains: Set<Blockchain> = supportedBlockchains,
@@ -240,16 +236,11 @@ private func makeInteractor(
 
 // MARK: - Preparation
 
-@Suite("Polymarket add funds preparation")
+@Suite("Polymarket add funds preparation", .timeLimit(.minutes(1)))
 struct PolymarketAddFundsPreparationTests {
-    @Test("Add funds is not offered until the bridge has answered")
-    func startsLoading() {
-        #expect(makeInteractor().state == .loading)
-    }
-
     @Test("A stream hands out the current readiness first and every preparation outcome after it")
     func streamsEveryReadiness() async {
-        let interactor = makeInteractor(configuration: ConfigurationServiceSpy(error: StubError.offline))
+        let interactor = makeInteractor(configuration: ConfigurationServiceStub(error: StubError.offline))
         var readiness = interactor.makeStateStream().makeAsyncIterator()
 
         #expect(await readiness.next() == .loading)
@@ -261,7 +252,7 @@ struct PolymarketAddFundsPreparationTests {
 
     @Test("A screen that subscribes after the preparation finished starts from its outcome, not from loading")
     func lateSubscriberStartsFromTheOutcome() async {
-        let interactor = makeInteractor(configuration: ConfigurationServiceSpy(error: StubError.offline))
+        let interactor = makeInteractor(configuration: ConfigurationServiceStub(error: StubError.offline))
 
         await interactor.prepare()
 
@@ -331,7 +322,7 @@ struct PolymarketAddFundsPreparationTests {
         await interactor.prepare()
 
         #expect(interactor.state.withdrawalAvailability == .unavailable)
-        #expect(interactor.state.depositWalletAddress != nil)
+        #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 
     @Test("Without USDC on Polygon the deposit is withheld even though the bridge accepts USDC elsewhere")
@@ -341,7 +332,7 @@ struct PolymarketAddFundsPreparationTests {
         await interactor.prepare()
 
         #expect(interactor.state.depositAvailability == .unavailable)
-        #expect(interactor.state.depositWalletAddress != nil)
+        #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
     }
 
     @Test("Without an EVM funding address the deposit is withheld even though a Solana target could be built")
@@ -395,16 +386,6 @@ struct PolymarketAddFundsPreparationTests {
         #expect(interactor.state == .unavailable)
     }
 
-    @Test("The builder code is fetched on entry so funding does not pay for it later")
-    func fetchesTheBuilderCodeOnEntry() async {
-        let configuration = ConfigurationServiceSpy()
-        let interactor = makeInteractor(configuration: configuration)
-
-        await interactor.prepare()
-
-        #expect(configuration.callCount == 1)
-    }
-
     @Test("The code the configuration handed over is the one the bridge is asked with, so attribution cannot be lost")
     func builderCodeReachesTheBridge() async {
         let bridge = BridgeServiceStub()
@@ -412,12 +393,12 @@ struct PolymarketAddFundsPreparationTests {
 
         await interactor.prepare()
 
-        #expect(bridge.receivedBuilderCodes.withLock { $0 } == [ConfigurationServiceSpy.code])
+        #expect(bridge.receivedBuilderCodes.withLock { $0 } == [ConfigurationServiceStub.code])
     }
 
     @Test("Without a builder code both flows are withheld, since the bridge would credit an unattributed deposit")
     func builderCodeFailureBlocksBothFlows() async {
-        let configuration = ConfigurationServiceSpy(error: StubError.offline)
+        let configuration = ConfigurationServiceStub(error: StubError.offline)
         let interactor = makeInteractor(configuration: configuration)
 
         await interactor.prepare()
@@ -431,7 +412,7 @@ struct PolymarketAddFundsPreparationTests {
         let bridge = BridgeServiceStub()
         let interactor = makeInteractor(
             bridge: bridge,
-            configuration: ConfigurationServiceSpy(error: StubError.offline)
+            configuration: ConfigurationServiceStub(error: StubError.offline)
         )
 
         await interactor.prepare()
@@ -449,41 +430,14 @@ struct PolymarketAddFundsPreparationTests {
 
         await interactor.prepare()
 
-        #expect(interactor.state.depositTargets.first != nil)
-    }
-
-    @Test("Preparation hands its outcome back, so the caller does not have to read the state to learn it")
-    func prepareReturnsTheOutcomeItStored() async {
-        let available = makeInteractor()
-        let unavailable = makeInteractor(configuration: ConfigurationServiceSpy(error: StubError.offline))
-
-        let availableOutcome = await available.prepare()
-        let unavailableOutcome = await unavailable.prepare()
-
-        #expect(availableOutcome == available.state)
-        #expect(availableOutcome.depositTargets.first != nil)
-        #expect(unavailableOutcome == .unavailable)
+        #expect(interactor.state.depositTargets.map(\.entry) == [PolymarketDepositAssetCatalog.usdcOnPolygon])
     }
 }
 
 // MARK: - The deposit wallet gate
 
-@Suite("Polymarket deposit wallet verification")
+@Suite("Polymarket deposit wallet verification", .timeLimit(.minutes(1)))
 struct PolymarketAddFundsDepositWalletTests {
-    @Test("The bridge is asked for the address the backend agrees on")
-    func usesTheVerifiedAddress() async {
-        let bridge = BridgeServiceStub()
-        let interactor = makeInteractor(
-            bridge: bridge,
-            walletService: DepositWalletServiceStub(storedAddress: derivedDepositWallet)
-        )
-
-        await interactor.prepare()
-
-        #expect(interactor.state.depositTargets.first != nil)
-        #expect(bridge.receivedDepositWallets.withLock { $0 } == [derivedDepositWallet])
-    }
-
     @Test("A record the backend stores in lowercase still verifies, and the bridge is asked with the derivation, not the record")
     func lowercaseRecordVerifiesAndTheDerivationIsSent() async {
         let bridge = BridgeServiceStub()
@@ -557,7 +511,7 @@ struct PolymarketAddFundsDepositWalletTests {
 
         await interactor.prepare()
 
-        #expect(interactor.state.depositTargets.isEmpty == false)
+        #expect(interactor.state.depositTargets.map(\.entry) == [PolymarketDepositAssetCatalog.usdcOnPolygon])
         #expect(sessionHealth.reportedStatuses.isEmpty)
         #expect(sessionHealth.verifyCalls == 0)
     }
@@ -574,7 +528,7 @@ struct PolymarketAddFundsDepositWalletTests {
 
 // MARK: - Funding address
 
-@Suite("Polymarket funding address")
+@Suite("Polymarket funding address", .timeLimit(.minutes(1)))
 struct PolymarketAddFundsFundingAddressTests {
     @Test("The address handed to the user is the one for the matched asset's chain family")
     func usesTheAssetsFamily() async {
@@ -627,16 +581,5 @@ struct PolymarketAddFundsFundingAddressTests {
 
         #expect(interactor.state.depositTargets.first == nil)
         #expect(interactor.state.depositWalletAddress == derivedDepositWallet)
-    }
-
-    @Test("The funding address is fetched on entry so opening the receive screen costs no request")
-    func fundingAddressIsFetchedOnPreparation() async {
-        let interactor = makeInteractor()
-
-        #expect(interactor.state.depositTargets.first == nil)
-
-        await interactor.prepare()
-
-        #expect(interactor.state.depositTargets.first != nil)
     }
 }

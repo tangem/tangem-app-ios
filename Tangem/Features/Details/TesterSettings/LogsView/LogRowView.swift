@@ -26,7 +26,7 @@ struct LogRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(data.log.message)
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
 
             HStack(spacing: 4) {
                 Group {
@@ -35,7 +35,7 @@ struct LogRowView: View {
                     Text(AppConstants.dotSign)
 
                     Text(data.log.level)
-                }.style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                }.style(Fonts.Bold.caption1, color: DesignSystem.Color.textSecondary)
 
                 Spacer()
 
@@ -44,7 +44,7 @@ struct LogRowView: View {
 
                     Text(data.log.time)
                 }
-                .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
             }
             .lineLimit(1)
         }

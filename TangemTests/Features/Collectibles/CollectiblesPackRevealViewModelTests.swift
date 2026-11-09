@@ -272,22 +272,6 @@ private extension CollectiblesPackRevealViewModelTests {
             return condition()
         }
     }
-
-    func waitUntil(timeout: Duration = .seconds(5), _ condition: @escaping @MainActor () -> Bool) async {
-        let deadline = ContinuousClock.now + timeout
-        while !condition() {
-            if ContinuousClock.now >= deadline {
-                Issue.record("waitUntil timed out")
-                return
-            }
-
-            do {
-                try await Task.sleep(for: .milliseconds(10))
-            } catch {
-                return
-            }
-        }
-    }
 }
 
 private extension NotificationCenter {

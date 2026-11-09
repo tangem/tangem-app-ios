@@ -16,7 +16,7 @@ struct JointAccountPendingOperationsProviderMock: JointAccountPendingOperationsP
         Just([]).eraseToAnyPublisher()
     }
 
-    func requestFrequentUpdates() -> AnyCancellable {
-        AnyCancellable {}
+    func requestFrequentUpdates(operationId: String) -> AnyCancellable? {
+        nil
     }
 }

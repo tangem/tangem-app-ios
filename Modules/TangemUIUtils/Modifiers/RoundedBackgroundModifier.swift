@@ -69,7 +69,7 @@ public extension View {
     }
 
     func defaultRoundedBackground(
-        with color: Color = Colors.Background.primary,
+        with color: Color = DesignSystem.Color.bgSecondary,
         verticalPadding: CGFloat = Self.defaultVerticalPadding,
         horizontalPadding: CGFloat = Self.defaultHorizontalPadding,
         cornerRadius: CGFloat = Self.defaultCornerRadius,

@@ -30,6 +30,7 @@ extension EtherscanTransactionHistoryTarget {
     enum Target {
         case getCoinTransactionHistory(address: String, page: Int, limit: Int)
         case getTokenTransactionHistory(address: String, contract: String, page: Int, limit: Int)
+        case getTransaction(hash: String)
     }
 }
 
@@ -100,6 +101,17 @@ extension EtherscanTransactionHistoryTarget: TargetType {
                     parameters: parameters,
                     encoding: URLEncoding.queryString
                 )
+            case .getTransaction(let hash):
+                return .requestParameters(
+                    parameters: [
+                        "module": "proxy",
+                        "action": "eth_getTransactionByHash",
+                        "txhash": hash,
+                        "chainid": chainId,
+                        "apikey": apiKey,
+                    ],
+                    encoding: URLEncoding.queryString
+                )
             }
         case .adi, .igra, .electroneum, .onyx, .zkSync:
             var parameters: [String: Any] = [
@@ -129,6 +141,15 @@ extension EtherscanTransactionHistoryTarget: TargetType {
 
                 return .requestParameters(
                     parameters: parameters,
+                    encoding: URLEncoding.queryString
+                )
+            case .getTransaction(let hash):
+                return .requestParameters(
+                    parameters: [
+                        "module": "proxy",
+                        "action": "eth_getTransactionByHash",
+                        "txhash": hash,
+                    ],
                     encoding: URLEncoding.queryString
                 )
             }

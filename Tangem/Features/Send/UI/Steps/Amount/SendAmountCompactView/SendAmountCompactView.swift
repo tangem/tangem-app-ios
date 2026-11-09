@@ -47,7 +47,7 @@ struct SendAmountCompactView: View {
             }
 
             if let sendSwapProviderCompactViewData = viewModel.sendSwapProviderCompactViewData {
-                Separator(color: Colors.Stroke.primary)
+                Separator(color: DesignSystem.Color.borderSecondary)
                     .padding(.horizontal, 14)
 
                 SwiftUI.Button(action: viewModel.userDidTapProvider) {
@@ -61,7 +61,7 @@ struct SendAmountCompactView: View {
                 .allowsHitTesting(tappable)
             }
         }
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0, horizontalPadding: 0)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 0, horizontalPadding: 0)
     }
 }
 

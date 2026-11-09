@@ -43,6 +43,12 @@ struct NotificationView: View {
         .background(settings.event.colorScheme.background)
         .colorTheme(settings.event.colorTheme)
         .cornerRadiusContinuous(14)
+        .overlay {
+            if let borderColor = settings.event.colorScheme.borderColor {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(borderColor, lineWidth: 1)
+            }
+        }
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier(settings.event.accessibilityIdentifier)
     }
@@ -81,7 +87,7 @@ struct NotificationView: View {
                     if hasChevron {
                         Spacer()
                         Assets.chevronRight.image
-                            .foregroundColor(Colors.Icon.inactive)
+                            .foregroundColor(DesignSystem.Color.iconTertiary)
                     }
                 }
             }
@@ -166,7 +172,7 @@ struct NotificationView: View {
             case .progressView:
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle())
-                    .foregroundColor(Colors.Icon.informative)
+                    .foregroundColor(DesignSystem.Color.iconSecondary)
             case .placeholder:
                 Color.clear
             case .yieldModuleIcon(let id):
@@ -190,7 +196,7 @@ struct NotificationView: View {
                     .frame(size: settings.event.icon.yieldModuleIconSize)
                     .background(
                         Circle()
-                            .fill(Colors.Background.tertiary)
+                            .fill(DesignSystem.Color.bgPrimary)
                             .frame(size: settings.event.icon.yieldModuleIconSize + CGSize(bothDimensions: 2))
                     ),
                 alignment: .bottomTrailing
@@ -309,5 +315,5 @@ private extension View {
         .infinityFrame()
     }
     .infinityFrame()
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }

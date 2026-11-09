@@ -16,7 +16,7 @@ let WalletCardsReporterLogger = AppLogger.tag("WalletCardsReporter")
 /// service stays free of the SDK state machine. The report is persisted locally and delivered to the back end
 /// per wallet, once the wallet a card belongs to is known.
 protocol WalletCardsBackupReportService: Initializable {
-    /// Backup ceremony — a card was linked or finalized.
+    /// A card was linked or finalized in the backup ceremony, or added with its wallet.
     func reportCard(_ card: WalletCardsCurrentlyProcessedCard, primaryCardId: String)
 
     /// Backup ceremony — a finalize step failed.
@@ -31,6 +31,26 @@ extension WalletCardsBackupReportService {
         let processed = WalletCardsCurrentlyProcessedCard(cardInfo: cardInfo, role: .primary)
         reportCard(processed, primaryCardId: cardInfo.card.cardId)
     }
+
+    func reportAddedWalletCard(userWalletModel: UserWalletModel) {
+        guard FeatureProvider.isAvailable(.walletCardsBackupReportWithoutRole),
+              !userWalletModel.config.isDemo,
+              let card = (userWalletModel.config as? WalletOnboardingStepsBuilderFactory)?.card,
+              card.settings.isBackupAllowed,
+              card.backupStatus != nil else {
+            return
+        }
+
+        let processed = WalletCardsCurrentlyProcessedCard(
+            cardId: card.cardId,
+            cardPublicKey: card.cardPublicKey,
+            role: nil,
+            identity: .filled(userWalletId: userWalletModel.userWalletId.stringValue, isImported: userWalletModel.hasImportedWallets),
+            curves: card.walletCurves,
+            backupStatus: card.backupStatus.map(WalletCardsBackupCard.BackupStatus.init)
+        )
+        reportCard(processed, primaryCardId: card.cardId)
+    }
 }
 
 extension InjectedValues {
@@ -43,17 +63,5 @@ extension InjectedValues {
 // MARK: - Private implementation
 
 private struct WalletCardsBackupReportServiceInjectionKey: InjectionKey {
-    static var currentValue: WalletCardsBackupReportService = {
-        guard FeatureProvider.isAvailable(.walletCardsBackupReport) else {
-            return DummyWalletCardsBackupReportService()
-        }
-
-        return CommonWalletCardsBackupReportService()
-    }()
-}
-
-private struct DummyWalletCardsBackupReportService: WalletCardsBackupReportService {
-    func initialize() {}
-    func reportCard(_ card: WalletCardsCurrentlyProcessedCard, primaryCardId: String) {}
-    func reportFailure(_ card: WalletCardsCurrentlyProcessedCard, primaryCardId: String, error: TangemSdkError) {}
+    static var currentValue: WalletCardsBackupReportService = CommonWalletCardsBackupReportService()
 }

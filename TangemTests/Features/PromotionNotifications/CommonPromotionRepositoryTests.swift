@@ -373,6 +373,13 @@ private final class PromoCampaignsProviderStub: PromoCampaignsProviding {
             .eraseToAnyPublisher()
     }
 
+    func settledCampaignsPublisher(for userWalletId: UserWalletId) -> AnyPublisher<PromoCampaignsSettlement, Never> {
+        subject
+            .compactMap { $0[userWalletId].map(PromoCampaignsSettlement.loaded) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     func reloadCampaigns(for userWalletIds: [UserWalletId]) {}
 
     func removeCampaign(withId campaignId: Int) {}

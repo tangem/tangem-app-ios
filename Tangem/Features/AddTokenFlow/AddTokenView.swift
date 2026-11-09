@@ -23,17 +23,17 @@ struct AddTokenView: View {
     var body: some View {
         VStack(spacing: 0) {
             EntitySummaryView(viewState: viewModel.tokenItemViewState, kingfisherImageCache: .default)
-                .defaultRoundedBackground(with: Colors.Background.action)
+                .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
                 .padding(.bottom, 14)
 
             VStack(spacing: .zero) {
                 accountWalletSelector
 
-                Separator(height: .minimal, color: Colors.Stroke.primary)
+                Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
 
                 networkSelector
             }
-            .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 0)
+            .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 0)
             .padding(.bottom, 24)
 
             MainButton(
@@ -70,7 +70,7 @@ struct AddTokenView: View {
         switch viewModel.accountWalletSelectorState.trailingContent {
         case .walletName(let name):
             Text(name)
-                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
 
         case .account(let iconData, let name):
             HStack(spacing: 4) {
@@ -78,7 +78,7 @@ struct AddTokenView: View {
                     .settings(.smallSized)
 
                 Text(name)
-                    .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
             }
         }
     }
@@ -108,7 +108,7 @@ struct AddTokenView: View {
             )
 
             Text(viewModel.networkSelectorState.trailingContent.name)
-                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
         }
     }
 }

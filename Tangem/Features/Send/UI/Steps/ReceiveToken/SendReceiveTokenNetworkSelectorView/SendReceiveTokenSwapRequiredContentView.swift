@@ -34,12 +34,12 @@ struct SendReceiveTokenSwapRequiredContentView: View {
 
                 VStack(spacing: 8) {
                     Text(viewData.title)
-                        .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityIdentifier(SendAccessibilityIdentifiers.networkSelectorSwapRequiredTitle)
 
                     Text(viewData.subtitle)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .multilineTextAlignment(.center)
@@ -73,10 +73,10 @@ struct SendReceiveTokenSwapRequiredContentView: View {
             .resizable()
             .renderingMode(.template)
             .frame(width: 14, height: 14)
-            .foregroundColor(Colors.Icon.primary2)
+            .foregroundColor(DesignSystem.Color.iconInverse)
             .padding(5)
-            .background(Circle().fill(Colors.Icon.primary1))
+            .background(Circle().fill(DesignSystem.Color.bgInverse))
             .padding(2)
-            .background(Circle().fill(Colors.Background.primary))
+            .background(Circle().fill(DesignSystem.Color.bgPrimary))
     }
 }

@@ -19,7 +19,7 @@ struct AuthView: View {
         stateView
             .allowsHitTesting(viewModel.allowsHitTesting)
             .alert(item: $viewModel.alert, content: { $0.alert })
-            .background(Colors.Background.secondary.ignoresSafeArea())
+            .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
             .onFirstDidAppear(perform: viewModel.onFirstAppear)
     }
 }
@@ -99,7 +99,7 @@ private extension AuthView {
     func addWalletNavigationBarButton(_ state: AuthViewState.WalletsState) -> some View {
         SwiftUI.Button(action: state.addWalletButton.action) {
             Text(state.addWalletButton.title)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
         }
         .allowsHitTesting(viewModel.allowsHitTesting)
         .confirmationDialog(viewModel: confirmationDialogViewModelForAddButton(state), onDismiss: viewModel.onScanTroubleshootingDialogDismiss)
@@ -113,34 +113,22 @@ private extension AuthView {
     func infoView(title: String, description: String) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                 .accessibilityIdentifier(AuthAccessibilityIdentifiers.title)
 
             Text(description)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                 .accessibilityIdentifier(AuthAccessibilityIdentifiers.subtitle)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     func biometricsUnlockButton(item: AuthViewState.Button) -> some View {
-        SwiftUI.Button(action: item.action) {
-            HStack(spacing: 6) {
-                Text(item.title)
-                    .style(Fonts.Bold.callout, color: Colors.Text.primary1)
-
-                BiometryLogoImage.image
-                    .resizable()
-                    .renderingMode(.template)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(Colors.Text.primary1)
-            }
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .background(Colors.Button.secondary, in: .capsule)
-        }
-        .colorScheme(.dark)
-        .accessibilityIdentifier(AuthAccessibilityIdentifiers.biometricsUnlockButton)
+        TangemUI.Button(label: item.title, accessibilityLabel: nil, action: item.action)
+            .iconEnd(BiometryLogoImage.imageType)
+            .styleType(.primary)
+            .size(.x11)
+            .horizontalLayout(.infinity)
+            .accessibilityIdentifier(AuthAccessibilityIdentifiers.biometricsUnlockButton)
     }
 }

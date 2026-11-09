@@ -25,7 +25,7 @@ struct TokensManagementChooserView: View {
     }
 
     private var rowBackgroundColor: Color {
-        isRedesign ? DesignSystem.Color.bgSecondary : Colors.Background.action
+        DesignSystem.Color.bgSecondary
     }
 
     private var rowCornerRadius: CGFloat {
@@ -33,15 +33,15 @@ struct TokensManagementChooserView: View {
     }
 
     private var titleColor: Color {
-        isRedesign ? DesignSystem.Color.textPrimary : Colors.Text.primary1
+        DesignSystem.Color.textPrimary
     }
 
     private var subtitleColor: Color {
-        isRedesign ? DesignSystem.Color.textSecondary : Colors.Text.tertiary
+        DesignSystem.Color.textSecondary
     }
 
     private var accentColor: Color {
-        isRedesign ? DesignSystem.Color.iconAccentBlue : Colors.Icon.accent
+        DesignSystem.Color.iconAccentBlue
     }
 
     // MARK: - View Body

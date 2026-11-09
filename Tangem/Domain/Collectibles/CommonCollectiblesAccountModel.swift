@@ -31,6 +31,10 @@ final class CommonCollectiblesAccountModel {
         self.buybackSigningLimits = buybackSigningLimits
         nameSubject = CurrentValueSubject(name)
     }
+
+    func update(isInAccountList: Bool) {
+        manager.update(isInAccountList: isInAccountList)
+    }
 }
 
 // MARK: - CollectiblesAccountModel protocol conformance
@@ -59,6 +63,10 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         manager.hasAccountPublisher
     }
 
+    var isSyncRequiredPublisher: AnyPublisher<Bool, Never> {
+        manager.isSyncRequiredPublisher
+    }
+
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
         balanceService.fiatTotalTokenBalanceProvider
     }
@@ -69,6 +77,14 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
 
     var vaultUsdcStatePublisher: AnyPublisher<CollectiblesVaultUsdcState, Never> {
         manager.vaultUsdcStatePublisher
+    }
+
+    var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> {
+        manager.isRelinkRequiredPublisher
+    }
+
+    var isRelinkingPublisher: AnyPublisher<Bool, Never> {
+        manager.isOnboardingPublisher
     }
 
     @MainActor
@@ -120,6 +136,14 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
 
     func onboard() async throws {
         try await manager.onboard()
+    }
+}
+
+// MARK: - AccountModelResolvable protocol conformance
+
+extension CommonCollectiblesAccountModel {
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
     }
 }
 

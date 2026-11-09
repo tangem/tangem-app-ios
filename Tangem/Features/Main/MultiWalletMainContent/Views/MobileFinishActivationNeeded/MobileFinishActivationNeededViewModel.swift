@@ -27,7 +27,7 @@ final class MobileFinishActivationNeededViewModel {
     }
 
     var iconBgColor: Color {
-        Colors.Icon.warning
+        DesignSystem.Color.bgAccentRedSubtle
     }
 
     let title = Localization.hwActivationNeedTitle

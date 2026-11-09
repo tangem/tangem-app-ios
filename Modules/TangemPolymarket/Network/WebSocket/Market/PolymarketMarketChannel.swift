@@ -51,11 +51,15 @@ struct PolymarketMarketChannel: PolymarketWebSocketChannel, PolymarketWebSocketS
     }
 
     func updates(from message: WebSocketMessage) throws -> [Update] {
-        guard case .text(let text) = message, !text.isEmpty, text != Constants.pong else {
+        guard !isKeepaliveReply(message), case .text(let text) = message, !text.isEmpty else {
             return []
         }
 
         return try decoder.decode(PolymarketDTO.MarketChannelPayload.self, from: Data(text.utf8)).messages.flatMap(updates(fromDTO:))
+    }
+
+    func isKeepaliveReply(_ message: WebSocketMessage) -> Bool {
+        message == .text(Constants.pong)
     }
 
     func topic(of update: Update) -> String {

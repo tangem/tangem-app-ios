@@ -23,7 +23,7 @@ struct ThemeSelectionView: View {
             }
         }
         .interContentPadding(8)
-        .background(Colors.Background.secondary.ignoresSafeArea(edges: .all))
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea(edges: .all))
         .navigationTitle(Text(Localization.appSettingsThemeSelectorTitle))
         .navigationBarTitleDisplayMode(.inline)
     }

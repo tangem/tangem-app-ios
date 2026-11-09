@@ -20,8 +20,9 @@ extension CollectiblesCoordinatorView {
                     CollectiblesAddFundsSheetView(viewModel: viewModel)
                         .presentationDetents(idealHeight: CollectiblesAddFundsSheetView.Metrics.estimatedHeight)
                         .presentationDragIndicator(.hidden)
+                        .softTopScrollEdgeEffect()
                 }
-                .sheet(item: $coordinator.sendCoordinator) { SendCoordinatorView(coordinator: $0) }
+                .sheet(item: $coordinator.sendCoordinator) { SendCoordinatorView(coordinator: $0).softTopScrollEdgeEffect() }
         }
     }
 }

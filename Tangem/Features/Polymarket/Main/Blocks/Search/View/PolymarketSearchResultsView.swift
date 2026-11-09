@@ -91,10 +91,10 @@ struct PolymarketSearchResultsView: View {
     }
 
     private var eventCards: some View {
-        ForEach(viewModel.eventCards, id: \.id) { model in
-            PolymarketEventCard(model: model)
+        ForEach(viewModel.eventCards) { card in
+            PolymarketFeedCardView(card: card)
                 .contentShape(.rect)
-                .onTapGesture { viewModel.handleViewAction(.openEventDetails(id: model.id)) }
+                .onTapGesture { viewModel.handleViewAction(.openEventDetails(id: card.id)) }
                 .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
         }
     }

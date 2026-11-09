@@ -13,7 +13,8 @@ import TangemFoundation
 final class PolymarketBalanceRefresher {
     private let balanceProvider: PolymarketBalanceProvider
     private let fundsArrivalTracker: PolymarketFundsArrivalTracker
-    private let appStateObserver = AppStateObserver()
+    private let appStateObserver: AppStateObserving
+    private let delayProvider: PollDelayProvider
 
     private var loopTask: Task<Void, Never>?
     private var isInBackground = false
@@ -21,10 +22,14 @@ final class PolymarketBalanceRefresher {
 
     init(
         balanceProvider: PolymarketBalanceProvider,
-        fundsArrivalTracker: PolymarketFundsArrivalTracker
+        fundsArrivalTracker: PolymarketFundsArrivalTracker,
+        appStateObserver: AppStateObserving = AppStateObserver(),
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.balanceProvider = balanceProvider
         self.fundsArrivalTracker = fundsArrivalTracker
+        self.delayProvider = delayProvider
+        self.appStateObserver = appStateObserver
     }
 
     deinit {
@@ -93,6 +98,8 @@ private extension PolymarketBalanceRefresher {
     func startLoop() {
         loopTask?.cancel()
 
+        let delayProvider = delayProvider
+
         loopTask = Task { @MainActor [weak self] in
             await self?.refresh()
 
@@ -101,7 +108,7 @@ private extension PolymarketBalanceRefresher {
                     ? Constants.expectedChangeInterval
                     : Constants.interval
 
-                try? await Task.sleep(for: .seconds(interval))
+                try? await delayProvider.wait(for: interval)
 
                 guard !Task.isCancelled, let self else { return }
 

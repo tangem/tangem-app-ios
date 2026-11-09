@@ -119,6 +119,14 @@ extension CommonPolymarketAccountModel: PolymarketAccountModel {
     }
 }
 
+// MARK: - AccountModelResolvable protocol conformance
+
+extension CommonPolymarketAccountModel {
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
+    }
+}
+
 // MARK: - Private implementation
 
 private extension CommonPolymarketAccountModel {

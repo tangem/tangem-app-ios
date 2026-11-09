@@ -15,6 +15,7 @@ import TangemUIUtils
 struct CollectiblesMainView: View {
     @ObservedObject var viewModel: CollectiblesMainViewModel
 
+    let banners: CollectiblesAccountView.Banners
     let actionsMenuViewModel: CollectiblesActionsMenuViewModel
     let dismissStyle: CollectiblesDismissStyle
     let onDismiss: () -> Void
@@ -39,6 +40,9 @@ struct CollectiblesMainView: View {
         .infinityFrame()
         .readGeometry(\.safeAreaInsets.top, bindTo: $topInset)
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .overlay(alignment: .top) {
+            banners.relinkBannerViewModel.map(CollectiblesRelinkErrorSnackbar.init)
+        }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if viewModel.showsSearchBar {
                 searchBar
@@ -79,7 +83,7 @@ private extension CollectiblesMainView {
                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
             if viewModel.showsBalanceInNavigationBar {
-                Text(viewModel.accountBalanceText)
+                SensitiveText(viewModel.accountBalanceText)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
             }
         }
@@ -124,6 +128,7 @@ private extension CollectiblesMainView {
         LazyVStack(spacing: 0, pinnedViews: .sectionHeaders) {
             CollectiblesAccountView(
                 viewModel: viewModel.accountViewModel,
+                banners: banners,
                 balanceCoordinateSpace: .named(Constants.scrollSpace),
                 onBalanceMaxYChange: viewModel.updateBalanceVisibility
             )
@@ -339,7 +344,13 @@ private struct PreviewCatalogueProvider: CollectiblesLoresProvider, Collectibles
 #Preview {
     NavigationStack {
         CollectiblesMainView(
-            viewModel: CollectiblesMainViewModel(routable: nil, accountModel: nil, catalogueProvider: PreviewCatalogueProvider()),
+            viewModel: CollectiblesMainFactory(
+                accountModel: nil,
+                catalogueProvider: PreviewCatalogueProvider(),
+                signingActionButtonType: .requiredNFCInteraction
+            )
+            .makeViewModel(routable: nil),
+            banners: CollectiblesAccountView.Banners(relinkBannerViewModel: nil),
             actionsMenuViewModel: CollectiblesActionsMenuViewModel(routable: nil),
             dismissStyle: .back,
             onDismiss: {}

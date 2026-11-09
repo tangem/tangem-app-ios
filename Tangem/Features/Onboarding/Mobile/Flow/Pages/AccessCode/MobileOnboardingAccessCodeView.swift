@@ -62,10 +62,10 @@ private extension MobileOnboardingAccessCodeView {
         VStack(spacing: 12) {
             Text(item.title)
                 .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
 
             Text(item.description)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 24)

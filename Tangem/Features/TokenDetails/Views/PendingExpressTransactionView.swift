@@ -40,13 +40,13 @@ struct PendingExpressTransactionView: View {
                     )
 
                     SensitiveText(info.sourceAmountText)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
 
                     Assets.arrowRightMini.image
                         .renderingMode(.template)
                         .resizable()
                         .frame(size: .init(bothDimensions: 12))
-                        .foregroundColor(Colors.Icon.informative)
+                        .foregroundColor(DesignSystem.Color.iconSecondary)
 
                     TokenIcon(
                         tokenIconInfo: info.destinationIconInfo,
@@ -55,7 +55,7 @@ struct PendingExpressTransactionView: View {
                     )
 
                     SensitiveText(info.destinationAmountText)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
                 }
             }
 
@@ -64,11 +64,11 @@ struct PendingExpressTransactionView: View {
             stateIcon
 
             Assets.chevronRight.image
-                .foregroundColor(Colors.Icon.informative)
+                .foregroundColor(DesignSystem.Color.iconSecondary)
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 14)
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadiusContinuous(14)
     }
 
@@ -76,7 +76,7 @@ struct PendingExpressTransactionView: View {
     private var titleStack: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(info.title)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
             TimelineView(.periodic(from: .now, by: 60)) { context in
                 let timeAgo = RelativeDateFormatter.shared.formatTimeAgo(
@@ -84,7 +84,7 @@ struct PendingExpressTransactionView: View {
                     relativeTo: context.date
                 )
                 Text("\(info.stateTitle) \(timeAgo)")
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
             }
         }
     }
@@ -131,7 +131,7 @@ extension PendingExpressTransactionView {
     let iconInfoBuilder = TokenIconInfoBuilder()
 
     ZStack {
-        Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+        DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all)
 
         VStack {
             PendingExpressTransactionView(info: .init(

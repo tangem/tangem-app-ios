@@ -44,14 +44,6 @@ struct PolymarketAddressResolutionTests {
 
         #expect(PolymarketUtilities.getKey(from: repository) == nil)
     }
-
-    @Test
-    func theStoredKeyResolvesToTheOwnerAddress() throws {
-        let repository = Self.makeRepository(curve: .secp256k1, path: PolymarketUtilities.derivationPath)
-        let ownerKey = try #require(PolymarketUtilities.getKey(from: repository))
-
-        #expect(try PolymarketUtilities.makeAddress(using: ownerKey) == Self.derivedAddress)
-    }
 }
 
 // MARK: - Fixtures

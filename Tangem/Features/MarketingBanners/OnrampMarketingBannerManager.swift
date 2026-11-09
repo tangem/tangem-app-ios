@@ -14,10 +14,26 @@ import TangemFoundation
 final class OnrampMarketingBannerManager {
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
 
+    weak var router: OnrampMarketingBannerRoutable?
+
     private let service = MarketingBannerService()
+    private let userWalletId: UserWalletId
+    private let conciergeWaitlistBannerFilter: ConciergeWaitlistBannerFilter
+    private let externalLinkResponder = ExternalLinkDeeplinkResponder()
+    private lazy var callToActionActionPerformer = CallToActionMarketingBannerActionPerformer(
+        incomingActionHandler: incomingActionHandler,
+        externalLinkResponder: externalLinkResponder,
+        openConciergeWaitlist: { [weak self] in self?.openConciergeWaitlist() }
+    )
     private let standaloneBannersSubject = CurrentValueSubject<[StandaloneMarketingBannerViewModel], Never>([])
+    private let callToActionBannersSubject = CurrentValueSubject<[CallToActionMarketingBanner], Never>([])
     private let linkedBannersSubject = CurrentValueSubject<[MarketingBanner], Never>([])
     private var subscription: AnyCancellable?
+
+    init(userWalletId: UserWalletId) {
+        self.userWalletId = userWalletId
+        conciergeWaitlistBannerFilter = ConciergeWaitlistBannerFilter(userWalletId: userWalletId)
+    }
 }
 
 // MARK: - Setup
@@ -25,8 +41,7 @@ final class OnrampMarketingBannerManager {
 extension OnrampMarketingBannerManager {
     func setup(
         tokenItem: TokenItem,
-        amountInput: any OnrampAmountInput,
-        providersInput: any OnrampProvidersInput
+        amountInput: any OnrampAmountInput
     ) {
         let requests = amountInput.fiatCurrencyPublisher
             .map { fiatCurrency -> OnrampMarketingBannerRequest? in
@@ -37,13 +52,13 @@ extension OnrampMarketingBannerManager {
             }
             .eraseToAnyPublisher()
 
-        let amount = providersInput.selectedOnrampProviderPublisher
-            .map { provider -> MarketingBannerAmount? in
-                guard let value = provider?.value?.quote?.expectedAmount, let currencyId = tokenItem.currencyId else {
+        let amount = Publishers.CombineLatest(amountInput.amountPublisher, amountInput.fiatCurrencyPublisher)
+            .map { amount, fiatCurrency -> MarketingBannerAmount? in
+                guard let amount, let fiatCurrency else {
                     return nil
                 }
 
-                return MarketingBannerAmount(value: value, currencyId: currencyId)
+                return .fiat(value: amount, currencyCode: fiatCurrency.identity.code)
             }
             .eraseToAnyPublisher()
 
@@ -53,6 +68,7 @@ extension OnrampMarketingBannerManager {
             .sink { manager, banners in
                 manager.standaloneBannersSubject.send(banners.standalone.map { manager.makeStandaloneViewModel(for: $0) })
                 manager.linkedBannersSubject.send(banners.linked)
+                manager.callToActionBannersSubject.send(banners.callToAction.compactMap { CallToActionMarketingBannerViewModelFactory.make(from: $0) })
             }
     }
 }
@@ -76,6 +92,26 @@ private extension OnrampMarketingBannerManager {
             action: action,
             dismiss: banner.isDismissible ? { HiddenMarketingCampaignsStorage.hide(campaignId: banner.id) } : nil
         )
+    }
+
+    func openConciergeWaitlist() {
+        router?.openDemandSurvey(userWalletId: userWalletId)
+    }
+}
+
+// MARK: - Call-to-action banners
+
+extension OnrampMarketingBannerManager {
+    var callToActionBannersPublisher: AnyPublisher<[CallToActionMarketingBanner], Never> {
+        conciergeWaitlistBannerFilter
+            .filter(callToActionBannersSubject.eraseToAnyPublisher())
+            .receiveOnMain()
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    func perform(_ action: CallToActionMarketingBannerAction) {
+        callToActionActionPerformer.perform(action)
     }
 }
 

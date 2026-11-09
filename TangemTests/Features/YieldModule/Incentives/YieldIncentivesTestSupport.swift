@@ -87,7 +87,7 @@ enum YieldIncentivesFixtures {
     }
 
     static func claimFee(value: Decimal = Decimal(string: "0.001")!) -> YieldTransactionFee {
-        try! ClaimFee(fees: [Fee(amount(value: value))])
+        try! ClaimFee(fees: [Fee(amount(value: value))], newImplementationAddress: nil)
     }
 
     static func amount(value: Decimal) -> Amount {
@@ -260,7 +260,11 @@ final class YieldClaimManagerStub: YieldModuleManager {
     var versionChecker: YieldModuleVersionChecker? { nil }
     var swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider? { nil }
 
-    func claimFee(to: String, data: Data) async throws -> YieldTransactionFee {
+    func newImplementationAddress(moduleAddress: String) async -> String? { nil }
+
+    func upgradingSendCallData(destination: String, amount: BigUInt) async throws -> YieldModuleSendCallData? { nil }
+
+    func claimFee(to: String, data: Data, includingModuleUpgrade: Bool) async throws -> YieldTransactionFee {
         let result = lockedState.withLock { state -> Result<YieldTransactionFee, Error> in
             state.feeCalls.append(SubmittedCall(to: to, dataHex: data.hexString))
             return state.feeResult
@@ -269,7 +273,7 @@ final class YieldClaimManagerStub: YieldModuleManager {
         return try result.get()
     }
 
-    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee) async throws -> BSDKTransaction {
+    func makeClaimTransaction(to: String, data: Data, fee: YieldTransactionFee, isGasless: Bool) async throws -> BSDKTransaction {
         let result = lockedState.withLock { state -> Result<BSDKTransaction, Error> in
             state.builtCalls.append(SubmittedCall(to: to, dataHex: data.hexString))
             return state.transactionResult
@@ -289,8 +293,11 @@ final class YieldClaimManagerStub: YieldModuleManager {
 
     func enterFee() async throws -> YieldTransactionFee { fatalError() }
     func enter(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> [String] { fatalError() }
+    func enter(fee: YieldTransactionFee, gaslessFee: BSDKFee, transactionSender: GaslessBatchTransactionSending) async throws -> String { fatalError() }
+    func supportsEnterWithAmount(fee: YieldTransactionFee) async -> Bool { fatalError() }
     func exitFee() async throws -> YieldTransactionFee { fatalError() }
     func exit(fee: YieldTransactionFee, precedingTransaction: () async throws -> BSDKTransaction?, transactionDispatcher: TransactionDispatcher) async throws -> YieldExitResult { fatalError() }
+    func exit(fee: YieldTransactionFee, gaslessFee: BSDKFee, precedingTransaction: () async throws -> BSDKTransaction?, transactionSender: GaslessBatchTransactionSending) async throws -> String { fatalError() }
     func approveFee() async throws -> YieldTransactionFee { fatalError() }
     func approve(fee: YieldTransactionFee, transactionDispatcher: TransactionDispatcher) async throws -> String { fatalError() }
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters { fatalError() }
@@ -363,6 +370,7 @@ final class YieldClaimNetworkManagerStub: YieldModuleNetworkManager {
 
     var markets: [YieldModuleMarketInfo] { [] }
     var marketsPublisher: AnyPublisher<[YieldModuleMarketInfo], Never> { Just([]).eraseToAnyPublisher() }
+    var marketsLoadStatePublisher: AnyPublisher<YieldModuleMarketsLoadState, Never> { Just(.idle).eraseToAnyPublisher() }
 
     func updateMarkets() {}
     func fetchYieldTokenInfo(tokenContractAddress: String, chainId: Int) async throws -> YieldModuleTokenInfo { fatalError() }

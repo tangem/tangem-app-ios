@@ -56,16 +56,13 @@ final class ActionButtonsViewModel: ObservableObject {
     private var lastSellInitializeState: SellServiceState?
 
     private let userWalletModel: UserWalletModel
-    private let swapAvailabilityChecker: SwapAvailabilityChecker
     private var latestWalletModelsCount = 0
 
     init(
         coordinator: some ActionButtonsRoutable,
-        userWalletModel: some UserWalletModel,
-        swapAvailabilityChecker: SwapAvailabilityChecker
+        userWalletModel: some UserWalletModel
     ) {
         self.userWalletModel = userWalletModel
-        self.swapAvailabilityChecker = swapAvailabilityChecker
 
         sellActionButtonViewModel = SellActionButtonViewModel(
             model: .sell,
@@ -305,7 +302,7 @@ private extension ActionButtonsViewModel {
     func swapAvailableWalletModelsCount() -> SwapAvailableWalletModelsCount {
         var count = 0
         for walletModel in AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager) {
-            if swapAvailabilityChecker.isSwapAvailable(walletModel: walletModel) {
+            if TokenActionAvailabilityProvider(userWalletInfo: userWalletModel.userWalletInfo, walletModel: walletModel).isSwapAvailable(direction: .from) {
                 count += 1
                 if count > 1 {
                     return .multiple // Early exit once the second swappable model is found

@@ -52,7 +52,7 @@ actor YieldIncentivesClaimInteractor {
     /// Fresh calldata → validation → owner-paid network fee; a validation failure never reaches the card.
     /// Stops at the fee: building the transaction validates the balance behind it, and the sheet has to show
     /// the fee it cannot cover rather than an error in its place.
-    func prepare() async throws -> PreparedClaim {
+    func prepare(includingModuleUpgrade: Bool) async throws -> PreparedClaim {
         guard manager.blockchain.chainId == chainId else {
             throw ClaimError.moduleUnavailable
         }
@@ -60,7 +60,7 @@ actor YieldIncentivesClaimInteractor {
         let calldata = try await yieldModuleNetworkManager.fetchClaimCalldata(chainId: chainId, userAddress: userAddress)
         let summary = try await fetchSummary()
         let validated = try validate(calldata, summary: summary)
-        let fee = try await manager.claimFee(to: validated.to, data: validated.data)
+        let fee = try await manager.claimFee(to: validated.to, data: validated.data, includingModuleUpgrade: includingModuleUpgrade)
 
         return PreparedClaim(
             calldata: calldata,
@@ -89,7 +89,11 @@ actor YieldIncentivesClaimInteractor {
         }
     }
 
-    func makeClaimTransaction(prepared: PreparedClaim, isFeeCovered: (Amount) -> Bool) async throws -> BSDKTransaction {
+    func makeClaimTransaction(
+        prepared: PreparedClaim,
+        isGasless: Bool = false,
+        isFeeCovered: (Amount) -> Bool
+    ) async throws -> BSDKTransaction {
         guard Date().timeIntervalSince(prepared.preparedAt) < Constants.preparationValidity else {
             throw ClaimError.preparationExpired
         }
@@ -103,7 +107,12 @@ actor YieldIncentivesClaimInteractor {
                 throw ClaimError.insufficientFee
             }
 
-            let transaction = try await manager.makeClaimTransaction(to: prepared.to, data: prepared.data, fee: prepared.fee)
+            let transaction = try await manager.makeClaimTransaction(
+                to: prepared.to,
+                data: prepared.data,
+                fee: prepared.fee,
+                isGasless: isGasless
+            )
 
             guard transaction.sourceAddress.caseInsensitiveEquals(to: userAddress) else {
                 throw ClaimError.moduleUnavailable

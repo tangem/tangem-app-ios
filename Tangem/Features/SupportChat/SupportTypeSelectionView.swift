@@ -18,7 +18,7 @@ struct SupportTypeSelectionView: View {
     var body: some View {
         VStack(spacing: 0) {
             Text(Localization.commonContactSupport)
-                .style(Fonts.Bold.title2, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title2, color: DesignSystem.Color.textPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 24)
                 .padding(.horizontal, 16)
@@ -28,7 +28,7 @@ struct SupportTypeSelectionView: View {
 
             SwiftUI.Button(action: model.emailAction) {
                 Text(Localization.supportSelectorViewEmailButton)
-                    .style(Fonts.Regular.body, color: Colors.Text.accent)
+                    .style(Fonts.Regular.body, color: DesignSystem.Color.textAccentBlue)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
             }
@@ -38,7 +38,7 @@ struct SupportTypeSelectionView: View {
 
             SwiftUI.Button(action: model.chatAction) {
                 Text(Localization.supportSelectorViewChatButton)
-                    .style(Fonts.Regular.body, color: Colors.Text.accent)
+                    .style(Fonts.Regular.body, color: DesignSystem.Color.textAccentBlue)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
             }

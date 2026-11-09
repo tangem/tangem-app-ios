@@ -44,7 +44,7 @@ struct SwapAmountView: View {
             viewModel.userDidTapSwitchCurrencyButton()
         }
         .animation(SendAmountInputConstants.animation, value: viewModel.sourceCalculationType)
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
         .contentShape(Rectangle())
         .onTapGesture(perform: viewModel.userDidTapSourceArea)
         .accessibilityIdentifier(SwapAccessibilityIdentifiers.fromAmountTextField)
@@ -104,7 +104,7 @@ struct SwapAmountView: View {
             LoadableTextView(
                 state: viewModel.receiveCryptoAmountState,
                 font: Fonts.Regular.title1,
-                textColor: Colors.Text.primary1,
+                textColor: DesignSystem.Color.textPrimary,
                 loaderSize: CGSize(width: 102, height: 24)
             )
             .accessibilityIdentifier(SwapAccessibilityIdentifiers.receiveAmountValue)
@@ -114,7 +114,7 @@ struct SwapAmountView: View {
             viewModel.userDidTapNetworkFeeInfoButton(type.message)
         }
         .didTapEditSlippage(isEnabled: viewModel.isEditSlippageEnabled, viewModel.isEditSlippageAvailable ? { viewModel.userDidTapEditSlippage() } : nil)
-        .defaultRoundedBackground(with: Colors.Background.action)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(SwapAccessibilityIdentifiers.toAmountTextField)
     }
@@ -125,15 +125,15 @@ struct SwapAmountView: View {
                 .renderingMode(.template)
                 .resizable()
                 .frame(width: 20, height: 20)
-                .foregroundColor(viewModel.isSwapButtonDisabled ? Colors.Icon.inactive : Colors.Icon.primary1)
+                .foregroundColor(viewModel.isSwapButtonDisabled ? DesignSystem.Color.iconTertiary : DesignSystem.Color.iconPrimary)
         }
         .disabled(viewModel.isSwapButtonDisabled)
         .frame(width: 44, height: 44)
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadius(22)
         .overlay(
             RoundedRectangle(cornerRadius: 22)
-                .stroke(Colors.Stroke.primary, lineWidth: 1)
+                .stroke(DesignSystem.Color.borderSecondary, lineWidth: 1)
         )
         .accessibilityIdentifier(SwapAccessibilityIdentifiers.swapTokensButton)
     }

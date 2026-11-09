@@ -62,7 +62,7 @@ public struct AccountFormGridView<Item: Identifiable & Equatable, Content: View>
 }
 
 public enum AccountFormGridViewConstants {
-    public static let backgroundColor: Color = Colors.Background.action
+    public static let backgroundColor: Color = DesignSystem.Color.bgSecondary
 }
 
 @available(iOS 17.0, *)
@@ -142,23 +142,23 @@ public enum AccountFormGridViewConstants {
                 items: images,
                 content: { imageItem, isSelected in
                     let imageSelectedColor = switch imageItem.kind {
-                    case .image: Colors.Text.secondary
-                    case .letter: Colors.Text.accent
+                    case .image: DesignSystem.Color.iconSecondary
+                    case .letter: DesignSystem.Color.iconAccentBlue
                     }
 
                     let imageNotSelectedColor = switch imageItem.kind {
-                    case .image: Colors.Text.tertiary
-                    case .letter: Colors.Text.accent
+                    case .image: DesignSystem.Color.iconTertiary
+                    case .letter: DesignSystem.Color.iconAccentBlue
                     }
 
                     let backgroundColor = switch imageItem.kind {
-                    case .image: Colors.Field.focused
-                    case .letter: Colors.Text.accent.opacity(0.1)
+                    case .image: DesignSystem.Color.bgTransparentSecondary
+                    case .letter: DesignSystem.Color.bgAccentBlueSubtle
                     }
 
                     let strokeColor = switch imageItem.kind {
-                    case .image: Colors.Text.secondary
-                    case .letter: Colors.Icon.accent
+                    case .image: DesignSystem.Color.textSecondary
+                    case .letter: DesignSystem.Color.borderAccentBlue
                     }
 
                     return Circle()

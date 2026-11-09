@@ -13,6 +13,7 @@ import UIKit
 import TangemAssets
 import TangemFoundation
 import TangemLocalization
+import TangemMacro
 import TangemUI
 
 /// An operation of a joint account laid out as the transaction details it will become once it is sent.
@@ -42,7 +43,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     private let signingActionButtonType: SigningActionButtonViewType
     private let sign: () async throws -> Void
     private let reject: () async throws -> Void
-    private let pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?
+    private let poller: any JointAccountPendingOperationPoller
     private weak var coordinator: JointAccountOperationDetailsRoutable?
     private var signTask: Task<Void, Never>?
     private var rejectTask: Task<Void, Never>?
@@ -60,7 +61,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         signingActionButtonType: SigningActionButtonViewType,
         content: Content,
         contentPublisher: AnyPublisher<Content, Never>,
-        pendingOperationsProvider: (any JointAccountPendingOperationsProvider)?,
+        poller: any JointAccountPendingOperationPoller,
         coordinator: JointAccountOperationDetailsRoutable?,
         alertPresenter: AlertPresenter = InjectedValues[\.alertPresenter],
         sign: @escaping () async throws -> Void,
@@ -77,7 +78,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         answer = content.answer
         self.sign = sign
         self.reject = reject
-        self.pendingOperationsProvider = pendingOperationsProvider
+        self.poller = poller
         self.coordinator = coordinator
         self.alertPresenter = alertPresenter
 
@@ -89,12 +90,12 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     var header: TransactionDetailsHeaderViewData {
         TransactionDetailsHeaderViewData(
             title: headerTitle,
-            titleStyle: content.status == .sending ? .active : .neutral,
+            titleStyle: headerTitleStyle,
             date: headerSubtitle,
             subtitleStyle: content.status == .awaitingSignatures ? .warning : .secondary,
             operationIcon: TransactionViewIconViewData(
                 type: .transfer,
-                status: content.status == .sending ? .inProgress : .confirmed,
+                status: headerIconStatus,
                 isOutgoing: true
             ),
             iconGlyph: nil,
@@ -113,6 +114,17 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         case .awaitingSignatures: Localization.commonSend
         case .sending: Localization.commonSending
         case .sent: Localization.commonSent
+        case .failed: Localization.transactionHistoryStatusSendFailed
+        // [REDACTED_TODO_COMMENT]
+        case .cancelled: Localization.expressExchangeStatusCanceled
+        }
+    }
+
+    private var headerTitleStyle: TransactionDetailsHeaderViewData.TitleStyle {
+        switch content.status {
+        case .sending: .active
+        case .failed: .failed
+        case .awaitingSignatures, .sent, .cancelled: .neutral
         }
     }
 
@@ -120,7 +132,16 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
         switch content.status {
         case .awaitingSignatures: Localization.transactionHistoryPending
         case .sending: Localization.jointOperationSendingToNetwork
-        case .sent(let date): TransactionDetailsFactory.headerDateFormatter.string(from: date)
+        case .sent(let date), .failed(let date), .cancelled(let date):
+            TransactionDetailsFactory.headerDateFormatter.string(from: date)
+        }
+    }
+
+    private var headerIconStatus: TransactionViewModel.Status {
+        switch content.status {
+        case .sending: .inProgress
+        case .failed: .failed
+        case .awaitingSignatures, .sent, .cancelled: .confirmed
         }
     }
 
@@ -136,7 +157,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     }
 
     func onAppear() {
-        frequentUpdatesSubscription = pendingOperationsProvider?.requestFrequentUpdates()
+        frequentUpdatesSubscription = poller.requestFrequentUpdates()
     }
 
     func onDisappear() {
@@ -395,7 +416,7 @@ private extension JointAccountOperationDetailsViewModel {
                 caption: nil,
                 amountText: cryptoAmount,
                 fiatText: fiatAmount,
-                isAmountStrikethrough: false
+                isAmountStrikethrough: content.status.isFailed
             )
         )
     }
@@ -481,7 +502,7 @@ private extension JointAccountOperationDetailsViewModel {
         let membersCount = content.membersCount
 
         switch content.status {
-        case .sending:
+        case .sending, .failed, .cancelled:
             return nil
         case .sent:
             return .caption(Localization.jointOperationSentFooter(content.collectedSignaturesCount, membersCount))
@@ -528,10 +549,13 @@ extension JointAccountOperationDetailsViewModel {
         case declined
     }
 
+    @CaseFlagable
     enum Status: Equatable {
         case awaitingSignatures
         case sending
         case sent(at: Date)
+        case failed(at: Date)
+        case cancelled(at: Date)
     }
 
     struct Content {

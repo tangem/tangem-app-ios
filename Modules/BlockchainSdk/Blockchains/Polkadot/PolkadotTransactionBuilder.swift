@@ -120,9 +120,12 @@ class PolkadotTransactionBuilder {
         call.append(addressBytes)
 
         let decimalValue = amount.value * blockchain.decimalValue
-        let uintValue = (decimalValue.rounded() as NSDecimalNumber).uint64Value
+        guard let planck = BigUInt(decimal: decimalValue.rounded()),
+              planck.bitWidth <= BigUInt.compactBitWidth else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
 
-        call.append(try encode(uintValue, .compact))
+        call.append(try encode(planck, .compact))
 
         return call
     }

@@ -81,7 +81,6 @@ private extension SingleWalletMainContentRedesignedView {
             walletModel: walletModel,
             userWalletNotificationManager: FakeUserWalletNotificationManager(),
             promotionNotificationsManager: FakePromotionNotificationsManager(),
-            forceUpdateBannerNotificationManager: FakeUserWalletNotificationManager(),
             pendingExpressTransactionsManager: FakePendingExpressTransactionsManager(),
             expressStatusPollingHelper: expressStatusPollingHelper,
             tokenNotificationManager: FakeUserWalletNotificationManager(),

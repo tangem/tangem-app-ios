@@ -204,7 +204,7 @@ extension TokenNotificationEvent: NotificationEvent {
     var icon: NotificationView.MessageIcon {
         switch self {
         case .networkNotUpdated:
-            return .init(iconType: .image(Assets.failedCloud), color: Colors.Icon.attention)
+            return .init(iconType: .image(Assets.failedCloud), color: DesignSystem.Color.iconAccentYellow)
         case .networkUnreachable,
              .bnbBeaconChainRetirement,
              .maticMigration,

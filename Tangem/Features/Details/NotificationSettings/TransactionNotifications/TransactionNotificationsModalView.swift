@@ -34,7 +34,7 @@ struct TransactionNotificationsModalView: View {
         }
         .alert(item: $viewModel.alert, content: { $0.alert })
         .navigationBarTitle("", displayMode: .inline)
-        .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+        .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
     }
 
     private var navigationBarView: some View {
@@ -53,11 +53,11 @@ struct TransactionNotificationsModalView: View {
 
             VStack(alignment: .center, spacing: Layout.Header.textSpacing) {
                 Text(Localization.pushTransactionsNotificationsTitle)
-                    .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.title1, color: DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.center)
 
                 Text(Localization.pushTransactionsNotificationsDescription)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }
@@ -72,7 +72,7 @@ struct TransactionNotificationsModalView: View {
             networkListView
         }
         .roundedBackground(
-            with: Colors.Background.action,
+            with: DesignSystem.Color.bgSecondary,
             verticalPadding: .zero,
             horizontalPadding: Layout.Content.horizontalPadding,
             radius: Layout.cornerRadius
@@ -101,7 +101,7 @@ struct TransactionNotificationsModalView: View {
             .padding(Layout.MainButton.horizontalPadding)
             .padding(Layout.MainButton.bottomPadding)
             .background(LinearGradient(
-                colors: [Colors.Background.primary, Colors.Background.primary, Colors.Background.primary.opacity(0)],
+                colors: [DesignSystem.Color.bgPrimary, DesignSystem.Color.bgPrimary, DesignSystem.Color.bgPrimary.opacity(0)],
                 startPoint: .bottom,
                 endPoint: .top
             )

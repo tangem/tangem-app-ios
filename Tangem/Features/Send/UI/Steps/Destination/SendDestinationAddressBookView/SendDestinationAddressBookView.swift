@@ -30,7 +30,7 @@ struct SendDestinationAddressBookView: View {
                 .padding(.top, 12)
         }
         .horizontalPadding(0)
-        .backgroundColor(Colors.Background.action)
+        .backgroundColor(DesignSystem.Color.bgSecondary)
         .interItemSpacing(0)
         .separatorStyle(.none)
     }

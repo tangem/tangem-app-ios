@@ -47,7 +47,7 @@ struct NFTDetailsHeaderView: View {
                 .padding(.bottom, rarity.isNotEmpty ? 12 : 0)
 
             if rarity.isNotEmpty {
-                Separator(height: .exact(1), color: Colors.Stroke.primary, axis: .horizontal)
+                Separator(height: .exact(1), color: DesignSystem.Color.borderSecondary, axis: .horizontal)
                     .padding(.bottom, 14)
 
                 makeRarityKeyValueView(keyValues: rarity)
@@ -84,17 +84,17 @@ struct NFTDetailsHeaderView: View {
     private func makePrices(model: NFTDetailsHeaderState.Price) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(Localization.nftDetailsLastSalePrice)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                 .padding(.bottom, 8)
 
             Text(model.crypto)
-                .style(Fonts.Regular.title1, color: Colors.Text.primary1)
+                .style(Fonts.Regular.title1, color: DesignSystem.Color.textPrimary)
                 .padding(.bottom, 4)
 
             if model.fiat.error == nil {
                 // Fallback empty string is not visible since the skeleton is shown during loading
                 Text(model.fiat.value ?? "")
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .shimmerPlaceholder(model.fiat.isLoading, variant: .custom(width: 68, height: 18, cornerRadius: 3))
             }
         }
@@ -113,7 +113,7 @@ struct NFTDetailsHeaderView: View {
 
 private extension NFTDetailsHeaderView {
     enum Constants {
-        static let backgroundColor = Colors.Background.action
+        static let backgroundColor = DesignSystem.Color.bgSecondary
     }
 }
 

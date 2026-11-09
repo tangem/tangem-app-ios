@@ -39,11 +39,10 @@ struct PolymarketWebSocketSubscriptionClientTests {
         withExtendedLifetime(readerOfA) {}
     }
 
-    @Test("A reader coming back before the socket closes gets no value cached for the readers that left")
-    func quickReturnDoesNotReplayOldValues() async throws {
+    @Test("A reader coming back before the topic is unsubscribed gets its latest value at once, without a new subscription")
+    func quickReturnReplaysLatestValue() async throws {
         let env = makeSUT()
-        let reader = await env.read(["a"])
-        let connection = try await env.transport.connections.element(at: 0)
+        let (reader, connection) = try await env.readOneTopic()
 
         connection.receive("a=1")
         #expect(try await reader.values.element(at: 0) == 1)
@@ -52,17 +51,58 @@ struct PolymarketWebSocketSubscriptionClientTests {
         try await env.delayProvider.parkedWaits(of: Constants.disconnectDelay, count: 2)
 
         let returningReader = await env.read(["a"])
+        #expect(try await returningReader.values.element(at: 0) == 1)
+
         connection.receive("a=2")
+        #expect(try await returningReader.values.element(at: 1) == 2)
+        #expect(connection.sent.elements == [.text("subscribe-first:a")])
+        #expect(env.transport.connections.elements.count == 1)
+    }
+
+    @Test("A reader coming back after the topic was unsubscribed gets no value cached before the unsubscription")
+    func returnAfterUnsubscribeDoesNotReplayOldValues() async throws {
+        let env = makeSUT()
+        let (readerOfA, readerOfB, connection) = try await env.readTwoTopics()
+
+        connection.receive("b=1")
+        #expect(try await readerOfB.values.element(at: 0) == 1)
+
+        readerOfB.stop()
+        try await env.delayProvider.parkedWaits(of: Constants.unsubscribeDelay, count: 1)
+        env.delayProvider.release(Constants.unsubscribeDelay)
+        #expect(try await connection.sent.element(at: 2) == .text("unsubscribe:b"))
+
+        let returningReader = await env.read(["b"])
+        #expect(try await connection.sent.element(at: 3) == .text("subscribe:b"))
+        connection.receive("b=2")
 
         #expect(try await returningReader.values.element(at: 0) == 2)
-        #expect(env.transport.connections.elements.count == 1)
+        withExtendedLifetime(readerOfA) {}
+    }
+
+    @Test("On a channel without subscriptions, like the sports one, a reader coming back within five seconds gets its latest value at once")
+    func quickReturnReplaysLatestValueWithoutSubscriptions() async throws {
+        let env = makeSUT(subscribes: false)
+        let (reader, connection) = try await env.readWithoutSubscribing(["a"])
+
+        connection.receive("a=1")
+        #expect(try await reader.values.element(at: 0) == 1)
+
+        reader.stop()
+        try await env.delayProvider.parkedWaits(of: Constants.disconnectDelay, count: 1)
+
+        let returningReader = await env.read(["a"])
+        connection.receive("a=2")
+
+        try #require(try await returningReader.values.element(at: 0) == 1)
+        #expect(try await returningReader.values.element(at: 1) == 2)
+        #expect(connection.sent.elements.isEmpty)
     }
 
     @Test("A reader coming back after the socket closed gets no value from the previous connection")
     func returnAfterDisconnectDoesNotReplayOldValues() async throws {
         let env = makeSUT()
-        let reader = await env.read(["a"])
-        let connection = try await env.transport.connections.element(at: 0)
+        let (reader, connection) = try await env.readOneTopic()
 
         connection.receive("a=1")
         #expect(try await reader.values.element(at: 0) == 1)
@@ -102,8 +142,7 @@ struct PolymarketWebSocketSubscriptionClientTests {
     @Test("Silence is counted from the last data, not from the connection")
     func silenceIsCountedFromTheLastData() async throws {
         let env = makeSUT()
-        let reader = await env.read(["a"])
-        let connection = try await env.transport.connections.element(at: 0)
+        let (reader, connection) = try await env.readOneTopic()
         try await env.delayProvider.parkedWaits(of: Constants.silenceTimeout, count: 1)
 
         env.clock.advance(by: .seconds(30))
@@ -126,8 +165,7 @@ struct PolymarketWebSocketSubscriptionClientTests {
     @Test("Data arriving after the silence probe keeps the socket open")
     func answeredProbeKeepsTheConnection() async throws {
         let env = makeSUT()
-        let reader = await env.read(["a"])
-        let connection = try await env.transport.connections.element(at: 0)
+        let (reader, connection) = try await env.readOneTopic()
 
         try await env.probe(connection)
         env.clock.advance(by: .seconds(1))
@@ -139,6 +177,34 @@ struct PolymarketWebSocketSubscriptionClientTests {
 
         #expect(env.transport.connections.elements.count == 1)
         #expect(connection.closeCodes.elements.isEmpty)
+    }
+
+    @Test("A reply to the silence probe that carries no values, as the server sends for a closed market, keeps the socket open")
+    func valuelessProbeReplyKeepsTheConnection() async throws {
+        let env = makeSUT()
+        let (reader, connection) = try await env.readOneTopic()
+
+        try await env.probe(connection)
+        try await env.receiveAndWaitUntilHandled("[]", on: connection)
+        env.delayProvider.release(Constants.probeTimeout)
+        try await env.delayProvider.parkedWaits(of: Constants.silenceTimeout, count: 1)
+
+        #expect(env.transport.connections.elements.count == 1)
+        #expect(connection.closeCodes.elements.isEmpty)
+        withExtendedLifetime(reader) {}
+    }
+
+    @Test("A keepalive reply does not answer the silence probe")
+    func keepaliveReplyDoesNotAnswerTheProbe() async throws {
+        let env = makeSUT()
+        let (reader, connection) = try await env.readOneTopic()
+
+        try await env.probe(connection)
+        try await env.receiveAndWaitUntilHandled(ChannelStub.keepaliveReply, on: connection)
+        env.delayProvider.release(Constants.probeTimeout)
+
+        #expect(try await connection.closeCodes.element(at: 0) == .normalClosure)
+        withExtendedLifetime(reader) {}
     }
 
     @Test("No data after the silence probe reconnects and subscribes to every topic read")
@@ -156,11 +222,27 @@ struct PolymarketWebSocketSubscriptionClientTests {
         withExtendedLifetime((readerOfA, readerOfB)) {}
     }
 
+    @Test("A channel without a silence timeout, like the sports one, never probes or reconnects a quiet socket")
+    func channelWithoutSilenceTimeoutNeverProbes() async throws {
+        let env = makeSUT(silenceTimeout: nil)
+        let (reader, connection) = try await env.readOneTopic()
+
+        connection.receive("a=1")
+        #expect(try await reader.values.element(at: 0) == 1)
+
+        reader.stop()
+        try await env.delayProvider.parkedWaits(of: Constants.disconnectDelay, count: 2)
+        try await env.delayProvider.parkedWaits(of: Constants.keepaliveInterval, count: 1)
+
+        #expect(!env.delayProvider.parkedSeconds.contains(Constants.silenceTimeout / .seconds(1)))
+        #expect(connection.sent.elements == [.text("subscribe-first:a")])
+        #expect(env.transport.connections.elements.count == 1)
+    }
+
     @Test("Silence with no readers left only starts a new countdown")
     func silenceWithoutReadersOnlyRearms() async throws {
         let env = makeSUT()
-        let reader = await env.read(["a"])
-        let connection = try await env.transport.connections.element(at: 0)
+        let (reader, connection) = try await env.readOneTopic()
         try await env.delayProvider.parkedWaits(of: Constants.silenceTimeout, count: 1)
 
         reader.stop()
@@ -178,20 +260,21 @@ struct PolymarketWebSocketSubscriptionClientTests {
 // MARK: - Helpers
 
 private extension PolymarketWebSocketSubscriptionClientTests {
-    func makeSUT() -> Environment {
+    func makeSUT(silenceTimeout: Duration? = Constants.silenceTimeout, subscribes: Bool = true) -> Environment {
         let transport = WebSocketTransportSpy()
         let delayProvider = DelayProviderSpy()
         let clock = ClockStub()
+        let parsedMessages = AsyncRecord<WebSocketMessage>()
 
         let sut = PolymarketWebSocketSubscriptionClient(
-            channel: ChannelStub(),
+            channel: ChannelStub(silenceTimeout: silenceTimeout, subscribes: subscribes, parsedMessages: parsedMessages),
             transport: transport,
             delayProvider: delayProvider,
             notificationCenter: NotificationCenter(),
             now: { clock.now }
         )
 
-        return Environment(sut: sut, transport: transport, delayProvider: delayProvider, clock: clock)
+        return Environment(sut: sut, transport: transport, delayProvider: delayProvider, clock: clock, parsedMessages: parsedMessages)
     }
 
     struct Environment {
@@ -199,15 +282,41 @@ private extension PolymarketWebSocketSubscriptionClientTests {
         let transport: WebSocketTransportSpy
         let delayProvider: DelayProviderSpy
         let clock: ClockStub
+        let parsedMessages: AsyncRecord<WebSocketMessage>
+
+        func receiveAndWaitUntilHandled(_ text: String, on connection: WebSocketConnectionSpy) async throws {
+            let handled = parsedMessages.elements.count
+            connection.receive(text)
+            connection.receive(text)
+            try await parsedMessages.element(at: handled + 1)
+        }
 
         func read(_ topics: Set<String>) async -> ReaderSpy {
             ReaderSpy(stream: await sut.values(for: topics))
         }
 
-        func readTwoTopics() async throws -> (ReaderSpy, ReaderSpy, WebSocketConnectionSpy) {
-            let readerOfA = await read(["a"])
+        func readOneTopic() async throws -> (ReaderSpy, WebSocketConnectionSpy) {
+            let reader = await read(["a"])
             let connection = try await transport.connections.element(at: 0)
             try await connection.sent.element(at: 0)
+
+            return (reader, connection)
+        }
+
+        func readWithoutSubscribing(_ topics: Set<String>) async throws -> (ReaderSpy, WebSocketConnectionSpy) {
+            let statuses = await sut.statusChanges()
+            let reader = await read(topics)
+            let connection = try await transport.connections.element(at: 0)
+
+            for await status in statuses where status == .connected {
+                break
+            }
+
+            return (reader, connection)
+        }
+
+        func readTwoTopics() async throws -> (ReaderSpy, ReaderSpy, WebSocketConnectionSpy) {
+            let (readerOfA, connection) = try await readOneTopic()
 
             let readerOfB = await read(["b"])
             try await connection.sent.element(at: 1)
@@ -232,6 +341,7 @@ private extension PolymarketWebSocketSubscriptionClientTests {
         static let disconnectDelay: Duration = .seconds(5)
         static let silenceTimeout: Duration = .seconds(60)
         static let probeTimeout: Duration = .seconds(10)
+        static let keepaliveInterval: Duration = .seconds(10)
     }
 }
 
@@ -243,16 +353,22 @@ private struct ChannelStub: PolymarketWebSocketChannel, PolymarketWebSocketSubsc
         let value: Int
     }
 
+    static let keepaliveReply = "pong"
+
+    let silenceTimeout: Duration?
+    let subscribes: Bool
+    let parsedMessages: AsyncRecord<WebSocketMessage>
+
     var url: URL {
         URL(string: "wss://channel.test")!
     }
 
     var keepalive: PolymarketWebSocketConnectionManager.Keepalive {
-        .protocolPing(interval: .seconds(10), timeout: .seconds(10))
+        .protocolPing(interval: PolymarketWebSocketSubscriptionClientTests.Constants.keepaliveInterval, timeout: .seconds(10))
     }
 
     var subscribing: (any PolymarketWebSocketSubscribing<String>)? {
-        self
+        subscribes ? self : nil
     }
 
     func subscribeMessage(for topics: Set<String>, isFirstOnConnection: Bool) throws -> WebSocketMessage {
@@ -264,6 +380,8 @@ private struct ChannelStub: PolymarketWebSocketChannel, PolymarketWebSocketSubsc
     }
 
     func updates(from message: WebSocketMessage) throws -> [Update] {
+        parsedMessages.append(message)
+
         guard case .text(let text) = message else {
             return []
         }
@@ -279,162 +397,16 @@ private struct ChannelStub: PolymarketWebSocketChannel, PolymarketWebSocketSubsc
         }
     }
 
+    func isKeepaliveReply(_ message: WebSocketMessage) -> Bool {
+        message == .text(Self.keepaliveReply)
+    }
+
     func topic(of update: Update) -> String {
         update.topic
     }
 
     func value(applying update: Update, to previous: Int?) -> Int {
         update.value
-    }
-}
-
-private final class AsyncRecord<Element: Sendable>: Sendable {
-    private let state = OSAllocatedUnfairLock(initialState: State())
-
-    var elements: [Element] {
-        state.withLock { $0.elements }
-    }
-
-    func append(_ element: Element) {
-        let ready = state.withLock { state -> [CheckedContinuation<Element, any Error>] in
-            state.elements.append(element)
-            let index = state.elements.count - 1
-            let ready = state.waiters.filter { $0.index == index }.map(\.continuation)
-            state.waiters.removeAll { $0.index == index }
-            return ready
-        }
-
-        ready.forEach { $0.resume(returning: element) }
-    }
-
-    @discardableResult
-    func element(at index: Int) async throws -> Element {
-        let id = UUID()
-
-        return try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { continuation in
-                let ready = state.withLock { state -> Result<Element, any Error>? in
-                    guard !Task.isCancelled else {
-                        return .failure(CancellationError())
-                    }
-
-                    guard index < state.elements.count else {
-                        state.waiters.append(Waiter(id: id, index: index, continuation: continuation))
-                        return nil
-                    }
-
-                    return .success(state.elements[index])
-                }
-
-                if let ready {
-                    continuation.resume(with: ready)
-                }
-            }
-        } onCancel: {
-            state.withLock { state -> CheckedContinuation<Element, any Error>? in
-                guard let position = state.waiters.firstIndex(where: { $0.id == id }) else {
-                    return nil
-                }
-
-                return state.waiters.remove(at: position).continuation
-            }?.resume(throwing: CancellationError())
-        }
-    }
-
-    private struct State {
-        var elements: [Element] = []
-        var waiters: [Waiter] = []
-    }
-
-    private struct Waiter {
-        let id: UUID
-        let index: Int
-        let continuation: CheckedContinuation<Element, any Error>
-    }
-}
-
-private final class WebSocketTransportSpy: WebSocketTransport {
-    let connections = AsyncRecord<WebSocketConnectionSpy>()
-
-    func connect(to url: URL, headers: [String: String]) async throws(WebSocketTransportError) -> any WebSocketConnection {
-        let connection = WebSocketConnectionSpy()
-        connections.append(connection)
-        return connection
-    }
-}
-
-private final class WebSocketConnectionSpy: WebSocketConnection {
-    let sent = AsyncRecord<WebSocketMessage>()
-    let closeCodes = AsyncRecord<WebSocketCloseCode>()
-
-    private let state = OSAllocatedUnfairLock(initialState: State())
-
-    func receive(_ text: String) {
-        let waiter = state.withLock { state -> CheckedContinuation<WebSocketMessage, any Error>? in
-            guard let waiter = state.waiter else {
-                state.incoming.append(.text(text))
-                return nil
-            }
-
-            state.waiter = nil
-            return waiter
-        }
-
-        waiter?.resume(returning: .text(text))
-    }
-
-    func send(_ message: WebSocketMessage) async throws(WebSocketTransportError) {
-        sent.append(message)
-    }
-
-    func receive() async throws(WebSocketTransportError) -> WebSocketMessage {
-        do {
-            return try await withTaskCancellationHandler {
-                try await withCheckedThrowingContinuation { continuation in
-                    let message = state.withLock { state -> Result<WebSocketMessage, any Error>? in
-                        guard !state.isClosed, !Task.isCancelled else {
-                            return .failure(WebSocketTransportError.cancelled)
-                        }
-
-                        guard state.incoming.isEmpty else {
-                            return .success(state.incoming.removeFirst())
-                        }
-
-                        state.waiter = continuation
-                        return nil
-                    }
-
-                    if let message {
-                        continuation.resume(with: message)
-                    }
-                }
-            } onCancel: {
-                state.withLock { state in
-                    defer { state.waiter = nil }
-                    return state.waiter
-                }?.resume(throwing: WebSocketTransportError.cancelled)
-            }
-        } catch {
-            throw .cancelled
-        }
-    }
-
-    func ping() async throws(WebSocketTransportError) {}
-
-    func close(code: WebSocketCloseCode, reason: String?) {
-        closeCodes.append(code)
-
-        state.withLock { state in
-            state.isClosed = true
-            defer { state.waiter = nil }
-            return state.waiter
-        }?.resume(throwing: WebSocketTransportError.cancelled)
-    }
-
-    private struct State {
-        var incoming: [WebSocketMessage] = []
-        var waiter: CheckedContinuation<WebSocketMessage, any Error>?
-        var isClosed = false
     }
 }
 
@@ -504,6 +476,10 @@ private final class DelayProviderSpy: PollDelayProvider, Sendable {
                 return state.observers.remove(at: position).continuation
             }?.resume(throwing: CancellationError())
         }
+    }
+
+    var parkedSeconds: [TimeInterval] {
+        state.withLock { $0.parked.map(\.seconds).sorted() }
     }
 
     func release(_ duration: Duration) {

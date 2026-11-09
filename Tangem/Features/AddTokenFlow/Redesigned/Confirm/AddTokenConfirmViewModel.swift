@@ -38,21 +38,12 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
 
     // MARK: - UI
 
-    var confirmButtonContent: TangemButton.Content {
-        let providedIcon = needsCardDerivation
-            ? SigningActionButtonViewTypeBuilder().build(config: accountSelectorCell.userWalletModel.config).mainButtonIcon
-            : nil
-        let text = AttributedString(Localization.commonConfirm)
-
-        if let providedIcon {
-            return .combined(
-                text: text,
-                icon: providedIcon.imageType,
-                iconPosition: .right
-            )
-        } else {
-            return .text(text)
+    var confirmButtonIcon: ImageType? {
+        guard needsCardDerivation else {
+            return nil
         }
+
+        return SigningActionButtonViewTypeBuilder().build(config: accountSelectorCell.userWalletModel.config).mainButtonIcon?.imageType
     }
 
     // MARK: - Private

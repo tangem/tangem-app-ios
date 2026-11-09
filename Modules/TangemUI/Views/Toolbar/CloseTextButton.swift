@@ -23,7 +23,7 @@ public struct CloseTextButton: View {
     public var body: some View {
         SwiftUI.Button(action: action) {
             Text(Localization.commonClose)
-                .style(Fonts.Regular.body, color: isEnabled ? Colors.Text.primary1 : Colors.Text.disabled)
+                .style(Fonts.Regular.body, color: isEnabled ? DesignSystem.Color.textPrimary : DesignSystem.Color.textTertiary)
         }
     }
 }

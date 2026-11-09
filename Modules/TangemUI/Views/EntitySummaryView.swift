@@ -78,9 +78,9 @@ public struct EntitySummaryView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 32, height: 32)
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                 .frame(width: 56, height: 56)
-                .background(Colors.Icon.accent.opacity(0.1))
+                .background(DesignSystem.Color.bgAccentBlueSubtle)
 
         case .customView(let customViewWrapper):
             customViewWrapper.view
@@ -110,9 +110,9 @@ public struct EntitySummaryView: View {
             .resizable()
             .scaledToFit()
             .frame(width: 32, height: 32)
-            .foregroundStyle(Colors.Icon.accent)
+            .foregroundStyle(DesignSystem.Color.iconAccentBlue)
             .frame(width: 56, height: 56)
-            .background(Colors.Icon.accent.opacity(0.1))
+            .background(DesignSystem.Color.bgAccentBlueSubtle)
     }
 
     // MARK: - Title
@@ -123,7 +123,7 @@ public struct EntitySummaryView: View {
         case .content(let contentState):
             Text(contentState.title)
                 .lineLimit(2)
-                .style(Fonts.Bold.subheadline.weight(.semibold), color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline.weight(.semibold), color: DesignSystem.Color.textPrimary)
                 .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.entityProviderName)
                 .transition(.opacity)
 
@@ -159,7 +159,7 @@ public struct EntitySummaryView: View {
         case .content(let contentState):
             Text(contentState.subtitle)
                 .lineLimit(1)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .transition(.opacity)
 
         case .loading:

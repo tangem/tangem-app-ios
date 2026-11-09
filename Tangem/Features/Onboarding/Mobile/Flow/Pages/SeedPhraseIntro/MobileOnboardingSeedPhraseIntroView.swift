@@ -59,10 +59,10 @@ private extension MobileOnboardingSeedPhraseIntroView {
     func commonView(item: ViewModel.CommonItem) -> some View {
         VStack(spacing: 12) {
             Text(item.title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
 
             Text(item.subtitle)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
         }
         .fixedSize(horizontal: false, vertical: true)
         .multilineTextAlignment(.center)
@@ -80,10 +80,10 @@ private extension MobileOnboardingSeedPhraseIntroView {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title)
-                    .style(Fonts.Bold.callout, color: Colors.Icon.primary1)
+                    .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
 
                 Text(item.description)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                     .multilineTextAlignment(.leading)
             }
         }

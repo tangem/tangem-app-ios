@@ -51,7 +51,7 @@ struct TangemPayTransactionDetailsView: View {
         .padding(.top, 8)
         .padding(.horizontal, 16)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(Colors.Background.primary)
+            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }
     }
@@ -64,10 +64,10 @@ struct TangemPayTransactionDetailsView: View {
                 VStack(spacing: 8) {
                     VStack(spacing: 2) {
                         Text(viewModel.name)
-                            .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                            .style(Fonts.Bold.body, color: DesignSystem.Color.textPrimary)
 
                         Text(viewModel.category)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     }
 
                     VStack(spacing: 4) {
@@ -75,7 +75,7 @@ struct TangemPayTransactionDetailsView: View {
 
                         if let localAmount = viewModel.localAmount {
                             Text(localAmount)
-                                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                         }
                     }
                 }
@@ -151,19 +151,19 @@ extension TangemPayTransactionDetailsView.AdditionalInfo {
 
     static let reversed: Self = .init(
         text: Localization.tangemPayTransactionReversedNotificationText,
-        textColor: Colors.Text.tertiary,
+        textColor: DesignSystem.Color.textSecondary,
         icon: Assets.infoCircle20.image,
-        iconColor: Colors.Icon.secondary,
-        backgroundColor: Colors.Button.disabled
+        iconColor: DesignSystem.Color.iconSecondary,
+        backgroundColor: DesignSystem.Color.bgDisabled
     )
 
     private static func warning(text: String) -> Self {
         .init(
             text: text,
-            textColor: Colors.Text.warning,
+            textColor: DesignSystem.Color.textAccentRed,
             icon: Assets.infoCircle20.image,
-            iconColor: Colors.Icon.warning,
-            backgroundColor: Colors.Icon.warning.opacity(0.1)
+            iconColor: DesignSystem.Color.iconAccentRed,
+            backgroundColor: DesignSystem.Color.bgAccentRedSubtle
         )
     }
 }

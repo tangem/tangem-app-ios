@@ -3,255 +3,128 @@
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2023 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
+import TangemFoundation
 import TangemLocalization
+import TangemUI
 import TangemUIUtils
 
 struct TransactionsListView: View {
     let state: State
     let exploreAction: (() -> Void)?
-    let exploreConfirmationDialog: Binding<ConfirmationDialogViewModel?>?
-    let exploreTransactionAction: (String) -> Void
+    let openTransactionDetailsAction: (TransactionViewModel) -> Void
     let reloadButtonAction: () -> Void
     let isReloadButtonBusy: Bool
     let fetchMore: FetchMore?
+    var jointOperationsSection: TransactionListItem? = nil
 
     var body: some View {
-        content
-            .frame(maxWidth: .infinity)
-            .background(Colors.Background.primary)
-            .cornerRadiusContinuous(14)
-    }
-
-    private var header: some View {
-        HStack {
-            Text(Localization.commonTransactions)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
-
-            Spacer()
-
-            if let exploreAction {
-                Button(action: exploreAction) {
-                    HStack(spacing: 4) {
-                        Assets.compass.image
-                            .renderingMode(.template)
-                            .foregroundStyle(Colors.Icon.informative)
-
-                        Text(Localization.commonExplorer)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                    }
-                }
-                .ifLet(exploreConfirmationDialog) { view, exploreConfirmationDialogViewModel in
-                    view.confirmationDialog(viewModel: exploreConfirmationDialogViewModel)
-                }
+        VStack(spacing: .zero) {
+            if let jointOperationsSection {
+                section(jointOperationsSection)
             }
+
+            content
         }
-        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder
     private var content: some View {
         switch state {
         case .notSupported:
-            notSupportedContent
+            StatusStateView(
+                icon: Assets.compassBig,
+                message: Localization.transactionHistoryNotSupportedDescription,
+                primaryButton: exploreAction.map(notSupportedExploreButton),
+                secondaryButton: nil
+            )
         case .loading:
             loadingContent
         case .loaded(let items):
             transactionsContent(transactionItems: items)
         case .error:
-            errorContent
+            StatusStateView(
+                icon: Assets.fileExclamationMark,
+                message: Localization.transactionHistoryErrorFailedToLoad,
+                primaryButton: errorReloadButton,
+                secondaryButton: exploreAction.map(errorExploreButton)
+            )
         }
-    }
-
-    private var notSupportedContent: some View {
-        VStack(spacing: 20) {
-            Assets.compassBig.image
-                .renderingMode(.template)
-                .foregroundColor(Colors.Icon.inactive)
-
-            Text(Localization.transactionHistoryNotSupportedDescription)
-                .multilineTextAlignment(.center)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .padding(.horizontal, 36)
-
-            if let exploreAction {
-                makeExploreTransactionHistoryButton(
-                    withTitle: Localization.commonExploreTransactionHistory,
-                    hasFixedSize: true,
-                    exploreAction: exploreAction
-                )
-                .padding(.horizontal, 16)
-            }
-        }
-        .padding(.vertical, 28)
-    }
-
-    private var loadingContent: some View {
-        VStack(spacing: 12) {
-            header
-
-            ForEach(0 ... 2) { _ in
-                TokenListItemLoadingPlaceholderView(style: .transactionHistory)
-            }
-        }
-        .padding(.top, 12)
-        .padding(.bottom, 16)
-    }
-
-    private var noTransactionsContent: some View {
-        VStack(spacing: 22) {
-            Assets.emptyHistory.image
-                .renderingMode(.template)
-                .foregroundColor(Colors.Icon.inactive)
-
-            Text(Localization.transactionHistoryEmptyTransactions)
-                .multilineTextAlignment(.center)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .padding(.horizontal, 16)
-
-            if let exploreAction {
-                makeExploreTransactionHistoryButton(
-                    withTitle: Localization.commonExplore,
-                    hasFixedSize: true,
-                    exploreAction: exploreAction
-                )
-            }
-        }
-        .padding(.vertical, 28)
-    }
-
-    private var errorContent: some View {
-        VStack(spacing: 20) {
-            Assets.fileExclamationMark.image
-                .renderingMode(.template)
-                .foregroundColor(Colors.Icon.inactive)
-
-            Text(Localization.transactionHistoryErrorFailedToLoad)
-                .multilineTextAlignment(.center)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-                .padding(.horizontal, 36)
-
-            HStack(spacing: 8.0) {
-                makeReloadTransactionHistoryButton()
-
-                if let exploreAction {
-                    makeExploreTransactionHistoryButton(
-                        withTitle: Localization.commonExplore,
-                        hasFixedSize: false,
-                        exploreAction: exploreAction
-                    )
-                }
-            }
-            .padding(.horizontal, 16.0)
-        }
-        .padding(.vertical, 28)
     }
 
     @ViewBuilder
     private func transactionsContent(transactionItems: [TransactionListItem]) -> some View {
         if transactionItems.isEmpty {
-            noTransactionsContent
+            StatusStateView(
+                icon: Assets.emptyHistory,
+                message: Localization.transactionHistoryEmptyTransactions,
+                primaryButton: exploreAction.map(emptyExploreButton),
+                secondaryButton: nil
+            )
         } else {
-            LazyVStack(spacing: 0) {
-                ForEach(transactionItems.indexed(), id: \.1.id) { sectionIndex, sectionItem in
-                    VStack(spacing: 0) {
-                        if sectionIndex == 0 {
-                            header
-                        }
-
-                        makeSectionHeader(for: sectionItem, atIndex: sectionIndex, withVerticalPadding: true)
-                    }
-
-                    ForEach(sectionItem.items.indexed(), id: \.1) { cellIndex, cellItem in
-                        Button {
-                            exploreTransactionAction(cellItem.hash)
-                        } label: {
-                            // Extra padding to implement "cell spacing" without resorting to VStack spacing
-                            TransactionView(viewModel: cellItem)
-                                .padding(.bottom, cellIndex == (sectionItem.items.count - 1) ? 0 : 16)
-                        }
-                    }
+            LazyVStack(spacing: .zero) {
+                ForEach(transactionItems) { sectionItem in
+                    section(sectionItem)
                 }
 
                 if let fetchMore {
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.primary1))
-                        .padding(.vertical)
-                        .onAppear {
-                            fetchMore.start()
-                        }
+                        .progressViewStyle(CircularProgressViewStyle(tint: DesignSystem.Color.iconPrimary))
+                        .padding(.vertical, 16)
+                        .onAppear { fetchMore.start() }
                         .id(fetchMore.id)
                 }
             }
-            .padding(.vertical, 12)
         }
     }
 
     @ViewBuilder
-    private func makeSectionHeader(
-        for item: TransactionListItem,
-        atIndex sectionIndex: Int,
-        withVerticalPadding useVerticalPadding: Bool
-    ) -> some View {
-        HStack {
-            Text(item.header)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-
-            Spacer()
+    private func section(_ item: TransactionListItem) -> some View {
+        if item.header.isNotEmpty {
+            TransactionsListSectionHeaderView(title: item.header)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, useVerticalPadding ? 14 : 0)
+
+        ForEach(item.items, id: \.self) { cellItem in
+            TransactionsListRowView(
+                viewModel: cellItem,
+                openTransactionDetailsAction: openTransactionDetailsAction
+            )
+        }
     }
 
-    private func makeExploreTransactionHistoryButton(
-        withTitle title: String,
-        hasFixedSize: Bool,
-        exploreAction: @escaping () -> Void
-    ) -> some View {
-        Group {
-            if hasFixedSize {
-                FixedSizeButtonWithLeadingIcon(
-                    title: title,
-                    icon: Assets.arrowRightUpMini.image,
-                    style: .default,
-                    action: exploreAction
-                )
-                .overrideBackgroundColor(Constants.buttonBackgroundColor)
-            } else {
-                FlexySizeButtonWithLeadingIcon(
-                    title: title,
-                    icon: Assets.arrowRightUpMini.image,
-                    action: exploreAction
-                )
-                .overrideBackgroundColor(Constants.buttonBackgroundColor)
+    private var loadingContent: some View {
+        VStack(spacing: .zero) {
+            ForEach(0 ..< 3, id: \.self) { _ in
+                TangemTwoLineRowSkeletonView()
             }
         }
-        .ifLet(exploreConfirmationDialog) { view, exploreConfirmationDialogViewModel in
-            view.confirmationDialog(viewModel: exploreConfirmationDialogViewModel)
-        }
     }
 
-    private func makeReloadTransactionHistoryButton() -> some View {
-        FlexySizeButtonWithLeadingIcon(
+    private func notSupportedExploreButton(action: @escaping () -> Void) -> StatusStateView.ActionButton {
+        StatusStateView.ActionButton(title: Localization.commonExploreTransactionHistory, action: action)
+    }
+
+    private func emptyExploreButton(action: @escaping () -> Void) -> StatusStateView.ActionButton {
+        StatusStateView.ActionButton(title: Localization.commonExplore, action: action)
+    }
+
+    private var errorReloadButton: StatusStateView.ActionButton {
+        StatusStateView.ActionButton(
             title: Localization.commonReload,
-            icon: Assets.reload.image,
+            icon: Assets.reload,
+            isLoading: isReloadButtonBusy,
             action: reloadButtonAction
         )
-        .overrideBackgroundColor(Constants.buttonBackgroundColor)
-        .overlay(
-            ZStack {
-                Constants.buttonBackgroundColor
-                    .cornerRadiusContinuous(FlexySizeButtonWithLeadingIcon.Constants.cornerRadius)
+    }
 
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: Colors.Icon.primary1))
-            }
-            .hidden(!isReloadButtonBusy)
-        )
+    private func errorExploreButton(action: @escaping () -> Void) -> StatusStateView.ActionButton {
+        StatusStateView.ActionButton(title: Localization.commonExplore, action: action)
     }
 }
 
@@ -265,7 +138,7 @@ extension TransactionsListView {
         static func == (lhs: State, rhs: State) -> Bool {
             switch (lhs, rhs) {
             case (.loading, .loading): return true
-            case (.error, .error): return true
+            case (.error(let lhsError), .error(let rhsError)): return String(reflecting: lhsError) == String(reflecting: rhsError)
             case (.loaded(let lhsItems), .loaded(let rhsItems)): return lhsItems == rhsItems
             case (.notSupported, .notSupported): return true
             default: return false
@@ -274,145 +147,134 @@ extension TransactionsListView {
     }
 }
 
-// MARK: - Constants
+// MARK: - Section header
 
-extension TransactionsListView {
-    enum Constants {
-        static let buttonBackgroundColor = Colors.Button.secondary
+private struct TransactionsListSectionHeaderView: View {
+    let title: String
+
+    var body: some View {
+        HStack {
+            Text(title)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+
+            Spacer()
+        }
+        .padding(.top, 24)
+        .padding(.bottom, 12)
     }
 }
+
+// MARK: - Empty / Not-supported / Error state shell
+
+private struct StatusStateView: View {
+    struct ActionButton {
+        let title: String
+        let icon: ImageType
+        let isLoading: Bool
+        let action: () -> Void
+
+        init(title: String, icon: ImageType = Assets.arrowRightUpMini, isLoading: Bool = false, action: @escaping () -> Void) {
+            self.title = title
+            self.icon = icon
+            self.isLoading = isLoading
+            self.action = action
+        }
+    }
+
+    let icon: ImageType
+    let message: String
+    let primaryButton: ActionButton?
+    let secondaryButton: ActionButton?
+
+    var body: some View {
+        VStack(spacing: 16) {
+            icon.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
+                .accessibilityIdentifier(TxHistoryAccessibilityIdentifiers.statusStateIcon)
+
+            Text(message)
+                .multilineTextAlignment(.center)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 16)
+
+            if primaryButton != nil || secondaryButton != nil {
+                HStack(spacing: 8) {
+                    if let primaryButton {
+                        actionButton(primaryButton)
+                    }
+                    if let secondaryButton {
+                        actionButton(secondaryButton)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 24)
+    }
+
+    private func actionButton(_ button: ActionButton) -> some View {
+        TangemUI.Button(
+            label: button.title,
+            accessibilityLabel: nil,
+            action: button.action
+        )
+        .iconEnd(button.icon)
+        .styleType(.secondary(.default))
+        .size(.x10)
+        .loading(.spinner(if: button.isLoading))
+    }
+}
+
+// MARK: - Previews
 
 #if DEBUG
 
-final class TxHistoryModel: ObservableObject {
-    @Published var state: TransactionsListView.State
-
-    static let oldItems = [
-        TransactionListItem(
-            header: "Yesterday",
-            items: TransactionViewPreviewData.previewViewModels
-        ),
-        TransactionListItem(
-            header: "02.05.23",
-            items: TransactionViewPreviewData.previewViewModels
-        ),
-    ]
-
-    static let todayItems = [
+#Preview("Loaded") {
+    let items = [
         TransactionListItem(
             header: "Today",
-            items: TransactionViewPreviewData.previewViewModels
+            items: TransactionViewPreviewData.figmaViewModels1
+        ),
+        TransactionListItem(
+            header: "June 12, 2026",
+            items: TransactionViewPreviewData.figmaViewModels2
         ),
     ]
-
-    private var onlyOldItems = true
-
-    init(state: TransactionsListView.State) {
-        self.state = state
+    return ScrollView {
+        TransactionsListView(
+            state: .loaded(items),
+            exploreAction: {},
+            openTransactionDetailsAction: { _ in },
+            reloadButtonAction: {},
+            isReloadButtonBusy: false,
+            fetchMore: nil
+        )
     }
-
-    func toggleState() {
-        switch state {
-        case .loading:
-            state = .loaded(Self.oldItems)
-        case .loaded:
-            if onlyOldItems {
-                state = .loaded(Self.todayItems + Self.oldItems)
-                onlyOldItems = false
-                return
-            }
-
-            state = .error("Don't touch this!!!")
-            onlyOldItems = true
-        case .error:
-            state = .notSupported
-        case .notSupported:
-            state = .loading
-        }
-    }
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }
 
-struct TransactionsListPreview: View {
-    @ObservedObject var model: TxHistoryModel
-
-    var body: some View {
-        VStack {
-            Button(action: model.toggleState) {
-                Text("Toggle state")
-            }
-
-            ScrollView {
-                TransactionsListView(
-                    state: model.state,
-                    exploreAction: {},
-                    exploreConfirmationDialog: nil,
-                    exploreTransactionAction: { _ in },
-                    reloadButtonAction: {},
-                    isReloadButtonBusy: false,
-                    fetchMore: nil
-                )
-                .animation(.default, value: model.state)
-                .padding(.horizontal, 16)
-            }
-        }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-    }
-}
-
-@available(iOS 17.0, *)
-#Preview("Yesterday") {
-    @Previewable @StateObject var model = TxHistoryModel(state: .loaded(TxHistoryModel.oldItems))
-
-    TransactionsListPreview(model: model)
-}
-
-@available(iOS 17.0, *)
-#Preview("Today") {
-    @Previewable @StateObject var model = TxHistoryModel(
-        state: .loaded(TxHistoryModel.todayItems + TxHistoryModel.oldItems)
-    )
-
-    TransactionsListPreview(model: model)
-}
-
-@available(iOS 17.0, *)
-#Preview("Figma") {
-    @Previewable @StateObject var model = TxHistoryModel(
-        state: .loaded([
-            TransactionListItem(header: "Today", items: TransactionViewPreviewData.figmaViewModels1),
-            TransactionListItem(header: "Yesterday", items: TransactionViewPreviewData.figmaViewModels2),
-        ])
-    )
-
-    TransactionsListPreview(model: model)
-}
-
-@available(iOS 17.0, *)
-#Preview("Empty") {
-    @Previewable @StateObject var model = TxHistoryModel(state: .loaded([]))
-
-    TransactionsListPreview(model: model)
-}
-
-@available(iOS 17.0, *)
-#Preview("Loading") {
-    @Previewable @StateObject var model = TxHistoryModel(state: .loading)
-
-    TransactionsListPreview(model: model)
-}
-
-@available(iOS 17.0, *)
-#Preview("Not supported") {
-    @Previewable @StateObject var model = TxHistoryModel(state: .notSupported)
-
-    TransactionsListPreview(model: model)
-}
-
-@available(iOS 17.0, *)
 #Preview("Error") {
-    @Previewable @StateObject var model = TxHistoryModel(state: .error("eror!"))
-
-    TransactionsListPreview(model: model)
+    TransactionsListView(
+        state: .error("oops"),
+        exploreAction: {},
+        openTransactionDetailsAction: { _ in },
+        reloadButtonAction: {},
+        isReloadButtonBusy: false,
+        fetchMore: nil
+    )
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }
 
+#Preview("Empty") {
+    TransactionsListView(
+        state: .loaded([]),
+        exploreAction: {},
+        openTransactionDetailsAction: { _ in },
+        reloadButtonAction: {},
+        isReloadButtonBusy: false,
+        fetchMore: nil
+    )
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
+}
 #endif // DEBUG

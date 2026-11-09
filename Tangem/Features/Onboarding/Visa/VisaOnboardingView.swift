@@ -30,7 +30,7 @@ struct VisaOnboardingView: View {
                     .transition(.opacity)
             }
         }
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgPrimary)
         .alert(item: $viewModel.alert) { $0.alert }
     }
 

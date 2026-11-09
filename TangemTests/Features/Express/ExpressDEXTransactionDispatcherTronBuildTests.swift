@@ -63,6 +63,61 @@ final class ExpressDEXTransactionDispatcherTronBuildTests: LeakTrackingTestSuite
         #expect(params.memo == TronDEXFixtures.swapKitMemo)
     }
 
+    @Test("a gasless contract call derives its fee limit from the quoted TRX cost")
+    func buildTronTransaction_gaslessContractCallUsesTrxCost() async throws {
+        let env = makeEnvironment()
+        let token = BSDKToken(
+            name: "USDT",
+            symbol: "USDT",
+            contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+            decimalCount: 6
+        )
+        let mapped = try TronDEXTransactionMapper(blockchain: .tron(testnet: false))
+            .map(
+                data: makeExpressTransactionData(txData: "0x" + TronDEXFixtures.liFiRawTransactionHex),
+                expectedOwner: nil
+            )
+        guard case .contractCall(let call) = mapped else {
+            Issue.record("Expected contract call fixture")
+            return
+        }
+        let callData = call.callData
+        let parameters = TronGaslessFeeParameters(
+            quoteId: "quote",
+            request: TronGaslessQuoteRequest(
+                sourceAddress: "TRbRnXcKrA9bkx1nnP3Z6pLJ2SDPdwRnBW",
+                tokenContractAddress: token.contractAddress,
+                amountRaw: 1_000_000,
+                feeTokenContractAddress: token.contractAddress,
+                operation: .swap(
+                    contractAddress: "TU3ymitEKCWQFtASkEeHaPb8NfZcJtCHLt",
+                    callData: callData,
+                    spender: nil
+                )
+            ),
+            feeRecipient: "TFeeRecipient",
+            compensationToken: token.contractAddress,
+            compensationAmountRaw: "500000",
+            expiresAt: .distantFuture,
+            energy: 1,
+            bandwidth: 1,
+            trxCost: "120"
+        )
+        let fee = Fee(Amount(with: token, value: 0.5), parameters: parameters)
+
+        let transaction = try await env.dispatcher.buildTronTransaction(
+            data: makeExpressTransactionData(txData: "0x" + TronDEXFixtures.liFiRawTransactionHex),
+            fee: fee
+        )
+
+        let params = try #require(transaction.params as? TronTransactionParams)
+        guard case .contractCall(_, let feeLimit) = params.transactionType else {
+            Issue.record("Expected .contractCall params, got \(params.transactionType)")
+            return
+        }
+        #expect(feeLimit == 120_000_000)
+    }
+
     @Test("a provider coin transfer builds a plain transfer transaction")
     func buildTronTransaction_transfer() async throws {
         let env = makeEnvironment()
