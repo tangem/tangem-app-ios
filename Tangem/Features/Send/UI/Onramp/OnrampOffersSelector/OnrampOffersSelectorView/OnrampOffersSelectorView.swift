@@ -15,13 +15,6 @@ import TangemAccessibilityIdentifiers
 struct OnrampOffersSelectorView: View {
     @ObservedObject var viewModel: OnrampOffersSelectorViewModel
 
-    var backButtonVisible: Bool {
-        switch viewModel.viewState {
-        case .paymentMethods: false
-        case .offers: true
-        }
-    }
-
     var subtitle: String {
         switch viewModel.viewState {
         case .paymentMethods: Localization.onrampPaymentMethodSubtitle
@@ -29,23 +22,31 @@ struct OnrampOffersSelectorView: View {
         }
     }
 
+    var backAction: (() -> Void)? {
+        switch viewModel.viewState {
+        case .paymentMethods: nil
+        case .offers: viewModel.back
+        }
+    }
+
+    var contentSpacing: CGFloat {
+        switch viewModel.viewState {
+        case .paymentMethods: 4
+        case .offers: 8
+        }
+    }
+
     var body: some View {
         VStack(spacing: .zero) {
-            BottomSheetHeaderView(
+            OnrampSheetHeaderView(
                 title: Localization.onrampAllOffersButtonTitle,
                 subtitle: subtitle,
-                leading: {
-                    NavigationBarButton.back(action: viewModel.back).visible(backButtonVisible)
-                },
-                trailing: {
-                    NavigationBarButton.close(action: viewModel.close)
-                }
+                titleAccessibilityIdentifier: OnrampAccessibilityIdentifiers.providersScreenTitle,
+                backAction: backAction,
+                closeAction: viewModel.close
             )
-            .subtitleSpacing(0)
-            .padding(.horizontal, 16)
-            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providersScreenTitle)
 
-            GroupedScrollView(contentType: .plain(alignment: .leading, spacing: 8)) {
+            GroupedScrollView(contentType: .plain(alignment: .leading, spacing: contentSpacing)) {
                 if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
                     StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
                 }
@@ -78,7 +79,7 @@ struct OnrampOffersSelectorView: View {
             }
         case .offers(let providers):
             ForEach(providers) {
-                OnrampOfferView(viewModel: $0)
+                OnrampOfferView(viewModel: $0, cardBackground: DesignSystem.Color.bgTransparentPrimary)
             }
         }
     }

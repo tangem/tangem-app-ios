@@ -74,6 +74,20 @@ public struct TopNavigationActions: View {
     }
 }
 
+// MARK: - Chrome button
+
+public struct TopNavigationChromeButton: View {
+    private let action: TopNavigation.Action
+
+    public init(action: TopNavigation.Action) {
+        self.action = action
+    }
+
+    public var body: some View {
+        TopNavigationCircleButton(action: action)
+    }
+}
+
 // MARK: - Leading decoration
 
 /// Non-interactive leading content — no button chrome, no hit target. `size` scales with Dynamic Type.

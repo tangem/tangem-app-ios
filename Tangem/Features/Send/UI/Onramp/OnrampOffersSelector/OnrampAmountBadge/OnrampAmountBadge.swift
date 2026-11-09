@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemLocalization
+import TangemUI
 
 struct OnrampAmountBadge: View {
     let badge: Badge?
@@ -19,32 +20,21 @@ struct OnrampAmountBadge: View {
             EmptyView()
 
         case .best:
-            Assets.Express.bestRateStarIcon.image
-                .resizable()
-                .frame(width: 8, height: 8)
-                .padding(2)
-                .background(Circle().fill(DesignSystem.Color.bgAccentBlue))
+            ZStack {
+                Avatar(.icon(DesignSystem.Icons.Star.filled16, appearance: .info), size: .size16)
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Localization.expressProviderBestRate)
+            .accessibilityAddTraits(.isImage)
 
         case .loss(let percent, let signType):
-            Text(percent)
-                .style(Fonts.Bold.caption2, color: signType.textColor)
-                .padding(.vertical, 1)
-                .padding(.horizontal, 4)
-                .background(
-                    RoundedRectangle(cornerRadius: 4, style: .continuous)
-                        .fill(signType.textColor.opacity(0.1))
-                )
+            TangemUI.Badge(label: percent, accessibilityLabel: nil)
+                .size(.x4)
+                .appearance(signType.badgeAppearance)
 
         case .restricted:
-            Text(Localization.commonNotAvailable)
-                .style(Fonts.Bold.caption2, color: DesignSystem.Color.textSecondary)
-                .lineLimit(1)
-                .padding(.vertical, 1)
-                .padding(.horizontal, 4)
-                .background(
-                    RoundedRectangle(cornerRadius: 4, style: .continuous)
-                        .fill(DesignSystem.Color.bgTransparentPrimary)
-                )
+            TangemUI.Badge(label: Localization.commonNotAvailable, accessibilityLabel: nil)
+                .size(.x4)
         }
     }
 }
@@ -54,5 +44,15 @@ extension OnrampAmountBadge {
         case best
         case loss(percent: String, signType: ChangeSignType)
         case restricted
+    }
+}
+
+private extension ChangeSignType {
+    var badgeAppearance: BadgeAppearance {
+        switch self {
+        case .positive: .info
+        case .neutral: .neutral
+        case .negative: .error
+        }
     }
 }
