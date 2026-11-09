@@ -34,6 +34,8 @@ struct CasperAddressTests {
 
     @Test(arguments: [
         "0198c07D7e72D89A681d7227a7Af8A6fd5F22fe0105c8741d55A95dF415454b82E",
+        "0198c07d7e72d89a681d7227a7af8a6fd5f22fe0105c8741d55a95df415454b82e",
+        "0198C07D7E72D89A681D7227A7AF8A6FD5F22FE0105C8741D55A95DF415454B82E",
     ])
     func addressValidation_validAddresses_ed25519(address: String) {
         #expect(ed25519AddressService.validate(address))
@@ -41,8 +43,31 @@ struct CasperAddressTests {
 
     @Test(arguments: [
         "02021f997DfbbFd32817C0E110EAeE26BCbD2BB70b4640C515D9721c9664312eaCd8",
+        "02021f997dfbbfd32817c0e110eaee26bcbd2bb70b4640c515d9721c9664312eacd8",
+        "02021F997DFBBFD32817C0E110EAEE26BCBD2BB70B4640C515D9721C9664312EACD8",
     ])
     func addressValidation_validAddresses_secp256k1(address: String) {
         #expect(secp256k1AddressService.validate(address))
+    }
+
+    @Test("An ed25519 address with a non-hex character is rejected, whatever its case", arguments: [
+        "01" + String(repeating: "z", count: 64),
+        "0198co7d7e72d89a681d7227a7af8a6fd5f22fe0105c8741d55a95df415454b82e",
+        "0198c07d7e72d89a681d7227a7af8a6fd5f22fe0105c8741d55a95df415454b82\u{0430}",
+        "0198c07d7e72d89a681d7227a7af8a6fd5f22fe0105c8741d55a95df415454b82\u{FF10}",
+        "0198c07d7e72d89a681d7227a7af8a6fd5f22fe0105c8741d55a95df415454b82a\u{0301}",
+        "0198c07D7e72D89A681d7227a7Af8A6fd5F22fe0105c8741d55A95dF415454b82Z",
+    ])
+    func nonHexEd25519AddressIsRejected(address: String) {
+        #expect(!ed25519AddressService.validate(address))
+    }
+
+    @Test("A secp256k1 address with a non-hex character is rejected, whatever its case", arguments: [
+        "02" + String(repeating: "z", count: 66),
+        "02021F997DFBBFD32817C0E110EAEE26BCBD2BB70B4640C515D9721C9664312EACDG",
+        "02021f997DfbbFd32817C0E110EAeE26BCbD2BB70b4640C515D9721c9664312eaCdZ",
+    ])
+    func nonHexSecp256k1AddressIsRejected(address: String) {
+        #expect(!secp256k1AddressService.validate(address))
     }
 }
