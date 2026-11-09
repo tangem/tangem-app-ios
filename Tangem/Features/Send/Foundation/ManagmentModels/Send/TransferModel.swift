@@ -20,6 +20,7 @@ final class TransferModel {
     private let _destination: CurrentValueSubject<SendDestination?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
     private let _amount: CurrentValueSubject<SendAmount?, Never>
+    private let contractCallData: Data?
     private let _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
     private let _transaction = CurrentValueSubject<Result<BSDKTransaction, Error>?, Never>(nil)
@@ -46,7 +47,11 @@ final class TransferModel {
     private let balanceConverter = BalanceConverter()
     private let transactionBuild = OSAllocatedUnfairLock(initialState: TransactionBuild())
     private var transactionInputsSubscription: AnyCancellable?
-    private var feeUpdateTask: Task<Void, Never>?
+    private(set) var feeUpdateTask: Task<Void, Never>?
+
+    var transactionBuildTask: Task<Void, Never>? {
+        transactionBuild.withLock { $0.task }
+    }
 
     // MARK: - Public interface
 
@@ -69,6 +74,7 @@ final class TransferModel {
         _destination = .init(predefinedValues.destination)
         _destinationAdditionalField = .init(predefinedValues.tag)
         _amount = .init(predefinedValues.amount)
+        contractCallData = predefinedValues.contractCallData
 
         bind()
     }
@@ -184,7 +190,7 @@ private extension TransferModel {
             ) ?? amountValue
 
             for _ in 0 ..< Self.maximumGaslessQuoteResolutionAttempts {
-                feeProvidersManager.update(input: .common(amount: estimationAmount, destination: destination))
+                feeProvidersManager.update(input: model.feeInput(amount: estimationAmount, destination: destination))
                 await feeProvidersManager.updateFees().value
 
                 guard !Task.isCancelled,
@@ -283,7 +289,13 @@ private extension TransferModel {
 
         var transactionsParams: TransactionParams?
 
-        if case .filled(_, _, let params) = additionalField {
+        if let contractCallData {
+            guard case .coin = amount.type, let wei = amount.bigUIntValue, wei > 0 else {
+                throw ValidationError.invalidAmount
+            }
+
+            transactionsParams = EthereumTransactionParams(data: contractCallData)
+        } else if case .filled(_, _, let params) = additionalField {
             transactionsParams = params
         }
 
@@ -300,6 +312,29 @@ private extension TransferModel {
     private func makeAmount(decimal: Decimal) -> Amount {
         let tokenItem = _sourceToken.tokenItem
         return Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: decimal)
+    }
+}
+
+// MARK: - Fee input
+
+private extension TransferModel {
+    func feeInput(amount: Decimal, destination: String) -> TokenFeeProviderInputData {
+        guard let contractCallData else {
+            return .common(amount: amount, destination: destination)
+        }
+
+        let balance = _sourceToken.availableBalanceProvider.balanceType.value ?? amount
+        let halfBalance = (balance / 2).rounded(scale: _sourceToken.tokenItem.decimalCount)
+
+        return .dex(
+            .ethereum(
+                amount: makeAmount(decimal: min(amount, halfBalance)),
+                destination: destination,
+                txData: contractCallData,
+                otherNativeFee: nil,
+                gasLimitIncreasePercent: EthereumFeeParametersConstants.yieldModuleGasLimitIncreasePercent
+            )
+        )
     }
 }
 
@@ -816,15 +851,18 @@ extension TransferModel {
         let destination: SendDestination?
         let tag: SendDestinationAdditionalField
         let amount: SendAmount?
+        let contractCallData: Data?
 
         init(
             destination: SendDestination? = nil,
             tag: SendDestinationAdditionalField = .notSupported,
-            amount: SendAmount? = nil
+            amount: SendAmount? = nil,
+            contractCallData: Data? = nil
         ) {
             self.destination = destination
             self.tag = tag
             self.amount = amount
+            self.contractCallData = contractCallData
         }
     }
 }

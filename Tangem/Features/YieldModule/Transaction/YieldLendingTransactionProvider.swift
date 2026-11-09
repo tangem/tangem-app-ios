@@ -62,19 +62,8 @@ final class YieldLendingTransactionProvider {
         )
     }
 
-    func depositTransaction(
-        amount: Decimal,
-        yieldModule: String,
-        upgradeImplementation: String?,
-        fee: Fee
-    ) async throws -> Transaction {
-        try await moduleTransaction(
-            value: positiveWholeWei(amount),
-            yieldModule: yieldModule,
-            method: EnterProtocolByOwnerWithNativeMethod(),
-            upgradeImplementation: upgradeImplementation,
-            fee: fee
-        )
+    static func depositCallData(upgradeImplementation: String?) -> Data {
+        moduleCallData(method: EnterProtocolByOwnerWithNativeMethod(), upgradeImplementation: upgradeImplementation)
     }
 
     func withdrawTransaction(
@@ -124,11 +113,14 @@ final class YieldLendingTransactionProvider {
         upgradeImplementation: String?,
         fee: Fee
     ) async throws -> Transaction {
-        let data = upgradeImplementation.map {
+        let data = Self.moduleCallData(method: method, upgradeImplementation: upgradeImplementation)
+        return try await transaction(value: value, contractAddress: yieldModule, data: data, fee: fee)
+    }
+
+    private static func moduleCallData(method: SmartContractMethod, upgradeImplementation: String?) -> Data {
+        upgradeImplementation.map {
             UpgradeToAndCallMethod(newImplementation: $0, callData: method.data).data
         } ?? method.data
-
-        return try await transaction(value: value, contractAddress: yieldModule, data: data, fee: fee)
     }
 
     private func transaction(value: Decimal, contractAddress: String, data: Data, fee: Fee) async throws -> Transaction {

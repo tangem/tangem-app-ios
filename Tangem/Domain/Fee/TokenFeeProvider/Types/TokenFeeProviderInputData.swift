@@ -8,6 +8,7 @@
 
 import Foundation
 import BigInt
+import BlockchainSdk
 import TangemMacro
 
 @RawCaseName
@@ -51,7 +52,13 @@ enum FeeMultiplier: Decimal, Hashable {
 }
 
 enum TokenFeeProviderInputDataDEXType: Hashable {
-    case ethereum(amount: BSDKAmount, destination: String, txData: Data, otherNativeFee: Decimal?)
+    case ethereum(
+        amount: BSDKAmount,
+        destination: String,
+        txData: Data,
+        otherNativeFee: Decimal?,
+        gasLimitIncreasePercent: BigUInt = EthereumFeeParametersConstants.defaultGasLimitIncreasePercent
+    )
     case ethereumEstimate(estimatedGasLimit: Int, otherNativeFee: Decimal?)
     case solana(compiledTransaction: Data)
     case bitcoinPsbt(psbtBase64: String)

@@ -334,7 +334,7 @@ private extension CommonTokenFeeProvider {
     /// The fee a bridge provider charges in the blockchain's coin, carried by every input that can describe a swap
     func bridgeFee(in input: TokenFeeProviderInputData?) -> Decimal {
         switch input {
-        case .dex(.ethereum(_, _, _, let otherNativeFee)),
+        case .dex(.ethereum(_, _, _, let otherNativeFee, _)),
              .dex(.ethereumEstimate(_, let otherNativeFee)),
              .approveWithSwap(_, _, _, let otherNativeFee, _):
             otherNativeFee ?? 0
