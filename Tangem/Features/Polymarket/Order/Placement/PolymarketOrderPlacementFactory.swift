@@ -13,7 +13,10 @@ struct PolymarketOrderPlacementFactory {
     private let services = PolymarketOnboardingServicesFactory.makeDefault()
 
     func makeService(for userWalletModel: any UserWalletModel) -> PolymarketOrderPlacementService {
-        CommonPolymarketOrderPlacementService(
+        let sessionKeyFactory = PolymarketSessionKeyFactory()
+        let sessionKeySigner = sessionKeyFactory.makeOrderDigestSigner(for: userWalletModel)
+
+        return CommonPolymarketOrderPlacementService(
             userWalletId: userWalletModel.userWalletId,
             ownerAddressProvider: CommonPolymarketOwnerAddressProvider(keysRepository: userWalletModel.keysRepository),
             credentialsRepository: CommonPolymarketCredentialsRepository(),
@@ -23,6 +26,11 @@ struct PolymarketOrderPlacementFactory {
                     keysRepository: userWalletModel.keysRepository,
                     signer: userWalletModel.signer
                 )
+            ),
+            sessionKeyPlacement: CommonPolymarketOrderPlacementService.SessionKeyPlacement(
+                placer: PolymarketOrderPlacer(clobService: services.makeCLOBService(), digestSigner: sessionKeySigner),
+                signer: sessionKeySigner,
+                router: sessionKeyFactory.makeSigningRouter(for: userWalletModel)
             )
         )
     }

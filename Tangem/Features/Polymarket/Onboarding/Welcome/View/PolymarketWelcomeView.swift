@@ -16,12 +16,10 @@ import TangemUIUtils
 struct PolymarketWelcomeView: View {
     @ObservedObject var viewModel: PolymarketWelcomeViewModel
 
-    @State private var containerWidth: CGFloat = 0
-
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 0) {
-                hero
+                PolymarketHero(image: Assets.Polymarket.welcomeBackground, tint: Constants.heroTint, scrollSpace: Constants.scrollSpace)
 
                 title
 
@@ -31,7 +29,6 @@ struct PolymarketWelcomeView: View {
             }
         }
         .coordinateSpace(name: Constants.scrollSpace)
-        .readGeometry(\.size.width) { containerWidth = $0 }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .ignoresSafeArea(edges: .top)
         .overlay(alignment: .topTrailing) {
@@ -41,6 +38,12 @@ struct PolymarketWelcomeView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) { footer }
         .disabled(viewModel.isRunning)
         .alert(item: $viewModel.alert) { $0.alert }
+        .modal(
+            isPresented: $viewModel.isFastTradingFAQPresented,
+            size: .full,
+            navigation: .title(PolymarketFastTradingStrings.title),
+            content: { PolymarketFastTradingFAQView() }
+        )
     }
 
     @ViewBuilder
@@ -53,46 +56,6 @@ struct PolymarketWelcomeView: View {
         }
     }
 
-    // MARK: - Hero
-
-    private var hero: some View {
-        GeometryReader { proxy in
-            let overscroll = max(0, proxy.frame(in: .named(Constants.scrollSpace)).minY)
-            let height = heroHeight(forWidth: proxy.size.width)
-
-            Assets.Polymarket.welcomeBackground.image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: proxy.size.width, height: height + overscroll)
-                .clipped()
-                .overlay { heroTint }
-                .offset(y: -overscroll)
-                .accessibilityHidden(true)
-        }
-        .aspectRatio(Constants.heroAspectRatio, contentMode: .fit)
-        .padding(.bottom, -heroContentOverlap(forWidth: containerWidth))
-    }
-
-    private var heroTint: some View {
-        LinearGradient(
-            stops: [
-                .init(color: DesignSystem.Color.bgPrimary.opacity(0), location: Constants.heroTintStart),
-                .init(color: DesignSystem.Color.bgPrimary, location: Constants.heroTintEnd),
-                .init(color: DesignSystem.Color.bgPrimary, location: 1),
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    private func heroHeight(forWidth width: CGFloat) -> CGFloat {
-        width / Constants.heroAspectRatio
-    }
-
-    private func heroContentOverlap(forWidth width: CGFloat) -> CGFloat {
-        heroHeight(forWidth: width) * Constants.heroContentOverlapRatio
-    }
-
     // MARK: - Content
 
     private var title: some View {
@@ -101,6 +64,11 @@ struct PolymarketWelcomeView: View {
                 .style(DesignSystem.Font.headingMediumToken, color: DesignSystem.Color.textPrimary)
                 .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.onboardingTitle)
 
+            if viewModel.showsFastTradingToggle {
+                fastTradingCard
+                    .padding(.vertical, Constants.fastTradingCardVerticalPadding)
+            }
+
             Text(viewModel.copy.subtitle)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
         }
@@ -108,6 +76,35 @@ struct PolymarketWelcomeView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, Constants.horizontalPadding)
         .padding(.vertical, Constants.titleVerticalPadding)
+    }
+
+    private var fastTradingCard: some View {
+        VStack(alignment: .leading, spacing: Constants.fastTradingCardSpacing) {
+            SwiftUI.Button(action: { viewModel.handleViewAction(.openFastTradingFAQ) }) {
+                HStack(spacing: Constants.fastTradingCaptionSpacing) {
+                    Text(PolymarketFastTradingStrings.title)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+
+                    DesignSystem.Icons.Info.regular16.image
+                        .renderingMode(.template)
+                        .foregroundStyle(DesignSystem.Color.iconSecondary)
+                }
+                .expandingHitArea(by: Constants.fastTradingInfoHitAreaInset)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(PolymarketFastTradingStrings.whatIsFastTrading)
+
+            Toggle(isOn: $viewModel.isFastTradingEnabled) {
+                Text(PolymarketFastTradingStrings.onboardingToggleTitle)
+                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .tint(DesignSystem.Color.bgStatusInfo)
+        }
+        .padding(Constants.fastTradingCardPadding)
+        .background(DesignSystem.Color.bgSecondary)
+        .clipShape(.rect(cornerRadius: Constants.fastTradingCardCornerRadius))
+        .glowRing(.magic)
     }
 
     private var highlights: some View {
@@ -157,30 +154,10 @@ struct PolymarketWelcomeView: View {
     private var questions: some View {
         VStack(spacing: 0) {
             ForEach(indexed: viewModel.copy.questions) { index, question in
-                questionSection(question, isFirst: index == 0)
+                PolymarketTextSection(title: question.title, text: question.answer, isSeparated: index > 0)
             }
         }
         .padding(.horizontal, Constants.horizontalPadding)
-    }
-
-    private func questionSection(_ question: PolymarketWelcomeContent.Question, isFirst: Bool) -> some View {
-        VStack(alignment: .leading, spacing: Constants.questionSpacing) {
-            Text(question.title)
-                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-
-            Text(question.answer)
-                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
-        }
-        .fixedSize(horizontal: false, vertical: true)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, Constants.questionTopPadding)
-        .padding(.bottom, Constants.questionSpacing)
-        .overlay(alignment: .top) {
-            if !isFirst {
-                Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
-            }
-        }
-        .padding(.top, isFirst ? 0 : Constants.questionSpacing)
     }
 
     // MARK: - Footer
@@ -231,13 +208,17 @@ private extension PolymarketWelcomeView {
         static let navigationHorizontalPadding: CGFloat = 16
         static let scrollSpace = "polymarketWelcomeScroll"
 
-        static let heroAspectRatio: CGFloat = 402.0 / 608.0
-        static let heroTintStart: CGFloat = 380.0 / 608.0
-        static let heroTintEnd: CGFloat = 600.0 / 608.0
-        static let heroContentOverlapRatio: CGFloat = (608.0 - 495.0) / 608.0
+        static let heroTint = PolymarketHero.Tint(start: 380.0 / 608.0, end: 600.0 / 608.0)
 
         static let titleSpacing: CGFloat = 8
         static let titleVerticalPadding: CGFloat = 12
+
+        static let fastTradingCardVerticalPadding: CGFloat = 8
+        static let fastTradingCardSpacing: CGFloat = 8
+        static let fastTradingCaptionSpacing: CGFloat = 2
+        static let fastTradingInfoHitAreaInset: CGFloat = 14
+        static let fastTradingCardPadding: CGFloat = 16
+        static let fastTradingCardCornerRadius: CGFloat = 24
 
         static let highlightSpacing: CGFloat = 8
         static let highlightPadding: CGFloat = 16
@@ -246,9 +227,6 @@ private extension PolymarketWelcomeView {
         static let highlightContentHeight: CGFloat = 100
         static let highlightIconSize: CGFloat = 24
         static let highlightIconSpacing: CGFloat = 12
-
-        static let questionSpacing: CGFloat = 12
-        static let questionTopPadding: CGFloat = 24
 
         static let footerSpacing: CGFloat = 12
         static let footerVerticalPadding: CGFloat = 12

@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol PolymarketMainRoutable: AnyObject {
+protocol PolymarketMainRoutable: PolymarketFastTradingBannerRoutable {
     func dismiss()
     func openRegionWarning()
 

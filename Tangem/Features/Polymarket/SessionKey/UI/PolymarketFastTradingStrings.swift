@@ -41,6 +41,8 @@ enum PolymarketFastTradingStrings {
     static let activationInProgress = "Activation in progress"
     static let extensionInProgress = "Extension in progress"
     static let revocationInProgress = "Revoking fast trading"
+    static let sessionKeyUnavailableNotice = "Fast trading is unavailable for this order. Confirm it the usual way."
+    static let sessionKeyUnverifiedNotice = "Couldn't check fast trading. Try again."
 
     static let infoTitle = "Trade Predictions without tapping your Tangem card or ring every time"
     static let durationCaption = "How long it lasts"
@@ -55,7 +57,7 @@ enum PolymarketFastTradingStrings {
 
     static let howLongItLasts = Section(
         title: "How long does it last?",
-        text: "Up to 180 days. Renewing it takes one card tap."
+        text: "Up to 180 days. We'll send a reminder before it expires, and renewing takes one card tap."
     )
 
     static let whatItCanDo = Section(

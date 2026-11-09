@@ -51,7 +51,7 @@ extension PolymarketCLOBService {
     func deriveOrCreateCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
         do {
             return try await deriveCredentials(authHeaders: authHeaders)
-        } catch let error as PolymarketAPIError where error.isClientRefusal {
+        } catch let error as PolymarketAPIError where error.isClientRefusal && !error.isRetryable {
             return try await createCredentials(authHeaders: authHeaders)
         }
     }

@@ -56,11 +56,11 @@ final class PolymarketOrderViewModel: ObservableObject {
     private let model: PolymarketOrderModel
     private let submission: PolymarketOrderSubmission?
     private weak var coordinator: PolymarketOrderRoutable?
+    private let signingChoice: PolymarketOrderSigningChoice?
 
     private var placementTask: Task<Void, Never>?
     private var hintsAmount: Decimal?
-    private var pendingPlacementDate: Date?
-    private let now: () -> Date
+    private var renderedState: PolymarketOrderModel.State?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Init
@@ -68,14 +68,16 @@ final class PolymarketOrderViewModel: ObservableObject {
     init(
         model: PolymarketOrderModel,
         flowStyle: PolymarketOrderFlowStyle = .summaryStep,
-        coordinator: PolymarketOrderRoutable?,
-        now: @escaping () -> Date = Date.init
+        signingChoice: PolymarketOrderSigningChoice? = nil,
+        coordinator: PolymarketOrderRoutable?
     ) {
         self.model = model
         self.flowStyle = flowStyle
+        self.signingChoice = signingChoice
         self.coordinator = coordinator
-        self.now = now
-        submission = flowStyle.singleSheet.map { PolymarketOrderSubmission(model: model, placementService: $0.placementService) }
+        submission = flowStyle.singleSheet.map {
+            PolymarketOrderSubmission(model: model, placementService: $0.placementService, signingChoice: signingChoice)
+        }
 
         marketRow = .make(
             market: model.market,
@@ -88,6 +90,7 @@ final class PolymarketOrderViewModel: ObservableObject {
         slippageText = PolymarketSlippageFormatter.rowText(model.state.slippagePercent)
 
         bind()
+        forwardSigningChoiceChanges()
     }
 
     deinit {
@@ -101,7 +104,6 @@ final class PolymarketOrderViewModel: ObservableObject {
         case .onAppear:
             model.handleViewAction(.onAppear)
         case .onDisappear:
-            dropPendingPlacement()
             model.handleViewAction(.onDisappear)
         case .close:
             guard !isPlacing else { return }
@@ -109,8 +111,8 @@ final class PolymarketOrderViewModel: ObservableObject {
             coordinator?.closeOrder()
         case .openSummary:
             coordinator?.openSummary(model: model)
-        case .placeOrder:
-            place()
+        case .placeOrder(let tappedWithSessionKey):
+            place(tappedWithSessionKey: tappedWithSessionKey)
         case .openFeeBreakdown:
             guard isFeeBreakdownAvailable else { return }
 
@@ -212,7 +214,7 @@ extension PolymarketOrderViewModel {
         case selectFraction(PolymarketAmountFraction)
         case selectPreset(AmountPreset.Kind)
         case retryQuote
-        case placeOrder
+        case placeOrder(tappedWithSessionKey: Bool)
         case openFeeBreakdown
         case openLegalTerms(URL)
     }
@@ -264,6 +266,8 @@ private extension PolymarketOrderViewModel {
     }
 
     func update(with state: PolymarketOrderModel.State) {
+        renderedState = state
+
         let gate = PolymarketOrderGate(state: state, intent: model.intent)
         let isAwaitingFreshQuote = state.enteredAmount != nil && state.quote.isAwaitingQuote && !state.quote.isResuming
         let keepsPreviousHints = isAwaitingFreshQuote && (!isSingleSheet || state.enteredAmount == hintsAmount)
@@ -282,11 +286,10 @@ private extension PolymarketOrderViewModel {
         }
         isAwaitingFunds = state.isAwaitingFunds
         isAddFundsEnabled = state.addFundsReadiness.addFundsAvailability == .available
-        isNextEnabled = gate.isPrimaryButtonEnabled || (isSingleSheet && isAwaitingFreshQuote && gate.isPrimaryButtonEnabledWhileQuoting)
+        isNextEnabled = gate.isPrimaryButtonEnabled
 
         if isSingleSheet {
             updateTotal(with: state)
-            placeOnceQuoted(state: state, gate: gate)
         }
 
         let isTradable = model.market.isAcceptingOrders && !gate.notifications.contains(.marketClosed)
@@ -342,7 +345,7 @@ private extension PolymarketOrderViewModel {
 
 private extension PolymarketOrderViewModel {
     func updateTotal(with state: PolymarketOrderModel.State) {
-        let quote = state.quote.quote ?? state.quote.partialQuote
+        let quote = state.quote.quote
 
         showsTotal = state.enteredAmount != nil
         totalText = PolymarketOrderFormatter.money(quote?.total)
@@ -350,49 +353,22 @@ private extension PolymarketOrderViewModel {
         isFeeBreakdownAvailable = quote != nil
     }
 
-    func place() {
-        guard let submission, !isPlacing, isNextEnabled else { return }
+    func place(tappedWithSessionKey: Bool) {
+        guard let submission, let renderedState, !isPlacing, isNextEnabled else { return }
 
         isPlacing = true
-        placeIfReady(submission, waitsForQuote: true)
+        placeIfReady(submission, state: renderedState, tappedWithSessionKey: tappedWithSessionKey)
     }
 
-    func placeOnceQuoted(state: PolymarketOrderModel.State, gate: PolymarketOrderGate) {
-        guard let tapDate = pendingPlacementDate, !state.quote.isAwaitingQuote else { return }
-
-        pendingPlacementDate = nil
-
-        guard now().timeIntervalSince(tapDate) <= Constants.pendingPlacementLifetime else {
-            isPlacing = false
-            return
-        }
-
-        guard let submission, gate.isPrimaryButtonEnabled else {
-            isPlacing = false
-            return
-        }
-
-        placeIfReady(submission, waitsForQuote: false)
-    }
-
-    func dropPendingPlacement() {
-        guard pendingPlacementDate != nil else { return }
-
-        pendingPlacementDate = nil
-        isPlacing = false
-    }
-
-    func placeIfReady(_ submission: PolymarketOrderSubmission, waitsForQuote: Bool) {
-        switch submission.readiness() {
+    func placeIfReady(_ submission: PolymarketOrderSubmission, state: PolymarketOrderModel.State, tappedWithSessionKey: Bool) {
+        switch submission.readiness(of: state) {
         case .ready(let quote):
             model.handleViewAction(.holdQuote)
             placementTask = Task { @MainActor [weak self] in
                 guard let self else { return }
 
-                handle(await submission.submit(quote: quote) { self.marketRow })
+                handle(await submission.submit(quote: quote, tappedWithSessionKey: tappedWithSessionKey) { self.marketRow })
             }
-        case .unavailable where waitsForQuote:
-            pendingPlacementDate = now()
         case .unavailable:
             isPlacing = false
         case .staleQuote:
@@ -403,7 +379,7 @@ private extension PolymarketOrderViewModel {
 
     func handle(_ outcome: PolymarketOrderSubmission.Outcome) {
         switch outcome {
-        case .cancelled:
+        case .cancelled, .signingChanged, .sessionKeyUnverified:
             isPlacing = false
             model.handleViewAction(.releaseQuote)
         case .failed(let returningToMain):
@@ -519,6 +495,21 @@ extension PolymarketOrderViewModel {
 private extension PolymarketOrderViewModel {
     enum Constants {
         static let amountPresets: [Decimal] = [100, 500, 1000, 5000]
-        static let pendingPlacementLifetime: TimeInterval = 10
+    }
+}
+
+// MARK: - Signing choice
+
+extension PolymarketOrderViewModel {
+    var signsWithSessionKey: Bool {
+        signingChoice?.signsWithSessionKey ?? false
+    }
+}
+
+private extension PolymarketOrderViewModel {
+    func forwardSigningChoiceChanges() {
+        signingChoice?.objectWillChange
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &bag)
     }
 }

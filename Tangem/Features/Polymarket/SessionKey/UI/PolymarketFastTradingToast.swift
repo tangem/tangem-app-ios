@@ -12,7 +12,7 @@ import TangemUI
 
 enum PolymarketFastTradingToast {
     @MainActor
-    static func showProgress(_ message: String) {
+    static func showInfo(_ message: String) {
         present(TangemSnackbar(title: message)
             .icon(DesignSystem.Icons.Info.regular20)
             .iconColor(DesignSystem.Color.iconStatusInfo))

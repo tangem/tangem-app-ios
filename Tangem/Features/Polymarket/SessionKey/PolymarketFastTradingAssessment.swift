@@ -50,6 +50,7 @@ struct PolymarketFastTradingAssessment: Equatable {
     let status: Status
     let sessionKeys: [PolymarketSessionKey]
     let localKeyAddress: String?
+    let localKey: PolymarketSessionKey?
     let foreignSigners: [PolymarketSessionSigner]
     let missingOnExchange: Set<String>
     let mismatchedOnExchange: Set<String>
@@ -65,9 +66,11 @@ struct PolymarketFastTradingAssessment: Equatable {
         let missingOnExchange = Self.missingOnExchange(snapshot, listing: exchangeListing)
         let mismatchedOnExchange = Self.mismatchedOnExchange(snapshot, listing: exchangeListing)
         let settlingKey = snapshot.sessionKeys.first { Self.isSettling($0, snapshot: snapshot) }
+        let localKey = Self.localKey(in: snapshot)
 
         status = Self.status(
             snapshot,
+            own: localKey,
             listing: exchangeListing,
             settlingKey: settlingKey,
             missingOnExchange: missingOnExchange,
@@ -75,6 +78,7 @@ struct PolymarketFastTradingAssessment: Equatable {
         )
         sessionKeys = snapshot.sessionKeys
         localKeyAddress = snapshot.localKeyAddress
+        self.localKey = localKey
         foreignSigners = Self.foreignSigners(snapshot)
         self.missingOnExchange = missingOnExchange
         self.mismatchedOnExchange = mismatchedOnExchange
@@ -112,8 +116,16 @@ struct PolymarketFastTradingAssessment: Equatable {
         sessionKey.address == localKeyAddress
     }
 
-    func isListedOnExchange(_ sessionKey: PolymarketSessionKey) -> Bool {
-        exchangeListing.lists(sessionKey.address) ?? false
+    func isUsableOnExchange(_ sessionKey: PolymarketSessionKey, at date: Date) -> Bool {
+        exchangeListing.signer(for: sessionKey.address)?.isUsable(at: date) ?? false
+    }
+
+    func usableUntil(_ sessionKey: PolymarketSessionKey) -> Date? {
+        guard let keyValidUntil = sessionKey.validUntil, let signerValidUntil = exchangeListing.signer(for: sessionKey.address)?.validUntil else {
+            return nil
+        }
+
+        return min(keyValidUntil, signerValidUntil).addingTimeInterval(-PolymarketSessionKey.signingExpiryMargin)
     }
 
     func isOutOfSyncWithExchange(_ sessionKey: PolymarketSessionKey) -> Bool {
@@ -141,18 +153,22 @@ extension PolymarketFastTradingAssessment {
 // MARK: - Decision table
 
 private extension PolymarketFastTradingAssessment {
+    static func localKey(in snapshot: PolymarketFastTradingSnapshot) -> PolymarketSessionKey? {
+        snapshot.localKeyAddress.flatMap { address in
+            snapshot.sessionKeys
+                .filter { $0.address == address }
+                .min { $0.status.localKeyRank < $1.status.localKeyRank }
+        }
+    }
+
     static func status(
         _ snapshot: PolymarketFastTradingSnapshot,
+        own: PolymarketSessionKey?,
         listing: ExchangeListing,
         settlingKey: PolymarketSessionKey?,
         missingOnExchange: Set<String>,
         mismatchedOnExchange: Set<String>
     ) -> Status {
-        let own = snapshot.localKeyAddress.flatMap { address in
-            snapshot.sessionKeys
-                .filter { $0.address == address }
-                .min { $0.status.localKeyRank < $1.status.localKeyRank }
-        }
         let previous = snapshot.sessionKeys.first { sessionKey in
             sessionKey.deviceId == snapshot.deviceId
                 && sessionKey.address != snapshot.localKeyAddress

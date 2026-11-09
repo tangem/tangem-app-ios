@@ -24,6 +24,9 @@ struct PolymarketCoordinatorView: CoordinatorView {
                 PolymarketRedeemView(viewModel: viewModel)
                     .softTopScrollEdgeEffect()
             }
+            .fullScreenCover(item: $coordinator.fastTradingActivation) { viewModel in
+                PolymarketFastTradingActivationView(viewModel: viewModel)
+            }
             .polymarketOrderSheet(presenter: coordinator.orderPresenter, host: nil)
             .background(PolymarketMainSheetHost(coordinator: coordinator, isActive: coordinator.orderPresenter.order == nil))
     }
@@ -54,6 +57,8 @@ struct PolymarketCoordinatorView: CoordinatorView {
                     TokenDetailsCoordinatorView(coordinator: coordinator)
                 case .activity(let coordinator):
                     PolymarketActivityCoordinatorView(coordinator: coordinator)
+                case .fastTrading(let viewModel):
+                    PolymarketFastTradingView(viewModel: viewModel)
                 case .category(let coordinator):
                     PolymarketCategoryCoordinatorView(coordinator: coordinator)
                 }

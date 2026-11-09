@@ -661,6 +661,30 @@ struct PolymarketFastTradingFailureTests {
     }
 }
 
+@Suite("Polymarket fast trading: offers only when this device truly has no usable key")
+struct PolymarketFastTradingOfferGatingTests {
+    @Test("A key left by an earlier install of the app on this phone is another device's key")
+    func keyOfAnEarlierInstallIsForeignToThisInstall() {
+        let leftover = Fixture.key(.otherDevice)
+        let assessment = Fixture.assess(keys: [leftover], signers: [.matching(leftover)], localAddress: nil)
+        let devices = PolymarketFastTradingDevice.devices(from: assessment, thisDeviceName: Fixture.deviceName)
+
+        #expect(assessment.status == .offerEnable)
+        #expect(devices.map(\.isThisDevice) == [false])
+        #expect(Self.activationOffer(in: assessment) == .enable)
+    }
+
+    private static func activationOffer(in assessment: PolymarketFastTradingAssessment) -> PolymarketFastTradingAuthorization? {
+        let section = PolymarketFastTradingViewModel.ThisDeviceSection(state: .loaded(assessment), thisDeviceName: Fixture.deviceName)
+
+        guard case .activationOffer(let authorization) = section else {
+            return nil
+        }
+
+        return authorization
+    }
+}
+
 // MARK: - Helpers
 
 private typealias Fixture = PolymarketSessionKeyFixtures
@@ -671,8 +695,4 @@ private extension PolymarketSessionSigner {
         scopes: ["CLOB"],
         validUntil: Fixture.validUntil
     )
-
-    static func matching(_ key: PolymarketSessionKey) -> PolymarketSessionSigner {
-        PolymarketSessionSigner(address: key.address, scopes: key.scopes, validUntil: key.validUntil)
-    }
 }

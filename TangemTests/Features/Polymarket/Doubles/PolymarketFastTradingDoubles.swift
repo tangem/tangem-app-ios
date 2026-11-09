@@ -6,11 +6,41 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import TangemFoundation
 import TangemPolymarket
 import TangemSdk
 @testable import Tangem
+
+@MainActor
+final class PolymarketSessionKeySigningAvailabilityStub: PolymarketSessionKeySigningAvailability {
+    private(set) var isAvailable: Bool
+    let availableUntil: Date?
+
+    private let subject: CurrentValueSubject<Bool, Never>
+
+    init(isAvailable: Bool, availableUntil: Date? = nil) {
+        self.isAvailable = isAvailable
+        self.availableUntil = availableUntil
+        subject = CurrentValueSubject(isAvailable)
+    }
+
+    var isAvailablePublisher: AnyPublisher<Bool, Never> {
+        subject.eraseToAnyPublisher()
+    }
+
+    func publish(_ isAvailable: Bool) {
+        self.isAvailable = isAvailable
+        subject.send(isAvailable)
+    }
+
+    func runOut() {
+        isAvailable = false
+    }
+
+    func refresh() async {}
+}
 
 enum PolymarketSessionKeyFixtures {
     static let validity: TimeInterval = 180 * 24 * 60 * 60
@@ -82,6 +112,36 @@ enum PolymarketSessionKeyFixtures {
                 operations: operations
             )
         )
+    }
+}
+
+extension PolymarketSessionSigner {
+    static func matching(_ key: PolymarketSessionKey) -> PolymarketSessionSigner {
+        PolymarketSessionSigner(address: key.address, scopes: key.scopes, validUntil: key.validUntil)
+    }
+}
+
+struct PolymarketDeviceIdProviderStub: PolymarketDeviceIdProviding {
+    struct ReadError: Error {}
+
+    var isReadable = true
+
+    func deviceId() throws -> String {
+        guard isReadable else {
+            throw ReadError()
+        }
+
+        return PolymarketSessionKeyFixtures.deviceId
+    }
+}
+
+struct PolymarketHeldCall {
+    let reached = TestGate()
+    let release = TestGate()
+
+    func pass() async {
+        reached.open()
+        await release.wait()
     }
 }
 

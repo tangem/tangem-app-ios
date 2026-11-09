@@ -48,8 +48,22 @@ struct PolymarketCategoryView: View {
 
     private var content: some View {
         ScrollView(showsIndicators: false) {
-            PolymarketEventsListView(viewModel: viewModel.eventsViewModel)
-                .padding(.top, Constants.contentTopPadding)
+            VStack(spacing: 0) {
+                if let fastTradingBanner = viewModel.fastTradingBanner {
+                    PolymarketFastTradingBannerView(
+                        banner: fastTradingBanner,
+                        onAction: { viewModel.handleViewAction(.performFastTradingBannerAction) },
+                        onDismiss: { viewModel.handleViewAction(.dismissFastTradingBanner) }
+                    )
+                    .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
+                    .padding(.top, Constants.contentTopPadding)
+                    .transition(.opacity)
+                }
+
+                PolymarketEventsListView(viewModel: viewModel.eventsViewModel)
+                    .padding(.top, Constants.contentTopPadding)
+            }
+            .animation(PolymarketMainLayout.bannerAnimation, value: viewModel.fastTradingBanner)
         }
         .safeAreaInset(edge: .top, spacing: 0) {
             Color.clear.frame(height: headerHeight)

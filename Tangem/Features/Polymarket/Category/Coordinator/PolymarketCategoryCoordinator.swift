@@ -23,6 +23,8 @@ final class PolymarketCategoryCoordinator: CoordinatorObject {
     @Published var destination: Destination?
 
     private var onRegionWarning: (() -> Void)?
+    private var onActivateFastTrading: (@MainActor () -> Void)?
+    private var onOpenSettings: (@MainActor () -> Void)?
     private weak var orderBuilder: PolymarketOrderFlowBuilder?
     private weak var eventBuilder: PolymarketEventDetailsBuilder?
 
@@ -42,6 +44,8 @@ final class PolymarketCategoryCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         onRegionWarning = options.onRegionWarning
+        onActivateFastTrading = options.onActivateFastTrading
+        onOpenSettings = options.onOpenSettings
         orderBuilder = options.orderBuilder
         eventBuilder = options.eventBuilder
 
@@ -50,6 +54,7 @@ final class PolymarketCategoryCoordinator: CoordinatorObject {
                 category: options.category,
                 eventsViewModel: options.makeEventsViewModel(self),
                 refreshCenter: options.refreshCenter,
+                fastTradingService: options.fastTradingService,
                 coordinator: self
             )
         }
@@ -63,7 +68,10 @@ extension PolymarketCategoryCoordinator {
         let category: PolymarketCategory
         let refreshCenter: PolymarketMainRefreshCenter
         let makeEventsViewModel: @MainActor (PolymarketEventOpeningRoutable) -> PolymarketEventsBlockViewModel
+        let fastTradingService: PolymarketFastTradingServicing?
         let onRegionWarning: () -> Void
+        let onActivateFastTrading: @MainActor () -> Void
+        let onOpenSettings: @MainActor () -> Void
         let orderBuilder: PolymarketOrderFlowBuilder
         let eventBuilder: PolymarketEventDetailsBuilder
     }
@@ -79,6 +87,16 @@ extension PolymarketCategoryCoordinator {
 extension PolymarketCategoryCoordinator: PolymarketCategoryRoutable {
     func closeCategory() {
         dismiss()
+    }
+
+    @MainActor
+    func openSettings() {
+        onOpenSettings?()
+    }
+
+    @MainActor
+    func openFastTradingActivation() {
+        onActivateFastTrading?()
     }
 }
 

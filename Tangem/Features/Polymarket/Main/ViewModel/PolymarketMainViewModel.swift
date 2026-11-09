@@ -18,6 +18,7 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var isAwaitingFunds = false
     @Published private(set) var scrollToTopRequest = 0
     @Published private(set) var withdrawalState: PolymarketWithdrawState?
+    @Published private(set) var fastTradingBanner: PolymarketFastTradingBanner?
 
     var fundingNotifications: [PolymarketOrderNotification] {
         [
@@ -36,9 +37,11 @@ final class PolymarketMainViewModel: ObservableObject {
     private let fundsArrivalTracker: PolymarketFundsArrivalTracker
     private let withdrawTracker: PolymarketWithdrawTracker
     private let refreshCenter: PolymarketMainRefreshCenter
+    private let fastTradingService: PolymarketFastTradingServicing?
     private weak var coordinator: PolymarketMainRoutable?
 
     private var bag: Set<AnyCancellable> = []
+    private var fastTradingSubscription: AnyCancellable?
 
     init(
         balanceViewModel: PolymarketBalanceBlockViewModel,
@@ -49,6 +52,7 @@ final class PolymarketMainViewModel: ObservableObject {
         fundsArrivalTracker: PolymarketFundsArrivalTracker,
         withdrawTracker: PolymarketWithdrawTracker,
         refreshCenter: PolymarketMainRefreshCenter,
+        fastTradingService: PolymarketFastTradingServicing?,
         coordinator: PolymarketMainRoutable
     ) {
         self.balanceViewModel = balanceViewModel
@@ -59,12 +63,21 @@ final class PolymarketMainViewModel: ObservableObject {
         self.fundsArrivalTracker = fundsArrivalTracker
         self.withdrawTracker = withdrawTracker
         self.refreshCenter = refreshCenter
+        self.fastTradingService = fastTradingService
         self.coordinator = coordinator
 
         bindGeoblockState()
         bindFundsArrival()
         bindWithdrawal()
         bindSearch()
+    }
+}
+
+// MARK: - Fast trading
+
+extension PolymarketMainViewModel {
+    var isFastTradingAvailable: Bool {
+        fastTradingService != nil
     }
 }
 
@@ -92,6 +105,14 @@ extension PolymarketMainViewModel {
             coordinator?.openActivity()
         case .onTabsMove(let minY, let navBarHeight):
             updatePinnedState(tabsMinY: minY, navBarHeight: navBarHeight)
+        case .onAppear:
+            bindFastTrading()
+        case .openSettings:
+            coordinator?.openSettings()
+        case .performFastTradingBannerAction:
+            performFastTradingBannerAction()
+        case .dismissFastTradingBanner:
+            dismissFastTradingBanner()
         }
     }
 
@@ -101,6 +122,10 @@ extension PolymarketMainViewModel {
         case openSupportChat
         case openHistory
         case onTabsMove(minY: CGFloat, navBarHeight: CGFloat)
+        case onAppear
+        case openSettings
+        case performFastTradingBannerAction
+        case dismissFastTradingBanner
     }
 }
 
@@ -111,7 +136,9 @@ extension PolymarketMainViewModel {
     func refresh() async {
         geoblockStateProvider.refresh()
 
+        async let fastTradingRefresh: Void = refreshFastTrading()
         await refreshCenter.refresh(.full)
+        await fastTradingRefresh
     }
 }
 
@@ -149,6 +176,44 @@ private extension PolymarketMainViewModel {
                 }
             }
             .store(in: &bag)
+    }
+
+    @MainActor
+    func bindFastTrading() {
+        guard let fastTradingService, fastTradingSubscription == nil else {
+            return
+        }
+
+        fastTradingSubscription = fastTradingService
+            .bannerPublisher(includingForeignSigners: true)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, banner in
+                viewModel.fastTradingBanner = banner
+            }
+
+        Task { await fastTradingService.refresh() }
+    }
+
+    @MainActor
+    func refreshFastTrading() async {
+        await fastTradingService?.refresh()
+    }
+
+    @MainActor
+    func performFastTradingBannerAction() {
+        guard let fastTradingBanner else { return }
+
+        coordinator?.open(fastTradingBanner)
+    }
+
+    @MainActor
+    func dismissFastTradingBanner() {
+        guard let fastTradingService, let fastTradingBanner else {
+            return
+        }
+
+        fastTradingService.dismissBanner(fastTradingBanner)
     }
 
     func bindSearch() {

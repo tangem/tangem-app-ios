@@ -26,6 +26,7 @@ final class CommonPolymarketOnboardingInteractor {
     private let relayerService: PolymarketRelayerService
     private let clobService: PolymarketCLOBService
     private let serverClock: PolymarketServerClock
+    private let fastTrading: PolymarketOnboardingFastTrading?
     private let pollInterval: TimeInterval
 
     init(
@@ -40,6 +41,7 @@ final class CommonPolymarketOnboardingInteractor {
         relayerService: PolymarketRelayerService,
         clobService: PolymarketCLOBService,
         serverClock: PolymarketServerClock,
+        fastTrading: PolymarketOnboardingFastTrading? = nil,
         pollInterval: TimeInterval = PolymarketDepositWalletPoller.Constants.interval
     ) {
         self.userWalletId = userWalletId
@@ -53,6 +55,7 @@ final class CommonPolymarketOnboardingInteractor {
         self.relayerService = relayerService
         self.clobService = clobService
         self.serverClock = serverClock
+        self.fastTrading = fastTrading
         self.pollInterval = pollInterval
     }
 }
@@ -186,8 +189,9 @@ private extension CommonPolymarketOnboardingInteractor {
             status: status,
             storedCredentials: credentialsRepository.load(userWalletId: userWalletId)
         )
+        let fastTrading = enabledFastTrading(after: status)
 
-        if !status.owesApprovals, let credentials = account.storedCredentials {
+        if fastTrading == nil, let credentials = account.credentialsWithoutSigning {
             return .authorised(account, credentials: credentials)
         }
 
@@ -195,9 +199,30 @@ private extension CommonPolymarketOnboardingInteractor {
             try await ensureRegionAllows()
         }
 
-        continuation.yield(.awaitingSignature)
+        let nonce: String
+        let followUps: [PolymarketRelayedBatch.Unsigned]
 
-        let signatures = try await sign(addresses: addresses, signer: signer)
+        if let fastTrading {
+            nonce = try await readNonce(ownerAddress: addresses.owner)
+            followUps = makeFollowUps(
+                with: fastTrading,
+                depositWalletAddress: addresses.depositWallet,
+                approvalsNonce: nonce,
+                submitsApprovals: status.owesApprovals
+            )
+
+            if followUps.isEmpty, let credentials = account.credentialsWithoutSigning {
+                return .authorised(account, credentials: credentials)
+            }
+
+            continuation.yield(.awaitingSignature)
+        } else {
+            continuation.yield(.awaitingSignature)
+            nonce = try await readNonce(ownerAddress: addresses.owner)
+            followUps = []
+        }
+
+        let signatures = try await sign(addresses: addresses, nonce: nonce, followUps: followUps, signer: signer)
 
         return .signed(account, signatures: signatures)
     }
@@ -275,6 +300,10 @@ private extension CommonPolymarketOnboardingInteractor {
         var isNewAccount: Bool {
             status != .readyToTrade
         }
+
+        var credentialsWithoutSigning: PolymarketL2Credentials? {
+            status.owesApprovals ? nil : storedCredentials
+        }
     }
 }
 
@@ -300,18 +329,23 @@ private extension CommonPolymarketOnboardingInteractor {
 // MARK: - Signatures
 
 private extension CommonPolymarketOnboardingInteractor {
-    func sign(addresses: Addresses, signer: PolymarketOnboardingSigning) async throws -> PolymarketOnboardingSignatures {
-        let nonce: String
-
+    func readNonce(ownerAddress: String) async throws -> String {
         do {
-            nonce = try await relayerService.walletNonce(ownerAddress: addresses.owner)
+            return try await relayerService.walletNonce(ownerAddress: ownerAddress)
         } catch is CancellationError {
             throw CancellationError()
         } catch {
             PolymarketLogger.error("Failed to read the relayer nonce", error: error)
             throw PolymarketOnboardingError.unknown
         }
+    }
 
+    func sign(
+        addresses: Addresses,
+        nonce: String,
+        followUps: [PolymarketRelayedBatch.Unsigned],
+        signer: PolymarketOnboardingSigning
+    ) async throws -> PolymarketOnboardingSignatures {
         let approvals = PolymarketRelayedBatch.Unsigned(
             depositWalletAddress: addresses.depositWallet,
             nonce: nonce,
@@ -322,7 +356,7 @@ private extension CommonPolymarketOnboardingInteractor {
         let signatures: PolymarketOnboardingSignatures
 
         do {
-            signatures = try await signer.sign(approvals: approvals)
+            signatures = try await signer.sign(approvals: approvals, followUps: followUps)
         } catch {
             throw PolymarketOnboardingError.signing(error)
         }
@@ -336,6 +370,44 @@ private extension CommonPolymarketOnboardingInteractor {
         }
 
         return signatures
+    }
+
+    func enabledFastTrading(after status: PolymarketDepositWalletStatus) -> PolymarketOnboardingFastTrading? {
+        guard let fastTrading, status.owesApprovals || status == .readyToTrade, fastTrading.isEnabled else {
+            return nil
+        }
+
+        return fastTrading
+    }
+
+    func makeFollowUps(
+        with fastTrading: PolymarketOnboardingFastTrading?,
+        depositWalletAddress: String,
+        approvalsNonce: String,
+        submitsApprovals: Bool
+    ) -> [PolymarketRelayedBatch.Unsigned] {
+        guard
+            let fastTrading,
+            let nonce = Self.authorizationNonce(afterApprovalsNonce: approvalsNonce, submitsApprovals: submitsApprovals),
+            let authorization = fastTrading.makeAuthorization(depositWalletAddress: depositWalletAddress, nonce: nonce)
+        else {
+            return []
+        }
+
+        return [authorization]
+    }
+
+    static func authorizationNonce(afterApprovalsNonce nonce: String, submitsApprovals: Bool) -> String? {
+        guard submitsApprovals else {
+            return nonce
+        }
+
+        guard let value = Int(nonce) else {
+            PolymarketLogger.error(error: "The relayer nonce \(nonce) is not a number, skipping fast trading")
+            return nil
+        }
+
+        return String(value + 1)
     }
 
     func makeDeadline() -> String {
@@ -377,6 +449,7 @@ private extension CommonPolymarketOnboardingInteractor {
                 case .reached(let deployed):
                     status = deployed
                 case .ceiling(let reported):
+                    reportUnsent(signatures.followUps.first)
                     continuation.yield(.handedOff(reported))
                     return
                 }
@@ -393,6 +466,7 @@ private extension CommonPolymarketOnboardingInteractor {
             credentials: credentials,
             poller: poller,
             isNewAccount: isNewAccount,
+            fastTradingAuthorization: signatures.followUps.first,
             reporting: continuation
         )
     }
@@ -453,6 +527,7 @@ private extension CommonPolymarketOnboardingInteractor {
         credentials: PolymarketL2Credentials,
         poller: PolymarketDepositWalletPoller,
         isNewAccount: Bool,
+        fastTradingAuthorization: PolymarketRelayedBatch? = nil,
         reporting continuation: PolymarketOnboardingContinuation
     ) async throws {
         if status != .readyToTrade {
@@ -460,6 +535,7 @@ private extension CommonPolymarketOnboardingInteractor {
             case .reached:
                 break
             case .ceiling(let reported):
+                reportUnsent(fastTradingAuthorization)
                 continuation.yield(.handedOff(reported))
                 return
             }
@@ -467,7 +543,17 @@ private extension CommonPolymarketOnboardingInteractor {
 
         await primeBalanceCache(credentials: credentials, ownerAddress: addresses.owner)
 
+        if let fastTradingAuthorization {
+            fastTrading?.submit(fastTradingAuthorization)
+        }
+
         continuation.yield(.ready(isNewAccount: isNewAccount))
+    }
+
+    func reportUnsent(_ fastTradingAuthorization: PolymarketRelayedBatch?) {
+        guard fastTradingAuthorization != nil else { return }
+
+        PolymarketLogger.warning("The wallet is not ready to trade yet, the fast trading authorization signed in this run stays unsent")
     }
 }
 

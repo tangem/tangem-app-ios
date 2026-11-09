@@ -74,9 +74,9 @@ struct PolymarketSessionKeyManagerTests {
     func unreadableDeviceIdStopsRenewal() async throws {
         let signer = BatchesSignerSpy()
         let service = SessionKeyServiceSpy()
-        let sut = try makeSUT(deviceIdProvider: DeviceIdStub(isReadable: false), signer: signer, service: service)
+        let sut = try makeSUT(deviceIdProvider: PolymarketDeviceIdProviderStub(isReadable: false), signer: signer, service: service)
 
-        await #expect(throws: DeviceIdStub.ReadError.self) {
+        await #expect(throws: PolymarketDeviceIdProviderStub.ReadError.self) {
             try await sut.renew()
         }
 
@@ -462,13 +462,13 @@ private extension PolymarketSessionKeyManagerTests {
     static let nowSeconds = Int(now.timeIntervalSince1970)
     static let localAddress = "0x5e55000000000000000000000000000000000001"
     static let previousAddress = "0x5e55000000000000000000000000000000000002"
-    static let deviceId = "this-device"
+    static let deviceId = PolymarketSessionKeyFixtures.deviceId
     static let deviceName = "iPhone 16 Pro"
 
     func makeSUT(
         operationGate: PolymarketWalletOperationGate = PolymarketWalletOperationGate(),
         keyStore: PolymarketSessionKeyStoreSpy = PolymarketSessionKeyStoreSpy(heldAddress: Self.localAddress),
-        deviceIdProvider: DeviceIdStub = DeviceIdStub(),
+        deviceIdProvider: PolymarketDeviceIdProviderStub = PolymarketDeviceIdProviderStub(),
         deviceName: String = Self.deviceName,
         walletStatus: PolymarketDepositWalletStatus = .readyToTrade,
         signer: BatchesSignerSpy = BatchesSignerSpy(),
@@ -802,19 +802,5 @@ private actor RouterSpy: PolymarketOrderSigningRouting {
 
     nonisolated func isRefused(sessionKeyAddress: String) -> Bool {
         false
-    }
-}
-
-private struct DeviceIdStub: PolymarketDeviceIdProviding {
-    struct ReadError: Error {}
-
-    var isReadable = true
-
-    func deviceId() throws -> String {
-        guard isReadable else {
-            throw ReadError()
-        }
-
-        return PolymarketSessionKeyManagerTests.deviceId
     }
 }

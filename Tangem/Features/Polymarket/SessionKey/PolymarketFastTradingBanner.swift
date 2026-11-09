@@ -80,3 +80,25 @@ extension PolymarketFastTradingBanner {
         }
     }
 }
+
+// MARK: - Routing
+
+protocol PolymarketFastTradingBannerRoutable: AnyObject {
+    @MainActor
+    func openSettings()
+
+    @MainActor
+    func openFastTradingActivation()
+}
+
+extension PolymarketFastTradingBannerRoutable {
+    @MainActor
+    func open(_ banner: PolymarketFastTradingBanner) {
+        switch banner {
+        case .foreignSigners:
+            openSettings()
+        case .activate, .extend:
+            openFastTradingActivation()
+        }
+    }
+}

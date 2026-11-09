@@ -32,6 +32,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     @Published var destination: Destination?
 
     @Published var redeem: PolymarketRedeemViewModel?
+    @Published var fastTradingActivation: PolymarketFastTradingActivationViewModel?
     let orderPresenter = PolymarketOrderPresenter()
 
     private var orderPresenterSubscription: AnyCancellable?
@@ -70,6 +71,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     private var isFundingSheetPresented = false
     private var dispatchedOperation: FundingOperation?
     private var dispatchedBalance: Decimal?
+    private var fastTradingFailuresSubscription: AnyCancellable?
 
     // MARK: - Init
 
@@ -115,6 +117,8 @@ private extension PolymarketCoordinator {
 
     @MainActor
     func openEntry(for userWalletModel: any UserWalletModel) {
+        subscribeToFastTradingFailures(for: userWalletModel)
+
         let state = AccountModelsAggregator(.polymarket).model(from: userWalletModel.accountModelsManager)?.state
 
         guard state == .active else {
@@ -123,6 +127,17 @@ private extension PolymarketCoordinator {
         }
 
         showMain(for: userWalletModel)
+    }
+
+    @MainActor
+    func subscribeToFastTradingFailures(for userWalletModel: any UserWalletModel) {
+        fastTradingFailuresSubscription = PolymarketSessionKeyFactory()
+            .makeFastTradingService(for: userWalletModel)?
+            .failurePublisher
+            .receiveOnMain()
+            .sink { failure in
+                PolymarketFastTradingToast.showFailure(failure)
+            }
     }
 }
 
@@ -211,6 +226,7 @@ private extension PolymarketCoordinator {
         regionWarning = nil
         destination = nil
         redeem = nil
+        fastTradingActivation = nil
         sheet = nil
         orderPresenter.dismiss()
 
@@ -238,6 +254,22 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
         guard let userWalletModel = options?.userWalletModel else { return }
 
         sheet = .supportChat(SupportChatViewModel(input: PolymarketSupportChatInputFactory().makeInput(for: userWalletModel)))
+    }
+
+    @MainActor
+    func openSettings() {
+        guard let viewModel = viewState?.destinationFactory?.makeSettings(onClose: { [weak self] in self?.popToMain() }) else {
+            return
+        }
+
+        destination = .fastTrading(viewModel)
+    }
+
+    @MainActor
+    func openFastTradingActivation() {
+        fastTradingActivation = viewState?.destinationFactory?.makeFastTradingActivation(onClose: { [weak self] in
+            self?.fastTradingActivation = nil
+        })
     }
 
     @MainActor
@@ -275,6 +307,8 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
         destination = .category(destinationFactory.makeCategory(
             category: category,
             onRegionWarning: { [weak self] in self?.openRegionWarning() },
+            onActivateFastTrading: { [weak self] in self?.openFastTradingActivation() },
+            onOpenSettings: { [weak self] in self?.openSettings() },
             onClose: { [weak self] in self?.popToMain() }
         ))
     }
@@ -623,6 +657,7 @@ extension PolymarketCoordinator {
         case myPositions(PolymarketMyPositionsCoordinator)
         case tokenDetails(TokenDetailsCoordinator)
         case activity(PolymarketActivityCoordinator)
+        case fastTrading(PolymarketFastTradingViewModel)
         case category(PolymarketCategoryCoordinator)
     }
 

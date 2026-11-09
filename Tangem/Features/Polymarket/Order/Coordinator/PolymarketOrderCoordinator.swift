@@ -49,6 +49,7 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
     private var isMarketClosedPresented = false
     private var isQuoteUnavailablePresented = false
     private(set) var flowStyle: PolymarketOrderFlowStyle = .summaryStep
+    private var signingChoice: PolymarketOrderSigningChoice?
 
     // MARK: - Init
 
@@ -88,8 +89,9 @@ final class PolymarketOrderCoordinator: CoordinatorObject {
             )
 
             self.model = model
+            signingChoice = options.sessionKeyAvailability.map { PolymarketOrderSigningChoice(availability: $0) }
 
-            viewModel = PolymarketOrderViewModel(model: model, flowStyle: flowStyle, coordinator: self)
+            viewModel = PolymarketOrderViewModel(model: model, flowStyle: flowStyle, signingChoice: signingChoice, coordinator: self)
         }
     }
 }
@@ -161,6 +163,7 @@ extension PolymarketOrderCoordinator: PolymarketOrderRoutable {
             account: account,
             placementService: placementService,
             signingButtonType: signingButtonType,
+            signingChoice: signingChoice,
             coordinator: self
         ))
     }
@@ -200,7 +203,7 @@ extension PolymarketOrderCoordinator: PolymarketOrderSummaryRoutable {
 
     @MainActor
     func openFeeBreakdown(model: PolymarketOrderModel) {
-        sheet = .feeBreakdown(PolymarketFeeBreakdownSheetViewModel(model: model, includesPartialQuote: flowStyle.isSingleSheet))
+        sheet = .feeBreakdown(PolymarketFeeBreakdownSheetViewModel(model: model))
     }
 
     @MainActor
@@ -287,5 +290,6 @@ extension PolymarketOrderCoordinator {
         let onPlaced: @MainActor (PolymarketOrderIndexing) -> Void
         let onRegionWarning: () -> Void
         let onAddFunds: () -> Void
+        let sessionKeyAvailability: PolymarketSessionKeySigningAvailability?
     }
 }

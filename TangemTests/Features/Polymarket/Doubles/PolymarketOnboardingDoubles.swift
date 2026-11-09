@@ -339,6 +339,55 @@ final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
     }
 }
 
+// MARK: - Onboarding fast trading
+
+final class PolymarketOnboardingFastTradingSpy: PolymarketOnboardingFastTrading, Sendable {
+    private let preparesAuthorization: Bool
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
+    init(preparesAuthorization: Bool = true) {
+        self.preparesAuthorization = preparesAuthorization
+    }
+
+    var isEnabled: Bool {
+        get { state.withLock { $0.isEnabled } }
+        set { state.withLock { $0.isEnabled = newValue } }
+    }
+
+    var preparedNonces: [String] {
+        state.withLock { $0.preparedNonces }
+    }
+
+    var submitted: [PolymarketRelayedBatch] {
+        state.withLock { $0.submitted }
+    }
+
+    func makeAuthorization(depositWalletAddress: String, nonce: String) -> PolymarketRelayedBatch.Unsigned? {
+        state.withLock { $0.preparedNonces.append(nonce) }
+
+        guard preparesAuthorization else { return nil }
+
+        return PolymarketRelayedBatch.Unsigned(
+            depositWalletAddress: depositWalletAddress,
+            nonce: nonce,
+            deadline: "0",
+            calls: []
+        )
+    }
+
+    func submit(_ authorization: PolymarketRelayedBatch) -> Task<Void, Never>? {
+        state.withLock { $0.submitted.append(authorization) }
+
+        return nil
+    }
+
+    private struct State {
+        var isEnabled = true
+        var preparedNonces: [String] = []
+        var submitted: [PolymarketRelayedBatch] = []
+    }
+}
+
 // MARK: - Positions value
 
 final class PolymarketPositionsValueServiceStub: PolymarketPositionsValueService {

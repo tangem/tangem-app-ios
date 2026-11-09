@@ -242,6 +242,7 @@ final class CommonUserWalletRepository: UserWalletRepository {
         polymarketBannerDismissals.deleteDismissals(userWalletId: userWalletId)
         PolymarketWithdrawRecordStore(userWalletId: userWalletId).delete()
         try? polymarketSessionKeyStore.deleteKey(for: userWalletId)
+        PolymarketSessionKeyFactory.removeInstances(for: userWalletId)
         try? collectiblesSessionKeyWalletStore.deleteKey(for: userWalletId)
         collectiblesAccountPresenceStore.remove(userWalletId)
 

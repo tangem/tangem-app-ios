@@ -23,7 +23,7 @@ struct PolymarketOrderSubmissionTests {
         let model = try await makeQuotedModel()
         let sut = makeSUT(model: model, now: { Date() })
 
-        guard case .ready(let quote) = sut.readiness() else {
+        guard case .ready(let quote) = sut.readiness(of: model.state) else {
             Issue.record("The fresh quote is not ready")
             return
         }
@@ -36,7 +36,7 @@ struct PolymarketOrderSubmissionTests {
         let model = try await makeQuotedModel()
         let sut = makeSUT(model: model, now: { Date().addingTimeInterval(PolymarketOrderModel.maxQuoteAge + 1) })
 
-        guard case .staleQuote = sut.readiness() else {
+        guard case .staleQuote = sut.readiness(of: model.state) else {
             Issue.record("The old quote is still offered for placing")
             return
         }
@@ -44,9 +44,10 @@ struct PolymarketOrderSubmissionTests {
 
     @Test("Without a quote there is nothing to place")
     func missingQuoteIsUnavailable() async throws {
-        let sut = makeSUT(model: await makeModel())
+        let model = await makeModel()
+        let sut = makeSUT(model: model)
 
-        guard case .unavailable = sut.readiness() else {
+        guard case .unavailable = sut.readiness(of: model.state) else {
             Issue.record("An order without a quote is offered for placing")
             return
         }
@@ -167,7 +168,7 @@ struct PolymarketOrderSubmissionTests {
         )
 
         let outcome = await makeSUT(model: model, placing: .success(placement))
-            .submit(quote: .stub(status: .full)) { marketRow }
+            .submit(quote: .stub(status: .full), tappedWithSessionKey: false) { marketRow }
 
         guard case .finished(let state, let content) = outcome else {
             Issue.record("A filled purchase is reported as \(outcome)")
@@ -239,7 +240,7 @@ private extension PolymarketOrderSubmissionTests {
         let model = await makeModel(intent: intent)
         let marketRow = PolymarketOrderMarketRow.Model.make(market: .fixture, outcome: .fixture, eventTitle: "Fixture event")
 
-        return await makeSUT(model: model, placing: result).submit(quote: quote) { marketRow }
+        return await makeSUT(model: model, placing: result).submit(quote: quote, tappedWithSessionKey: false) { marketRow }
     }
 }
 
@@ -251,7 +252,8 @@ private struct PlacementServiceStub: PolymarketOrderPlacementService {
     func place(
         quote: PolymarketOrderQuote,
         market: PolymarketMarket,
-        outcome: PolymarketOutcome
+        outcome: PolymarketOutcome,
+        signing: PolymarketOrderSigningMethod
     ) async throws -> PolymarketOrderPlacement {
         try result.get()
     }

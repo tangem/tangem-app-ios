@@ -12,6 +12,7 @@ import TangemPolymarket
 import TangemUI
 
 struct PolymarketMainDependenciesFactory {
+    @MainActor
     func make(for userWalletModel: any UserWalletModel) -> PolymarketMainDependencies {
         let walletId = userWalletModel.userWalletId.stringValue
         let isPhaseTwoAvailable = FeatureProvider.isAvailable(.polymarketPhaseTwo)
@@ -46,6 +47,7 @@ struct PolymarketMainDependenciesFactory {
             refreshCenter: refreshCenter,
             activityHandler: PolymarketMainActivityHandler(fundsArrivalTracker: fundsArrivalTracker, refreshCenter: refreshCenter),
             sessionHealth: sessionHealth,
+            fastTradingService: PolymarketSessionKeyFactory().makeFastTradingService(for: userWalletModel),
             isSingleSheetOrderEnabled: isPhaseTwoAvailable,
             isPhaseTwoAvailable: isPhaseTwoAvailable
         )
@@ -86,6 +88,7 @@ struct PolymarketMainDependencies {
     let refreshCenter: PolymarketMainRefreshCenter
     let activityHandler: PolymarketMainActivityHandler
     let sessionHealth: PolymarketSessionHealth
+    let fastTradingService: PolymarketFastTradingServicing?
     let isSingleSheetOrderEnabled: Bool
     let isPhaseTwoAvailable: Bool
 
@@ -120,8 +123,28 @@ struct PolymarketMainDependencies {
             fundsArrivalTracker: fundsArrivalTracker,
             withdrawTracker: withdrawContext.tracker,
             refreshCenter: refreshCenter,
+            fastTradingService: fastTradingService,
             coordinator: routable
         )
+    }
+
+    @MainActor
+    func makeFastTradingSettings(onClose: @escaping () -> Void) -> PolymarketFastTradingViewModel? {
+        fastTradingService.map { service in
+            PolymarketFastTradingViewModel(
+                service: service,
+                signingButtonType: signingButtonType,
+                thisDeviceName: PolymarketSessionKeyFactory.deviceName,
+                onClose: onClose
+            )
+        }
+    }
+
+    @MainActor
+    func makeFastTradingActivation(onClose: @escaping () -> Void) -> PolymarketFastTradingActivationViewModel? {
+        fastTradingService.map { service in
+            PolymarketFastTradingActivationViewModel(service: service, signingButtonType: signingButtonType, onClose: onClose)
+        }
     }
 
     @MainActor

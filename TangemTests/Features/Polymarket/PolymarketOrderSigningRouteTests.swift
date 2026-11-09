@@ -177,16 +177,18 @@ struct PolymarketOrderSigningRouterTests {
         #expect(fixture.clob.deriveRequests == 2)
     }
 
-    @Test("A failed check with the exchange falls back to the owner key instead of failing the order")
-    func failedCheckUsesTheOwnerKey() async {
+    @Test("A check the network or the server failed leaves the order unrouted and is made again for the next order")
+    func failedCheckIsUnverified() async {
         let fixture = RouterFixture(signers: [.usable], signersError: PolymarketAPIError.http(statusCode: 503, problemDetail: nil))
 
-        #expect(await fixture.sut.route() == .ownerKey)
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(fixture.clob.sessionSignerReads == 2)
     }
 
     @Test("A check answered after the session key was paused neither signs the order nor is remembered")
     func pausedCheckIsDiscarded() async {
-        let backendRead = HeldCall()
+        let backendRead = PolymarketHeldCall()
         let fixture = RouterFixture(signers: [.usable], backendRead: backendRead)
         let sut = fixture.sut
 
@@ -202,7 +204,7 @@ struct PolymarketOrderSigningRouterTests {
 
     @Test("A check started before readiness was forgotten neither signs the order nor is remembered")
     func checkBeforeForgettingIsDiscarded() async {
-        let backendRead = HeldCall()
+        let backendRead = PolymarketHeldCall()
         let fixture = RouterFixture(signers: [.usable], backendRead: backendRead)
         let sut = fixture.sut
 
@@ -234,7 +236,7 @@ struct PolymarketOrderSigningRouterTests {
 
     @Test("A refusal that lands while an order is being routed keeps that order off the refused key")
     func refusalDuringRoutingWins() async {
-        let credentialsRead = HeldCall()
+        let credentialsRead = PolymarketHeldCall()
         let fixture = RouterFixture(signers: [.usable], credentialsRead: credentialsRead)
         let sut = fixture.sut
 
@@ -269,8 +271,8 @@ private final class RouterFixture {
         signers: [PolymarketSessionSigner],
         signersError: Error? = nil,
         backendKeys: [PolymarketSessionKey]? = nil,
-        backendRead: HeldCall? = nil,
-        credentialsRead: HeldCall? = nil,
+        backendRead: PolymarketHeldCall? = nil,
+        credentialsRead: PolymarketHeldCall? = nil,
         credentialsError: Error? = nil,
         derivesCredentials: Bool = false
     ) {
@@ -302,16 +304,6 @@ private final class RouterFixture {
 
     func advanceClock(by interval: TimeInterval) {
         clock.withLock { $0.addTimeInterval(interval) }
-    }
-}
-
-private struct HeldCall {
-    let reached = TestGate()
-    let release = TestGate()
-
-    func pass() async {
-        reached.open()
-        await release.wait()
     }
 }
 
@@ -366,7 +358,7 @@ private extension PolymarketSessionKey {
 
 private struct SessionCredentialsStub: PolymarketSessionCredentialsProviding {
     let session: PolymarketSessionCredentials
-    let hold: HeldCall?
+    let hold: PolymarketHeldCall?
     var error: Error?
 
     func credentials() async throws -> PolymarketSessionCredentials {
@@ -384,7 +376,7 @@ private struct SessionCredentialsStub: PolymarketSessionCredentialsProviding {
 
 private struct SessionKeyServiceStub: PolymarketSessionKeyService {
     let keys: [PolymarketSessionKey]
-    let hold: HeldCall?
+    let hold: PolymarketHeldCall?
 
     func sessionKeys() async throws(PolymarketSessionKeyError) -> [PolymarketSessionKey] {
         await hold?.pass()

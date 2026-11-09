@@ -30,6 +30,7 @@ struct PolymarketMainView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) { PolymarketSearchFieldView(viewModel: viewModel.searchViewModel) }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
+        .onAppear { viewModel.handleViewAction(.onAppear) }
     }
 
     // MARK: - Top bar
@@ -63,7 +64,8 @@ struct PolymarketMainView: View {
                 PolymarketOverflowMenu(
                     onHistory: { viewModel.handleViewAction(.openHistory) },
                     onHowItWorks: { viewModel.handleViewAction(.openHowItWorks) },
-                    onSupportChat: { viewModel.handleViewAction(.openSupportChat) }
+                    onSupportChat: { viewModel.handleViewAction(.openSupportChat) },
+                    onSettings: viewModel.isFastTradingAvailable ? { viewModel.handleViewAction(.openSettings) } : nil
                 )
             }
         )
@@ -98,6 +100,17 @@ struct PolymarketMainView: View {
                     .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
                     .padding(.top, Constants.bannerTopSpacing)
                     .transition(.opacity)
+            }
+
+            if let fastTradingBanner = viewModel.fastTradingBanner {
+                PolymarketFastTradingBannerView(
+                    banner: fastTradingBanner,
+                    onAction: { viewModel.handleViewAction(.performFastTradingBannerAction) },
+                    onDismiss: { viewModel.handleViewAction(.dismissFastTradingBanner) }
+                )
+                .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
+                .padding(.top, Constants.bannerTopSpacing)
+                .transition(.opacity)
             }
 
             PolymarketPositionsBlockView(viewModel: viewModel.positionsViewModel)
@@ -162,8 +175,9 @@ struct PolymarketMainView: View {
 
                 PolymarketEventsListView(viewModel: viewModel.eventsViewModel)
             }
-            .animation(.easeInOut(duration: Constants.bannerAnimationDuration), value: viewModel.isRegionRestricted)
-            .animation(.easeInOut(duration: Constants.bannerAnimationDuration), value: viewModel.isAwaitingFunds)
+            .animation(PolymarketMainLayout.bannerAnimation, value: viewModel.isRegionRestricted)
+            .animation(PolymarketMainLayout.bannerAnimation, value: viewModel.isAwaitingFunds)
+            .animation(PolymarketMainLayout.bannerAnimation, value: viewModel.fastTradingBanner)
         }
         .safeAreaInset(edge: .top, spacing: 0) {
             Color.clear.frame(height: navBarHeight)
@@ -187,7 +201,6 @@ extension PolymarketMainView {
         static let headerSpacing: CGFloat = 40
         static let bannerTopSpacing: CGFloat = 24
         static let bannerIconSide: CGFloat = 20
-        static let bannerAnimationDuration: TimeInterval = 0.3
         static let scrollToTopDuration: TimeInterval = 0.6
     }
 }

@@ -217,6 +217,139 @@ struct PolymarketOnboardingInteractorTests {
         #expect(service.submittedBatches.count == 1)
     }
 
+    @Test("Fast trading is signed in the approvals card tap and sent once the wallet is ready to trade")
+    func fastTradingRidesTheApprovalsTap() async throws {
+        let signer = PolymarketOnboardingSignerSpy()
+        let fastTrading = PolymarketOnboardingFastTradingSpy()
+        let service = try makeWalletService(statuses: [.notCreated, .deployed, .readyToTrade])
+        let sut = try makeSUT(walletService: service, signer: signer, fastTrading: fastTrading)
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(signer.signCalls == 1)
+        #expect(signer.signedFollowUps.count == 1)
+        #expect(fastTrading.preparedNonces == ["8"])
+        #expect(fastTrading.submitted.count == 1)
+        #expect(fastTrading.submitted.first?.signature == PolymarketOnboardingSignerSpy.followUpSignature)
+        #expect(service.submittedBatches.count == 1)
+    }
+
+    @Test("With fast trading turned off onboarding signs and sends only the approvals")
+    func fastTradingOffSignsOnlyApprovals() async throws {
+        let signer = PolymarketOnboardingSignerSpy()
+        let fastTrading = PolymarketOnboardingFastTradingSpy()
+        fastTrading.isEnabled = false
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.notCreated, .deployed, .readyToTrade]),
+            signer: signer,
+            fastTrading: fastTrading
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(signer.signedFollowUps.isEmpty)
+        #expect(fastTrading.preparedNonces.isEmpty)
+        #expect(fastTrading.submitted.isEmpty)
+    }
+
+    @Test("A run handed off before the wallet is ready keeps the fast trading authorization unsent")
+    func handedOffRunSendsNoFastTrading() async throws {
+        let fastTrading = PolymarketOnboardingFastTradingSpy()
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.deployed, .approvalsInProgress]),
+            credentials: PolymarketCredentialsRepositoryStub.credentials,
+            fastTrading: fastTrading
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isHandedOff == true)
+        #expect(fastTrading.preparedNonces.count == 1)
+        #expect(fastTrading.submitted.isEmpty)
+    }
+
+    @Test("Continuing a ready account with fast trading on asks for a card tap and signs the key at the relayer's nonce, as no approvals go first")
+    func readyAccountSignsFastTradingAtTheCurrentNonce() async throws {
+        let signer = PolymarketOnboardingSignerSpy()
+        let fastTrading = PolymarketOnboardingFastTradingSpy()
+        let service = try makeWalletService(statuses: [.readyToTrade])
+        let sut = try makeSUT(
+            walletService: service,
+            credentials: PolymarketCredentialsRepositoryStub.credentials,
+            signer: signer,
+            fastTrading: fastTrading
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(signer.signCalls == 1)
+        #expect(fastTrading.preparedNonces == [PolymarketRelayerServiceStub.nonce])
+        #expect(fastTrading.submitted.count == 1)
+        #expect(service.submittedBatches.isEmpty)
+    }
+
+    @Test("Continuing a ready account with fast trading off needs no card tap")
+    func readyAccountWithoutFastTradingSkipsTheCard() async throws {
+        let signer = PolymarketOnboardingSignerSpy()
+        let fastTrading = PolymarketOnboardingFastTradingSpy()
+        fastTrading.isEnabled = false
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.readyToTrade]),
+            credentials: PolymarketCredentialsRepositoryStub.credentials,
+            signer: signer,
+            fastTrading: fastTrading
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(signer.signCalls == 0)
+        #expect(fastTrading.submitted.isEmpty)
+    }
+
+    @Test("Continuing a ready account whose fast trading authorization can't be prepared needs no card tap")
+    func readyAccountWithoutAnAuthorizationSkipsTheCard() async throws {
+        let signer = PolymarketOnboardingSignerSpy()
+        let fastTrading = PolymarketOnboardingFastTradingSpy(preparesAuthorization: false)
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.readyToTrade]),
+            credentials: PolymarketCredentialsRepositoryStub.credentials,
+            signer: signer,
+            fastTrading: fastTrading
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(signer.signCalls == 0)
+        #expect(fastTrading.submitted.isEmpty)
+    }
+
+    @Test(
+        "Approvals of an earlier run still in flight keep fast trading out of the run, as they may still hold the relayer's nonce",
+        arguments: [PolymarketCredentialsRepositoryStub.credentials, nil]
+    )
+    func approvalsInFlightGetNoFastTrading(_ credentials: PolymarketL2Credentials?) async throws {
+        let signer = PolymarketOnboardingSignerSpy()
+        let fastTrading = PolymarketOnboardingFastTradingSpy()
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.approvalsInProgress, .readyToTrade]),
+            credentials: credentials,
+            signer: signer,
+            fastTrading: fastTrading
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(fastTrading.preparedNonces.isEmpty)
+        #expect(signer.signedFollowUps.isEmpty)
+        #expect(fastTrading.submitted.isEmpty)
+    }
+
     @Test("A ready wallet the backend demoted to deployed signs only the approvals again")
     func demotedWalletOnlyRedoesApprovals() async throws {
         let service = try makeWalletService(statuses: [.deployed, .readyToTrade])
@@ -541,6 +674,7 @@ private extension PolymarketOnboardingInteractorTests {
         serverClock: PolymarketServerClock = PolymarketServerClock(),
         ownerKeySession: PolymarketOwnerKeySession = PolymarketOwnerKeySessionSpy(),
         isKeyStored: Bool = true,
+        fastTrading: PolymarketOnboardingFastTrading? = nil,
         hasExistingAccount: @escaping () -> Bool = { false }
     ) throws -> CommonPolymarketOnboardingInteractor {
         CommonPolymarketOnboardingInteractor(
@@ -558,6 +692,7 @@ private extension PolymarketOnboardingInteractorTests {
             relayerService: PolymarketRelayerServiceStub(),
             clobService: clobService,
             serverClock: serverClock,
+            fastTrading: fastTrading,
             pollInterval: 0
         )
     }

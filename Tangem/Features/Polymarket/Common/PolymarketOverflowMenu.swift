@@ -16,6 +16,7 @@ struct PolymarketOverflowMenu: View {
     let onHistory: () -> Void
     let onHowItWorks: () -> Void
     let onSupportChat: () -> Void
+    let onSettings: (() -> Void)?
 
     var body: some View {
         Menu {
@@ -38,6 +39,15 @@ struct PolymarketOverflowMenu: View {
                     title: { Text(Constants.supportChatTitle) },
                     icon: { DesignSystem.Icons.HeadphonesSupport.regular20.image.renderingMode(.template) }
                 )
+            }
+
+            if let onSettings {
+                SwiftUI.Button(action: onSettings) {
+                    Label(
+                        title: { Text(PolymarketFastTradingStrings.settingsTitle) },
+                        icon: { DesignSystem.Icons.Gear.regular20.image.renderingMode(.template) }
+                    )
+                }
             }
         } label: {
             NavigationBarButton.details {}

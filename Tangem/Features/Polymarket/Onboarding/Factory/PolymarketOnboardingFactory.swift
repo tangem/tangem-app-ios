@@ -18,10 +18,14 @@ struct PolymarketOnboardingFactory {
         for userWalletModel: any UserWalletModel,
         coordinator: PolymarketWelcomeRoutable
     ) -> PolymarketWelcomeViewModel {
-        PolymarketWelcomeViewModel(
-            interactor: makeInteractor(for: userWalletModel),
-            hasExistingAccount: hasExistingAccount(for: userWalletModel),
+        let hasExistingAccount = hasExistingAccount(for: userWalletModel)
+        let fastTrading = hasExistingAccount ? nil : PolymarketSessionKeyFactory().makeOnboardingFastTrading(for: userWalletModel)
+
+        return PolymarketWelcomeViewModel(
+            interactor: makeInteractor(for: userWalletModel, fastTrading: fastTrading),
+            hasExistingAccount: hasExistingAccount,
             signingButtonType: SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config),
+            fastTrading: fastTrading,
             coordinator: coordinator
         )
     }
@@ -32,7 +36,10 @@ struct PolymarketOnboardingFactory {
         return state == .syncNeeded || presenceStore.hasAccount(userWalletId: userWalletModel.userWalletId)
     }
 
-    func makeInteractor(for userWalletModel: any UserWalletModel) -> PolymarketOnboardingInteractor {
+    func makeInteractor(
+        for userWalletModel: any UserWalletModel,
+        fastTrading: PolymarketOnboardingFastTrading?
+    ) -> PolymarketOnboardingInteractor {
         CommonPolymarketOnboardingInteractor(
             userWalletId: userWalletModel.userWalletId,
             hasExistingAccount: { hasExistingAccount(for: userWalletModel) },
@@ -47,7 +54,8 @@ struct PolymarketOnboardingFactory {
             walletService: services.makeWalletService(walletId: userWalletModel.userWalletId.stringValue),
             relayerService: services.makeRelayerService(),
             clobService: services.makeCLOBService(),
-            serverClock: InjectedValues[\.polymarketServerClock]
+            serverClock: InjectedValues[\.polymarketServerClock],
+            fastTrading: fastTrading
         )
     }
 }
