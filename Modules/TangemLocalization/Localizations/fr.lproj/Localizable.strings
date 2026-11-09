@@ -269,9 +269,15 @@
 "collectibles_open_pack_pull_uncommon" = "Uncommon pull";
 "collectibles_open_pack_sell_back_button" = "Sell back for %@";
 "collectibles_open_pack_sell_back_success" = "Card sold for %@";
+"collectibles_pack_to_open_banner_subtitle" = "Please note, that if you have not opened pack in a few hours, you’ll receive an automated refund from our partner";
+"collectibles_pack_to_open_banner_title" = "You have pack to open";
 "collectibles_pack_unopened_open_pack" = "Open pack";
 "collectibles_pack_unopened_subtitle" = "Your payment went through, but you haven’t finished opening pack. Please receive your card in order to continue ripping packs";
 "collectibles_pack_unopened_title" = "You have pack unopened";
+"collectibles_payment_in_progress_banner_subtitle" = "Please wait a bit for transaction to complete";
+"collectibles_payment_in_progress_banner_title" = "Your payment is in progress";
+"collectibles_payment_in_progress_sheet_subtitle" = "We noticed you have closed screen while the payment was in progress. Please wait a little bit for payment to be processed";
+"collectibles_payment_in_progress_sheet_title" = "Payment in progress";
 "collectibles_refund_on_the_way_subtitle" = "Our partner should have issued refund for your unopened pack. If you haven’t received a refund within a day, please contact support";
 "collectibles_refund_on_the_way_title" = "Your refund is on the way";
 "collectibles_region_restrictions_subtitle" = "Tangem Packs are not supported in your region, you can still view events";
@@ -1377,6 +1383,8 @@
 "money_account_send_pay_button" = "Payer %@";
 "money_account_send_unavailable_description" = "Réessayez dans 5 minutes";
 "money_account_send_unavailable_title" = "Opération actuellement indisponible";
+"money_account_yield_mode_average_apr" = "Average APR %@";
+"money_account_yield_mode_earn_up_to" = "Earn up to %@ a year";
 "news_all_news" = "Toutes les actualités";
 "news_like" = "Like";
 "news_quick_recap" = "Récapitulatif rapide";
@@ -1797,6 +1805,9 @@
 "prediction_session_key_pause" = "Pause fast trading";
 "prediction_session_key_reactivate" = "Reactivate";
 "prediction_session_key_resume" = "Resume fast trading";
+"prediction_session_key_revoke_confirm_text" = "Orders signed on %@ stop working right away. You can activate fast trading on it again later.";
+"prediction_session_key_revoke_confirm_title" = "Revoke fast trading?";
+"prediction_session_key_revoke_confirm_unknown_signer_text" = "Orders signed by %@ stop working right away.";
 "prediction_session_key_revoke" = "Revoke";
 "prediction_session_key_settings_title" = "Settings";
 "prediction_session_key_status_activating" = "Activating";
@@ -2070,7 +2081,7 @@
 "social_login_error_generic_v2" = "Veuillez réessayer. Si le problème persiste, vérifiez votre connexion Internet.";
 "social_login_error_generic" = "Une erreur est survenue. Veuillez réessayer";
 "social_login_error_network_description" = "Vérifiez votre connexion et réessayez.";
-"social_login_error_network_title" = "Aucune connexion Internet";
+"social_login_error_network_title" = "Pas de connexion internet";
 "social_login_error_no_account" = "Ajoutez votre compte %@ à cet appareil pour continuer.";
 "social_login_error_restore_failed_description" = "Nous n’avons pas pu restaurer le portefeuille associé à ce compte. Réessayez ou contactez l’assistance";
 "social_login_error_support" = "Contacter l’assistance";

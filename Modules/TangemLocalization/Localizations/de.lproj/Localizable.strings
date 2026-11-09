@@ -269,9 +269,15 @@
 "collectibles_open_pack_pull_uncommon" = "ungewöhnliche Karte gezogen";
 "collectibles_open_pack_sell_back_button" = "Zurückverkaufen für %@";
 "collectibles_open_pack_sell_back_success" = "Karte verkauft für %@";
+"collectibles_pack_to_open_banner_subtitle" = "Please note, that if you have not opened pack in a few hours, you’ll receive an automated refund from our partner";
+"collectibles_pack_to_open_banner_title" = "You have pack to open";
 "collectibles_pack_unopened_open_pack" = "Offenes Paket";
 "collectibles_pack_unopened_subtitle" = "Deine Zahlung wurde erfolgreich abgewickelt, aber du hast das Öffnen des Packs noch nicht abgeschlossen. Bitte hole dir deine Karte ab, um mit dem Öffnen der Packs fortzufahren.";
 "collectibles_pack_unopened_title" = "Sie haben die Packung ungeöffnet.";
+"collectibles_payment_in_progress_banner_subtitle" = "Please wait a bit for transaction to complete";
+"collectibles_payment_in_progress_banner_title" = "Your payment is in progress";
+"collectibles_payment_in_progress_sheet_subtitle" = "We noticed you have closed screen while the payment was in progress. Please wait a little bit for payment to be processed";
+"collectibles_payment_in_progress_sheet_title" = "Payment in progress";
 "collectibles_refund_on_the_way_subtitle" = "Unser Partner sollte Ihnen bereits eine Rückerstattung für Ihre ungeöffnete Packung gewährt haben. Sollten Sie innerhalb eines Tages keine Rückerstattung erhalten haben, wenden Sie sich bitte an den Kundendienst.";
 "collectibles_refund_on_the_way_title" = "Ihre Rückerstattung ist unterwegs";
 "collectibles_region_restrictions_subtitle" = "Tangem-Pakete werden in Ihrer Region nicht unterstützt, Sie können aber trotzdem Veranstaltungen ansehen.";
@@ -1377,6 +1383,8 @@
 "money_account_send_pay_button" = "%@ bezahlen";
 "money_account_send_unavailable_description" = "Versuchen Sie es in 5 Minuten erneut";
 "money_account_send_unavailable_title" = "Funktion derzeit nicht verfügbar";
+"money_account_yield_mode_average_apr" = "Average APR %@";
+"money_account_yield_mode_earn_up_to" = "Earn up to %@ a year";
 "news_all_news" = "Alle Neuigkeiten";
 "news_like" = "Gefällt mir";
 "news_quick_recap" = "Kurze Zusammenfassung";
@@ -1797,6 +1805,9 @@
 "prediction_session_key_pause" = "Schnelles Handeln pausieren";
 "prediction_session_key_reactivate" = "Reaktivieren";
 "prediction_session_key_resume" = "Den schnellen Handel wieder aufnehmen";
+"prediction_session_key_revoke_confirm_text" = "Orders signed on %@ stop working right away. You can activate fast trading on it again later.";
+"prediction_session_key_revoke_confirm_title" = "Revoke fast trading?";
+"prediction_session_key_revoke_confirm_unknown_signer_text" = "Orders signed by %@ stop working right away.";
 "prediction_session_key_revoke" = "Widerrufen";
 "prediction_session_key_settings_title" = "Einstellungen";
 "prediction_session_key_status_activating" = "Aktivieren";
