@@ -7,7 +7,9 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemPolymarket
+import TangemSdk
 @testable import Tangem
 
 enum PolymarketSessionKeyFixtures {
@@ -60,7 +62,7 @@ enum PolymarketSessionKeyFixtures {
             validUntil: validUntil,
             renewAfter: renewAfter,
             authorizedAt: authorizedAt,
-            createdAt: createdAt ?? authorizedAt
+            createdAt: createdAt ?? (status == .pending ? now.addingTimeInterval(-hour / 60) : authorizedAt)
         )
     }
 
@@ -80,5 +82,54 @@ enum PolymarketSessionKeyFixtures {
                 operations: operations
             )
         )
+    }
+}
+
+final class PolymarketSessionKeyStoreSpy: PolymarketSessionKeyStore, Sendable {
+    struct ReadError: Error {}
+
+    static let generatedAddress = "0x5e55000000000000000000000000000000000003"
+
+    static func signature(for hash: Data) -> String {
+        "0x" + hash.hexString.lowercased() + "1b"
+    }
+
+    private let state: OSAllocatedUnfairLock<State>
+
+    init(heldAddresses: [Result<String?, Error>]) {
+        state = OSAllocatedUnfairLock(initialState: State(heldAddresses: heldAddresses))
+    }
+
+    convenience init(heldAddress: String?) {
+        self.init(heldAddresses: [.success(heldAddress)])
+    }
+
+    var generatedKeys: Int {
+        state.withLock { $0.generatedKeys }
+    }
+
+    func heldAddress(for userWalletId: UserWalletId) throws -> String? {
+        let result = state.withLock { state in
+            state.heldAddresses.count > 1 ? state.heldAddresses.removeFirst() : (state.heldAddresses.first ?? .success(nil))
+        }
+
+        return try result.get()
+    }
+
+    func generateKey(for userWalletId: UserWalletId) throws -> String {
+        state.withLock { $0.generatedKeys += 1 }
+
+        return Self.generatedAddress
+    }
+
+    func sign(hash: Data, for userWalletId: UserWalletId) throws -> String {
+        Self.signature(for: hash)
+    }
+
+    func deleteKey(for userWalletId: UserWalletId) throws {}
+
+    private struct State {
+        var heldAddresses: [Result<String?, Error>]
+        var generatedKeys = 0
     }
 }

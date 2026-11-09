@@ -14,7 +14,7 @@ struct PolymarketDepositWalletResolver {
     let ownerAddressProvider: PolymarketOwnerAddressProviding
     var sessionHealth: PolymarketSessionHealthChecking?
 
-    func resolve() async throws -> PolymarketDepositWalletAddresses {
+    func resolve(acceptedStatuses: Set<PolymarketDepositWalletStatus> = [.readyToTrade]) async throws -> PolymarketDepositWalletAddresses {
         guard let ownerAddress = ownerAddressProvider.getOwnerAddress() else {
             throw PolymarketAccountFundsError.ownerKeyUnavailable
         }
@@ -24,13 +24,17 @@ struct PolymarketDepositWalletResolver {
 
         try stored.ensureMatches(derived: derived)
 
-        guard stored.address != nil, stored.status == .readyToTrade else {
+        guard stored.address != nil, acceptedStatuses.contains(stored.status) else {
             await sessionHealth?.report(stored.status)
             throw PolymarketAccountFundsError.depositWalletNotReadyToTrade(stored.status)
         }
 
         return PolymarketDepositWalletAddresses(owner: ownerAddress, depositWallet: derived)
     }
+}
+
+extension Set where Element == PolymarketDepositWalletStatus {
+    static let deployedOrLater: Self = [.deployed, .approvalsInProgress, .approvalsFailed, .readyToTrade]
 }
 
 struct PolymarketDepositWalletAddresses: Equatable {

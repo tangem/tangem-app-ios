@@ -129,6 +129,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.polymarketShownPositionsCount)
     var polymarketShownPositionsCount: [String: Int] = [:]
+
+    @AppStorageCompat(StorageType.polymarketFastTradingBannerDismissedAt)
+    var polymarketFastTradingBannerDismissedAt: [String: Date] = [:]
     @AppStorageCompat(StorageType.collectiblesHasAccount)
     var collectiblesHasAccount: [String: Bool] = [:]
 

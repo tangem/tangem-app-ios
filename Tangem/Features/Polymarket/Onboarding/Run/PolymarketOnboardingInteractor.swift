@@ -478,23 +478,12 @@ private extension CommonPolymarketOnboardingInteractor {
         let credentials: PolymarketL2Credentials
 
         do {
-            credentials = try await clobService.deriveCredentials(authHeaders: authHeaders)
+            credentials = try await clobService.deriveOrCreateCredentials(authHeaders: authHeaders)
         } catch is CancellationError {
             throw CancellationError()
         } catch {
-            guard error.isClientRefusal else {
-                PolymarketLogger.error("Failed to derive the trading credentials", error: error)
-                throw PolymarketOnboardingError.credentials
-            }
-
-            do {
-                credentials = try await clobService.createCredentials(authHeaders: authHeaders)
-            } catch is CancellationError {
-                throw CancellationError()
-            } catch {
-                PolymarketLogger.error("Failed to create the trading credentials", error: error)
-                throw PolymarketOnboardingError.credentials
-            }
+            PolymarketLogger.error("Failed to obtain the trading credentials", error: error)
+            throw PolymarketOnboardingError.credentials
         }
 
         do {
@@ -513,16 +502,6 @@ private extension CommonPolymarketOnboardingInteractor {
         } catch {
             PolymarketLogger.error("Failed to prime the collateral balance", error: error)
         }
-    }
-}
-
-// MARK: - Client refusals
-
-private extension Error {
-    var isClientRefusal: Bool {
-        guard let apiError = self as? PolymarketAPIError else { return false }
-
-        return apiError.isClientRefusal
     }
 }
 

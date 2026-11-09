@@ -195,26 +195,41 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
         credentials: PolymarketL2Credentials,
         ownerAddress: String
     ) async throws -> [PolymarketSessionSigner] {
-        fatalError("Not reachable from this test")
+        guard let sessionSignersResult else {
+            fatalError("Not reachable from this test")
+        }
+
+        sessionSignerReads += 1
+        return try sessionSignersResult.get()
     }
 
     private(set) var balanceCalls = 0
-    private(set) var credentialRequests = 0
+    private(set) var deriveRequests = 0
+    private(set) var createRequests = 0
+    private(set) var authHeaders: [PolymarketCLOBAuthHeaders] = []
+    private(set) var sessionSignerReads = 0
+
+    var credentialRequests: Int {
+        deriveRequests + createRequests
+    }
 
     var queuedPriceResults: [Result<Decimal, Error>] = []
 
     private let balanceResult: Result<Decimal, Error>
     private let deriveResult: Result<PolymarketL2Credentials, Error>
     private let createResult: Result<PolymarketL2Credentials, Error>
+    private let sessionSignersResult: Result<[PolymarketSessionSigner], Error>?
 
     init(
         balanceResult: Result<Decimal, Error> = .success(0),
         deriveResult: Result<PolymarketL2Credentials, Error> = .success(PolymarketCredentialsRepositoryStub.credentials),
-        createResult: Result<PolymarketL2Credentials, Error> = .success(PolymarketCredentialsRepositoryStub.credentials)
+        createResult: Result<PolymarketL2Credentials, Error> = .success(PolymarketCredentialsRepositoryStub.credentials),
+        sessionSignersResult: Result<[PolymarketSessionSigner], Error>? = nil
     ) {
         self.balanceResult = balanceResult
         self.deriveResult = deriveResult
         self.createResult = createResult
+        self.sessionSignersResult = sessionSignersResult
     }
 
     func price(tokenId: String, side: PolymarketOrderSide) async throws -> Decimal {
@@ -228,12 +243,14 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
     }
 
     func createCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
-        credentialRequests += 1
+        createRequests += 1
+        self.authHeaders.append(authHeaders)
         return try createResult.get()
     }
 
     func deriveCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
-        credentialRequests += 1
+        deriveRequests += 1
+        self.authHeaders.append(authHeaders)
         return try deriveResult.get()
     }
 
@@ -285,7 +302,10 @@ final class PolymarketRelayerServiceStub: PolymarketRelayerService {
 final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
     static let batchSignature = "0xbatch"
 
+    static let followUpSignature = "0xfollowup"
+
     private(set) var signCalls = 0
+    private(set) var signedFollowUps: [PolymarketRelayedBatch.Unsigned] = []
 
     private let error: PolymarketSigningError?
 
@@ -294,9 +314,11 @@ final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
     }
 
     func sign(
-        approvals: PolymarketRelayedBatch.Unsigned
+        approvals: PolymarketRelayedBatch.Unsigned,
+        followUps: [PolymarketRelayedBatch.Unsigned]
     ) async throws(PolymarketSigningError) -> PolymarketOnboardingSignatures {
         signCalls += 1
+        signedFollowUps.append(contentsOf: followUps)
 
         if let error {
             throw error
@@ -311,7 +333,8 @@ final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
                 timestamp: "1786128353",
                 nonce: PolymarketClobAuth.nonce
             ),
-            approvals: approvals.signed(by: ownerAddress, signature: Self.batchSignature)
+            approvals: approvals.signed(by: ownerAddress, signature: Self.batchSignature),
+            followUps: followUps.map { $0.signed(by: ownerAddress, signature: Self.followUpSignature) }
         )
     }
 }
