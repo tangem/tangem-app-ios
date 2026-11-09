@@ -22,7 +22,7 @@ struct SendAmountViewModelTests {
         let usdtERC20 = SendSourceTokenStub(tokenItem: Self.usdt(contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7", blockchain: .ethereum(testnet: false)))
         let usdtTRC20 = SendSourceTokenStub(tokenItem: Self.usdt(contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", blockchain: .tron(testnet: false)))
         let sut = makeSUT(providerRateTypes: [.fixed])
-        _ = try await sut.$providerRateTypes.first { $0.contains(.fixed) }.async()
+        await drainMainQueue()
 
         sut.updateDestinationToken(destinationToken: usdtERC20, amount: .loading, isApproximate: false)
         sut.updateDestinationToken(destinationToken: usdtTRC20, amount: .loading, isApproximate: false)
@@ -42,7 +42,7 @@ struct SendAmountViewModelTests {
     func fixedRateSameReceiveTokenDoesNotRebuildRow() async throws {
         let usdtERC20 = Self.usdt(contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7", blockchain: .ethereum(testnet: false))
         let sut = makeSUT(providerRateTypes: [.fixed])
-        _ = try await sut.$providerRateTypes.first { $0.contains(.fixed) }.async()
+        await drainMainQueue()
 
         var rebuildCount = 0
         let cancellable = sut.$destinationTokenViewType.dropFirst().sink { _ in rebuildCount += 1 }
@@ -85,18 +85,25 @@ struct SendAmountViewModelTests {
         let rateTypes = CurrentValueSubject<Set<ExpressProviderRateType>, Never>([.fixed, .float])
         let interactor = InteractorStub()
         let sut = makeSUT(providerRateTypesPublisher: rateTypes.eraseToAnyPublisher(), interactor: interactor)
-        _ = try await sut.$providerRateTypes.first { $0.contains(.fixed) }.async()
+        await drainMainQueue()
 
         sut.sourceAmountField.onValueChanged?(2)
 
         rateTypes.send([.float])
-        _ = try await sut.$providerRateTypes.first { !$0.contains(.fixed) }.async()
+        await drainMainQueue()
 
         #expect(interactor.sourceAmountUpdates == [2])
     }
 }
 
 private extension SendAmountViewModelTests {
+    @MainActor
+    func drainMainQueue() async {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async { continuation.resume() }
+        }
+    }
+
     static func usdt(contractAddress: String, blockchain: Blockchain) -> TokenItem {
         let token = Token(name: "Tether", symbol: "USDT", contractAddress: contractAddress, decimalCount: 6, id: "tether")
         return .token(token, .init(blockchain, derivationPath: nil))
@@ -109,7 +116,7 @@ private extension SendAmountViewModelTests {
         let rateTypes = CurrentValueSubject<Set<ExpressProviderRateType>, Never>([.fixed, .float])
         let interactor = InteractorStub()
         let sut = makeSUT(providerRateTypesPublisher: rateTypes.eraseToAnyPublisher(), interactor: interactor)
-        _ = try await sut.$providerRateTypes.first { $0.contains(.fixed) }.async()
+        await drainMainQueue()
 
         let usdt = Self.usdt(contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7", blockchain: .ethereum(testnet: false))
         sut.updateDestinationToken(destinationToken: SendSourceTokenStub(tokenItem: usdt), amount: .loading, isApproximate: false)
@@ -117,7 +124,7 @@ private extension SendAmountViewModelTests {
         sut.sourceAmountField.updateAmountsUI(amount: SendAmount(type: .typical(crypto: 2, fiat: 23)))
 
         updates.forEach(rateTypes.send)
-        _ = try await sut.$providerRateTypes.first { $0 == updates.last }.async()
+        await drainMainQueue()
 
         return (sut, interactor)
     }
