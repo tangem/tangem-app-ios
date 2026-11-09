@@ -52,6 +52,18 @@ public enum BackendAuthenticationAssembly {
 
     /// A `package` access level due to its use in the `TangemBackendAuthenticationDebugSupport` module.
     package static let debugDependencies: BackendAuthenticationDebugDependencies = Self.makeDebugDependencies()
+
+    /// A `package` access level due to its use in the `TangemSocialAuthentication` module.
+    package static let obtainRecoveryAppAssertion = ObtainRecoveryAppAssertionUseCase(
+        appAttestService: Self.appAttestService,
+        appAttestationStatusRepository: Self.appAttestationStatusRepository,
+        logger: Self.configuration.logger
+    )
+
+    /// A `package` access level due to its use in the `TangemSocialAuthentication` module.
+    package static let clearAppAttestationStatus = ClearAppAttestationStatusUseCase(
+        appAttestationStatusRepository: Self.appAttestationStatusRepository
+    )
 }
 
 // MARK: - Configuration

@@ -420,7 +420,7 @@ private extension MobileSocialWalletViewModel {
             recoveryEnrollment: UserWalletRecoveryEnrollment(
                 providerIdToken: input.credentials.identityToken,
                 encryptedRecoveryKey: encryptedRecoveryKey.ciphertext,
-                recoveryKeyId: encryptedRecoveryKey.keyId
+                recoveryKeyID: encryptedRecoveryKey.keyId
             )
         )
     }
