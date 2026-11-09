@@ -265,7 +265,10 @@ enum TransactionHistoryRecordsMapper {
                 throw "Missing joint operation \(indexRecord.entityID) referenced by an index record"
             }
 
-            return .jointOperation(JointOperationHistoryInfo(item: try mapToJointOperationHistoryItem(record)))
+            let item = try mapToJointOperationHistoryItem(record)
+            let innerCallType = try SafeInnerCallTypeParser.parse(item.operation.safeTransaction.innerCall)
+
+            return .jointOperation(JointOperationHistoryInfo(item: item, innerCallType: innerCallType))
 
         default:
             throw "Unknown entity type \(indexRecord.entityType) of an index record for entity \(indexRecord.entityID)"

@@ -37,6 +37,20 @@ enum JointOperationHistoryTestDataFactory {
         item(id: id, status: .executed, chainId: baseChainId, safeTransaction: coinSafeTransaction(operation: 1))
     }
 
+    static func coinInfo(id: String, status: JointAccountOperationStatus) -> JointOperationHistoryInfo {
+        JointOperationHistoryInfo(
+            item: coinItem(id: id, status: status),
+            innerCallType: .transfer(.coin(destination: recipient, value: BigUInt(10).power(18)))
+        )
+    }
+
+    static func info(_ item: JointOperationHistoryItem) throws -> JointOperationHistoryInfo {
+        JointOperationHistoryInfo(
+            item: item,
+            innerCallType: try SafeInnerCallTypeParser.parse(item.operation.safeTransaction.innerCall)
+        )
+    }
+
     static func item(
         id: String,
         status: JointAccountOperationStatus,

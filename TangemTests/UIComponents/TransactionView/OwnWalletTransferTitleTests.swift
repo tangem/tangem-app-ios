@@ -32,6 +32,18 @@ struct OwnWalletTransferTitleTests {
         )
     }
 
+    @Test("A cancelled transfer is titled Transfer cancelled to an own wallet and Send cancelled to anyone else")
+    func cancelledTransferTitle() {
+        let external = TransactionViewModel.SubtitleOwner.unresolved(short: "0xAB…CD", fullAddress: "0xABCD", blockiesImage: nil)
+
+        #expect(
+            title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: true, status: .cancelled)
+                == Localization.transactionHistoryStatusTransferCancelled
+        )
+        #expect(title(owner: external, isOutgoing: true, status: .cancelled) == Localization.transactionHistoryStatusSendCancelled)
+        #expect(title(owner: nil, isOutgoing: true, status: .cancelled) == Localization.transactionHistoryStatusSendCancelled)
+    }
+
     @Test("Transfer to an external address stays Send/Received")
     func externalTransferStaysDirectional() {
         let external = TransactionViewModel.SubtitleOwner.unresolved(short: "0xAB…CD", fullAddress: "0xABCD", blockiesImage: nil)

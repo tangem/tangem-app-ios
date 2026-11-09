@@ -228,14 +228,18 @@ extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperat
         pendingOperationsRepository.requestFrequentUpdates(operationId: operationId)
     }
 
-    func loadOperation(id: String) async throws -> JointAccountPendingOperation {
-        let operation = try await pendingOperationsRepository.loadOperation(id: id, forCryptoAccountId: cryptoAccountId)
-
-        return try await makePendingOperation(
+    func pendingOperation(from operation: JointAccountOperation) async throws -> JointAccountPendingOperation {
+        try await makePendingOperation(
             from: operation,
             walletModels: walletModelsManager.walletModels,
             members: membersService.slotsPublisher.async().members
         )
+    }
+
+    func loadOperation(id: String) async throws -> JointAccountPendingOperation {
+        let operation = try await pendingOperationsRepository.loadOperation(id: id, forCryptoAccountId: cryptoAccountId)
+
+        return try await pendingOperation(from: operation)
     }
 }
 

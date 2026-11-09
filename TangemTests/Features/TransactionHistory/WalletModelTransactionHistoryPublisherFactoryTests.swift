@@ -291,8 +291,8 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.WalletModelT
             publicKey: .init(seedKey: Data(), derivationType: .none),
             addressesProvider: EmptyAddressesProvider()
         )
-        let jointOperation = JointOperationHistoryTestDataFactory.coinItem(id: jointOperationId, status: jointOperationStatus)
-        let provider = StubTransactionHistoryProvider(records: [.jointOperation(JointOperationHistoryInfo(item: jointOperation))])
+        let jointOperation = JointOperationHistoryTestDataFactory.coinInfo(id: jointOperationId, status: jointOperationStatus)
+        let provider = StubTransactionHistoryProvider(records: [.jointOperation(jointOperation)])
 
         return WalletModelTransactionHistoryPublisherFactory.makeTransactionHistoryPublisher(
             transactionHistoryPublisher: onChainState,

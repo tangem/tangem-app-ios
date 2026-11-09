@@ -132,6 +132,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             return
         }
 
+        if let operationId = historyJointOperationId(for: transaction) {
+            resolveJointOperationDetails(operationId: operationId)
+            return
+        }
+
         coordinator?.openTransactionDetails(
             TransactionDetailsRouteData(
                 id: transaction.id,
@@ -528,16 +533,18 @@ private extension TokenDetailsViewModel {
         .filter { $0.items.isNotEmpty }
     }
 
-    private func bindJointOperationDetails(operationId: String) {
+    private func resolveJointOperationDetails(operationId: String) {
         guard let jointAccount = walletModel.account as? any JointAccountModel else {
             return
         }
 
         let resolver = JointAccountOperationDeeplinkResolver(
             jointAccount: jointAccount,
+            historyOperations: historyJointOperations,
             timeout: Constants.jointOperationResolutionTimeout
         )
 
+        jointOperationDetailsTask?.cancel()
         jointOperationDetailsTask = Task { [weak self] in
             do {
                 let pendingOperation = try await resolver.resolve(operationId: operationId)
@@ -548,7 +555,7 @@ private extension TokenDetailsViewModel {
                     return
                 }
 
-                JointAccountsLogger.error("Failed to open the joint operation from a deeplink", error: error)
+                JointAccountsLogger.error("Failed to open the joint operation", error: error)
             }
         }
     }
@@ -579,7 +586,7 @@ private extension TokenDetailsViewModel {
 
         if let pendingTransactionDetails {
             if pendingTransactionDetails.type == .jointOperation {
-                bindJointOperationDetails(operationId: pendingTransactionDetails.id)
+                resolveJointOperationDetails(operationId: pendingTransactionDetails.id)
             } else {
                 walletModel.transactionHistoryPublisher
                     .compactMap { state -> TransactionRecord? in

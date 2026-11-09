@@ -77,7 +77,7 @@ struct TransactionViewIconViewData: Hashable {
             return DesignSystem.Color.iconAccentBlue
         case .confirmed:
             return DesignSystem.Color.iconSecondary
-        case .failed, .undefined:
+        case .failed, .cancelled, .undefined:
             return DesignSystem.Color.iconAccentRed
         }
     }
@@ -86,7 +86,7 @@ struct TransactionViewIconViewData: Hashable {
         switch status {
         case .inProgress: return DesignSystem.Color.bgAccentBlueSubtle
         case .confirmed: return DesignSystem.Color.bgTransparentSecondary
-        case .failed, .undefined: return DesignSystem.Color.bgAccentRedSubtle
+        case .failed, .cancelled, .undefined: return DesignSystem.Color.bgAccentRedSubtle
         }
     }
 }

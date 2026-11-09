@@ -182,6 +182,7 @@ final class TransactionDetailsAnalyticsLogger {
         case .confirmed: .txHistoryConfirmed
         case .inProgress: .pending
         case .failed: .failed
+        case .cancelled: .canceled
         case .undefined: .unknown
         }
     }

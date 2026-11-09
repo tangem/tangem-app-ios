@@ -189,6 +189,10 @@ private final class PendingOperationsProviderStub: JointAccountPendingOperations
         nil
     }
 
+    func pendingOperation(from operation: JointAccountOperation) async throws -> JointAccountPendingOperation {
+        throw "Not called by these tests"
+    }
+
     func loadOperation(id: String) async throws -> JointAccountPendingOperation {
         throw "Not called by these tests"
     }

@@ -356,8 +356,16 @@ extension TransactionViewModel {
     enum Status: String {
         case inProgress
         case failed
+        case cancelled
         case confirmed
         case undefined
+
+        var isFailed: Bool {
+            switch self {
+            case .failed, .cancelled: true
+            case .inProgress, .confirmed, .undefined: false
+            }
+        }
     }
 
     enum Warning: Hashable {

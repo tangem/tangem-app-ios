@@ -78,7 +78,8 @@ struct CommonJointOperationsHistoryWriterTests {
             return await Self.firstNonEmptyRecords()
         }
 
-        #expect(records == [.jointOperation(JointOperationHistoryInfo(item: pending))])
+        let expectedInfo = try JointOperationHistoryTestDataFactory.info(pending)
+        #expect(records == [.jointOperation(expectedInfo)])
     }
 
     @Test("A local in-flight write leaves a finished row in the database as it was", arguments: [JointAccountOperationStatus.executed, .cancelled])
@@ -92,7 +93,8 @@ struct CommonJointOperationsHistoryWriterTests {
             return await Self.firstNonEmptyRecords()
         }
 
-        #expect(records == [.jointOperation(JointOperationHistoryInfo(item: finished))])
+        let expectedInfo = try JointOperationHistoryTestDataFactory.info(finished)
+        #expect(records == [.jointOperation(expectedInfo)])
     }
 
     @Test("Saving locally writes exactly what the stored stages allow")
@@ -116,7 +118,8 @@ struct CommonJointOperationsHistoryWriterTests {
             return await Self.firstNonEmptyRecords()
         }
 
-        #expect(Set(records) == Set([finished, advanced, new].map { .jointOperation(JointOperationHistoryInfo(item: $0)) }))
+        let expectedRecords = try [finished, advanced, new].map { TransactionHistoryRecordsReader.Record.jointOperation(try JointOperationHistoryTestDataFactory.info($0)) }
+        #expect(Set(records) == Set(expectedRecords))
     }
 
     @Test("A deleted operation leaves the database, and the other one stays")
@@ -130,7 +133,8 @@ struct CommonJointOperationsHistoryWriterTests {
             return await Self.firstNonEmptyRecords()
         }
 
-        #expect(records == [.jointOperation(JointOperationHistoryInfo(item: kept))])
+        let expectedInfo = try JointOperationHistoryTestDataFactory.info(kept)
+        #expect(records == [.jointOperation(expectedInfo)])
     }
 
     @Test("A deleted operation takes its index rows along, so saving it again for another token keeps it out of the coin's history")
@@ -145,7 +149,8 @@ struct CommonJointOperationsHistoryWriterTests {
             return await Self.firstNonEmptyRecords()
         }
 
-        #expect(records == [.jointOperation(JointOperationHistoryInfo(item: kept))])
+        let expectedInfo = try JointOperationHistoryTestDataFactory.info(kept)
+        #expect(records == [.jointOperation(expectedInfo)])
     }
 }
 
