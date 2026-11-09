@@ -19,7 +19,12 @@ struct OnrampRedirectingView: View {
         ZStack {
             DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
-            content
+            ModalStatus(
+                title: Localization.onrampRedirectingToProviderTitle(viewModel.providerName),
+                description: Localization.onrampRedirectingToProviderSubtitle(viewModel.providerName)
+            ) {
+                assets
+            }
         }
         .navigationTitle(Text(viewModel.title))
         .navigationBarTitleDisplayMode(.inline)
@@ -29,39 +34,31 @@ struct OnrampRedirectingView: View {
         }
         .onChange(of: colorScheme) { viewModel.update(colorScheme: $0) }
         .task { await viewModel.loadRedirectData() }
+        .task { await viewModel.loadProviderLogo() }
     }
 
-    private var content: some View {
-        VStack(alignment: .center, spacing: 24) {
-            HStack(spacing: 12) {
-                tangemIcon
+    private var assets: some View {
+        HStack(spacing: 12) {
+            Avatar(.icon(DesignSystem.Icons.LogoTangem.regular32), size: .size72)
 
-                ProgressDots(style: .large)
+            Loader()
+                .loaderSize(.size20)
 
-                IconView(url: viewModel.providerImageURL, size: CGSize(width: 64, height: 64), cornerRadius: 8)
-            }
-
-            VStack(alignment: .center, spacing: 12) {
-                Text(Localization.onrampRedirectingToProviderTitle(viewModel.providerName))
-                    .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
-
-                Text(Localization.onrampRedirectingToProviderSubtitle(viewModel.providerName))
-                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
-                    .multilineTextAlignment(.center)
-            }
+            providerAvatar
         }
-        .padding(.horizontal, 50)
+        .accessibilityHidden(true)
     }
 
-    var tangemIcon: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(DesignSystem.Color.bgSecondary)
-                .frame(width: 64, height: 64)
-
-            Assets.tangemIconMedium.image
-                .renderingMode(.template)
-                .foregroundColor(DesignSystem.Color.iconPrimary)
+    @ViewBuilder
+    private var providerAvatar: some View {
+        switch viewModel.providerLogo {
+        case .loading:
+            Avatar(.address(nil), size: .size72)
+                .environment(\.isShimmerActive, true)
+        case .loaded(let image):
+            Avatar(.asset(image), size: .size72)
+        case .unavailable:
+            Avatar(.address(nil), size: .size72)
         }
     }
 }
