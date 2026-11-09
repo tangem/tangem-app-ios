@@ -27,7 +27,7 @@ struct PendingTransactionRecordMapper {
             hash: pending.hash,
             index: 0,
             source: .single(.init(address: pending.source, amount: pending.amount.value)),
-            destination: .single(.init(address: .user(pending.destination), amount: pending.amount.value)),
+            destination: .single(.init(address: destinationAddress(of: pending), amount: pending.amount.value)),
             fee: pending.fee,
             status: .unconfirmed,
             isOutgoing: !pending.isIncoming,
@@ -36,6 +36,18 @@ struct PendingTransactionRecordMapper {
             tokenTransfers: [],
             nonce: (pending.transactionParams as? EthereumTransactionParams)?.nonce
         )
+    }
+
+    private func destinationAddress(of pending: PendingTransactionRecord) -> TransactionRecord.Destination.Address {
+        isContractCall(pending) ? .contract(pending.destination) : .user(pending.destination)
+    }
+
+    private func isContractCall(_ pending: PendingTransactionRecord) -> Bool {
+        guard let callData = (pending.transactionParams as? EthereumTransactionParams)?.data else {
+            return false
+        }
+
+        return !callData.isEmpty
     }
 
     func mapToTransactionViewModel(_ transaction: PendingTransactionRecord) -> TransactionViewModel {
@@ -73,7 +85,7 @@ struct PendingTransactionRecordMapper {
             return .user(transaction.source)
         }
 
-        return .user(transaction.destination)
+        return isContractCall(transaction) ? .contract(transaction.destination) : .user(transaction.destination)
     }
 
     private func transactionType(for transaction: PendingTransactionRecord) -> TransactionViewModel.TransactionType {
