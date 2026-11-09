@@ -146,9 +146,9 @@ private extension JointAccountsNotificationBadgeCounterTests {
             wallet: wallet,
             initiator: operationInitiator,
             operation: operation,
-            operationPublisher: Just(operation).eraseToAnyPublisher(),
             innerCallType: .transfer(.coin(destination: Constants.recipient, value: 1_000_000_000_000_000)),
-            feeTokenItem: Constants.coin
+            feeTokenItem: Constants.coin,
+            handleProvider: JointAccountPendingOperationHandleProviderStub()
         )
     }
 

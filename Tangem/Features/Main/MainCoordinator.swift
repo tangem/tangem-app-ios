@@ -758,19 +758,19 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openJointAccountOperationDetails(
-        pendingOperation: JointAccountPendingOperation,
+        handle: JointAccountPendingOperationHandle,
         userWalletInfo: UserWalletInfo,
         addressBookManager: AddressBookManager
     ) {
         let addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
         let viewModel = JointAccountOperationDetailsViewModel(
-            pendingOperation: pendingOperation,
+            handle: handle,
             addressBookWallet: addressBookWallet,
             recipientSource: CommonJointAccountOperationRecipientSource(addressBookWallet: addressBookWallet),
             coordinator: self,
             analyticsLogger: CommonJointAccountOperationAnalyticsLogger(
-                tokenItem: pendingOperation.tokenItem,
-                policy: pendingOperation.wallet.account?.policy
+                tokenItem: handle.wallet.tokenItem,
+                policy: handle.wallet.account?.policy
             )
         )
 

@@ -45,10 +45,6 @@ extension CommonJointAccountPendingOperationsRepository: JointAccountPendingOper
         synchronizer.operationsPublisher
     }
 
-    func operationPublisher(id: String, in cryptoAccountId: String) -> AnyPublisher<JointAccountOperation, Never> {
-        synchronizer.operationPublisher(id: id, in: cryptoAccountId)
-    }
-
     func requestFrequentUpdates(operationId: String) -> AnyCancellable? {
         let poller = pollingState.withLockUnchecked { $0.pollers[operationId] }
 

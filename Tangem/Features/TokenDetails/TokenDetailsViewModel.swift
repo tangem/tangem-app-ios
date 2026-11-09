@@ -125,7 +125,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     func openTransactionDetails(_ transaction: TransactionViewModel) {
         if let jointOperation = jointOperation(for: transaction) {
             coordinator?.openJointAccountOperationDetails(
-                pendingOperation: jointOperation,
+                handle: jointOperation.makeHandle(),
                 userWalletInfo: userWalletInfo,
                 addressBookManager: addressBookManager
             )
@@ -542,7 +542,7 @@ private extension TokenDetailsViewModel {
             do {
                 let pendingOperation = try await resolver.resolve(operationId: operationId)
                 try Task.checkCancellation()
-                await self?.openJointOperationDetails(pendingOperation: pendingOperation)
+                await self?.openJointOperationDetails(handle: pendingOperation.makeHandle())
             } catch {
                 guard !error.isCancellationError else {
                     return
@@ -554,9 +554,9 @@ private extension TokenDetailsViewModel {
     }
 
     @MainActor
-    private func openJointOperationDetails(pendingOperation: JointAccountPendingOperation) {
+    private func openJointOperationDetails(handle: JointAccountPendingOperationHandle) {
         coordinator?.openJointAccountOperationDetails(
-            pendingOperation: pendingOperation,
+            handle: handle,
             userWalletInfo: userWalletInfo,
             addressBookManager: addressBookManager
         )

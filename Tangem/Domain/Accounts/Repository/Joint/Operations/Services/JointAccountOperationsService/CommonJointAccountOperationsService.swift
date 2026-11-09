@@ -97,11 +97,11 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
 
     /// Neither signed nor given anything to send: cancelling and declining are one and the same call, and which of
     /// the two it is the endpoint works out from the wallet it was made for.
-    func rejectOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws {
+    func rejectOperation(id: String, in wallet: JointAccountWallet) async throws {
         let account = try await activeAccount(of: wallet)
 
         try await pendingOperationsRepository.rejectOperation(
-            id: operation.id,
+            id: id,
             forCryptoAccountId: account.cryptoAccountId
         )
     }

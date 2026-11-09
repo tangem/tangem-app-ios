@@ -12,8 +12,7 @@ import BlockchainSdk
 import TangemFoundation
 import TangemMacro
 
-/// An unfinished operation of the account, with the wallet it is made through: what a screen shows of it, and what
-/// this member can do about it.
+/// An unfinished operation of the account, with the wallet it is made through: what a screen shows of it.
 struct JointAccountPendingOperation: Equatable {
     var tokenItem: TokenItem { wallet.tokenItem }
     var amount: Amount? { operationAmount() }
@@ -29,45 +28,38 @@ struct JointAccountPendingOperation: Equatable {
     var standing: Standing { memberStanding() }
     var canSign: Bool { isSignable() }
     var canReject: Bool { isRejectable() }
-    var didChangePublisher: AnyPublisher<JointAccountPendingOperation, Never> { makeDidChangePublisher() }
 
     let wallet: JointAccountWallet
     let initiator: Initiator
+    let operation: JointAccountOperation
     let innerCallType: SafeInnerCallType
     let feeTokenItem: TokenItem?
 
-    private let operation: JointAccountOperation
     @IgnoredEquatable
-    private var operationPublisher: AnyPublisher<JointAccountOperation, Never>
+    private var handleProvider: WeakRef<any JointAccountPendingOperationHandleProvider>
 
     init(
         wallet: JointAccountWallet,
         initiator: Initiator,
         operation: JointAccountOperation,
-        operationPublisher: AnyPublisher<JointAccountOperation, Never>,
         innerCallType: SafeInnerCallType,
-        feeTokenItem: TokenItem?
+        feeTokenItem: TokenItem?,
+        handleProvider: any JointAccountPendingOperationHandleProvider
     ) {
         self.wallet = wallet
         self.initiator = initiator
         self.operation = operation
-        self.operationPublisher = operationPublisher
         self.innerCallType = innerCallType
         self.feeTokenItem = feeTokenItem
-    }
-}
-
-// MARK: - Actions
-
-extension JointAccountPendingOperation {
-    /// Counts this member's signature towards the threshold.
-    func sign() async throws -> JointAccountOperation {
-        try await wallet.sign(operation)
+        self.handleProvider = WeakRef(handleProvider)
     }
 
-    /// Declines the operation, which the initiator's own answer ends outright.
-    func reject() async throws {
-        try await wallet.reject(operation)
+    func makeHandle() -> JointAccountPendingOperationHandle {
+        guard let handleProvider = handleProvider.value else {
+            return JointAccountPendingOperationHandle(id: id, wallet: wallet, pendingOperationPublisher: Just(nil).eraseToAnyPublisher())
+        }
+
+        return handleProvider.makeHandle(for: self)
     }
 }
 
@@ -92,34 +84,9 @@ extension JointAccountPendingOperation {
     }
 }
 
-// MARK: - JointAccountPendingOperationPoller protocol conformance
-
-extension JointAccountPendingOperation: JointAccountPendingOperationPoller {
-    func requestFrequentUpdates() -> AnyCancellable? {
-        wallet.account?.jointAccountPendingOperationsProvider.requestFrequentUpdates(operationId: operation.id)
-    }
-}
-
 // MARK: - Private
 
 private extension JointAccountPendingOperation {
-    func makeDidChangePublisher() -> AnyPublisher<JointAccountPendingOperation, Never> {
-        operationPublisher
-            .map { [self] operation in updating(operation: operation) }
-            .eraseToAnyPublisher()
-    }
-
-    func updating(operation: JointAccountOperation) -> JointAccountPendingOperation {
-        JointAccountPendingOperation(
-            wallet: wallet,
-            initiator: initiator,
-            operation: operation,
-            operationPublisher: operationPublisher,
-            innerCallType: innerCallType,
-            feeTokenItem: feeTokenItem
-        )
-    }
-
     func memberStanding() -> Standing {
         guard let ownAddress = try? wallet.ownAddress() else {
             return .unavailable

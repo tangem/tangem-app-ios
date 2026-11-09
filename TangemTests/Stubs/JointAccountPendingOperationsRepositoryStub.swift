@@ -62,10 +62,6 @@ final class JointAccountPendingOperationsRepositoryStub: JointAccountPendingOper
         synchronizer.operationsPublisher
     }
 
-    func operationPublisher(id: String, in cryptoAccountId: String) -> AnyPublisher<JointAccountOperation, Never> {
-        synchronizer.operationPublisher(id: id, in: cryptoAccountId)
-    }
-
     func requestFrequentUpdates(operationId: String) -> AnyCancellable? {
         frequentUpdatesRequests.withLock { $0[operationId, default: 0] += 1 }
 

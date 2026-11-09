@@ -16,7 +16,7 @@ protocol TokenDetailsRoutable: FeeCurrencyNavigating, CloreMigrationRoutable {
     func openTransactionDetails(_ data: TransactionDetailsRouteData)
     func cancelTransactionDetailsPresentation()
     func openJointAccountOperationDetails(
-        pendingOperation: JointAccountPendingOperation,
+        handle: JointAccountPendingOperationHandle,
         userWalletInfo: UserWalletInfo,
         addressBookManager: AddressBookManager
     )

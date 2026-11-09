@@ -469,6 +469,7 @@ enum TransactionDetailsFactory {
         )
         // "Go to token" adds the refund token to the portfolio if needed, then opens it.
         let action = TransactionDetailsActionButtonViewData(
+            id: "refundToken",
             title: Localization.commonGoToToken,
             icon: DesignSystem.Icons.ChevronRight.regular20,
             style: .secondary,
@@ -793,6 +794,7 @@ enum TransactionDetailsFactory {
         }
 
         return .init(
+            id: "provider",
             title: source.actionTitle,
             icon: DesignSystem.Icons.ArrowTopRight.regular20,
             style: .default,

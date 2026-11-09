@@ -15,6 +15,7 @@ struct TransactionDetailsActionButtonViewData: Equatable {
         case secondary
     }
 
+    let id: String
     let title: String
     let icon: ImageType?
     let style: Style
@@ -29,6 +30,12 @@ struct TransactionDetailsActionButtonView: View {
     let onTap: () -> Void
 
     var body: some View {
+        content
+            .id(data.id)
+    }
+
+    @ViewBuilder
+    private var content: some View {
         switch data.signingType {
         case .none:
             button
@@ -70,7 +77,7 @@ struct TransactionDetailsActionButtonView: View {
 #Preview("Action button") {
     VStack(spacing: 16) {
         TransactionDetailsActionButtonView(
-            data: .init(title: "Go to provider", icon: DesignSystem.Icons.ArrowTopRight.regular20, style: .default, action: .close),
+            data: .init(id: "provider", title: "Go to provider", icon: DesignSystem.Icons.ArrowTopRight.regular20, style: .default, action: .close),
             onTap: {}
         )
     }

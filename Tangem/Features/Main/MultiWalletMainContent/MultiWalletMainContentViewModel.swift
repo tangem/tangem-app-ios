@@ -588,7 +588,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                         }
 
                         viewModel.coordinator?.openJointAccountOperationDetails(
-                            pendingOperation: pendingOperation,
+                            handle: pendingOperation.makeHandle(),
                             userWalletInfo: viewModel.userWalletModel.userWalletInfo,
                             addressBookManager: viewModel.userWalletModel.addressBookManager
                         )
@@ -684,7 +684,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         switch messageBubble {
         case .jointOperationAwaitingSignature(let pendingOperation):
             coordinator?.openJointAccountOperationDetails(
-                pendingOperation: pendingOperation,
+                handle: pendingOperation.makeHandle(),
                 userWalletInfo: userWalletModel.userWalletInfo,
                 addressBookManager: userWalletModel.addressBookManager
             )

@@ -275,9 +275,8 @@ struct CommonJointAccountOperationsServiceTests {
     @Test("A decline names the operation and the account it belongs to, and carries nothing else")
     func rejectedOperationIsHandedOn() async throws {
         let context = try makeContext()
-        let operation = Self.operation(id: "op_01HZX")
 
-        try await context.sut.rejectOperation(operation, in: context.wallet)
+        try await context.sut.rejectOperation(id: "op_01HZX", in: context.wallet)
 
         let rejected = try #require(context.repository.rejectedOperations.first)
 
@@ -294,7 +293,7 @@ struct CommonJointAccountOperationsServiceTests {
     func rejectDoesNotReadTheSafe() async throws {
         let context = try makeContext(state: nil)
 
-        try await context.sut.rejectOperation(Self.operation(), in: context.wallet)
+        try await context.sut.rejectOperation(id: "op_01HZX", in: context.wallet)
 
         #expect(context.repository.rejectedOperations.count == 1)
     }

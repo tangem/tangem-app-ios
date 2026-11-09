@@ -15,8 +15,6 @@ protocol JointAccountPendingOperationsRepository {
 
     var operationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> { get }
 
-    func operationPublisher(id: String, in cryptoAccountId: String) -> AnyPublisher<JointAccountOperation, Never>
-
     /// Has the operation read anew far more often than its regular pace, for as long as the returned token is kept.
     /// - Returns: `nil` when nothing polls the operation — it is no longer in flight, or joint accounts are off — so
     /// there is no faster pace to ask for.
