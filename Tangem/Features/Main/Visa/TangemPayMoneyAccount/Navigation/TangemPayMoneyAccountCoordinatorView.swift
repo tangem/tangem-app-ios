@@ -30,6 +30,13 @@ struct TangemPayMoneyAccountCoordinatorView: CoordinatorView {
                 SendCoordinatorView(coordinator: $0)
                     .softTopScrollEdgeEffect()
             }
+            .fullScreenCover(item: $coordinator.accountDetailsViewModel) {
+                TangemPayVirtualAccountDetailsView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
+            }
+            .floatingSheetContent(for: TangemPayVirtualAccountBankDetailsErrorPopupViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
     }
 }
 

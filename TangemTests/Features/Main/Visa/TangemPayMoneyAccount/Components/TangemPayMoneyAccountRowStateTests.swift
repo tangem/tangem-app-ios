@@ -123,6 +123,7 @@ private func makeMoneyAccount(status: String = "PROCESSING", step: String? = nil
         customerId: "customer",
         bankingAccount: bankingAccount,
         walletModel: WalletModelTestsMock(fiatBalance: 0, priceChange24h: nil),
+        customerService: CustomerInfoManagementServiceStub(),
         account: nil
     )
 }

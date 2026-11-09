@@ -171,6 +171,7 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             customerId: customerId,
             bankingAccount: bankingAccount,
             walletModel: walletModel,
+            customerService: customerService,
             account: account
         )
     }

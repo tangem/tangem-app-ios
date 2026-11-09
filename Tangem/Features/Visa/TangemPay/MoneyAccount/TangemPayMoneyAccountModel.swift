@@ -35,10 +35,13 @@ protocol TangemPayMoneyAccountModel: AnyObject, WalletModelTransactionHistoryAdd
     var state: TangemPayLocalState? { get }
     var statePublisher: AnyPublisher<TangemPayLocalState, Never> { get }
 
+    var bankCredentials: TangemPayBankCredentialsResponse? { get }
+
     func updateBalance() async
     func loadTransactionHistory() async
     func updateTransactionHistory() async
     func reloadTransactionHistory() async
+    func loadBankCredentials() async throws
 
     func refreshState() async
     func renewSession(

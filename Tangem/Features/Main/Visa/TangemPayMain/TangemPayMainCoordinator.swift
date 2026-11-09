@@ -708,7 +708,7 @@ private extension TangemPayMainCoordinator {
     func openVirtualAccountDetails(credentials: TangemPayBankCredentialsResponse, tangemPayAccount: TangemPayAccount) {
         virtualAccountDetailsViewModel = TangemPayVirtualAccountDetailsViewModel(
             credentials: credentials,
-            tangemPayAccount: tangemPayAccount,
+            feesSource: .remote { try await tangemPayAccount.loadOnrampFees() },
             onClose: { [weak self] in
                 self?.virtualAccountDetailsViewModel = nil
             }
@@ -781,8 +781,7 @@ extension TangemPayMainCoordinator: TangemPayVirtualAccountInfoSheetRoutable {
             await dismissVirtualAccountInfo()
 
             let viewModel = TangemPayVirtualAccountBankDetailsErrorPopupViewModel(
-                tangemPayAccount: tangemPayAccount,
-                productInstanceId: productInstanceId,
+                loadBankCredentials: { try await tangemPayAccount.loadBankCredentials(productInstanceId: productInstanceId) },
                 coordinator: self
             )
             floatingSheetPresenter.enqueue(sheet: viewModel)
