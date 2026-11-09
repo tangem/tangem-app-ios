@@ -55,6 +55,19 @@ struct EtherscanTransactionHistoryTargetTests {
         #expect(parameters["endblock"] == nil)
     }
 
+    @Test("A transaction is looked up by its hash through the Etherscan proxy, which returns its calldata")
+    func transactionIsLookedUpThroughTheProxy() throws {
+        let transactionHash = "0x89fdc2d59fb40fb8ca82e88ac10271c8734ab0ec7ef715cb0d84541378586eeb"
+
+        let parameters = try #require(queryParameters(of: .getTransaction(hash: transactionHash), chainId: polygonChainId))
+
+        #expect(parameters["module"] as? String == "proxy")
+        #expect(parameters["action"] as? String == "eth_getTransactionByHash")
+        #expect(parameters["txhash"] as? String == transactionHash)
+        #expect(parameters["chainid"] as? Int == polygonChainId)
+        #expect(parameters["apikey"] as? String == "apikey")
+    }
+
     // MARK: - Helpers
 
     private func queryParameters(of target: EtherscanTransactionHistoryTarget.Target, chainId: Int) -> [String: Any]? {

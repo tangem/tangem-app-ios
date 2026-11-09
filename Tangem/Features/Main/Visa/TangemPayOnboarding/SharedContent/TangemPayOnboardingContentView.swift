@@ -14,14 +14,13 @@ import TangemLocalization
 import TangemAccessibilityIdentifiers
 
 struct TangemPayOnboardingContentView: View {
-    let showsLegalLine: Bool
     let usesBundleIntroductionLayout: Bool
     let getCardIcon: ImageType?
     let titleAccessibilityIdentifier: String?
     let getCardButtonAccessibilityIdentifier: String
     let isLoading: Bool
     let onGetCard: () -> Void
-    let onLegalLinkTap: (URL) -> Void
+    let onLegalLinkTap: ((URL) -> Void)?
 
     @StateObject private var videoViewModel = LoopingVideoBackgroundViewModel(
         provider: TangemPayOnboardingVideoProvider()
@@ -62,8 +61,8 @@ struct TangemPayOnboardingContentView: View {
                 featureGrid
                     .padding(.top, 36)
 
-                if showsLegalLine {
-                    legalLine
+                if let onLegalLinkTap {
+                    legalLine(onLinkTap: onLegalLinkTap)
                         .padding(.top, 24)
                 }
             }
@@ -122,8 +121,8 @@ struct TangemPayOnboardingContentView: View {
                     VStack(spacing: 24) {
                         featureGrid
 
-                        if showsLegalLine {
-                            legalLine
+                        if let onLegalLinkTap {
+                            legalLine(onLinkTap: onLegalLinkTap)
                         }
                     }
                     .padding(.bottom, 24)
@@ -249,12 +248,12 @@ struct TangemPayOnboardingContentView: View {
         .accessibilityIdentifier(getCardButtonAccessibilityIdentifier)
     }
 
-    private var legalLine: some View {
+    private func legalLine(onLinkTap: @escaping (URL) -> Void) -> some View {
         Text(legalAttributedString)
             .multilineTextAlignment(.center)
             .infinityFrame(axis: .horizontal)
             .environment(\.openURL, OpenURLAction { url in
-                onLegalLinkTap(url)
+                onLinkTap(url)
                 return .handled
             })
     }

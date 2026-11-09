@@ -22,7 +22,7 @@ struct TangemPayWalletSelectorProxyView: View {
             Text(Localization.commonChooseWallet)
                 .style(
                     Fonts.BoldStatic.body,
-                    color: Colors.Text.primary1
+                    color: DesignSystem.Color.textPrimary
                 )
                 .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.walletSelectorTitle)
 

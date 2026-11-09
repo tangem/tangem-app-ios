@@ -91,11 +91,12 @@ extension PolymarketActivityCoordinator: PolymarketActivityDetailsRoutable {
     }
 
     @MainActor
-    func openActivityEvent(eventID: String) {
+    func openActivityEvent(eventID: String, placeholder: PolymarketEventPlaceholder?) {
         guard let eventBuilder, let onOrderPlaced else { return }
 
         destination = .eventDetails(eventBuilder.makeEventDetailsCoordinator(
             eventID: eventID,
+            placeholder: placeholder,
             category: nil,
             onOrderPlaced: { [weak self] indexing in
                 onOrderPlaced(indexing)

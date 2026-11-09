@@ -28,7 +28,7 @@ final class PolymarketOrderViewModel: ObservableObject {
     @Published private(set) var isAwaitingFunds = false
     @Published private(set) var proceedsText = ""
     @Published private(set) var isProceedsStale = true
-    @Published private(set) var sellingText: String?
+    @Published private(set) var sellingText: SellingText?
     @Published private(set) var isNextEnabled = false
     @Published private(set) var canDecreaseAmount = false
     @Published private(set) var canIncreaseAmount = false
@@ -177,6 +177,15 @@ extension PolymarketOrderViewModel {
         let isEnabled: Bool
 
         var id: PolymarketAmountFraction { fraction }
+    }
+
+    struct SellingText: Hashable {
+        let selling: String
+        let total: String
+
+        var text: String {
+            Localization.predictionCloseSellingOf(selling, total)
+        }
     }
 
     struct AmountPreset: Identifiable, Hashable {
@@ -376,6 +385,7 @@ private extension PolymarketOrderViewModel {
     func placeIfReady(_ submission: PolymarketOrderSubmission, waitsForQuote: Bool) {
         switch submission.readiness() {
         case .ready(let quote):
+            model.handleViewAction(.holdQuote)
             placementTask = Task { @MainActor [weak self] in
                 guard let self else { return }
 
@@ -395,9 +405,11 @@ private extension PolymarketOrderViewModel {
         switch outcome {
         case .cancelled:
             isPlacing = false
+            model.handleViewAction(.releaseQuote)
         case .failed(let returningToMain):
             if !returningToMain {
                 isPlacing = false
+                model.handleViewAction(.releaseQuote)
             }
 
             alert = PolymarketOrderSubmission.failureAlert(
@@ -415,13 +427,13 @@ private extension PolymarketOrderViewModel {
 // MARK: - Mapping
 
 private extension PolymarketOrderViewModel {
-    static func makeSellingText(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) -> String? {
+    static func makeSellingText(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) -> SellingText? {
         guard case .sell(let held) = intent else { return nil }
 
-        let selling = PolymarketOrderFormatter.shares(state.enteredAmount ?? 0)
-        let total = PolymarketOrderFormatter.shares(state.balance ?? held)
-
-        return Localization.predictionCloseSellingOf(selling, total)
+        return SellingText(
+            selling: PolymarketOrderFormatter.shares(state.enteredAmount ?? 0),
+            total: PolymarketOrderFormatter.shares(state.balance ?? held)
+        )
     }
 
     static func makePayment(balance: Decimal?, intent: PolymarketOrderIntent) -> PolymarketOrderPaymentRow.Model? {

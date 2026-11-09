@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import BigInt
 
 class TronNetworkService: MultiNetworkProvider {
@@ -30,22 +31,22 @@ class TronNetworkService: MultiNetworkProvider {
     }
 
     func chainParameters() -> AnyPublisher<TronChainParameters, Error> {
-        providerPublisher {
-            $0.getChainParameters()
-                .tryMap {
+        providerPublisher { provider in
+            provider.getChainParameters()
+                .tryMap { response in
                     guard
-                        let energyFeeChainParameter = $0.chainParameter.first(where: { $0.key == "getEnergyFee" }),
+                        let energyFeeChainParameter = response.chainParameter.first(where: { $0.key == "getEnergyFee" }),
                         let energyFee = energyFeeChainParameter.value,
-                        let dynamicEnergyMaxFactorChainParameter = $0.chainParameter.first(where: { $0.key == "getDynamicEnergyMaxFactor" }),
+                        let dynamicEnergyMaxFactorChainParameter = response.chainParameter.first(where: { $0.key == "getDynamicEnergyMaxFactor" }),
                         let dynamicEnergyMaxFactor = dynamicEnergyMaxFactorChainParameter.value,
-                        let dynamicEnergyIncreaseFactorParameter = $0.chainParameter.first(where: { $0.key == "getDynamicEnergyIncreaseFactor" }),
+                        let dynamicEnergyIncreaseFactorParameter = response.chainParameter.first(where: { $0.key == "getDynamicEnergyIncreaseFactor" }),
                         let dynamicEnergyIncreaseFactor = dynamicEnergyIncreaseFactorParameter.value
                     else {
                         throw BlockchainSdkError.failedToParseNetworkResponse()
                     }
 
                     // Absent on chains that predate the memo-fee proposal.
-                    let memoFee = $0.chainParameter.first(where: { $0.key == "getMemoFee" })?.value ?? 0
+                    let memoFee = response.chainParameter.first(where: { $0.key == "getMemoFee" })?.value ?? 0
 
                     return TronChainParameters(
                         sunPerEnergyUnit: energyFee,
@@ -76,20 +77,20 @@ class TronNetworkService: MultiNetworkProvider {
     }
 
     func getNowBlock() -> AnyPublisher<TronBlock, Error> {
-        providerPublisher {
-            $0.getNowBlock()
+        providerPublisher { provider in
+            provider.getNowBlock()
         }
     }
 
     func broadcastHex(_ data: Data) -> AnyPublisher<TronBroadcastResponse, Error> {
-        providerPublisher {
-            $0.broadcastHex(data)
+        providerPublisher { provider in
+            provider.broadcastHex(data)
         }
     }
 
     func getAccountResource(for address: String) -> AnyPublisher<TronGetAccountResourceResponse, Error> {
-        providerPublisher {
-            $0.getAccountResource(for: address)
+        providerPublisher { provider in
+            provider.getAccountResource(for: address)
                 .mapError { error in
                     if case BlockchainSdkError.failedToParseNetworkResponse(let response) = error,
                        let data = response?.data,
@@ -104,8 +105,8 @@ class TronNetworkService: MultiNetworkProvider {
     }
 
     func getAccountInfoByAddress(_ address: String) -> AnyPublisher<TronAccountInfoByAddress, Error> {
-        providerPublisher {
-            $0.getAccountInfoByAddress(address)
+        providerPublisher { provider in
+            provider.getAccountInfoByAddress(address)
         }
         .map { [blockchain] response in
             let account = response.data.first
@@ -130,14 +131,14 @@ class TronNetworkService: MultiNetworkProvider {
     }
 
     func accountExists(address: String) -> AnyPublisher<Bool, Error> {
-        providerPublisher {
-            $0.getAccount(for: address)
+        providerPublisher { provider in
+            provider.getAccount(for: address)
                 .map { _ in
                     true
                 }
-                .tryCatch { error -> AnyPublisher<Bool, Error> in
+                .tryCatch { error in
                     if case BlockchainSdkError.failedToParseNetworkResponse = error {
-                        return Just(false).setFailureType(to: Error.self).eraseToAnyPublisher()
+                        return Just(false)
                     }
                     throw error
                 }
@@ -146,24 +147,24 @@ class TronNetworkService: MultiNetworkProvider {
     }
 
     func contractEnergyUsage(sourceAddress: String, contractAddress: String, contractEnergyUsageData: String) -> AnyPublisher<Int, Error> {
-        providerPublisher {
-            $0.contractEnergyUsage(sourceAddress: sourceAddress, contractAddress: contractAddress, parameter: contractEnergyUsageData)
+        providerPublisher { provider in
+            provider.contractEnergyUsage(sourceAddress: sourceAddress, contractAddress: contractAddress, parameter: contractEnergyUsageData)
                 .map(\.energy_used)
                 .eraseToAnyPublisher()
         }
     }
 
     func contractEnergyUsage(sourceAddress: String, contractAddress: String, callDataHex: String, callValue: UInt64) -> AnyPublisher<Int, Error> {
-        providerPublisher {
-            $0.contractEnergyUsageForCallData(sourceAddress: sourceAddress, contractAddress: contractAddress, data: callDataHex, callValue: callValue)
+        providerPublisher { provider in
+            provider.contractEnergyUsageForCallData(sourceAddress: sourceAddress, contractAddress: contractAddress, data: callDataHex, callValue: callValue)
                 .map(\.energy_used)
                 .eraseToAnyPublisher()
         }
     }
 
     func getAllowance(owner: String, contractAddress: String, allowanceData: String) -> AnyPublisher<Decimal, Error> {
-        providerPublisher {
-            $0.getAllowance(sourceAddress: owner, contractAddress: contractAddress, parameter: allowanceData)
+        providerPublisher { provider in
+            provider.getAllowance(sourceAddress: owner, contractAddress: contractAddress, parameter: allowanceData)
                 .tryMap { response in
                     // [REDACTED_TODO_COMMENT]
                     try TronUtils().parseBalance(
@@ -178,13 +179,11 @@ class TronNetworkService: MultiNetworkProvider {
     // MARK: - Private Implementation
 
     private func getAccount(for address: String) -> AnyPublisher<TronGetAccountResponse, Error> {
-        providerPublisher {
-            $0.getAccount(for: address)
-                .tryCatch { error -> AnyPublisher<TronGetAccountResponse, Error> in
+        providerPublisher { provider in
+            provider.getAccount(for: address)
+                .tryCatch { error in
                     if case BlockchainSdkError.failedToParseNetworkResponse = error {
                         return Just(TronGetAccountResponse(balance: 0, address: address))
-                            .setFailureType(to: Error.self)
-                            .eraseToAnyPublisher()
                     }
                     throw error
                 }
@@ -192,7 +191,7 @@ class TronNetworkService: MultiNetworkProvider {
         }
     }
 
-    private func tokenBalances(address: String, tokens: [Token]) -> AnyPublisher<[Token: Decimal], Error> {
+    private func tokenBalances(address: String, tokens: [Token]) -> AnyPublisher<[Token: Result<Decimal, Error>], Error> {
         Result {
             try TronUtils().convertAddressToBytesPadded(address).hex()
         }
@@ -204,36 +203,34 @@ class TronNetworkService: MultiNetworkProvider {
                 .map { (encodedAddressData, $0) }
         }
         .withWeakCaptureOf(self)
-        .flatMap { args -> AnyPublisher<(Token, Decimal), Error> in
-            let (service, (encodedAddressData, token)) = args
+        .flatMap { service, args in
+            let (encodedAddressData, token) = args
 
-            return service
-                .tokenBalance(address: address, token: token, encodedAddressData: encodedAddressData)
-                .setFailureType(to: Error.self)
-                .eraseToAnyPublisher()
+            return service.tokenBalance(address: address, token: token, encodedAddressData: encodedAddressData)
         }
         .collect()
-        .map {
-            $0.reduce(into: [:]) { tokenBalances, tokenBalance in
-                tokenBalances[tokenBalance.0] = tokenBalance.1
+        .map { balances in
+            balances.reduce(into: [:]) { tokenBalances, tokenBalance in
+                let (token, balance) = tokenBalance
+                tokenBalances[token] = balance
             }
         }
         .eraseToAnyPublisher()
     }
 
-    private func tokenBalance(address: String, token: Token, encodedAddressData: String) -> AnyPublisher<(Token, Decimal), Never> {
-        providerPublisher {
-            $0.tokenBalance(address: address, contractAddress: token.contractAddress, parameter: encodedAddressData)
+    private func tokenBalance(address: String, token: Token, encodedAddressData: String) -> AnyPublisher<(Token, Result<Decimal, Error>), Never> {
+        providerPublisher { provider in
+            provider.tokenBalance(address: address, contractAddress: token.contractAddress, parameter: encodedAddressData)
                 .tryMap { response in
-                    let value = try TronUtils().parseBalance(
+                    try TronUtils().parseBalance(
                         response: response.constant_result,
                         decimals: token.decimalCount
                     )
-                    return (token, value)
                 }
                 .eraseToAnyPublisher()
         }
-        .replaceError(with: (token, .zero))
+        .mapToResult()
+        .map { (token, $0) }
         .eraseToAnyPublisher()
     }
 
@@ -248,8 +245,8 @@ class TronNetworkService: MultiNetworkProvider {
                 return transactionConfirmed(id: transactionID)
             }
             .collect()
-            .map {
-                $0.reduce(into: []) { confirmedTransactionIDs, confirmedTransactionID in
+            .map { confirmations in
+                confirmations.reduce(into: []) { confirmedTransactionIDs, confirmedTransactionID in
                     if let confirmedTransactionID = confirmedTransactionID {
                         confirmedTransactionIDs.append(confirmedTransactionID)
                     }
@@ -259,14 +256,14 @@ class TronNetworkService: MultiNetworkProvider {
     }
 
     private func transactionConfirmed(id: String) -> AnyPublisher<String?, Error> {
-        providerPublisher {
-            $0.transactionInfo(id: id)
+        providerPublisher { provider in
+            provider.transactionInfo(id: id)
                 .map { _ in
                     return id
                 }
-                .tryCatch { error -> AnyPublisher<String?, Error> in
+                .tryCatch { error in
                     if case BlockchainSdkError.failedToParseNetworkResponse = error {
-                        return Just(nil).setFailureType(to: Error.self).eraseToAnyPublisher()
+                        return Just<String?>(nil)
                     }
                     throw error
                 }

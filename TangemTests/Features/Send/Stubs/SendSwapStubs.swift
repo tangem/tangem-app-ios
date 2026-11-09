@@ -46,6 +46,10 @@ final class ExpressAPIProviderStub: ExpressAPIProvider {
         )
     }
 
+    func exchangeIntent(mcpIntentID: String) async throws -> ExchangeMCPIntent {
+        fatalError("Not used in tests")
+    }
+
     func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction {
         fatalError("Not used in tests")
     }
@@ -210,6 +214,7 @@ final class SendAnalyticsLoggerStub: SendAnalyticsLogger {
     // MARK: - SwapManagementModelAnalyticsLogger
 
     func logSwapButtonSwap(slippage: Decimal?) {}
+    func logSwapProviderHidden(providerName: String, errorCode: Int?) {}
     func logSwapSlippageSelectorOpened() {}
     func logSwapCustomSlippageConfirmed(slippage: Decimal?) {}
     func logSwapButtonTransfer() {}

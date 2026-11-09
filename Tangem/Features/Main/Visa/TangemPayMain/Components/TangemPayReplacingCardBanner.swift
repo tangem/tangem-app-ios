@@ -15,20 +15,20 @@ struct TangemPayReplacingCardBanner: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: "arrow.triangle.2.circlepath")
                 .font(.system(size: 20, weight: .medium))
-                .foregroundStyle(Colors.Icon.accent)
+                .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                 .frame(width: 36, height: 36)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(Localization.tangempayReissueCardInProgress)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
 
                 Text(Localization.tangempayReissueCardInProgressDescription)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadiusContinuous(14)
     }
 }

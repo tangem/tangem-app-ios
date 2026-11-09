@@ -199,7 +199,7 @@ private struct BackgroundViewRepresentable: UIViewRepresentable {
 
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
-        view.backgroundColor = UIColor(Colors.Overlays.overlaySecondary)
+        view.backgroundColor = UIColor(DesignSystem.Color.overlayModal)
 
         let anyGestureRecognizer = UITapGestureRecognizer()
         anyGestureRecognizer.delegate = context.coordinator
@@ -234,15 +234,6 @@ private struct FloatingSheetLayout: SwiftUI.Layout {
 }
 
 private extension View {
-    @ViewBuilder
-    func geometryGroupBackport() -> some View {
-        if #available(iOS 17.0, *) {
-            geometryGroup()
-        } else {
-            transformEffect(.identity)
-        }
-    }
-
     @ViewBuilder
     func floatingSheetBackground(
         _ backgroundConfiguration: FloatingSheetConfiguration.Background,

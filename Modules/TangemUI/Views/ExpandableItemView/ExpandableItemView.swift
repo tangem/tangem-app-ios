@@ -33,7 +33,7 @@ public struct ExpandableItemView<
     /// - Note: `onExpandedChange` is called only on user interaction, not on initial state setup or programmatic changes.
     public init(
         isExpanded: Bool,
-        backgroundColor: Color = Colors.Background.primary,
+        backgroundColor: Color = DesignSystem.Color.bgSecondary,
         cornerRadius: CGFloat = 14,
         backgroundGeometryEffect: GeometryEffectPropertiesModel? = nil,
         expandedViewTransition: AnyTransition? = nil,

@@ -18,7 +18,7 @@ struct UncompletedBackupView: View {
     }
 
     var body: some View {
-        Colors.Old.tangemStoryBackground
+        DesignSystem.Color.bgBase
             .edgesIgnoringSafeArea(.all)
             .confirmationDialog(viewModel: $viewModel.discardConfirmationDialog)
             .alert(item: $viewModel.error, content: { $0.alert })

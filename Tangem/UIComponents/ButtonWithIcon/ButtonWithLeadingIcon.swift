@@ -75,27 +75,27 @@ extension FixedSizeButtonWithLeadingIcon {
         var textColor: Color {
             switch self {
             case .default:
-                return Colors.Text.primary1
+                return DesignSystem.Color.textPrimary
             case .disabled:
-                return Colors.Text.disabled
+                return DesignSystem.Color.textTertiary
             }
         }
 
         var iconColor: Color {
             switch self {
             case .default:
-                return Colors.Icon.primary1
+                return DesignSystem.Color.iconPrimary
             case .disabled:
-                return Colors.Icon.inactive
+                return DesignSystem.Color.iconTertiary
             }
         }
 
         var backgroundColor: Color {
             switch self {
             case .default:
-                return Colors.Button.secondary
+                return DesignSystem.Color.bgTransparentSecondary
             case .disabled:
-                return Colors.Button.disabled
+                return DesignSystem.Color.bgDisabled
             }
         }
     }
@@ -104,9 +104,9 @@ extension FixedSizeButtonWithLeadingIcon {
 struct FlexySizeButtonWithLeadingIcon: View {
     var body: some View {
         let colorConfiguration = ButtonWithLeadingIconContentView.ColorConfiguration(
-            textColor: isToggled ? Colors.Text.tertiary : Colors.Text.primary1,
-            iconColor: isToggled ? Colors.Icon.informative : Colors.Text.primary1,
-            backgroundColor: backgroundColorOverride ?? Colors.Background.primary
+            textColor: isToggled ? DesignSystem.Color.textSecondary : DesignSystem.Color.textPrimary,
+            iconColor: isToggled ? DesignSystem.Color.iconSecondary : DesignSystem.Color.iconPrimary,
+            backgroundColor: backgroundColorOverride ?? DesignSystem.Color.bgSecondary
         )
         ButtonWithLeadingIconContentView(
             title: title,

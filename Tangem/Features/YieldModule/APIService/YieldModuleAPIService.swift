@@ -9,9 +9,6 @@
 import Foundation
 
 protocol YieldModuleAPIService {
-    func getYieldMarkets(
-        chainIDs: [String]?
-    ) async throws -> YieldModuleDTO.Response.MarketsInfo
     /// Markets with the Merkl campaign overlay (`/yield-modules/markets`).
     func getIncentiveYieldMarkets(
         chainIDs: [String]?

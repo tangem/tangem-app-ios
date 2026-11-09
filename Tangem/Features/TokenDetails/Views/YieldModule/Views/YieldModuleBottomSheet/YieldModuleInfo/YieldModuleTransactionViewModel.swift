@@ -12,6 +12,7 @@ import TangemLocalization
 import TangemAssets
 import TangemUI
 import SwiftUI
+import Combine
 
 final class YieldModuleTransactionViewModel: ObservableObject {
     // MARK: - Injected
@@ -37,9 +38,13 @@ final class YieldModuleTransactionViewModel: ObservableObject {
     @Published
     private(set) var isActionButtonAvailable = false
 
+    @Published
+    private(set) var isSelectingFeeToken = false
+
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
+    let feeTokenSelector: YieldFeeTokenSelector?
     private weak var coordinator: YieldModuleActiveCoordinator?
     private let yieldManagerInteractor: YieldManagerInteractor
     private lazy var feeConverter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
@@ -52,6 +57,12 @@ final class YieldModuleTransactionViewModel: ObservableObject {
     private(set) var readMoreURL: URL = TangemBlogUrlBuilder().url(post: .fee)
 
     private var loadedFee: LoadedFee?
+    private var selectedTokenFee: TokenFee?
+    private var bag = Set<AnyCancellable>()
+
+    private var isGaslessFeeSelected: Bool {
+        selectedTokenFee.map { $0.tokenItem != walletModel.feeTokenItem } ?? false
+    }
 
     // MARK: - Init
 
@@ -61,6 +72,7 @@ final class YieldModuleTransactionViewModel: ObservableObject {
         coordinator: YieldModuleActiveCoordinator?,
         feeCurrencyNavigator: (any FeeCurrencyNavigating)? = nil,
         yieldManagerInteractor: YieldManagerInteractor,
+        gaslessFeeService: YieldGaslessFeeService? = nil,
         notificationManager: YieldModuleNotificationManager,
         logger: YieldAnalyticsLogger,
         signingActionButtonType: SigningActionButtonViewType
@@ -74,6 +86,11 @@ final class YieldModuleTransactionViewModel: ObservableObject {
         self.logger = logger
         self.signingActionButtonType = signingActionButtonType
 
+        feeTokenSelector = gaslessFeeService.map {
+            YieldFeeTokenSelector(gaslessFeeService: $0, coinFeeTokenItem: walletModel.feeTokenItem)
+        }
+
+        bindFeeTokenSelector()
         start()
     }
 
@@ -86,7 +103,16 @@ final class YieldModuleTransactionViewModel: ObservableObject {
     }
 
     func onBackTap() {
+        guard !isSelectingFeeToken else {
+            dismissFeeTokenSelection()
+            return
+        }
+
         coordinator?.closeBottomSheet()
+    }
+
+    func onFeeTap() {
+        presentFeeTokenSelection()
     }
 
     func onActionTap() {
@@ -206,14 +232,23 @@ final class YieldModuleTransactionViewModel: ObservableObject {
         networkFeeState = networkFeeState.withFeeState(.loading)
         networkFeeNotification = nil
         loadedFee = nil
+        feeTokenSelector?.resetFees()
 
         do {
             let loadedFee = try await loadFee(for: action)
             let feeText = try await feeConverter.createFeeString(from: loadedFee.total)
 
-            update(with: loadedFee, feeText: feeText)
+            networkFeeState = networkFeeState.withFeeState(.loaded(text: feeText))
+
+            if let feeTokenSelector, !loadedFee.withdrawalTransactionFees.isEmpty {
+                await feeTokenSelector.updateFees(for: loadedFee.withdrawalTransactionFees, nativeFeeValue: loadedFee.total)
+            }
+
+            self.loadedFee = loadedFee
+            applyFeeState()
         } catch {
             networkFeeState = networkFeeState.withFeeState(.noData)
+            feeTokenSelector?.failFees(error: error)
             networkFeeNotification = createFeeErrorNotification(yieldAction: action)
         }
     }
@@ -227,31 +262,67 @@ final class YieldModuleTransactionViewModel: ObservableObject {
             return .approve(approveFee)
 
         case .stop(_, let mayClaimRewards):
-            let exitFee = try await yieldManagerInteractor.getExitFee().totalFeeAmount.value
+            let exitFee = try await yieldManagerInteractor.getExitFee()
             let claim = mayClaimRewards ? await prepareWithdrawalClaim() : nil
 
             return .withdrawal(exitFee: exitFee, claim: claim)
         }
     }
 
-    @MainActor
-    private func update(with loadedFee: LoadedFee, feeText: String) {
-        self.loadedFee = loadedFee
-        networkFeeState = networkFeeState.withFeeState(.loaded(text: feeText))
+    private func bindFeeTokenSelector() {
+        feeTokenSelector?.selectedFeePublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, tokenFee in
+                viewModel.selectedTokenFee = tokenFee
+                viewModel.applyFeeState()
+            }
+            .store(in: &bag)
+    }
+
+    private func applyFeeState() {
+        guard let loadedFee else {
+            return
+        }
+
+        if case .loading = selectedTokenFee?.value {
+            networkFeeNotification = nil
+            isActionButtonAvailable = false
+            return
+        }
+
+        if let selectedTokenFee, isGaslessFeeSelected {
+            applyGaslessFeeState(selectedTokenFee)
+            return
+        }
 
         let feeCurrencyBalance = walletModel.getFeeCurrencyBalance()
         let isAffordable = loadedFee.total <= feeCurrencyBalance
 
-        if !isAffordable {
-            showNotEnoughFeeNotification(feeCurrencyBalance: feeCurrencyBalance)
+        if !isAffordable, networkFeeNotification == nil {
+            logger.logEarningNoticeNotEnoughFeeShown(feeCurrencyBalance: feeCurrencyBalance)
         }
 
+        networkFeeNotification = isAffordable ? nil : createNotEnoughFeeNotification(walletModel: walletModel)
         isActionButtonAvailable = isAffordable
     }
 
-    private func showNotEnoughFeeNotification(feeCurrencyBalance: Decimal) {
-        logger.logEarningNoticeNotEnoughFeeShown(feeCurrencyBalance: feeCurrencyBalance)
-        networkFeeNotification = createNotEnoughFeeNotification(walletModel: walletModel)
+    private func applyGaslessFeeState(_ tokenFee: TokenFee) {
+        switch tokenFee.value {
+        case .success:
+            networkFeeNotification = nil
+            isActionButtonAvailable = true
+        case .failure(let error):
+            if case .notEnoughGaslessFeeBalance = error as? TokenFeeProviderError {
+                networkFeeNotification = createNotEnoughFeeTokenNotification(feeTokenItem: tokenFee.tokenItem)
+            } else {
+                networkFeeNotification = createFeeErrorNotification(yieldAction: action)
+            }
+            isActionButtonAvailable = false
+        case .loading:
+            networkFeeNotification = nil
+            isActionButtonAvailable = false
+        }
     }
 
     private func setNetworkFeeStateLoading() {
@@ -265,15 +336,23 @@ final class YieldModuleTransactionViewModel: ObservableObject {
 private extension YieldModuleTransactionViewModel {
     enum LoadedFee {
         case approve(Decimal)
-        case withdrawal(exitFee: Decimal, claim: YieldIncentivesClaimInteractor.PreparedClaim?)
+        case withdrawal(exitFee: YieldTransactionFee, claim: YieldIncentivesClaimInteractor.PreparedClaim?)
 
         var total: Decimal {
             switch self {
             case .approve(let fee):
                 fee
             case .withdrawal(let exitFee, let claim):
-                exitFee + (claim?.fee.totalFeeAmount.value ?? .zero)
+                exitFee.totalFeeAmount.value + (claim?.fee.totalFeeAmount.value ?? .zero)
             }
+        }
+
+        var withdrawalTransactionFees: [YieldTransactionFee] {
+            guard case .withdrawal(let exitFee, let claim) = self else {
+                return []
+            }
+
+            return [claim?.fee, exitFee].compactMap { $0 }
         }
 
         var batchedWithdrawal: (claim: YieldIncentivesClaimInteractor.PreparedClaim, exitFee: Decimal)? {
@@ -281,7 +360,7 @@ private extension YieldModuleTransactionViewModel {
                 return nil
             }
 
-            return (claim, exitFee)
+            return (claim, exitFee.totalFeeAmount.value)
         }
     }
 }
@@ -290,12 +369,45 @@ private extension YieldModuleTransactionViewModel {
 
 extension YieldModuleTransactionViewModel: FloatingSheetContentViewModel {}
 
+// MARK: - FeeSelectorTokensRoutable
+
+extension YieldModuleTransactionViewModel: FeeSelectorTokensRoutable {
+    func userDidSelectFeeToken(tokenFeeProvider: any TokenFeeProvider) {
+        feeTokenSelector?.userDidSelectFeeToken(tokenFeeProvider: tokenFeeProvider)
+        dismissFeeTokenSelection()
+    }
+}
+
+// MARK: - Navigation Helpers
+
+private extension YieldModuleTransactionViewModel {
+    func presentFeeTokenSelection() {
+        guard let feeTokenSelector else { return }
+
+        feeTokenSelector.setup(router: self)
+        isSelectingFeeToken = true
+    }
+
+    func dismissFeeTokenSelection() {
+        isSelectingFeeToken = false
+    }
+}
+
 // MARK: - Notification Builders
 
 private extension YieldModuleTransactionViewModel {
     func createNotEnoughFeeNotification(walletModel: any WalletModel) -> YieldModuleNotificationBannerParams {
         notificationManager.createNotEnoughFeeCurrencyNotification { [weak self] in
             self?.coordinator?.openFeeCurrency(walletModel: walletModel)
+        }
+    }
+
+    func createNotEnoughFeeTokenNotification(feeTokenItem: TokenItem) -> YieldModuleNotificationBannerParams {
+        let feeWalletModel = walletModel.account?.walletModelsManager.walletModels.first { $0.tokenItem == feeTokenItem }
+
+        return notificationManager.createNotEnoughFeeTokenNotification(feeTokenItem: feeTokenItem) { [weak self] in
+            guard let feeWalletModel else { return }
+            self?.coordinator?.openFeeCurrency(walletModel: feeWalletModel)
         }
     }
 

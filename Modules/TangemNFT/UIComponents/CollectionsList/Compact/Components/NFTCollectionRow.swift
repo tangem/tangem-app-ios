@@ -32,7 +32,7 @@ struct NFTCollectionRow: View {
             Assets.chevronDown24.image
                 .resizable()
                 .frame(size: Constants.chevronSize)
-                .foregroundStyle(Colors.Icon.inactive)
+                .foregroundStyle(DesignSystem.Color.iconTertiary)
                 .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 .animation(Constants.rotationAnimation, value: isExpanded)
         }
@@ -42,11 +42,11 @@ struct NFTCollectionRow: View {
     private var textsView: some View {
         VStack(alignment: .leading, spacing: Constants.textsSpacing) {
             Text(title)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                 .shimmering()
 
             Text(subtitle)
-                .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.caption1, color: DesignSystem.Color.textSecondary)
                 .shimmering()
         }
     }
@@ -84,7 +84,7 @@ struct NFTCollectionRow: View {
 
     private var placeholder: some View {
         RoundedRectangle(cornerRadius: Constants.Icon.cornerRadius)
-            .fill(Colors.Field.focused)
+            .fill(DesignSystem.Color.bgTransparentSecondary)
             .frame(size: Constants.Icon.size)
     }
 }

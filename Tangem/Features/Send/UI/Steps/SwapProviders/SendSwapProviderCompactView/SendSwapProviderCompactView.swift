@@ -30,11 +30,11 @@ struct SendSwapProviderCompactView: View {
                     Assets.infoCircle20.image
                         .resizable()
                         .renderingMode(.template)
-                        .foregroundStyle(Colors.Text.tertiary)
+                        .foregroundStyle(DesignSystem.Color.iconSecondary)
                         .frame(width: 20, height: 20)
 
                     Text(Localization.expressProviderInFcaWarningList)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                         .accessibilityIdentifier(SendAccessibilityIdentifiers.swapProviderFCAWarning)
                 }
                 .padding(.top, 4)
@@ -63,7 +63,7 @@ struct SendSwapProviderCompactView: View {
                     )
 
                     Text(provider.provider.name)
-                        .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
                         .lineLimit(1)
                         .accessibilityIdentifier(SendAccessibilityIdentifiers.swapProviderName)
                 }

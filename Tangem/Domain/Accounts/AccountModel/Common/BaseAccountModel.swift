@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 
+/// - Warning: An abstract protocol, DO NOT conform to it directly, conform to one of its refinements instead.
 protocol BaseAccountModel: AnyObject, AccountModelAnalyticsProviding, AccountModelResolvable, Identifiable where ID: AccountModelPersistentIdentifierConvertible {
     associatedtype Icon: AccountModelIconConvertible
 

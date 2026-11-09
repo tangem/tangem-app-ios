@@ -254,56 +254,6 @@ struct TokenErrorDescriptionDataCollector: EmailDataCollector {
     }
 }
 
-// MARK: - Visa
-
-struct VisaDisputeTransactionDataCollector: EmailDataCollector {
-    var logData: Data? {
-        var dataToFormat = [EmailCollectedData]()
-
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.id), data: transaction.id.description))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.type), data: transaction.type))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.status), data: transaction.status))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.blockchainAmount), data: transaction.blockchainAmount.description))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.blockchainCoinName), data: transaction.blockchainCoinName))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.transactionAmount), data: transaction.transactionAmount.description))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.currencyCode), data: transaction.transactionCurrencyCode.description))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.billingAmount), data: transaction.billingAmount.description))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.billingCurrencyCode), data: transaction.billingCurrencyCode.description))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.merchantName), data: transaction.merchantName ?? ""))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.merchantCity), data: transaction.merchantCity ?? ""))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.merchantCountryCode), data: transaction.merchantCountryCode ?? ""))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.merchantCategoryCode), data: transaction.merchantCategoryCode ?? ""))
-
-        dataToFormat.append(.separator(.dashes))
-        dataToFormat.append(.init(type: .visaDisputeTransaction(.requests), data: ""))
-
-        let dateFormatter = ISO8601DateFormatter()
-        for request in transaction.requests {
-            dataToFormat.append(.separator(.dashes))
-            dataToFormat.append(.init(type: .visaDisputeTransaction(.id), data: request.id.description))
-            dataToFormat.append(.init(type: .visaDisputeTransaction(.type), data: request.type))
-            dataToFormat.append(.init(type: .visaDisputeTransaction(.status), data: request.status))
-            dataToFormat.append(.init(type: .visaDisputeTransaction(.blockchainAmount), data: request.blockchainAmount.description))
-            dataToFormat.append(.init(type: .visaDisputeTransaction(.transactionAmount), data: request.transactionAmount.description))
-            dataToFormat.append(.init(type: .visaDisputeTransaction(.currencyCode), data: request.transactionCurrencyCode.description))
-            dataToFormat.append(.init(type: .visaDisputeTransaction(.billingAmount), data: request.billingAmount.description))
-            dataToFormat.append(.init(type: .visaDisputeTransaction(.billingCurrencyCode), data: request.billingCurrencyCode.description))
-            dataToFormat.append(.init(type: .visaDisputeTransaction(.errorCode), data: request.errorCode.description))
-            dataToFormat.append(.init(type: .visaDisputeTransaction(.date), data: dateFormatter.string(from: request.date)))
-            dataToFormat.append(.init(type: .visaDisputeTransaction(.transactionHash), data: request.transactionHash ?? ""))
-            dataToFormat.append(.init(type: .visaDisputeTransaction(.transactionStatus), data: request.transactionStatus ?? ""))
-        }
-
-        return formatData(dataToFormat)
-    }
-
-    private let transaction: VisaTransactionRecord
-
-    init(transaction: VisaTransactionRecord) {
-        self.transaction = transaction
-    }
-}
-
 // MARK: - TangemPay
 
 struct TangemPaySupportDataCollector: EmailDataCollector {
@@ -377,6 +327,29 @@ struct TangemPaySupportDataCollector: EmailDataCollector {
         }
 
         stringBuilder.append("User Wallet ID: \(userWalletId)")
+
+        return stringBuilder.data(using: .utf8)
+    }
+}
+
+struct TangemPayMoneyAccountSupportDataCollector: EmailDataCollector {
+    let customerId: String?
+    let accountId: String?
+
+    var logData: Data? {
+        var stringBuilder = DeviceInfoProvider.Subject.allCases
+            .map(\.description)
+            .joined(separator: "\n")
+
+        stringBuilder.append("\n--------\n")
+
+        if let customerId {
+            stringBuilder.append("Tangem Pay Customer ID: \(customerId)\n")
+        }
+
+        if let accountId {
+            stringBuilder.append("USD Account ID: \(accountId)\n")
+        }
 
         return stringBuilder.data(using: .utf8)
     }

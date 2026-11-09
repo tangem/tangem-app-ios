@@ -28,7 +28,7 @@ struct SwapSummaryProviderCompactView: View {
                     content
                 }
             }
-            .background(Colors.Background.action)
+            .background(DesignSystem.Color.bgSecondary)
             .cornerRadiusContinuous(14)
             .contentShape(.rect)
             .transition(.opacity.animation(.easeInOut))

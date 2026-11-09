@@ -11,7 +11,7 @@ import TangemFoundation
 import Testing
 @testable import TangemPolymarket
 
-@Suite("PolymarketMapper")
+@Suite("PolymarketMapper", .timeLimit(.minutes(1)))
 struct PolymarketMapperTests {
     private let mapper = PolymarketMapper()
     private let decoder = JSONDecoder()
@@ -60,19 +60,43 @@ struct PolymarketMapperTests {
         #expect(market.status == .unknown("settling"))
     }
 
-    // MARK: - Search
+    @Test("An empty, blank or missing cursor ends the feed even when the page claims there is more", arguments: [
+        #""cursor": """#,
+        #""cursor": "   ""#,
+        #""cursor": null"#,
+    ])
+    func blankCursorEndsFeed(cursorField: String) throws {
+        let json = Data(#"{ "events": [], \#(cursorField), "hasNext": true }"#.utf8)
+        let page = try mapper.mapEventsPage(decoder.decode(PolymarketDTO.EventsPageResponse.self, from: json))
 
-    @Test("Search response maps the page/total envelope")
-    func searchMapping() throws {
-        let dto = try decoder.decode(PolymarketDTO.EventsSearchResponse.self, from: Self.searchJSON)
-        let result = mapper.mapSearchResult(dto)
-
-        #expect(result.page == 0)
-        #expect(result.total == 42)
-        #expect(result.hasNext)
-        #expect(result.events.count == 1)
-        #expect(result.events.first?.id == "0x-event-9")
+        #expect(page.cursor == nil)
+        #expect(!page.hasNext)
     }
+
+    @Test("A page that says there is no more ends the feed even when it still carries a cursor")
+    func lastPageEndsFeedDespiteCursor() throws {
+        let json = Data(#"{ "events": [], "cursor": "cursor-2", "hasNext": false }"#.utf8)
+        let page = try mapper.mapEventsPage(decoder.decode(PolymarketDTO.EventsPageResponse.self, from: json))
+
+        #expect(page.cursor == nil)
+        #expect(!page.hasNext)
+    }
+
+    @Test("A blank next cursor ends the positions, closed positions and activity lists", arguments: ["", "   "])
+    func blankNextCursorEndsLists(cursor: String) throws {
+        let positionsJSON = Data(#"{ "positions": [], "nextCursor": "\#(cursor)" }"#.utf8)
+        let activityJSON = Data(#"{ "items": [], "nextCursor": "\#(cursor)" }"#.utf8)
+
+        let positions = try mapper.mapPositions(decoder.decode(PolymarketDTO.PositionsResponse.self, from: positionsJSON))
+        let closedPositions = try mapper.mapClosedPositions(decoder.decode(PolymarketDTO.ClosedPositionsResponse.self, from: positionsJSON))
+        let activity = try mapper.mapActivity(decoder.decode(PolymarketDTO.ActivityResponse.self, from: activityJSON))
+
+        #expect(!positions.hasNext)
+        #expect(!closedPositions.hasNext)
+        #expect(activity.nextCursor == nil)
+    }
+
+    // MARK: - Sparse events
 
     @Test("Empty and missing optional fields degrade gracefully")
     func minimalEventMapping() throws {
@@ -120,11 +144,64 @@ struct PolymarketMapperTests {
         let fractional = try #require(mapper.date(from: "2026-07-01T00:00:00.123Z"))
         #expect(abs(fractional.timeIntervalSince(plain) - 0.123) < 0.0005)
     }
+
+    @Test("A close time parses both as ISO-8601 and in Polymarket's space-separated form, with or without fractional seconds")
+    func closeTimeParsing() {
+        let closeTime = Date(timeIntervalSince1970: 1_788_034_666)
+
+        #expect(mapper.date(from: "2026-08-29 20:17:46+00") == closeTime)
+        #expect(mapper.date(from: "2026-08-29T20:17:46Z") == closeTime)
+        #expect(mapper.date(from: "2026-08-29 20:17:46+00:00") == closeTime)
+        #expect(mapper.date(from: "2026-08-29 20:17:46-03") == closeTime.addingTimeInterval(3 * 3600))
+
+        let microseconds = mapper.date(from: "2026-08-29 20:17:46.899158+00").map { $0.timeIntervalSince(closeTime) }
+        let tenths = mapper.date(from: "2026-08-29 20:17:46.8+00").map { $0.timeIntervalSince(closeTime) }
+
+        #expect(microseconds.map { abs($0 - 0.899) < 0.001 } == true)
+        #expect(tenths.map { abs($0 - 0.8) < 0.001 } == true)
+    }
+
+    @Test("A market's close time is read from an ISO or Polymarket string", arguments: [
+        #""2026-08-29T20:17:46Z""#,
+        #""2026-08-29 20:17:46+00""#,
+        #""2026-08-29 20:17:46.000000+00""#,
+    ])
+    func marketCloseTimeMapping(closedTime: String) throws {
+        let markets = try decodedMarkets(closedTime: closedTime)
+
+        #expect(markets.first?.closedDate == Date(timeIntervalSince1970: 1_788_034_666))
+        #expect(markets.last?.closedDate == nil)
+    }
+
+    @Test("A missing or unreadable close time is dropped without failing the event", arguments: [
+        "null",
+        #""soon""#,
+        #""""#,
+    ])
+    func unexpectedCloseTimeIsDropped(closedTime: String) throws {
+        let markets = try decodedMarkets(closedTime: closedTime)
+
+        #expect(markets.count == 2)
+        #expect(markets.first?.closedDate == nil)
+        #expect(markets.first?.startDate == Date(timeIntervalSince1970: 1_787_490_038))
+    }
 }
 
 // MARK: - Fixtures
 
 private extension PolymarketMapperTests {
+    func decodedMarkets(closedTime: String) throws -> [PolymarketMarket] {
+        let json = """
+        {"event":{"eventId":"1","slug":"match","title":"Match","markets":[
+          {"id":"closed","question":"Closed?","startDate":"2026-08-23T13:00:38Z","closedTime":\(closedTime),"outcomes":[]},
+          {"id":"open","question":"Open?","outcomes":[]}
+        ]}}
+        """
+        let dto = try decoder.decode(PolymarketDTO.EventResponse.self, from: Data(json.utf8))
+
+        return mapper.mapEvent(dto.event).markets
+    }
+
     static let eventsPageJSON = Data("""
     {
       "events": [
@@ -160,23 +237,6 @@ private extension PolymarketMapperTests {
         }
       ],
       "cursor": "cursor-2",
-      "hasNext": true
-    }
-    """.utf8)
-
-    static let searchJSON = Data("""
-    {
-      "events": [
-        {
-          "eventId": "0x-event-9",
-          "slug": "election",
-          "title": "Election winner",
-          "totalMarketsCount": 1,
-          "markets": []
-        }
-      ],
-      "page": 0,
-      "total": 42,
       "hasNext": true
     }
     """.utf8)

@@ -33,11 +33,11 @@ public struct StoryPageView: View {
 
                 VStack(spacing: 16) {
                     Text(page.title)
-                        .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                         .lineLimit(2)
 
                     Text(page.subtitle)
-                        .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                        .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                 }
                 .transaction { transaction in
                     transaction.animation = nil

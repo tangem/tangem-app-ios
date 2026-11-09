@@ -59,13 +59,14 @@ struct TokenDetailsActionsBottomSheetView: View {
     }
 
     private var closeButton: some View {
-        TangemButton(
-            content: .text(AttributedString(Localization.commonClose)),
+        TangemUI.Button(
+            label: Localization.commonClose,
+            accessibilityLabel: nil,
             action: viewModel.onClose
         )
-        .setStyleType(.secondary)
-        .setHorizontalLayout(.infinity)
-        .setSize(.x12)
+        .styleType(.secondary(.default))
+        .horizontalLayout(.infinity)
+        .size(.x12)
     }
 }
 

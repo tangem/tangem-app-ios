@@ -18,6 +18,7 @@ struct CommonGaslessTokenFeeLoader {
     let feeToken: Token?
     let gaslessTransactionFeeProvider: any GaslessTransactionFeeProvider
     let yieldFeeContext: GaslessYieldFeeContext?
+    var isFeeTokenFundedByTransaction = false
 
     private let balanceConverter = BalanceConverter()
 }
@@ -25,6 +26,9 @@ struct CommonGaslessTokenFeeLoader {
 // MARK: - TokenFeeLoader
 
 extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
+    var rejectsBridgeCoinFee: Bool { true }
+    var tripleApproveFeeRequiresFeature: Bool { true }
+
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] {
         let params = try await resolveGaslessParameters()
         let amount = makeAmount(amount: amount)
@@ -86,6 +90,14 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
             throw TokenFeeLoaderError.gaslessExecutionReverted(gaslessMinTokenAmount: EthereumFeeParametersConstants.gaslessMinTokenAmountDecimal)
         }
     }
+
+    func supports(_ input: TokenFeeProviderInputData) -> Bool {
+        supportsEthereumFeeInput(input)
+    }
+
+    func loadFees(_ input: TokenFeeProviderInputData, feeBlockchain: Blockchain) async throws -> [BSDKFee] {
+        try await loadEthereumFees(input, feeBlockchain: feeBlockchain)
+    }
 }
 
 // MARK: - EthereumTokenFeeLoader
@@ -93,6 +105,15 @@ extension CommonGaslessTokenFeeLoader: TokenFeeLoader {
 extension CommonGaslessTokenFeeLoader: EthereumTokenFeeLoader {
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee {
         let params = try await resolveGaslessParameters()
+
+        if isFeeTokenFundedByTransaction {
+            return try await gaslessTransactionFeeProvider.getEstimatedGaslessTransactionFeeFundedByTransaction(
+                feeToken: params.feeToken,
+                estimatedGasLimit: estimatedGasLimit,
+                feeRecipientAddress: params.feeRecipientAddress,
+                nativeToFeeTokenRate: params.nativeToFeeTokenRate
+            )
+        }
 
         return try await resolveGaslessFee(
             spentAmount: 0,
@@ -252,6 +273,10 @@ private extension CommonGaslessTokenFeeLoader {
     }
 
     func makeYieldFeeOptions(context: GaslessYieldFeeContext) async throws -> GaslessYieldFeeOptions {
+        if let versionResolver = context.versionResolver {
+            return try await makeYieldFeeOptions(context: context, versionResolver: versionResolver)
+        }
+
         guard let versionChecker = context.versionChecker else {
             return GaslessYieldFeeOptions(
                 yieldContractAddress: context.yieldContractAddress,
@@ -285,6 +310,29 @@ private extension CommonGaslessTokenFeeLoader {
         }
     }
 
+    func makeYieldFeeOptions(
+        context: GaslessYieldFeeContext,
+        versionResolver: YieldModuleVersionResolver
+    ) async throws -> GaslessYieldFeeOptions {
+        let status = try await versionResolver.resolveStatus(moduleAddress: context.yieldContractAddress)
+
+        guard status.supports(.v2) else {
+            throw TokenFeeLoaderError.yieldModuleVersionUnsupported
+        }
+
+        guard case .upgradeAvailable(let implementation, _) = status else {
+            return GaslessYieldFeeOptions(
+                yieldContractAddress: context.yieldContractAddress,
+                upgrade: .none
+            )
+        }
+
+        return GaslessYieldFeeOptions(
+            yieldContractAddress: context.yieldContractAddress,
+            upgrade: .required(implementation: implementation)
+        )
+    }
+
     func requiredBalance(fee: BSDKFee, spentAmount: Decimal) -> Decimal {
         fee.amount.value + spentAmount
     }
@@ -313,6 +361,7 @@ extension CommonGaslessTokenFeeLoader: CustomStringConvertible {
             "feeToken": feeToken?.name ?? "nil",
             "gaslessTransactionFeeProvider": String(describing: gaslessTransactionFeeProvider),
             "yieldFeeContext": yieldFeeContext?.description ?? "nil",
+            "isFeeTokenFundedByTransaction": isFeeTokenFundedByTransaction,
         ])
     }
 }

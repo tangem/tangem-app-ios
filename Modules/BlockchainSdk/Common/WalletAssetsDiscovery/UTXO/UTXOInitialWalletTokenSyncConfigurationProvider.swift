@@ -32,7 +32,7 @@ struct UTXOInitialWalletTokenSyncConfigurationProvider {
             unspentOutputManager.update(outputs: response.response.outputs, for: response.address)
         }
 
-        let nativeBalance = unspentOutputManager.balance(blockchain: blockchain)
+        let nativeBalance = try unspentOutputManager.balance(blockchain: blockchain)
         return WalletAssetsDiscoveryBalanceConfiguration(nativeBalance: nativeBalance, tokens: [])
     }
 

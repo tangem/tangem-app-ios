@@ -16,14 +16,20 @@ struct WalletModelTokenFeeProvidersManagerProvider {
     private let walletModel: any WalletModel
     private let tokenFeeLoaderProvider: any TokenFeeLoaderProvider
     private let supportingOptions: TokenFeeProviderSupportingOptions
+    private let transactionReleasesSourceToken: Bool
+    private let providerSwitching: CommonTokenFeeProvidersManager.ProviderSwitching
 
     init(
         walletModel: any WalletModel,
-        supportingOptions: TokenFeeProviderSupportingOptions = .all
+        supportingOptions: TokenFeeProviderSupportingOptions = .all,
+        transactionReleasesSourceToken: Bool = false,
+        providerSwitching: CommonTokenFeeProvidersManager.ProviderSwitching = .always
     ) {
         self.walletModel = walletModel
         tokenFeeLoaderProvider = WalletModelTokenFeeLoaderProvider(walletModel: walletModel)
         self.supportingOptions = supportingOptions
+        self.transactionReleasesSourceToken = transactionReleasesSourceToken
+        self.providerSwitching = providerSwitching
     }
 }
 
@@ -43,7 +49,8 @@ extension WalletModelTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerP
         return CommonTokenFeeProvidersManager(
             feeProviders: feeProviders,
             initialSelectedProvider: initialSelectedProvider,
-            ownerAddress: walletModel.defaultAddressString
+            ownerAddress: walletModel.defaultAddressString,
+            providerSwitching: providerSwitching
         )
     }
 }
@@ -161,14 +168,15 @@ private extension WalletModelTokenFeeProvidersManagerProvider {
                 return nil
             }
 
-            let yieldFeeContext = makeYieldFeeContext(
-                feeWalletModel: feeWalletModel,
-                feeTokenItemBalanceProvider: feeTokenItemBalanceProvider
-            )
+            let isFeeTokenFundedByTransaction = transactionReleasesSourceToken && feeTokenItem == walletModel.tokenItem
+            let yieldFeeContext = isFeeTokenFundedByTransaction
+                ? nil
+                : makeYieldFeeContext(feeWalletModel: feeWalletModel, feeTokenItemBalanceProvider: feeTokenItemBalanceProvider)
 
             guard let tokenFeeLoader = tokenFeeLoaderProvider.makeGaslessTokenFeeLoader(
                 feeToken: feeToken,
-                yieldFeeContext: yieldFeeContext
+                yieldFeeContext: yieldFeeContext,
+                isFeeTokenFundedByTransaction: isFeeTokenFundedByTransaction
             ) else {
                 return nil
             }
@@ -198,7 +206,10 @@ private extension WalletModelTokenFeeProvidersManagerProvider {
             yieldContractAddress: activeInfo.yieldContractAddress,
             yieldModuleBalance: activeInfo.yieldModuleBalanceValue,
             feeTokenBalanceProvider: feeTokenItemBalanceProvider,
-            versionChecker: feeWalletModel.yieldModuleManager?.versionChecker
+            versionChecker: feeWalletModel.yieldModuleManager?.versionChecker,
+            versionResolver: FeatureProvider.isAvailable(.yieldModuleOwnerActionUpgrade)
+                ? feeWalletModel.yieldModuleManager?.versionResolver
+                : nil
         )
     }
 }

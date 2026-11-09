@@ -42,13 +42,15 @@ public struct PolymarketPositionRow: View {
         HStack(spacing: Constants.spacing) {
             PolymarketOutcomeBubble(title: model.outcomeTitle, style: model.outcomeStyle)
 
-            PriceChangeView(
-                state: .loaded(changeType: model.change.type, text: model.change.text),
-                showIconForNeutral: false,
-                useRedesignColors: true
-            )
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(model.change.type.accessibilitySign + model.change.text)
+            if let change = model.change {
+                PriceChangeView(
+                    state: .loaded(changeType: change.type, text: change.text),
+                    showIconForNeutral: false,
+                    useRedesignColors: true
+                )
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(change.type.accessibilitySign + change.text)
+            }
 
             Spacer(minLength: Constants.spacing)
 
@@ -83,7 +85,7 @@ public extension PolymarketPositionRow {
         public let imageURL: URL?
         public let outcomeTitle: String
         public let outcomeStyle: PolymarketOutcomeStyle
-        public let change: Change
+        public let change: Change?
         public let trailing: Trailing
         public let glowRing: GlowRingAppearance?
 
@@ -93,7 +95,7 @@ public extension PolymarketPositionRow {
             imageURL: URL?,
             outcomeTitle: String,
             outcomeStyle: PolymarketOutcomeStyle,
-            change: Change,
+            change: Change?,
             trailing: Trailing,
             glowRing: GlowRingAppearance?
         ) {

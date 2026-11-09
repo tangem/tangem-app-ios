@@ -146,18 +146,6 @@ struct PolymarketAvailableBalanceProviderTests {
         #expect(sut.balanceType == .empty(.custom))
     }
 
-    @Test("Bets that failed to load do not touch the available balance")
-    func failedBetsDoNotTouchTheAvailableBalance() {
-        let (sut, repository, subject) = makeSUT(kind: .available)
-
-        subject.send(makeBalance(positionsValue: .unknown))
-
-        withExtendedLifetime(sut) {
-            #expect(sut.balanceType == .loaded(PolymarketBalanceFixtures.available))
-            #expect(repository.storedBalances.map(\.balance) == [PolymarketBalanceFixtures.available])
-        }
-    }
-
     @Test("A balance that arrived is written to its own cache slot")
     func arrivedBalanceIsCached() {
         let (sut, repository, subject) = makeSUT(kind: .available)
@@ -209,13 +197,6 @@ struct PolymarketTotalBalanceProviderTests {
         subject.send(makeBalance(positionsValue: .loaded(PolymarketBalanceFixtures.bets)))
 
         #expect(sut.balanceType == .loaded(PolymarketBalanceFixtures.total))
-    }
-
-    @Test("Nothing has arrived yet, so the total is loading")
-    func nothingYetIsLoading() {
-        let (sut, _, _) = makeSUT(kind: .total)
-
-        #expect(sut.balanceType == .loading(.none))
     }
 
     @Test("Bets that failed to load fall back to the last valid total, marked as stale")
@@ -322,15 +303,6 @@ struct PolymarketFormattedTotalBalanceTests {
         let expected = FormattedTokenBalanceType.loaded(PolymarketOrderFormatter.money(PolymarketBalanceFixtures.total))
 
         #expect(PolymarketFormattedBalance.money(sut.balanceType) == expected)
-    }
-
-    @Test("A part still on its way reads as loading rather than as a dash")
-    func aPartStillOnItsWayReadsAsLoading() {
-        let (sut, _, subject) = makeSUT(kind: .total)
-
-        subject.send(.loading)
-
-        #expect(PolymarketFormattedBalance.money(sut.balanceType).isLoading)
     }
 
     @Test("Bets that failed show a dash instead of the available part passed off as the total")

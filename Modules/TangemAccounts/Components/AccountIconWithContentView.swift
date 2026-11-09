@@ -20,9 +20,9 @@ public struct AccountIconWithContentView<Subtitle: View, Trailing: View>: View {
     private var iconSettings: AccountIconView.Settings = .defaultSized
     private var nameBadge: String?
     private var nameFontStyle = TangemFontStyle(font: Fonts.Bold.subheadline)
-    private var nameColor: Color = Colors.Text.primary1
+    private var nameColor: Color = DesignSystem.Color.textPrimary
     private var subtitleFontStyle = TangemFontStyle(font: Fonts.Regular.caption1)
-    private var subtitleColor: Color = Colors.Text.tertiary
+    private var subtitleColor: Color = DesignSystem.Color.textSecondary
 
     public init(
         iconData: AccountIconView.ViewData,

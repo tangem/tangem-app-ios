@@ -44,7 +44,7 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
     }
 
     private func makeApproveInput(multiplier: FeeMultiplier) -> TokenFeeProviderInputData {
-        .approve(txData: Data(), toContractAddress: "0xC", feeMultiplier: multiplier)
+        .approve(txData: Data(), toContractAddress: "0xC", spender: nil, amountRaw: 1, feeMultiplier: multiplier)
     }
 
     // MARK: - Scenario A: balance covers fee → no switch
@@ -95,6 +95,99 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
         await sut.updateFees().value
 
         #expect(sut.selectedFeeProvider.feeTokenItem == usdtTokenItem)
+    }
+
+    @Test("Switching until the user selects a provider still switches before any selection")
+    func feeExceedsBalance_untilUserSelection_noSelection_switchesToIdle() async {
+        let eth = ControllableTokenFeeProviderStub(
+            feeTokenItem: ethTokenItem,
+            state: .available([.market: makeFee(0.001)]),
+            balance: .loaded(0.0001),
+            selectedTokenFee: makeSuccessTokenFee(0.001, tokenItem: ethTokenItem)
+        )
+        let usdt = ControllableTokenFeeProviderStub(
+            feeTokenItem: usdtTokenItem,
+            state: .idle,
+            balance: .loaded(100),
+            selectedTokenFee: TokenFee(option: .market, tokenItem: usdtTokenItem, value: .loading)
+        )
+
+        let sut = CommonTokenFeeProvidersManager(
+            feeProviders: [eth, usdt],
+            initialSelectedProvider: eth,
+            ownerAddress: nil,
+            providerSwitching: .untilUserSelection
+        )
+
+        await sut.updateFees().value
+
+        #expect(sut.selectedFeeProvider.feeTokenItem == usdtTokenItem)
+    }
+
+    @Test("Switching until the user selects a provider keeps the user's choice with insufficient balance")
+    func feeExceedsBalance_untilUserSelection_userSelected_keepsSelection() async {
+        let eth = ControllableTokenFeeProviderStub(
+            feeTokenItem: ethTokenItem,
+            state: .available([.market: makeFee(0.001)]),
+            balance: .loaded(0.0001),
+            selectedTokenFee: makeSuccessTokenFee(0.001, tokenItem: ethTokenItem)
+        )
+        let usdt = ControllableTokenFeeProviderStub(
+            feeTokenItem: usdtTokenItem,
+            state: .idle,
+            balance: .loaded(100),
+            selectedTokenFee: TokenFee(option: .market, tokenItem: usdtTokenItem, value: .loading)
+        )
+
+        let sut = CommonTokenFeeProvidersManager(
+            feeProviders: [eth, usdt],
+            initialSelectedProvider: usdt,
+            ownerAddress: nil,
+            providerSwitching: .untilUserSelection
+        )
+
+        sut.updateSelectedFeeProvider(feeTokenItem: ethTokenItem)
+        await sut.updateFees().value
+
+        #expect(sut.selectedFeeProvider.feeTokenItem == ethTokenItem)
+        #expect(usdt.updateFeesCallCount == 0)
+    }
+
+    @Test("Switching skips the excluded provider and moves to the next idle one")
+    func feeExceedsBalance_excludedIdle_switchesToNextIdle() async {
+        let eth = ControllableTokenFeeProviderStub(
+            feeTokenItem: ethTokenItem,
+            state: .available([.market: makeFee(0.001)]),
+            balance: .loaded(0.0001),
+            selectedTokenFee: makeSuccessTokenFee(0.001, tokenItem: ethTokenItem)
+        )
+        let usdt = ControllableTokenFeeProviderStub(
+            feeTokenItem: usdtTokenItem,
+            state: .idle,
+            balance: .loaded(100),
+            selectedTokenFee: TokenFee(option: .market, tokenItem: usdtTokenItem, value: .loading)
+        )
+        let usdc = ControllableTokenFeeProviderStub(
+            feeTokenItem: usdcTokenItem,
+            state: .idle,
+            balance: .loaded(100),
+            selectedTokenFee: TokenFee(option: .market, tokenItem: usdcTokenItem, value: .loading)
+        )
+
+        let sut = CommonTokenFeeProvidersManager(
+            feeProviders: [eth, usdt, usdc],
+            initialSelectedProvider: usdt,
+            ownerAddress: nil,
+            providerSwitching: .untilUserSelection
+        )
+
+        sut.updateExcludedFeeProvider(feeTokenItem: usdtTokenItem)
+        #expect(sut.selectedFeeProvider.feeTokenItem == ethTokenItem)
+
+        await sut.updateFees().value
+
+        #expect(sut.selectedFeeProvider.feeTokenItem == usdcTokenItem)
+        #expect(usdt.updateFeesCallCount == 0)
     }
 
     // MARK: - Scenario D: fallback to initial when no idle and initial is supported
@@ -266,7 +359,8 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
         let approveData = ApproveTransactionData(
             txData: Data([0xAA]),
             spender: "0xSpender",
-            toContractAddress: "0xC"
+            toContractAddress: "0xC",
+            amountRaw: 1
         )
         let returnedFee = try await sut.transactionFee(approveData: approveData)
 
@@ -277,7 +371,7 @@ struct CommonTokenFeeProvidersManagerSwitchTests {
 
         // setup() was called with .single multiplier — our guard's trigger condition (.triple) is absent.
         guard let lastUsdtSetup = usdt.setupCalls.last,
-              case .approve(_, _, let multiplier) = lastUsdtSetup
+              case .approve(_, _, _, _, let multiplier) = lastUsdtSetup
         else {
             Issue.record("Expected last setup() call on USDT to be .approve")
             return
@@ -552,7 +646,7 @@ struct TronGaslessQuoteRequestTests {
     @Test("Quote matches the transaction built from the estimated amount")
     func matchingTransaction_isRecognized() {
         let transaction = makeTransaction(amount: 3)
-        let request = makeRequest(amountRaw: "3000000")
+        let request = makeRequest(amountRaw: 3_000_000)
 
         #expect(request.matches(transaction: transaction, feeToken: makeFeeToken()))
     }
@@ -560,7 +654,7 @@ struct TronGaslessQuoteRequestTests {
     @Test("Quote does not match a fee-adjusted transaction amount")
     func feeAdjustedTransaction_requiresNewQuote() {
         let transaction = makeTransaction(amount: Decimal(string: "0.4662")!)
-        let request = makeRequest(amountRaw: "3000000")
+        let request = makeRequest(amountRaw: 3_000_000)
 
         #expect(!request.matches(transaction: transaction, feeToken: makeFeeToken()))
     }
@@ -579,11 +673,57 @@ struct TronGaslessQuoteRequestTests {
             type: .token(value: token),
             value: Decimal(string: "0.4662")!
         )
-        let request = makeRequest(amountRaw: "466200")
+        let request = makeRequest(amountRaw: 466_200)
 
         #expect(request.matches(
             amount: amount,
             destinationAddress: destinationAddress,
+            feeToken: makeFeeToken()
+        ))
+    }
+
+    @Test("Approve quote matches only its contract call")
+    func approveQuote_matchesContractCall() {
+        let callData = Data([0x09, 0x5E, 0xA7, 0xB3])
+        let request = TronGaslessQuoteRequest(
+            sourceAddress: sourceAddress,
+            tokenContractAddress: tokenContractAddress,
+            amountRaw: 10_000_000,
+            feeTokenContractAddress: feeTokenContractAddress,
+            operation: .approve(
+                contractAddress: tokenContractAddress,
+                spender: "TSpender",
+                callData: callData
+            )
+        )
+
+        #expect(request.matches(
+            transaction: makeContractTransaction(contractAddress: tokenContractAddress, callData: callData),
+            feeToken: makeFeeToken()
+        ))
+        #expect(!request.matches(
+            transaction: makeContractTransaction(contractAddress: tokenContractAddress, callData: Data([0xFF])),
+            feeToken: makeFeeToken()
+        ))
+    }
+
+    @Test("Swap quote matches only its contract and calldata")
+    func swapQuote_matchesContractCall() {
+        let callData = Data([0x31, 0x10, 0xC7, 0xB9])
+        let request = TronGaslessQuoteRequest(
+            sourceAddress: sourceAddress,
+            tokenContractAddress: tokenContractAddress,
+            amountRaw: 3_000_000,
+            feeTokenContractAddress: feeTokenContractAddress,
+            operation: .swap(contractAddress: "TSwap", callData: callData, spender: "TSpender")
+        )
+
+        #expect(request.matches(
+            transaction: makeContractTransaction(contractAddress: "TSwap", callData: callData),
+            feeToken: makeFeeToken()
+        ))
+        #expect(!request.matches(
+            transaction: makeContractTransaction(contractAddress: "TOtherSwap", callData: callData),
             feeToken: makeFeeToken()
         ))
     }
@@ -618,6 +758,7 @@ struct TronGaslessQuoteRequestTests {
             feeToken: feeToken,
             sourceAddress: sourceAddress,
             userWalletId: UserWalletId(value: Data("wallet".utf8)),
+            isDEXEnabled: false,
             networkManager: networkManager
         )
 
@@ -628,7 +769,7 @@ struct TronGaslessQuoteRequestTests {
     }
 
     private func makeRequest(
-        amountRaw: String,
+        amountRaw: BigUInt,
         feeTokenContractAddress: String? = nil
     ) -> TronGaslessQuoteRequest {
         TronGaslessQuoteRequest(
@@ -672,6 +813,18 @@ struct TronGaslessQuoteRequestTests {
             symbol: "FEE",
             contractAddress: feeTokenContractAddress,
             decimalCount: 6
+        )
+    }
+
+    private func makeContractTransaction(contractAddress: String, callData: Data) -> BSDKTransaction {
+        BSDKTransaction(
+            amount: BSDKAmount(with: .tron(testnet: false), type: .coin, value: 0),
+            fee: BSDKFee(BSDKAmount(with: makeFeeToken(), value: 1)),
+            sourceAddress: sourceAddress,
+            destinationAddress: contractAddress,
+            changeAddress: sourceAddress,
+            contractAddress: contractAddress,
+            params: TronTransactionParams(transactionType: .contractCall(callData: callData, feeLimit: nil))
         )
     }
 
@@ -738,6 +891,59 @@ struct TronGaslessAPIContractTests {
         #expect(submit.headers?["userWalletId"] == userWalletId.stringValue)
     }
 
+    @Test("Transfer estimate encodes only transfer fields")
+    func transferEstimateEncoding() throws {
+        let request = GaslessTransactionsDTO.Request.TronEstimate(
+            fromAddress: "TFrom",
+            toAddress: "TTo",
+            tokenContract: "TToken",
+            amount: "1",
+            feeTokenContract: "TFee"
+        )
+
+        let json = try encode(request)
+        #expect(json["toAddress"] as? String == "TTo")
+        #expect(json["feeTokenContract"] as? String == "TFee")
+        #expect(json["approve"] == nil)
+        #expect(json["swap"] == nil)
+    }
+
+    @Test("Approve estimate encodes only approve fields")
+    func approveEstimateEncoding() throws {
+        let request = GaslessTransactionsDTO.Request.TronEstimate(
+            fromAddress: "TFrom",
+            tokenContract: "TToken",
+            amount: "2",
+            feeTokenContract: "TFee",
+            approve: .init(spender: "TSpender")
+        )
+
+        let json = try encode(request)
+        let approve = try #require(json["approve"] as? [String: Any])
+        #expect(approve["spender"] as? String == "TSpender")
+        #expect(json["toAddress"] == nil)
+        #expect(json["swap"] == nil)
+    }
+
+    @Test("Swap estimate encodes contract calldata and optional spender")
+    func swapEstimateEncoding() throws {
+        let request = GaslessTransactionsDTO.Request.TronEstimate(
+            fromAddress: "TFrom",
+            tokenContract: "TToken",
+            amount: "3",
+            feeTokenContract: "TFee",
+            swap: .init(contractAddress: "TSwap", data: "abcdef", spender: nil)
+        )
+
+        let json = try encode(request)
+        let swap = try #require(json["swap"] as? [String: Any])
+        #expect(swap["contractAddress"] as? String == "TSwap")
+        #expect(swap["data"] as? String == "abcdef")
+        #expect(swap["spender"] == nil)
+        #expect(json["toAddress"] == nil)
+        #expect(json["approve"] == nil)
+    }
+
     @Test("Activation error codes map from Tangem API errors")
     func activationErrorCodesMapFromTangemAPIError() throws {
         for code in GaslessTransactionsDTO.APIError.TronActivation.Code.allCases {
@@ -775,6 +981,11 @@ struct TronGaslessAPIContractTests {
 
         #expect(rateLimited.errorDescription == Localization.gaslessTronActivationAttemptsLimit)
         #expect(halted.errorDescription == Localization.gaslessTronActivationTryAgainLater)
+    }
+
+    private func encode(_ request: GaslessTransactionsDTO.Request.TronEstimate) throws -> [String: Any] {
+        let data = try JSONEncoder().encode(request)
+        return try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
     }
 }
 
@@ -1018,6 +1229,54 @@ struct GaslessYieldFeeTests {
             #expect(feeProvider.getGaslessYieldFeeCallCount == 1)
         }
     }
+
+    @Test("Fee token funded by the transaction is quoted without the plain transfer estimate or a yield withdraw")
+    func feeTokenFundedByTransactionSkipsPlainQuote() async throws {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
+            InjectedValues[\.gaslessTransactionsNetworkManager] = GaslessTransactionsNetworkManagerStub(
+                feeRecipientAddress: "0x0000000000000000000000000000000000000001"
+            )
+            defer {
+                InjectedValues[\.gaslessTransactionsNetworkManager] = previousNetworkManager
+            }
+
+            let blockchain = BSDKBlockchain.polygon(testnet: false)
+            let token = Token(
+                name: "USDT",
+                symbol: "USDT",
+                contractAddress: "0x0000000000000000000000000000000000000002",
+                decimalCount: 6,
+                id: blockchain.coinId
+            )
+            let feeToken = BSDKToken(
+                name: token.name,
+                symbol: token.symbol,
+                contractAddress: token.contractAddress,
+                decimalCount: token.decimalCount,
+                id: token.id
+            )
+            let fundedFee = BSDKFee(BSDKAmount(with: blockchain, type: .token(value: feeToken), value: 3))
+            let feeProvider = GaslessTransactionFeeProviderStub(
+                plainError: JSONRPC.APIError(code: 3, message: "ERC20: transfer amount exceeds balance"),
+                plainFee: fundedFee,
+                yieldFee: BSDKFee(BSDKAmount(with: blockchain, type: .token(value: feeToken), value: 2))
+            )
+
+            let sut = CommonGaslessTokenFeeLoader(
+                tokenItem: .token(token, .init(blockchain, derivationPath: nil)),
+                feeToken: feeToken,
+                gaslessTransactionFeeProvider: feeProvider,
+                yieldFeeContext: nil,
+                isFeeTokenFundedByTransaction: true
+            )
+
+            let fee = try await sut.estimatedFee(estimatedGasLimit: 120_000, otherNativeFee: nil)
+
+            #expect(fee.amount.value == fundedFee.amount.value)
+            #expect(feeProvider.getEstimatedGaslessTransactionFeeFundedByTransactionCallCount == 1)
+        }
+    }
 }
 
 private extension GaslessYieldFeeTests {
@@ -1051,6 +1310,7 @@ final class GaslessTransactionFeeProviderStub: GaslessTransactionFeeProvider {
 
     private(set) var getGaslessFeeCallCount = 0
     private(set) var getGaslessYieldFeeCallCount = 0
+    private(set) var getEstimatedGaslessTransactionFeeFundedByTransactionCallCount = 0
 
     init(plainError: Error?, plainFee: BSDKFee? = nil, yieldFee: BSDKFee) {
         self.plainError = plainError
@@ -1125,6 +1385,16 @@ final class GaslessTransactionFeeProviderStub: GaslessTransactionFeeProvider {
             throw plainError
         }
 
+        return plainFee
+    }
+
+    func getEstimatedGaslessTransactionFeeFundedByTransaction(
+        feeToken: BSDKToken,
+        estimatedGasLimit: Int,
+        feeRecipientAddress: String,
+        nativeToFeeTokenRate: Decimal
+    ) async throws -> BSDKFee {
+        getEstimatedGaslessTransactionFeeFundedByTransactionCallCount += 1
         return plainFee
     }
 

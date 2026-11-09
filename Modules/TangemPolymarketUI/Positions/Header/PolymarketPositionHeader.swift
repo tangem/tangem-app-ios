@@ -23,11 +23,15 @@ public struct PolymarketPositionHeader: View {
             PolymarketAvatarView(url: model.iconURL, side: Constants.iconSide)
 
             VStack(spacing: Constants.textSpacing) {
-                change
+                if let change = model.change {
+                    changeView(change)
+                }
 
-                Text(model.valueText)
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                    .lineLimit(1)
+                if let valueText = model.valueText {
+                    Text(valueText)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                        .lineLimit(1)
+                }
 
                 Text(model.question)
                     .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
@@ -41,29 +45,29 @@ public struct PolymarketPositionHeader: View {
         .padding(Constants.padding)
     }
 
-    private var change: some View {
+    private func changeView(_ change: PolymarketPositionRow.Change) -> some View {
         HStack(spacing: Constants.changeSpacing) {
-            model.changeType.imageType.image
+            change.type.imageType.image
                 .renderingMode(.template)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: Constants.changeIconSide, height: Constants.changeIconSide)
-                .foregroundStyle(model.changeType.iconColor)
+                .foregroundStyle(change.type.iconColor)
                 .accessibilityHidden(true)
 
-            Text(model.changeText)
-                .style(DesignSystem.Font.headingMediumToken, color: model.changeType.color)
+            Text(change.text)
+                .style(DesignSystem.Font.headingMediumToken, color: change.type.color)
                 .lineLimit(1)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(changeAccessibilityLabel)
+        .accessibilityLabel(changeAccessibilityLabel(change))
     }
 
-    private var changeAccessibilityLabel: String {
-        switch model.changeType {
-        case .positive: "\(String.plusSign) \(model.changeText)"
-        case .negative: "\(String.minusSign) \(model.changeText)"
-        case .neutral: model.changeText
+    private func changeAccessibilityLabel(_ change: PolymarketPositionRow.Change) -> String {
+        switch change.type {
+        case .positive: "\(String.plusSign) \(change.text)"
+        case .negative: "\(String.minusSign) \(change.text)"
+        case .neutral: change.text
         }
     }
 
@@ -92,9 +96,8 @@ public struct PolymarketPositionHeader: View {
 public extension PolymarketPositionHeader {
     struct Model {
         public let iconURL: URL?
-        public let changeText: String
-        public let changeType: PriceChangeView.ChangeType
-        public let valueText: String
+        public let change: PolymarketPositionRow.Change?
+        public let valueText: String?
         public let question: String
         public let outcomeTitle: String
         public let outcomeStyle: PolymarketOutcomeStyle
@@ -103,9 +106,8 @@ public extension PolymarketPositionHeader {
 
         public init(
             iconURL: URL?,
-            changeText: String,
-            changeType: PriceChangeView.ChangeType,
-            valueText: String,
+            change: PolymarketPositionRow.Change?,
+            valueText: String?,
             question: String,
             outcomeTitle: String,
             outcomeStyle: PolymarketOutcomeStyle,
@@ -113,8 +115,7 @@ public extension PolymarketPositionHeader {
             status: PolymarketPositionRow.Status? = nil
         ) {
             self.iconURL = iconURL
-            self.changeText = changeText
-            self.changeType = changeType
+            self.change = change
             self.valueText = valueText
             self.question = question
             self.outcomeTitle = outcomeTitle

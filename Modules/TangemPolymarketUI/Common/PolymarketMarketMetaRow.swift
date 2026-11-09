@@ -12,11 +12,13 @@ import TangemUI
 
 public struct PolymarketMarketMetaRow: View {
     private let isLive: Bool
+    private let isLiveBadgePulsing: Bool
     private let category: Category?
     private let volume: Volume?
 
-    public init(isLive: Bool = false, category: Category?, volume: Volume?) {
+    public init(isLive: Bool = false, isLiveBadgePulsing: Bool = false, category: Category?, volume: Volume?) {
         self.isLive = isLive
+        self.isLiveBadgePulsing = isLiveBadgePulsing
         self.category = category
         self.volume = volume
     }
@@ -25,7 +27,7 @@ public struct PolymarketMarketMetaRow: View {
         if isLive || category != nil || volume != nil {
             HStack(spacing: Constants.spacing) {
                 if isLive {
-                    liveBadge
+                    PolymarketLiveBadge(isPulsing: isLiveBadgePulsing)
                 }
 
                 if let category {
@@ -37,15 +39,6 @@ public struct PolymarketMarketMetaRow: View {
                 }
             }
         }
-    }
-
-    private var liveBadge: some View {
-        // [REDACTED_TODO_COMMENT]
-        Badge(label: "Live", accessibilityLabel: nil)
-            .size(.x4)
-            .variant(.solid)
-            .appearance(.success)
-            .slotStart(DesignSystem.Icons.Dot.filled12)
     }
 
     private func badge(_ category: Category) -> some View {

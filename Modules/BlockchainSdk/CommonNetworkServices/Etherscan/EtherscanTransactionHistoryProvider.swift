@@ -18,6 +18,7 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
     private let mapper: Mapper
     private let networkProvider: TangemProvider<EtherscanTransactionHistoryTarget>
     private let targetConfiguration: EtherscanTransactionHistoryTarget.Configuration
+    private let calldataLoader: EtherscanCalldataLoader
 
     private var page: TransactionHistoryIndexPage?
     private var hasReachedEnd = false
@@ -27,14 +28,20 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
         networkConfiguration: TangemProviderConfiguration,
         targetConfiguration: EtherscanTransactionHistoryTarget.Configuration
     ) {
-        self.mapper = mapper
-        networkProvider = .init(
+        let networkProvider = TangemProvider<EtherscanTransactionHistoryTarget>(
             configuration: networkConfiguration,
             additionalPlugins: [
                 CachePolicyPlugin(),
             ]
         )
+
+        self.mapper = mapper
+        self.networkProvider = networkProvider
         self.targetConfiguration = targetConfiguration
+        calldataLoader = EtherscanCalldataLoader(
+            networkProvider: networkProvider,
+            targetConfiguration: targetConfiguration
+        )
     }
 
     private func makeTarget(
@@ -104,6 +111,11 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
                         .eraseError()
                 }
                 .switchToLatest()
+                .withWeakCaptureOf(historyProvider)
+                .asyncMap { historyProvider, result in
+                    await historyProvider.calldataLoader.restoringMissingCalldata(in: result)
+                }
+                .receiveOnMain()
                 .withWeakCaptureOf(historyProvider)
                 .tryMap { historyProvider, result in
                     let transactionRecords = try historyProvider

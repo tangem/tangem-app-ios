@@ -19,6 +19,7 @@ struct ForYouCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.stakingCoordinator) {
                 StakingDetailsCoordinatorView(coordinator: $0)
                     .stakingNavigationView()
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.yieldPromoCoordinator) { yieldPromoCoordinator in
                 NavigationStack {
@@ -29,15 +30,24 @@ struct ForYouCoordinatorView: CoordinatorView {
                         )
                     }
                 }
+                .softTopScrollEdgeEffect()
             }
-            .sheet(item: $coordinator.yieldActiveCoordinator, content: YieldModuleActiveCoordinatorView.init)
-            .sheet(item: $coordinator.addFundsCoordinator, content: ActionButtonsBuyCoordinatorView.init)
+            .sheet(item: $coordinator.yieldActiveCoordinator) {
+                YieldModuleActiveCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
+            }
+            .sheet(item: $coordinator.addFundsCoordinator) {
+                ActionButtonsBuyCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
+            }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.tokenSummaryViewModel, onDismiss: coordinator.tokenSummaryDidDismiss) {
                 TokenSummaryView(viewModel: $0)
                     .presentationDetents([.large])
+                    .softTopScrollEdgeEffect()
             }
             .floatingSheetContent(for: ReceiveMainViewModel.self, viewBuilder: ReceiveMainView.init)
     }

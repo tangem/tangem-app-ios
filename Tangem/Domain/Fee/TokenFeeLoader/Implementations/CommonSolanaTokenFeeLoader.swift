@@ -33,4 +33,26 @@ extension CommonSolanaTokenFeeLoader: TokenFeeLoader {
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] {
         try await tokenFeeLoader.getFee(amount: amount, destination: destination)
     }
+
+    func supports(_ input: TokenFeeProviderInputData) -> Bool {
+        switch input {
+        case .common, .cex, .dex(.solana):
+            return true
+        case .dex(.ethereum), .dex(.ethereumEstimate), .dex(.bitcoinPsbt), .dex(.tron), .approve, .approveWithSwap:
+            return false
+        }
+    }
+
+    func loadFees(_ input: TokenFeeProviderInputData, feeBlockchain _: Blockchain) async throws -> [BSDKFee] {
+        switch input {
+        case .common(let amount, let destination):
+            return try await getFee(amount: amount, destination: destination)
+        case .cex(let amount):
+            return try await estimatedFee(amount: amount)
+        case .dex(.solana(let data)):
+            return try await getFee(compiledTransaction: data)
+        case .dex(.ethereum), .dex(.ethereumEstimate), .dex(.bitcoinPsbt), .dex(.tron), .approve, .approveWithSwap:
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+        }
+    }
 }

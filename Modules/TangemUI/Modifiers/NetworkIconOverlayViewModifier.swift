@@ -17,7 +17,7 @@ public extension View {
         imageAsset: ImageType,
         iconSize: CGSize = .init(bothDimensions: 14.0),
         borderWidth: Double = 2.0,
-        borderColor: Color = Colors.Background.primary,
+        borderColor: Color = DesignSystem.Color.bgSecondary,
         isShimmerEnabled: Bool = true
     ) -> some View {
         overlay(alignment: .topTrailing) {

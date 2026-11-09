@@ -37,7 +37,7 @@ enum SendReceiveTokensListNotification: NotificationEvent {
             return .init(
                 iconType: .image(Assets.refreshWarningIcon),
                 renderingMode: .template,
-                color: Colors.Icon.accent
+                color: DesignSystem.Color.iconAccentBlue
             )
         case .irreversibleLossNotification:
             return .init(iconType: .image(Assets.blueCircleWarning))

@@ -15,7 +15,7 @@ struct StepsFlowLoading: View {
     var body: some View {
         if isLoading {
             ZStack {
-                Colors.Overlays.overlayPrimary
+                DesignSystem.Color.overlayModal
                     .ignoresSafeArea()
                 ActivityIndicatorView()
             }

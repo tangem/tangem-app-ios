@@ -24,8 +24,4 @@ enum MCPConnectionDecisionDTO {
             let scope: [String]
         }
     }
-
-    struct Response: Decodable {
-        let success: Bool
-    }
 }

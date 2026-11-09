@@ -17,7 +17,7 @@ struct FeeSelectorCustomFeeRowView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 4) {
                 Text(viewModel.title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
                 if let tooltip = viewModel.tooltip {
                     InfoButtonView(size: .small, tooltipText: tooltip)
@@ -30,7 +30,7 @@ struct FeeSelectorCustomFeeRowView: View {
                     accessibilityIdentifier: viewModel.accessibilityIdentifier
                 )
                 .alignment(.leading)
-                .appearance(.init(font: Fonts.Regular.subheadline, textColor: Colors.Text.primary1))
+                .appearance(.init(font: Fonts.Regular.subheadline, textColor: DesignSystem.Color.textPrimary))
                 .prefixSuffixOptions(.suffix(text: viewModel.suffix, hasSpace: true))
                 .onFocusChanged(viewModel.onFocusChanged)
                 .disabled(!viewModel.isEditable)
@@ -39,7 +39,7 @@ struct FeeSelectorCustomFeeRowView: View {
 
                 if let alternativeAmount = viewModel.alternativeAmount {
                     Text(alternativeAmount)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                         .accessibilityIdentifier(viewModel.alternativeAmountAccessibilityIdentifier)
                 }
             }

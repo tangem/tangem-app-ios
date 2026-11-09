@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemFoundation
+import TangemUI
 
 public struct StoriesHostView: View {
     @ObservedObject var viewModel: StoriesHostViewModel
@@ -20,7 +21,7 @@ public struct StoriesHostView: View {
 
     public var body: some View {
         TabView(selection: $viewModel.visibleStoryIndex) {
-            ForEach(storyViews.indexed(), id: \.0) { index, storyView in
+            ForEach(indexed: storyViews, id: \.0) { index, storyView in
                 ZStack(alignment: .top) {
                     storyView
                         .tag(index)

@@ -86,8 +86,8 @@ extension GroupedScrollView: Setupable {
         } footer: {
             Text("I am footer")
                 .frame(maxWidth: .infinity)
-                .background(Colors.Background.action)
+                .background(DesignSystem.Color.bgSecondary)
         }
     }
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
 }

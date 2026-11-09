@@ -48,7 +48,7 @@ struct YieldModulePromoV2View: View {
                 SwiftUI.Button(Localization.yieldModulePromoScreenHowItWorksButtonTitle) {
                     viewModel.onHowItWorksTap()
                 }
-                .foregroundColor(Colors.Text.primary1)
+                .foregroundColor(DesignSystem.Color.textPrimary)
             }
         }
     }

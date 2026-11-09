@@ -24,9 +24,7 @@ final class PolymarketEventCardModelTests: XCTestCase {
 
         let model = PolymarketEventCard.Model.make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
 
-        let subtitle = model.rows.first?.subtitle ?? ""
-        XCTAssertTrue(subtitle.contains("64"), "Expected the first outcome probability, got \(subtitle)")
-        XCTAssertFalse(subtitle.contains("36"))
+        XCTAssertEqual(model.rows.first?.subtitle, PolymarketPriceFormatter.percentText(0.64))
 
         let outcomes = model.rows.first?.outcomes
         XCTAssertEqual(outcomes?.first?.style, .affirmative)
@@ -93,28 +91,6 @@ final class PolymarketEventCardModelTests: XCTestCase {
         XCTAssertEqual(model.rows.first?.outcomes.map(\.title), ["Yes", "Draw", "Jazz"])
     }
 
-    // MARK: - Live
-
-    func testLiveFollowsTheEvent() {
-        let market = makeMarket(outcomes: [makeOutcome(id: "yes", title: "Yes", probability: 0.5)])
-
-        let live = PolymarketEventCard.Model.make(
-            event: makeEvent(totalMarketsCount: 1, markets: [market], isLive: true),
-            category: nil,
-            isInActivePredicts: false,
-            onSelectOutcome: { _, _ in }
-        )
-        let notLive = PolymarketEventCard.Model.make(
-            event: makeEvent(totalMarketsCount: 1, markets: [market]),
-            category: nil,
-            isInActivePredicts: false,
-            onSelectOutcome: { _, _ in }
-        )
-
-        XCTAssertTrue(live.isLive)
-        XCTAssertFalse(notLive.isLive)
-    }
-
     // MARK: - Row cap and chip
 
     func testRowsCappedAndChipCountedFromRenderedRows() {
@@ -125,6 +101,55 @@ final class PolymarketEventCardModelTests: XCTestCase {
 
         XCTAssertEqual(model.rows.count, 2)
         XCTAssertEqual(model.additionalOutcomesCount, 4)
+    }
+
+    func testThreeWayMatchShowsEveryMoneylineRow() {
+        let markets = ["home", "draw", "away"].map { makeMarket(id: $0, outcomes: [makeOutcome(id: "y-\($0)", title: "Yes", probability: 0.3)]) }
+        let event = makeEvent(totalMarketsCount: 3, markets: markets, teams: makeMatchTeams())
+
+        let model = PolymarketEventCard.Model.make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
+
+        XCTAssertEqual(model.rows.map(\.id), ["home", "draw", "away"])
+        XCTAssertEqual(model.additionalOutcomesCount, 0)
+        XCTAssertEqual(PolymarketEventCard.Model.displayedMarkets(of: event).count, 3)
+    }
+
+    func testThreeWayMatchRowsGoHomeDrawAwayWhateverTheBackendOrder() {
+        let markets = ["Draw (Arsenal vs. Chelsea)", "Chelsea", "Arsenal"].map { title in
+            makeMarket(
+                id: title,
+                outcomes: [
+                    makeOutcome(id: "\(title)-yes", title: "Yes", probability: 0.3),
+                    makeOutcome(id: "\(title)-no", title: "No", probability: 0.7),
+                ]
+            )
+        }
+        let event = makeEvent(totalMarketsCount: 3, markets: markets, teams: makeMatchTeams())
+
+        let model = PolymarketEventCard.Model.make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
+
+        XCTAssertEqual(model.rows.map(\.id), ["Arsenal", "Draw (Arsenal vs. Chelsea)", "Chelsea"])
+        XCTAssertEqual(model.additionalOutcomesCount, 0)
+    }
+
+    func testThreeMarketEventWithoutTeamsKeepsTheChip() {
+        let markets = (0 ..< 3).map { makeMarket(id: "m\($0)", outcomes: [makeOutcome(id: "y\($0)", title: "Yes", probability: 0.5)]) }
+        let event = makeEvent(totalMarketsCount: 3, markets: markets)
+
+        let model = PolymarketEventCard.Model.make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
+
+        XCTAssertEqual(model.rows.count, 2)
+        XCTAssertEqual(model.additionalOutcomesCount, 1)
+    }
+
+    func testMatchWithMoreThanThreeMarketsKeepsTheChip() {
+        let markets = (0 ..< 5).map { makeMarket(id: "m\($0)", outcomes: [makeOutcome(id: "y\($0)", title: "Yes", probability: 0.5)]) }
+        let event = makeEvent(totalMarketsCount: 5, markets: markets, teams: makeMatchTeams())
+
+        let model = PolymarketEventCard.Model.make(event: event, category: nil, isInActivePredicts: false, onSelectOutcome: { _, _ in })
+
+        XCTAssertEqual(model.rows.count, 2)
+        XCTAssertEqual(model.additionalOutcomesCount, 3)
     }
 
     func testPartialMarketListStaysMultiMarket() {
@@ -166,7 +191,14 @@ private extension PolymarketEventCardModelTests {
         )
     }
 
-    func makeEvent(totalMarketsCount: Int, markets: [PolymarketMarket], teams: [PolymarketTeam] = [], isLive: Bool = false) -> PolymarketEvent {
+    func makeMatchTeams() -> [PolymarketTeam] {
+        [
+            PolymarketTeam(name: "Arsenal", abbreviation: "ars", alias: nil, logoURL: nil, side: .home),
+            PolymarketTeam(name: "Chelsea", abbreviation: "che", alias: nil, logoURL: nil, side: .away),
+        ]
+    }
+
+    func makeEvent(totalMarketsCount: Int, markets: [PolymarketMarket], teams: [PolymarketTeam] = []) -> PolymarketEvent {
         PolymarketEvent(
             id: "event",
             slug: "slug",
@@ -176,7 +208,7 @@ private extension PolymarketEventCardModelTests {
             imageURL: nil,
             iconURL: nil,
             status: .active,
-            isLive: isLive,
+            isLive: false,
             startDate: nil,
             endDate: nil,
             volume: 1_000_000,

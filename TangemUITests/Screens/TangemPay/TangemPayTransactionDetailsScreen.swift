@@ -106,6 +106,18 @@ final class TangemPayTransactionDetailsScreen: Screen {
     }
 
     @discardableResult
+    func verifyCashback(_ expectedCashback: String) -> Self {
+        XCTContext.runActivity(named: "Verify transaction cashback '\(expectedCashback)'") { _ in
+            let cashback = app.descendants(matching: .any)
+                .matching(identifier: TangemPayAccessibilityIdentifiers.transactionDetailsCashback)
+                .matching(NSPredicate(format: "label CONTAINS %@", expectedCashback))
+                .firstMatch
+            waitAndAssertTrue(cashback, timeout: .networkRequest, "Details cashback should show '\(expectedCashback)'")
+            return self
+        }
+    }
+
+    @discardableResult
     func verifyStatus(_ expectedStatus: String) -> Self {
         XCTContext.runActivity(named: "Verify transaction status '\(expectedStatus)'") { _ in
             waitAndAssertTrue(status, "Transaction status should be displayed")

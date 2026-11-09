@@ -13,13 +13,30 @@ import TangemUIUtils
 import TangemCollectibles
 import TangemUI
 
-final class CollectiblesWelcomeViewModel: ObservableObject {
+final class CollectiblesWelcomeViewModel: ObservableObject, Identifiable {
     // MARK: - Properties
 
     let signingActionButtonType: SigningActionButtonViewType
 
     private weak var routable: (any CollectiblesWelcomeRoutable)?
     private let onboarder: (any CollectiblesOnboarder)?
+    private let purpose: Purpose
+
+    // [REDACTED_TODO_COMMENT]
+    var title: String {
+        switch purpose {
+        case .accountCreation: Localization.collectiblesWelcomeTitle
+        case .reconnection: "Reconnect Tangem Packs account"
+        }
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    var actionTitle: String {
+        switch purpose {
+        case .accountCreation: Localization.collectiblesWelcomeCreateAccountButton
+        case .reconnection: "Reconnect"
+        }
+    }
 
     // MARK: - Publishers
 
@@ -31,16 +48,18 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
     init(
         routable: (any CollectiblesWelcomeRoutable)?,
         onboarder: (any CollectiblesOnboarder)? = nil,
-        signingActionButtonType: SigningActionButtonViewType
+        signingActionButtonType: SigningActionButtonViewType,
+        purpose: Purpose = .accountCreation
     ) {
         self.routable = routable
         self.onboarder = onboarder
         self.signingActionButtonType = signingActionButtonType
+        self.purpose = purpose
     }
 
     // MARK: - Methods
 
-    func onCreateAccountTap() {
+    func onActionTap() {
         CollectiblesLogger.debug("onboarding: Create Packs account button tapped")
 
         guard !isOnboarding else {
@@ -50,7 +69,7 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
 
         guard let onboarder else {
             CollectiblesLogger.debug("onboarding: the wallet cannot create the account -> Unsupported")
-            alert = Self.creationFailureAlert
+            alert = failureAlert
             return
         }
 
@@ -59,9 +78,8 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
         Task { @MainActor [weak self] in
             do {
                 try await onboarder.onboard()
-                CollectiblesLogger.debug("onboarding: the gacha account is ready to use, opening the stories")
                 self?.isOnboarding = false
-                self?.routable?.openStories()
+                self?.finishOnboarding()
             } catch {
                 self?.isOnboarding = false
 
@@ -74,7 +92,7 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
                 // reaches the production log without the base58 account keys its `logs` payload
                 // carries alongside it
                 CollectiblesLogger.debug("onboarding: account creation failed: \(error)")
-                self?.alert = Self.creationFailureAlert
+                self?.alert = self?.failureAlert
             }
         }
     }
@@ -86,6 +104,29 @@ final class CollectiblesWelcomeViewModel: ObservableObject {
     }
 }
 
+// MARK: - Private logic
+
+private extension CollectiblesWelcomeViewModel {
+    var failureAlert: AlertBinder {
+        switch purpose {
+        case .accountCreation: Self.creationFailureAlert
+        case .reconnection: Self.reconnectionFailureAlert
+        }
+    }
+
+    @MainActor
+    func finishOnboarding() {
+        switch purpose {
+        case .accountCreation:
+            CollectiblesLogger.debug("onboarding: the gacha account is ready to use, opening the stories")
+            routable?.openStories()
+        case .reconnection:
+            CollectiblesLogger.debug("onboarding: the gacha account is reconnected, closing the screen")
+            routable?.closeReconnection()
+        }
+    }
+}
+
 // MARK: - Alerts
 
 private extension CollectiblesWelcomeViewModel {
@@ -93,4 +134,18 @@ private extension CollectiblesWelcomeViewModel {
         title: Localization.commonSomethingWentWrong,
         message: Localization.collectiblesWelcomeCreationFailedMessage
     )
+
+    static let reconnectionFailureAlert = AlertBinder(
+        title: Localization.commonSomethingWentWrong,
+        message: Localization.accountGenericErrorDialogMessage
+    )
+}
+
+// MARK: - Auxiliary types
+
+extension CollectiblesWelcomeViewModel {
+    enum Purpose {
+        case accountCreation
+        case reconnection
+    }
 }

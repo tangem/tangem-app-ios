@@ -55,7 +55,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     func buttonFollowsBalance(balance: TokenBalanceType, expected: SUT.ButtonState) async {
         let (sut, _) = makeSUT(balance: balance)
 
-        await waitUntil { sut.buttonState == expected }
+        await drainMainQueue()
 
         #expect(sut.buttonState == expected)
     }
@@ -88,7 +88,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         await waitUntil { sut.buttonState == state }
 
         sut.retryBalance()
-        await waitUntil { doubles.balanceRefresher.callsCount == refreshes }
+        await drainMainQueue()
 
         let expectedState: SUT.ButtonState = refreshes > 0 ? .balanceLoading : state
         #expect(doubles.balanceRefresher.callsCount == refreshes)
@@ -100,7 +100,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Approve does nothing while the button is not approvable", arguments: Self.notApprovableArguments)
     func approveIgnoredWhenNotApprovable(balance: TokenBalanceType, state: SUT.ButtonState) async {
         let (sut, doubles) = makeSUT(balance: balance)
-        await waitUntil { sut.buttonState == state }
+        await drainMainQueue()
 
         sut.approve()
 
@@ -226,10 +226,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
 
     // MARK: - Auto buyback
 
-    @Test(
-        "An auto buyback shows the buyback complete sheet with the sold amount instead of the reveal",
-        .enabled(if: Self.isSystemSheetAvailable)
-    )
+    @Test("An auto buyback shows the buyback complete sheet with the sold amount instead of the reveal")
     func autoBuybackShowsSheet() async {
         let (sut, doubles) = makeSUT(results: [.success(.autoSold(amount: Constants.buybackAmount))])
         await waitUntil { sut.buttonState == .approve }
@@ -237,16 +234,13 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         await approve(sut, in: doubles)
 
         let soldAmount = CollectiblesPriceFormatter.formatAmount(Constants.buybackAmount, ticker: Self.ticker)
-        #expect(sut.buybackCompleteSheetViewModel.isPresented)
-        #expect(sut.buybackCompleteSheetViewModel.model.message.contains(soldAmount))
+        let price = CollectiblesPriceFormatter.formatAmount(Constants.price, ticker: Self.ticker)
+        #expect(sut.sheet == .buybackComplete(amount: soldAmount, price: price))
         #expect(sut.revealViewModel == nil)
         #expect(sut.buttonState == .approve)
     }
 
-    @Test(
-        "Open again from the buyback complete sheet buys another pack once the sheet is dismissed",
-        .enabled(if: Self.isSystemSheetAvailable)
-    )
+    @Test("Open again from the buyback complete sheet buys another pack once the sheet is dismissed")
     func buybackCompleteOpensAgain() async {
         let results: [Result<CollectiblesPackPurchaseResult, any Error>] = [
             .success(.autoSold(amount: nil)),
@@ -256,29 +250,26 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         await waitUntil { sut.buttonState == .approve }
         await approve(sut, in: doubles)
 
-        sut.buybackCompleteSheetViewModel.primary()
+        sut.openAgain()
         #expect(doubles.interactor.purchases.count == 1)
 
-        sut.buybackCompleteSheetViewModel.didDismiss()
+        sut.sheetDidDismiss()
         await waitUntil { doubles.balanceRefresher.callsCount == 2 }
 
         #expect(doubles.interactor.purchases.count == 2)
         #expect(doubles.routable.revealCards.count == 1)
     }
 
-    @Test(
-        "Explore packs from the buyback complete sheet leaves the flow once the sheet is dismissed",
-        .enabled(if: Self.isSystemSheetAvailable)
-    )
+    @Test("Explore packs from the buyback complete sheet leaves the flow once the sheet is dismissed")
     func buybackCompleteExplorePacksLeavesFlow() async {
         let (sut, doubles) = makeSUT(results: [.success(.autoSold(amount: nil))])
         await waitUntil { sut.buttonState == .approve }
         await approve(sut, in: doubles)
 
-        sut.buybackCompleteSheetViewModel.secondary()
+        sut.explorePacks()
         #expect(doubles.routable.closePackFlowCallsCount == 0)
 
-        sut.buybackCompleteSheetViewModel.didDismiss()
+        sut.sheetDidDismiss()
 
         #expect(doubles.routable.closePackFlowCallsCount == 1)
         #expect(doubles.interactor.purchases.count == 1)
@@ -286,33 +277,29 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
 
     // MARK: - Failures
 
-    @Test("Low inventory shows its sheet and leaves the order approvable", .enabled(if: Self.isSystemSheetAvailable))
+    @Test("Low inventory shows its sheet and leaves the order approvable")
     func lowInventoryShowsSheet() async {
         let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.lowInventory)])
         await waitUntil { sut.buttonState == .approve }
 
         await approve(sut, in: doubles)
 
-        #expect(sut.lowInventorySheetViewModel.isPresented)
+        #expect(sut.sheet == .lowInventory)
         #expect(sut.errorMessage == nil)
         #expect(sut.buttonState == .approve)
     }
 
-    @Test(
-        "The low inventory buttons route once the sheet is dismissed",
-        .enabled(if: Self.isSystemSheetAvailable),
-        arguments: SheetButton.allCases
-    )
+    @Test("The low inventory buttons route once the sheet is dismissed", arguments: SheetButton.allCases)
     func lowInventoryRoutes(button: SheetButton) async {
         let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.lowInventory)])
         await waitUntil { sut.buttonState == .approve }
         await approve(sut, in: doubles)
 
-        tap(button, on: sut.lowInventorySheetViewModel)
+        tap(button, on: sut)
         #expect(doubles.routable.closePackFlowCallsCount == 0)
         #expect(doubles.routable.returnToMachineCallsCount == 0)
 
-        sut.lowInventorySheetViewModel.didDismiss()
+        sut.sheetDidDismiss()
 
         let expectedCloseCalls = button == .primary ? 1 : 0
         let expectedReturnCalls = button == .secondary ? 1 : 0
@@ -320,25 +307,54 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         #expect(doubles.routable.returnToMachineCallsCount == expectedReturnCalls)
     }
 
-    @Test(
-        "An unopened pack shows its sheet and Open pack continues the same order",
-        .enabled(if: Self.isSystemSheetAvailable),
-        arguments: Self.unopenedErrors
-    )
+    @Test("A second tap while the sheet is dismissing is ignored")
+    func secondTapWhileDismissingIsIgnored() async {
+        let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.lowInventory)])
+        await waitUntil { sut.buttonState == .approve }
+        await approve(sut, in: doubles)
+
+        sut.explorePacks()
+        sut.enableTurboMode()
+        sut.sheetDidDismiss()
+
+        #expect(doubles.routable.closePackFlowCallsCount == 1)
+        #expect(doubles.routable.returnToMachineCallsCount == 0)
+    }
+
+    @Test("An unopened pack shows its sheet and Open pack continues the same order", arguments: Self.unopenedErrors)
     func unopenedPackSheetRetries(error: CollectiblesPackPurchaseError) async {
         let (sut, doubles) = makeSUT(results: [.failure(error), .success(.wonCard(Self.wonCard))])
         await waitUntil { sut.buttonState == .approve }
         await approve(sut, in: doubles)
 
-        #expect(sut.packUnopenedSheetViewModel.isPresented)
+        #expect(sut.sheet == .packUnopened)
         #expect(sut.errorMessage == nil)
 
-        sut.packUnopenedSheetViewModel.primary()
+        sut.openUnopenedPack()
         await waitUntil { doubles.balanceRefresher.callsCount == 2 }
 
-        #expect(!sut.packUnopenedSheetViewModel.isPresented)
+        #expect(sut.sheet == nil)
         #expect(doubles.interactor.purchases.count == 2)
         #expect(doubles.routable.revealCards.count == 1)
+    }
+
+    @Test("A sheet that arrives while the previous one is still closing shows up after the dismissal")
+    func sheetArrivingWhileDismissingIsQueued() async {
+        let results: [Result<CollectiblesPackPurchaseResult, any Error>] = [
+            .failure(CollectiblesPackPurchaseError.packUnopened),
+            .failure(CollectiblesPackPurchaseError.packUnopened),
+        ]
+        let (sut, doubles) = makeSUT(results: results)
+        await waitUntil { sut.buttonState == .approve }
+        await approve(sut, in: doubles)
+
+        sut.openUnopenedPack()
+        await waitUntil { doubles.balanceRefresher.callsCount == 2 }
+        #expect(sut.sheet == nil)
+
+        sut.sheetDidDismiss()
+
+        #expect(sut.sheet == .packUnopened)
     }
 
     @Test("Other failures show the generic message and restore the button", arguments: Self.genericFailures)
@@ -448,10 +464,6 @@ extension CollectiblesConfirmOrderViewModelTests {
         case primary
         case secondary
     }
-
-    nonisolated static let isSystemSheetAvailable = ProcessInfo.processInfo.isOperatingSystemAtLeast(
-        OperatingSystemVersion(majorVersion: 26, minorVersion: 0, patchVersion: 0)
-    )
 
     nonisolated static let balanceArguments: [(balance: TokenBalanceType, expected: SUT.ButtonState)] = [
         (balance: .loaded(Constants.total), expected: .approve),
@@ -602,7 +614,7 @@ private extension CollectiblesConfirmOrderViewModelTests {
             routable: doubles.routable,
             revealAssetsPreloader: doubles.preloader,
             delayProvider: doubles.delayProvider,
-            refreshBalance: { [balanceRefresher = doubles.balanceRefresher] in balanceRefresher.refresh() }
+            refreshBalance: { @MainActor [balanceRefresher = doubles.balanceRefresher] in balanceRefresher.refresh() }
         )
         return (trackForMemoryLeaks(sut), doubles)
     }
@@ -621,25 +633,16 @@ private extension CollectiblesConfirmOrderViewModelTests {
         return sut.errorMessage
     }
 
-    func tap(_ button: SheetButton, on sheet: CollectiblesInfoSheetViewModel) {
+    func tap(_ button: SheetButton, on sut: SUT) {
         switch button {
-        case .primary: sheet.primary()
-        case .secondary: sheet.secondary()
+        case .primary: sut.explorePacks()
+        case .secondary: sut.enableTurboMode()
         }
     }
 
-    func waitUntil(timeout: Duration = .seconds(5), _ condition: @escaping @MainActor () -> Bool) async {
-        let deadline = ContinuousClock.now + timeout
-        while !condition() {
-            if ContinuousClock.now >= deadline {
-                Issue.record("waitUntil timed out")
-                return
-            }
-            do {
-                try await Task.sleep(for: .milliseconds(10))
-            } catch {
-                return
-            }
+    func drainMainQueue() async {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async { continuation.resume() }
         }
     }
 }

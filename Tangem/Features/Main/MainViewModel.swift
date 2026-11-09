@@ -46,7 +46,15 @@ final class MainViewModel: ObservableObject {
 
     /// The root of the main screen is what the user sees: set by the view controller's appearance, cleared by
     /// the view's disappearance, which a push brings and a sheet doesn't.
-    private(set) var isRootVisible = false
+    private(set) var isRootVisible = false {
+        didSet { isRootVisibleSubject.send(isRootVisible) }
+    }
+
+    var isRootVisiblePublisher: AnyPublisher<Bool, Never> {
+        isRootVisibleSubject.removeDuplicates().eraseToAnyPublisher()
+    }
+
+    private let isRootVisibleSubject = CurrentValueSubject<Bool, Never>(false)
     private var didLogMainScreenOpenedAnalytics = false
 
     private var refreshTasks: [UserWalletId: Task<Void, Never>] = [:]

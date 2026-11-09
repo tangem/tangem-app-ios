@@ -53,10 +53,10 @@ struct ResetToFactoryView: View {
     private var mainInformationView: some View {
         VStack(alignment: .center, spacing: 14) {
             Text(Localization.commonAttention)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
 
             Text(viewModel.message)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 46)
@@ -83,7 +83,7 @@ struct ResetToFactoryView: View {
                     .padding(.top, 2)
 
                 Text(warning.type.title)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
                     .lineLimit(nil)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
@@ -125,11 +125,11 @@ private extension ResetToFactoryView {
             ZStack(alignment: .center) {
                 if isSelected {
                     Circle()
-                        .fill(Colors.Icon.primary1)
+                        .fill(DesignSystem.Color.iconPrimary)
                         .frame(width: 22, height: 22)
                 } else {
                     Circle()
-                        .strokeBorder(Colors.Icon.inactive, lineWidth: 2)
+                        .strokeBorder(DesignSystem.Color.iconTertiary, lineWidth: 2)
                         .frame(width: 22, height: 22)
                 }
 
@@ -138,7 +138,7 @@ private extension ResetToFactoryView {
                         .resizable()
                         .renderingMode(.template)
                         .frame(width: 10, height: 10)
-                        .foregroundColor(Colors.Icon.primary2)
+                        .foregroundColor(DesignSystem.Color.iconInverse)
                 }
             }
             .animation(.none, value: isSelected)

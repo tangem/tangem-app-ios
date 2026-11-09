@@ -217,6 +217,13 @@ extension SendWithSwapModel: SendDestinationInput {
     var additionalFieldPublisher: AnyPublisher<SendDestinationAdditionalField, Never> {
         transferModel.additionalFieldPublisher
     }
+
+    var destinationTokenItemPublisher: AnyPublisher<TokenItem, Never> {
+        receiveTokenPublisher
+            .withWeakCaptureOf(self)
+            .map { model, receiveToken in receiveToken.value?.tokenItem ?? model.initialSourceToken.tokenItem }
+            .eraseToAnyPublisher()
+    }
 }
 
 // MARK: - SendDestinationOutput

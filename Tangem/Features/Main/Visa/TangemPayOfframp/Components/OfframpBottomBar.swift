@@ -35,6 +35,7 @@ struct OfframpBottomBarViewModifier<BarContent: View>: ViewModifier {
         if #available(iOS 26.0, *) {
             content
                 .safeAreaBar(edge: .bottom, spacing: .zero) { pinnedBar { bar } }
+                .scrollEdgeEffectStyle(.soft, for: .bottom)
                 .keyboardHeight(bindTo: $keyboardHeight)
         } else {
             content

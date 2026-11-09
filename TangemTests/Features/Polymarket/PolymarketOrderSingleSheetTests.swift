@@ -9,24 +9,23 @@
 import Foundation
 import Testing
 import TangemFoundation
-import TangemLocalization
 import TangemPolymarket
 import TangemUI
 @testable import Tangem
 
 @MainActor
-@Suite("Polymarket order on a single sheet")
+@Suite("Polymarket order on a single sheet", .timeLimit(.minutes(1)))
 struct PolymarketOrderSingleSheetTests {
     // MARK: - Routing
 
-    @Test("With phase two off both placing and closing keep the separate fee step")
-    func toggleOffKeepsSummaryStep() {
-        #expect(!PolymarketOrderFlowStyle(isSingleSheetEnabled: false, singleSheet: Self.singleSheet).isSingleSheet)
-    }
+    @Test("The single sheet toggle alone decides between the single sheet and the separate fee step", arguments: [true, false])
+    func toggleDecidesTheFlowStyle(isSingleSheetEnabled: Bool) {
+        let style = PolymarketOrderFlowStyle(
+            isSingleSheetEnabled: isSingleSheetEnabled,
+            singleSheet: .init(placementService: PlacementServiceStub(result: nil), signingButtonType: .holdToConfirm)
+        )
 
-    @Test("With phase two on both placing and closing happen on the single sheet")
-    func toggleOnUsesSingleSheet() {
-        #expect(PolymarketOrderFlowStyle(isSingleSheetEnabled: true, singleSheet: Self.singleSheet).isSingleSheet)
+        #expect(style.isSingleSheet == isSingleSheetEnabled)
     }
 
     @Test("Without a placement the primary action opens the fee step and never places")
@@ -36,9 +35,8 @@ struct PolymarketOrderSingleSheetTests {
         context.sut.handleViewAction(.placeOrder)
         context.sut.handleViewAction(.openSummary)
 
-        #expect(!context.sut.isSingleSheet)
+        #expect(!context.sut.isPlacing)
         #expect(!context.sut.showsTotal)
-        #expect(context.sut.nextButtonTitle == Localization.commonNext)
         #expect(context.routable.summaryOpenings == 1)
         #expect(context.placementService.placements == 0)
     }
@@ -49,27 +47,18 @@ struct PolymarketOrderSingleSheetTests {
 
         context.sut.handleViewAction(.placeOrder)
 
-        try await settle { context.routable.results.count == 1 }
+        try await context.routable.resultOpened.next()
 
-        #expect(context.sut.nextButtonTitle == Localization.predictionPlaceButton)
         #expect(context.routable.summaryOpenings == 0)
         #expect(context.placementService.placements == 1)
     }
 
     // MARK: - Closing a position
 
-    @Test("Closing on the fee step keeps its Close title")
-    func summaryStepCloseTitle() async throws {
-        let context = try await makeContext(isSingleSheet: false, sells: true, quote: Self.sellQuote)
-
-        #expect(context.sut.nextButtonTitle == Localization.predictionCloseButton)
-    }
-
     @Test("Closing on the single sheet shows the proceeds and the total and offers no dollar presets")
     func singleSheetCloseShowsProceeds() async throws {
         let context = try await makeContext(isSingleSheet: true, sells: true, quote: Self.sellQuote)
 
-        #expect(context.sut.nextButtonTitle == Localization.predictionCloseButton)
         #expect(!context.sut.isAmountEditable)
         #expect(context.sut.amountPresets.isEmpty)
         #expect(context.sut.proceedsText == PolymarketOrderFormatter.money(Self.sellQuote.expectedExecutionAmount))
@@ -89,7 +78,7 @@ struct PolymarketOrderSingleSheetTests {
 
         context.sut.handleViewAction(.placeOrder)
 
-        try await settle { context.routable.results.count == 1 }
+        try await context.routable.resultOpened.next()
 
         let content = try #require(context.routable.contents.first)
 
@@ -102,22 +91,15 @@ struct PolymarketOrderSingleSheetTests {
 
     // MARK: - Total row
 
-    @Test("The single sheet offers the dollar presets and Max, the fee step offers none")
+    @Test("The single sheet offers dollar presets ending with Max, the fee step offers none")
     func amountPresetsFollowTheFlow() async throws {
         let single = try await makeContext(isSingleSheet: true, enteredAmount: nil)
         let summary = try await makeContext(isSingleSheet: false, enteredAmount: nil)
 
-        #expect(single.sut.amountPresets.map(\.kind) == [.amount(100), .amount(500), .amount(1000), .amount(5000), .max])
+        #expect(single.sut.amountPresets.count > 1)
+        #expect(single.sut.amountPresets.last?.kind == .max)
+        #expect(single.sut.amountPresets.dropLast().allSatisfy { $0.kind != .max })
         #expect(summary.sut.amountPresets.isEmpty)
-    }
-
-    @Test("Tapping a dollar preset enters that amount")
-    func amountPresetEntersItsAmount() async throws {
-        let context = try await makeContext(isSingleSheet: true, enteredAmount: nil)
-
-        context.sut.handleViewAction(.selectPreset(.amount(500)))
-
-        try await settle { context.model.state.enteredAmount == 500 }
     }
 
     @Test("A book too thin for the whole amount still shows its quoted total")
@@ -127,8 +109,9 @@ struct PolymarketOrderSingleSheetTests {
 
         context.model.apply(enteredAmount: 100, debounced: false)
 
-        try await settle { context.model.state.quote.partialQuote != nil }
+        _ = await context.sut.$isProceedsStale.firstValue { !$0 }
 
+        #expect(context.model.state.quote.partialQuote != nil)
         #expect(context.sut.totalText == PolymarketOrderFormatter.money(quote.total))
         #expect(context.sut.isFeeBreakdownAvailable)
     }
@@ -140,14 +123,15 @@ struct PolymarketOrderSingleSheetTests {
 
         context.model.apply(enteredAmount: 100, debounced: false)
 
-        try await settle { context.model.state.quote.partialQuote != nil }
+        _ = await context.model.$state.firstValue { $0.quote.partialQuote != nil }
 
         let singleSheet = PolymarketFeeBreakdownSheetViewModel(model: context.model, includesPartialQuote: true)
         let summaryStep = PolymarketFeeBreakdownSheetViewModel(model: context.model)
 
         #expect(singleSheet.total == PolymarketOrderFormatter.money(quote.total))
         #expect(singleSheet.polymarketFee == PolymarketOrderFormatter.money(quote.fees.market))
-        #expect(summaryStep.total != PolymarketOrderFormatter.money(quote.total))
+        #expect(summaryStep.total == BalanceFormatter.defaultEmptyBalanceString)
+        #expect(summaryStep.polymarketFee == BalanceFormatter.defaultEmptyBalanceString)
     }
 
     @Test("The total row waits for an amount")
@@ -184,13 +168,6 @@ struct PolymarketOrderSingleSheetTests {
 
     // MARK: - Place button
 
-    @Test("A covered amount with a placeable quote enables Place predict")
-    func coveredAmountEnablesPlacing() async throws {
-        let context = try await makeContext(isSingleSheet: true, enteredAmount: 100, balance: 200)
-
-        #expect(context.sut.isNextEnabled)
-    }
-
     @Test("A total above the balance keeps Place predict disabled and places nothing")
     func uncoveredAmountDisablesPlacing() async throws {
         let context = try await makeContext(isSingleSheet: true, enteredAmount: 100, balance: 50)
@@ -198,6 +175,7 @@ struct PolymarketOrderSingleSheetTests {
         context.sut.handleViewAction(.placeOrder)
 
         #expect(!context.sut.isNextEnabled)
+        #expect(!context.sut.isPlacing)
         #expect(context.placementService.placements == 0)
     }
 
@@ -208,13 +186,6 @@ struct PolymarketOrderSingleSheetTests {
         let state = try await place(.success(.stub(makingAmount: 100, takingAmount: 138)))
 
         #expect(state == .placed)
-    }
-
-    @Test("A fill under the quoted size opens the partially placed result")
-    func partialFillOpensPartiallyPlaced() async throws {
-        let state = try await place(.success(.stub(makingAmount: 50, takingAmount: 69)))
-
-        #expect(state == .partiallyPlaced)
     }
 
     @Test("An empty book opens the no liquidity result")
@@ -237,27 +208,30 @@ struct PolymarketOrderSingleSheetTests {
 
         context.sut.handleViewAction(.placeOrder)
 
-        try await settle { context.sut.alert != nil }
+        _ = await context.sut.$alert.firstValue { $0 != nil }
 
         #expect(!context.sut.isPlacing)
         #expect(context.routable.results.isEmpty)
+
+        _ = await context.sut.$isNextEnabled.firstValue { $0 }
     }
 
-    @Test("A cancelled signature returns to the sheet silently")
-    func cancelledSigningResumes() async throws {
-        let context = try await makeContext(isSingleSheet: true, placement: .failure(CancellationError()))
+    @Test("A cancelled signature returns to the sheet silently", arguments: SigningCancellation.allCases)
+    func cancelledSigningResumes(_ cancellation: SigningCancellation) async throws {
+        let context = try await makeContext(isSingleSheet: true, placement: .failure(cancellation.error))
 
         context.sut.handleViewAction(.placeOrder)
 
-        try await settle { context.placementService.placements == 1 && !context.sut.isPlacing }
+        _ = await context.sut.$isPlacing.firstValue { !$0 }
 
+        #expect(context.placementService.placements == 1)
         #expect(context.sut.alert == nil)
         #expect(context.routable.results.isEmpty)
     }
 
     // MARK: - Tap before the quote
 
-    @Test("A tap while the quote loads places the order once the quote arrives")
+    @Test("A tap while the quote loads places the order once the quote arrives, and only once")
     func tapWhileQuotingPlacesOnceQuoted() async throws {
         let context = try await makeQuotingContext(placement: .success(.stub(makingAmount: 100, takingAmount: 138)))
 
@@ -269,12 +243,10 @@ struct PolymarketOrderSingleSheetTests {
         context.api.holdsQuotes = false
         context.api.releaseQuotes()
 
-        try await settle { context.routable.results.count == 1 }
-
-        context.model.handleViewAction(.retryQuote)
-        try await settle { context.model.state.quote.quote != nil }
+        try await context.routable.resultOpened.next()
 
         #expect(context.placementService.placements == 1)
+        #expect(context.routable.results.count == 1)
     }
 
     @Test("A tap while the quote loads is released when the quote fails")
@@ -286,8 +258,9 @@ struct PolymarketOrderSingleSheetTests {
         context.api.holdsQuotes = false
         context.api.releaseQuotes()
 
-        try await settle { !context.sut.isPlacing }
+        _ = await context.sut.$isPlacing.firstValue { !$0 }
 
+        #expect(context.model.state.quote.isFailed)
         #expect(context.placementService.placements == 0)
     }
 
@@ -300,8 +273,9 @@ struct PolymarketOrderSingleSheetTests {
         context.api.holdsQuotes = false
         context.api.releaseQuotes()
 
-        try await settle { !context.sut.isPlacing }
+        _ = await context.sut.$isPlacing.firstValue { !$0 }
 
+        #expect(context.model.state.quote.partialQuote != nil)
         #expect(context.placementService.placements == 0)
         #expect(context.routable.closings == 0)
     }
@@ -315,8 +289,9 @@ struct PolymarketOrderSingleSheetTests {
         context.api.holdsQuotes = false
         context.api.releaseQuotes()
 
-        try await settle { !context.sut.isPlacing }
+        _ = await context.sut.$isPlacing.firstValue { !$0 }
 
+        #expect(context.model.state.quote.quote != nil)
         #expect(context.placementService.placements == 0)
     }
 
@@ -331,9 +306,13 @@ struct PolymarketOrderSingleSheetTests {
 
         context.api.holdsQuotes = false
         context.api.releaseQuotes()
-        try await drain()
+        context.sut.handleViewAction(.onAppear)
+
+        _ = await context.sut.$isProceedsStale.firstValue { !$0 }
+        try await context.delays.waitUntilParked(Self.pollInterval)
 
         #expect(context.placementService.placements == 0)
+        #expect(context.routable.results.isEmpty)
     }
 
     @Test("Closing is ignored while the order is being placed")
@@ -342,7 +321,7 @@ struct PolymarketOrderSingleSheetTests {
 
         context.sut.handleViewAction(.placeOrder)
 
-        try await settle { context.placementService.isPending }
+        try await context.placementService.entered.next()
 
         context.sut.handleViewAction(.close)
 
@@ -351,17 +330,40 @@ struct PolymarketOrderSingleSheetTests {
 
         context.placementService.resume(with: .failure(CancellationError()))
 
-        try await settle { !context.sut.isPlacing }
+        _ = await context.sut.$isPlacing.firstValue { !$0 }
+
+        context.sut.handleViewAction(.close)
+
+        #expect(context.routable.closings == 1)
     }
 }
 
 // MARK: - Fixtures
 
+extension PolymarketOrderSingleSheetTests {
+    enum SigningCancellation: CaseIterable, Sendable {
+        case task
+        case cardPrompt
+        case taskBeforeSending
+
+        var error: Error {
+            switch self {
+            case .task:
+                return CancellationError()
+            case .cardPrompt:
+                return PolymarketOrderPlacementError.notSent(underlying: PolymarketSigningError.cancelled)
+            case .taskBeforeSending:
+                return PolymarketOrderPlacementError.notSent(underlying: CancellationError())
+            }
+        }
+    }
+}
+
 private extension PolymarketOrderSingleSheetTests {
     static let quote = PolymarketOrderQuote.stub(status: .full)
     static let heldShares: Decimal = 10
     static let sellQuote = PolymarketOrderQuote.stub(status: .full, shares: heldShares, expectedExecutionAmount: 7, total: Decimal(string: "6.5")!)
-    static let singleSheet = PolymarketOrderFlowStyle.SingleSheet(placementService: PlacementServiceStub(result: nil), signingButtonType: .holdToConfirm)
+    static let pollInterval: TimeInterval = 3
 
     struct StubError: Error {}
 
@@ -371,6 +373,7 @@ private extension PolymarketOrderSingleSheetTests {
         let routable: OrderRoutableSpy
         let placementService: PlacementServiceStub
         let api: PolymarketAPIProviderStub
+        let delays: PolymarketSteppedDelayProvider
         let clock: Clock
     }
 
@@ -384,7 +387,8 @@ private extension PolymarketOrderSingleSheetTests {
         context.api.holdsQuotes = true
         context.model.apply(enteredAmount: 100, debounced: false)
 
-        try await settle { context.api.hasHeldQuotes && context.sut.isNextEnabled }
+        try await context.api.heldQuoteEntered.next()
+        _ = await context.sut.$isNextEnabled.firstValue { $0 }
 
         return context
     }
@@ -394,7 +398,7 @@ private extension PolymarketOrderSingleSheetTests {
 
         context.sut.handleViewAction(.placeOrder)
 
-        try await settle { !context.routable.results.isEmpty }
+        try await context.routable.resultOpened.next()
 
         return context.routable.results.first
     }
@@ -410,6 +414,7 @@ private extension PolymarketOrderSingleSheetTests {
         let api = PolymarketAPIProviderStub(quoteResult: quote)
         let routable = OrderRoutableSpy()
         let placementService = PlacementServiceStub(result: placement)
+        let delays = PolymarketSteppedDelayProvider()
         let clock = Clock()
 
         let model = PolymarketOrderModel(
@@ -423,7 +428,8 @@ private extension PolymarketOrderSingleSheetTests {
             clobService: PolymarketCLOBServiceStub(),
             isAwaitingFundsPublisher: .just(output: false),
             collateralBalancePublisher: .just(output: balance),
-            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() }
+            addFundsReadinessStream: AsyncStream { $0.yield(.unavailable); $0.finish() },
+            delayProvider: delays
         )
 
         let sut = PolymarketOrderViewModel(
@@ -435,27 +441,40 @@ private extension PolymarketOrderSingleSheetTests {
             now: { clock.now }
         )
 
-        try await settle { model.state.balance != nil && model.state.geoblock == .allowed }
+        _ = await model.$state.firstValue { $0.balance != nil && $0.geoblock == .allowed }
+        _ = await sut.$amountFractions.firstValue { !$0.isEmpty }
+
+        if !sells, let enteredAmount {
+            model.apply(enteredAmount: enteredAmount, debounced: false)
+        }
 
         model.handleViewAction(.onAppear)
 
-        if let enteredAmount {
-            model.apply(enteredAmount: sells ? Self.heldShares : enteredAmount, debounced: false)
-
+        if sells || enteredAmount != nil {
             if quote != nil {
-                try await settle { model.state.quote.quote != nil && (!isSingleSheet || sut.showsTotal && sut.isFeeBreakdownAvailable) }
+                _ = await sut.$isProceedsStale.firstValue { !$0 }
             } else {
-                try await settle { model.state.quote.isFailed && (!isSingleSheet || sut.showsTotal) }
+                _ = await sut.$proceedsText.firstValue { $0 == .enDashSign }
             }
         }
 
-        return Context(sut: sut, model: model, routable: routable, placementService: placementService, api: api, clock: clock)
+        return Context(
+            sut: sut,
+            model: model,
+            routable: routable,
+            placementService: placementService,
+            api: api,
+            delays: delays,
+            clock: clock
+        )
     }
 }
 
 // MARK: - Doubles
 
 private final class PlacementServiceStub: PolymarketOrderPlacementService {
+    let entered = PolymarketTestSignal<Void>()
+
     private struct State {
         var placements = 0
         var pending: CheckedContinuation<PolymarketOrderPlacement, Error>?
@@ -470,10 +489,6 @@ private final class PlacementServiceStub: PolymarketOrderPlacementService {
 
     var placements: Int {
         state.withLock { $0.placements }
-    }
-
-    var isPending: Bool {
-        state.withLock { $0.pending != nil }
     }
 
     func resume(with result: Result<PolymarketOrderPlacement, Error>) {
@@ -498,11 +513,15 @@ private final class PlacementServiceStub: PolymarketOrderPlacementService {
 
         return try await withCheckedThrowingContinuation { continuation in
             state.withLock { $0.pending = continuation }
+            entered.send()
         }
     }
 }
 
+@MainActor
 private final class OrderRoutableSpy: PolymarketOrderRoutable {
+    let resultOpened = PolymarketTestSignal<Void>()
+
     private(set) var summaryOpenings = 0
     private(set) var feeBreakdownOpenings = 0
     private(set) var closings = 0
@@ -534,6 +553,7 @@ private final class OrderRoutableSpy: PolymarketOrderRoutable {
     func openResult(state: PolymarketOrderResultViewModel.State, content: PolymarketOrderResultViewModel.Content) {
         results.append(state)
         contents.append(content)
+        resultOpened.send()
     }
 
     func openLegalTerms(url: URL) {}

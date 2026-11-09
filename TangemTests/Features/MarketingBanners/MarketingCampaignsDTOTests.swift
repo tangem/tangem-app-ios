@@ -166,6 +166,48 @@ struct MarketingCampaignsDTOTests {
         #expect(raw == "brand_new_type")
     }
 
+    @Test("Call-to-action banner types decode with their text fields and glow")
+    func decodesCallToActionBannerFields() throws {
+        let json = """
+        {
+          "uiType": "pseudo_provider",
+          "text": "Personal manager",
+          "dismissible": false,
+          "categoryLabel": "Concierge for large purchases",
+          "subtitle": "Pay by bank transfer",
+          "etaLabel": "up to 4 hours",
+          "partnerLabel": "via Tangem",
+          "buttonText": "Request",
+          "glow": true
+        }
+        """
+
+        let banner = try JSONDecoder().decode(MarketingCampaignsDTO.Banner.self, from: Data(json.utf8))
+
+        guard case .pseudoProvider = banner.uiType else {
+            Issue.record("Expected pseudoProvider uiType")
+            return
+        }
+        #expect(banner.categoryLabel == "Concierge for large purchases")
+        #expect(banner.subtitle == "Pay by bank transfer")
+        #expect(banner.etaLabel == "up to 4 hours")
+        #expect(banner.partnerLabel == "via Tangem")
+        #expect(banner.buttonText == "Request")
+        #expect(banner.glow == true)
+
+        let ctaJSON = """
+        { "uiType": "standalone_cta", "text": "X", "dismissible": false }
+        """
+        let ctaBanner = try JSONDecoder().decode(MarketingCampaignsDTO.Banner.self, from: Data(ctaJSON.utf8))
+
+        guard case .standaloneCTA = ctaBanner.uiType else {
+            Issue.record("Expected standaloneCTA uiType")
+            return
+        }
+        #expect(ctaBanner.buttonText == nil)
+        #expect(ctaBanner.glow == nil)
+    }
+
     @Test("Campaign dates decode with the production date strategy")
     func decodesCampaignDates() throws {
         let json = """
@@ -193,12 +235,14 @@ struct MarketingCampaignsDTOTests {
 
     @Test(
         "Campaign survives the encode-decode roundtrip used by the disk cache",
-        arguments: ["standalone", "linked_to_provider", "brand_new_type"]
+        arguments: ["standalone", "linked_to_provider", "pseudo_provider", "standalone_cta", "brand_new_type"]
     )
     func campaignSurvivesCodableRoundtrip(uiTypeRaw: String) throws {
         let uiType: MarketingCampaignsDTO.Banner.UIType = switch uiTypeRaw {
         case "standalone": .standalone
         case "linked_to_provider": .linkedToProvider
+        case "pseudo_provider": .pseudoProvider
+        case "standalone_cta": .standaloneCTA
         default: .unknown(uiTypeRaw)
         }
 
@@ -212,7 +256,10 @@ struct MarketingCampaignsDTOTests {
             tokens: [Fixtures.makeToken(networkId: "ethereum", contractAddress: "0xA", id: "usd-coin")],
             uiType: uiType,
             deeplink: URL(string: "tangem://swap"),
-            dismissible: true
+            dismissible: true,
+            subtitle: "Subtitle",
+            buttonText: "Join",
+            glow: true
         )
 
         let data = try JSONEncoder().encode(campaign)
@@ -227,6 +274,9 @@ struct MarketingCampaignsDTOTests {
         #expect(decoded.tokens?.first?.contractAddress == "0xA")
         #expect(decoded.banner.deeplink == campaign.banner.deeplink)
         #expect(decoded.banner.dismissible == campaign.banner.dismissible)
+        #expect(decoded.banner.subtitle == "Subtitle")
+        #expect(decoded.banner.buttonText == "Join")
+        #expect(decoded.banner.glow == true)
         #expect(rawValue(of: decoded.banner.uiType) == uiTypeRaw)
     }
 
@@ -282,6 +332,8 @@ struct MarketingCampaignsDTOTests {
         switch uiType {
         case .standalone: "standalone"
         case .linkedToProvider: "linked_to_provider"
+        case .pseudoProvider: "pseudo_provider"
+        case .standaloneCTA: "standalone_cta"
         case .unknown(let raw): raw
         }
     }

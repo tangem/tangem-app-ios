@@ -50,18 +50,23 @@ class TangemPayBankOfframpUITestCase: BaseTestCase {
         balance: BalanceState = .initial,
         bankAccounts: BankAccountsState = .empty,
         offrampOptions: OfframpOptionsState = .available,
-        extraScenarios: [ScenarioConfig] = []
+        extraScenarios: [ScenarioConfig] = [],
+        extraLaunchArguments: [String] = []
     ) -> TangemPayMainScreen {
-        launchAndImportHotWalletWithRealPayAuthorization(expressApiType: .mock, scenarios: [
-            ScenarioConfig(name: Constants.Scenario.eligibilityChannels, initialState: ChannelsState.bankOfframp.rawValue),
-            ScenarioConfig(name: Constants.Scenario.balance, initialState: balance.rawValue),
-            ScenarioConfig(name: Constants.Scenario.history, initialState: Constants.State.emptyHistory),
-            ScenarioConfig(name: Constants.Scenario.bankAccounts, initialState: bankAccounts.rawValue),
-            ScenarioConfig(name: Constants.Scenario.offrampOptions, initialState: offrampOptions.rawValue),
-        ] + extraScenarios)
-            .openTangemPay()
-            .waitForScreen()
-            .waitForBalanceLoaded()
+        launchAndImportHotWalletWithRealPayAuthorization(
+            expressApiType: .mock,
+            scenarios: [
+                ScenarioConfig(name: Constants.Scenario.eligibilityChannels, initialState: ChannelsState.bankOfframp.rawValue),
+                ScenarioConfig(name: Constants.Scenario.balance, initialState: balance.rawValue),
+                ScenarioConfig(name: Constants.Scenario.history, initialState: Constants.State.emptyHistory),
+                ScenarioConfig(name: Constants.Scenario.bankAccounts, initialState: bankAccounts.rawValue),
+                ScenarioConfig(name: Constants.Scenario.offrampOptions, initialState: offrampOptions.rawValue),
+            ] + extraScenarios,
+            extraLaunchArguments: extraLaunchArguments
+        )
+        .openTangemPay()
+        .waitForScreen()
+        .waitForBalanceLoaded()
     }
 
     func switchEligibilityChannels(to state: ChannelsState) {

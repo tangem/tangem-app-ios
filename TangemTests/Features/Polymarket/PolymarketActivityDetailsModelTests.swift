@@ -36,8 +36,11 @@ struct PolymarketActivityDetailsModelTests {
         let record = PolymarketActivityRecord.make(type: .redeem, result: .won)
 
         let details = PolymarketActivityDetailsView.Model.make(record: record)
+        let row = PolymarketActivityRow.Model.make(record: record)
 
-        #expect(details.headlines == ["Your Prediction Won", PolymarketActivityRow.Model.make(record: record).amount])
+        #expect(details.headlines.count == 2)
+        #expect(details.headlines.first != row.amount)
+        #expect(details.headlines.last == row.amount)
     }
 
     @Test("A split claim puts the unsigned amount into its title")
@@ -47,11 +50,27 @@ struct PolymarketActivityDetailsModelTests {
         #expect(details.headlines == [Localization.predictionPositionResultSplitTitle(PolymarketOrderFormatter.money(5))])
     }
 
-    @Test("A lost claim shows no amount")
+    @Test("A lost claim shows its result alone, without an amount")
     func lostClaim() {
         let details = PolymarketActivityDetailsView.Model.make(record: .make(type: .redeem, result: .lost))
 
-        #expect(details.headlines == ["Your Prediction Loss"])
+        #expect(details.headlines.count == 1)
+        #expect(!details.headlines.contains { $0.contains(PolymarketOrderFormatter.money(5)) })
+    }
+}
+
+@Suite("Polymarket history details routing")
+struct PolymarketActivityDetailsRoutingTests {
+    @Test("Going to the prediction opens its event with the event title as the loading placeholder")
+    @MainActor
+    func goToPredictPassesTheEventTitle() {
+        let routable = PolymarketActivityRoutableSpy()
+        let viewModel = PolymarketActivityDetailsViewModel(record: .make(eventTitle: "Lions vs. Bills"), coordinator: routable)
+
+        viewModel.handleViewAction(.goToPredictTapped)
+
+        #expect(routable.openedEventIDs == ["event-1"])
+        #expect(routable.openedEventTitles == ["Lions vs. Bills"])
     }
 }
 
@@ -77,6 +96,39 @@ private extension PolymarketActivityRecord {
             market: nil,
             order: nil,
             redeemResult: result
+        )
+    }
+
+    static func make(eventTitle: String) -> PolymarketActivityRecord {
+        PolymarketActivityRecord(
+            id: "1",
+            type: .buy,
+            occurredAt: Date(timeIntervalSince1970: 0),
+            amount: 5,
+            transactionHash: nil,
+            market: PolymarketActivityMarket(
+                conditionId: "condition-1",
+                outcomeIndex: 0,
+                shares: 10,
+                outcome: "Yes",
+                marketId: "market-1",
+                slug: nil,
+                title: "Lions win?",
+                iconURL: nil,
+                imageURL: nil,
+                endDate: nil,
+                isNegRisk: false,
+                event: PolymarketActivityEvent(
+                    eventId: "event-1",
+                    slug: nil,
+                    title: eventTitle,
+                    iconURL: nil,
+                    imageURL: nil,
+                    endDate: nil
+                )
+            ),
+            order: nil,
+            redeemResult: nil
         )
     }
 }

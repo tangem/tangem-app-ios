@@ -28,7 +28,7 @@ struct TransactionViewIconViewData: Hashable {
         self.isFromYieldContract = isFromYieldContract
     }
 
-    var icon: Image {
+    private var directionIcon: Image {
         switch type {
         case .approve:
             return DesignSystem.Icons.Success.regular20.image
@@ -55,8 +55,8 @@ struct TransactionViewIconViewData: Hashable {
     }
 
     /// Supply and Withdraw carry the arrow the design asks for, which is the opposite of the on-chain
-    /// direction `icon` derives from — and `icon` is still what the legacy row draws.
-    var redesignedIcon: Image {
+    /// direction `directionIcon` derives from.
+    var icon: Image {
         switch type {
         case .yieldTopup:
             return Assets.arrowDownMini.image
@@ -67,26 +67,26 @@ struct TransactionViewIconViewData: Hashable {
              .transfer, .swap, .onramp, .stake, .unstake, .vote, .restake, .withdraw,
              .claimRewards, .approve, .operation, .unknownOperation,
              .gaslessTransactionFee, .gaslessTransfer, .networkFee, .tangemPay:
-            return icon
+            return directionIcon
         }
     }
 
     var iconColor: Color {
         switch status {
         case .inProgress:
-            return Colors.Icon.accent
+            return DesignSystem.Color.iconAccentBlue
         case .confirmed:
-            return Colors.Icon.informative
+            return DesignSystem.Color.iconSecondary
         case .failed, .undefined:
-            return Colors.Icon.warning
+            return DesignSystem.Color.iconAccentRed
         }
     }
 
     var iconBackgroundColor: Color {
         switch status {
-        case .inProgress: return Colors.Icon.accent.opacity(0.1)
-        case .confirmed: return Colors.Button.secondary
-        case .failed, .undefined: return Colors.Icon.warning.opacity(0.1)
+        case .inProgress: return DesignSystem.Color.bgAccentBlueSubtle
+        case .confirmed: return DesignSystem.Color.bgTransparentSecondary
+        case .failed, .undefined: return DesignSystem.Color.bgAccentRedSubtle
         }
     }
 }

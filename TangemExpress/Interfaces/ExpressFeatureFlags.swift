@@ -8,5 +8,14 @@
 import Foundation
 
 public struct ExpressFeatureFlags {
-    public init() {}
+    public let isSwapBestRateDefaultProviderEnabled: Bool
+    public let isHideRejectedSwapProvidersEnabled: Bool
+
+    public init(
+        isSwapBestRateDefaultProviderEnabled: Bool,
+        isHideRejectedSwapProvidersEnabled: Bool
+    ) {
+        self.isSwapBestRateDefaultProviderEnabled = isSwapBestRateDefaultProviderEnabled
+        self.isHideRejectedSwapProvidersEnabled = isHideRejectedSwapProvidersEnabled
+    }
 }

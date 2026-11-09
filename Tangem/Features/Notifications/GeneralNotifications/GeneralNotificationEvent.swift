@@ -141,7 +141,7 @@ extension GeneralNotificationEvent: NotificationEvent {
             let text = Localization.hwActivationNeedTitle
             if hasPositiveBalance {
                 var string = AttributedString(text)
-                string.foregroundColor = Colors.Text.warning
+                string.foregroundColor = DesignSystem.Color.textAccentRed
                 string.font = Fonts.Bold.footnote
                 return .attributed(string)
             } else {
@@ -509,7 +509,7 @@ extension GeneralNotificationEvent {
         case .mobileUpgrade: return .mainNoticeUpgradeToColdWallet
         case .pushNotificationsPermissionRequest: return .promoPushBanner
         case .initialWalletTokenSyncCompleted: return nil
-        case .forceUpdateAvailable: return nil
+        case .forceUpdateAvailable: return .mainNoticeSoftUpdate
         case .addFunds: return .addFundsBannerAppear
         }
     }

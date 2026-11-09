@@ -16,7 +16,7 @@ struct CardSettingsView: View {
 
     var body: some View {
         ZStack {
-            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+            DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all)
 
             GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 24)) {
                 GroupedSection(viewModel.cardInfoSection) {

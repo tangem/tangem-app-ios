@@ -37,13 +37,13 @@ struct NFTDescriptionView: View {
 
     private var styledText: some View {
         Text(text)
-            .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
     }
 
     private var readMoreButton: some View {
         SwiftUI.Button(action: readMoreAction) {
             Text(readMoreOffsettedText)
-                .style(Fonts.Regular.footnote, color: Colors.Text.accent)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textAccentBlue)
         }
         .background(
             LinearGradient(
@@ -79,7 +79,7 @@ private extension NFTDescriptionView {
 #Preview {
     NFTDescriptionView(
         text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac dictum ligula. Vestibulum placerat imperdiet feugiat. Fusce vestibulum sagittis convallis. Quisque in ante et ipsum auctor mattis eu in velit. Duis at consequat elit. Nam posuere turpis in dolor finibus, a fringilla tortor dictum. Duis at congue risus, ac rhoncus ligula. Vestibulum tincidunt malesuada maximus. Fusce rutrum porta mi ac lobortis.",
-        backgroundColor: Colors.Background.action,
+        backgroundColor: DesignSystem.Color.bgSecondary,
         readMoreAction: {}
     )
 }

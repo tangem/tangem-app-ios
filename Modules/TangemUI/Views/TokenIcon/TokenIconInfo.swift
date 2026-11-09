@@ -25,7 +25,7 @@ public struct TokenIconInfo: Hashable {
         imageURL: URL?,
         isCustom: Bool,
         customTokenColor: Color?,
-        networkBorderColor: Color = Colors.Background.primary
+        networkBorderColor: Color = DesignSystem.Color.bgSecondary
     ) {
         self.name = name
         self.blockchainIconAsset = blockchainIconAsset

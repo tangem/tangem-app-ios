@@ -15,17 +15,20 @@ final class YieldTransactionProvider {
     private let blockchain: Blockchain
     private let transactionCreator: TransactionCreator
     private let yieldSupplyContractAddresses: YieldSupplyContractAddresses
+    private let validatesFee: Bool
 
     init(
         token: Token,
         blockchain: Blockchain,
         transactionCreator: TransactionCreator,
         yieldSupplyContractAddresses: YieldSupplyContractAddresses,
+        validatesFee: Bool = true
     ) {
         self.token = token
         self.blockchain = blockchain
         self.transactionCreator = transactionCreator
         self.yieldSupplyContractAddresses = yieldSupplyContractAddresses
+        self.validatesFee = validatesFee
     }
 
     // MARK: - Deploy
@@ -35,7 +38,8 @@ final class YieldTransactionProvider {
         tokenContractAddress: String,
         yieldContractAddress: String,
         maxNetworkFee: BigUInt,
-        fee: DeployEnterFee
+        fee: DeployEnterFee,
+        enterAmount: BigUInt? = nil
     ) async throws -> [Transaction] {
         var transactions = [Transaction]()
 
@@ -61,6 +65,7 @@ final class YieldTransactionProvider {
                 try await enterTransaction(
                     tokenContractAddress: tokenContractAddress,
                     yieldContractAddress: yieldContractAddress,
+                    amount: enterAmount,
                     fee: enterFee
                 )
             )
@@ -75,7 +80,8 @@ final class YieldTransactionProvider {
         tokenContractAddress: String,
         yieldContractAddress: String,
         maxNetworkFee: BigUInt,
-        fee: InitEnterFee
+        fee: InitEnterFee,
+        enterAmount: BigUInt? = nil
     ) async throws -> [Transaction] {
         var transactions = [Transaction]()
 
@@ -84,6 +90,7 @@ final class YieldTransactionProvider {
                 tokenContractAddress: tokenContractAddress,
                 yieldContractAddress: yieldContractAddress,
                 maxNetworkFee: maxNetworkFee,
+                newImplementationAddress: fee.newImplementationAddress,
                 fee: fee.initFee
             )
         )
@@ -101,6 +108,7 @@ final class YieldTransactionProvider {
                 try await enterTransaction(
                     tokenContractAddress: tokenContractAddress,
                     yieldContractAddress: yieldContractAddress,
+                    amount: enterAmount,
                     fee: enterFee
                 )
             )
@@ -115,7 +123,8 @@ final class YieldTransactionProvider {
         tokenContractAddress: String,
         yieldContractAddress: String,
         maxNetworkFee: BigUInt,
-        fee: ReactivateEnterFee
+        fee: ReactivateEnterFee,
+        enterAmount: BigUInt? = nil
     ) async throws -> [Transaction] {
         var transactions = [Transaction]()
 
@@ -124,6 +133,7 @@ final class YieldTransactionProvider {
                 tokenContractAddress: tokenContractAddress,
                 yieldContractAddress: yieldContractAddress,
                 maxNetworkFee: maxNetworkFee,
+                newImplementationAddress: fee.newImplementationAddress,
                 fee: fee.reactivateFee
             )
         )
@@ -143,6 +153,7 @@ final class YieldTransactionProvider {
                 try await enterTransaction(
                     tokenContractAddress: tokenContractAddress,
                     yieldContractAddress: yieldContractAddress,
+                    amount: enterAmount,
                     fee: enterFee
                 )
             )
@@ -212,49 +223,73 @@ private extension YieldTransactionProvider {
         tokenContractAddress: String,
         yieldContractAddress: String,
         maxNetworkFee: BigUInt,
+        newImplementationAddress: String?,
         fee: Fee
     ) async throws -> Transaction {
         let smartContract = InitYieldTokenMethod(
             tokenContractAddress: tokenContractAddress,
             maxNetworkFee: maxNetworkFee
         )
+        let txData = UpgradeToAndCallMethod.wrapIfNeeded(smartContract.data, newImplementation: newImplementationAddress)
 
-        return try await transaction(contractAddress: yieldContractAddress, txData: smartContract.data, fee: fee)
+        return try await transaction(contractAddress: yieldContractAddress, txData: txData, fee: fee)
     }
 
     func reactivateTokenTransaction(
         tokenContractAddress: String,
         yieldContractAddress: String,
         maxNetworkFee: BigUInt,
+        newImplementationAddress: String?,
         fee: Fee
     ) async throws -> Transaction {
         let smartContract = ReactivateTokenMethod(
             tokenContractAddress: tokenContractAddress,
             maxNetworkFee: maxNetworkFee
         )
+        let txData = UpgradeToAndCallMethod.wrapIfNeeded(smartContract.data, newImplementation: newImplementationAddress)
 
-        return try await transaction(contractAddress: yieldContractAddress, txData: smartContract.data, fee: fee)
+        return try await transaction(contractAddress: yieldContractAddress, txData: txData, fee: fee)
     }
 
     private func enterTransaction(
         tokenContractAddress: String,
         yieldContractAddress: String,
+        amount: BigUInt?,
         fee: Fee
     ) async throws -> Transaction {
-        let enterAction = EnterProtocolMethod(
-            tokenContractAddress: tokenContractAddress
-        )
+        let enterData = if let amount {
+            EnterProtocolWithAmountMethod(tokenContractAddress: tokenContractAddress, amount: amount).data
+        } else {
+            EnterProtocolMethod(tokenContractAddress: tokenContractAddress).data
+        }
 
-        return try await transaction(contractAddress: yieldContractAddress, txData: enterAction.data, fee: fee)
+        return try await transaction(contractAddress: yieldContractAddress, txData: enterData, fee: fee)
     }
 
     private func transaction(contractAddress: String, txData: Data, fee: Fee) async throws -> Transaction {
-        try await transactionCreator.createTransaction(
-            amount: Amount(with: blockchain, type: .coin, value: .zero),
+        let amount = Amount(with: blockchain, type: .coin, value: .zero)
+        let params = EthereumTransactionParams(data: txData)
+
+        guard validatesFee else {
+            let wallet = transactionCreator.wallet
+
+            return Transaction(
+                amount: amount,
+                fee: fee,
+                sourceAddress: wallet.address,
+                destinationAddress: contractAddress,
+                changeAddress: wallet.changeAddress.value,
+                contractAddress: contractAddress,
+                params: params
+            )
+        }
+
+        return try await transactionCreator.createTransaction(
+            amount: amount,
             fee: fee,
             destinationAddress: contractAddress,
             contractAddress: contractAddress,
-            params: EthereumTransactionParams(data: txData)
+            params: params
         )
     }
 }

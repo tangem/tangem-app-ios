@@ -260,6 +260,9 @@ private final class MockTangemApiService: TangemApiService {
     func loadYieldBoostPromotionStatus(userWalletId: String) async throws -> YieldBoostPromotionDTO.Response { fatalError("unused") }
     func registerForPromotionCampaign(request: PromotionRegistrationDTO.Request) async throws -> PromotionRegistrationDTO.Response { fatalError("unused") }
     func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response { fatalError("unused") }
+    func bindMarketingActivityWallets(uid: String, request: MarketingActivityDTO.BindWallets.Request) async throws { fatalError("unused") }
+    func submitSurveyResponse(request: SurveyResponsesDTO.Submit.Request) async throws { fatalError("unused") }
+    func loadSurveyResponseStatus(request: SurveyResponsesDTO.Status.Request) async throws -> SurveyResponsesDTO.Status.Response { fatalError("unused") }
     func loadFeatures() async throws -> [String: Bool] { fatalError("unused") }
     func loadAPIList() async throws -> APIListDTO { fatalError("unused") }
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] { fatalError("unused") }
@@ -282,6 +285,9 @@ private final class MockTangemApiService: TangemApiService {
     func createJointAccount(
         walletId: String, body: JointAccountsDTO.Request.Create
     ) async throws -> JointAccountsDTO.Response.JointAccount { fatalError("unused") }
+    func issueJointAccountInvite(
+        walletId: String, body: JointAccountsDTO.Request.IssueInvite
+    ) async throws -> JointAccountsDTO.Response.IssuedInvite { fatalError("unused") }
     func getJointAccountInvite(
         walletId: String, inviteId: String
     ) async throws -> JointAccountsDTO.Response.InvitePreview { fatalError("unused") }
@@ -290,6 +296,10 @@ private final class MockTangemApiService: TangemApiService {
     ) async throws -> JointAccountsDTO.Response.JointAccount { fatalError("unused") }
     func activateJointAccount(
         walletId: String, body: JointAccountsDTO.Request.Activate
+    ) async throws -> JointAccountsDTO.Response.JointAccount { fatalError("unused") }
+
+    func confirmJointAccount(
+        walletId: String, body: JointAccountsDTO.Request.Confirm
     ) async throws -> JointAccountsDTO.Response.JointAccount { fatalError("unused") }
 
     func createJointAccountOperation(

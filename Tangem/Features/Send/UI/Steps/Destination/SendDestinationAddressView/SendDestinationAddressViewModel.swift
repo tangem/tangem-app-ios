@@ -23,7 +23,7 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
     @Published private(set) var isValidating: Bool = false
     @Published private(set) var addressIconType: AddressIconProviderViewType?
 
-    private let iconStyle: IconStyle
+    private let iconProvider: SendDestinationAddressAddressIconProvider
     private var shouldIgnoreClearButton: Bool = false
 
     var text: BindingValue<String> {
@@ -36,12 +36,17 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
 
     weak var router: SendDestinationAddressViewRoutable?
 
-    init(textViewModel: SUITextViewModel, address: Address, title: String = Localization.sendRecipient, iconStyle: IconStyle = .automatic) {
+    init(
+        textViewModel: SUITextViewModel,
+        address: Address,
+        iconProvider: SendDestinationAddressAddressIconProvider,
+        title: String = Localization.sendRecipient
+    ) {
         self.textViewModel = textViewModel
         self.address = address
+        self.iconProvider = iconProvider
         self.title = title
-        self.iconStyle = iconStyle
-        addressIconType = Self.makeIcon(for: address.string, style: iconStyle)
+        addressIconType = iconProvider.makeIcon(for: address.string)
 
         bind()
     }
@@ -51,24 +56,12 @@ class SendDestinationAddressViewModel: ObservableObject, Identifiable {
         addressPublisher()
             .dropFirst()
             .receiveOnMain()
-            .map { [iconStyle] in Self.makeIcon(for: $0.string, style: iconStyle) }
+            .map { [iconProvider] in iconProvider.makeIcon(for: $0.string) }
             .assign(to: &$addressIconType)
     }
 
     func addressPublisher() -> AnyPublisher<Address, Never> {
         $address.eraseToAnyPublisher()
-    }
-
-    private static func makeIcon(for address: String, style: IconStyle) -> AddressIconProviderViewType? {
-        switch style {
-        case .automatic: AddressIconProvider.makeViewType(address: address, networkId: nil)
-        case .blockies: .blockies(AddressIconProvider.makeBlockiesIconViewData(address: address))
-        }
-    }
-
-    enum IconStyle {
-        case automatic
-        case blockies
     }
 
     func update(error: String?) {

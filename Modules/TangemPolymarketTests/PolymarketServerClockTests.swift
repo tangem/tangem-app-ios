@@ -8,62 +8,60 @@
 
 import Foundation
 import Testing
+import TangemFoundation
 @testable import TangemPolymarket
 
-@Suite("PolymarketServerClock")
+@Suite("PolymarketServerClock", .timeLimit(.minutes(1)))
 struct PolymarketServerClockTests {
-    private let deviceNow = Date(timeIntervalSince1970: 1_787_000_000)
+    private let deviceStart = Date(timeIntervalSince1970: 1_787_000_000)
 
     @Test("Without an answer to go by the device clock is what the caller gets")
     func fallsBackToTheDeviceClock() {
-        #expect(makeSUT().now == deviceNow)
+        let deviceClock = makeDeviceClock()
+        let clock = makeSUT(deviceClock: deviceClock)
+
+        #expect(clock.now == deviceStart)
+
+        deviceClock.withLock { $0 += 600 }
+
+        #expect(clock.now == deviceStart.addingTimeInterval(600))
     }
 
-    @Test("A device running behind is corrected forward by the difference")
-    func correctsADeviceRunningBehind() {
-        let clock = makeSUT()
+    @Test(
+        "The correction keeps the backend's time as the device clock moves on, whichever way the device is off",
+        arguments: [1800, -1800, 31_536_000, -7] as [TimeInterval]
+    )
+    func correctionFollowsTheDeviceClock(serverOffset: TimeInterval) {
+        let deviceClock = makeDeviceClock()
+        let clock = makeSUT(deviceClock: deviceClock)
+        let serverDate = deviceStart.addingTimeInterval(serverOffset)
 
-        clock.record(serverDate: deviceNow.addingTimeInterval(1800))
+        clock.record(serverDate: serverDate)
+        deviceClock.withLock { $0 += 600 }
 
-        #expect(clock.now == deviceNow.addingTimeInterval(1800))
-    }
-
-    @Test("A device running ahead is corrected back by the difference")
-    func correctsADeviceRunningAhead() {
-        let clock = makeSUT()
-
-        clock.record(serverDate: deviceNow.addingTimeInterval(-1800))
-
-        #expect(clock.now == deviceNow.addingTimeInterval(-1800))
-    }
-
-    @Test("However far the device clock is off, the correction still lands on the backend's time")
-    func correctsAClockThatLostYears() {
-        let lostYears: TimeInterval = 6 * 365 * 24 * 60 * 60
-        let clock = makeSUT()
-
-        clock.record(serverDate: deviceNow.addingTimeInterval(lostYears))
-
-        #expect(clock.now == deviceNow.addingTimeInterval(lostYears))
+        #expect(clock.now == serverDate.addingTimeInterval(600))
     }
 
     @Test("The latest answer replaces the previous correction")
     func latestAnswerWins() {
-        let clock = makeSUT()
+        let deviceClock = makeDeviceClock()
+        let clock = makeSUT(deviceClock: deviceClock)
 
-        clock.record(serverDate: deviceNow.addingTimeInterval(1800))
-        clock.record(serverDate: deviceNow.addingTimeInterval(60))
+        clock.record(serverDate: deviceStart.addingTimeInterval(1800))
+        clock.record(serverDate: deviceStart.addingTimeInterval(60))
 
-        #expect(clock.now == deviceNow.addingTimeInterval(60))
+        #expect(clock.now == deviceStart.addingTimeInterval(60))
     }
 }
 
 // MARK: - Fixtures
 
 private extension PolymarketServerClockTests {
-    func makeSUT() -> PolymarketServerClock {
-        let fixedDeviceNow = deviceNow
+    func makeDeviceClock() -> OSAllocatedUnfairLock<Date> {
+        OSAllocatedUnfairLock(initialState: deviceStart)
+    }
 
-        return PolymarketServerClock(deviceNow: { fixedDeviceNow })
+    func makeSUT(deviceClock: OSAllocatedUnfairLock<Date>) -> PolymarketServerClock {
+        PolymarketServerClock(deviceNow: { deviceClock.withLock { $0 } })
     }
 }

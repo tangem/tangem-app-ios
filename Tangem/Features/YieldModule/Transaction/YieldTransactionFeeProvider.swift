@@ -54,7 +54,8 @@ final class YieldTransactionFeeProvider {
     func initializeFee(
         yieldContractAddress: String,
         tokenContractAddress: String,
-        maxNetworkFee: BigUInt
+        maxNetworkFee: BigUInt,
+        newImplementationAddress: String?
     ) async throws -> InitEnterFee {
         let transactions = initTransactions(
             tokenContractAddress: tokenContractAddress,
@@ -62,16 +63,17 @@ final class YieldTransactionFeeProvider {
             maxNetworkFee: maxNetworkFee
         )
 
-        let fees = try await fees(from: transactions)
+        let estimation = try await fees(from: transactions, newImplementationAddress: newImplementationAddress)
 
-        return try InitEnterFee(fees: fees)
+        return try InitEnterFee(fees: estimation.fees, newImplementationAddress: estimation.newImplementationAddress)
     }
 
     func reactivateFee(
         yieldContractAddress: String,
         tokenContractAddress: String,
         tokenDecimalCount: Int,
-        maxNetworkFee: BigUInt
+        maxNetworkFee: BigUInt,
+        newImplementationAddress: String?
     ) async throws -> ReactivateEnterFee {
         var transactions = [TransactionData]()
 
@@ -107,12 +109,13 @@ final class YieldTransactionFeeProvider {
             )
         }
 
-        let fees = try await fees(from: transactions)
+        let estimation = try await fees(from: transactions, newImplementationAddress: newImplementationAddress)
 
         return try ReactivateEnterFee(
-            fees: fees,
+            fees: estimation.fees,
             isEnterAvailable: isEnterTransactionAvailable,
-            isPermissionRequired: isPermissionRequired
+            isPermissionRequired: isPermissionRequired,
+            newImplementationAddress: estimation.newImplementationAddress
         )
     }
 
@@ -140,9 +143,12 @@ final class YieldTransactionFeeProvider {
         return try ApproveFee(fees: fees)
     }
 
-    func claimFee(to: String, data: Data) async throws -> ClaimFee {
-        let fees = try await fees(from: [TransactionData(to: to, data: data)])
-        return try ClaimFee(fees: fees)
+    func claimFee(to: String, data: Data, newImplementationAddress: String?) async throws -> ClaimFee {
+        let estimation = try await fees(
+            from: [TransactionData(to: to, data: data)],
+            newImplementationAddress: newImplementationAddress
+        )
+        return try ClaimFee(fees: estimation.fees, newImplementationAddress: estimation.newImplementationAddress)
     }
 
     func currentNetworkFeeParameters() async throws -> EthereumFeeParameters {
@@ -228,6 +234,45 @@ private extension YieldTransactionFeeProvider {
 // MARK: - Fee estimation
 
 private extension YieldTransactionFeeProvider {
+    struct FeeEstimation {
+        let fees: [Fee]
+        let newImplementationAddress: String?
+    }
+
+    func fees(from transactions: [TransactionData], newImplementationAddress: String?) async throws -> FeeEstimation {
+        guard let newImplementationAddress, let firstTransaction = transactions.first else {
+            return FeeEstimation(fees: try await fees(from: transactions), newImplementationAddress: nil)
+        }
+
+        let wrappedFirstTransaction = firstTransaction.wrapped(newImplementationAddress: newImplementationAddress)
+        let wrappedTransactions = [wrappedFirstTransaction] + transactions.dropFirst()
+
+        if transactions.count > 1, await !canExecute(wrappedFirstTransaction) {
+            return FeeEstimation(fees: try await fees(from: transactions), newImplementationAddress: nil)
+        }
+
+        do {
+            return FeeEstimation(fees: try await fees(from: wrappedTransactions), newImplementationAddress: newImplementationAddress)
+        } catch where error.isEVMExecutionReverted {
+            AppLogger.tag("YieldModule").warning("Upgrade-wrapped call reverted, estimating the bare call for \(firstTransaction.to)")
+            return FeeEstimation(fees: try await fees(from: transactions), newImplementationAddress: nil)
+        }
+    }
+
+    func canExecute(_ transaction: TransactionData) async -> Bool {
+        do {
+            _ = try await ethereumNetworkProvider.getFee(
+                destination: transaction.to,
+                value: Constants.zeroCoinAmount,
+                data: transaction.data
+            ).async()
+            return true
+        } catch {
+            AppLogger.tag("YieldModule").error("Upgrade-wrapped call preflight failed, estimating the bare pack for \(transaction.to)", error: error)
+            return false
+        }
+    }
+
     func fees(from transactions: [TransactionData]) async throws -> [Fee] {
         let fees = try await estimateFees(
             transactions: transactions
@@ -432,6 +477,13 @@ private extension YieldTransactionFeeProvider {
     struct TransactionData {
         let to: String
         let data: Data
+
+        func wrapped(newImplementationAddress: String) -> TransactionData {
+            TransactionData(
+                to: to,
+                data: UpgradeToAndCallMethod.wrapIfNeeded(data, newImplementation: newImplementationAddress)
+            )
+        }
     }
 }
 

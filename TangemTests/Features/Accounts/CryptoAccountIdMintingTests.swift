@@ -36,6 +36,16 @@ struct CryptoAccountIdMintingTests {
         // SHA256 of the crypto formula's bytes with "joint" appended
         #expect(jointAccountId.rawValue.hexString.lowercased() == "47bc9144efbc17b51bf08fde5bf30f7bf7ebbff582d18f45b65820a8437963ac")
     }
+
+    @Test("The collectibles account mints by the crypto formula at its reserved index, with nothing appended for its kind")
+    func collectiblesAccountMintsWithoutTheKindSuffix() {
+        let collectiblesAccountId = CryptoAccountModelId(
+            userWalletId: Fixtures.userWalletId,
+            derivationIdentity: CollectiblesAccountModelsRegistry.AccountListUpdater.persistentConfig.derivationIdentity
+        )
+
+        #expect(collectiblesAccountId.rawValue.hexString.lowercased() == "41eb4ea5466e76a7e1427848b2672c0fd4292dcb1fccd5c181ce9b1d6499d7ac")
+    }
 }
 
 // MARK: - Fixtures

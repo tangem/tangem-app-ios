@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct CollectiblesAccountTokenFeeLoader: TokenFeeLoader {
+struct CollectiblesAccountTokenFeeLoader: TokenFeeLoading {
     let feeTokenItem: TokenItem
 
     private var zeroFee: BSDKFee {
@@ -35,7 +35,7 @@ extension CollectiblesAccountTokenFeeProvidersManagerProvider: TokenFeeProviders
     func makeTokenFeeProvidersManager() -> TokenFeeProvidersManager {
         let feeProvider: TokenFeeProvider = CommonTokenFeeProvider(
             feeTokenItem: feeTokenItem,
-            tokenFeeLoader: CollectiblesAccountTokenFeeLoader(feeTokenItem: feeTokenItem),
+            tokenFeeLoader: DefaultTokenFeeLoader(loader: CollectiblesAccountTokenFeeLoader(feeTokenItem: feeTokenItem)),
             customFeeProvider: .none,
             feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
             supportingOptions: .all

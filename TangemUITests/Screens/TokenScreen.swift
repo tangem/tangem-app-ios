@@ -349,6 +349,21 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
         }
     }
 
+    @discardableResult
+    func assertStakingBalanceCrypto(contains amount: String) -> Self {
+        XCTContext.runActivity(named: "Assert staking banner shows '\(amount)'") { _ in
+            waitAndAssertTrue(stakingBalanceCrypto, "Staking balance crypto element should exist")
+            let predicate = NSPredicate(format: "label CONTAINS %@", amount)
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: stakingBalanceCrypto)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
+                .completed,
+                "Staking banner should show '\(amount)' but was '\(stakingBalanceCrypto.label)'"
+            )
+            return self
+        }
+    }
+
     func getStakingBalanceCrypto() -> String {
         XCTContext.runActivity(named: "Get staking balance crypto value") { _ in
             waitAndAssertTrue(stakingBalanceCrypto, "Staking balance crypto element should exist")

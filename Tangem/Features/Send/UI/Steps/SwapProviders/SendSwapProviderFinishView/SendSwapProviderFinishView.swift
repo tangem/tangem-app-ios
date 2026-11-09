@@ -30,17 +30,17 @@ struct SendSwapProviderFinishView: View {
             Spacer()
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
-        .defaultRoundedBackground(with: Colors.Background.action, verticalPadding: 16, horizontalPadding: 14)
+        .defaultRoundedBackground(with: DesignSystem.Color.bgSecondary, verticalPadding: 16, horizontalPadding: 14)
     }
 
     private var titleView: some View {
         HStack(alignment: .center, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(viewModel.title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
                 Text(viewModel.providerType)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
             }
         }
         .lineLimit(1)
@@ -48,6 +48,6 @@ struct SendSwapProviderFinishView: View {
 
     private var subtitleView: some View {
         Text(viewModel.subtitle)
-            .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+            .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
     }
 }

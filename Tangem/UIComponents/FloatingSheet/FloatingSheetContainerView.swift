@@ -54,7 +54,7 @@ struct FloatingSheetContainerView<HeaderContent: View, DescriptionContent: View,
         contentView
             .animation(.contentFrameUpdate, value: state)
             .floatingSheetConfiguration { configuration in
-                configuration.sheetBackground = .color(Colors.Background.tertiary)
+                configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
                 configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
                 configuration.backgroundInteractionBehavior = .tapToDismiss
                 configuration.verticalSwipeBehavior = verticalSwipeBehavior
@@ -80,7 +80,7 @@ struct FloatingSheetContainerView<HeaderContent: View, DescriptionContent: View,
             header
                 .padding(.top, Constants.headerVerticalSpacing)
                 .padding(.horizontal, Constants.standardSpacing)
-                .background(Colors.Background.tertiary.edgesIgnoringSafeArea(.all))
+                .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
         }
         .scrollBounceBehavior(.basedOnSize)
         .scrollIndicators(.hidden)

@@ -21,3 +21,14 @@ public enum PolymarketEventStatus: Hashable, Sendable {
         }
     }
 }
+
+// MARK: - Closed
+
+public extension PolymarketEventStatus {
+    var isClosed: Bool {
+        switch self {
+        case .closed, .archived: true
+        case .active, .unknown: false
+        }
+    }
+}

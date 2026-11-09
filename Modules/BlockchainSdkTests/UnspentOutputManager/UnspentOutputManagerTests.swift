@@ -133,8 +133,55 @@ class UnspentOutputManagerTests {
         #expect(pendingTxIds == [pendingA.txId, pendingB.txId])
         #expect(availableTxIds.isDisjoint(with: pendingTxIds))
 
-        #expect(manager.confirmedBalance() == confirmedA.amount + confirmedB.amount)
-        #expect(manager.unconfirmedBalance() == pendingA.amount + pendingB.amount)
+        let confirmedBalance = try manager.confirmedBalance()
+        let unconfirmedBalance = try manager.unconfirmedBalance()
+        #expect(confirmedBalance == confirmedA.amount + confirmedB.amount)
+        #expect(unconfirmedBalance == pendingA.amount + pendingB.amount)
+    }
+
+    @Test
+    func outputsWithOutOfRangeIndexOrAmountAreSkipped() throws {
+        let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+        let address = try addressService.makeAddress(from: Keys.Secp256k1.publicKey)
+
+        let txId = "f1d306a65784348f831a38caf028323aab4ea01d40c80d31f4b5fa2eca8969bb"
+        let negativeIndex = UnspentOutput(blockId: 1, txId: txId, index: -1, amount: 1000)
+        let tooLargeIndex = UnspentOutput(blockId: 1, txId: txId, index: Int(UInt32.max) + 1, amount: 1000)
+        let tooLargeAmount = UnspentOutput(blockId: 1, txId: txId, index: 0, amount: UInt64(Int64.max) + 1)
+        let largestIndex = UnspentOutput(blockId: 1, txId: txId, index: Int(UInt32.max), amount: 1000)
+        let largestAmount = UnspentOutput(blockId: 0, txId: txId, index: 1, amount: UInt64(Int64.max))
+
+        let manager: UnspentOutputManager = .bitcoin(isTestnet: false)
+        manager.update(outputs: [negativeIndex, tooLargeIndex, tooLargeAmount, largestIndex, largestAmount], for: address)
+
+        #expect(manager.availableOutputs().map(\.output) == [largestIndex])
+        #expect(manager.pendingOutputs().map(\.output) == [largestAmount])
+    }
+
+    @Test
+    func balanceOverflowThrows() throws {
+        let addressService = AddressServiceFactory(blockchain: .bitcoin(testnet: false)).makeAddressService()
+        let address = try addressService.makeAddress(from: Keys.Secp256k1.publicKey)
+
+        let outputs = (0 ..< 3).map { index in
+            UnspentOutput(
+                blockId: 1,
+                txId: "f1d306a65784348f831a38caf028323aab4ea01d40c80d31f4b5fa2eca8969bb",
+                index: index,
+                amount: UInt64(Int64.max)
+            )
+        }
+
+        let manager: UnspentOutputManager = .bitcoin(isTestnet: false)
+        manager.update(outputs: outputs, for: address)
+
+        #expect(manager.availableOutputs().count == outputs.count)
+        #expect(throws: (any Error).self) {
+            try manager.confirmedBalance()
+        }
+        #expect(throws: (any Error).self) {
+            try manager.balance(blockchain: .bitcoin(testnet: false))
+        }
     }
 
     /// https://www.blockchain.com/explorer/transactions/btc/7bf63b83a858838ceab579bf9334866af72722f68be5a04a82d9b478f5ea6246

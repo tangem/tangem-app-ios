@@ -37,9 +37,9 @@ struct RateInfoSheetView: View {
     private var icon: BottomSheetErrorContentView.Icon {
         switch viewModel.rateType {
         case .fixed:
-            return .init(icon: Assets.lock, overlay: Colors.Icon.accent, tint: Colors.Icon.accent)
+            return .init(icon: Assets.lock, overlay: DesignSystem.Color.bgAccentBlueSubtle, tint: DesignSystem.Color.iconAccentBlue)
         case .floating:
-            return .init(icon: Assets.floating, overlay: Colors.Icon.accent, tint: Colors.Icon.accent)
+            return .init(icon: Assets.floating, overlay: DesignSystem.Color.bgAccentBlueSubtle, tint: DesignSystem.Color.iconAccentBlue)
         }
     }
 

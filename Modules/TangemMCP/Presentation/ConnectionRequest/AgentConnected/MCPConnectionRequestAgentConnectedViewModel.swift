@@ -8,19 +8,19 @@
 
 @MainActor
 final class MCPConnectionRequestAgentConnectedViewModel: HashableObject {
-    private let doneButtonAction: () -> Void
+    private let doneAction: () -> Void
 
     let state: MCPConnectionRequestAgentConnectedState
 
-    init(doneButtonAction: @escaping () -> Void, state: MCPConnectionRequestAgentConnectedState) {
-        self.doneButtonAction = doneButtonAction
+    init(doneAction: @escaping () -> Void, state: MCPConnectionRequestAgentConnectedState) {
+        self.doneAction = doneAction
         self.state = state
     }
 
     func handle(action: MCPConnectionRequestAgentConnectedAction) {
         switch action {
         case .doneButtonTapped:
-            doneButtonAction()
+            doneAction()
         }
     }
 }

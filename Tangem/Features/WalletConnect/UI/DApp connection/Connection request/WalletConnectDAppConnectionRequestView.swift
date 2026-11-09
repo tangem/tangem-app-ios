@@ -41,7 +41,7 @@ struct WalletConnectDAppConnectionRequestView: View {
 
             Divider()
                 .frame(height: 1)
-                .overlay(Colors.Stroke.primary)
+                .overlay(DesignSystem.Color.borderSecondary)
 
             WalletConnectDAppConnectionRequestView.ConnectionRequestSection(
                 viewModel: viewModel.state.connectionRequestSection,
@@ -50,7 +50,7 @@ struct WalletConnectDAppConnectionRequestView: View {
             .compositingGroup()
             .padding(.horizontal, 14)
         }
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
@@ -68,7 +68,7 @@ struct WalletConnectDAppConnectionRequestView: View {
 
             Divider()
                 .frame(height: 1)
-                .overlay(Colors.Stroke.primary)
+                .overlay(DesignSystem.Color.borderSecondary)
                 .padding(.leading, 46)
                 .padding(.trailing, 14)
 
@@ -78,12 +78,12 @@ struct WalletConnectDAppConnectionRequestView: View {
             if let networksWarningSection = viewModel.state.networksWarningSection {
                 Divider()
                     .frame(height: 1)
-                    .overlay(Colors.Stroke.primary)
+                    .overlay(DesignSystem.Color.borderSecondary)
 
                 WalletConnectWarningNotificationView(viewModel: networksWarningSection)
             }
         }
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
@@ -109,7 +109,7 @@ struct WalletConnectDAppConnectionRequestView: View {
                         Shimmer().variant(.custom(width: 64, height: 24, cornerRadius: 8))
                     case .content:
                         Text(label)
-                            .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                            .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
                             .lineLimit(1)
                     }
                 },
@@ -121,7 +121,7 @@ struct WalletConnectDAppConnectionRequestView: View {
                         switch connectionTargetSection.target {
                         case .wallet:
                             Text(connectionTargetSection.targetName)
-                                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                                .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
                                 .padding(.horizontal, 4)
                         case .account(let target):
                             accountTargetTrailingView(icon: target.icon, accountName: connectionTargetSection.targetName)
@@ -143,7 +143,7 @@ struct WalletConnectDAppConnectionRequestView: View {
             .settings(.smallSized)
 
             Text(accountName)
-                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
         }
     }
 
@@ -180,7 +180,7 @@ struct WalletConnectDAppConnectionRequestView: View {
             viewModel.state.networksSection.trailingIconAsset?.image
                 .resizable()
                 .frame(width: 18, height: 24)
-                .foregroundStyle(Colors.Icon.informative)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
         }
     }
 
@@ -188,10 +188,10 @@ struct WalletConnectDAppConnectionRequestView: View {
         _ availableSelectionMode: WalletConnectDAppConnectionRequestViewState.NetworksSection.AvailableSelectionMode
     ) -> some View {
         HStack(spacing: -8) {
-            ForEach(availableSelectionMode.blockchainLogoAssets.indexed(), id: \.0) { index, blockchainLogoAsset in
+            ForEach(indexed: availableSelectionMode.blockchainLogoAssets, id: \.0) { _, blockchainLogoAsset in
                 ZStack {
                     Circle()
-                        .fill(Colors.Background.action)
+                        .fill(DesignSystem.Color.bgSecondary)
                         .frame(width: 24, height: 24)
 
                     blockchainLogoAsset.image
@@ -204,19 +204,19 @@ struct WalletConnectDAppConnectionRequestView: View {
             if let remainingBlockchainsCounter = availableSelectionMode.remainingBlockchainsCounter {
                 ZStack {
                     Circle()
-                        .fill(Colors.Background.action)
+                        .fill(DesignSystem.Color.bgSecondary)
                         .frame(width: 24, height: 24)
 
                     Circle()
-                        .fill(Colors.Icon.primary1.opacity(0.1))
+                        .fill(DesignSystem.Color.bgTransparentSecondary)
                         .frame(width: 24, height: 24)
 
                     Circle()
-                        .strokeBorder(Colors.Background.action, lineWidth: 2)
+                        .strokeBorder(DesignSystem.Color.bgSecondary, lineWidth: 2)
                         .frame(width: 24, height: 24)
 
                     Text(remainingBlockchainsCounter)
-                        .style(Fonts.Bold.caption2, color: Colors.Text.secondary)
+                        .style(Fonts.Bold.caption2, color: DesignSystem.Color.textSecondary)
                 }
             }
         }

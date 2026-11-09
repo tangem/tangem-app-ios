@@ -25,9 +25,9 @@ struct TOSView: View {
             Spacer()
             LinearGradient(
                 colors: [
-                    Colors.Background.primary.opacity(0),
-                    Colors.Background.primary,
-                    Colors.Background.primary,
+                    DesignSystem.Color.bgSecondary.opacity(0),
+                    DesignSystem.Color.bgSecondary,
+                    DesignSystem.Color.bgSecondary,
                 ],
                 startPoint: .top,
                 endPoint: .bottom

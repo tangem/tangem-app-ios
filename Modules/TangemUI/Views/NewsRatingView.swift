@@ -72,12 +72,12 @@ public struct NewsRatingView: View {
             starIcon
 
             Text(rating)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
             dotSeparator
 
             Text(timeAgo)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
         }
     }
 
@@ -86,20 +86,20 @@ public struct NewsRatingView: View {
     private var starIcon: some View {
         ZStack {
             Circle()
-                .fill(Colors.Icon.attention)
+                .fill(DesignSystem.Color.bgAccentYellow)
                 .frame(size: Layout.starCircleSize)
 
             Assets.star.image
                 .resizable()
                 .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.constant)
+                .foregroundStyle(DesignSystem.Color.iconStaticDark)
                 .frame(size: Layout.starIconSize)
         }
     }
 
     private var dotSeparator: some View {
         Circle()
-            .fill(Colors.Text.tertiary)
+            .fill(DesignSystem.Color.iconSecondary)
             .frame(size: Layout.dotSize)
     }
 
@@ -123,5 +123,5 @@ public struct NewsRatingView: View {
         NewsRatingView(rating: "7.2", timeAgo: "3d ago")
     }
     .padding()
-    .background(Colors.Background.primary)
+    .background(DesignSystem.Color.bgSecondary)
 }

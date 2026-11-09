@@ -183,7 +183,7 @@ struct TronDEXTransactionMapperTests {
 
         let fee = BSDKFee(BSDKAmount(with: .tron(testnet: false), value: feeTRX))
 
-        #expect(call.adjustedFeeLimit(covering: fee, blockchain: .tron(testnet: false)) == expectedLimit)
+        #expect(try call.adjustedFeeLimit(covering: fee, blockchain: .tron(testnet: false)) == expectedLimit)
     }
 
     @Test(
@@ -193,11 +193,11 @@ struct TronDEXTransactionMapperTests {
             (feeTRX: Decimal(150), expectedLimit: Int64(150_000_000)),
         ]
     )
-    func adjustedFeeLimit_absentProviderLimit_floorsAtDefault(feeTRX: Decimal, expectedLimit: Int64) {
+    func adjustedFeeLimit_absentProviderLimit_floorsAtDefault(feeTRX: Decimal, expectedLimit: Int64) throws {
         let call = TronDEXContractCall(contractAddress: routerAddress, callData: Data([0xAB]), callValue: 0, feeLimit: nil, memo: nil)
         let fee = BSDKFee(BSDKAmount(with: .tron(testnet: false), value: feeTRX))
 
-        #expect(call.adjustedFeeLimit(covering: fee, blockchain: .tron(testnet: false)) == expectedLimit)
+        #expect(try call.adjustedFeeLimit(covering: fee, blockchain: .tron(testnet: false)) == expectedLimit)
     }
 
     @Test(
@@ -207,11 +207,44 @@ struct TronDEXTransactionMapperTests {
             (feeTRX: Decimal(50), expectedLimit: Int64(150_000_000)),
         ]
     )
-    func adjustedFeeLimit_excessiveProviderLimit_capped(feeTRX: Decimal, expectedLimit: Int64) {
+    func adjustedFeeLimit_excessiveProviderLimit_capped(feeTRX: Decimal, expectedLimit: Int64) throws {
         let call = TronDEXContractCall(contractAddress: routerAddress, callData: Data([0xAB]), callValue: 0, feeLimit: 5_000_000_000, memo: nil)
         let fee = BSDKFee(BSDKAmount(with: .tron(testnet: false), value: feeTRX))
 
-        #expect(call.adjustedFeeLimit(covering: fee, blockchain: .tron(testnet: false)) == expectedLimit)
+        #expect(try call.adjustedFeeLimit(covering: fee, blockchain: .tron(testnet: false)) == expectedLimit)
+    }
+
+    @Test("an invalid gasless TRX cost is rejected")
+    func adjustedFeeLimit_invalidGaslessTrxCost_throws() {
+        let call = TronDEXContractCall(contractAddress: routerAddress, callData: Data([0xAB]), callValue: 0, feeLimit: nil, memo: nil)
+        let token = BSDKToken(
+            name: "USDT",
+            symbol: "USDT",
+            contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+            decimalCount: 6
+        )
+        let parameters = TronGaslessFeeParameters(
+            quoteId: "quote",
+            request: TronGaslessQuoteRequest(
+                sourceAddress: ownerAddress,
+                tokenContractAddress: token.contractAddress,
+                amountRaw: 1_000_000,
+                feeTokenContractAddress: token.contractAddress,
+                operation: .swap(contractAddress: routerAddress, callData: call.callData, spender: nil)
+            ),
+            feeRecipient: "TFeeRecipient",
+            compensationToken: token.contractAddress,
+            compensationAmountRaw: "500000",
+            expiresAt: .distantFuture,
+            energy: 1,
+            bandwidth: 1,
+            trxCost: "invalid"
+        )
+        let fee = BSDKFee(BSDKAmount(with: token, value: 0.5), parameters: parameters)
+
+        #expect(throws: TronFeeLimitError.self) {
+            try call.adjustedFeeLimit(covering: fee, blockchain: .tron(testnet: false))
+        }
     }
 }
 

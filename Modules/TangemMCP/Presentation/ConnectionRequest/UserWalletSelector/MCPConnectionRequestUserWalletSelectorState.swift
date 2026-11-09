@@ -6,7 +6,6 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import class UIKit.UIImage
 import struct TangemFoundation.UserWalletId
 
 // [REDACTED_TODO_COMMENT]

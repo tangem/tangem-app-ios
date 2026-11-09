@@ -79,7 +79,7 @@ public struct MainButton: View {
         .buttonStyle(BorderlessButtonStyle())
         // Prevents an ugly opacity effect when the button is placed on a transparent background and pressed
         .background(
-            Colors.Background.primary
+            DesignSystem.Color.bgSecondary
                 .cornerRadiusContinuous(cornerRadius)
         )
         .disabled(isInternalButtonDisabled)
@@ -179,14 +179,14 @@ public extension MainButton {
 
         func iconColor(isDisabled: Bool) -> Color {
             if isDisabled {
-                return Colors.Icon.inactive
+                return DesignSystem.Color.iconTertiary
             }
 
             switch self {
             case .primary:
-                return Colors.Icon.primary2
+                return DesignSystem.Color.iconInverse
             case .secondary:
-                return Colors.Icon.primary1
+                return DesignSystem.Color.iconPrimary
             }
         }
 
@@ -201,40 +201,40 @@ public extension MainButton {
 
         func titleColor(isDisabled: Bool) -> Color {
             if isDisabled {
-                return Colors.Text.disabled
+                return DesignSystem.Color.textTertiary
             }
 
             switch self {
             case .primary:
-                return Colors.Text.primary2
+                return DesignSystem.Color.textInversePrimary
             case .secondary:
-                return Colors.Text.primary1
+                return DesignSystem.Color.textPrimary
             }
         }
 
         func subtitleColor() -> Color {
-            Colors.Text.disabled
+            DesignSystem.Color.textTertiary
         }
 
         func loaderColor() -> Color {
             switch self {
             case .primary:
-                return Colors.Text.primary2
+                return DesignSystem.Color.iconInverse
             case .secondary:
-                return Colors.Text.primary1
+                return DesignSystem.Color.iconPrimary
             }
         }
 
         public func background(isDisabled: Bool) -> Color {
             if isDisabled {
-                return Colors.Button.disabled
+                return DesignSystem.Color.bgDisabled
             }
 
             switch self {
             case .primary:
-                return Colors.Button.primary
+                return DesignSystem.Color.bgInverse
             case .secondary:
-                return Colors.Button.secondary
+                return DesignSystem.Color.bgTransparentSecondary
             }
         }
 
@@ -243,7 +243,7 @@ public extension MainButton {
                 return nil
             }
 
-            return Colors.Stroke.primary
+            return DesignSystem.Color.borderSecondary
         }
 
         public func cornerRadius(for size: MainButton.Size) -> Double {
@@ -419,7 +419,7 @@ extension MainButton: Setupable {
                 }
             }
             .padding(.horizontal, 16)
-            .background(Colors.Background.secondary)
+            .background(DesignSystem.Color.bgPrimary)
         }
     }
 }

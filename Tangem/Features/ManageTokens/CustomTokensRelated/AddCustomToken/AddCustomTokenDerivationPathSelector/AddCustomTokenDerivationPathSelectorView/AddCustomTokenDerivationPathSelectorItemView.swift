@@ -18,12 +18,12 @@ struct AddCustomTokenDerivationPathSelectorItemView: View {
             VStack(alignment: .leading) {
                 Text(viewModel.name)
                     .lineLimit(1)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
 
                 if let derivationPath = viewModel.derivationPath {
                     Text(derivationPath)
                         .lineLimit(1)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 }
             }
 
@@ -32,7 +32,7 @@ struct AddCustomTokenDerivationPathSelectorItemView: View {
             if viewModel.isSelected {
                 Assets.check.image
                     .frame(width: 20, height: 20)
-                    .foregroundColor(Colors.Icon.accent)
+                    .foregroundColor(DesignSystem.Color.iconAccentBlue)
             }
         }
         .padding(.horizontal, 16)
@@ -66,5 +66,5 @@ struct AddCustomTokenDerivationPathSelectorItemView: View {
         .padding(.horizontal)
     }
     .frame(maxHeight: .infinity)
-    .background(Colors.Background.tertiary.ignoresSafeArea())
+    .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
 }

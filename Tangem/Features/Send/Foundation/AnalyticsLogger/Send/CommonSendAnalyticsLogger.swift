@@ -669,6 +669,14 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
         Analytics.log(event: .swapButtonSwap, params: analyticsParameters)
     }
 
+    func logSwapProviderHidden(providerName: String, errorCode: Int?) {
+        Analytics.log(event: .swapProviderHidden, params: [
+            .provider: providerName,
+            .errorCode: errorCode.map(String.init) ?? Analytics.ParameterValue.unknown.rawValue,
+            .source: sourceFlow.rawValue,
+        ])
+    }
+
     func logSwapSlippageSelectorOpened() {
         Analytics.log(event: .swapButtonSlippage, params: buildSwapTokenParams())
     }

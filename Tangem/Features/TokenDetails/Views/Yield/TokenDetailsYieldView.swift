@@ -82,9 +82,9 @@ private extension TokenDetailsYieldView {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                TangemButton(content: .text(AttributedString(item.action.title)), action: item.action.closure)
-                    .setStyleType(.positive)
-                    .setSize(.x9)
+                TangemUI.Button(label: item.action.title, accessibilityLabel: nil, action: item.action.closure)
+                    .styleType(.success)
+                    .size(.x9)
             }
             .padding(padding)
             .background(DesignSystem.Color.bgStatusSuccessSubtle, in: RoundedRectangle(cornerRadius: cornerRadius))
@@ -122,21 +122,23 @@ private extension TokenDetailsYieldView {
             }
 
             HStack(spacing: horizontalSpacing) {
-                TangemButton(
-                    content: .text(AttributedString(item.learnAction.title)),
+                TangemUI.Button(
+                    label: item.learnAction.title,
+                    accessibilityLabel: nil,
                     action: item.learnAction.closure
                 )
-                .setStyleType(.secondary)
-                .setSize(.x9)
-                .setHorizontalLayout(.infinity)
+                .styleType(.secondary(.default))
+                .size(.x9)
+                .horizontalLayout(.infinity)
 
-                TangemButton(
-                    content: .text(AttributedString(item.activateAction.title)),
+                TangemUI.Button(
+                    label: item.activateAction.title,
+                    accessibilityLabel: nil,
                     action: item.activateAction.closure
                 )
-                .setStyleType(.positive)
-                .setSize(.x9)
-                .setHorizontalLayout(.infinity)
+                .styleType(.success)
+                .size(.x9)
+                .horizontalLayout(.infinity)
             }
         }
         .padding(padding)
@@ -217,9 +219,9 @@ private extension TokenDetailsYieldView {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                TangemButton(content: .text(AttributedString(item.action.title)), action: item.action.closure)
-                    .setStyleType(.secondary)
-                    .setSize(.x9)
+                TangemUI.Button(label: item.action.title, accessibilityLabel: nil, action: item.action.closure)
+                    .styleType(.secondary(.default))
+                    .size(.x9)
             }
             .padding(padding)
             .background(DesignSystem.Color.bgSecondary, in: RoundedRectangle(cornerRadius: cornerRadius))

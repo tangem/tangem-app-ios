@@ -10,6 +10,7 @@ import Foundation
 import TangemFoundation
 import Combine
 import UIKit
+import TangemUIUtils
 
 @MainActor
 final class ButtonHoldModel: ObservableObject {
@@ -58,6 +59,7 @@ final class ButtonHoldModel: ObservableObject {
     private var pulseSubscription: AnyCancellable?
     private var touchesSubscription: AnyCancellable?
     private var isConfirmationPending = false
+    private weak var touchView: UIView?
 
     init(
         isLoading: Bool,
@@ -79,6 +81,7 @@ extension ButtonHoldModel {
     func onTouches(view: UIView?, touches: Set<UITouch>, event: UIEvent?) {
         guard shouldObserveTouches() else { return }
         bindTouchesIfNeeded()
+        touchView = view
 
         let item = TouchesItem(view: view, touches: touches, event: event)
         touchesSubject.send(item)
@@ -201,6 +204,7 @@ private extension ButtonHoldModel {
 
     func confirm() {
         setup(state: .confirmed)
+        touchView?.stopEnclosingScrollTracking()
         unbindTouches()
         isConfirmationPending = true
         pendingSubscription = Just(())

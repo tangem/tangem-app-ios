@@ -67,18 +67,35 @@ struct TransactionExpressSubtitleView: View {
 
         case .contact(let name, let icon, _):
             HStack(spacing: 4) {
-                inPrefix
+                recipientPrefix
                 AddressBookContactNameIconView(viewData: icon, size: 16)
                 ownerName(name)
             }
 
-        case .unresolved:
-            EmptyView()
+        case .unresolved(let short, _, let blockiesImage):
+            HStack(spacing: 4) {
+                recipientPrefix
+                Avatar(.address(blockiesImage.map { Image(uiImage: $0).interpolation(.none) }), size: .size16)
+                Text(short)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
         }
     }
 
     private var inPrefix: some View {
         Text(Localization.commonIn)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+    }
+
+    private var recipientPrefix: some View {
+        let preposition = switch model.direction {
+        case .incoming: Localization.commonFromLowercase
+        case .outgoing: Localization.commonFor
+        }
+
+        return Text(preposition)
             .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
     }
 

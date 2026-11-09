@@ -18,9 +18,11 @@ actor PolymarketWebSocketConnectionManager {
 
     private let url: URL
     private let keepalive: Keepalive
+    private let isKeepaliveReply: @Sendable (WebSocketMessage) -> Bool
     private let transport: any WebSocketTransport
     private let delayProvider: any PollDelayProvider
     private let notificationCenter: NotificationCenter
+    private let random: @Sendable (ClosedRange<Double>) -> Double
     private let messageContinuation: AsyncStream<WebSocketMessage>.Continuation
     private let statusContinuation: AsyncStream<PolymarketWebSocketConnectionStatus>.Continuation
 
@@ -44,15 +46,19 @@ actor PolymarketWebSocketConnectionManager {
     init(
         url: URL,
         keepalive: Keepalive,
+        isKeepaliveReply: @escaping @Sendable (WebSocketMessage) -> Bool,
         transport: any WebSocketTransport = URLSessionWebSocketTransport(),
         delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider(),
-        notificationCenter: NotificationCenter = .default
+        notificationCenter: NotificationCenter = .default,
+        random: @escaping @Sendable (ClosedRange<Double>) -> Double = { Double.random(in: $0) }
     ) {
         self.url = url
         self.keepalive = keepalive
+        self.isKeepaliveReply = isKeepaliveReply
         self.transport = transport
         self.delayProvider = delayProvider
         self.notificationCenter = notificationCenter
+        self.random = random
         (messages, messageContinuation) = AsyncStream.makeStream(of: WebSocketMessage.self)
         (statusChanges, statusContinuation) = AsyncStream.makeStream(of: PolymarketWebSocketConnectionStatus.self)
     }
@@ -78,7 +84,7 @@ actor PolymarketWebSocketConnectionManager {
     }
 
     func send(_ message: WebSocketMessage) async throws(SendError) {
-        guard case .connected = state, let connection else {
+        guard state.status == .connected, let connection else {
             throw .notConnected
         }
 
@@ -95,7 +101,7 @@ actor PolymarketWebSocketConnectionManager {
 private extension PolymarketWebSocketConnectionManager {
     func handle(_ event: PolymarketWebSocketMachine.Event) {
         let previousStatus = state.status
-        let effects = PolymarketWebSocketMachine.transition(&state, event)
+        let effects = PolymarketWebSocketMachine.transition(&state, event, random: random)
 
         effects.forEach(perform)
 
@@ -208,6 +214,12 @@ private extension PolymarketWebSocketConnectionManager {
 
         receivedMessageCount += 1
         messageContinuation.yield(message)
+
+        guard !isKeepaliveReply(message) else {
+            return
+        }
+
+        handle(.messageReceived)
     }
 
     func connectionFailed(with error: WebSocketTransportError, generation: Int) {

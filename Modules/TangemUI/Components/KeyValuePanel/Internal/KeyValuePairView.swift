@@ -38,7 +38,7 @@ struct KeyValuePairView: View {
 
                     Assets.infoCircle16.image
                         .renderingMode(.template)
-                        .foregroundStyle(Colors.Icon.informative)
+                        .foregroundStyle(DesignSystem.Color.iconSecondary)
                 }
             }
         } else {
@@ -49,7 +49,7 @@ struct KeyValuePairView: View {
     private func makeTitleText(from string: String) -> some View {
         Text(string)
             .lineLimit(1)
-            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
     }
 
     // MARK: - Subtitle
@@ -60,7 +60,7 @@ struct KeyValuePairView: View {
                 .lineLimit(1)
                 .truncationMode(.middle)
                 .minimumScaleFactor(1)
-                .style(Fonts.Regular.callout, color: Colors.Text.primary1)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textPrimary)
 
             if let imageType = pair.value.icon {
                 imageType.image

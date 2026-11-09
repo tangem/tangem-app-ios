@@ -55,7 +55,7 @@ struct FeeRowView: View {
                 .foregroundColor(iconColor)
 
             Text(viewModel.option.title)
-                .style(leadingFont, color: Colors.Text.primary1)
+                .style(leadingFont, color: DesignSystem.Color.textPrimary)
         }
     }
 
@@ -69,7 +69,7 @@ struct FeeRowView: View {
             trailingView(for: components)
         case .failure:
             Text(AppConstants.emDashSign)
-                .style(leadingFont, color: Colors.Text.primary1)
+                .style(leadingFont, color: DesignSystem.Color.textPrimary)
                 .layoutPriority(1)
         }
     }
@@ -77,16 +77,16 @@ struct FeeRowView: View {
     func trailingView(for components: FormattedFeeComponents) -> some View {
         HStack(spacing: 4) {
             Text(components.cryptoFee)
-                .style(leadingFont, color: Colors.Text.primary1)
+                .style(leadingFont, color: DesignSystem.Color.textPrimary)
                 .layoutPriority(1)
 
             if let fiatFee = components.fiatFee {
                 Text(AppConstants.dotSign)
-                    .style(Fonts.RegularStatic.footnote, color: Colors.Text.primary1)
+                    .style(Fonts.RegularStatic.footnote, color: DesignSystem.Color.textPrimary)
                     .layoutPriority(3)
 
                 Text(fiatFee)
-                    .style(Fonts.RegularStatic.subheadline, color: Colors.Text.tertiary)
+                    .style(Fonts.RegularStatic.subheadline, color: DesignSystem.Color.textSecondary)
                     .layoutPriority(2)
             }
         }
@@ -104,9 +104,9 @@ struct FeeRowView: View {
     private var iconColor: Color {
         switch viewModel.style {
         case .plain:
-            Colors.Icon.accent
+            DesignSystem.Color.iconAccentBlue
         case .selectable(let isSelected):
-            isSelected.value ? Colors.Icon.accent : Colors.Icon.informative
+            isSelected.value ? DesignSystem.Color.iconAccentBlue : DesignSystem.Color.iconSecondary
         }
     }
 }
@@ -144,7 +144,7 @@ extension FeeRowView: Setupable {}
             FeeRowView(viewModel: $0)
         }
     }
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
     .preferredColorScheme(.light)
 }
 
@@ -177,6 +177,6 @@ extension FeeRowView: Setupable {}
             FeeRowView(viewModel: $0)
         }
     }
-    .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+    .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
     .preferredColorScheme(.dark)
 }

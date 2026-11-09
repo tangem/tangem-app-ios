@@ -46,10 +46,15 @@ private extension NotificationBannerShowcase {
         }
     }
 
-    func button(_ title: AttributedString, style: TangemButton.StyleType, itemId: UUID) -> TangemButton.Model {
-        .init(content: .text(title), styleType: style, cornerStyle: .rounded, action: {
-            Task { @MainActor in removeItem(id: itemId) }
-        })
+    func button(_ title: AttributedString, style: TangemUI.Button.StyleType, itemId: UUID) -> NotificationBanner.ButtonItem {
+        let model = TangemUI.Button.Model(
+            content: .label(title),
+            accessibilityLabel: nil,
+            styleType: style,
+            action: { Task { @MainActor in removeItem(id: itemId) } }
+        )
+
+        return NotificationBanner.ButtonItem(model: model)
     }
 
     func closeAction(itemId: UUID) -> NotificationBanner.CloseAction {
@@ -73,10 +78,8 @@ private extension NotificationBannerShowcase {
                         icon: .init(imageType: Assets.notificationBell)
                     )),
                     .buttons(.two(
-                        left: button("Dismiss", style: .secondary, itemId: ids[0]),
-                        right: button("Got it", style: .primary, itemId: ids[0]),
-                        leftAccessibilityIdentifier: nil,
-                        rightAccessibilityIdentifier: nil
+                        left: button("Dismiss", style: .secondary(.default), itemId: ids[0]),
+                        right: button("Got it", style: .primary, itemId: ids[0])
                     ))
                 )
             ),
@@ -88,10 +91,8 @@ private extension NotificationBannerShowcase {
                         subtitle: "To complete setup, back up your wallet and secure thew app with an access code"
                     )),
                     .buttons(.two(
-                        left: button("Dismiss", style: .secondary, itemId: ids[1]),
-                        right: button("Got it", style: .primary, itemId: ids[1]),
-                        leftAccessibilityIdentifier: nil,
-                        rightAccessibilityIdentifier: nil
+                        left: button("Dismiss", style: .secondary(.default), itemId: ids[1]),
+                        right: button("Got it", style: .primary, itemId: ids[1])
                     ))
                 )
             ),
@@ -115,10 +116,8 @@ private extension NotificationBannerShowcase {
                         icon: .init(imageType: Assets.notificationBell)
                     )),
                     .buttons(.two(
-                        left: button("Settings", style: .secondary, itemId: ids[3]),
-                        right: button("Enable notifications", style: .primary, itemId: ids[3]),
-                        leftAccessibilityIdentifier: nil,
-                        rightAccessibilityIdentifier: nil
+                        left: button("Settings", style: .secondary(.default), itemId: ids[3]),
+                        right: button("Enable notifications", style: .primary, itemId: ids[3])
                     ))
                 )
             ),
@@ -129,7 +128,7 @@ private extension NotificationBannerShowcase {
                         title: "Tangem Visa Card",
                         subtitle: "Join the waitlist and get a payment card unlike any other"
                     )),
-                    .buttons(.one(button("Got it", style: .primary, itemId: ids[4]), accessibilityIdentifier: nil)),
+                    .buttons(.one(button("Got it", style: .primary, itemId: ids[4]))),
                     closeAction(itemId: ids[4])
                 )
             ),
@@ -143,10 +142,8 @@ private extension NotificationBannerShowcase {
                         )
                     ),
                     .buttons(.two(
-                        left: button("Dismiss", style: .secondary, itemId: ids[5]),
-                        right: button("Got it", style: .primary, itemId: ids[5]),
-                        leftAccessibilityIdentifier: nil,
-                        rightAccessibilityIdentifier: nil
+                        left: button("Dismiss", style: .secondary(.default), itemId: ids[5]),
+                        right: button("Got it", style: .primary, itemId: ids[5])
                     )),
                     closeAction(itemId: ids[5])
                 )
@@ -159,10 +156,8 @@ private extension NotificationBannerShowcase {
                         subtitle: "Help us improve by sharing your feedback about the app."
                     )),
                     .buttons(.two(
-                        left: button("Dismiss", style: .secondary, itemId: ids[6]),
-                        right: button("Got it", style: .primary, itemId: ids[6]),
-                        leftAccessibilityIdentifier: nil,
-                        rightAccessibilityIdentifier: nil
+                        left: button("Dismiss", style: .secondary(.default), itemId: ids[6]),
+                        right: button("Got it", style: .primary, itemId: ids[6])
                     )),
                     closeAction(itemId: ids[6])
                 )

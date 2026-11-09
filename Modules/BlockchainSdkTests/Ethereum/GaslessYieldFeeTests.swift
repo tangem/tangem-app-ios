@@ -55,6 +55,28 @@ struct GaslessYieldFeeTests {
         #expect(parameters.gasLimit == 21_000 + 140_000 + 70_000 + EthereumFeeParametersConstants.gaslessBaseGasBuffer)
     }
 
+    @Test("Fee funded by the transaction falls back to deterministic transfer gas without a yield withdraw")
+    func feeFundedByTransactionFallsBackToTransferGasWithoutWithdraw() async throws {
+        let sut = makeSUT(gasLimitResults: [
+            .failure(JSONRPC.APIError(code: 3, message: "ERC20: transfer amount exceeds balance")),
+        ])
+
+        let fee = try await sut.getEstimatedGaslessTransactionFeeFundedByTransaction(
+            feeToken: Self.feeToken,
+            estimatedGasLimit: 21_000,
+            feeRecipientAddress: Self.feeRecipientAddress,
+            nativeToFeeTokenRate: 1
+        )
+
+        let parameters = try #require(fee.parameters as? EthereumGaslessTransactionFeeParameters)
+
+        #expect(parameters.yieldWithdraw == nil)
+        #expect(parameters.feeTokenTransferGasLimit == 140_000)
+        #expect(parameters.callGasLimit == 21_000)
+        #expect(parameters.gasLimit == 21_000 + 140_000 + EthereumFeeParametersConstants.gaslessBaseGasBuffer)
+        #expect(sut.gasLimitRequests.count == 1)
+    }
+
     @Test("Yield transaction fee re-estimates upgrade wrapped user transaction")
     func yieldTransactionFeeReestimatesUpgradeWrappedUserTransaction() async throws {
         let sut = makeSUT(gasLimitResults: [
@@ -82,6 +104,39 @@ struct GaslessYieldFeeTests {
         #expect(parameters.feeTokenTransferGasLimit == 70_000)
         #expect(yieldWithdraw.withdrawGasLimit == 84_000)
         #expect(parameters.gasLimit == 32_000 + 70_000 + 84_000 + EthereumFeeParametersConstants.gaslessBaseGasBuffer)
+    }
+
+    @Test("Yield transaction fee does not wrap a user transaction that is already upgrade wrapped")
+    func yieldTransactionFeeKeepsAlreadyWrappedUserTransaction() async throws {
+        let sut = makeSUT(gasLimitResults: [
+            .success(32_000),
+            .success(50_000),
+            .success(60_000),
+        ])
+
+        let wrappedData = UpgradeToAndCallMethod(
+            newImplementation: Self.upgradeImplementation,
+            callData: Data([0x12, 0x34])
+        ).data
+
+        let doubleWrappedData = UpgradeToAndCallMethod(
+            newImplementation: Self.upgradeImplementation,
+            callData: wrappedData
+        ).encodedData
+
+        _ = try await sut.getGaslessYieldTransactionFee(
+            feeToken: Self.feeToken,
+            destination: Self.upgradeYieldFeeOptions.yieldContractAddress,
+            value: "0x0",
+            data: wrappedData,
+            otherNativeFee: nil,
+            feeRecipientAddress: Self.feeRecipientAddress,
+            nativeToFeeTokenRate: 1,
+            yieldFeeOptions: Self.upgradeYieldFeeOptions
+        )
+
+        #expect(sut.gasLimitRequests.count == 3)
+        #expect(!sut.gasLimitRequests.contains { $0.data?.caseInsensitiveEquals(to: doubleWrappedData) == true })
     }
 
     /// The gasless flow builds its amount from the token item, which carries no yield supply metadata. Without

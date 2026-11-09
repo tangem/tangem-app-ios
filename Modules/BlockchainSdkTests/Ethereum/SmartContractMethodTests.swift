@@ -130,6 +130,27 @@ struct SmartContractMethodTests {
         #expect(!TransferERC20TokenMethod.isEncodedCall(Data()))
     }
 
+    @Test("Recognizes an upgradeToAndCall call in any hex case")
+    func upgradeToAndCallMethodIsEncodedCall() throws {
+        let innerCalldata = try TransferERC20TokenMethod(
+            destination: "0x90e4d59c8583e37426b37d1d7394b6008a987c67",
+            amount: BigUInt("1000000")
+        ).data
+
+        let upgradeCalldata = UpgradeToAndCallMethod(
+            newImplementation: "0xaaF16358336a5e292b1D70057f99c3f2e8241C63",
+            callData: innerCalldata
+        ).data
+
+        #expect(UpgradeToAndCallMethod.isEncodedCall(upgradeCalldata))
+        #expect(UpgradeToAndCallMethod.isEncodedCall(upgradeCalldata.hex(.lowercase).addHexPrefix()))
+        #expect(UpgradeToAndCallMethod.isEncodedCall(upgradeCalldata.hex(.uppercase).addHexPrefix()))
+        #expect(UpgradeToAndCallMethod.isEncodedCall(upgradeCalldata.hex(.uppercase)))
+        #expect(!UpgradeToAndCallMethod.isEncodedCall(innerCalldata))
+        #expect(!UpgradeToAndCallMethod.isEncodedCall(innerCalldata.hex(.uppercase).addHexPrefix()))
+        #expect(!UpgradeToAndCallMethod.isEncodedCall(Data()))
+    }
+
     @Test("Rejects calldata that is not a well-formed transfer call", arguments: [
         TransferERC20TokenMethodDecodingRejectionTestCase.approveInsteadOfTransfer,
         TransferERC20TokenMethodDecodingRejectionTestCase.empty,

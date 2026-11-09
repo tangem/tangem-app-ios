@@ -20,7 +20,7 @@ extension CollectiblesWelcomeView {
 
         var body: some View {
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                ForEach(indexed: items, id: \.0) { index, item in
                     if index > 0 {
                         Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
                     }

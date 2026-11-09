@@ -17,12 +17,14 @@ final class FeedWidgetSheetPresenter: ObservableObject {
 
     @Published private(set) var selector: WidgetSelector?
     @Published var isSelectorPresented = false
+    @Published private(set) var status: WidgetStatus?
+    @Published var isStatusPresented = false
 
     private weak var presentedWidgetSheet: AnyObject?
     private var selectionCompletion: (@MainActor () -> Void)?
     private var bag = Set<AnyCancellable>()
 
-    var isPresenting: Bool { presentedWidgetSheet != nil || selector != nil }
+    var isPresenting: Bool { presentedWidgetSheet != nil || selector != nil || status != nil }
 
     init() {
         sheetStateProvider
@@ -42,6 +44,11 @@ final class FeedWidgetSheetPresenter: ObservableObject {
         isSelectorPresented = false
         selector = nil
     }
+
+    func dropStatus() {
+        isStatusPresented = false
+        status = nil
+    }
 }
 
 extension FeedWidgetSheetPresenter {
@@ -49,6 +56,10 @@ extension FeedWidgetSheetPresenter {
         case accounts(AccountSelectorViewModel)
         case referral(FeedReferralWalletSelectorViewModel)
         case accountType(AddAccountTypeSelectorViewModel)
+    }
+
+    enum WidgetStatus {
+        case collectiblesRegionRestricted
     }
 }
 
@@ -102,6 +113,22 @@ extension FeedWidgetSheetPresenter {
         selector = nil
         isSelectorPresented = false
         completion?()
+    }
+
+    func presentStatus(_ status: WidgetStatus) {
+        guard self.status == nil else { return }
+
+        self.status = status
+        isStatusPresented = true
+    }
+
+    func dismissStatus() {
+        isStatusPresented = false
+    }
+
+    func statusDidDismiss() {
+        status = nil
+        isStatusPresented = false
     }
 
     func enqueue(_ sheet: some FloatingSheetContentViewModel & AnyObject) {

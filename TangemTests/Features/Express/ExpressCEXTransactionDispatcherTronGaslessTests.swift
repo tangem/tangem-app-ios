@@ -43,7 +43,7 @@ final class ExpressCEXTransactionDispatcherTronGaslessTests: LeakTrackingTestSui
         #expect(transaction.fee.amount.value == Decimal(string: "2.5"))
         let parameters = try #require(transaction.fee.parameters as? TronGaslessFeeParameters)
         #expect(parameters.quoteId == "stale-quote")
-        #expect(parameters.request.destinationAddress == sourceAddress)
+        #expect(parameters.request.operation == .transfer(destinationAddress: sourceAddress))
     }
 
     @Test("a coin-paid CEX send signs the fee it was given")
@@ -136,7 +136,7 @@ private extension ExpressCEXTransactionDispatcherTronGaslessTests {
                 sourceAddress: sourceAddress,
                 destinationAddress: sourceAddress,
                 tokenContractAddress: tokenContract,
-                amountRaw: "10000000",
+                amountRaw: 10_000_000,
                 feeTokenContractAddress: tokenContract
             ),
             feeRecipient: "TFeeRecipient",
@@ -182,4 +182,233 @@ private final class TransactionCreatorStub: TransactionCreator {
     func validate(amount: Amount, fee: Fee) throws {}
 
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {}
+}
+
+@Suite("TronGaslessTransactionSender — contract calls", .serialized)
+struct TronGaslessTransactionSenderContractCallTests {
+    @Test("a swap signs and submits compensation and original transactions")
+    func swap_signsAndSubmitsBothTransactions() async throws {
+        try await InjectedDependenciesIsolation.shared.run {
+            let previousNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
+            defer {
+                InjectedValues[\.gaslessTransactionsNetworkManager] = previousNetworkManager
+            }
+
+            let networkManager = TronGaslessSubmitNetworkManagerStub()
+            InjectedValues[\.gaslessTransactionsNetworkManager] = networkManager
+
+            let token = Token(
+                name: "USDT",
+                symbol: "USDT",
+                contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                decimalCount: 6
+            )
+            let tokenItem = TokenItem.token(token, .init(.tron(testnet: false), derivationPath: nil))
+            let walletModel = WalletModelTestsMock(
+                tokenItem: tokenItem,
+                isEmpty: false,
+                addresses: [PlainAddress(value: "TSource", type: .default)]
+            )
+            let builder = TronGaslessBuilderSpy()
+            walletModel.tronGaslessTransactionsBuilderMock = builder
+            walletModel.availableBalanceProviderMock = TokenBalanceProviderTestsMock(balance: 10)
+
+            let feeToken = BSDKToken(
+                name: token.name,
+                symbol: token.symbol,
+                contractAddress: token.contractAddress,
+                decimalCount: token.decimalCount
+            )
+            let callData = Data([0x31, 0x10, 0xC7, 0xB9])
+            let parameters = TronGaslessFeeParameters(
+                quoteId: "quote",
+                request: TronGaslessQuoteRequest(
+                    sourceAddress: "TSource",
+                    tokenContractAddress: token.contractAddress,
+                    amountRaw: 3_000_000,
+                    feeTokenContractAddress: token.contractAddress,
+                    operation: .swap(contractAddress: "TSwap", callData: callData, spender: "TSpender")
+                ),
+                feeRecipient: "TFeeRecipient",
+                compensationToken: token.contractAddress,
+                compensationAmountRaw: "2500000",
+                expiresAt: .distantFuture,
+                energy: 1,
+                bandwidth: 1,
+                trxCost: "20"
+            )
+            let transaction = BSDKTransaction(
+                amount: BSDKAmount(with: .tron(testnet: false), type: .coin, value: 0),
+                fee: BSDKFee(BSDKAmount(with: feeToken, value: 2.5), parameters: parameters),
+                sourceAddress: "TSource",
+                destinationAddress: "TSwap",
+                changeAddress: "TSource",
+                contractAddress: "TSwap",
+                params: TronTransactionParams(transactionType: .contractCall(callData: callData, feeLimit: 20_000_000))
+            )
+            let sut = TronGaslessTransactionSender(
+                walletModel: walletModel,
+                transactionSigner: TangemSignerStub()
+            )
+
+            let result = try await sut.send(transaction: transaction)
+
+            #expect(result.hash == "originalHash")
+            #expect(builder.originalTransaction?.destinationAddress == "TSwap")
+            #expect(builder.compensationTransaction?.destinationAddress == "TFeeRecipient")
+            #expect(builder.compensationTransaction?.amount.value == 2.5)
+            #expect(networkManager.submitRequests == [
+                .init(
+                    quoteId: "quote",
+                    signedCompensationTx: "signedCompensation",
+                    signedOriginalTx: "signedOriginal"
+                ),
+            ])
+        }
+    }
+
+    @Test("a swap validates the source amount and compensation against the fee-token balance")
+    func swap_combinedAmountExceedsBalance_notEnoughGaslessFeeBalance() async {
+        await InjectedDependenciesIsolation.shared.run {
+            let previousNetworkManager = InjectedValues[\.gaslessTransactionsNetworkManager]
+            defer {
+                InjectedValues[\.gaslessTransactionsNetworkManager] = previousNetworkManager
+            }
+
+            let networkManager = TronGaslessSubmitNetworkManagerStub()
+            InjectedValues[\.gaslessTransactionsNetworkManager] = networkManager
+
+            let token = Token(
+                name: "USDT",
+                symbol: "USDT",
+                contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+                decimalCount: 6
+            )
+            let tokenItem = TokenItem.token(token, .init(.tron(testnet: false), derivationPath: nil))
+            let walletModel = WalletModelTestsMock(
+                tokenItem: tokenItem,
+                isEmpty: false,
+                addresses: [PlainAddress(value: "TSource", type: .default)]
+            )
+            let builder = TronGaslessBuilderSpy()
+            walletModel.tronGaslessTransactionsBuilderMock = builder
+            walletModel.availableBalanceProviderMock = TokenBalanceProviderTestsMock(balance: 5)
+
+            let feeToken = BSDKToken(
+                name: token.name,
+                symbol: token.symbol,
+                contractAddress: token.contractAddress,
+                decimalCount: token.decimalCount
+            )
+            let callData = Data([0x31, 0x10, 0xC7, 0xB9])
+            let parameters = TronGaslessFeeParameters(
+                quoteId: "quote",
+                request: TronGaslessQuoteRequest(
+                    sourceAddress: "TSource",
+                    tokenContractAddress: token.contractAddress,
+                    amountRaw: 3_000_000,
+                    feeTokenContractAddress: token.contractAddress,
+                    operation: .swap(contractAddress: "TSwap", callData: callData, spender: "TSpender")
+                ),
+                feeRecipient: "TFeeRecipient",
+                compensationToken: token.contractAddress,
+                compensationAmountRaw: "2500000",
+                expiresAt: .distantFuture,
+                energy: 1,
+                bandwidth: 1,
+                trxCost: "20"
+            )
+            let transaction = BSDKTransaction(
+                amount: BSDKAmount(with: .tron(testnet: false), type: .coin, value: 0),
+                fee: BSDKFee(BSDKAmount(with: feeToken, value: 2.5), parameters: parameters),
+                sourceAddress: "TSource",
+                destinationAddress: "TSwap",
+                changeAddress: "TSource",
+                contractAddress: "TSwap",
+                params: TronTransactionParams(transactionType: .contractCall(callData: callData, feeLimit: 20_000_000))
+            )
+            let sut = TronGaslessTransactionSender(
+                walletModel: walletModel,
+                transactionSigner: TangemSignerStub()
+            )
+
+            do {
+                _ = try await sut.send(transaction: transaction)
+                Issue.record("Expected notEnoughGaslessFeeBalance")
+            } catch TokenFeeProviderError.notEnoughGaslessFeeBalance(let balance) {
+                #expect(balance == 5)
+            } catch {
+                Issue.record("Unexpected error: \(error)")
+            }
+
+            #expect(builder.originalTransaction == nil)
+            #expect(networkManager.submitRequests.isEmpty)
+        }
+    }
+}
+
+private final class TronGaslessBuilderSpy: TronGaslessTransactionsBuilder {
+    private(set) var originalTransaction: BSDKTransaction?
+    private(set) var compensationTransaction: BSDKTransaction?
+
+    func buildForGaslessSubmit(
+        originalTransaction: BSDKTransaction,
+        compensationTransaction: BSDKTransaction,
+        signer: TransactionSigner
+    ) async throws -> TronGaslessSignedTransactions {
+        self.originalTransaction = originalTransaction
+        self.compensationTransaction = compensationTransaction
+        return TronGaslessSignedTransactions(
+            signedCompensationTx: "signedCompensation",
+            signedOriginalTx: "signedOriginal"
+        )
+    }
+}
+
+private final class TronGaslessSubmitNetworkManagerStub: GaslessTransactionsNetworkManager {
+    private(set) var submitRequests: [TronSubmitRequest] = []
+
+    let cachedFeeRecipientAddress: String? = nil
+    var availableFeeTokens: [FeeToken] { [] }
+    var availableFeeTokensPublisher: AnyPublisher<[FeeToken], Never> { Just([]).eraseToAnyPublisher() }
+    var availableTronFeeTokens: [TronFeeToken] { [] }
+    var availableTronFeeTokensPublisher: AnyPublisher<[TronFeeToken], Never> { Just([]).eraseToAnyPublisher() }
+    var currentHost: String { "test" }
+    var feeRecipientAddress: String? { nil }
+
+    func updateAvailableTokens() {}
+    func sendGaslessTransaction(_ transaction: GaslessTransaction, executorVersion: GaslessExecutorVersion) async throws -> String { "" }
+    func sendGaslessBatchTransaction(_ transaction: GaslessBatchTransaction) async throws -> String { "" }
+    func initialize() {}
+    func preloadFeeRecipientAddress() {}
+
+    func estimateTronGaslessTransaction(
+        _ request: TronEstimateRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronEstimateResponse {
+        throw StubError.notNeeded
+    }
+
+    func submitTronGaslessTransaction(
+        _ request: TronSubmitRequest,
+        userWalletId: UserWalletId
+    ) async throws -> TronSubmitResponse {
+        submitRequests.append(request)
+        let data = Data(
+            """
+            {
+              "result": {
+                "compensationTxHash": "compensationHash",
+                "originalTxHash": "originalHash",
+                "status": "broadcast"
+              }
+            }
+            """.utf8
+        )
+        return try JSONDecoder().decode(TronSubmitResponse.self, from: data)
+    }
+
+    private enum StubError: Error {
+        case notNeeded
+    }
 }

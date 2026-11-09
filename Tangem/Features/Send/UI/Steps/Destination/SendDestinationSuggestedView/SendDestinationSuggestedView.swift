@@ -33,18 +33,18 @@ struct SendDestinationSuggestedView: View {
             ) {
                 HStack(spacing: 4) {
                     Text(wallet.wallet.name)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                         .lineLimit(1)
 
                     if let account = wallet.wallet.account {
                         Text(AppConstants.dotSign)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
                         AccountIconView(data: account.icon)
                             .settings(.extraSmallSized)
 
                         Text(account.name)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                             .accessibilityIdentifier(SendAccessibilityIdentifiers.suggestedDestinationWalletAccount(name: account.name))
                     }
                 }
@@ -54,7 +54,7 @@ struct SendDestinationSuggestedView: View {
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.suggestedDestinationHeader)
                 .padding(.top, 12)
         }
-        .backgroundColor(Colors.Background.action)
+        .backgroundColor(DesignSystem.Color.bgSecondary)
         .interItemSpacing(0)
         .separatorStyle(.none)
         .accessibilityIdentifier(SendAccessibilityIdentifiers.suggestedDestinationMyWalletsBlock)
@@ -72,11 +72,11 @@ struct SendDestinationSuggestedView: View {
                 HStack(spacing: 6) {
                     directionArrow(isOutgoing: transaction.record.isOutgoing)
                         .frame(size: CGSize(bothDimensions: 16))
-                        .background(Colors.Background.tertiary)
+                        .background(DesignSystem.Color.bgPrimary)
                         .clipShape(Circle())
 
                     SensitiveText(builder: transaction.record.description, sensitive: transaction.record.amountFormatted)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                         .truncationMode(.middle)
                         .lineLimit(1)
                 }
@@ -86,7 +86,7 @@ struct SendDestinationSuggestedView: View {
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.suggestedDestinationHeader)
                 .padding(.top, 12)
         }
-        .backgroundColor(Colors.Background.action)
+        .backgroundColor(DesignSystem.Color.bgSecondary)
         .interItemSpacing(0)
         .separatorStyle(.none)
     }
@@ -117,7 +117,7 @@ struct SendDestinationSuggestedWalletView<BottomView: View>: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(address)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
                         .truncationMode(.middle)
                         .lineLimit(1)
                         .infinityFrame(axis: .horizontal, alignment: .leading)

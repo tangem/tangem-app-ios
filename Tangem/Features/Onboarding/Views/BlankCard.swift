@@ -16,21 +16,21 @@ struct BlankCard: View {
 
         var color: Color {
             switch self {
-            case .dark: return Colors.Old.tangemGrayDark6
-            case .light: return Colors.Old.tangemGrayLight4
+            case .dark: return DesignSystem.Color.bgInverse
+            case .light: return DesignSystem.Color.bgTransparentSecondary
             }
         }
 
         var logoColor: Color {
             switch self {
             case .dark: return .white
-            case .light: return Colors.Old.tangemGrayDark5
+            case .light: return DesignSystem.Color.iconPrimary
             }
         }
 
         var starsColor: Color {
             switch self {
-            case .dark: return Colors.Old.tangemGrayDark
+            case .dark: return DesignSystem.Color.textSecondary
             case .light: return logoColor
             }
         }

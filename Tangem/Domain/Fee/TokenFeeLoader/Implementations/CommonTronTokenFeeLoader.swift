@@ -50,4 +50,45 @@ extension CommonTronTokenFeeLoader: TokenFeeLoader {
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] {
         try await tokenFeeLoader.getFee(amount: amount, destination: destination)
     }
+
+    func supports(_ input: TokenFeeProviderInputData) -> Bool {
+        supportsTronFeeInput(input)
+    }
+
+    func loadFees(_ input: TokenFeeProviderInputData, feeBlockchain: Blockchain) async throws -> [BSDKFee] {
+        try await loadTronFees(input, feeBlockchain: feeBlockchain)
+    }
+}
+
+extension TronTokenFeeLoader {
+    func supportsTronFeeInput(_ input: TokenFeeProviderInputData) -> Bool {
+        switch input {
+        case .common, .cex, .dex(.tron), .approve:
+            return true
+        case .dex(.ethereum), .dex(.ethereumEstimate), .dex(.solana), .dex(.bitcoinPsbt), .approveWithSwap:
+            return false
+        }
+    }
+
+    func loadTronFees(_ input: TokenFeeProviderInputData, feeBlockchain: Blockchain) async throws -> [BSDKFee] {
+        switch input {
+        case .common(let amount, let destination):
+            return try await getFee(amount: amount, destination: destination)
+        case .cex(let amount):
+            return try await estimatedFee(amount: amount)
+        case .dex(.tron(let request, _, _)):
+            return try await getFee(request: request)
+        case .approve(let txData, let toContractAddress, _, _, _):
+            let zeroAmount = BSDKAmount(with: feeBlockchain, type: .coin, value: 0)
+            return try await getFee(request: TronFeeRequestData(
+                amount: zeroAmount,
+                destination: toContractAddress,
+                callData: txData,
+                memo: nil,
+                otherNativeFee: nil
+            ))
+        case .dex(.ethereum), .dex(.ethereumEstimate), .dex(.solana), .dex(.bitcoinPsbt), .approveWithSwap:
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+        }
+    }
 }

@@ -37,4 +37,26 @@ extension CommonBitcoinTokenFeeLoader: TokenFeeLoader {
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] {
         try await tokenFeeLoader.getFee(amount: amount, destination: destination)
     }
+
+    func supports(_ input: TokenFeeProviderInputData) -> Bool {
+        switch input {
+        case .common, .cex, .dex(.bitcoinPsbt):
+            return true
+        case .dex(.ethereum), .dex(.ethereumEstimate), .dex(.solana), .dex(.tron), .approve, .approveWithSwap:
+            return false
+        }
+    }
+
+    func loadFees(_ input: TokenFeeProviderInputData, feeBlockchain _: Blockchain) async throws -> [BSDKFee] {
+        switch input {
+        case .common(let amount, let destination):
+            return try await getFee(amount: amount, destination: destination)
+        case .cex(let amount):
+            return try await estimatedFee(amount: amount)
+        case .dex(.bitcoinPsbt(let psbtBase64)):
+            return try await getFee(psbtBase64: psbtBase64)
+        case .dex(.ethereum), .dex(.ethereumEstimate), .dex(.solana), .dex(.tron), .approve, .approveWithSwap:
+            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
+        }
+    }
 }

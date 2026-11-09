@@ -13,7 +13,7 @@ public extension Publishers {
     struct AsyncMap<Upstream, Output>: Publisher where Upstream: Publisher {
         public typealias Output = Output
         public typealias Failure = Upstream.Failure
-        public typealias Transform = (_ input: Upstream.Output) async -> Output
+        public typealias Transform = @Sendable (_ input: Upstream.Output) async -> Output
 
         private let upstream: Upstream
         private let priority: TaskPriority?
@@ -27,25 +27,12 @@ public extension Publishers {
 
         public func receive<S>(subscriber: S) where S: Subscriber, Upstream.Failure == S.Failure, Output == S.Input {
             upstream
-                .flatMap(maxPublishers: .max(1)) { value in
-                    let subject = PassthroughSubject<Output, Failure>()
-
-                    let task = Task(priority: priority) {
-                        // This defer handles task cancellation (`guard !Task.isCancelled else { return }` checks below
-                        // Only the very first `completion` call will be sent to the subscriber
-                        defer { subject.send(completion: .finished) }
-
-                        guard !Task.isCancelled else { return }
-
+                .flatMap(maxPublishers: .max(1)) { [priority, transform] value in
+                    AsyncResultPublisher<Output, Failure>(priority: priority) {
                         let output = await transform(value)
 
-                        guard !Task.isCancelled else { return }
-
-                        subject.send(output)
-                        subject.send(completion: .finished)
+                        return .success(output)
                     }
-
-                    return subject.handleEvents(receiveCancel: task.cancel)
                 }
                 .receive(subscriber: subscriber)
         }

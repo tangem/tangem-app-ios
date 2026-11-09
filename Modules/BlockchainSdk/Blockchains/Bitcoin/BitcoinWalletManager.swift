@@ -44,20 +44,20 @@ class BitcoinWalletManager: BaseWalletManager, WalletManager, DustRestrictable, 
     func updateWalletManager(addresses: [any Address]) async throws {
         do {
             let responses = try await networkService.getInfo(addresses: addresses).async()
-            updateWallet(with: responses)
+            try updateWallet(with: responses)
         } catch {
             wallet.clearAmounts()
             throw error
         }
     }
 
-    func updateWallet(with responses: [UTXONetworkProviderUpdatingResponse]) {
+    func updateWallet(with responses: [UTXONetworkProviderUpdatingResponse]) throws {
         unspentOutputManager.clearOutputs()
 
         responses.forEach { response in
             unspentOutputManager.update(outputs: response.response.outputs, for: response.address)
         }
-        let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
+        let balance = try unspentOutputManager.balance(blockchain: wallet.blockchain)
         wallet.add(coinValue: balance)
 
         let mapper = PendingTransactionRecordMapper()
@@ -149,7 +149,7 @@ extension BitcoinWalletManager: XPUBWalletManagerUpdater, MultipleXPUBWalletMana
             }
         }
 
-        let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
+        let balance = try unspentOutputManager.balance(blockchain: wallet.blockchain)
         wallet.add(coinValue: balance)
 
         let mapper = PendingTransactionRecordMapper()
@@ -221,8 +221,10 @@ extension BitcoinWalletManager: XPUBAddressesWalletManagerProvider {
     }
 
     func compoundTransactionIfNeeded() -> (amount: Amount, destination: String)? {
-        let balance = unspentOutputManager.balance(blockchain: wallet.blockchain)
-        guard balance > 0 else {
+        guard
+            let balance = try? unspentOutputManager.balance(blockchain: wallet.blockchain),
+            balance > 0
+        else {
             return nil
         }
 

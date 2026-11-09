@@ -14,13 +14,14 @@ import TangemUIUtils
 
 struct PolymarketPositionNoticeView: View {
     let notice: PolymarketPositionNotice
+    var variant: MessageBannerVariant = .warning
 
     var body: some View {
         MessageBanner(
             title: AttributedString(notice.title),
             description: AttributedString(notice.message)
         )
-        .variant(.warning)
+        .variant(variant)
         .glowRing(.warning)
         .slotEnd { hint }
     }

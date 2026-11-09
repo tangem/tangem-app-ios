@@ -21,14 +21,14 @@ struct LockView: View {
     var body: some View {
         VStack(spacing: 0) {
             TangemIconView()
-                .foregroundColor(Colors.Text.primary1)
+                .foregroundColor(DesignSystem.Color.iconPrimary)
                 .padding(.bottom, 48)
                 .if(usesNamespace) {
                     $0.matchedGeometryEffect(geometryEffect)
                 }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgPrimary)
         .edgesIgnoringSafeArea(.all)
     }
 }

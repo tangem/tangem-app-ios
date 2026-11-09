@@ -28,12 +28,12 @@ struct DefaultSelectableRowView<ID: Hashable>: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(data.title)
-                        .style(Fonts.Regular.callout, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.callout, color: DesignSystem.Color.textPrimary)
                         .multilineTextAlignment(.leading)
 
                     if let subtitle = data.subtitle {
                         Text(subtitle)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                             .multilineTextAlignment(.leading)
                     }
                 }

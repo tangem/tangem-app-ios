@@ -24,9 +24,11 @@ struct AddressBookContactManagementCoordinatorView: CoordinatorView {
         .sheet(item: $coordinator.qrScanCoordinator) {
             MainQRScanCoordinatorView(coordinator: $0)
                 .ignoresSafeArea()
+                .softTopScrollEdgeEffect()
         }
         .sheet(item: $coordinator.chooseNetworkViewModel) { viewModel in
             ChooseNetworkView(viewModel: viewModel)
+                .softTopScrollEdgeEffect()
         }
         .floatingSheetContent(for: AddressActionsViewModel.self) { viewModel in
             AddressActionsView(viewModel: viewModel)

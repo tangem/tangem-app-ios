@@ -13,7 +13,7 @@ import TangemStories
 /// Removes cache files for story assets no longer referenced by the full manifest of every story.
 final class StoryAssetReconcileService {
     @Injected(\.storiesV2RemoteStore) private var remoteStore: StoriesV2RemoteStore
-    @Injected(\.storiesV2AssetCache) private var cache: StoryAssetCaching
+    @Injected(\.storiesV2AssetCache) private var cache: FileAssetCaching
 
     func reconcile() async {
         do {

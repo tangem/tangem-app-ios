@@ -23,7 +23,7 @@ struct SendFeeFinishView: View {
             DefaultHeaderView(Localization.commonNetworkFeeTitle)
                 .padding(.top, 12)
         }
-        .backgroundColor(Colors.Background.action)
+        .backgroundColor(DesignSystem.Color.bgSecondary)
         .accessibilityIdentifier(SendAccessibilityIdentifiers.networkFeeBlock)
     }
 }

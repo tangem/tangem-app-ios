@@ -44,15 +44,17 @@ struct NFTAssetDetailsCoordinatorView: View {
                     NFTAssetExtendedTraitsView(viewData: viewData)
                         .withCloseButton(action: coordinator.closeTraits)
                 }
+                .softTopScrollEdgeEffect()
             }
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
 
         NavHolder()
             .bottomSheet(
                 item: $coordinator.extendedInfoViewData,
-                settings: .init(backgroundColor: Colors.Background.action)
+                settings: .init(backgroundColor: DesignSystem.Color.bgSecondary)
             ) {
                 NFTAssetExtendedInfoView(
                     viewData: $0,

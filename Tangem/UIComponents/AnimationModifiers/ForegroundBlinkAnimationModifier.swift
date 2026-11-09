@@ -117,12 +117,12 @@ private extension ForegroundBlinkAnimationChange {
         Text("5.5431254132 BTC")
             .blinkForegroundColor(
                 publisher: blinker.$blink,
-                positiveColor: Colors.Text.accent,
-                negativeColor: Colors.Text.warning,
-                originalColor: Colors.Text.primary1,
+                positiveColor: DesignSystem.Color.textAccentBlue,
+                negativeColor: DesignSystem.Color.textAccentRed,
+                originalColor: DesignSystem.Color.textPrimary,
                 duration: 1.0
             )
-            .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
     }
     .background(Color.yellow)
 }

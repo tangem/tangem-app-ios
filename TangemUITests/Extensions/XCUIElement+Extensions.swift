@@ -129,6 +129,12 @@ extension XCUIElement {
         }
     }
 
+    func tapPreferringHittable(timeout: TimeInterval = .shortUIUpdate) {
+        let hittable = XCTNSPredicateExpectation(predicate: NSPredicate(format: NSPredicateFormat.hittable.rawValue), object: self)
+        _ = XCTWaiter().wait(for: [hittable], timeout: timeout)
+        tapEvenIfNotHittable()
+    }
+
     /// Waits for a finite, non-empty frame so later hittability reads don't abort on a stale snapshot.
     @discardableResult
     func waitForStableFrame(timeout: TimeInterval = .conditional) -> Bool {
@@ -206,7 +212,7 @@ extension XCUIElement {
             return element.isHoldInProgress
         }
         let startExpectation = XCTNSPredicateExpectation(predicate: started, object: self)
-        _ = XCTWaiter().wait(for: [startExpectation], timeout: Constants.holdRefreshPeriod)
+        _ = XCTWaiter().wait(for: [startExpectation], timeout: Constants.holdRetryRefreshWait)
     }
 
     private func waitForHoldToBeConfirmed(
@@ -360,6 +366,7 @@ private extension XCUIElement {
         static let holdToConfirmDuration: TimeInterval = 3
         static let holdToConfirmAttempts = 3
         static let holdRefreshPeriod: TimeInterval = 12
+        static let holdRetryRefreshWait: TimeInterval = 5
         static let holdResultTimeout: TimeInterval = 2
     }
 }

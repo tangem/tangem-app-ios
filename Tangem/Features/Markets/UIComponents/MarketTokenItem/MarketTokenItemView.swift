@@ -54,12 +54,12 @@ struct MarketTokenItemView: View {
                 Text(viewModel.name)
                     .lineLimit(1)
                     .truncationMode(.middle)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                     .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenNameLabel)
 
                 Text(viewModel.symbol)
                     .lineLimit(1)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                     .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenCurrencyLabel)
             }
             .frame(minWidth: 0.3 * textBlockWidth, maxWidth: .infinity, alignment: .leading)
@@ -68,11 +68,11 @@ struct MarketTokenItemView: View {
                 .lineLimit(1)
                 .blinkForegroundColor(
                     publisher: viewModel.$priceChangeAnimation,
-                    positiveColor: Colors.Text.accent,
-                    negativeColor: Colors.Text.warning,
-                    originalColor: Colors.Text.primary1
+                    positiveColor: DesignSystem.Color.textAccentBlue,
+                    negativeColor: DesignSystem.Color.textAccentRed,
+                    originalColor: DesignSystem.Color.textPrimary
                 )
-                .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
                 .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenPrice)
         }
     }
@@ -82,23 +82,23 @@ struct MarketTokenItemView: View {
             HStack(alignment: .firstTextBaseline, spacing: Constants.textBlockItemsSpacing) {
                 if let marketRating = viewModel.marketRating {
                     Text(marketRating)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                        .roundedBackground(with: Colors.Button.secondary, verticalPadding: .zero, horizontalPadding: 5, radius: 4)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
+                        .roundedBackground(with: DesignSystem.Color.bgTransparentSecondary, verticalPadding: .zero, horizontalPadding: 5, radius: 4)
                         .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenRating)
                 }
 
                 Text(viewModel.marketCap)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                     .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsListTokenMarketCap)
 
                 if let maxApy = viewModel.maxApy {
                     Text(maxApy)
-                        .style(Fonts.Regular.caption2, color: Colors.Text.secondary)
+                        .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
                         .lineLimit(1)
                         .padding(EdgeInsets(top: 3, leading: 5, bottom: 2, trailing: 5))
                         .overlay(content: {
                             RoundedRectangle(cornerRadius: 5, style: .continuous)
-                                .stroke(Colors.Stroke.primary, lineWidth: 1)
+                                .stroke(DesignSystem.Color.borderSecondary, lineWidth: 1)
                         })
                         .layoutPriority(10)
                 }
@@ -114,7 +114,7 @@ struct MarketTokenItemView: View {
         VStack {
             if let charts = viewModel.charts {
                 LineChartView(
-                    color: viewModel.priceChangeState.changeType?.color ?? Colors.Text.tertiary,
+                    color: viewModel.priceChangeState.changeType?.color ?? DesignSystem.Color.textSecondary,
                     data: charts
                 )
             } else {
@@ -127,7 +127,7 @@ struct MarketTokenItemView: View {
 
     private func makeSkeletonView(by value: String) -> some View {
         Text(value)
-            .style(Fonts.Bold.caption1, color: Colors.Text.primary1)
+            .style(Fonts.Bold.caption1, color: DesignSystem.Color.textPrimary)
             .shimmerPlaceholder(true, variant: .custom(cornerRadius: 3))
     }
 }
@@ -151,7 +151,7 @@ extension MarketTokenItemView {
 
     return GeometryReader { proxy in
         ScrollView(.vertical) {
-            ForEach(tokens.indexed(), id: \.1.id) { index, token in
+            ForEach(tokens) { token in
                 MarketTokenItemView(
                     viewModel: .init(
                         tokenModel: token,

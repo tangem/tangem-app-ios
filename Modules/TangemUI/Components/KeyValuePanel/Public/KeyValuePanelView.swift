@@ -42,7 +42,7 @@ public struct KeyValuePanelView: View {
                 }
 
                 LazyVGrid(columns: gridItems, alignment: .center, spacing: Constants.interitemSpacing) {
-                    ForEach(viewData.keyValues.indexed(), id: \.0) { _, pair in
+                    ForEach(indexed: viewData.keyValues, id: \.0) { _, pair in
                         KeyValuePairView(pair: pair)
                             .frame(maxWidth: itemWidth, alignment: .leading)
                     }
@@ -77,7 +77,7 @@ public struct KeyValuePanelView: View {
     private func makeHeaderText(from string: String) -> some View {
         Text(string)
             .lineLimit(1)
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
     }
 
     private func makeHeaderButton(from actionConfig: KeyValuePanelViewData.Header.ActionConfig) -> some View {
@@ -86,12 +86,12 @@ public struct KeyValuePanelView: View {
                 if let imageType = actionConfig.image {
                     imageType.image
                         .renderingMode(.template)
-                        .foregroundStyle(Colors.Icon.accent)
+                        .foregroundStyle(DesignSystem.Color.iconAccentBlue)
                 }
 
                 Text(actionConfig.buttonTitle)
                     .lineLimit(1)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.accent)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textAccentBlue)
             }
         }
     }
@@ -120,7 +120,7 @@ private extension KeyValuePanelView {
                         value: KeyValuePairViewData.Value(text: "Value-\($0)", icon: nil)
                     )
                 },
-                backgroundColor: Colors.Background.action
+                backgroundColor: DesignSystem.Color.bgSecondary
             )
         )
         .padding(.horizontal, 16)

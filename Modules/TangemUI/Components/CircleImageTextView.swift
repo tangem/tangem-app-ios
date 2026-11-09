@@ -19,10 +19,10 @@ public struct CircleImageTextView: View {
     public var body: some View {
         ZStack {
             Circle()
-                .foregroundColor(Colors.Button.secondary)
+                .foregroundColor(DesignSystem.Color.bgTransparentSecondary)
             Text(String(name.first ?? " "))
                 .font(Font.system(size: 28, weight: .bold, design: .default))
-                .foregroundColor(Colors.Text.primary2)
+                .foregroundColor(DesignSystem.Color.textInversePrimary)
         }
         .frame(size: size)
         .clipped()

@@ -26,7 +26,7 @@ struct WCEthTransactionDetailsView: View {
 
             feeRow
         }
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadius(14, corners: .allCorners)
     }
 
@@ -54,7 +54,7 @@ struct WCEthTransactionDetailsView: View {
     }
 
     private var separator: some View {
-        Separator(height: .minimal, color: Colors.Stroke.primary)
+        Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
             .padding(.leading, 46)
             .padding(.trailing, 14)
     }

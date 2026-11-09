@@ -16,7 +16,7 @@ public struct ArrowBack: View {
     private let height: CGFloat
     private let color: Color
 
-    public init(action: @escaping () -> Void, height: CGFloat, color: Color = Colors.Old.tangemGrayDark6) {
+    public init(action: @escaping () -> Void, height: CGFloat, color: Color = DesignSystem.Color.iconPrimary) {
         self.action = action
         self.height = height
         self.color = color
@@ -34,7 +34,7 @@ public struct ArrowBack: View {
 }
 
 public enum DefaultNavigationBarSettings {
-    public static let color = Colors.Old.tangemGrayDark6
+    public static let color = DesignSystem.Color.textPrimary
     public static let padding = 16.0
 }
 
@@ -114,7 +114,7 @@ public struct SupportButton: View {
         height: CGFloat,
         isVisible: Bool,
         isEnabled: Bool,
-        color: Color = Colors.Old.tangemGrayDark6,
+        color: Color = DesignSystem.Color.textPrimary,
         hPadding: CGFloat = 16,
         action: @escaping () -> Void
     ) {
@@ -152,7 +152,7 @@ public struct SearchButton: View {
         height: CGFloat,
         isVisible: Bool,
         isEnabled: Bool,
-        color: Color = Colors.Old.tangemGrayDark6,
+        color: Color = DesignSystem.Color.iconPrimary,
         hPadding: CGFloat = 16,
         action: @escaping () -> Void
     ) {
@@ -169,7 +169,7 @@ public struct SearchButton: View {
             Assets.search.image
                 .renderingMode(.template)
                 .resizable()
-                .foregroundColor(Colors.Icon.primary1)
+                .foregroundColor(DesignSystem.Color.iconPrimary)
                 .frame(width: 24, height: 24)
                 .padding(.all, 4)
         })
@@ -190,7 +190,7 @@ public struct DefaultNavigationBarTitle: View {
 
         public init(
             font: Font = .system(size: 17, weight: .medium),
-            color: Color = Colors.Old.tangemGrayDark6,
+            color: Color = DesignSystem.Color.textPrimary,
             lineLimit: Int? = nil, // Default system value
             minimumScaleFactor: CGFloat = 1 // Default system value
         ) {
@@ -230,7 +230,7 @@ public struct NavigationBar<Title: View, LeftButtons: View, RightButtons: View>:
 
         public init(
             title: DefaultNavigationBarTitle.Settings = .default,
-            backgroundColor: Color = Colors.Old.tangemBgGray,
+            backgroundColor: Color = DesignSystem.Color.bgBase,
             horizontalPadding: CGFloat = 0,
             height: CGFloat = 44,
             alignment: Alignment = .center

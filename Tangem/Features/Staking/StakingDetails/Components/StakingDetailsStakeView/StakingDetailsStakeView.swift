@@ -67,7 +67,7 @@ struct StakingDetailsStakeView: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .center, spacing: 6) {
                 Text(data.title)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                 if data.inProgress {
                     ProgressDots(style: .small)
@@ -84,9 +84,9 @@ struct StakingDetailsStakeView: View {
     private var rightView: some View {
         VStack(alignment: .trailing, spacing: 4) {
             SensitiveText(data.balance.fiat)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
             SensitiveText(data.balance.crypto)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
         }
     }
 }
@@ -129,7 +129,7 @@ struct StakingDetailsStakeView: View {
                 }
                 .padding()
             }
-            .background(Colors.Background.secondary.ignoresSafeArea())
+            .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         }
     }
 

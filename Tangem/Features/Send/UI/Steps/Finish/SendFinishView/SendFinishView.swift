@@ -11,6 +11,7 @@ import TangemAccessibilityIdentifiers
 import TangemLocalization
 import TangemAssets
 import TangemUI
+import TangemFoundation
 
 struct SendFinishView: View {
     @ObservedObject var viewModel: SendFinishViewModel
@@ -71,11 +72,11 @@ struct SendFinishView: View {
 
             VStack(spacing: 4) {
                 Text(viewModel.headerTitle)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.finishHeader)
 
                 Text(transactionTime)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.finishTransactionTime)
             }
             .lineLimit(1)
@@ -101,13 +102,7 @@ struct SendFinishView: View {
 
     private func bottomButtons(url: URL) -> some View {
         HStack(spacing: 8) {
-            MainButton(
-                title: Localization.commonExplore,
-                icon: .leading(Assets.Glyphs.explore),
-                style: .secondary,
-                action: { viewModel.explore(url: url) }
-            )
-            .accessibilityIdentifier(SendAccessibilityIdentifiers.finishExploreButton)
+            exploreButton(url: url)
             MainButton(
                 title: Localization.commonShare,
                 icon: .leading(Assets.share),
@@ -120,5 +115,22 @@ struct SendFinishView: View {
         .transition(
             .opacity.animation(SendTransitions.animation)
         )
+    }
+
+    @ViewBuilder
+    private func exploreButton(url: URL) -> some View {
+        let button = MainButton(
+            title: Localization.commonExplore,
+            icon: .leading(Assets.Glyphs.explore),
+            style: .secondary,
+            action: { viewModel.explore(url: url) }
+        )
+        .accessibilityIdentifier(SendAccessibilityIdentifiers.finishExploreButton)
+
+        if AppEnvironment.current.isUITest {
+            button.accessibilityValue(url.absoluteString)
+        } else {
+            button
+        }
     }
 }

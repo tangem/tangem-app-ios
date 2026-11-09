@@ -10,11 +10,7 @@ import Foundation
 
 extension PolymarketDTO {
     struct SportsChannelGame: Decodable {
-        let gameId: Int
-        let leagueAbbreviation: String
-        let homeTeam: String
-        let awayTeam: String
-        let status: String
+        let gameId: Int?
         let score: String?
         let period: String?
         let live: Bool

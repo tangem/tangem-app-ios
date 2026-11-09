@@ -25,6 +25,8 @@ extension CommonCryptoAccountModel {
             // The suffix is all that keeps a joint account's identifier apart from the crypto one sharing its
             // derivation index
             case .joint: userWalletId.value + derivationIdentity.derivationIndex.bytes4 + Constants.jointSuffix.utf8
+
+            case .collectibles: userWalletId.value + derivationIdentity.derivationIndex.bytes4
             }
 
             return bytes.getSHA256()

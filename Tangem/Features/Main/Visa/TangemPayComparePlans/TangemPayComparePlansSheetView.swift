@@ -76,7 +76,7 @@ struct TangemPayComparePlansSheetView: View {
                 .accessibilityIdentifier(TangemPayAccessibilityIdentifiers.comparePlansSection(section.title))
 
             VStack(spacing: 0) {
-                ForEach(Array(section.rows.enumerated()), id: \.element.id) { index, row in
+                ForEach(indexed: section.rows) { index, row in
                     rowView(row, isStacked: section.isStacked, showDivider: index < section.rows.count - 1)
                 }
             }

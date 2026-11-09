@@ -20,6 +20,11 @@ struct TangemApiTarget: TargetType {
         switch type {
         case .rawData(let fullURL):
             fullURL
+        case .bindMarketingActivityWallets(let uid, _):
+            MarketingActivityURLBuilderUtil().bindWalletsURL(
+                baseURL: AppEnvironment.current.apiBaseUrlWithGatewaySegment,
+                uid: uid
+            )
         case .activatePromoCode:
             AppEnvironment.current.activatePromoCodeBaseUrl
         case .promotion, .yieldBoostPromotionStatus, .promotionRegistration:
@@ -40,6 +45,8 @@ struct TangemApiTarget: TargetType {
             // Contract v1.3 documents the full path as `/api/v1/notification-preferences/{walletId}`.
             // NOTE: the leading `/api` segment is applied here but still needs backend confirmation.
             // If BE serves `/v1/...` without `/api`, revert this case back to `apiBaseUrl`.
+            AppEnvironment.current.apiBaseUrlWithGatewaySegment
+        case .submitSurveyResponse, .surveyResponseStatus:
             AppEnvironment.current.apiBaseUrlWithGatewaySegment
         case .subscribeToPriceAlerts, .unsubscribeFromPriceAlerts, .getPriceAlertsSubscriptions:
             // Spec documents the full path as `/api/v1/price-alerts/subscriptions`. Same `/api`
@@ -62,9 +69,11 @@ struct TangemApiTarget: TargetType {
             AppEnvironment.current.apiBaseUrlv2WithGatewaySegment
         case .getJointAccounts,
              .createJointAccount,
+             .issueJointAccountInvite,
              .getJointAccountInvite,
              .joinJointAccount,
              .activateJointAccount,
+             .confirmJointAccount,
              .createJointAccountOperation,
              .signJointAccountOperation,
              .rejectJointAccountOperation,
@@ -117,6 +126,12 @@ struct TangemApiTarget: TargetType {
             return "/banner/displays/\(request.displayId)"
         case .marketingCampaigns:
             return "/marketing/campaigns"
+        case .submitSurveyResponse:
+            return "/survey-responses"
+        case .surveyResponseStatus(let request):
+            return "/survey-responses/\(request.walletId)/status"
+        case .bindMarketingActivityWallets:
+            return ""
         case .createAccount:
             return "/user-network-account"
         case .apiList:
@@ -212,12 +227,16 @@ struct TangemApiTarget: TargetType {
         case .getJointAccounts(let walletId, _),
              .createJointAccount(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts"
+        case .issueJointAccountInvite(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts/invites"
         case .getJointAccountInvite(let walletId, let inviteId):
             return "/wallets/\(walletId)/joint-accounts/invites/\(inviteId)"
         case .joinJointAccount(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts/join"
         case .activateJointAccount(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts/activate"
+        case .confirmJointAccount(let walletId, _):
+            return "/wallets/\(walletId)/joint-accounts/confirm"
         case .createJointAccountOperation(let walletId, _):
             return "/wallets/\(walletId)/joint-accounts/operations"
         case .signJointAccountOperation(let walletId, let operationId, _):
@@ -258,6 +277,7 @@ struct TangemApiTarget: TargetType {
              .coins,
              .quotes,
              .geo,
+             .surveyResponseStatus,
              .getUserWalletTokens,
              .loadReferralProgramInfo,
              .promotion,
@@ -309,8 +329,10 @@ struct TangemApiTarget: TargetType {
         case .participateInReferralProgram,
              .createAccount,
              .createJointAccount,
+             .issueJointAccountInvite,
              .joinJointAccount,
              .activateJointAccount,
+             .confirmJointAccount,
              .createJointAccountOperation,
              .signJointAccountOperation,
              .rejectJointAccountOperation,
@@ -319,10 +341,12 @@ struct TangemApiTarget: TargetType {
              .createWallet,
              .saveWalletCards,
              .bindWalletsByCode,
+             .bindMarketingActivityWallets,
              .syncAddressBooks,
              .subscribeToPriceAlerts,
              .promotionRegistration,
-             .promoCampaignEnrollment:
+             .promoCampaignEnrollment,
+             .submitSurveyResponse:
             return .post
         case .unsubscribeFromPriceAlerts:
             return .delete
@@ -368,6 +392,12 @@ struct TangemApiTarget: TargetType {
             return .requestJSONEncodable(request)
         case .marketingCampaigns(let parameters):
             return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
+        case .bindMarketingActivityWallets(_, let request):
+            return .requestJSONEncodable(request)
+        case .submitSurveyResponse(let request):
+            return .requestJSONEncodable(request)
+        case .surveyResponseStatus(let request):
+            return .requestParameters(parameters: ["surveyId": request.surveyId], encoding: URLEncoding.default)
         case .createAccount(let parameters):
             return .requestJSONEncodable(parameters)
         case .apiList:
@@ -471,9 +501,13 @@ struct TangemApiTarget: TargetType {
             return .requestPlain
         case .createJointAccount(_, let body):
             return .requestJSONEncodable(body)
+        case .issueJointAccountInvite(_, let body):
+            return .requestJSONEncodable(body)
         case .joinJointAccount(_, let body):
             return .requestJSONEncodable(body)
         case .activateJointAccount(_, let body):
+            return .requestJSONEncodable(body)
+        case .confirmJointAccount(_, let body):
             return .requestJSONEncodable(body)
         case .createJointAccountOperation(_, let body):
             return .requestJSONEncodable(body)
@@ -576,9 +610,11 @@ struct TangemApiTarget: TargetType {
              .getUserAccounts,
              .getArchivedUserAccounts,
              .createJointAccount,
+             .issueJointAccountInvite,
              .getJointAccountInvite,
              .joinJointAccount,
              .activateJointAccount,
+             .confirmJointAccount,
              .createJointAccountOperation,
              .signJointAccountOperation,
              .rejectJointAccountOperation,
@@ -594,15 +630,21 @@ struct TangemApiTarget: TargetType {
              .newsDetails,
              .newsCategories,
              .bindWalletsByCode,
+             .bindMarketingActivityWallets,
              .applicationVersions,
-             .syncAddressBooks:
+             .syncAddressBooks,
+             .submitSurveyResponse,
+             .surveyResponseStatus:
             return nil
         }
     }
 
     var validationType: ValidationType {
         switch type {
-        case .promoCampaigns, .promoCampaignEnrollment:
+        case .promoCampaigns,
+             .promoCampaignEnrollment,
+             .submitSurveyResponse,
+             .surveyResponseStatus:
             return .successCodes
         default:
             return .none
@@ -638,6 +680,10 @@ extension TangemApiTarget {
         case hidePromotion(request: PromotionsDTO.Hide.Request)
 
         case marketingCampaigns(parameters: [String: Any])
+        case bindMarketingActivityWallets(uid: String, _ request: MarketingActivityDTO.BindWallets.Request)
+
+        case submitSurveyResponse(_ request: SurveyResponsesDTO.Submit.Request)
+        case surveyResponseStatus(_ request: SurveyResponsesDTO.Status.Request)
 
         case story(_ id: String)
         case stories(slugs: [String], language: String)
@@ -708,9 +754,11 @@ extension TangemApiTarget {
         // Joint accounts
         case getJointAccounts(walletId: String, knownETag: String?)
         case createJointAccount(walletId: String, body: JointAccountsDTO.Request.Create)
+        case issueJointAccountInvite(walletId: String, body: JointAccountsDTO.Request.IssueInvite)
         case getJointAccountInvite(walletId: String, inviteId: String)
         case joinJointAccount(walletId: String, body: JointAccountsDTO.Request.Join)
         case activateJointAccount(walletId: String, body: JointAccountsDTO.Request.Activate)
+        case confirmJointAccount(walletId: String, body: JointAccountsDTO.Request.Confirm)
         case createJointAccountOperation(walletId: String, body: JointAccountsDTO.Request.CreateOperation)
         case signJointAccountOperation(walletId: String, operationId: String, body: JointAccountsDTO.Request.SignOperation)
         case rejectJointAccountOperation(walletId: String, operationId: String)
@@ -734,7 +782,7 @@ extension TangemApiTarget {
 extension TangemApiTarget: CachePolicyProvider {
     var cachePolicy: URLRequest.CachePolicy {
         switch type {
-        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .coinsGeckoCategories, .marketIndicators, .tokenMarketsDetails, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .getJointAccounts, .getJointAccountInvite, .getJointOperationsHistory, .getJointOperationsHistoryDelta, .getJointOperation, .stories:
+        case .geo, .features, .apiList, .quotes, .coinsList, .coinsCategories, .coinsGeckoCategories, .marketIndicators, .tokenMarketsDetails, .newsList, .newsDetails, .newsCategories, .earnYieldMarkets, .earnNetworks, .coinsSettings, .coinIndicators, .applicationVersions, .marketingCampaigns, .surveyResponseStatus, .getJointAccounts, .getJointAccountInvite, .getJointOperationsHistory, .getJointOperationsHistoryDelta, .getJointOperation, .stories:
             return .reloadIgnoringLocalAndRemoteCacheData
         default:
             return .useProtocolCachePolicy
@@ -751,8 +799,14 @@ extension TangemApiTarget: TargetTypeLogConvertible {
             return path.replacingOccurrences(of: inviteId, with: inviteId.masked())
         case .getJointOperationsHistory(let walletId, _),
              .getJointOperationsHistoryDelta(let walletId, _),
-             .getJointOperation(let walletId, _, _):
+             .getJointOperation(let walletId, _, _),
+             .getWalletCards(let walletId),
+             .saveWalletCards(let walletId, _):
             return path.replacingOccurrences(of: walletId, with: "{walletId}")
+        case .surveyResponseStatus(let request):
+            return path.replacingOccurrences(of: request.walletId, with: "{walletId}")
+        case .bindMarketingActivityWallets(let uid, _):
+            return MarketingActivityURLBuilderUtil().bindWalletsLoggablePath(uid: uid)
         default:
             return path
         }
@@ -797,18 +851,23 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .newsDetails,
              .yieldBoostPromotionStatus,
              .bindWalletsByCode,
+             .bindMarketingActivityWallets,
              .createJointAccount,
+             .issueJointAccountInvite,
              .joinJointAccount,
              .getJointAccountInvite,
              .getJointAccounts,
              .activateJointAccount,
+             .confirmJointAccount,
              .createJointAccountOperation,
              .signJointAccountOperation,
              .rejectJointAccountOperation,
              .getJointOperationsHistory,
              .getJointOperationsHistoryDelta,
              .getJointOperation,
-             .promoCampaignEnrollment:
+             .promoCampaignEnrollment,
+             .submitSurveyResponse,
+             .surveyResponseStatus:
             return false
         case .geo,
              .features,

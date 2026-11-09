@@ -24,19 +24,19 @@ struct YieldModuleChart: View {
             ForEach(bars) { bar in
                 BarMark(x: .value("Index", bar.idx), y: .value("APR", bar.apr))
                     .cornerRadius(2)
-                    .foregroundStyle(Colors.Icon.accent)
+                    .foregroundStyle(DesignSystem.Color.bgAccentBlue)
             }
 
             if let average {
                 RuleMark(y: .value("Average", average))
                     .lineStyle(.init(lineWidth: 1, dash: [4, 4]))
-                    .foregroundStyle(Colors.Icon.primary1)
+                    .foregroundStyle(DesignSystem.Color.borderAccentNeutral)
                     .annotation(position: .overlay, alignment: .leading) {
                         Text(Localization.yieldModuleRateInfoSheetChartAverage(PercentFormatter().format(average, option: .earn)))
-                            .style(Fonts.Bold.caption2, color: Colors.Text.primary2)
+                            .style(Fonts.Bold.caption2, color: DesignSystem.Color.textInversePrimary)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Rectangle().fill(Colors.Icon.primary1).cornerRadius(8, corners: .allCorners))
+                            .background(Rectangle().fill(DesignSystem.Color.bgInverse).cornerRadius(8, corners: .allCorners))
                             .offset(y: -16)
                     }
             }
@@ -47,7 +47,7 @@ struct YieldModuleChart: View {
                 if let i = tick.as(Int.self), let text = xMap[i] {
                     AxisValueLabel {
                         Text(text)
-                            .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
                             .shimmerPlaceholder(state.isLoading)
                     }
 
@@ -61,7 +61,7 @@ struct YieldModuleChart: View {
                 AxisValueLabel {
                     if let v = mark.as(Double.self) {
                         Text(v, format: .percent.precision(.fractionLength(0)))
-                            .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
                             .shimmerPlaceholder(state.isLoading)
                     }
                 }

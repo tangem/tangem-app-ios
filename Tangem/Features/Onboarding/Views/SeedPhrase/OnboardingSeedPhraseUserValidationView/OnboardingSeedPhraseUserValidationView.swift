@@ -24,11 +24,11 @@ struct OnboardingSeedPhraseUserValidationView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
                     Text(Localization.onboardingSeedUserValidationTitle)
-                        .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                         .padding(.top, 40)
 
                     Text(Localization.onboardingSeedUserValidationMessage)
-                        .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                        .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.top, 14)
                         .padding(.horizontal, 32)
@@ -97,7 +97,7 @@ private struct WordInputView: View {
             Text("\(wordNumber).")
                 .style(
                     Fonts.Regular.body,
-                    color: hasError ? Colors.Text.warning : Colors.Text.tertiary
+                    color: hasError ? DesignSystem.Color.textAccentRed : DesignSystem.Color.textSecondary
                 )
                 .frame(width: 38, alignment: .leading)
                 .padding(.leading, 16)
@@ -112,7 +112,7 @@ private struct WordInputView: View {
                     handleKeyboard: true,
                     keyboard: .asciiCapable,
                     clearButtonMode: .never,
-                    textColor: UIColor(hasError ? Colors.Text.warning : Colors.Text.primary1),
+                    textColor: UIColor(hasError ? DesignSystem.Color.textAccentRed : DesignSystem.Color.textPrimary),
                     font: UIFonts.Regular.body,
                     placeholder: "",
                     isEnabled: true
@@ -123,7 +123,7 @@ private struct WordInputView: View {
                 if isResponder ?? false {
                     SwiftUI.Button(action: { text.wrappedValue = "" }) {
                         Assets.clear.image
-                            .foregroundColor(Colors.Icon.informative)
+                            .foregroundColor(DesignSystem.Color.iconSecondary)
                             .padding(.horizontal, 16)
                     }
                 }
@@ -131,11 +131,11 @@ private struct WordInputView: View {
             .screenCaptureProtection()
         }
         .frame(minHeight: 46)
-        .background(Colors.Field.primary)
+        .background(DesignSystem.Color.bgTertiary)
         .cornerRadiusContinuous(14)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(hasError ? Colors.Icon.warning : .clear, lineWidth: 1)
+                .stroke(hasError ? DesignSystem.Color.borderAccentRed : .clear, lineWidth: 1)
                 .padding(.horizontal, 1) // offset the border to the inside, otherwise it cuts off
         )
         .simultaneousGesture(TapGesture().onEnded {

@@ -29,6 +29,7 @@ class SendDestinationSuggestedViewModel {
     init(
         wallets: [SendDestinationSuggestedWallet],
         recentTransactions: [SendDestinationSuggestedTransactionRecord],
+        networkId: AddressBookNetworkID,
         tapAction: @escaping (SendDestinationSuggested) -> Void
     ) {
         self.tapAction = tapAction
@@ -36,7 +37,7 @@ class SendDestinationSuggestedViewModel {
         suggestedWallets = wallets.map { wallet in
             Wallet(
                 id: wallet.address,
-                addressIconType: AddressIconProvider.makeViewType(address: wallet.address, networkId: nil),
+                addressIconType: AddressIconProvider.makeViewType(address: wallet.address, networkId: networkId),
                 wallet: wallet
             ) { [weak self] in
                 self?.tapAction(SendDestinationSuggested(
@@ -52,7 +53,7 @@ class SendDestinationSuggestedViewModel {
         suggestedRecentTransaction = recentTransactions.map { record in
             RecentTransaction(
                 id: record.id,
-                addressIconType: AddressIconProvider.makeViewType(address: record.address, networkId: nil),
+                addressIconType: AddressIconProvider.makeViewType(address: record.address, networkId: networkId),
                 record: record
             ) { [weak self] in
                 self?.tapAction(SendDestinationSuggested(

@@ -16,6 +16,7 @@ extension CollectiblesMachineView {
     struct Footer: View {
         let expectedValueText: String
         let openButtonText: String
+        let isOpenLocked: Bool
         @Binding var isTurboModeOn: Bool
         let onTurboModeInfoTap: () -> Void
         let onOpenTap: () -> Void
@@ -78,10 +79,16 @@ private extension CollectiblesMachineView.Footer {
     }
 
     var openButton: some View {
-        TangemUI.Button(label: openButtonText, accessibilityLabel: nil, action: onOpenTap)
+        TangemUI.Button(label: openButtonLabel, accessibilityLabel: nil, action: onOpenTap)
             .styleType(.primary)
             .horizontalLayout(.infinity)
             .size(.x12)
+            .disabled(isOpenLocked)
+    }
+
+    // [REDACTED_TODO_COMMENT]
+    var openButtonLabel: String {
+        isOpenLocked ? "Relink account to use" : openButtonText
     }
 
     var background: some View {

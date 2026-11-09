@@ -28,7 +28,7 @@ struct TangemPayVirtualAccountFeeListView: View {
             }
         case .loaded(let fees):
             feeList {
-                ForEach(Array(fees.enumerated()), id: \.element.id) { index, fee in
+                ForEach(indexed: fees) { index, fee in
                     feeRow(fee)
 
                     if index < fees.count - 1 {

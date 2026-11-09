@@ -59,6 +59,7 @@ final class CommonServicesManager {
     @Injected(\.forceUpdateService) private var forceUpdateService: ForceUpdateService
     @Injected(\.appDatabase) private var appDatabase: AppDatabase
     @Injected(\.walletCardsBackupReportService) private var walletCardsBackupReportService: WalletCardsBackupReportService
+    @Injected(\.marketingActivityBindingService) private var marketingActivityBindingService: MarketingActivityBindingService
     @Injected(\.promoCampaignsRepository) private var promoCampaignsRepository: PromoCampaignsProviding
 
     private var stakingPendingHashesSender: StakingPendingHashesSender?
@@ -131,6 +132,11 @@ final class CommonServicesManager {
 
         let arguments = ProcessInfo.processInfo.arguments
 
+        let isHidingBalances = arguments.firstIndex(of: "-uitest-hide-balances") != nil
+        let settingsStore = UserDefaults(suiteName: AppEnvironment.current.suiteName)
+        settingsStore?.set(isHidingBalances, forKey: StorageType.hideSensitiveAvailable.rawValue)
+        settingsStore?.set(isHidingBalances, forKey: StorageType.hideSensitiveInformation.rawValue)
+
         if let _ = arguments.firstIndex(of: "-uitest-skip-tos") {
             AppSettings.shared.termsOfServicesAccepted = ["https://tangem.com/tangem_tos.html"]
         } else {
@@ -176,6 +182,8 @@ final class CommonServicesManager {
 
         if let wireMockBaseURL = ProcessInfo.processInfo.environment[WireMockEnvironment.baseURLKey] {
             UserDefaults.standard.set(wireMockBaseURL, forKey: WireMockEnvironment.baseURLKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: WireMockEnvironment.baseURLKey)
         }
     }
 
@@ -249,7 +257,6 @@ extension CommonServicesManager: ServicesManager {
         mobileFinishActivationManager.initialize()
         mainScreenPromoSheetInteractor.initialize()
         stakingTargetAmountLimitProvider.initialize()
-        walletCardsBackupReportService.initialize()
         // Refresh the cached app-versions DTO once per session. Applied on the next launch.
         forceUpdateService.refreshCache()
         appDatabase.initialize()
@@ -263,6 +270,7 @@ extension CommonServicesManager: ServicesManager {
         }
 
         await UITestsStorageCleaner.clearKeychain()
+        await UITestsStorageCleaner.resetE2EPortfolioTokens()
 
         await userWalletRepository.initialize()
 
@@ -272,6 +280,10 @@ extension CommonServicesManager: ServicesManager {
         if isFirstLaunch {
             await KeychainCleaner.cleanAllData()
         }
+
+        walletCardsBackupReportService.initialize()
+
+        marketingActivityBindingService.initialize()
 
         promoCampaignsRepository.initialize()
 

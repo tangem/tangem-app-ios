@@ -44,7 +44,7 @@ struct JointAccountSignersViewDataBuilder {
                 // [REDACTED_TODO_COMMENT]
                 icon: AddressBookContactNameIconViewData(
                     letter: member.name.prefix(1).uppercased(),
-                    color: CompositeIconColorPalette.color(for: JointAccountInviteMembersViewModel.iconColor(at: index))
+                    color: CompositeIconColorPalette.color(for: .jointAccountMember(at: index))
                 ),
                 name: member.name,
                 answer: answer(of: member, in: operation)

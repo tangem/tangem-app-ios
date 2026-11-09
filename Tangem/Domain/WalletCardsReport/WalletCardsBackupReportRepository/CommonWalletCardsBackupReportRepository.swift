@@ -12,14 +12,21 @@ import TangemSdk
 import TangemFoundation
 
 final class CommonWalletCardsBackupReportRepository {
-    @Injected(\.persistentStorage) private var storage: PersistentStorageProtocol
-
+    private let storage: PersistentStorageProtocol
+    private let secureStorage: WalletCardsBackupReportSecureStorage
     private let lockQueue = DispatchQueue(label: "com.tangem.CommonWalletCardsBackupReportRepository.lockQueue")
     private let report = CurrentValueSubject<WalletCardsBackupReport, Never>(.empty)
+    private var isReportLoaded = false
+    private var attemptedCardLinkedHashes: Set<String> = []
 
-    init() {
+    init(
+        secureStorage: WalletCardsBackupReportSecureStorage = SecureStorage(),
+        storage: PersistentStorageProtocol = InjectedValues[\.persistentStorage]
+    ) {
+        self.storage = storage
+        self.secureStorage = secureStorage
         lockQueue.async { [weak self] in
-            self?.loadReport()
+            self?.loadReportIfNeeded()
         }
     }
 }
@@ -35,12 +42,12 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
     }
 
     var oldestPendingReport: WalletCardsWaitingDeliveryBackupCards? {
-        lockQueue.sync { report.value.pendingReports.first }
+        lockQueue.sync { loadReportIfNeeded() ? report.value.pendingReports.first : nil }
     }
 
     func store(card: WalletCardsCurrentlyProcessedCard, primaryCardId: String, error: TangemSdkError?) {
         lockQueue.async { [weak self] in
-            guard let self else { return }
+            guard let self, loadReportIfNeeded() else { return }
 
             var currentReport = report.value
 
@@ -55,6 +62,7 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
             let appliedCard = apply(
                 card: card,
                 identity: identity ?? .blank(primaryCardId: primaryCardId),
+                primaryCardId: primaryCardId,
                 error: error,
                 to: &currentReport
             )
@@ -79,14 +87,65 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
         }
     }
 
-    func removePendingReport(_ pendingReport: WalletCardsWaitingDeliveryBackupCards) {
+    func storePreviouslySavedCardIfNeeded(_ card: WalletCardsCurrentlyProcessedCard) {
         lockQueue.async { [weak self] in
-            guard let self else { return }
+            guard let self, loadReportIfNeeded(),
+                  let backupStatus = card.backupStatus,
+                  case .filled(let userWalletId, let isImported)? = card.identity else {
+                return
+            }
+
+            var currentReport = report.value
+            let deliveryHash = cardDeliveryHash(userWalletId: userWalletId, cardId: card.cardId, backupStatus: backupStatus)
+            guard !currentReport.deliveredCardLinkedHashes.contains(deliveryHash),
+                  !attemptedCardLinkedHashes.contains(deliveryHash),
+                  !currentReport.pendingReports.contains(where: {
+                      $0.userWalletId == userWalletId && $0.cards.contains {
+                          $0.cardId == card.cardId && $0.backupStatus == backupStatus
+                      }
+                  }) else {
+                return
+            }
+
+            attemptedCardLinkedHashes.insert(deliveryHash)
+            let existing = currentReport.cards[card.cardId].flatMap { $0.identity == card.identity ? $0 : nil }
+            let observedCard = WalletCardsBackupCard(
+                cardId: card.cardId,
+                cardPublicKey: card.cardPublicKey,
+                identity: .filled(userWalletId: userWalletId, isImported: isImported),
+                role: card.role ?? existing?.role,
+                backupStatus: card.backupStatus,
+                curves: card.curves,
+                errorCode: existing?.errorCode,
+                errorMessage: existing?.errorMessage
+            )
+            if currentReport.cards[card.cardId]?.identity.isFilled != true || existing != nil {
+                currentReport.cards[card.cardId] = observedCard
+            }
+            let pendingReport = currentReport.pendingReport(userWalletId: userWalletId, isImported: isImported, including: observedCard)
+            enqueue(pendingReport, in: &currentReport)
+            report.send(currentReport)
+            saveChanges()
+        }
+    }
+
+    func removePendingReport(_ pendingReport: WalletCardsWaitingDeliveryBackupCards, wasDelivered: Bool) {
+        lockQueue.async { [weak self] in
+            guard let self, loadReportIfNeeded() else { return }
 
             var updated = report.value
             updated.pendingReports.removeAll { $0.id == pendingReport.id }
 
-            guard updated.pendingReports.count != report.value.pendingReports.count else {
+            if wasDelivered {
+                for card in pendingReport.cards {
+                    if let backupStatus = card.backupStatus {
+                        updated.deliveredCardLinkedHashes.insert(cardDeliveryHash(userWalletId: pendingReport.userWalletId, cardId: card.cardId, backupStatus: backupStatus))
+                    }
+                }
+            }
+
+            guard updated.pendingReports.count != report.value.pendingReports.count ||
+                updated.deliveredCardLinkedHashes != report.value.deliveredCardLinkedHashes else {
                 return
             }
 
@@ -99,6 +158,11 @@ extension CommonWalletCardsBackupReportRepository: WalletCardsBackupReportReposi
 // MARK: - Queue
 
 private extension CommonWalletCardsBackupReportRepository {
+    func cardDeliveryHash(userWalletId: String, cardId: String, backupStatus: WalletCardsBackupCard.BackupStatus) -> String {
+        UserWalletId(value: Data(hexString: userWalletId))
+            .hashedStringValue(message: "wallet-cards-backup-delivery.\(cardId).\(backupStatus.rawValue)")
+    }
+
     func enqueue(_ pendingReport: WalletCardsWaitingDeliveryBackupCards, in report: inout WalletCardsBackupReport) {
         let queue = report.pendingReports + [pendingReport]
         report.pendingReports = Array(queue.suffix(Constants.maxPendingReports))
@@ -108,20 +172,28 @@ private extension CommonWalletCardsBackupReportRepository {
 // MARK: - Mutations
 
 private extension CommonWalletCardsBackupReportRepository {
-    /// Overwrites the stored card with `card`: only a known `role` survives, the rest mirrors the card even
-    /// where it revealed nothing. Returns whether the store was mutated (i.e. needs persisting).
+    /// Overwrites the stored card with `card`: only a known `role` of the same wallet survives, the rest mirrors
+    /// the card even where it revealed nothing. Returns whether the store was mutated (i.e. needs persisting).
     func apply(
         card: WalletCardsCurrentlyProcessedCard,
         identity: WalletCardsBackupCard.Identity,
+        primaryCardId: String,
         error: TangemSdkError?,
         to report: inout WalletCardsBackupReport
     ) -> Bool {
         let existing = report.cards[card.cardId]
+        let role: WalletCardsBackupCard.Role? = if let knownRole = card.role {
+            knownRole
+        } else if let existing, existing.identity.isSameWallet(as: identity, primaryCardId: primaryCardId) {
+            existing.role
+        } else {
+            nil
+        }
         let incoming = WalletCardsBackupCard(
             cardId: card.cardId,
             cardPublicKey: card.cardPublicKey,
             identity: identity,
-            role: card.role ?? existing?.role,
+            role: role,
             backupStatus: card.backupStatus,
             curves: card.curves,
             errorCode: error?.code,
@@ -169,15 +241,31 @@ private extension CommonWalletCardsBackupReportRepository {
 // MARK: - Persistence
 
 private extension CommonWalletCardsBackupReportRepository {
-    func loadReport() {
+    @discardableResult
+    func loadReportIfNeeded() -> Bool {
         ensureNotOnMainQueue()
+        guard !isReportLoaded else { return true }
 
         do {
-            let stored: WalletCardsBackupReport = try storage.value(for: .walletCardsBackupReports) ?? .empty
+            let stored: WalletCardsBackupReport
+            if let data = try secureStorage.get(Constants.storageKey) {
+                stored = try JSONDecoder().decode(WalletCardsBackupReport.self, from: data)
+            } else {
+                stored = .empty
+            }
+            removeLegacyReport()
+            isReportLoaded = true
             report.send(stored)
             WalletCardsReporterLogger.info("Loaded \(stored)")
+            return true
+        } catch let error as DecodingError {
+            WalletCardsReporterLogger.error("Couldn't decode the stored wallet cards backup report, starting over", error: error)
+            removeLegacyReport()
+            isReportLoaded = true
+            return true
         } catch {
             WalletCardsReporterLogger.error("Couldn't load wallet cards backup report from storage", error: error)
+            return false
         }
     }
 
@@ -185,10 +273,19 @@ private extension CommonWalletCardsBackupReportRepository {
         ensureNotOnMainQueue()
 
         do {
-            try storage.store(value: report.value, for: .walletCardsBackupReports)
+            try secureStorage.store(JSONEncoder().encode(report.value), forKey: Constants.storageKey, overwrite: true)
+            removeLegacyReport()
             WalletCardsReporterLogger.info("Saved \(report.value)")
         } catch {
             WalletCardsReporterLogger.error("Couldn't save wallet cards backup report to storage", error: error)
+        }
+    }
+
+    func removeLegacyReport() {
+        do {
+            try storage.remove(for: .walletCardsBackupReports)
+        } catch {
+            WalletCardsReporterLogger.error("Couldn't remove the legacy wallet cards backup report", error: error)
         }
     }
 }
@@ -198,12 +295,21 @@ private extension CommonWalletCardsBackupReportRepository {
 private extension CommonWalletCardsBackupReportRepository {
     enum Constants {
         static let maxPendingReports = 50
+        static let storageKey = "wallet_cards_backup_reports"
     }
 }
 
 private extension WalletCardsBackupReport {
-    func pendingReport(userWalletId: String, isImported: Bool) -> WalletCardsWaitingDeliveryBackupCards {
-        let walletCards = cards.values
+    func pendingReport(
+        userWalletId: String,
+        isImported: Bool,
+        including observedCard: WalletCardsBackupCard? = nil
+    ) -> WalletCardsWaitingDeliveryBackupCards {
+        var snapshot = cards
+        if let observedCard {
+            snapshot[observedCard.cardId] = observedCard
+        }
+        let walletCards = snapshot.values
             .filter { $0.identity.userWalletId == userWalletId }
             .sorted { $0.cardId < $1.cardId }
 
@@ -228,6 +334,13 @@ private extension WalletCardsBackupCard.Identity {
         switch self {
         case .blank(let primaryCardId): primaryCardId == cardId
         case .filled: false
+        }
+    }
+
+    func isSameWallet(as identity: Self, primaryCardId cardId: String) -> Bool {
+        switch self {
+        case .blank(let primaryCardId): primaryCardId == cardId
+        case .filled(let userWalletId, _): userWalletId == identity.userWalletId
         }
     }
 }

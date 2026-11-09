@@ -19,7 +19,7 @@ struct CampaignEligibleTokensView: View {
         if !rows.isEmpty {
             VStack(alignment: .leading, spacing: 0) {
                 Text(Localization.marketsPortfolioEligibleBlockTitle)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 8)
                     .padding(.top, 8)
@@ -55,16 +55,16 @@ private struct CampaignEligibleTokenRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(viewData.name)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                         .lineLimit(1)
 
                     Text(viewData.symbol)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                         .lineLimit(1)
                 }
 
                 Text(viewData.networkName)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                     .lineLimit(1)
             }
 

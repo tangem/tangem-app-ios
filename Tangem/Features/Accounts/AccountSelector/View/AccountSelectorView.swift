@@ -108,7 +108,7 @@ private extension AccountSelectorView {
                                     .padding(.vertical, 12)
                                     .padding(.horizontal, 14)
                                     .contentShape(.rect)
-                                    .background(Colors.Background.action)
+                                    .background(DesignSystem.Color.bgSecondary)
                                     .cornerRadius(14, corners: .allCorners)
 
                                 legacySelectionBorder(for: .account(entry.item))
@@ -140,7 +140,7 @@ private extension AccountSelectorView {
     func legacySectionHeader(_ title: String) -> some View {
         Text(title)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+            .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
             .padding(.horizontal, 12)
             .padding(.bottom, 10)
     }
@@ -149,7 +149,7 @@ private extension AccountSelectorView {
     func legacySelectionBorder(for cell: AccountSelectorCellModel) -> some View {
         if viewModel.isCellSelected(for: cell) {
             RoundedRectangle(cornerRadius: 14)
-                .stroke(Colors.Text.accent, lineWidth: 1)
+                .stroke(DesignSystem.Color.textAccentBlue, lineWidth: 1)
         }
     }
 }
@@ -242,7 +242,7 @@ private extension AccountSelectorView {
 
     func redesignedSectionHeader(_ title: String) -> some View {
         Text(title)
-            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+            .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, Redesigned.sectionHeaderHorizontalPadding)
             .padding(.top, Redesigned.sectionHeaderTopPadding)

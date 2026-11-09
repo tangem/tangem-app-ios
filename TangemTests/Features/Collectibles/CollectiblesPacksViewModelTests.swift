@@ -120,19 +120,6 @@ private extension CollectiblesPacksViewModelTests {
         return trackForMemoryLeaks(sut)
     }
 
-    func waitUntil(timeout: Duration = .seconds(5), _ condition: @MainActor () -> Bool) async {
-        let deadline = ContinuousClock.now + timeout
-
-        while !condition() {
-            if ContinuousClock.now >= deadline {
-                Issue.record("waitUntil timed out")
-                return
-            }
-
-            await Task.yield()
-        }
-    }
-
     static func packs() -> [CollectiblesPack] {
         ["pokemon_50", "pokemon_250"].map { id in
             CollectiblesPack(

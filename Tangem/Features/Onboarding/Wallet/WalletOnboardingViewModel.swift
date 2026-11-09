@@ -369,7 +369,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep, Onboa
     override func setupContainer(with size: CGSize) {
         stackCalculator.setup(
             for: size,
-            with: CardsStackAnimatorSettings(
+            with: StackCalculatorSettings(
                 topCardSize: WalletOnboardingCardLayout.origin.frame(for: .createWallet, containerSize: size),
                 topCardOffset: .init(width: 0, height: 1),
                 cardsVerticalOffset: 17,

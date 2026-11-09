@@ -54,15 +54,15 @@ public struct BottomSheetErrorContentView: View {
                     .frame(width: 32, height: 32)
                     .foregroundColor(icon.tint)
                     .padding(12)
-                    .background(Circle().fill(icon.overlay.opacity(0.1)))
+                    .background(Circle().fill(icon.overlay))
 
                 VStack(spacing: 8) {
                     Text(title)
-                        .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text(subtitle)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .multilineTextAlignment(.center)
@@ -87,7 +87,7 @@ public struct BottomSheetErrorContentView: View {
 
 public extension BottomSheetErrorContentView {
     struct Icon {
-        public static let attention = Icon(icon: Assets.attention, overlay: Colors.Icon.attention)
+        public static let attention = Icon(icon: Assets.attention, overlay: DesignSystem.Color.bgAccentYellowSubtle)
 
         public let icon: ImageType
         public let overlay: Color

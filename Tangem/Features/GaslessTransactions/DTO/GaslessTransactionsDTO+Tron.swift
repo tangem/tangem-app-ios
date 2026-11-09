@@ -12,10 +12,95 @@ import TangemLocalization
 extension GaslessTransactionsDTO.Request {
     struct TronEstimate: Encodable, Equatable {
         let fromAddress: String
-        let toAddress: String
         let tokenContract: String
         let amount: String
         let feeTokenContract: String
+        let operation: Operation
+
+        init(
+            fromAddress: String,
+            toAddress: String,
+            tokenContract: String,
+            amount: String,
+            feeTokenContract: String
+        ) {
+            self.fromAddress = fromAddress
+            self.tokenContract = tokenContract
+            self.amount = amount
+            self.feeTokenContract = feeTokenContract
+            operation = .transfer(toAddress: toAddress)
+        }
+
+        init(
+            fromAddress: String,
+            tokenContract: String,
+            amount: String,
+            feeTokenContract: String,
+            approve: Approve
+        ) {
+            self.fromAddress = fromAddress
+            self.tokenContract = tokenContract
+            self.amount = amount
+            self.feeTokenContract = feeTokenContract
+            operation = .approve(approve)
+        }
+
+        init(
+            fromAddress: String,
+            tokenContract: String,
+            amount: String,
+            feeTokenContract: String,
+            swap: Swap
+        ) {
+            self.fromAddress = fromAddress
+            self.tokenContract = tokenContract
+            self.amount = amount
+            self.feeTokenContract = feeTokenContract
+            operation = .swap(swap)
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(fromAddress, forKey: .fromAddress)
+            try container.encode(tokenContract, forKey: .tokenContract)
+            try container.encode(amount, forKey: .amount)
+            try container.encode(feeTokenContract, forKey: .feeTokenContract)
+
+            switch operation {
+            case .transfer(let toAddress):
+                try container.encode(toAddress, forKey: .toAddress)
+            case .approve(let approve):
+                try container.encode(approve, forKey: .approve)
+            case .swap(let swap):
+                try container.encode(swap, forKey: .swap)
+            }
+        }
+
+        struct Approve: Encodable, Equatable {
+            let spender: String
+        }
+
+        struct Swap: Encodable, Equatable {
+            let contractAddress: String
+            let data: String
+            let spender: String?
+        }
+
+        enum Operation: Equatable {
+            case transfer(toAddress: String)
+            case approve(Approve)
+            case swap(Swap)
+        }
+
+        private enum CodingKeys: String, CodingKey {
+            case fromAddress
+            case toAddress
+            case tokenContract
+            case amount
+            case feeTokenContract
+            case approve
+            case swap
+        }
     }
 
     struct TronSubmit: Encodable, Equatable {

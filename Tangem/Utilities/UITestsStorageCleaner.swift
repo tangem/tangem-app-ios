@@ -129,6 +129,43 @@ enum UITestsStorageCleaner {
         #endif
     }
 
+    static let e2eResetWalletIdKey = "E2E_RESET_WALLET_ID"
+
+    static func resetE2EPortfolioTokens() async {
+        #if DEBUG
+        guard
+            AppEnvironment.current.isUITest,
+            let walletId = ProcessInfo.processInfo.environment[e2eResetWalletIdKey],
+            !walletId.isEmpty
+        else {
+            return
+        }
+
+        let tangemApiService = InjectedValues[\.tangemApiService]
+
+        do {
+            let (revision, accounts) = try await tangemApiService.getUserAccounts(userWalletId: walletId)
+
+            guard let revision else {
+                AppLogger.info("E2E portfolio reset skipped: no revision for walletId")
+                return
+            }
+
+            let emptyTokens = AccountsDTO.Request.UserTokens(
+                tokens: [],
+                group: accounts.wallet.group ?? .none,
+                sort: accounts.wallet.sort ?? .manual,
+                version: accounts.wallet.version ?? 0
+            )
+
+            _ = try await tangemApiService.saveTokensV2(list: emptyTokens, for: walletId, revision: revision)
+            AppLogger.info("E2E portfolio reset: token list cleared")
+        } catch {
+            AppLogger.info("E2E portfolio reset failed: \(error)")
+        }
+        #endif
+    }
+
     /// Clears WalletConnect encrypted files from Documents directory
     private static func clearWalletConnectFiles() {
         #if DEBUG

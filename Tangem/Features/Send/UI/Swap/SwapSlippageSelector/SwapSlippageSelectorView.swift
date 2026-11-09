@@ -146,7 +146,7 @@ private extension SwapSlippageSelectorView {
     @MainActor
     @Sendable
     func openKeyboard() async {
-        UIApplication.shared.makeOverlayWindowKey()
+        UIApplication.overlayWindow?.makeKey()
 
         do {
             try await Task.sleep(for: Constants.keyboardOpeningDelay)

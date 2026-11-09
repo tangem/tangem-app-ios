@@ -17,15 +17,18 @@ final class ForceUpdateViewModel {
     @Injected(\.forceUpdateService) private var forceUpdateService: ForceUpdateService
 
     private let reason: ForceUpdateReason
+    private let analyticsLogger: ForceUpdateAnalyticsLogger
 
     private weak var coordinator: ForceUpdateRoutable?
 
     private var subscription: AnyCancellable?
 
-    init(reason: ForceUpdateReason, coordinator: ForceUpdateRoutable?) {
+    init(reason: ForceUpdateReason, analyticsLogger: ForceUpdateAnalyticsLogger, coordinator: ForceUpdateRoutable?) {
         self.reason = reason
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
         bind()
+        analyticsLogger.logScreenShown(reason: reason)
     }
 
     deinit {
@@ -97,7 +100,7 @@ final class ForceUpdateViewModel {
             return nil
         case .brick:
             return ButtonModel(title: Localization.commonContactSupport, style: .primary) { [weak self] in
-                self?.openSupport()
+                self?.openSupport(source: .unsupportedDevice)
             }
         }
     }
@@ -107,7 +110,7 @@ final class ForceUpdateViewModel {
         switch reason {
         case .requiresAppUpdate:
             return ButtonModel(title: Localization.commonContactSupport, style: .secondary(.default)) { [weak self] in
-                self?.openSupport()
+                self?.openSupport(source: .criticalUpdate)
             }
         case .requiresOSUpdate:
             return ButtonModel(title: Localization.commonLater, style: .secondary(.default)) { [weak self] in
@@ -123,14 +126,17 @@ final class ForceUpdateViewModel {
     }
 
     private func openAppStore() {
-        AppStoreOpener.open()
+        analyticsLogger.logUpdateNowTapped()
+        coordinator?.openAppStore()
     }
 
-    private func openSupport() {
+    private func openSupport(source: ForceUpdateSupportSource) {
+        analyticsLogger.logContactSupportTapped(source: source)
         coordinator?.openSupport()
     }
 
     private func dismissOSWarning() {
+        analyticsLogger.logLaterTapped()
         forceUpdateService.dismissOSUpdateWarning()
         coordinator?.closeForceUpdate()
     }

@@ -8,6 +8,7 @@
 
 import TangemUI
 import SwiftUI
+import Combine
 import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 import TangemSdk
@@ -29,6 +30,11 @@ final class YieldModuleStartViewModel: ObservableObject {
     var viewState: ViewState {
         didSet {
             previousState = oldValue
+
+            guard oldValue != .feeTokenSelection else {
+                return
+            }
+
             fetchData(for: viewState)
         }
     }
@@ -88,6 +94,7 @@ final class YieldModuleStartViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private(set) var walletModel: any WalletModel
+    let feeTokenSelector: YieldFeeTokenSelector?
     private weak var coordinator: YieldModulePromoCoordinator?
     private let yieldManagerInteractor: YieldManagerInteractor
     private let notificationManager: YieldModuleNotificationManager
@@ -100,6 +107,9 @@ final class YieldModuleStartViewModel: ObservableObject {
     private(set) var maximumFee: Decimal = 0
 
     private var rateInfoChartTask: Task<Void, Never>?
+    private var nativeFeeStatus: NativeFeeStatus?
+    private var selectedTokenFee: TokenFee?
+    private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
 
@@ -110,6 +120,7 @@ final class YieldModuleStartViewModel: ObservableObject {
         currentApy: Decimal?,
         coordinator: YieldModulePromoCoordinator?,
         yieldManagerInteractor: YieldManagerInteractor,
+        gaslessFeeService: YieldGaslessFeeService?,
         logger: YieldAnalyticsLogger,
         signingActionButtonType: SigningActionButtonViewType
     ) {
@@ -122,12 +133,17 @@ final class YieldModuleStartViewModel: ObservableObject {
         self.logger = logger
         self.signingActionButtonType = signingActionButtonType
 
+        feeTokenSelector = gaslessFeeService.map {
+            YieldFeeTokenSelector(gaslessFeeService: $0, coinFeeTokenItem: walletModel.feeTokenItem)
+        }
+
         networkFeeState = .init(
             footerText: Localization.yieldModuleStartEarningSheetNextDepositsV2(walletModel.tokenItem.currencySymbol),
             isLinkActive: false
         )
 
         notificationManager = YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem)
+        bindFeeTokenSelector()
         fetchData(for: viewState)
     }
 
@@ -172,6 +188,11 @@ final class YieldModuleStartViewModel: ObservableObject {
         previousState.map { viewState = $0 }
     }
 
+    @MainActor
+    func onFeeTap() {
+        presentFeeTokenSelection()
+    }
+
     var currentIncentiveApyFormatted: String {
         currentApy.map { percentFormatter.format($0, option: .earn) } ?? AppConstants.emDashSign
     }
@@ -212,6 +233,8 @@ final class YieldModuleStartViewModel: ObservableObject {
 
     private func fetchFees() {
         Task { @MainActor [self] in
+            nativeFeeStatus = nil
+            isButtonEnabled = false
             setAllFeesState(.loading)
 
             do {
@@ -225,6 +248,7 @@ final class YieldModuleStartViewModel: ObservableObject {
             } catch {
                 isButtonEnabled = false
                 setAllFeesState(.noData)
+                feeTokenSelector?.failFees(error: error)
                 highNetworkFeesNotification = nil
                 networkFeeNotification = createFeeErrorNotification { [weak self] in
                     await self?.reloadAction()
@@ -259,7 +283,7 @@ final class YieldModuleStartViewModel: ObservableObject {
             fetchRateInfoChart()
         case .startEarning:
             fetchFees()
-        case .feePolicy:
+        case .feePolicy, .feeTokenSelection:
             break
         }
     }
@@ -270,6 +294,8 @@ final class YieldModuleStartViewModel: ObservableObject {
         highNetworkFeesNotification = nil
         isButtonEnabled = false
         isNavigationToFeePolicyEnabled = false
+        nativeFeeStatus = nil
+        feeTokenSelector?.resetFees()
 
         do {
             let feeInCoins = try await yieldManagerInteractor.getEnterFee()
@@ -282,20 +308,25 @@ final class YieldModuleStartViewModel: ObservableObject {
                 .withLinkActive(true)
 
             let feeCurrencyBalance = walletModel.getFeeCurrencyBalance()
-            let isFeeHigh = feeValue > feeCurrencyBalance
 
-            if case .ethereum = walletModel.tokenItem.blockchain, isGasPriceHigh, !isFeeHigh {
-                logger.logEarningNoticeHighNetworkFeeShown()
-                highNetworkFeesNotification = createHighNetworkFeesNotification()
-            }
-
-            if isFeeHigh {
-                logger.logEarningNoticeNotEnoughFeeShown(feeCurrencyBalance: feeCurrencyBalance)
-                networkFeeNotification = createNotEnoughFeeNotification(walletModel: walletModel)
-            }
+            nativeFeeStatus = NativeFeeStatus(
+                feeCurrencyBalance: feeCurrencyBalance,
+                isFeeHigh: feeValue > feeCurrencyBalance,
+                isGasPriceHigh: isGasPriceHigh
+            )
 
             isNavigationToFeePolicyEnabled = true
-            isButtonEnabled = !isFeeHigh
+
+            if let feeTokenSelector {
+                let isSuppliedTokenFeeSupported = await yieldManagerInteractor.supportsEnterWithAmount(fee: feeInCoins)
+
+                await feeTokenSelector.updateFees(
+                    for: [feeInCoins],
+                    excludedFeeTokenItem: isSuppliedTokenFeeSupported ? nil : walletModel.tokenItem
+                )
+            }
+
+            applyFeeState()
         } catch {
             networkFeeNotification = createFeeErrorNotification { [weak self] in
                 await self?.reloadAction()
@@ -303,8 +334,86 @@ final class YieldModuleStartViewModel: ObservableObject {
 
             highNetworkFeesNotification = nil
             networkFeeState = networkFeeState.withFeeState(.noData).withLinkActive(false)
+            feeTokenSelector?.failFees(error: error)
             isButtonEnabled = false
         }
+    }
+
+    private func bindFeeTokenSelector() {
+        feeTokenSelector?.selectedFeePublisher
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, tokenFee in
+                viewModel.selectedTokenFee = tokenFee
+                viewModel.applyFeeState()
+            }
+            .store(in: &bag)
+    }
+
+    private func applyFeeState() {
+        guard let nativeFeeStatus else {
+            return
+        }
+
+        if case .loading = selectedTokenFee?.value {
+            highNetworkFeesNotification = nil
+            networkFeeNotification = nil
+            isButtonEnabled = false
+            return
+        }
+
+        if let selectedTokenFee, selectedTokenFee.tokenItem != walletModel.feeTokenItem {
+            highNetworkFeesNotification = nil
+            applyGaslessFeeState(selectedTokenFee)
+            return
+        }
+
+        let isEthereum = if case .ethereum = walletModel.tokenItem.blockchain { true } else { false }
+        let showsHighNetworkFees = isEthereum && nativeFeeStatus.isGasPriceHigh && !nativeFeeStatus.isFeeHigh
+
+        if showsHighNetworkFees, highNetworkFeesNotification == nil {
+            logger.logEarningNoticeHighNetworkFeeShown()
+        }
+
+        if nativeFeeStatus.isFeeHigh, networkFeeNotification == nil {
+            logger.logEarningNoticeNotEnoughFeeShown(feeCurrencyBalance: nativeFeeStatus.feeCurrencyBalance)
+        }
+
+        highNetworkFeesNotification = showsHighNetworkFees ? createHighNetworkFeesNotification() : nil
+        networkFeeNotification = nativeFeeStatus.isFeeHigh ? createNotEnoughFeeNotification(walletModel: walletModel) : nil
+        isButtonEnabled = !nativeFeeStatus.isFeeHigh
+    }
+
+    private func applyGaslessFeeState(_ tokenFee: TokenFee) {
+        switch tokenFee.value {
+        case .success(let fee):
+            let isAffordable = isGaslessFeeAffordable(fee)
+            networkFeeNotification = isAffordable ? nil : createNotEnoughFeeTokenNotification(feeTokenItem: tokenFee.tokenItem)
+            isButtonEnabled = isAffordable
+        case .failure(let error):
+            if case .notEnoughGaslessFeeBalance = error as? TokenFeeProviderError {
+                networkFeeNotification = createNotEnoughFeeTokenNotification(feeTokenItem: tokenFee.tokenItem)
+            } else {
+                networkFeeNotification = createFeeErrorNotification { [weak self] in
+                    await self?.reloadAction()
+                }
+            }
+            isButtonEnabled = false
+        case .loading:
+            networkFeeNotification = nil
+            isButtonEnabled = false
+        }
+    }
+
+    private func isGaslessFeeAffordable(_ fee: BSDKFee) -> Bool {
+        let calculator = YieldGaslessEnterAmountCalculator()
+
+        guard let token = walletModel.tokenItem.token, calculator.isPaidWithSuppliedToken(fee: fee, token: token) else {
+            return true
+        }
+
+        let balance = walletModel.totalTokenBalanceProvider.balanceType.value ?? .zero
+        return calculator.enterAmount(balance: balance, fee: fee, token: token) != nil
     }
 
     @MainActor
@@ -375,6 +484,7 @@ extension YieldModuleStartViewModel {
         case incentiveRateInfo
         case feePolicy
         case startEarning
+        case feeTokenSelection
 
         // MARK: - Identifiable
 
@@ -388,8 +498,16 @@ extension YieldModuleStartViewModel {
                 "feePolicy"
             case .startEarning:
                 "startEarning"
+            case .feeTokenSelection:
+                "feeTokenSelection"
             }
         }
+    }
+
+    struct NativeFeeStatus {
+        let feeCurrencyBalance: Decimal
+        let isFeeHigh: Bool
+        let isGasPriceHigh: Bool
     }
 }
 
@@ -397,12 +515,47 @@ extension YieldModuleStartViewModel {
 
 extension YieldModuleStartViewModel: FloatingSheetContentViewModel {}
 
+// MARK: - FeeSelectorTokensRoutable
+
+extension YieldModuleStartViewModel: FeeSelectorTokensRoutable {
+    func userDidSelectFeeToken(tokenFeeProvider: any TokenFeeProvider) {
+        feeTokenSelector?.userDidSelectFeeToken(tokenFeeProvider: tokenFeeProvider)
+        dismissFeeTokenSelection()
+    }
+}
+
+// MARK: - Navigation Helpers
+
+private extension YieldModuleStartViewModel {
+    func presentFeeTokenSelection() {
+        guard let feeTokenSelector else { return }
+
+        feeTokenSelector.setup(router: self)
+        viewState = .feeTokenSelection
+    }
+
+    func dismissFeeTokenSelection() {
+        Task { @MainActor [weak self] in
+            self?.onBackAction()
+        }
+    }
+}
+
 // MARK: - Notification Builders
 
 private extension YieldModuleStartViewModel {
     func createNotEnoughFeeNotification(walletModel: any WalletModel) -> YieldModuleNotificationBannerParams {
         notificationManager.createNotEnoughFeeCurrencyNotification { [weak self] in
             self?.coordinator?.openFeeCurrency(walletModel: walletModel)
+        }
+    }
+
+    func createNotEnoughFeeTokenNotification(feeTokenItem: TokenItem) -> YieldModuleNotificationBannerParams {
+        let feeWalletModel = walletModel.account?.walletModelsManager.walletModels.first { $0.tokenItem == feeTokenItem }
+
+        return notificationManager.createNotEnoughFeeTokenNotification(feeTokenItem: feeTokenItem) { [weak self] in
+            guard let feeWalletModel else { return }
+            self?.coordinator?.openFeeCurrency(walletModel: feeWalletModel)
         }
     }
 

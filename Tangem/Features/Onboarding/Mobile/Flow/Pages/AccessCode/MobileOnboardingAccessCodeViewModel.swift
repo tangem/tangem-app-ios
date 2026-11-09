@@ -85,11 +85,11 @@ final class MobileOnboardingAccessCodeViewModel: ObservableObject {
     var pinColor: Color {
         switch state {
         case .accessCode:
-            return Colors.Text.primary1
+            return DesignSystem.Color.textPrimary
         case .confirmAccessCode where confirmAccessCode.count == codeLength:
-            return confirmAccessCode == accessCode ? Colors.Text.accent : Colors.Text.warning
+            return confirmAccessCode == accessCode ? DesignSystem.Color.textAccentBlue : DesignSystem.Color.textAccentRed
         case .confirmAccessCode:
-            return Colors.Text.primary1
+            return DesignSystem.Color.textPrimary
         }
     }
 

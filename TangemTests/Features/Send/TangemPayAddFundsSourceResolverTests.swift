@@ -9,6 +9,7 @@ import BlockchainSdk
 import Foundation
 import Testing
 import TangemExpress
+import TangemFoundation
 @testable import Tangem
 
 @Suite("TangemPayAddFundsSourceResolver")
@@ -27,122 +28,124 @@ struct TangemPayAddFundsSourceResolverTests {
     private let ethereum = TokenItem.blockchain(BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil))
 
     @Test("A currency-matched token stays the transfer source even when Express can't swap it")
-    func preferredTokenWinsWithoutSwapAvailability() {
+    func preferredTokenWinsWithoutSwapAvailability() async {
         let preferred = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 50)
         let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 500)
 
-        let chosen = TangemPayAddFundsSourceResolver.chooseSource(
+        let chosen = await chooseSource(
             from: [preferred, swapFallback],
             preferredCurrencies: [usdcPolygon.expressCurrency],
-            availabilityChecker: FundingSourceAvailabilityCheckerStub(
-                transferAvailable: [preferred.id],
-                swapAvailable: [swapFallback.id]
-            )
+            expressAvailabilityProvider: expressUnreachable(for: usdcPolygon)
         )
 
         #expect(chosen?.tokenItem == usdcPolygon)
     }
 
     @Test("A funded preferred token without a fiat quote still wins over the swap fallback")
-    func preferredWithoutQuoteStaysTransfer() {
+    func preferredWithoutQuoteStaysTransfer() async {
         // The transfer gate already guarantees a positive crypto balance —
         // a missing quote only hides it from the fiat comparison.
         let preferred = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 0)
         let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 500)
 
-        let chosen = TangemPayAddFundsSourceResolver.chooseSource(
+        let chosen = await chooseSource(
             from: [preferred, swapFallback],
             preferredCurrencies: [usdcPolygon.expressCurrency],
-            availabilityChecker: FundingSourceAvailabilityCheckerStub(
-                transferAvailable: [preferred.id],
-                swapAvailable: [swapFallback.id]
-            )
+            expressAvailabilityProvider: expressUnreachable(for: usdcPolygon)
         )
 
         #expect(chosen?.tokenItem == usdcPolygon)
     }
 
     @Test("A preferred token the app can't transfer is skipped for the swap fallback")
-    func transferUnavailablePreferredSkipped() {
+    func transferUnavailablePreferredSkipped() async {
         let preferred = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 50)
+        preferred.sendingRestrictionsMock = .blockchainUnreachable
         let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 5)
 
-        let chosen = TangemPayAddFundsSourceResolver.chooseSource(
+        let chosen = await chooseSource(
             from: [preferred, swapFallback],
-            preferredCurrencies: [usdcPolygon.expressCurrency],
-            availabilityChecker: FundingSourceAvailabilityCheckerStub(swapAvailable: [swapFallback.id])
+            preferredCurrencies: [usdcPolygon.expressCurrency]
         )
 
         #expect(chosen?.tokenItem == ethereum)
     }
 
     @Test("Without a currency match the richest swap-available token wins; swap-unavailable ones never do")
-    func fallbackRequiresSwapAvailability() {
+    func fallbackRequiresSwapAvailability() async {
         let swapAvailable = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 100)
         let swapUnavailable = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 999)
+        swapUnavailable.sendingRestrictionsMock = .blockchainUnreachable
 
-        let chosen = TangemPayAddFundsSourceResolver.chooseSource(
+        let chosen = await chooseSource(
             from: [swapAvailable, swapUnavailable],
-            preferredCurrencies: [],
-            availabilityChecker: FundingSourceAvailabilityCheckerStub(swapAvailable: [swapAvailable.id])
+            preferredCurrencies: []
         )
 
         #expect(chosen?.tokenItem == ethereum)
     }
 
     @Test("With no positive fiat anywhere the first swap-available token still becomes the source")
-    func nothingFundedFallsBackToFirstSwapAvailable() {
+    func nothingFundedFallsBackToFirstSwapAvailable() async {
         let unavailable = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 0)
+        unavailable.sendingRestrictionsMock = .blockchainUnreachable
         let available = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 0)
 
-        let chosen = TangemPayAddFundsSourceResolver.chooseSource(
+        let chosen = await chooseSource(
             from: [unavailable, available],
-            preferredCurrencies: [],
-            availabilityChecker: FundingSourceAvailabilityCheckerStub(swapAvailable: [available.id])
+            preferredCurrencies: []
         )
 
         #expect(chosen?.tokenItem == ethereum)
     }
 
     @Test("Without a single swap-available token the source stays unresolved")
-    func noSwapAvailableTokensResolveToNil() {
+    func noSwapAvailableTokensResolveToNil() async {
         let unavailable = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 999)
+        unavailable.sendingRestrictionsMock = .blockchainUnreachable
 
-        let chosen = TangemPayAddFundsSourceResolver.chooseSource(
+        let chosen = await chooseSource(
             from: [unavailable],
-            preferredCurrencies: [],
-            availabilityChecker: FundingSourceAvailabilityCheckerStub()
+            preferredCurrencies: []
         )
 
         #expect(chosen == nil)
     }
 
+    @Test("A custom token in the Pay currency is never the transfer source, so the swap fallback is picked")
+    func customTokenIsNotTransferSource() async {
+        let custom = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 500, isCustom: true)
+        let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 5)
+
+        let chosen = await chooseSource(
+            from: [custom, swapFallback],
+            preferredCurrencies: [usdcPolygon.expressCurrency]
+        )
+
+        #expect(chosen?.tokenItem == ethereum)
+    }
+
     @Test("A joint account never becomes the transfer source, however much of the Pay currency it holds")
-    func jointAccountNeverBecomesTransferSource() {
+    func jointAccountNeverBecomesTransferSource() async {
         let joint = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 999, accountType: .joint)
         let standard = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 1)
 
-        let chosen = TangemPayAddFundsSourceResolver.chooseSource(
+        let chosen = await chooseSource(
             from: [joint, standard],
-            preferredCurrencies: [usdcPolygon.expressCurrency],
-            availabilityChecker: FundingSourceAvailabilityCheckerStub(
-                transferAvailable: [joint.id, standard.id],
-                swapAvailable: [joint.id, standard.id]
-            )
+            preferredCurrencies: [usdcPolygon.expressCurrency]
         )
 
         #expect(chosen === standard)
     }
 
     @Test("A joint account never becomes the swap fallback either")
-    func jointAccountNeverBecomesSwapFallback() {
+    func jointAccountNeverBecomesSwapFallback() async {
         let joint = makeWalletModel(tokenItem: ethereum, fiatBalance: 999, accountType: .joint)
         let standard = makeWalletModel(tokenItem: ethereum, fiatBalance: 1)
 
-        let chosen = TangemPayAddFundsSourceResolver.chooseSource(
+        let chosen = await chooseSource(
             from: [joint, standard],
-            preferredCurrencies: [usdcPolygon.expressCurrency],
-            availabilityChecker: FundingSourceAvailabilityCheckerStub(swapAvailable: [joint.id, standard.id])
+            preferredCurrencies: [usdcPolygon.expressCurrency]
         )
 
         #expect(chosen === standard)
@@ -152,6 +155,28 @@ struct TangemPayAddFundsSourceResolverTests {
 // MARK: - Fixtures
 
 private extension TangemPayAddFundsSourceResolverTests {
+    func chooseSource(
+        from walletModels: [any WalletModel],
+        preferredCurrencies: Set<ExpressWalletCurrency>,
+        expressAvailabilityProvider: ExpressAvailabilityProvider = SwapExpressAvailabilityProviderStub()
+    ) async -> (any WalletModel)? {
+        await InjectedDependenciesIsolation.shared.run {
+            let previousProvider = InjectedValues[\.expressAvailabilityProvider]
+            InjectedValues[\.expressAvailabilityProvider] = expressAvailabilityProvider
+            defer { InjectedValues[\.expressAvailabilityProvider] = previousProvider }
+
+            return TangemPayAddFundsSourceResolver.chooseSource(
+                from: walletModels,
+                preferredCurrencies: preferredCurrencies,
+                userWalletInfo: makeUserWalletInfo()
+            )
+        }
+    }
+
+    func expressUnreachable(for tokenItem: TokenItem) -> ExpressAvailabilityProvider {
+        SwapExpressAvailabilityProviderStub(swapStates: [tokenItem: .unavailable], updateState: .failed(error: URLError(.notConnectedToInternet)))
+    }
+
     func makeWalletModel(
         tokenItem: TokenItem,
         fiatBalance: Decimal,
@@ -166,6 +191,18 @@ private extension TangemPayAddFundsSourceResolverTests {
                 accountType: accountType,
                 onArchive: { _ in }
             )
+        )
+    }
+
+    func makeUserWalletInfo() -> UserWalletInfo {
+        UserWalletInfo(
+            name: "Test",
+            id: UserWalletId(value: Data([0x01])),
+            config: UserWalletConfigStub(),
+            backupState: .valid,
+            refcode: nil,
+            signerFactory: TangemSignerFactory(),
+            emailDataProvider: EmailDataProviderStub()
         )
     }
 }

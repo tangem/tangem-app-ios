@@ -16,6 +16,7 @@ import TangemNetworkUtils
 protocol YieldModuleNetworkManager {
     var markets: [YieldModuleMarketInfo] { get }
     var marketsPublisher: AnyPublisher<[YieldModuleMarketInfo], Never> { get }
+    var marketsLoadStatePublisher: AnyPublisher<YieldModuleMarketsLoadState, Never> { get }
 
     func updateMarkets()
 
@@ -34,26 +35,24 @@ final class CommonYieldModuleNetworkManager {
     private let yieldModuleAPIService: YieldModuleAPIService
     private let yieldMarketsRepository: YieldModuleMarketsRepository
     private let yieldModuleChartManager: YieldModuleChartManager
-    private let blockchainAvailability: YieldModuleBlockchainAvailability
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     private var bag = Set<AnyCancellable>()
 
     private let marketsSubject = CurrentValueSubject<[YieldModuleMarketInfo], Never>([])
+    private let marketsLoadStateSubject = CurrentValueSubject<YieldModuleMarketsLoadState, Never>(.idle)
 
     private let inFlightMarketsUpdate = OSAllocatedUnfairLock<UUID?>(initialState: nil)
 
     init(
         yieldModuleAPIService: YieldModuleAPIService,
         yieldMarketsRepository: YieldModuleMarketsRepository,
-        yieldModuleChartManager: YieldModuleChartManager,
-        blockchainAvailability: YieldModuleBlockchainAvailability = YieldModuleBlockchainAvailability()
+        yieldModuleChartManager: YieldModuleChartManager
     ) {
         self.yieldModuleAPIService = yieldModuleAPIService
         self.yieldMarketsRepository = yieldMarketsRepository
         self.yieldModuleChartManager = yieldModuleChartManager
-        self.blockchainAvailability = blockchainAvailability
 
         bind()
     }
@@ -68,6 +67,10 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
         marketsSubject.eraseToAnyPublisher()
     }
 
+    var marketsLoadStatePublisher: AnyPublisher<YieldModuleMarketsLoadState, Never> {
+        marketsLoadStateSubject.eraseToAnyPublisher()
+    }
+
     /// Every call derives the same chain IDs from all user wallets, so the newest one subsumes the ones before it.
     func updateMarkets() {
         let walletModels = AccountWalletModelsAggregator.walletModels(from: userWalletRepository.models)
@@ -80,6 +83,7 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
 
         let token = UUID()
         inFlightMarketsUpdate { $0 = token }
+        marketsLoadStateSubject.send(.loading)
 
         Task { @MainActor [weak self] in
             guard let self else { return }
@@ -106,6 +110,7 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
             }
 
             marketsSubject.send(markets)
+            marketsLoadStateSubject.send(freshResponse == nil ? .failed : .loaded)
         }
     }
 
@@ -265,16 +270,9 @@ private extension CommonYieldModuleNetworkManager {
     func fetchMarkets(
         chainIDs: [String]
     ) async -> (markets: [YieldModuleMarketInfo], freshResponse: YieldModuleDTO.Response.MarketsInfo?) {
-        let includeIncentive = FeatureProvider.isAvailable(.merklIncentives)
-
         do {
-            let response = includeIncentive
-                ? try await yieldModuleAPIService.getIncentiveYieldMarkets(chainIDs: chainIDs)
-                : try await yieldModuleAPIService.getYieldMarkets(chainIDs: chainIDs)
-
-            let markets = response.tokens
-                .map { YieldModuleMarketInfo(dto: $0, includeIncentive: includeIncentive) }
-                .filter { blockchainAvailability.isAvailable(chainId: $0.chainId) }
+            let response = try await yieldModuleAPIService.getIncentiveYieldMarkets(chainIDs: chainIDs)
+            let markets = response.tokens.map(YieldModuleMarketInfo.init(dto:))
 
             return (markets, response)
         } catch {
@@ -284,9 +282,7 @@ private extension CommonYieldModuleNetworkManager {
                 return ([], nil)
             }
 
-            let markets = cachedMarkets.markets
-                .map(YieldModuleMarketInfo.init(from:))
-                .filter { blockchainAvailability.isAvailable(chainId: $0.chainId) }
+            let markets = cachedMarkets.markets.map(YieldModuleMarketInfo.init(from:))
 
             return (markets, nil)
         }

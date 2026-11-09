@@ -92,7 +92,7 @@ private extension CommonEthereumTokenFeeLoaderTests {
     func makeLoader(swapFees: [Fee], approveFees: [Fee]) -> CommonEthereumTokenFeeLoader {
         CommonEthereumTokenFeeLoader(
             feeBlockchain: .ethereum(testnet: false),
-            tokenFeeLoader: TokenFeeLoaderStub(),
+            tokenFeeLoader: DefaultTokenFeeLoader(loader: TokenFeeLoaderStub()),
             ethereumNetworkProvider: FeeArrayNetworkProviderStub(swapFees: swapFees, approveFees: approveFees)
         )
     }
@@ -143,7 +143,7 @@ private extension CommonEthereumTokenFeeLoaderTests {
 
 // MARK: - Doubles
 
-private struct TokenFeeLoaderStub: TokenFeeLoader {
+private struct TokenFeeLoaderStub: TokenFeeLoading {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee] { [] }
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee] { [] }
 }

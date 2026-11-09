@@ -126,7 +126,7 @@ struct DEXProviderFlowHelperFallbackTests {
     /// Flag ON + a resolvable owner address: a plain permissionRequired allowance enters the approve-with-swap flow.
     @Test("flag ON with owner present routes permissionRequired into approve-with-swap")
     func checkRestriction_flagOnOwnerPresent_choosesApproveWithSwap() async {
-        let approveData = ApproveTransactionData(txData: Data([0xAB]), spender: "0xSpender", toContractAddress: "0xContract")
+        let approveData = ApproveTransactionData(txData: Data([0xAB]), spender: "0xSpender", toContractAddress: "0xContract", amountRaw: 1)
         let sut = makeSUT(
             feeProvider: FeeProviderStub(combinedResult: .failure(StubError.notImplemented), approveFee: zeroFee()),
             analyticsLogger: AnalyticsLoggerSpy(),
@@ -151,7 +151,7 @@ struct DEXProviderFlowHelperFallbackTests {
     /// Flag ON but the owner address can't be resolved: the flow degrades to the legacy two-step approve instead of attempting approve-with-swap.
     @Test("flag ON with nil owner falls back to legacy permissionRequired")
     func checkRestriction_flagOnOwnerNil_fallsBackToLegacy() async {
-        let approveData = ApproveTransactionData(txData: Data([0xAB]), spender: "0xSpender", toContractAddress: "0xContract")
+        let approveData = ApproveTransactionData(txData: Data([0xAB]), spender: "0xSpender", toContractAddress: "0xContract", amountRaw: 1)
         let fallbackFee = Fee(Amount(with: .ethereum(testnet: false), value: Decimal(string: "0.001")!))
         let sut = makeSUT(
             feeProvider: FeeProviderStub(combinedResult: .failure(StubError.notImplemented), approveFee: fallbackFee),
@@ -174,7 +174,7 @@ struct DEXProviderFlowHelperFallbackTests {
     /// one-tap approve must take the two-step flow even when the owner is resolvable.
     @Test("provider without one-tap support falls back to legacy permissionRequired despite owner present")
     func checkRestriction_oneTapUnsupported_fallsBackToLegacy() async {
-        let approveData = ApproveTransactionData(txData: Data([0xAB]), spender: "TSpender", toContractAddress: "TContract")
+        let approveData = ApproveTransactionData(txData: Data([0xAB]), spender: "TSpender", toContractAddress: "TContract", amountRaw: 1)
         let fallbackFee = Fee(Amount(with: .tron(testnet: false), value: Decimal(string: "15")!))
         let sut = makeSUT(
             feeProvider: FeeProviderStub(combinedResult: .failure(StubError.notImplemented), approveFee: fallbackFee),
@@ -196,8 +196,8 @@ struct DEXProviderFlowHelperFallbackTests {
     /// Revoke-required tokens (USDT-style) always use the legacy revoke→approve flow, never approve-with-swap — even with the flag on and a resolvable owner.
     @Test("revoke-required allowance always falls back to legacy revokeAndPermissionRequired")
     func checkRestriction_revokeRequired_fallsBackToLegacy() async {
-        let revoke = ApproveTransactionData(txData: Data([0x00]), spender: "0xSpender", toContractAddress: "0xContract")
-        let approve = ApproveTransactionData(txData: Data([0xAB]), spender: "0xSpender", toContractAddress: "0xContract")
+        let revoke = ApproveTransactionData(txData: Data([0x00]), spender: "0xSpender", toContractAddress: "0xContract", amountRaw: 0)
+        let approve = ApproveTransactionData(txData: Data([0xAB]), spender: "0xSpender", toContractAddress: "0xContract", amountRaw: 1)
         let revokeTotal = Fee(Amount(with: .ethereum(testnet: false), value: Decimal(string: "0.003")!))
         let feeProvider = FeeProviderStub(
             combinedResult: .failure(StubError.notImplemented),
@@ -285,7 +285,7 @@ private extension DEXProviderFlowHelperFallbackTests {
             expressFeeProvider: feeProvider,
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
         )
         return DEXProviderFlowHelper(context: context)
     }
@@ -312,6 +312,7 @@ private extension DEXProviderFlowHelperFallbackTests {
             approvePolicy: .specified,
             operationType: .swap,
             slippage: nil,
+            mcpIntentID: nil,
             quotesLoadingPerformanceTracker: nil
         )
     }
@@ -345,7 +346,7 @@ private extension DEXProviderFlowHelperFallbackTests {
         DEXProviderFlowHelper.RestrictionCheckResult.ApproveData(
             provider: makeProvider(),
             approvePolicy: .specified,
-            approveTransactionData: ApproveTransactionData(txData: Data([0xAB]), spender: "0xSpender", toContractAddress: "0xContract"),
+            approveTransactionData: ApproveTransactionData(txData: Data([0xAB]), spender: "0xSpender", toContractAddress: "0xContract", amountRaw: 1),
             approvalFlow: .approve,
             owner: "0xOwner"
         )
@@ -415,7 +416,7 @@ private struct AllowanceProviderStub: AllowanceProvider {
     }
 
     func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData {
-        ApproveTransactionData(txData: Data(), spender: spender, toContractAddress: "0xContract")
+        ApproveTransactionData(txData: Data(), spender: spender, toContractAddress: "0xContract", amountRaw: 1)
     }
 }
 
@@ -472,6 +473,9 @@ final class SourceWalletStub: ExpressSourceWallet {
 }
 
 final class ExpressAPIProviderStub: ExpressAPIProvider {
+    var exchangeDataError: Error?
+    var cancelsCurrentTaskOnExchangeData = false
+
     func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] { [] }
     func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] { [] }
     func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { [] }
@@ -481,7 +485,15 @@ final class ExpressAPIProviderStub: ExpressAPIProvider {
     }
 
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData {
-        ExpressTransactionData(
+        if cancelsCurrentTaskOnExchangeData {
+            withUnsafeCurrentTask { $0?.cancel() }
+        }
+
+        if let exchangeDataError {
+            throw exchangeDataError
+        }
+
+        return ExpressTransactionData(
             requestId: "",
             fromAmount: .zero,
             toAmount: .zero,
@@ -499,6 +511,10 @@ final class ExpressAPIProviderStub: ExpressAPIProvider {
             payInAddress: "",
             slippage: nil
         )
+    }
+
+    func exchangeIntent(mcpIntentID: String) async throws -> ExchangeMCPIntent {
+        throw StubError.notImplemented
     }
 
     func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction {

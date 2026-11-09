@@ -6,9 +6,15 @@
 //
 
 import Foundation
+import TangemFoundation
 
-/// Shows the campaign a `tangem://campaigns` deeplink names as a floating sheet, from wherever the user is.
+/// Shows the campaign a `tangem://campaigns` deeplink names, from wherever the user is: a numeric id opens
+/// the promo campaign the main-screen banner opens for the selected wallet, any other id, or no wallet
+/// selected, the cashback campaign as a floating sheet.
 final class CampaignDeeplinkResponder {
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
+    @Injected(\.promoCampaignFlowLauncher) private var promoCampaignFlowLauncher: PromoCampaignFlowLaunching
+
     private var campaignCoordinator: CampaignCoordinator?
 }
 
@@ -20,19 +26,64 @@ extension CampaignDeeplinkResponder: IncomingActionResponder {
             return false
         }
 
-        // A campaign is already up: the link is answered by what is already on screen.
-        guard campaignCoordinator == nil else {
+        let target = CampaignDeeplinkTarget(
+            deeplink: deeplink,
+            selectedUserWalletId: userWalletRepository.selectedModel?.userWalletId
+        )
+
+        guard !promoCampaignFlowLauncher.isFlowActive else {
             return true
         }
 
+        switch target {
+        case .promoCampaign(let campaignId, let userWalletId):
+            if campaignCoordinator == nil {
+                promoCampaignFlowLauncher.startFlow(campaignId: campaignId, userWalletId: userWalletId)
+            }
+        case .cashbackCampaign(let campaignId):
+            startCashbackCampaignFlow(campaignId: campaignId)
+        }
+
+        return true
+    }
+}
+
+// MARK: - Private
+
+private extension CampaignDeeplinkResponder {
+    func startCashbackCampaignFlow(campaignId: String?) {
+        // A campaign is already up: the link is answered by what is already on screen.
+        guard campaignCoordinator == nil else {
+            return
+        }
+
         campaignCoordinator = CampaignFlowFactory().makeCampaignCoordinator(
-            campaignId: deeplink.campaignId,
+            campaignId: campaignId,
             dismissAction: { [weak self] _ in
                 self?.campaignCoordinator = nil
             },
             popToRootAction: { _ in }
         )
+    }
+}
 
-        return true
+// MARK: - CampaignDeeplinkTarget
+
+enum CampaignDeeplinkTarget: Equatable {
+    case promoCampaign(campaignId: Int, userWalletId: UserWalletId)
+    case cashbackCampaign(campaignId: String?)
+
+    init(deeplink: CampaignsDeeplink, selectedUserWalletId: UserWalletId?) {
+        guard
+            let campaignId = deeplink.campaignId,
+            campaignId.allSatisfy({ $0.isASCII && $0.isNumber }),
+            let promoCampaignId = Int(campaignId),
+            let selectedUserWalletId
+        else {
+            self = .cashbackCampaign(campaignId: deeplink.campaignId)
+            return
+        }
+
+        self = .promoCampaign(campaignId: promoCampaignId, userWalletId: selectedUserWalletId)
     }
 }

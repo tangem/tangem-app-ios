@@ -15,10 +15,16 @@ import class Alamofire.RetryPolicy
 protocol PromoCampaignsProviding {
     func initialize()
     func campaignsPublisher(for userWalletId: UserWalletId) -> AnyPublisher<[PromoCampaign], Never>
+    func settledCampaignsPublisher(for userWalletId: UserWalletId) -> AnyPublisher<PromoCampaignsSettlement, Never>
     @MainActor
     func reloadCampaigns(for userWalletIds: [UserWalletId])
     @MainActor
     func removeCampaign(withId campaignId: Int)
+}
+
+enum PromoCampaignsSettlement: Equatable {
+    case loaded([PromoCampaign])
+    case failed
 }
 
 final class PromoCampaignsRepository {
@@ -27,6 +33,7 @@ final class PromoCampaignsRepository {
     private let retryCount: Int
     private let retryInterval: (_ retryAttempt: Int) -> UInt64
     private let campaignsSubject = CurrentValueSubject<[UserWalletId: [PromoCampaign]], Never>([:])
+    private let failedWalletIdsSubject = CurrentValueSubject<Set<UserWalletId>, Never>([])
     private let requestedWallets = OSAllocatedUnfairLock(initialState: RequestedWallets())
     private let removedCampaignIds = OSAllocatedUnfairLock(initialState: Set<Int>())
     private var walletsSubscription: AnyCancellable?
@@ -68,6 +75,20 @@ extension PromoCampaignsRepository: PromoCampaignsProviding {
             .eraseToAnyPublisher()
     }
 
+    func settledCampaignsPublisher(for userWalletId: UserWalletId) -> AnyPublisher<PromoCampaignsSettlement, Never> {
+        campaignsSubject
+            .combineLatest(failedWalletIdsSubject)
+            .compactMap { campaigns, failedWalletIds -> PromoCampaignsSettlement? in
+                if let walletCampaigns = campaigns[userWalletId] {
+                    return .loaded(walletCampaigns)
+                }
+
+                return failedWalletIds.contains(userWalletId) ? .failed : nil
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     @MainActor
     func reloadCampaigns(for userWalletIds: [UserWalletId]) {
         let userWalletIds = Set(userWalletIds)
@@ -99,6 +120,13 @@ private extension PromoCampaignsRepository {
         if campaigns.count != campaignsSubject.value.count {
             campaignsSubject.value = campaigns
         }
+
+        let currentWalletIds = Set(wallets.map(\.userWalletId))
+        let failedWalletIds = failedWalletIdsSubject.value.intersection(currentWalletIds)
+
+        if failedWalletIds != failedWalletIdsSubject.value {
+            failedWalletIdsSubject.value = failedWalletIds
+        }
     }
 
     func loadCampaigns(forNewWalletsAmong wallets: [PromoCampaignWallet]) {
@@ -110,6 +138,12 @@ private extension PromoCampaignsRepository {
     func load(_ loads: [Load]) {
         guard loads.isNotEmpty else {
             return
+        }
+
+        let retriedWalletIds = failedWalletIdsSubject.value.subtracting(loads.map(\.wallet.userWalletId))
+
+        if retriedWalletIds != failedWalletIdsSubject.value {
+            failedWalletIdsSubject.value = retriedWalletIds
         }
 
         runTask(in: self) { repository in
@@ -172,12 +206,23 @@ private extension PromoCampaignsRepository {
     func apply(_ result: LoadResult) {
         let isCurrentLoad = requestedWallets.withLock { $0.finishLoading(result.load, isLoaded: result.campaigns != nil) }
 
-        guard isCurrentLoad, let campaigns = result.campaigns else {
+        guard isCurrentLoad else {
             return
         }
 
+        let userWalletId = result.load.wallet.userWalletId
+
+        guard let campaigns = result.campaigns else {
+            failedWalletIdsSubject.value.insert(userWalletId)
+            return
+        }
+
+        if failedWalletIdsSubject.value.contains(userWalletId) {
+            failedWalletIdsSubject.value.remove(userWalletId)
+        }
+
         let removedIds = removedCampaignIds.withLock { $0 }
-        campaignsSubject.value[result.load.wallet.userWalletId] = campaigns.filter { !removedIds.contains($0.id) }
+        campaignsSubject.value[userWalletId] = campaigns.filter { !removedIds.contains($0.id) }
     }
 }
 

@@ -80,7 +80,7 @@ extension CommonCollectiblesChainReader: CollectiblesVaultUsdcReader {
 
 // MARK: - Private implementation
 
-private extension CommonCollectiblesChainReader {
+extension CommonCollectiblesChainReader {
     enum ReadError: Error {
         case configMissing
     }

@@ -61,6 +61,7 @@ final class PolymarketDestinationFactory {
             apiProvider: dependencies.apiProvider,
             positionsService: dependencies.positionsService,
             geoblockStateProvider: dependencies.geoblockStateProvider,
+            usesPhaseTwoLayout: dependencies.isPhaseTwoAvailable,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: onRegionWarning,
             orderBuilder: self,
@@ -103,6 +104,7 @@ final class PolymarketDestinationFactory {
             geoblockStateProvider: dependencies.geoblockStateProvider,
             redeemService: dependencies.redeemService,
             signingButtonType: dependencies.signingButtonType,
+            usesPhaseTwoPositionDetails: dependencies.isPhaseTwoAvailable,
             onRegionWarning: onRegionWarning,
             onOrderPlaced: onOrderPlaced,
             onClaimed: onClaimed,
@@ -164,6 +166,7 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
 extension PolymarketDestinationFactory: PolymarketEventDetailsBuilder {
     func makeEventDetailsCoordinator(
         eventID: String,
+        placeholder: PolymarketEventPlaceholder?,
         category: PolymarketCategory?,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,
         onRegionWarning: @escaping () -> Void,
@@ -173,14 +176,31 @@ extension PolymarketDestinationFactory: PolymarketEventDetailsBuilder {
 
         coordinator.start(with: .init(
             eventID: eventID,
+            placeholder: placeholder,
             category: category,
             apiProvider: dependencies.apiProvider,
             geoblockStateProvider: dependencies.geoblockStateProvider,
+            chartServices: makeEventChartServices(),
+            usesPhaseTwoLayout: dependencies.isPhaseTwoAvailable,
+            isLiveBadgePulsing: dependencies.isPhaseTwoAvailable,
             onOrderPlaced: onOrderPlaced,
             onRegionWarning: onRegionWarning,
             orderBuilder: self
         ))
 
         return coordinator
+    }
+}
+
+// MARK: - Event chart
+
+private extension PolymarketDestinationFactory {
+    func makeEventChartServices() -> PolymarketEventDetailsViewModel.ChartServices? {
+        guard dependencies.isPhaseTwoAvailable else { return nil }
+
+        return PolymarketEventDetailsViewModel.ChartServices(
+            clobService: dependencies.clobService,
+            sportsService: PolymarketOnboardingServicesFactory.makeDefault().makeEventSportsService()
+        )
     }
 }

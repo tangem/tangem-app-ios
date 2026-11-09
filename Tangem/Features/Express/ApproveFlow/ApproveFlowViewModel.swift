@@ -186,7 +186,7 @@ extension ApproveFlowViewModel {
         private func makeSubtitle(text: String) -> AttributedString {
             var attr = AttributedString(text)
             attr.font = Fonts.Regular.footnote
-            attr.foregroundColor = Colors.Text.tertiary
+            attr.foregroundColor = DesignSystem.Color.textSecondary
 
             if let range = attr.range(of: Localization.commonLearnMore) {
                 attr.replaceSubrange(range, with: AttributedString(""))

@@ -76,10 +76,10 @@ final class CampaignViewModel: ObservableObject, FloatingSheetContentViewModel {
         let link = Localization.promoCampaignTermsLink(campaignName)
         var attributed = AttributedString(Localization.promoCampaignTermsAgreement(link))
         attributed.font = Fonts.Bold.caption1
-        attributed.foregroundColor = Colors.Text.secondary
+        attributed.foregroundColor = DesignSystem.Color.textSecondary
 
         if let range = attributed.range(of: link) {
-            attributed[range].foregroundColor = Colors.Text.primary1
+            attributed[range].foregroundColor = DesignSystem.Color.textPrimary
             attributed[range].link = termsURL
         }
 

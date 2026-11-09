@@ -16,7 +16,7 @@ import TangemAccessibilityIdentifiers
 struct SendDestinationAddressView: View {
     @ObservedObject var viewModel: SendDestinationAddressViewModel
 
-    private var scanQRIconColor: Color = Colors.Icon.informative
+    private var scanQRIconColor: Color = DesignSystem.Color.iconSecondary
 
     init(viewModel: SendDestinationAddressViewModel) {
         self.viewModel = viewModel
@@ -36,10 +36,10 @@ struct SendDestinationAddressView: View {
             switch viewModel.error {
             case .none:
                 Text(viewModel.title)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
             case .some(let string):
                 Text(string)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.warning)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textAccentRed)
             }
         }
         .lineLimit(1)
@@ -58,7 +58,7 @@ struct SendDestinationAddressView: View {
 
     private var addressIconView: some View {
         Circle()
-            .fill(Colors.Button.secondary)
+            .fill(DesignSystem.Color.bgTransparentSecondary)
             .frame(width: 36, height: 36)
             .overlay {
                 if viewModel.isValidating {
@@ -112,7 +112,7 @@ struct SendDestinationAddressView: View {
             Assets.clear.image
                 .resizable()
                 .renderingMode(.template)
-                .foregroundStyle(Colors.Icon.informative)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(width: 24, height: 24)
         }
         .accessibilityIdentifier(SendAccessibilityIdentifiers.addressClearButton)

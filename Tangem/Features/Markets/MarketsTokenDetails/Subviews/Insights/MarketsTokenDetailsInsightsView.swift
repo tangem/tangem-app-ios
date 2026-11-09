@@ -28,7 +28,7 @@ struct MarketsTokenDetailsInsightsView: View {
             header
 
             LazyVGrid(columns: gridItems, alignment: .leading, spacing: 16) {
-                ForEach(indexed: viewModel.records.indexed()) { _, info in
+                ForEach(viewModel.records) { info in
                     recordView(for: info)
                 }
             }

@@ -34,7 +34,7 @@ struct OnboardingAddTokensView: View {
                         .addContentOffsetObserver($contentOffset)
                 } else {
                     Spacer()
-                    ActivityIndicatorView(style: .large, color: UIColor(Colors.Text.primary1))
+                    ActivityIndicatorView(style: .large, color: UIColor(DesignSystem.Color.iconPrimary))
                     Spacer()
                 }
             }

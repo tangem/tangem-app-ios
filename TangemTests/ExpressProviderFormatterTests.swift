@@ -105,7 +105,7 @@ struct ExpressProviderFormatterBadgeTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
         )
 
         let available = ExpressAvailableProvider(
@@ -241,6 +241,22 @@ struct ExpressAvailableProviderBestDEXTests {
         #expect(preferring == attractively)
     }
 
+    // MARK: - sortedByAttractively
+
+    @Test("Keeps the best DEX at its rate position")
+    func keepsBestDEXAtRatePosition() {
+        let cexHigh = makeProvider(id: "cex-high", type: .cex, expectAmount: 100)
+        let dex = makeProvider(id: "dex", type: .dex, expectAmount: 90)
+        let cexLow = makeProvider(id: "cex-low", type: .cex, expectAmount: 80)
+        let providers = [cexLow, dex, cexHigh]
+        providers.updateIsBestFlagPreferringDEX()
+
+        let sorted = providers.sortedByAttractively()
+
+        #expect(dex.isBestDEX)
+        #expect(sorted.map(\.provider.id) == ["cex-high", "dex", "cex-low"])
+    }
+
     // MARK: - permission-required DEX exclusion
 
     @Test("bestPreferringDEX skips a permission-required DEX and picks the next ready DEX")
@@ -290,7 +306,7 @@ struct ExpressAvailableProviderBestDEXTests {
         let state = ExpressProviderManagerState.permissionRequired(.init(
             provider: provider,
             policy: .specified,
-            data: ApproveTransactionData(txData: Data(), spender: "0xspender", toContractAddress: "0xcontract"),
+            data: ApproveTransactionData(txData: Data(), spender: "0xspender", toContractAddress: "0xcontract", amountRaw: 1),
             approvalFlow: .approve,
             fee: fee,
             quote: quote
@@ -321,7 +337,7 @@ struct ExpressAvailableProviderBestDEXTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
         )
 
         return ExpressAvailableProvider(context: context, manager: StubExpressProviderManager(state: state))
@@ -456,6 +472,7 @@ private final class StubExpressAPIProvider: ExpressAPIProvider {
     func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { fatalError("Not used in tests") }
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote { fatalError("Not used in tests") }
     func exchangeData(item: ExpressSwappableDataItem) async throws -> ExpressTransactionData { fatalError("Not used in tests") }
+    func exchangeIntent(mcpIntentID: String) async throws -> ExchangeMCPIntent { fatalError("Not used in tests") }
     func exchangeStatus(transactionId: String) async throws -> ExchangeTransaction { fatalError("Not used in tests") }
     func exchangeSent(result: ExpressTransactionSentResult) async throws { fatalError("Not used in tests") }
     func onrampCurrencies() async throws -> [OnrampFiatCurrency] { fatalError("Not used in tests") }

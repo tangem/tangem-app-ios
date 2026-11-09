@@ -17,17 +17,20 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
 
     private let yieldContract: String
     private let currency: ExpressWalletCurrency
+    private let newImplementationAddress: () async -> String?
     private let swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider?
     private let yieldModuleUpgradeHandler: YieldModuleUpgradeHandler?
 
     init(
         yieldContractAddress: String,
         currency: ExpressWalletCurrency,
+        newImplementationAddress: @escaping () async -> String?,
         swapExecutionRegistryProvider: YieldModuleSwapExecutionRegistryProvider?,
         yieldModuleUpgradeHandler: YieldModuleUpgradeHandler?
     ) {
         yieldContract = yieldContractAddress
         self.currency = currency
+        self.newImplementationAddress = newImplementationAddress
         self.swapExecutionRegistryProvider = swapExecutionRegistryProvider
         self.yieldModuleUpgradeHandler = yieldModuleUpgradeHandler
     }
@@ -65,7 +68,7 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
             return try await makeSwapCallData(data: data, txData: txData, spender: spender)
 
         case (true, true):
-            return try makeSendCallData(data: data, txData: txData)
+            return try await makeSendCallData(data: data, txData: txData)
 
         default:
             throw ExpressProviderError.yieldModuleSwapUnavailable(.transferAndSwapIndicatorsConflict)
@@ -114,7 +117,7 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
     private func makeSendCallData(
         data: ExpressTransactionData,
         txData: String
-    ) throws -> ExpressTransactionData {
+    ) async throws -> ExpressTransactionData {
         guard let transfer = TransferERC20TokenMethod(calldata: Data(hexString: txData)) else {
             throw ExpressProviderError.yieldModuleSwapUnavailable(.transferCalldataMalformed)
         }
@@ -125,13 +128,19 @@ final class CommonSendYieldModuleHelper: SendYieldModuleHelper {
             throw ExpressProviderError.yieldModuleSwapUnavailable(.transferAmountMismatch)
         }
 
-        let method = try YieldSendMethod(
+        let sendMethod = try YieldSendMethod(
             tokenContractAddress: currency.contractAddress,
             destination: transfer.destination,
             amount: transfer.amount
         )
 
-        return makeYieldModuleCallData(from: data, method: method)
+        guard let newImplementationAddress = await newImplementationAddress() else {
+            return makeYieldModuleCallData(from: data, method: sendMethod)
+        }
+
+        let upgradingSendMethod = UpgradeToAndCallMethod(newImplementation: newImplementationAddress, callData: sendMethod.data)
+
+        return makeYieldModuleCallData(from: data, method: upgradingSendMethod)
     }
 
     private func makeAmountInWEI(from data: ExpressTransactionData) throws -> BigUInt {

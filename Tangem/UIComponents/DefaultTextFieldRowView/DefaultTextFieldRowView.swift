@@ -23,12 +23,12 @@ struct DefaultTextFieldRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
             TextField("", text: $text)
                 .textFieldStyle(.plain)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
-                .tint(Colors.Text.primary1)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
+                .tint(DesignSystem.Color.textPrimary)
                 .labelsHidden()
                 .disabled(isReadonly)
         }
@@ -41,7 +41,7 @@ struct DefaultTextFieldRowView: View {
         @State var text: String = "Wallet"
         var body: some View {
             ZStack {
-                Colors.Background.secondary.ignoresSafeArea()
+                DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
                 DefaultTextFieldRowView(title: "Name", text: $text)
                     .padding()

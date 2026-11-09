@@ -21,7 +21,7 @@ public struct FloatingSheetConfiguration: Equatable {
     static let `default` = FloatingSheetConfiguration(
         maxHeightFraction: 0.8,
         sheetFrameUpdateAnimation: nil,
-        sheetBackground: Background.color(Colors.Background.tertiary),
+        sheetBackground: Background.color(DesignSystem.Color.bgPrimary),
         backgroundInteractionBehavior: BackgroundInteractionBehavior.consumeTouches,
         verticalSwipeBehavior: nil,
         keyboardHandlingEnabled: true,

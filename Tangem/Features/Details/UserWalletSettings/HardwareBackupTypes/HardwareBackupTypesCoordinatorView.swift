@@ -55,6 +55,7 @@ private extension HardwareBackupTypesCoordinatorView {
         .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
             self.coordinator.modalKeeper = value
         })
+        .softTopScrollEdgeEffect()
     }
 
     func makeOnboardingSheetContent(coordinator: OnboardingCoordinator) -> some View {
@@ -63,10 +64,12 @@ private extension HardwareBackupTypesCoordinatorView {
             .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                 self.coordinator.modalKeeper = value
             })
+            .softTopScrollEdgeEffect()
     }
 
     func makeMobileUpgradeSheetContent(coordinator: MobileUpgradeCoordinator) -> some View {
         MobileUpgradeCoordinatorView(coordinator: coordinator)
             .presentation(modal: true, onDismissalAttempt: coordinator.onDismissalAttempt, onDismissed: nil)
+            .softTopScrollEdgeEffect()
     }
 }

@@ -36,8 +36,7 @@ private extension PolymarketPositionDetailsView.Model {
     static let winning = PolymarketPositionDetailsView.Model(
         header: .init(
             iconURL: nil,
-            changeText: "10.94% ($40.50)",
-            changeType: .positive,
+            change: PolymarketPositionRow.Change(text: "10.94% ($40.50)", type: .positive),
             valueText: "$4,000.10",
             question: "Will Uzbekistan win the 2026 FIFA World Cup?",
             outcomeTitle: "Yes",
@@ -56,8 +55,8 @@ private extension PolymarketPositionDetailsView.Model {
         stats: [
             .init(id: "size", caption: "Qty of Tokens", value: "1,250.00"),
             .init(id: "price", caption: "Position Price Changes", value: "64¢ → 71¢"),
-            .init(id: "unrealized", caption: "Unrealized PnL", value: "+ $87.50", tone: .positive, onHintTap: {}),
-            .init(id: "realized", caption: "Realized Profit", value: "+ $420.00", tone: .positive, onHintTap: {}),
+            .init(id: "unrealized", caption: "Unrealized PnL", value: "+ $87.50", tone: .gain, onHintTap: {}),
+            .init(id: "realized", caption: "Realized Profit", value: "+ $420.00", tone: .gain, onHintTap: {}),
         ],
         rows: [
             .init(title: "Notional of Position", value: "$800.00"),
@@ -72,8 +71,7 @@ private extension PolymarketPositionDetailsView.Model {
     static let losing = PolymarketPositionDetailsView.Model(
         header: .init(
             iconURL: nil,
-            changeText: "8.10% ($32.40)",
-            changeType: .negative,
+            change: PolymarketPositionRow.Change(text: "8.10% ($32.40)", type: .negative),
             valueText: "$367.60",
             question: "Will France not win the 2026 FIFA World Cup?",
             outcomeTitle: "No",
@@ -92,8 +90,8 @@ private extension PolymarketPositionDetailsView.Model {
         stats: [
             .init(id: "size", caption: "Qty of Tokens", value: "1,250.00"),
             .init(id: "price", caption: "Position Price Changes", value: "64¢ → 58¢"),
-            .init(id: "unrealized", caption: "Unrealized PnL", value: "− $87.50", tone: .negative, onHintTap: {}),
-            .init(id: "realized", caption: "Realized Profit", value: "− $420.00", tone: .negative, onHintTap: {}),
+            .init(id: "unrealized", caption: "Unrealized PnL", value: "− $87.50", tone: .loss, onHintTap: {}),
+            .init(id: "realized", caption: "Realized Profit", value: "− $420.00", tone: .loss, onHintTap: {}),
         ],
         rows: [
             .init(title: "Notional of Position", value: "$800.00"),

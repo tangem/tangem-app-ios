@@ -31,9 +31,16 @@ final class FakeTangemApiService: TangemApiService {
     var loadCoinsGeckoCategoriesHandler: ((MarketsDTO.GeckoCategories.Request) async throws -> MarketsDTO.GeckoCategories.Response)?
     var loadMarketIndicatorsHandler: ((MarketsDTO.MarketIndicators.Request) async throws -> MarketsDTO.MarketIndicators.Response)?
 
+    // MARK: - Survey Responses Handlers (Tests/Previews)
+
+    var submitSurveyResponseHandler: ((SurveyResponsesDTO.Submit.Request) async throws -> Void)?
+    var loadSurveyResponseStatusHandler: ((SurveyResponsesDTO.Status.Request) async throws -> SurveyResponsesDTO.Status.Response)?
+
     // MARK: - Campaigns Handlers (Tests/Previews)
 
+    var loadQuotesHandler: ((QuotesDTO.Request) throws -> [Quote])?
     var loadMarketingCampaignsHandler: ((MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response)?
+    var bindMarketingActivityWalletsHandler: ((String, MarketingActivityDTO.BindWallets.Request) async throws -> Void)?
     var loadPromotionCampaignsHandler: ((String) async throws -> [BannerPromotion.Response.Promotion])?
     var loadPromoCampaignsHandler: ((PromoCampaignsDTO.Request) async throws -> [PromoCampaignsDTO.Promotion])?
     var enrollInPromoCampaignHandler: ((Int, PromoCampaignEnrollmentDTO.Request) async throws -> PromoCampaignEnrollmentDTO.Response)?
@@ -47,6 +54,8 @@ final class FakeTangemApiService: TangemApiService {
     // MARK: - Joint Accounts Handlers (Tests/Previews)
 
     var getJointAccountsHandler: ((_ knownETag: String?) async throws -> (eTag: String?, accounts: JointAccountsDTO.Response.JointAccounts)?)?
+    var issueJointAccountInviteHandler: ((_ body: JointAccountsDTO.Request.IssueInvite) async throws -> JointAccountsDTO.Response.IssuedInvite)?
+    var confirmJointAccountHandler: ((_ body: JointAccountsDTO.Request.Confirm) async throws -> JointAccountsDTO.Response.JointAccount)?
     var createJointAccountOperationHandler: ((_ body: JointAccountsDTO.Request.CreateOperation) async throws -> JointAccountsDTO.Response.Operation)?
     var rejectJointAccountOperationHandler: ((_ operationId: String) async throws -> JointAccountsDTO.Response.Operation?)?
     var getJointOperationsHistoryHandler: ((_ request: JointAccountsDTO.Request.OperationsHistory) async throws -> JointAccountsDTO.Response.OperationsHistory)?
@@ -92,7 +101,11 @@ final class FakeTangemApiService: TangemApiService {
     }
 
     func loadQuotes(requestModel: QuotesDTO.Request) -> AnyPublisher<[Quote], Error> {
-        .anyFail(error: "Not implemented")
+        guard let handler = loadQuotesHandler else {
+            return .anyFail(error: "Not implemented")
+        }
+
+        return Result { try handler(requestModel) }.publisher.eraseToAnyPublisher()
     }
 
     func loadCurrencies() -> AnyPublisher<[CurrenciesResponse.Currency], Error> {
@@ -170,6 +183,31 @@ final class FakeTangemApiService: TangemApiService {
     func loadMarketingCampaigns(request: MarketingCampaignsDTO.Request) async throws -> MarketingCampaignsDTO.Response {
         if let handler = loadMarketingCampaignsHandler {
             return try await handler(request)
+        }
+
+        throw "Not implemented"
+    }
+
+    func submitSurveyResponse(request: SurveyResponsesDTO.Submit.Request) async throws {
+        if let handler = submitSurveyResponseHandler {
+            try await handler(request)
+            return
+        }
+
+        throw "Not implemented"
+    }
+
+    func loadSurveyResponseStatus(request: SurveyResponsesDTO.Status.Request) async throws -> SurveyResponsesDTO.Status.Response {
+        if let handler = loadSurveyResponseStatusHandler {
+            return try await handler(request)
+        }
+
+        throw "Not implemented"
+    }
+
+    func bindMarketingActivityWallets(uid: String, request: MarketingActivityDTO.BindWallets.Request) async throws {
+        if let handler = bindMarketingActivityWalletsHandler {
+            return try await handler(uid, request)
         }
 
         throw "Not implemented"
@@ -348,6 +386,16 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
+    func issueJointAccountInvite(
+        walletId: String, body: JointAccountsDTO.Request.IssueInvite
+    ) async throws -> JointAccountsDTO.Response.IssuedInvite {
+        guard let issueJointAccountInviteHandler else {
+            throw "Not implemented"
+        }
+
+        return try await issueJointAccountInviteHandler(body)
+    }
+
     func getJointAccountInvite(
         walletId: String, inviteId: String
     ) async throws -> JointAccountsDTO.Response.InvitePreview {
@@ -364,6 +412,16 @@ final class FakeTangemApiService: TangemApiService {
         walletId: String, body: JointAccountsDTO.Request.Activate
     ) async throws -> JointAccountsDTO.Response.JointAccount {
         throw "Not implemented"
+    }
+
+    func confirmJointAccount(
+        walletId: String, body: JointAccountsDTO.Request.Confirm
+    ) async throws -> JointAccountsDTO.Response.JointAccount {
+        guard let confirmJointAccountHandler else {
+            throw "Not implemented"
+        }
+
+        return try await confirmJointAccountHandler(body)
     }
 
     func createJointAccountOperation(

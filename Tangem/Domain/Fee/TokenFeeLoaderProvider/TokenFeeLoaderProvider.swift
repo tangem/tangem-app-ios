@@ -13,7 +13,17 @@ protocol TokenFeeLoaderProvider {
     func makeMainTokenFeeLoader() -> TokenFeeLoader
     /// `nil` when the gasless dependency this token needs is missing, which is a wiring error rather than
     /// a supported outcome. A `feeToken` that turns out to be unusable surfaces as a fee error from the loader.
-    func makeGaslessTokenFeeLoader(feeToken: BSDKToken, yieldFeeContext: GaslessYieldFeeContext?) -> TokenFeeLoader?
+    func makeGaslessTokenFeeLoader(
+        feeToken: BSDKToken,
+        yieldFeeContext: GaslessYieldFeeContext?,
+        isFeeTokenFundedByTransaction: Bool
+    ) -> TokenFeeLoader?
     /// `nil` when the fee is not editable by hand.
     func makeCustomFeeProvider() -> (any CustomFeeProvider)?
+}
+
+extension TokenFeeLoaderProvider {
+    func makeGaslessTokenFeeLoader(feeToken: BSDKToken, yieldFeeContext: GaslessYieldFeeContext?) -> TokenFeeLoader? {
+        makeGaslessTokenFeeLoader(feeToken: feeToken, yieldFeeContext: yieldFeeContext, isFeeTokenFundedByTransaction: false)
+    }
 }

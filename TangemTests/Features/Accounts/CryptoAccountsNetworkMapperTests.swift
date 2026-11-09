@@ -66,6 +66,20 @@ struct CryptoAccountsNetworkMapperTests {
         #expect(rows.count == 2)
         #expect(rows.allSatisfy { !$0.keys.contains("type") })
     }
+
+    @Test("A collectibles account is stored as its own kind")
+    func collectiblesAccountIsMapped() throws {
+        let info = try map(response: Fixtures.responseWithCollectiblesAccount)
+
+        #expect(info.accounts.map(\.derivationIdentity.type) == [.crypto, .collectibles])
+    }
+
+    @Test("An archived collectibles account is not offered for recovery")
+    func archivedCollectiblesAccountIsSkipped() throws {
+        let infos = try map(archivedResponse: Fixtures.archivedResponseWithCollectiblesAccount)
+
+        #expect(infos.map(\.derivationIdentity.type) == [.crypto])
+    }
 }
 
 // MARK: - Helpers
@@ -73,6 +87,13 @@ struct CryptoAccountsNetworkMapperTests {
 private extension CryptoAccountsNetworkMapperTests {
     func map(response json: String) throws -> RemoteCryptoAccountsInfo {
         let response = try JSONDecoder().decode(AccountsDTO.Response.Accounts.self, from: Data(json.utf8))
+        let mapper = CryptoAccountsNetworkMapper(supportedBlockchains: [], remoteIdentifierBuilder: { _ in "" })
+
+        return mapper.map(response: response)
+    }
+
+    func map(archivedResponse json: String) throws -> [ArchivedCryptoAccountInfo] {
+        let response = try JSONDecoder().decode(AccountsDTO.Response.ArchivedAccounts.self, from: Data(json.utf8))
         let mapper = CryptoAccountsNetworkMapper(supportedBlockchains: [], remoteIdentifierBuilder: { _ in "" })
 
         return mapper.map(response: response)
@@ -166,6 +187,32 @@ private extension CryptoAccountsNetworkMapperTests {
           },
           "accounts": [],
           "unassignedTokens": []
+        }
+        """
+
+        static let responseWithCollectiblesAccount = """
+        {
+          "wallet": {
+            "version": 1,
+            "group": "network",
+            "sort": "manual",
+            "totalAccounts": 1,
+            "totalArchivedAccounts": 0
+          },
+          "accounts": [
+            { "id": "id-0", "name": "Main", "icon": "Star", "iconColor": "Azure", "derivation": 0, "tokens": [] },
+            { "id": "id-999799", "name": "Collectibles", "icon": "Package", "iconColor": "Azure", "derivation": 999799, "type": "collectibles", "tokens": [] }
+          ],
+          "unassignedTokens": []
+        }
+        """
+
+        static let archivedResponseWithCollectiblesAccount = """
+        {
+          "archivedAccounts": [
+            { "id": "id-1", "name": "Savings", "icon": "Star", "iconColor": "Azure", "derivation": 1, "type": "crypto", "totalTokens": 0, "totalNetworks": 0 },
+            { "id": "id-999799", "name": "Collectibles", "icon": "Package", "iconColor": "Azure", "derivation": 999799, "type": "collectibles", "totalTokens": 0, "totalNetworks": 0 }
+          ]
         }
         """
 

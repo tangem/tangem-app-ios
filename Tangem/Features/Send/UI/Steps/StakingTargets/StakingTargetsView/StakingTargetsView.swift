@@ -19,7 +19,7 @@ struct StakingTargetsView: View {
             GroupedSection(viewModel.targets) { data in
                 StakingTargetView(data: data, selection: $viewModel.selectedTarget)
             }
-            .settings(\.backgroundColor, Colors.Background.action)
+            .settings(\.backgroundColor, DesignSystem.Color.bgSecondary)
         }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)

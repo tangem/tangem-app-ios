@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUIUtils
 
 public struct TangemSegmentedPicker<Data>: View, Setupable
@@ -85,7 +86,7 @@ public struct TangemSegmentedPicker<Data>: View, Setupable
             .padding(padding)
             .coordinateSpace(name: coordinateSpaceName)
             .background(separators, alignment: .leading)
-            .background(Color.Tangem.Tabs.backgroundSecondary, in: .capsule)
+            .background(DesignSystem.Color.bgTransparentSecondary, in: .capsule)
             .onPreferenceChange(SegmentPreferenceKey.self) { segmentsPreference = $0 }
             .disabled(!isEnabled)
             .animation(animation, value: selection)
@@ -142,12 +143,12 @@ private extension TangemSegmentedPicker {
 
     func itemContent(_ item: Item) -> some View {
         Text(item.text)
-            .style(Font.Tangem.Body15.semibold, color: .Tangem.Tabs.textSecondary)
+            .style(Font.Tangem.Body15.semibold, color: DesignSystem.Color.textSecondary)
             .lineLimit(1)
     }
 
     var separators: some View {
-        ForEach(Array(segmentsPreference.enumerated()), id: \.offset) { index, preference in
+        ForEach(indexed: segmentsPreference, id: \.0) { _, preference in
             separator(
                 offsetX: preference.frame.maxX,
                 opacity: preference.separatorOpacity

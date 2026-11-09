@@ -34,6 +34,10 @@ struct JointAccountWallet {
         walletModel.account as? any JointAccountModel
     }
 
+    var ownAddress: String? {
+        account?.jointAccountMembersService.userRole.member?.address
+    }
+
     private let walletModel: any WalletModel
 
     fileprivate init(walletModel: any WalletModel) {

@@ -42,7 +42,7 @@ struct RatingFeedbackBottomSheetView: View {
         .overlay(alignment: .topTrailing) {
             header
         }
-        .background(Colors.Background.tertiary)
+        .background(DesignSystem.Color.bgPrimary)
         .floatingSheetConfiguration { config in
             config.backgroundInteractionBehavior = .tapToDismiss
             config.sheetFrameUpdateAnimation = .contentFrameUpdate
@@ -74,7 +74,7 @@ private extension RatingFeedbackBottomSheetView {
             return
         }
 
-        UIApplication.shared.makeOverlayWindowKey()
+        UIApplication.overlayWindow?.makeKey()
         isFocused = true
     }
 
@@ -130,7 +130,7 @@ private extension RatingFeedbackBottomSheetView {
 
     var title: some View {
         Text(Localization.swappingRateFeedbackTitle)
-            .style(Fonts.Bold.title2, color: Colors.Text.primary1)
+            .style(Fonts.Bold.title2, color: DesignSystem.Color.textPrimary)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
             .padding(.horizontal, 32)
@@ -138,7 +138,7 @@ private extension RatingFeedbackBottomSheetView {
 
     var divider: some View {
         Rectangle()
-            .fill(Colors.Stroke.primary)
+            .fill(DesignSystem.Color.borderSecondary)
             .frame(height: 0.5)
             .padding(.horizontal, 16)
     }
@@ -148,14 +148,14 @@ private extension RatingFeedbackBottomSheetView {
             text: $viewModel.feedbackText,
             prompt: Text(Localization.swappingRateFeedbackPlaceholder)
                 .font(Fonts.Regular.body)
-                .foregroundColor(Colors.Text.tertiary),
+                .foregroundColor(DesignSystem.Color.textSecondary),
             axis: .vertical
         ) {}
             .font(Fonts.Regular.body)
-            .foregroundColor(Colors.Text.primary1)
+            .foregroundColor(DesignSystem.Color.textPrimary)
             .padding(12)
             .frame(height: 88, alignment: .topLeading)
-            .background(Colors.Field.focused)
+            .background(DesignSystem.Color.bgTransparentSecondary)
             .cornerRadius(14)
             .focused($isFocused)
             .contentShape(Rectangle())

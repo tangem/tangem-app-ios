@@ -89,6 +89,10 @@ final class EtherscanTransactionHistoryMapper {
                 return .transfer
             }
 
+            if let innerMethodId = YieldModuleUpgradeHistoryMapper.innerMethodId(calldata: transaction.input, blockchain: blockchain) {
+                return .contractMethodIdentifier(id: innerMethodId)
+            }
+
             if let approve = ApproveHistoryMapper.approve(calldata: transaction.input, symbol: nil, decimals: nil) {
                 return .approve(approve)
             }
@@ -113,7 +117,7 @@ final class EtherscanTransactionHistoryMapper {
 
     private func mapToAPIError(_ result: EtherscanTransactionHistoryResult) -> EtherscanAPIError {
         switch result.result {
-        case .description(let description) where description.caseInsensitiveContains(Constants.rateLimitReachedResultMarker):
+        case .description where result.isRateLimitReached:
             return .maxRateLimitReached
         case .transactions(let transactions) where transactions.isEmpty:
             // There is no `totalPageCount` or similar field in the Etherscan transaction history API,
@@ -295,7 +299,6 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
 
 private extension EtherscanTransactionHistoryMapper {
     enum Constants {
-        static let rateLimitReachedResultMarker = "rate limit reached"
         /// Method names in the API look like `swap(address executor,tuple desc,bytes permit,bytes data)`,
         /// so we have to remove all method signatures (parameters, types, etc).
         static let methodNameSeparator = "("

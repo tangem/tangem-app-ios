@@ -89,12 +89,22 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
 
     var hasAccountPublisher: AnyPublisher<Bool, Never> { Just(hasAccount).eraseToAnyPublisher() }
 
+    var isSyncRequiredPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
+
     func update(name: String) {}
 
     func onboard() async throws {}
 
     var vaultUsdcStatePublisher: AnyPublisher<CollectiblesVaultUsdcState, Never> {
         Just(.loading).eraseToAnyPublisher()
+    }
+
+    var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
+    }
+
+    var isRelinkingPublisher: AnyPublisher<Bool, Never> {
+        Just(false).eraseToAnyPublisher()
     }
 
     func refreshState() async {
@@ -110,6 +120,10 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
 
     var buybackInteractor: any CollectiblesBuybackInteractor {
         CollectiblesBuybackInteractorStub()
+    }
+
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
     }
 }
 

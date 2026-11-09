@@ -19,11 +19,11 @@ struct MainQRScanTokenSelectorIncompatibleTokensRow: View {
             Assets.crossedEyeIcon.image
                 .renderingMode(.template)
                 .resizable()
-                .foregroundColor(Colors.Icon.inactive)
+                .foregroundColor(DesignSystem.Color.iconTertiary)
                 .frame(width: 16.0, height: 16.0)
 
             Text(Localization.sendNetworkSelectionHiddenTokens(count))
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

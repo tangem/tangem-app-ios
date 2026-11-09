@@ -52,7 +52,7 @@ struct TangemPayVirtualAccountBankDetailsView: View {
 
     private var rows: some View {
         VStack(spacing: 0) {
-            ForEach(Array(viewModel.rows.enumerated()), id: \.element.id) { index, row in
+            ForEach(indexed: viewModel.rows) { index, row in
                 rowView(row)
 
                 if index < viewModel.rows.count - 1 {

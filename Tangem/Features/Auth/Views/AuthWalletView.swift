@@ -30,7 +30,7 @@ struct AuthWalletView: View {
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 14)
-            .background(Colors.Background.primary)
+            .background(DesignSystem.Color.bgSecondary)
             .cornerRadius(14, corners: .allCorners)
         }
         .accessibilityIdentifier(AuthAccessibilityIdentifiers.walletItem(walletName: viewModel.title))
@@ -67,17 +67,17 @@ private extension AuthWalletView {
     var info: some View {
         VStack(alignment: .leading, spacing: 2.0) {
             Text(viewModel.title)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
             HStack(spacing: 4) {
                 Text(viewModel.description)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
 
                 if viewModel.isProtected {
                     Assets.stakingLockIcon.image
                         .resizable()
                         .renderingMode(.template)
-                        .foregroundColor(Colors.Icon.informative)
+                        .foregroundColor(DesignSystem.Color.iconSecondary)
                         .frame(width: 12, height: 12)
                 }
             }

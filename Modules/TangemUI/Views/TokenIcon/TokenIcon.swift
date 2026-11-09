@@ -67,11 +67,11 @@ public struct TokenIcon: View {
     private var customTokenIndicator: some View {
         if isCustom, isWithOverlays {
             Circle()
-                .foregroundColor(Colors.Icon.informative)
+                .foregroundColor(DesignSystem.Color.iconSecondary)
                 .frame(size: customTokenIndicatorSize)
                 .background(
                     Circle()
-                        .foregroundColor(Colors.Background.primary)
+                        .foregroundColor(DesignSystem.Color.bgSecondary)
                         .frame(size: customTokenIndicatorBorderSize)
                 )
                 .offset(x: 1, y: 1)

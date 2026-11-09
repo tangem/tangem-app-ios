@@ -25,6 +25,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var viewState: ViewState = .idle
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
+    @Published private(set) var callToActionMarketingBanners: [CallToActionMarketingBanner] = []
     @Published private(set) var notificationButtonIsLoading = false
 
     weak var router: OnrampSummaryRoutable?
@@ -75,6 +76,10 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         analyticsLogger.logOnrampButtonAllOffers()
         router?.openOnrampAllOffers()
     }
+
+    func userDidTapCallToActionBanner(action: CallToActionMarketingBannerAction) {
+        marketingBannerManager.perform(action)
+    }
 }
 
 // MARK: - Private
@@ -88,6 +93,9 @@ private extension OnrampSummaryViewModel {
         marketingBannerManager.standaloneBannersPublisher
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
+
+        marketingBannerManager.callToActionBannersPublisher
+            .assign(to: &$callToActionMarketingBanners)
 
         interactor
             .isLoadingPublisher

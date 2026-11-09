@@ -28,7 +28,7 @@ struct AddCustomTokenDerivationPathSelectorView: View {
             }
             .padding(.horizontal, 16)
         }
-        .background(Colors.Background.tertiary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .navigationTitle(Text(Localization.customTokenDerivationPath))
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -40,12 +40,12 @@ struct AddCustomTokenDerivationPathSelectorView: View {
                 AddCustomTokenDerivationPathSelectorItemView(viewModel: viewModel)
 
                 if viewModels.last?.id != viewModel.id {
-                    Separator(height: .minimal, color: Colors.Stroke.primary)
+                    Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
                         .padding(.leading, 16)
                 }
             }
         }
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadiusContinuous(14)
     }
 }

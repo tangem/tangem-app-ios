@@ -13,11 +13,26 @@ public extension CollectiblesState {
         case unchanged
     }
 
-    func hasAccount(markedLocally: Bool) -> Bool {
+    func hasAccount(isRecorded: Bool) -> Bool {
         switch self {
         case .ready, .rekeyRequired: true
-        case .notOnboarded, .coldOwnerNotDerived: false
-        case .unresolved: markedLocally
+        case .notOnboarded: false
+        case .unresolved, .coldOwnerNotDerived: isRecorded
+        }
+    }
+
+    func isRelinkRequired(isRecorded: Bool) -> Bool {
+        switch self {
+        case .rekeyRequired: true
+        case .coldOwnerNotDerived: isRecorded
+        case .unresolved, .notOnboarded, .ready: false
+        }
+    }
+
+    func isSyncRequired(isRecorded: Bool) -> Bool {
+        switch self {
+        case .coldOwnerNotDerived: isRecorded
+        case .unresolved, .notOnboarded, .rekeyRequired, .ready: false
         }
     }
 

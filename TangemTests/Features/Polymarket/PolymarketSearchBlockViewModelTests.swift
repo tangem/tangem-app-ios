@@ -10,36 +10,28 @@ import Combine
 import Foundation
 import Testing
 import TangemPolymarket
+import TangemPolymarketUI
 @testable import Tangem
 
-@Suite("Polymarket search")
+@Suite("Polymarket search", .timeLimit(.minutes(1)))
 @MainActor
 struct PolymarketSearchBlockViewModelTests {
-    @Test("A query shorter than three characters never reaches the backend")
+    @Test("A query shortened below three characters drops the results and never reaches the backend")
     func shortQueryIsNotSearched() async throws {
-        let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [], hasNext: false))])
+        let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [Self.event(id: "a")], hasNext: false))])
         let sut = Self.makeSUT(provider: provider)
-
-        sut.query = "uz"
-        try await drain()
-
-        #expect(provider.searchRequests.isEmpty)
 
         sut.query = "uzbekistan"
-        try await Self.settle(sut) { $0.state == .noResults }
+        await Self.state(of: sut, becomes: .allDataLoaded)
 
-        #expect(provider.searchRequests.map(\.query) == ["uzbekistan"])
-    }
-
-    @Test("A query with no matches shows the empty result, not an error")
-    func emptyResultIsNotAnError() async throws {
-        let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [], hasNext: false))])
-        let sut = Self.makeSUT(provider: provider)
-
-        sut.query = "saburo"
-        try await Self.settle(sut) { $0.state == .noResults }
-
+        sut.query = "uz"
+        await Self.state(of: sut, becomes: .prompt)
         #expect(sut.eventCards.isEmpty)
+
+        sut.query = "uzbek"
+        await Self.state(of: sut, becomes: .noResults)
+
+        #expect(provider.searchRequests.map(\.query) == ["uzbekistan", "uzbek"])
     }
 
     @Test("The first page is asked for by number, starting at one")
@@ -48,7 +40,7 @@ struct PolymarketSearchBlockViewModelTests {
         let sut = Self.makeSUT(provider: provider)
 
         sut.query = "  uzbekistan  "
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
+        await Self.state(of: sut, becomes: .allDataLoaded)
 
         let request = try #require(provider.searchRequests.first)
 
@@ -66,10 +58,10 @@ struct PolymarketSearchBlockViewModelTests {
         let sut = Self.makeSUT(provider: provider)
 
         sut.query = "first"
-        try await Self.settle(sut) { $0.state == .loaded }
+        await Self.state(of: sut, becomes: .loaded)
 
         sut.query = "second"
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
+        await Self.state(of: sut, becomes: .allDataLoaded)
 
         #expect(provider.searchRequests.map(\.page) == [1, 1])
         #expect(sut.eventCards.map(\.id) == ["b"])
@@ -84,10 +76,10 @@ struct PolymarketSearchBlockViewModelTests {
         let sut = Self.makeSUT(provider: provider)
 
         sut.query = "uzbekistan"
-        try await Self.settle(sut) { $0.state == .loaded }
+        await Self.state(of: sut, becomes: .loaded)
 
         sut.handleViewAction(.loadNextPage)
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
+        await Self.state(of: sut, becomes: .allDataLoaded)
 
         #expect(provider.searchRequests.map(\.page) == [1, 2])
         #expect(sut.eventCards.map(\.id) == ["a", "b"])
@@ -102,10 +94,10 @@ struct PolymarketSearchBlockViewModelTests {
         let sut = Self.makeSUT(provider: provider)
 
         sut.query = "uzbekistan"
-        try await Self.settle(sut) { $0.state == .loaded }
+        await Self.state(of: sut, becomes: .loaded)
 
         sut.handleViewAction(.loadNextPage)
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
+        await Self.state(of: sut, becomes: .allDataLoaded)
 
         #expect(sut.eventCards.map(\.id) == ["a", "b", "c"])
     }
@@ -116,10 +108,11 @@ struct PolymarketSearchBlockViewModelTests {
         let sut = Self.makeSUT(provider: provider)
 
         sut.query = "uzbekistan"
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
+        await Self.state(of: sut, becomes: .allDataLoaded)
 
         sut.handleViewAction(.loadNextPage)
 
+        #expect(sut.state == .allDataLoaded)
         #expect(provider.searchRequests.count == 1)
     }
 
@@ -133,30 +126,15 @@ struct PolymarketSearchBlockViewModelTests {
         let sut = Self.makeSUT(provider: provider)
 
         sut.query = "uzbekistan"
-        try await Self.settle(sut) { $0.state == .error }
+        await Self.state(of: sut, becomes: .error)
 
         sut.handleViewAction(.retry)
-        try await Self.settle(sut) { $0.state == .loaded }
+        await Self.state(of: sut, becomes: .loaded)
 
         sut.handleViewAction(.loadNextPage)
-        try await Self.settle(sut) { $0.state == .paginationError }
+        await Self.state(of: sut, becomes: .paginationError)
 
         #expect(sut.eventCards.map(\.id) == ["a"])
-    }
-
-    @Test("Erasing the query drops the results and goes back to the prompt")
-    func clearingGoesBackToThePrompt() async throws {
-        let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [Self.event(id: "a")], hasNext: false))])
-        let sut = Self.makeSUT(provider: provider)
-
-        sut.query = "uzbekistan"
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
-
-        sut.query = ""
-        try await Self.settle(sut) { $0.state == .prompt }
-
-        #expect(sut.eventCards.isEmpty)
-        #expect(provider.searchRequests.count == 1)
     }
 
     @Test("Choosing a result opens the event details")
@@ -167,11 +145,12 @@ struct PolymarketSearchBlockViewModelTests {
 
         sut.isFieldActive = true
         sut.query = "uzbekistan"
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
+        await Self.state(of: sut, becomes: .allDataLoaded)
 
         sut.handleViewAction(.openEventDetails(id: "a"))
 
         #expect(routable.openedEventIDs == ["a"])
+        #expect(routable.openedEventTitles == ["a"])
         #expect(routable.openedEventCategories == [nil])
         #expect(!sut.isFieldActive)
         #expect(sut.isSearching)
@@ -188,9 +167,9 @@ struct PolymarketSearchBlockViewModelTests {
 
         sut.isFieldActive = true
         sut.query = "uzbekistan"
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
+        await Self.state(of: sut, becomes: .allDataLoaded)
 
-        let selected = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+        let selected = try #require(sut.eventCards.first?.regularModel?.rows.first?.outcomes.first)
         selected.onSelect()
 
         #expect(!sut.isFieldActive)
@@ -202,28 +181,63 @@ struct PolymarketSearchBlockViewModelTests {
         #expect(routable.openedOutcomes.map(\.isBuy) == [true])
     }
 
-    @Test("An outcome chosen on a result drawn before the results refreshed opens the order with the refreshed market")
-    func outcomeChosenAfterRefreshOpensTheFreshMarket() async throws {
-        let staleOutcome = PolymarketOutcome(assetId: "yes", title: "Yes", probability: Decimal(string: "0.42"))
-        let freshOutcome = PolymarketOutcome(assetId: "yes", title: "Yes", probability: Decimal(string: "0.55"))
+    @Test("A periodic refresh updates the results on screen in place, and an outcome chosen on a card drawn before it opens the refreshed market")
+    func periodicRefreshUpdatesTheVisibleResults() async throws {
+        let staleOutcome = Self.outcome(probability: "0.42")
+        let freshOutcome = Self.outcome(probability: "0.55")
         let provider = PolymarketAPIProviderStub(searchResults: [
             .success(Self.page(events: [Self.event(id: "a", markets: [Self.market(id: "m1", outcomes: [staleOutcome])])], hasNext: false)),
-            .success(Self.page(events: [Self.event(id: "a", markets: [Self.market(id: "m1", outcomes: [freshOutcome])])], hasNext: false)),
+            .success(Self.page(
+                events: [Self.event(id: "a", markets: [Self.market(id: "m1", outcomes: [freshOutcome])]), Self.event(id: "b")],
+                hasNext: false
+            )),
         ])
         let routable = PolymarketEventOpeningRoutableSpy()
-        let sut = Self.makeSUT(provider: provider, routable: routable)
+        let delays = PolymarketSteppedDelayProvider()
+        let sut = Self.makeSUT(provider: provider, routable: routable, delays: delays)
 
-        sut.query = "first"
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
-        let resultBeforeRefresh = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+        sut.query = "uzbekistan"
+        await Self.state(of: sut, becomes: .allDataLoaded)
+        let resultBeforeRefresh = try #require(sut.eventCards.first?.regularModel?.rows.first?.outcomes.first)
 
-        sut.query = "second"
-        try await Self.settle(sut) { $0.eventCards.first?.rows.first?.outcomes.first?.priceText == PolymarketPriceFormatter.centsText(Decimal(string: "0.55")) }
+        try await delays.waitUntilParked(Self.refreshInterval)
+        delays.resume(Self.refreshInterval)
+        await Self.firstPriceText(of: sut, becomes: PolymarketPriceFormatter.centsText(Decimal(string: "0.55")))
+
+        #expect(sut.eventCards.map(\.id) == ["a"])
+        #expect(sut.state == .allDataLoaded)
+        #expect(provider.searchRequests.map(\.query) == ["uzbekistan", "uzbekistan"])
+        #expect(provider.searchRequests.map(\.page) == [1, 1])
 
         resultBeforeRefresh.onSelect()
 
         #expect(routable.openedOutcomes.map(\.outcome.probability) == [Decimal(string: "0.55")])
         #expect(routable.openedOutcomes.map(\.market.id) == ["m1"])
+    }
+
+    @Test("The background stops the periodic refresh, and coming back refreshes the results on screen at once")
+    func comingBackRefreshesTheVisibleResults() async throws {
+        let provider = PolymarketAPIProviderStub(searchResults: [
+            .success(Self.page(events: [Self.event(id: "a", markets: [Self.market(id: "m1", outcomes: [Self.outcome(probability: "0.42")])])], hasNext: false)),
+            .success(Self.page(events: [Self.event(id: "a", markets: [Self.market(id: "m1", outcomes: [Self.outcome(probability: "0.55")])])], hasNext: false)),
+        ])
+        let appState = AppStateObserverStub()
+        let delays = PolymarketSteppedDelayProvider()
+        let sut = Self.makeSUT(provider: provider, appState: appState, delays: delays)
+
+        sut.query = "uzbekistan"
+        await Self.state(of: sut, becomes: .allDataLoaded)
+        try await delays.waitUntilParked(Self.refreshInterval)
+
+        appState.enterBackground()
+        try await delays.cancellations.next()
+        #expect(delays.parkedWaits.isEmpty)
+
+        appState.enterForeground()
+        await Self.firstPriceText(of: sut, becomes: PolymarketPriceFormatter.centsText(Decimal(string: "0.55")))
+        try await delays.waitUntilParked(Self.refreshInterval)
+
+        #expect(provider.searchRequests.map(\.page) == [1, 1])
     }
 
     @Test("An order placed from search expects a balance change")
@@ -236,9 +250,9 @@ struct PolymarketSearchBlockViewModelTests {
         let sut = Self.makeSUT(provider: provider, routable: routable, fundsArrivalTracker: tracker)
 
         sut.query = "uzbekistan"
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
+        await Self.state(of: sut, becomes: .allDataLoaded)
 
-        let selected = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+        let selected = try #require(sut.eventCards.first?.regularModel?.rows.first?.outcomes.first)
         selected.onSelect()
         routable.lastOnPlaced?(Task { nil })
 
@@ -254,7 +268,7 @@ struct PolymarketSearchBlockViewModelTests {
         let sut = Self.makeSUT(provider: provider, routable: routable, fundsArrivalTracker: tracker)
 
         sut.query = "uzbekistan"
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
+        await Self.state(of: sut, becomes: .allDataLoaded)
 
         sut.handleViewAction(.openEventDetails(id: "a"))
         routable.lastOnPlaced?(Task { nil })
@@ -272,9 +286,9 @@ struct PolymarketSearchBlockViewModelTests {
         let sut = Self.makeSUT(provider: provider, routable: routable, isRegionRestricted: true)
 
         sut.query = "uzbekistan"
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
+        await Self.state(of: sut, becomes: .allDataLoaded)
 
-        let selected = try #require(sut.eventCards.first?.rows.first?.outcomes.first)
+        let selected = try #require(sut.eventCards.first?.regularModel?.rows.first?.outcomes.first)
         selected.onSelect()
 
         #expect(routable.openedOutcomes.isEmpty)
@@ -289,7 +303,7 @@ struct PolymarketSearchBlockViewModelTests {
 
         sut.isFieldActive = true
         sut.query = "uzbekistan"
-        try await Self.settle(sut) { $0.state == .allDataLoaded }
+        await Self.state(of: sut, becomes: .allDataLoaded)
 
         #expect(sut.isSearching)
 
@@ -301,16 +315,32 @@ struct PolymarketSearchBlockViewModelTests {
         #expect(sut.eventCards.isEmpty)
         #expect(sut.state == .prompt)
     }
+
+    @Test("With phase two a live match found by search gets the live card, from REST")
+    func liveMatchInSearchGetsTheLiveCard() async throws {
+        let provider = PolymarketAPIProviderStub(searchResults: [.success(Self.page(events: [PolymarketLiveGamesFixtures.basketball()], hasNext: false))])
+        let sut = Self.makeSUT(provider: provider, usesPhaseTwoCards: true)
+
+        sut.query = "cavaliers"
+        await Self.state(of: sut, becomes: .allDataLoaded)
+
+        #expect(sut.eventCards.first?.liveGameModel?.score == PolymarketLiveGameCard.Score(home: "101", away: "98"))
+    }
 }
 
 // MARK: - Fixtures
 
 private extension PolymarketSearchBlockViewModelTests {
+    static let refreshInterval: TimeInterval = 20
+
     static func makeSUT(
         provider: PolymarketAPIProvider,
         routable: PolymarketEventOpeningRoutableSpy = PolymarketEventOpeningRoutableSpy.ignored,
         isRegionRestricted: Bool = false,
-        fundsArrivalTracker: PolymarketFundsArrivalTracker = PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher())
+        fundsArrivalTracker: PolymarketFundsArrivalTracker = PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher()),
+        usesPhaseTwoCards: Bool = false,
+        appState: AppStateObserverStub = AppStateObserverStub(),
+        delays: PolymarketSteppedDelayProvider = PolymarketSteppedDelayProvider()
     ) -> PolymarketSearchBlockViewModel {
         PolymarketSearchBlockViewModel(
             apiProvider: provider,
@@ -319,22 +349,24 @@ private extension PolymarketSearchBlockViewModelTests {
                 refreshCenter: PolymarketMainRefreshCenter()
             ),
             isRegionRestricted: { isRegionRestricted },
+            usesPhaseTwoCards: usesPhaseTwoCards,
             routable: routable,
-            debounceInterval: .zero
+            debounceInterval: .zero,
+            appStateObserver: appState,
+            delayProvider: delays
         )
     }
 
-    static func settle(
-        _ sut: PolymarketSearchBlockViewModel,
-        until isSatisfied: (PolymarketSearchBlockViewModel) -> Bool
-    ) async throws {
-        for _ in 0 ..< Constants.settleAttempts {
-            if isSatisfied(sut) { return }
+    static func state(of sut: PolymarketSearchBlockViewModel, becomes state: PolymarketSearchBlockViewModel.State) async {
+        _ = await sut.$state.firstValue { $0 == state }
+    }
 
-            try await Task.sleep(nanoseconds: Constants.settleInterval)
-        }
+    static func firstPriceText(of sut: PolymarketSearchBlockViewModel, becomes text: String) async {
+        _ = await sut.$eventCards.firstValue { $0.first?.regularModel?.rows.first?.outcomes.first?.priceText == text }
+    }
 
-        Issue.record("The search never settled, last state \(sut.state)")
+    static func outcome(probability: String) -> PolymarketOutcome {
+        PolymarketOutcome(assetId: "yes", title: "Yes", probability: Decimal(string: probability))
     }
 
     static func page(events: [PolymarketEvent], hasNext: Bool) -> PolymarketSearchResult {
@@ -383,10 +415,5 @@ private extension PolymarketSearchBlockViewModelTests {
             displayMode: .plainMarkets,
             markets: markets
         )
-    }
-
-    enum Constants {
-        static let settleAttempts = 200
-        static let settleInterval: UInt64 = 5_000_000
     }
 }

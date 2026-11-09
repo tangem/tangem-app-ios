@@ -14,15 +14,21 @@ import Testing
 
 struct MetaplexTokenMetadataProgramTests {
     private typealias Fixture = SolanaNFTFixtures.Programmable
+    private typealias Token2022Fixture = SolanaNFTFixtures.ProgrammableToken2022
 
     private let mint = PublicKey(string: Fixture.mint)!
 
     @Test
     func derivesTheAddressesOfTheDonorTransfer() throws {
-        let ownerToken = try MetaplexTokenMetadataProgram.associatedTokenAddress(owner: PublicKey(string: Fixture.owner)!, mint: mint)
+        let ownerToken = try MetaplexTokenMetadataProgram.associatedTokenAddress(
+            owner: PublicKey(string: Fixture.owner)!,
+            mint: mint,
+            tokenProgram: .tokenProgramId
+        )
         let destinationToken = try MetaplexTokenMetadataProgram.associatedTokenAddress(
             owner: PublicKey(string: Fixture.destinationOwner)!,
-            mint: mint
+            mint: mint,
+            tokenProgram: .tokenProgramId
         )
 
         #expect(ownerToken.base58EncodedString == Fixture.ownerToken)
@@ -31,6 +37,46 @@ struct MetaplexTokenMetadataProgramTests {
         #expect(try MetaplexTokenMetadataProgram.editionAddress(mint: mint).base58EncodedString == Fixture.edition)
         #expect(try MetaplexTokenMetadataProgram.tokenRecordAddress(mint: mint, token: ownerToken).base58EncodedString == Fixture.ownerTokenRecord)
         #expect(try MetaplexTokenMetadataProgram.tokenRecordAddress(mint: mint, token: destinationToken).base58EncodedString == Fixture.destinationTokenRecord)
+    }
+
+    @Test
+    func derivesTheAddressesOfAToken2022Transfer() throws {
+        let mint = PublicKey(string: Token2022Fixture.mint)!
+        let owner = PublicKey(string: Token2022Fixture.owner)!
+        let ownerToken = try MetaplexTokenMetadataProgram.associatedTokenAddress(owner: owner, mint: mint, tokenProgram: .token2022ProgramId)
+        let destinationToken = try MetaplexTokenMetadataProgram.associatedTokenAddress(
+            owner: PublicKey(string: Token2022Fixture.destinationOwner)!,
+            mint: mint,
+            tokenProgram: .token2022ProgramId
+        )
+        let classicOwnerToken = try MetaplexTokenMetadataProgram.associatedTokenAddress(owner: owner, mint: mint, tokenProgram: .tokenProgramId)
+
+        #expect(ownerToken.base58EncodedString == Token2022Fixture.ownerToken)
+        #expect(destinationToken.base58EncodedString == Token2022Fixture.destinationToken)
+        #expect(classicOwnerToken != ownerToken)
+        #expect(try MetaplexTokenMetadataProgram.metadataAddress(mint: mint).base58EncodedString == Token2022Fixture.metadata)
+        #expect(try MetaplexTokenMetadataProgram.editionAddress(mint: mint).base58EncodedString == Token2022Fixture.edition)
+        #expect(try MetaplexTokenMetadataProgram.tokenRecordAddress(mint: mint, token: ownerToken).base58EncodedString == Token2022Fixture.ownerTokenRecord)
+        #expect(
+            try MetaplexTokenMetadataProgram.tokenRecordAddress(mint: mint, token: destinationToken).base58EncodedString
+                == Token2022Fixture.destinationTokenRecord
+        )
+    }
+
+    @Test
+    func readsTheMetadataOfAToken2022ProgrammableNFT() throws {
+        let metadata = try MetaplexTokenMetadataProgram.metadata(from: Token2022Fixture.metadataAccountData)
+
+        #expect(metadata.tokenStandard == .programmableNonFungible)
+        #expect(metadata.ruleSet == nil)
+    }
+
+    @Test(arguments: [
+        (PublicKey.tokenProgramId, UInt64(165)),
+        (.token2022ProgramId, 170),
+    ])
+    func sizesTheDestinationTokenAccountByItsProgram(tokenProgram: PublicKey, space: UInt64) {
+        #expect(MetaplexTokenMetadataProgram.tokenAccountSpace(tokenProgram: tokenProgram) == space)
     }
 
     @Test
@@ -121,6 +167,7 @@ struct MetaplexTokenMetadataProgramTests {
 
         let instruction = try MetaplexTokenMetadataProgram.transferInstruction(
             mint: mint,
+            tokenProgram: .tokenProgramId,
             owner: owner,
             destinationOwner: PublicKey(string: Fixture.destinationOwner)!,
             authority: owner,
@@ -154,11 +201,47 @@ struct MetaplexTokenMetadataProgramTests {
     }
 
     @Test
+    func buildsAToken2022TransferInstruction() throws {
+        let owner = PublicKey(string: Token2022Fixture.owner)!
+
+        let instruction = try MetaplexTokenMetadataProgram.transferInstruction(
+            mint: PublicKey(string: Token2022Fixture.mint)!,
+            tokenProgram: .token2022ProgramId,
+            owner: owner,
+            destinationOwner: PublicKey(string: Token2022Fixture.destinationOwner)!,
+            authority: owner,
+            payer: owner,
+            ruleSet: nil
+        )
+
+        #expect(instruction.accounts.map(\.address) == [
+            Token2022Fixture.ownerToken,
+            Token2022Fixture.owner,
+            Token2022Fixture.destinationToken,
+            Token2022Fixture.destinationOwner,
+            Token2022Fixture.mint,
+            Token2022Fixture.metadata,
+            Token2022Fixture.edition,
+            Token2022Fixture.ownerTokenRecord,
+            Token2022Fixture.destinationTokenRecord,
+            Token2022Fixture.owner,
+            Token2022Fixture.owner,
+            "11111111111111111111111111111111",
+            "Sysvar1nstructions1111111111111111111111111",
+            "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+            "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+        ])
+    }
+
+    @Test
     func fillsTheRuleSetSlotsWithTheProgramIdWhenThereIsNoRuleSet() throws {
         let owner = PublicKey(string: Fixture.owner)!
 
         let instruction = try MetaplexTokenMetadataProgram.transferInstruction(
             mint: mint,
+            tokenProgram: .tokenProgramId,
             owner: owner,
             destinationOwner: PublicKey(string: Fixture.destinationOwner)!,
             authority: owner,

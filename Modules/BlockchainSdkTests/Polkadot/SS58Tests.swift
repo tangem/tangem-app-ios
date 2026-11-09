@@ -129,18 +129,48 @@ struct SS58Tests {
     }
 
     @Test
-    func rawBytesFalse() {
+    func rawBytesFalse() throws {
         let polkadotAddress = "13upfxwAepTxvfEEkSp567AXypn9ym5NGxsWmhdyxHXw5ocz"
 
-        let bytes = ss58.bytes(string: polkadotAddress, raw: false)
+        let bytes = try #require(ss58.bytes(string: polkadotAddress, raw: false))
         #expect(bytes.hex(.uppercase) == "0080C1B49CA830D61FCC69256C26BB5EF6A3F0E198A7A981365F038BBA42266ED7")
     }
 
     @Test
-    func rawBytesTrue() {
+    func rawBytesTrue() throws {
         let polkadotAddress = "13upfxwAepTxvfEEkSp567AXypn9ym5NGxsWmhdyxHXw5ocz"
 
-        let bytes = ss58.bytes(string: polkadotAddress, raw: true)
+        let bytes = try #require(ss58.bytes(string: polkadotAddress, raw: true))
         #expect(bytes.hex(.uppercase) == "80C1B49CA830D61FCC69256C26BB5EF6A3F0E198A7A981365F038BBA42266ED7")
+    }
+
+    @Test("A 32-byte account id survives the encode and decode round trip on every prefix size", arguments: [UInt(0), 2, 42, 126, 11331])
+    func accountIdRoundTrip(networkType: UInt) throws {
+        let accountId = Data(hex: "0x80C1B49CA830D61FCC69256C26BB5EF6A3F0E198A7A981365F038BBA42266ED7")
+        let address = ss58.address(from: accountId, type: networkType)
+
+        #expect(ss58.isValidAddress(address, type: networkType))
+        let rawBytes = try #require(ss58.bytes(string: address, raw: true))
+        let taggedBytes = try #require(ss58.bytes(string: address, raw: false))
+        #expect(rawBytes == accountId)
+        #expect(taggedBytes == Data(UInt8(0)) + accountId)
+    }
+
+    @Test("A payload that is not a 32-byte account id fails validation and yields no bytes", arguments: [UInt(0), 2, 42, 126, 11331], [31, 33, 34])
+    func payloadThatIsNotAccountIdIsRejected(networkType: UInt, payloadSize: Int) {
+        let payload = Data(repeating: 0x42, count: payloadSize)
+        let address = ss58.address(from: payload, type: networkType)
+
+        #expect(!ss58.isValidAddress(address, type: networkType))
+        #expect(ss58.bytes(string: address, raw: true) == nil)
+        #expect(ss58.bytes(string: address, raw: false) == nil)
+    }
+
+    @Test("A two-byte prefix encoding of a one-byte network does not let a 31-byte payload pass as an account id")
+    func nonCanonicalPrefixDoesNotStretchPayload() {
+        let address = "7PPZE7CmoZKnRZAMpVVawyGQLQ2b7oevh8RmB373HcCQQjUS"
+
+        #expect(!ss58.isValidAddress(address, type: 0))
+        #expect(ss58.bytes(string: address, raw: true) == nil)
     }
 }

@@ -91,8 +91,8 @@ extension DecimalNumberTextField {
 
         init(
             font: Font = Fonts.Regular.title1,
-            textColor: Color = Colors.Text.primary1,
-            placeholderColor: Color = Colors.Text.disabled
+            textColor: Color = DesignSystem.Color.textPrimary,
+            placeholderColor: Color = DesignSystem.Color.textTertiary
         ) {
             self.font = font
             self.textColor = textColor

@@ -22,6 +22,7 @@ enum YieldAnalyticsState: String {
 
 protocol YieldAnalyticsLogger {
     func logTransactionSent(with result: TransactionDispatcherResult)
+    func logTransactionSent(with result: TransactionDispatcherResult, feeTokenItem: TokenItem)
     func logStartEarningScreenOpened()
     func logEarningScreenInfoOpened()
     func logEarningButtonStart()
@@ -51,8 +52,10 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
     // MARK: - Earning analytics
 
     func logTransactionSent(with result: TransactionDispatcherResult) {
-        let feeTokenItem = TokenItem.blockchain(tokenItem.blockchainNetwork)
+        logTransactionSent(with: result, feeTokenItem: TokenItem.blockchain(tokenItem.blockchainNetwork))
+    }
 
+    func logTransactionSent(with result: TransactionDispatcherResult, feeTokenItem: TokenItem) {
         Analytics.log(
             event: .transactionSent,
             params: [

@@ -16,7 +16,7 @@ public struct InfoButtonView: View {
     private let size: Size
     private let tooltipText: PopoverModifier.TextType
 
-    private var color: Color = Colors.Icon.informative
+    private var color: Color = DesignSystem.Color.iconSecondary
 
     public init(size: Size, tooltipText: String) {
         self.size = size

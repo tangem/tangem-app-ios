@@ -15,7 +15,10 @@ struct CommonTronTokenFeeLoaderTests {
     @Test("a positive otherNativeFee is added to every returned fee")
     func getFee_positiveOtherNativeFee_isAddedToEveryFee() async throws {
         let provider = TronTransactionFeeProviderSpy(fees: [makeFee(Decimal(string: "1.5")!), makeFee(Decimal(string: "2.5")!)])
-        let sut = CommonTronTokenFeeLoader(tokenFeeLoader: PlainTokenFeeLoaderStub(), tronTransactionFeeProvider: provider)
+        let sut = CommonTronTokenFeeLoader(
+            tokenFeeLoader: DefaultTokenFeeLoader(loader: PlainTokenFeeLoaderStub()),
+            tronTransactionFeeProvider: provider
+        )
 
         let fees = try await sut.getFee(request: makeRequest(otherNativeFee: Decimal(string: "0.3")!))
 
@@ -25,7 +28,10 @@ struct CommonTronTokenFeeLoaderTests {
     @Test("a nil or zero otherNativeFee leaves the fees untouched", arguments: [nil, Decimal.zero] as [Decimal?])
     func getFee_absentOtherNativeFee_leavesFeesUntouched(otherNativeFee: Decimal?) async throws {
         let provider = TronTransactionFeeProviderSpy(fees: [makeFee(Decimal(string: "1.5")!)])
-        let sut = CommonTronTokenFeeLoader(tokenFeeLoader: PlainTokenFeeLoaderStub(), tronTransactionFeeProvider: provider)
+        let sut = CommonTronTokenFeeLoader(
+            tokenFeeLoader: DefaultTokenFeeLoader(loader: PlainTokenFeeLoaderStub()),
+            tronTransactionFeeProvider: provider
+        )
 
         let fees = try await sut.getFee(request: makeRequest(otherNativeFee: otherNativeFee))
 
@@ -35,7 +41,10 @@ struct CommonTronTokenFeeLoaderTests {
     @Test("the request fields reach the fee provider as-is")
     func getFee_forwardsRequestFields() async throws {
         let provider = TronTransactionFeeProviderSpy(fees: [makeFee(1)])
-        let sut = CommonTronTokenFeeLoader(tokenFeeLoader: PlainTokenFeeLoaderStub(), tronTransactionFeeProvider: provider)
+        let sut = CommonTronTokenFeeLoader(
+            tokenFeeLoader: DefaultTokenFeeLoader(loader: PlainTokenFeeLoaderStub()),
+            tronTransactionFeeProvider: provider
+        )
         let request = makeRequest(otherNativeFee: nil)
 
         _ = try await sut.getFee(request: request)
@@ -89,7 +98,7 @@ private final class TronTransactionFeeProviderSpy: TronTransactionFeeProvider {
     }
 }
 
-private struct PlainTokenFeeLoaderStub: TokenFeeLoader {
+private struct PlainTokenFeeLoaderStub: TokenFeeLoading {
     enum StubError: Error {
         case notNeeded
     }

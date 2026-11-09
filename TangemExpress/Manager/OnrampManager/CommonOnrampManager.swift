@@ -301,6 +301,6 @@ private extension CommonOnrampManager {
     }
 }
 
-extension CommonOnrampManager: @preconcurrency CustomStringConvertible {
-    public var description: String { objectDescription(self) }
+extension CommonOnrampManager: CustomStringConvertible {
+    public nonisolated var description: String { objectDescription(self) }
 }

@@ -25,7 +25,7 @@ struct SwapSummaryProviderView: View {
             }
         }
         .innerContentPadding(12)
-        .backgroundColor(Colors.Background.action)
+        .backgroundColor(DesignSystem.Color.bgSecondary)
         .transition(.opacity.animation(.easeInOut))
         .animation(.easeInOut, value: viewModel.providerState?.id)
     }

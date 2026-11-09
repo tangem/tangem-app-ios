@@ -20,24 +20,26 @@ public struct PolymarketOrderSheetHeader: View {
     }
 
     public var body: some View {
-        HStack(spacing: Constants.spacing) {
-            PolymarketAvatarView(url: model.imageURL, side: Constants.avatarSide)
+        HStack(spacing: Constants.actionsSpacing) {
+            HStack(spacing: Constants.spacing) {
+                PolymarketAvatarView(url: model.imageURL, side: Constants.avatarSide)
 
-            VStack(alignment: .leading, spacing: Constants.textSpacing) {
-                Text(model.question)
-                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
-                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: Constants.textSpacing) {
+                    Text(model.question)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                        .lineLimit(1)
 
-                PolymarketOutcomeVoteView(
-                    outcomeTitle: model.outcomeTitle,
-                    priceText: model.outcomePriceText,
-                    nextPriceText: model.outcomeNextPriceText,
-                    isNextPriceLoading: model.isOutcomeNextPriceLoading,
-                    style: model.outcomeStyle
-                )
+                    PolymarketOutcomeVoteView(
+                        outcomeTitle: model.outcomeTitle,
+                        priceText: model.outcomePriceText,
+                        nextPriceText: model.outcomeNextPriceText,
+                        isNextPriceLoading: model.isOutcomeNextPriceLoading,
+                        style: model.outcomeStyle
+                    )
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityElement(children: .combine)
 
             TopNavigationActions(actions: .one(.close(action: onClose)))
         }
@@ -51,6 +53,7 @@ public struct PolymarketOrderSheetHeader: View {
 private extension PolymarketOrderSheetHeader {
     enum Constants {
         static let spacing: CGFloat = 8
+        static let actionsSpacing: CGFloat = 12
         static let textSpacing: CGFloat = 4
         static let avatarSide: CGFloat = 40
         static let horizontalPadding: CGFloat = 16

@@ -19,8 +19,8 @@ public struct ProgressBar: View {
     public init(
         height: CGFloat,
         currentProgress: CGFloat,
-        backgroundColor: Color = Colors.Icon.primary1.opacity(0.2),
-        progressColor: Color = Colors.Icon.primary1
+        backgroundColor: Color = DesignSystem.Color.iconPrimary.opacity(0.2),
+        progressColor: Color = DesignSystem.Color.iconPrimary
     ) {
         self.height = height
         self.currentProgress = currentProgress
@@ -47,7 +47,7 @@ public struct ProgressBar: View {
     @Previewable @State var progress: CGFloat = 0.4
 
     VStack {
-        ProgressBar(height: 5, currentProgress: progress, backgroundColor: Colors.Old.tangemGrayDark.opacity(0.12), progressColor: .blue)
+        ProgressBar(height: 5, currentProgress: progress, backgroundColor: DesignSystem.Color.iconSecondary.opacity(0.12), progressColor: .blue)
             .padding()
         Spacer()
             .frame(height: 50)

@@ -22,7 +22,7 @@ struct MarketsTokensUnderCapView: View {
         VStack(alignment: .center, spacing: 8) {
             HStack(spacing: .zero) {
                 Text(Localization.marketsSearchSeeTokensUnder100k)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
             }
 
             HStack(spacing: .zero) {
@@ -31,11 +31,11 @@ struct MarketsTokensUnderCapView: View {
                 }, label: {
                     HStack(spacing: .zero) {
                         Text(Localization.marketsSearchShowTokens)
-                            .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                            .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
                     }
                 })
                 .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsTokensUnderCapExpandButton)
-                .roundedBackground(with: Colors.Button.secondary, verticalPadding: 8, horizontalPadding: 14, radius: 10)
+                .roundedBackground(with: DesignSystem.Color.bgTransparentSecondary, verticalPadding: 8, horizontalPadding: 14, radius: 10)
             }
         }
         .padding(.vertical, 12)

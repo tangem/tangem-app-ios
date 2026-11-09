@@ -25,7 +25,7 @@ struct TokenSelectorWalletItemView: View {
 
         case .accounts(let accounts) where viewModel.contentVisibility?.isVisible == true:
             VStack(spacing: Constants.accountsListVerticalSpacing) {
-                ForEach(indexed: accounts.indexed()) { _, viewModel in
+                ForEach(accounts) { viewModel in
                     TokenSelectorAccountView(viewModel: viewModel)
                 }
             }

@@ -56,14 +56,13 @@ private extension PolymarketEventsListView {
 
 private extension PolymarketEventsListView {
     var eventCards: some View {
-        ForEach(viewModel.eventCards, id: \.id) { model in
-            PolymarketEventCard(model: model)
-                .equatable()
+        ForEach(viewModel.eventCards) { card in
+            PolymarketFeedCardView(card: card)
                 .contentShape(.rect)
-                .onTapGesture { viewModel.handleViewAction(.openEventDetails(id: model.id)) }
+                .onTapGesture { viewModel.handleViewAction(.openEventDetails(id: card.id)) }
                 .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
-                .onAppear { viewModel.handleViewAction(.onEventVisibilityChange(id: model.id, isVisible: true)) }
-                .onDisappear { viewModel.handleViewAction(.onEventVisibilityChange(id: model.id, isVisible: false)) }
+                .onAppear { viewModel.handleViewAction(.onEventVisibilityChange(id: card.id, isVisible: true)) }
+                .onDisappear { viewModel.handleViewAction(.onEventVisibilityChange(id: card.id, isVisible: false)) }
         }
     }
 

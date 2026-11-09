@@ -279,6 +279,20 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     }
 
     @discardableResult
+    func verifyBalance(_ expected: String) -> Self {
+        XCTContext.runActivity(named: "Verify balance is '\(expected)'") { _ in
+            waitAndAssertTrue(balanceText, timeout: .networkRequest, "Balance text should be displayed")
+            let isExpected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label == %@", expected), object: balanceText)
+            XCTAssertEqual(
+                XCTWaiter().wait(for: [isExpected], timeout: .networkRequest),
+                .completed,
+                "Balance should be '\(expected)'. Actual: '\(balanceText.label)'"
+            )
+            return self
+        }
+    }
+
+    @discardableResult
     func tapBack() -> MainScreen {
         XCTContext.runActivity(named: "Tap back to return to main screen") { _ in
             backButton.waitAndTap()
@@ -349,7 +363,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     @discardableResult
     func openRemoveAccountFromMoreActions() -> Self {
         XCTContext.runActivity(named: "Tap Remove account in more actions menu") { _ in
-            moreActionsButton.waitAndTap()
+            tapMoreActions()
             removeAccountMenuItem.waitAndTap()
             return self
         }
@@ -375,7 +389,7 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
     @discardableResult
     func openMoreActionsMenu() -> Self {
         XCTContext.runActivity(named: "Open the more actions menu") { _ in
-            moreActionsButton.waitAndTap()
+            tapMoreActions()
             return self
         }
     }
@@ -796,6 +810,11 @@ final class TangemPayMainScreen: ScreenBase<TangemPayMainScreenElement> {
             .matching(identifier: identifier)
             .matching(NSPredicate(format: "label == %@", label))
             .firstMatch
+    }
+
+    private func tapMoreActions() {
+        waitAndAssertTrue(moreActionsButton, "More actions button should be displayed")
+        moreActionsButton.tapPreferringHittable()
     }
 
     private func cardDeactivatedBannerElement(labelContaining text: String) -> XCUIElement {

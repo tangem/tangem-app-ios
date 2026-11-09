@@ -18,37 +18,50 @@ struct PolymarketWithdrawDestinationResolverTests {
     private let ethereum = TokenItem.blockchain(BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil))
 
     @Test("The first token the wallet shows in the bridge's currency becomes the destination")
-    func firstMatchingTokenWins() {
+    func firstMatchingTokenWins() async {
         let other = makeWalletModel(tokenItem: ethereum)
         let matching = makeWalletModel(tokenItem: usdcPolygon)
 
-        let chosen = PolymarketWithdrawDestinationResolver.chooseDestination(from: [other, matching])
+        let chosen = await chooseDestination(from: [other, matching])
 
         #expect(chosen === matching)
     }
 
-    @Test("A joint account never becomes the destination, even when it is the first match the wallet shows")
-    func jointAccountNeverBecomesDestination() {
+    @Test("A joint account's token becomes the destination when it is the first match the wallet shows")
+    func jointAccountBecomesDestination() async {
         let joint = makeWalletModel(tokenItem: usdcPolygon, accountType: .joint)
         let standard = makeWalletModel(tokenItem: usdcPolygon)
 
-        let chosen = PolymarketWithdrawDestinationResolver.chooseDestination(from: [joint, standard])
+        let chosen = await chooseDestination(from: [joint, standard])
+
+        #expect(chosen === joint)
+    }
+
+    @Test("A custom token in the bridge's currency is skipped for the next match")
+    func customTokenIsSkipped() async {
+        let custom = makeWalletModel(tokenItem: usdcPolygon, isCustom: true)
+        let standard = makeWalletModel(tokenItem: usdcPolygon)
+
+        let chosen = await chooseDestination(from: [custom, standard])
 
         #expect(chosen === standard)
     }
 
-    @Test("With the bridge's currency only in a joint account the destination stays unresolved")
-    func jointOnlyMatchResolvesToNil() {
-        let joint = makeWalletModel(tokenItem: usdcPolygon, accountType: .joint)
+    @Test("An unreachable Express doesn't drop the destination")
+    func unreachableExpressKeepsDestination() async {
+        let matching = makeWalletModel(tokenItem: usdcPolygon)
 
-        let chosen = PolymarketWithdrawDestinationResolver.chooseDestination(from: [joint])
+        let chosen = await chooseDestination(
+            from: [matching],
+            expressAvailabilityProvider: SwapExpressAvailabilityProviderStub(swapState: .unavailable, updateState: .failed(error: URLError(.notConnectedToInternet)))
+        )
 
-        #expect(chosen == nil)
+        #expect(chosen === matching)
     }
 
     @Test("A token in another currency is never the destination, whatever account holds it")
-    func nonMatchingCurrencyResolvesToNil() {
-        let chosen = PolymarketWithdrawDestinationResolver.chooseDestination(from: [makeWalletModel(tokenItem: ethereum)])
+    func nonMatchingCurrencyResolvesToNil() async {
+        let chosen = await chooseDestination(from: [makeWalletModel(tokenItem: ethereum)])
 
         #expect(chosen == nil)
     }
@@ -57,7 +70,23 @@ struct PolymarketWithdrawDestinationResolverTests {
 // MARK: - Fixtures
 
 private extension PolymarketWithdrawDestinationResolverTests {
-    func makeWalletModel(tokenItem: TokenItem, accountType: AccountType = .crypto) -> WalletModelTestsMock {
+    func chooseDestination(
+        from walletModels: [any WalletModel],
+        expressAvailabilityProvider: ExpressAvailabilityProvider = SwapExpressAvailabilityProviderStub()
+    ) async -> (any WalletModel)? {
+        await InjectedDependenciesIsolation.shared.run {
+            let previousProvider = InjectedValues[\.expressAvailabilityProvider]
+            InjectedValues[\.expressAvailabilityProvider] = expressAvailabilityProvider
+            defer { InjectedValues[\.expressAvailabilityProvider] = previousProvider }
+
+            return PolymarketWithdrawDestinationResolver.chooseDestination(
+                from: walletModels,
+                userWalletInfo: SendSourceTokenStub().userWalletInfo
+            )
+        }
+    }
+
+    func makeWalletModel(tokenItem: TokenItem, accountType: AccountType = .crypto, isCustom: Bool = false) -> WalletModelTestsMock {
         WalletModelTestsMock(
             tokenItem: tokenItem,
             isEmpty: false,
@@ -65,7 +94,8 @@ private extension PolymarketWithdrawDestinationResolverTests {
                 isMainAccount: false,
                 accountType: accountType,
                 onArchive: { _ in }
-            )
+            ),
+            isCustom: isCustom
         )
     }
 }

@@ -68,6 +68,7 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                     .onPreferenceChange(ModalSheetPreferenceKey.self) { value in
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     }
+                    .softTopScrollEdgeEffect()
             }
             .modal(
                 isPresented: $coordinator.isAddAccountTypeSelectorPresented,
@@ -82,6 +83,7 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
             }
             .fullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
                 JointAccountManagementCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
             }
             .floatingSheetContent(for: MobileBackupNeededViewModel.self) {
                 MobileBackupNeededView(viewModel: $0)
@@ -96,6 +98,7 @@ struct UserWalletSettingsCoordinatorView: CoordinatorView {
                 NavigationStack {
                     AccountFormView(viewModel: viewModel)
                 }
+                .softTopScrollEdgeEffect()
             }
     }
 }

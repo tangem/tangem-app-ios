@@ -19,6 +19,7 @@ struct FooterShowcase: View {
     @State private var showsCaption = false
     @State private var showsFade = true
     @State private var isPrimaryLoading = false
+    @State private var signingType: SigningActionButtonViewType = .holdToConfirm
     @State private var searchText = ""
     @State private var taps = 0
     @State private var isModalPresented = false
@@ -31,6 +32,9 @@ struct FooterShowcase: View {
             case .default:
                 controls.toggle("Secondary button", $showsSecondary)
                 controls.toggle("Primary loading", $isPrimaryLoading)
+            case .signing:
+                controls.picker("Signing", $signingType, options: [.holdToConfirm, .requiredNFCInteraction])
+                controls.toggle("Loading", $isPrimaryLoading)
             case .toolbar:
                 controls.picker("Buttons", $toolbarItems)
             case .search:
@@ -89,6 +93,14 @@ struct FooterShowcase: View {
             let secondary = TangemUI.Button(label: "Not now", accessibilityLabel: nil, action: tap)
                 .styleType(.secondary(.default))
             return .buttons(primary: primary, secondary: showsSecondary ? secondary : nil)
+        case .signing:
+            return .signingButton(SigningActionButtonView(
+                type: signingType,
+                title: "Place order",
+                isLoading: isPrimaryLoading,
+                isDisabled: false,
+                action: tap
+            ))
         case .toolbar:
             let start = TangemUI.Button(icon: DesignSystem.Icons.Filter.regular20, accessibilityLabel: "Filter", action: tap)
                 .styleType(.material(.glass))
@@ -123,6 +135,7 @@ struct FooterShowcase: View {
 private extension FooterShowcase {
     enum Variant: CaseIterable, Hashable {
         case `default`
+        case signing
         case toolbar
         case search
     }

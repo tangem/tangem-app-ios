@@ -92,7 +92,7 @@ enum TransactionDetailsFactory {
             isOutgoing: transaction.isOutgoing,
             isFromYieldContract: transaction.isFromYieldContract
         ):
-            return .generic(sendReceiveContent(for: transaction, record: record, context: context))
+            return .generic(sendReceiveContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context))
 
         case .incentiveClaim, .incentiveClaimCoin, .yieldDeploy, .yieldEnter, .yieldEnterCoin, .yieldInit, .yieldReactivate,
              .yieldSend, .yieldTopup, .yieldWithdraw, .yieldWithdrawCoin:
@@ -123,14 +123,14 @@ enum TransactionDetailsFactory {
             ))
 
         case .stake, .unstake, .vote, .withdraw, .claimRewards, .restake:
-            return .generic(stakingOperationContent(for: transaction, record: record, context: context))
+            return .generic(stakingOperationContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context))
 
         case .gaslessTransactionFee, .networkFee:
             return .generic(feeContent(for: transaction, cryptoAmount: cryptoAmount, context: context))
 
         case .operation where transaction.isTangemPayCounterparty,
              .unknownOperation where transaction.isTangemPayCounterparty:
-            return .generic(sendReceiveContent(for: transaction, record: record, context: context))
+            return .generic(sendReceiveContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context))
 
         case .operation, .unknownOperation:
             return .generic(genericOperationContent(
@@ -142,7 +142,7 @@ enum TransactionDetailsFactory {
             ))
 
         case .transfer, .gaslessTransfer, .swap, .onramp, .tangemPay:
-            return .generic(sendReceiveContent(for: transaction, record: record, context: context))
+            return .generic(sendReceiveContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context))
         }
     }
 
@@ -221,6 +221,7 @@ enum TransactionDetailsFactory {
     private static func stakingOperationContent(
         for transaction: TransactionViewModel,
         record: TransactionRecord,
+        cryptoAmount: Decimal,
         context: TransactionDetailsContext
     ) -> TransactionDetailsGenericOperationViewData {
         .init(
@@ -228,7 +229,7 @@ enum TransactionDetailsFactory {
                 for: transaction,
                 isFailed: transaction.status == .failed,
                 caption: nil,
-                fiatText: nil,
+                fiatText: fiatText(amount: cryptoAmount, currencyId: context.tokenCurrencyId),
                 icon: .token(context.tokenIconInfo)
             ),
             statusBanner: stakingStatusBanner(for: transaction),
@@ -366,18 +367,13 @@ enum TransactionDetailsFactory {
         cryptoAmount: Decimal,
         context: TransactionDetailsContext
     ) -> TransactionDetailsYieldViewData {
-        let fiat: String? = switch stage {
-        case .modeSwitch: nil
-        case .balanceMovement: fiatText(amount: cryptoAmount, currencyId: context.tokenCurrencyId)
-        }
-
-        return .init(
+        .init(
             tokens: TransactionDetailsYieldTokensViewData(
                 provider: stage.provider,
                 tokenIconInfo: context.tokenIconInfo,
                 amountText: transaction.amount.amountWithCurrencyCode,
                 caption: stage.caption,
-                fiatText: fiat,
+                fiatText: fiatText(amount: cryptoAmount, currencyId: context.tokenCurrencyId),
                 isAmountStrikethrough: transaction.status == .failed
             ),
             statusBanner: nil,
@@ -708,6 +704,7 @@ enum TransactionDetailsFactory {
     private static func sendReceiveContent(
         for transaction: TransactionViewModel,
         record: TransactionRecord,
+        cryptoAmount: Decimal,
         context: TransactionDetailsContext
     ) -> TransactionDetailsGenericOperationViewData {
         return .init(
@@ -715,7 +712,7 @@ enum TransactionDetailsFactory {
                 for: transaction,
                 isFailed: transaction.status == .failed,
                 caption: nil,
-                fiatText: nil,
+                fiatText: fiatText(amount: cryptoAmount, currencyId: context.tokenCurrencyId),
                 icon: .token(context.tokenIconInfo)
             ),
             statusBanner: nil,

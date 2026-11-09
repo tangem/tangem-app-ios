@@ -181,21 +181,26 @@ struct MoralisSolanaNetworkMapper {
     private func mapToMediaFiles(coreAsset: MoralisSolanaNetworkResult.WalletNFT) -> [NFTMedia] {
         let media = coreAsset.media
         let mediaCollection = media?.mediaCollection
+        let mediaKind = NFTMediaKindMapper.map(mimetype: media?.mimetype, defaultKind: .image)
 
-        let indexedMedia = MoralisMediaURLMapper.map(
-            high: mediaCollection?.high?.url,
-            medium: mediaCollection?.medium?.url,
-            low: mediaCollection?.low?.url,
-            original: media?.originalMediaUrl
-        ).map { url in
-            NFTMedia(kind: NFTMediaKindMapper.map(mimetype: media?.mimetype, defaultKind: .image), url: url)
+        let originalMedia = MoralisMediaURLMapper.map(media?.originalMediaUrl).map { url in
+            NFTMedia(kind: mediaKind, url: url)
         }
 
         let metadataImage = MoralisMediaURLMapper.map(coreAsset.metadata?.image).map { url in
             NFTMedia(kind: NFTMediaKindMapper.map(url, defaultKind: .image), url: url)
         }
 
-        let mediaFiles = [indexedMedia, metadataImage].compactMap { $0 }.unique()
+        let previewMedia = MoralisMediaURLMapper.map(
+            high: mediaCollection?.high?.url,
+            medium: mediaCollection?.medium?.url,
+            low: mediaCollection?.low?.url,
+            original: nil
+        ).map { url in
+            NFTMedia(kind: mediaKind, url: url)
+        }
+
+        let mediaFiles = [originalMedia, metadataImage, previewMedia].compactMap { $0 }.unique()
 
         if mediaFiles.isEmpty {
             NFTLogger.warning(

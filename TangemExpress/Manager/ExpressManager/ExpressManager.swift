@@ -28,6 +28,8 @@ public protocol ExpressManager: Actor {
     /// Sets a user-chosen slippage as a fraction (0.005 = 0.5%), or nil to fall back to each provider's default.
     func update(slippage: Decimal?) async -> ExpressManagerState
 
+    func update(prefersDEX: Bool) async
+
     /// Preserves the selected provider across autoupdate cycles.
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState
 

@@ -28,7 +28,7 @@ struct PolymarketAccountBuilder {
         return CommonPolymarketAccountModel(
             userWalletId: userWalletId,
             walletService: services.makeWalletService(walletId: userWalletId.stringValue),
-            clobService: services.makeCLOBService(),
+            clobService: services.makeCLOBService(walletId: userWalletId.stringValue),
             positionsValueService: services.makePositionsValueService(),
             credentialsRepository: CommonPolymarketCredentialsRepository(),
             ownerAddressProvider: CommonPolymarketOwnerAddressProvider(keysRepository: keysRepository),

@@ -19,7 +19,7 @@ struct OnrampProviderItemView: View {
         SwiftUI.Button(action: viewModel.action) {
             content
                 .defaultRoundedBackground(
-                    with: Colors.Background.action,
+                    with: DesignSystem.Color.bgSecondary,
                     verticalPadding: .zero,
                     horizontalPadding: .zero
                 )
@@ -60,7 +60,7 @@ struct OnrampProviderItemView: View {
     private var titleView: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(viewModel.paymentMethod.name)
-                .style(Fonts.Bold.subheadline, color: viewModel.isAvailable ? Colors.Text.primary1 : Colors.Text.tertiary)
+                .style(Fonts.Bold.subheadline, color: viewModel.isAvailable ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary)
                 .lineLimit(1)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodName(id: viewModel.paymentMethod.id))
 
@@ -73,11 +73,11 @@ struct OnrampProviderItemView: View {
         switch viewModel.amountType {
         case .availableFrom(let amount):
             Text(Localization.onrampProviderMinAmount(amount))
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
         case .availableUpTo(let amount):
             Text(Localization.onrampProviderMaxAmount(amount))
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
         case .available(let amount):
             HStack(spacing: 4) {
@@ -96,34 +96,34 @@ struct OnrampProviderItemView: View {
                 Assets.stakingMiniIcon.image
                     .renderingMode(.template)
                     .resizable()
-                    .foregroundStyle(Colors.Icon.informative)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
                     .frame(width: 10, height: 10)
 
                 Text(providers.providersFormatted)
-                    .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
                     .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerCount(id: viewModel.paymentMethod.id))
             }
             .padding(4)
             .overlay(
                 RoundedRectangle(cornerRadius: 6)
-                    .stroke(Colors.Stroke.primary, lineWidth: 1)
+                    .stroke(DesignSystem.Color.borderSecondary, lineWidth: 1)
             )
 
             HStack(spacing: 4) {
                 Assets.Express.providerTimeIconMini.image
                     .renderingMode(.template)
                     .resizable()
-                    .foregroundStyle(Colors.Icon.informative)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
                     .frame(width: 10, height: 10)
 
                 Text(providers.timeFormatted)
-                    .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
                     .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerTime(id: viewModel.paymentMethod.id))
             }
             .padding(4)
             .overlay(
                 RoundedRectangle(cornerRadius: 6)
-                    .stroke(Colors.Stroke.primary, lineWidth: 1)
+                    .stroke(DesignSystem.Color.borderSecondary, lineWidth: 1)
             )
         }
     }

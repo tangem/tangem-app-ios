@@ -59,6 +59,7 @@ public struct PolymarketEventCard: View, Equatable {
     private var metaRow: some View {
         PolymarketMarketMetaRow(
             isLive: model.isLive,
+            isLiveBadgePulsing: model.isLiveBadgePulsing,
             category: model.category,
             volume: model.volumeText.map { .init(title: Constants.volumePrefix, value: $0) }
         )
@@ -69,7 +70,7 @@ public struct PolymarketEventCard: View, Equatable {
     @ViewBuilder
     private var marketBody: some View {
         VStack(spacing: 0) {
-            ForEach(Array(model.rows.enumerated()), id: \.element.id) { index, row in
+            ForEach(indexed: model.rows) { index, row in
                 marketRow(row)
 
                 if model.variant == .multiMarket, index < model.rows.count - 1 {
@@ -113,34 +114,9 @@ public struct PolymarketEventCard: View, Equatable {
     private func outcomeButtons(_ row: Row, areWide: Bool) -> some View {
         HStack(spacing: 4) {
             ForEach(row.outcomes) { outcome in
-                outcomeButton(outcome, isWide: areWide)
+                PolymarketOutcomeButton(outcome: outcome, isWide: areWide, labelStyle: model.outcomeLabelStyle)
             }
         }
-    }
-
-    private func outcomeButton(_ outcome: Outcome, isWide: Bool) -> some View {
-        Button(action: outcome.onSelect) {
-            HStack(spacing: Constants.outcomeSpacing) {
-                Text(outcome.title)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-
-                if let priceText = outcome.priceText {
-                    Text(Constants.priceSeparator + priceText)
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
-                        .layoutPriority(1)
-                        .contentTransition(.numericText())
-                        .animation(Constants.priceChangeAnimation, value: priceText)
-                }
-            }
-            .style(DesignSystem.Font.bodyMediumToken, color: outcome.style.foregroundColor)
-            .padding(.horizontal, 14)
-            .frame(minWidth: isWide ? 0 : 56, maxWidth: isWide ? .infinity : nil, minHeight: 36)
-            .background(outcome.style.backgroundColor, in: Capsule())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(outcome.priceText.map { "\(outcome.title) \($0)" } ?? outcome.title)
     }
 
     private var rowDivider: some View {
@@ -193,18 +169,14 @@ public struct PolymarketEventCard: View, Equatable {
 private extension PolymarketEventCard {
     enum Constants {
         static let cornerRadius: CGFloat = 24
-        static let outcomeSpacing: CGFloat = 4
-        static let priceSeparator = String.bulletSign + " "
-        static let priceChangeAnimation = Animation.curve(.easeInOutRefined, duration: 0.3)
 
         static let volumePrefix = Localization.predictionEventTotalVolume
 
         // [REDACTED_TODO_COMMENT]
         static let activePredictsLabel = "In your active predicts"
 
-        // [REDACTED_TODO_COMMENT]
         static func outcomesLabel(_ count: Int) -> String {
-            "+\(count) Outcomes"
+            Localization.predictionEventMoreOutcomes(count)
         }
     }
 }

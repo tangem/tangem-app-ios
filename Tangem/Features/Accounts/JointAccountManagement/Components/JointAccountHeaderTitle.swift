@@ -12,15 +12,15 @@ import TangemUIUtils
 
 struct JointAccountHeaderTitle: View {
     private let title: AttributedString
-    private let subtitle: AttributedString
+    private let subtitle: AttributedString?
 
-    init(title: String, subtitle: String) {
-        self.init(title: AttributedString(title), subtitle: AttributedString(subtitle))
+    init(title: String, subtitle: String?) {
+        self.init(title: AttributedString(title), subtitle: subtitle.map(AttributedString.init))
     }
 
-    init(title: AttributedString, subtitle: AttributedString) {
+    init(title: AttributedString, subtitle: AttributedString?) {
         self.title = title.mergeForegroundColor(DesignSystem.Color.textPrimary)
-        self.subtitle = subtitle.mergeForegroundColor(DesignSystem.Color.textSecondary)
+        self.subtitle = subtitle?.mergeForegroundColor(DesignSystem.Color.textSecondary)
     }
 
     var body: some View {
@@ -28,8 +28,10 @@ struct JointAccountHeaderTitle: View {
             Text(title)
                 .font(token: DesignSystem.Font.headingMediumToken)
 
-            Text(subtitle)
-                .font(token: DesignSystem.Font.subheadingMediumToken)
+            if let subtitle {
+                Text(subtitle)
+                    .font(token: DesignSystem.Font.subheadingMediumToken)
+            }
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
     }

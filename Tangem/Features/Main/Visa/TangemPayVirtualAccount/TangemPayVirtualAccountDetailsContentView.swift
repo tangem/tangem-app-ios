@@ -41,7 +41,7 @@ struct TangemPayVirtualAccountDetailsContentView: View {
 private extension TangemPayVirtualAccountDetailsContentView {
     var credentialsSection: some View {
         card {
-            ForEach(Array(state.rows.enumerated()), id: \.element.id) { index, row in
+            ForEach(indexed: state.rows) { index, row in
                 credentialRow(row)
 
                 if index < state.rows.count - 1 {
@@ -105,7 +105,7 @@ private extension TangemPayVirtualAccountDetailsContentView {
             }
         case .loaded(let fees):
             card {
-                ForEach(Array(fees.enumerated()), id: \.element.id) { index, fee in
+                ForEach(indexed: fees) { index, fee in
                     keyValueRow(title: fee.title, value: fee.value)
 
                     if index < fees.count - 1 {

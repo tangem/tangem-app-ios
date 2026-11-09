@@ -11,6 +11,7 @@ import TangemMacro
 @CaseFlagable
 public enum CollectiblesVaultUsdcState: Hashable, Sendable {
     case loading
+    case unavailable
     case missing
     case ready(CollectiblesVaultUsdcAccount)
     case failed

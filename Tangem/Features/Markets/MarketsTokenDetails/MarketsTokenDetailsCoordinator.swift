@@ -12,7 +12,7 @@ import TangemUI
 import TangemFoundation
 import TangemStaking
 import TangemLocalization
-import struct TangemUIUtils.AlertBinder
+import TangemUIUtils
 
 final class MarketsTokenDetailsCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -132,14 +132,11 @@ extension MarketsTokenDetailsCoordinator {
             self.showsPortfolioActions = showsPortfolioActions
         }
 
-        static func tokenChartDeeplink(
-            tokenId: String,
-            isFeatureAvailable: (Feature) -> Bool = FeatureProvider.isAvailable
-        ) -> Options {
+        static func tokenChartDeeplink(tokenId: String) -> Options {
             Options(
                 info: .deeplinkStub(tokenId: tokenId),
                 style: .navigationStack,
-                showsPortfolioActions: isFeatureAvailable(.tokenChartAddToPortfolio)
+                showsPortfolioActions: true
             )
         }
     }

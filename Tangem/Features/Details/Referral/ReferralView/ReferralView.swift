@@ -43,7 +43,7 @@ struct ReferralView: View {
         }
         .alert(item: $viewModel.errorAlert, content: { $0.alert })
         .navigationBarTitle(Text(Localization.detailsReferralTitle), displayMode: .inline)
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
     }
 
     private func makeReferralDudeImage(geometry: GeometryProxy) -> some View {
@@ -68,7 +68,7 @@ struct ReferralView: View {
 
     private var referralTitle: some View {
         Text(Localization.referralTitle)
-            .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+            .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
             .multilineTextAlignment(.center)
             .lineLimit(2)
             .padding(.horizontal, 57)
@@ -108,7 +108,7 @@ struct ReferralView: View {
                 Assets.cryptoCurrencies,
                 header: { Text(Localization.referralPointCurrenciesTitle) },
                 description: {
-                    Text(viewModel.awardDescription(highlightColor: Colors.Text.primary1))
+                    Text(viewModel.awardDescription(highlightColor: DesignSystem.Color.textPrimary))
                 }
             )
             .accessibilityIdentifier(ReferralAccessibilityIdentifiers.currenciesSection)
@@ -118,7 +118,7 @@ struct ReferralView: View {
                 header: { Text(Localization.referralPointDiscountTitle) },
                 description: {
                     Text(Localization.referralPointDiscountDescriptionPrefix + " ") +
-                        Text(viewModel.discount).foregroundColor(Colors.Text.primary1) +
+                        Text(viewModel.discount).foregroundColor(DesignSystem.Color.textPrimary) +
                         Text(" " + Localization.referralPointDiscountDescriptionSuffix)
                 }
             )
@@ -179,14 +179,14 @@ struct ReferralView: View {
                 Text(Localization.referralPromoCodeTitle)
                     .style(
                         Fonts.Bold.footnote,
-                        color: Colors.Text.tertiary
+                        color: DesignSystem.Color.textSecondary
                     )
                     .accessibilityIdentifier(ReferralAccessibilityIdentifiers.promoCodeTitle)
 
                 Text(viewModel.promoCode)
                     .style(
                         Fonts.Regular.title1,
-                        color: Colors.Text.primary1
+                        color: DesignSystem.Color.textPrimary
                     )
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier(ReferralAccessibilityIdentifiers.promoCodeValue)
@@ -213,52 +213,44 @@ struct ReferralView: View {
             .defaultRoundedBackground()
 
             HStack(spacing: 12) {
-                TangemButtonLegacy(
+                MainButton(
                     title: Localization.commonCopy,
-                    systemImage: "square.on.square",
-                    iconPosition: .leading,
-                    iconPadding: 10,
+                    icon: .leading(Assets.Glyphs.copy),
+                    style: .primary,
+                    isRedesign: false,
                     action: viewModel.copyPromoCode
                 )
-                .buttonStyle(TangemButtonStyle(
-                    colorStyle: .black,
-                    layout: .flexibleWidth
-                ))
 
-                TangemButtonLegacy(
+                MainButton(
                     title: Localization.commonShare,
-                    systemImage: "arrowshape.turn.up.forward",
-                    iconPosition: .leading,
-                    iconPadding: 10,
+                    icon: .leading(Assets.share),
+                    style: .primary,
+                    isRedesign: false,
                     action: viewModel.sharePromoCode
                 )
-                .buttonStyle(TangemButtonStyle(
-                    colorStyle: .black,
-                    layout: .flexibleWidth
-                ))
             }
 
             VStack(spacing: 0) {
                 HStack {
                     Text(Localization.referralFriendsBoughtTitle)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
                     Spacer()
 
                     Text(viewModel.numberOfWalletsBought)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
                 }
                 .padding(14)
 
                 if viewModel.isExpectingAwards {
-                    Separator(height: .minimal, color: Colors.Stroke.primary)
+                    Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
                         .padding(.vertical, 4)
 
                     expectedAwards
                 }
             }
             .roundedBackground(
-                with: Colors.Background.primary,
+                with: DesignSystem.Color.bgSecondary,
                 padding: 0,
                 radius: 14
             )
@@ -272,17 +264,17 @@ struct ReferralView: View {
             if viewModel.hasExpectedAwards {
                 HStack(spacing: 0) {
                     Text(Localization.referralExpectedAwards)
-                        .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
 
                     Spacer()
 
                     Text(viewModel.numberOfWalletsForPayments)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 }
                 .padding(14)
             } else {
                 Text(Localization.referralNoExpectedAwards)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(14)
             }
@@ -290,12 +282,12 @@ struct ReferralView: View {
             ForEach(viewModel.expectedAwards, id: \.date) { expectedAward in
                 HStack {
                     Text(expectedAward.date)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                     Spacer()
 
                     Text(expectedAward.amount)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textPrimary)
                 }
                 .padding(14)
             }
@@ -308,13 +300,13 @@ struct ReferralView: View {
                 } label: {
                     HStack(spacing: 4) {
                         Text(viewModel.expandButtonText)
-                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
 
                         Image(systemName: viewModel.expectedAwardsExpanded ? "chevron.up" : "chevron.down")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 9)
-                            .foregroundColor(Colors.Text.tertiary)
+                            .foregroundColor(DesignSystem.Color.iconSecondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -351,14 +343,14 @@ struct ReferralView: View {
     private var tosButton: some View {
         SwiftUI.Button(action: viewModel.openTOS) {
             Text(viewModel.tosButtonPrefix) +
-                Text(Localization.commonTermsAndConditions).foregroundColor(Colors.Text.accent) +
+                Text(Localization.commonTermsAndConditions).foregroundColor(DesignSystem.Color.textAccentBlue) +
                 Text(" " + Localization.referralTosSuffix)
         }
         .accessibilityIdentifier(ReferralAccessibilityIdentifiers.tosButton)
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
         .font(Fonts.Regular.footnote)
-        .foregroundColor(Colors.Text.tertiary)
+        .foregroundColor(DesignSystem.Color.textSecondary)
         .padding(.horizontal, 20)
     }
 }

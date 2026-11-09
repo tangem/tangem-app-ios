@@ -20,7 +20,7 @@ struct MobileRemoveWalletView: View {
             .navigationTitle(viewModel.navigationTitle)
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
-            .background(Colors.Background.primary)
+            .background(DesignSystem.Color.bgPrimary)
     }
 }
 
@@ -52,11 +52,11 @@ private extension MobileRemoveWalletView {
                 .frame(width: 72, height: 72)
 
             Text(item.title)
-                .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                 .padding(.top, 20)
 
             Text(item.subtitle)
-                .style(Fonts.Regular.callout, color: Colors.Text.secondary)
+                .style(Fonts.Regular.callout, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.top, 12)
                 .fixedSize(horizontal: false, vertical: true)

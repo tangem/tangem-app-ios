@@ -28,17 +28,20 @@ struct CommonPolymarketOrderPlacementService {
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
     private let credentialsRepository: PolymarketCredentialsRepository
     private let placer: PolymarketOrderPlacing
+    private let delayProvider: PollDelayProvider
 
     init(
         userWalletId: UserWalletId,
         ownerAddressProvider: PolymarketOwnerAddressProviding,
         credentialsRepository: PolymarketCredentialsRepository,
-        placer: PolymarketOrderPlacing
+        placer: PolymarketOrderPlacing,
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.userWalletId = userWalletId
         self.ownerAddressProvider = ownerAddressProvider
         self.credentialsRepository = credentialsRepository
         self.placer = placer
+        self.delayProvider = delayProvider
     }
 }
 
@@ -96,7 +99,7 @@ private extension CommonPolymarketOrderPlacementService {
         var budget = Constants.settlementBudget
 
         while budget > .zero {
-            try await Task.sleep(for: Constants.pollInterval)
+            try await delayProvider.wait(for: Constants.pollIntervalSeconds)
             try Task.checkCancellation()
 
             let readStart = ContinuousClock.now
@@ -130,7 +133,8 @@ private extension CommonPolymarketOrderPlacementService {
     }
 
     enum Constants {
-        static let pollInterval: Duration = .seconds(10)
+        static let pollIntervalSeconds: TimeInterval = 10
+        static let pollInterval: Duration = .seconds(pollIntervalSeconds)
         static let settlementBudget: Duration = .seconds(30)
         static let maxReadCost: Duration = .seconds(10)
     }

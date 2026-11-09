@@ -41,9 +41,9 @@ extension TangemPayTransactionDetailsStateView {
 
         var color: Color {
             switch self {
-            case .pending, .reversed: Colors.Text.secondary
-            case .declined: Colors.Text.warning
-            case .completed: Colors.Text.accent
+            case .pending, .reversed: DesignSystem.Color.textSecondary
+            case .declined: DesignSystem.Color.textAccentRed
+            case .completed: DesignSystem.Color.textAccentBlue
             }
         }
     }

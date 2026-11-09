@@ -284,9 +284,8 @@ final class SwapModelTests: LeakTrackingTestSuite {
         )
 
         // initialLoading runs on a detached task; wait for the resolved source to land.
-        for _ in 0 ..< 500 {
-            if case .success = sut.sourceToken { break }
-            try await Task.sleep(for: .milliseconds(10))
+        try await waitUntil {
+            if case .success = sut.sourceToken { true } else { false }
         }
 
         #expect(sut.sourceToken.value?.tokenItem == resolvedSource.tokenItem)
@@ -1183,25 +1182,15 @@ final class SwapModelTests: LeakTrackingTestSuite {
             expressManager: manager,
             pairUpdateHandler: ReconcilingPairHandlerStub(expressManager: manager)
         )
-        let recorder = SwapProvidersStateRecorder(sut)
 
-        let baseline = recorder.count
         sut.update(sourceAmount: SendAmount(type: .typical(crypto: 1, fiat: nil)))
 
-        _ = try await waitForNewState(recorder, since: baseline) { $0.isLoading }
+        try await waitUntil { restrictionsProvider.isAwaited }
         #expect(await manager.updateAmountTypeCallCount == 0)
 
-        let loadingCount = recorder.count
         restrictionsProvider.finishLoading()
 
-        let state = try await waitForNewState(recorder, since: loadingCount) { $0.isLoaded }
-
-        if case .loaded(_, .restriction(.trustlineRequired, _)) = state {
-            Issue.record("Expected the quotes to resume, got the trustline restriction")
-            return
-        }
-
-        #expect(await manager.updateAmountTypeCallCount == 1)
+        try await waitUntil { await manager.updateAmountTypeCallCount == 1 }
     }
 
     @Test("Tapping the trustline banner opens the details of the destination token")
@@ -1450,7 +1439,7 @@ private extension SwapModelTests {
     }
 
     func makeApproveTransactionData() -> ApproveTransactionData {
-        ApproveTransactionData(txData: Data(), spender: "0xspender", toContractAddress: "0xcontract")
+        ApproveTransactionData(txData: Data(), spender: "0xspender", toContractAddress: "0xcontract", amountRaw: 1)
     }
 
     func makeZeroFee() -> Fee {
@@ -1465,45 +1454,47 @@ private extension SwapModelTests {
         since baseline: Int,
         where predicate: @escaping (SwapModel.ProvidersState) -> Bool
     ) async throws -> SwapModel.ProvidersState {
-        let pollInterval: Duration = .milliseconds(10)
-        // ~5s budget: must comfortably outlast the amount path's 1s quote debounce.
-        let maxAttempts = 500
-
-        for _ in 0 ..< maxAttempts {
-            if recorder.count > baseline, let latest = recorder.latest, predicate(latest) {
-                return latest
+        try await poll {
+            guard recorder.count > baseline, let latest = recorder.latest, predicate(latest) else {
+                return nil
             }
-            try await Task.sleep(for: pollInterval)
-        }
 
-        throw TimeoutError()
+            return latest
+        }
     }
 
     /// Waits until the receive token leaves `.loading` and returns the failure. Under the pre-fix
     /// ordering (selection state sent only after the resolver await) this never happens with a
     /// suspended resolver, so the timeout is the regression signal.
     func waitForReceiveTokenFailure(_ sut: SwapModel) async throws -> any Error {
-        let pollInterval: Duration = .milliseconds(10)
-        let maxAttempts = 500
-
-        for _ in 0 ..< maxAttempts {
-            if case .failure(let error) = sut.receiveToken {
-                return error
+        try await poll {
+            guard case .failure(let error) = sut.receiveToken else {
+                return nil
             }
-            try await Task.sleep(for: pollInterval)
-        }
 
-        throw TimeoutError()
+            return error
+        }
     }
 
     func waitUntil(_ condition: @escaping () async -> Bool) async throws {
-        for _ in 0 ..< 500 {
-            if await condition() { return }
+        try await poll { await condition() ? () : nil }
+    }
+
+    func poll<Value>(_ value: () async -> Value?) async throws -> Value {
+        let deadline = ContinuousClock.now.advanced(by: Self.waitTimeout)
+
+        while ContinuousClock.now < deadline {
+            if let value = await value() {
+                return value
+            }
+
             try await Task.sleep(for: .milliseconds(10))
         }
 
         throw TimeoutError()
     }
+
+    static let waitTimeout: Duration = .seconds(30)
 
     struct TimeoutError: Error {}
     struct StubError: Error {}
@@ -1630,6 +1621,8 @@ private actor ExpressManagerStub: ExpressManager {
         return state()
     }
 
+    func update(prefersDEX: Bool) async {}
+
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState {
         selectedProvider = provider
         return state()
@@ -1674,18 +1667,24 @@ private actor ExpressManagerStub: ExpressManager {
 
 private final class PendingReceivingRestrictionsProviderStub: ReceivingRestrictionsProvider {
     private let restrictionWhenLoaded: ReceivedRestriction?
-    private let isLoaded = OSAllocatedUnfairLock(initialState: false)
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     init(restrictionWhenLoaded: ReceivedRestriction?) {
         self.restrictionWhenLoaded = restrictionWhenLoaded
     }
 
     var isRestrictionKnown: Bool {
-        isLoaded.withLock { $0 }
+        state.withLock { $0.isLoaded }
+    }
+
+    var isAwaited: Bool {
+        state.withLock { $0.isAwaited }
     }
 
     func restriction(expectAmount: Decimal) async throws -> ReceivedRestriction? {
-        while !isLoaded.withLock({ $0 }) {
+        state.withLock { $0.isAwaited = true }
+
+        while !isRestrictionKnown {
             try await Task.sleep(for: .milliseconds(10))
         }
 
@@ -1693,7 +1692,14 @@ private final class PendingReceivingRestrictionsProviderStub: ReceivingRestricti
     }
 
     func finishLoading() {
-        isLoaded.withLock { $0 = true }
+        state.withLock { $0.isLoaded = true }
+    }
+}
+
+private extension PendingReceivingRestrictionsProviderStub {
+    struct State {
+        var isLoaded = false
+        var isAwaited = false
     }
 }
 

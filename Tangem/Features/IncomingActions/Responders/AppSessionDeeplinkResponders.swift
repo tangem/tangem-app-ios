@@ -20,6 +20,8 @@ final class AppSessionDeeplinkResponders {
     private let overlayResponder = OverlayDeeplinkResponder()
     private let campaignResponder = CampaignDeeplinkResponder()
     private let tangemPayTransactionResponder = TangemPayTransactionDeeplinkResponder()
+    private let mcpAuthorizationResponder = MCPAuthorizationDeeplinkResponder()
+    private let mcpIntentResponder = MCPIntentDeeplinkResponder()
     private let surveyResponder = SurveyDeeplinkResponder()
 
     private var bag: Set<AnyCancellable> = []
@@ -36,6 +38,8 @@ final class AppSessionDeeplinkResponders {
             overlayResponder,
             campaignResponder,
             tangemPayTransactionResponder,
+            mcpAuthorizationResponder,
+            mcpIntentResponder,
             surveyResponder,
             wcService,
         ]

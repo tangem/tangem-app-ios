@@ -29,6 +29,17 @@ enum PolymarketPriceFormatter {
         return "\(cents(probability, isResolved: isResolved))\(Constants.centsSuffix)"
     }
 
+    static func wholeCentsText(_ probability: Decimal?) -> String {
+        guard let probability else {
+            return BalanceFormatter.defaultEmptyBalanceString
+        }
+
+        let cents = (probability * Constants.centsPerUnit).rounded(roundingMode: .plain)
+        let displayedCents = min(max(cents, Constants.minUnresolvedWholeCents), Constants.maxUnresolvedWholeCents)
+
+        return "\(balanceFormatter.formatDecimal(displayedCents, formattingOptions: .predictionCents))\(Constants.centsSuffix)"
+    }
+
     private static func displayed(_ cents: Decimal, isResolved: Bool) -> Decimal {
         guard !isResolved else { return cents }
 
@@ -58,6 +69,8 @@ private extension PolymarketPriceFormatter {
         static let centsSuffix = "¢"
         static let minUnresolvedCents: Decimal = 0.1
         static let maxUnresolvedCents: Decimal = 99.9
+        static let minUnresolvedWholeCents: Decimal = 1
+        static let maxUnresolvedWholeCents: Decimal = 99
     }
 }
 

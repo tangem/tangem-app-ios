@@ -12,12 +12,13 @@ import TangemFoundation
 import TangemBackendAuthentication
 import TangemSocialAuthentication
 import TangemMobileWalletBackup
+import TangemUIUtils
 import class Alamofire.Interceptor
 
 enum MobileSocialLoginProviderFactory {
     static func makeAppleSignInProvider() -> AppleSignInProvider {
         AppleSignInProvider(presentationAnchorProvider: {
-            UIApplication.keyWindow ?? ASPresentationAnchor()
+            UIApplication.mainWindow ?? ASPresentationAnchor()
         })
     }
 

@@ -68,6 +68,7 @@ final class SendCoordinator: CoordinatorObject {
     @Published var onrampCountrySelectorViewModel: OnrampCountrySelectorViewModel?
     @Published var onrampCurrencySelectorViewModel: OnrampCurrencySelectorViewModel?
     @Published var onrampRedirectingViewModel: OnrampRedirectingViewModel?
+    @Published var demandSurveySheet: DemandSurveySheet?
 
     let supportChatPresenter = SupportChatPresenter()
 
@@ -106,6 +107,22 @@ final class SendCoordinator: CoordinatorObject {
     func onReceiveTokensListDismissed() {
         receiveTokensListDismissHandler?()
         receiveTokensListDismissHandler = nil
+    }
+}
+
+// MARK: - Demand survey
+
+extension SendCoordinator {
+    enum DemandSurveySheet: Identifiable {
+        case form(DemandSurveyViewModel)
+        case success
+
+        var id: String {
+            switch self {
+            case .form: "form"
+            case .success: "success"
+            }
+        }
     }
 }
 
@@ -469,6 +486,30 @@ extension SendCoordinator: OnrampRoutable {
                 )
             )
         }
+    }
+}
+
+// MARK: - OnrampMarketingBannerRoutable
+
+extension SendCoordinator: OnrampMarketingBannerRoutable {
+    func openDemandSurvey(userWalletId: UserWalletId) {
+        Task { @MainActor in
+            UIApplication.shared.endEditing()
+            demandSurveySheet = .form(DemandSurveyViewModel(userWalletId: userWalletId, routable: self))
+        }
+    }
+
+    func closeDemandSurvey() {
+        demandSurveySheet = nil
+    }
+}
+
+// MARK: - DemandSurveyRoutable
+
+extension SendCoordinator: DemandSurveyRoutable {
+    @MainActor
+    func demandSurveyDidSubmit() {
+        demandSurveySheet = .success
     }
 }
 

@@ -28,7 +28,7 @@ struct OnrampCountryDetectionView: View {
             buttons
         }
         .padding([.horizontal, .top], 16)
-        .background(Colors.Background.tertiary)
+        .background(DesignSystem.Color.bgPrimary)
         .presentationDetents(idealHeight: Constants.idealContentHeight)
         .presentationDragIndicator(.visible)
         .onAppear(perform: viewModel.onAppear)
@@ -40,14 +40,14 @@ struct OnrampCountryDetectionView: View {
 
             VStack(spacing: 6) {
                 Text(viewModel.title)
-                    .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
 
                 switch viewModel.style {
                 case .info:
                     EmptyView()
                 case .notSupport:
                     Text(Localization.onrampResidencyBottomsheetCountryNotSupported)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.warning)
+                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textAccentRed)
                 }
             }
         }

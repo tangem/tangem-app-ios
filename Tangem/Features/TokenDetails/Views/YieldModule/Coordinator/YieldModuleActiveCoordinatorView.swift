@@ -14,12 +14,8 @@ struct YieldModuleActiveCoordinatorView: View {
     var body: some View {
         ZStack {
             if let viewModel = coordinator.rootViewModel {
-                if coordinator.usesIncentiveDesign {
-                    YieldModuleActiveContentV2View(viewModel: viewModel)
-                        .interactiveDismissDisabled()
-                } else {
-                    YieldModuleActiveContentView(viewModel: viewModel)
-                }
+                YieldModuleActiveContentV2View(viewModel: viewModel)
+                    .interactiveDismissDisabled()
             }
         }
         .background {

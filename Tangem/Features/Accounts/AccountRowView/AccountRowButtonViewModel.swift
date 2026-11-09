@@ -122,19 +122,12 @@ private extension AccountRowButtonViewModel {
     struct BindingResolver: AccountModelResolving {
         let viewModel: AccountRowButtonViewModel
 
-        func resolve(accountModel: any CryptoAccountModel) {
-            Publishers.CombineLatest(
-                accountModel.userTokensManager.userTokensPublisher
-                    .map { Localization.commonTokensCount($0.count) },
-                accountModel.fiatTotalBalanceProvider.totalFiatBalancePublisher
-            )
-            .receiveOnMain()
-            .withWeakCaptureOf(viewModel)
-            .sink { vm, tuple in
-                let (description, balanceState) = tuple
-                vm.updateSubtitleState(description: description, balanceState: balanceState)
-            }
-            .store(in: &viewModel.bag)
+        func resolve(accountModel: any StandardCryptoAccountModel) {
+            bindTokensCountAndBalance(of: accountModel)
+        }
+
+        func resolve(accountModel: any JointAccountModel) {
+            bindTokensCountAndBalance(of: accountModel)
         }
 
         /// TangemPay accounts don't have token count or fiat balance data for subtitle
@@ -173,6 +166,33 @@ private extension AccountRowButtonViewModel {
                     vm.trailingBalanceState = balanceState
                 }
                 .store(in: &viewModel.bag)
+
+            accountModel
+                .isSyncRequiredPublisher
+                .receiveOnMain()
+                .withWeakCaptureOf(viewModel)
+                .sink { vm, isSyncRequired in
+                    vm.updateSubtitleState(
+                        description: isSyncRequired ? Localization.collectiblesAccountReconnectSubtitle : "",
+                        balanceState: .empty
+                    )
+                }
+                .store(in: &viewModel.bag)
+        }
+
+        private func bindTokensCountAndBalance(of accountModel: some CryptoAccountModel) {
+            Publishers.CombineLatest(
+                accountModel.userTokensManager.userTokensPublisher
+                    .map { Localization.commonTokensCount($0.count) },
+                accountModel.fiatTotalBalanceProvider.totalFiatBalancePublisher
+            )
+            .receiveOnMain()
+            .withWeakCaptureOf(viewModel)
+            .sink { vm, tuple in
+                let (description, balanceState) = tuple
+                vm.updateSubtitleState(description: description, balanceState: balanceState)
+            }
+            .store(in: &viewModel.bag)
         }
 
         private static func polymarketBalanceState(

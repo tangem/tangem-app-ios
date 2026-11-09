@@ -12,6 +12,7 @@ enum PolymarketWebSocketMachine {
     enum State: Sendable {
         case idle
         case connecting(attempt: Int)
+        case awaitingFirstMessage(attempt: Int)
         case connected
         case waitingToReconnect(attempt: Int)
         case stopped(PolymarketWebSocketDisconnection)
@@ -21,6 +22,7 @@ enum PolymarketWebSocketMachine {
         case connectRequested
         case disconnectRequested
         case opened
+        case messageReceived
         case openFailed(PolymarketWebSocketDisconnection)
         case closed(PolymarketWebSocketDisconnection)
         case retryTimerFired
@@ -55,12 +57,19 @@ enum PolymarketWebSocketMachine {
             state = .connecting(attempt: attempt + 1)
             return [.openConnection]
 
-        case (.connecting, .opened):
-            state = .connected
+        case (.connecting(let attempt), .opened):
+            state = .awaitingFirstMessage(attempt: attempt)
             return [.startKeepalive]
+
+        case (.awaitingFirstMessage, .messageReceived):
+            state = .connected
+            return []
 
         case (.connecting(let attempt), .openFailed(let disconnection)):
             return retryOrStop(&state, attempt: attempt, after: disconnection, random: random)
+
+        case (.awaitingFirstMessage(let attempt), .closed(let disconnection)):
+            return [.closeConnection(.goingAway), .stopKeepalive] + retryOrStop(&state, attempt: attempt, after: disconnection, random: random)
 
         case (.connected, .closed(let disconnection)):
             return [.closeConnection(.goingAway), .stopKeepalive] + retryOrStop(&state, attempt: 1, after: disconnection, random: random)
@@ -69,7 +78,7 @@ enum PolymarketWebSocketMachine {
             state = .idle
             return [.closeConnection(.normalClosure)]
 
-        case (.connected, .disconnectRequested):
+        case (.awaitingFirstMessage, .disconnectRequested), (.connected, .disconnectRequested):
             state = .idle
             return [.closeConnection(.normalClosure), .stopKeepalive]
 
@@ -96,7 +105,7 @@ extension PolymarketWebSocketMachine.State {
             .idle
         case .connecting:
             .connecting
-        case .connected:
+        case .awaitingFirstMessage, .connected:
             .connected
         case .waitingToReconnect:
             .waitingToReconnect

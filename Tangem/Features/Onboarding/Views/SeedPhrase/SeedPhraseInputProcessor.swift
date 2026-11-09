@@ -13,8 +13,8 @@ import TangemAssets
 import TangemSdk
 
 class SeedPhraseInputProcessor {
-    let defaultTextColor: UIColor = .init(Colors.Text.primary1)
-    let invalidTextColor: UIColor = .init(Colors.Text.warning)
+    let defaultTextColor: UIColor = .init(DesignSystem.Color.textPrimary)
+    let invalidTextColor: UIColor = .init(DesignSystem.Color.textAccentRed)
     let defaultTextFont: UIFont = UIFonts.Regular.body
 
     @Published private(set) var validatedSeedPhrase: String?

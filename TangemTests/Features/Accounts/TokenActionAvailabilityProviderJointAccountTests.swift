@@ -117,7 +117,7 @@ struct TokenActionAvailabilityProviderJointAccountTests {
             }
 
             #expect(!sut.swapReceiveAvailability().isAvailable)
-            #expect(!sut.swapReceiveAvailability(ignoreExpressState: true).isAvailable)
+            #expect(!SwapReceiveIgnoringExpressEligibility.canBecomeReceive(for: sut.swapReceiveAvailability()))
         }
     }
 
@@ -137,7 +137,7 @@ struct TokenActionAvailabilityProviderJointAccountTests {
             }
 
             #expect(!sut.swapReceiveAvailability().isAvailable)
-            #expect(!sut.swapReceiveAvailability(ignoreExpressState: true).isAvailable)
+            #expect(!SwapReceiveIgnoringExpressEligibility.canBecomeReceive(for: sut.swapReceiveAvailability()))
         }
     }
 
@@ -152,7 +152,7 @@ struct TokenActionAvailabilityProviderJointAccountTests {
             }
 
             #expect(!sut.swapReceiveAvailability().isAvailable)
-            #expect(sut.swapReceiveAvailability(ignoreExpressState: true).isAvailable)
+            #expect(SwapReceiveIgnoringExpressEligibility.canBecomeReceive(for: sut.swapReceiveAvailability()))
         }
     }
 
@@ -167,7 +167,7 @@ struct TokenActionAvailabilityProviderJointAccountTests {
             }
 
             #expect(!sut.swapReceiveAvailability().isAvailable)
-            #expect(sut.swapReceiveAvailability(ignoreExpressState: true).isAvailable)
+            #expect(SwapReceiveIgnoringExpressEligibility.canBecomeReceive(for: sut.swapReceiveAvailability()))
         }
     }
 
@@ -181,7 +181,7 @@ struct TokenActionAvailabilityProviderJointAccountTests {
                 return
             }
 
-            #expect(sut.swapSourceAvailability(ignoreExpressState: true).isAvailable)
+            #expect(SwapSourceIgnoringExpressEligibility.canBecomeSource(for: sut.swapSourceAvailability()))
         }
     }
 

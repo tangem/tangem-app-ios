@@ -33,7 +33,7 @@ struct SwapSummaryView: View {
 
     var body: some View {
         ZStack {
-            Colors.Background.tertiary.ignoresSafeArea(.all)
+            DesignSystem.Color.bgPrimary.ignoresSafeArea(.all)
 
             GroupedScrollView(contentType: .lazy()) {
                 VStack(spacing: 14) {
@@ -196,10 +196,10 @@ struct SwapSummaryView: View {
                     viewModel.userDidTapAmountFraction(fraction)
                 } label: {
                     Text(fraction.title)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 36)
-                        .background(Capsule().fill(Colors.Button.secondary))
+                        .background(Capsule().fill(DesignSystem.Color.bgTransparentSecondary))
                 }
                 .accessibilityIdentifier(SwapAccessibilityIdentifiers.amountFraction(fraction.accessibilityIdentifierToken))
             }
@@ -212,7 +212,7 @@ struct SwapSummaryView: View {
             SwiftUI.Button(action: { keyboardActive = false }) {
                 keyboardSFSymbol
                     .frame(width: 36, height: 36)
-                    .background(Circle().fill(Colors.Button.secondary))
+                    .background(Circle().fill(DesignSystem.Color.bgTransparentSecondary))
             }
             .accessibilityIdentifier(SwapAccessibilityIdentifiers.keyboardDismissButton)
         }
@@ -228,7 +228,7 @@ struct SwapSummaryView: View {
                     viewModel.userDidTapAmountFraction(fraction)
                 } label: {
                     Text(fraction.title)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 36)
                 }
@@ -256,6 +256,6 @@ struct SwapSummaryView: View {
 
     private var keyboardSFSymbol: some View {
         Image(systemName: "keyboard.chevron.compact.down")
-            .style(Fonts.Bold.callout, color: Colors.Icon.primary1)
+            .style(Fonts.Bold.callout, color: DesignSystem.Color.iconPrimary)
     }
 }

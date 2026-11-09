@@ -129,15 +129,15 @@ struct AddressBookAddAddressView: View {
     }
 
     private var bottomButton: some View {
-        TangemButton(
-            content: .text(AttributedString(Localization.addressBookSaveAddress)),
+        TangemUI.Button(
+            label: Localization.addressBookSaveAddress,
+            accessibilityLabel: nil,
             action: viewModel.userDidRequestSaveAddress
         )
-        .setCornerStyle(.rounded)
-        .setHorizontalLayout(.infinity)
-        .setSize(.x12)
-        .setStyleType(.primary)
-        .setButtonState(isLoading: false, isDisabled: !viewModel.isAddAddressEnabled)
+        .horizontalLayout(.infinity)
+        .size(.x12)
+        .styleType(.primary)
+        .disabled(!viewModel.isAddAddressEnabled)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
     }

@@ -27,9 +27,9 @@ final class MobileUnlockViewModel: ObservableObject {
 
     var pinColor: Color {
         guard let isSuccessful, accessCode.count == accessCodeLength else {
-            return Colors.Text.primary1
+            return DesignSystem.Color.textPrimary
         }
-        return isSuccessful ? Colors.Text.accent : Colors.Text.warning
+        return isSuccessful ? DesignSystem.Color.textAccentBlue : DesignSystem.Color.textAccentRed
     }
 
     var actionPublisher: AnyPublisher<Action, Never> {

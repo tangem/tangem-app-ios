@@ -13,6 +13,47 @@ import TangemPolymarket
 
 @Suite("Polymarket event details mapping")
 struct PolymarketEventDetailsContentTests {
+    @Test("A 24h change of a thousand percent and more is abbreviated like the total volume")
+    func hugeVolumeChangeIsAbbreviated() throws {
+        let content = PolymarketEventDetailsContent.make(
+            event: Self.makeEvent(markets: [], volume: 1_000_040, volume24h: 1_000_000),
+            category: nil,
+            abbreviatesHugeVolumeChange: true,
+            onSelectOutcome: { _, _ in }
+        )
+
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.locale = .current
+        numberFormatter.maximumFractionDigits = 2
+        let millions = try #require(numberFormatter.string(from: NSDecimalNumber(string: "2.5")))
+
+        #expect(content.volumeChange.text == millions + "M" + PercentFormatter.Suffix.default.value)
+    }
+
+    @Test("Without phase two a huge 24h change keeps the regular percent format")
+    func hugeVolumeChangeStaysRegularWithoutPhaseTwo() {
+        let content = PolymarketEventDetailsContent.make(
+            event: Self.makeEvent(markets: [], volume: 1_000_000, volume24h: 999_990),
+            category: nil,
+            onSelectOutcome: { _, _ in }
+        )
+
+        #expect(content.volumeChange.text == PercentFormatter().format(99999, option: .priceChange))
+    }
+
+    @Test("A 24h change below a thousand percent keeps the regular percent format")
+    func regularVolumeChangeIsNotAbbreviated() {
+        let content = PolymarketEventDetailsContent.make(
+            event: Self.makeEvent(markets: [], volume: 300, volume24h: 100),
+            category: nil,
+            abbreviatesHugeVolumeChange: true,
+            onSelectOutcome: { _, _ in }
+        )
+
+        #expect(content.volumeChange.text == PercentFormatter().format(0.5, option: .priceChange))
+    }
+
     @Test("Markets follow the order the backend gave them")
     func explicitOrderIsFollowed() {
         let content = Self.makeContent(markets: [
@@ -55,8 +96,33 @@ struct PolymarketEventDetailsContentTests {
         ])
 
         #expect(content.activeMarkets.map(\.id) == ["open"])
-        #expect(content.closedMarkets.map(\.id) == ["closed", "archived"])
+        #expect(content.closedMarkets.map(\.id) == ["closed"])
         #expect(content.closedMarkets.allSatisfy { $0.outcomes.isNotEmpty })
+        #expect(content.closedMarkets.allSatisfy { $0.outcomes.allSatisfy { !$0.isEnabled } })
+        #expect(content.showsClosedMarketsToggle)
+    }
+
+    @Test("An event whose only finished markets are archived shows no closed section")
+    func onlyArchivedFinishedMarketsHideClosedSection() {
+        let content = Self.makeContent(markets: [
+            Self.makeMarket(id: "open", status: .active),
+            Self.makeMarket(id: "archived", status: .archived),
+        ])
+
+        #expect(content.activeMarkets.map(\.id) == ["open"])
+        #expect(content.closedMarkets.isEmpty)
+        #expect(!content.showsClosedMarketsToggle)
+    }
+
+    @Test("An event left with archived markets only shows them as closed instead of an empty list")
+    func onlyArchivedMarketsAreShownAsClosed() {
+        let content = Self.makeContent(markets: [
+            Self.makeMarket(id: "first", status: .archived),
+            Self.makeMarket(id: "second", status: .archived),
+        ])
+
+        #expect(content.activeMarkets.isEmpty)
+        #expect(content.closedMarkets.map(\.id) == ["first", "second"])
         #expect(content.closedMarkets.allSatisfy { $0.outcomes.allSatisfy { !$0.isEnabled } })
     }
 
@@ -71,6 +137,37 @@ struct PolymarketEventDetailsContentTests {
         #expect(content.activeMarkets.first { $0.id == "taking" }?.outcomes.allSatisfy(\.isEnabled) == true)
         #expect(content.activeMarkets.first { $0.id == "paused" }?.outcomes.contains { $0.isEnabled } == false)
         #expect(content.activeMarkets.first { $0.id == "paused" }?.outcomes.isNotEmpty == true)
+    }
+
+    @Test("Outcomes of a closed market show a dash instead of the price")
+    func closedMarketOutcomesShowDash() {
+        let content = Self.makeContent(markets: [
+            Self.makeMarket(id: "open", status: .active),
+            Self.makeMarket(id: "closed", status: .closed),
+        ])
+
+        let closedPrices = content.closedMarkets.flatMap(\.outcomes).map(\.priceText)
+        let openPrices = content.activeMarkets.flatMap(\.outcomes).map(\.priceText)
+
+        #expect(closedPrices.count == 2)
+        #expect(closedPrices.allSatisfy { $0 == BalanceFormatter.defaultEmptyBalanceString })
+        #expect(openPrices.count == 2)
+        #expect(!openPrices.contains(BalanceFormatter.defaultEmptyBalanceString))
+    }
+
+    @Test("Outcomes of a market that stopped taking orders show a dash instead of the price")
+    func pausedMarketOutcomesShowDash() {
+        let content = Self.makeContent(markets: [
+            Self.makeMarket(id: "taking", isAcceptingOrders: true),
+            Self.makeMarket(id: "paused", isAcceptingOrders: false),
+        ])
+
+        let takingPrices = content.activeMarkets.first { $0.id == "taking" }?.outcomes.map(\.priceText) ?? []
+        let pausedPrices = content.activeMarkets.first { $0.id == "paused" }?.outcomes.map(\.priceText)
+
+        #expect(takingPrices.count == 2)
+        #expect(!takingPrices.contains(BalanceFormatter.defaultEmptyBalanceString))
+        #expect(pausedPrices == [BalanceFormatter.defaultEmptyBalanceString, BalanceFormatter.defaultEmptyBalanceString])
     }
 }
 
@@ -110,7 +207,7 @@ private extension PolymarketEventDetailsContentTests {
         )
     }
 
-    static func makeEvent(markets: [PolymarketMarket]) -> PolymarketEvent {
+    static func makeEvent(markets: [PolymarketMarket], volume: Decimal? = nil, volume24h: Decimal? = nil) -> PolymarketEvent {
         PolymarketEvent(
             id: "event",
             slug: "event",
@@ -123,8 +220,8 @@ private extension PolymarketEventDetailsContentTests {
             isLive: false,
             startDate: nil,
             endDate: nil,
-            volume: nil,
-            volume24h: nil,
+            volume: volume,
+            volume24h: volume24h,
             liquidity: nil,
             totalMarketsCount: markets.count,
             isNegRisk: false,

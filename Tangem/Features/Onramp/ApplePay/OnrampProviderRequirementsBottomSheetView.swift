@@ -29,11 +29,11 @@ struct OnrampProviderRequirementsBottomSheetView: View {
     private var content: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(Localization.onrampProviderRequirementsTitle)
-                .style(Fonts.BoldStatic.title3, color: Colors.Text.primary1)
+                .style(Fonts.BoldStatic.title3, color: DesignSystem.Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .center)
 
             Text(Localization.onrampProviderRequirementsBody)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.top, 50)

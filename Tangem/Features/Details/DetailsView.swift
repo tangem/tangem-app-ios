@@ -37,7 +37,7 @@ struct DetailsView: View {
             socialNetworks
         }
         .interContentPadding(8)
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
         .alert(item: $viewModel.alert) { $0.alert }
         .navigationTitle(Localization.detailsTitle)
         .navigationBarTitleDisplayMode(.inline)
@@ -107,7 +107,7 @@ struct DetailsView: View {
 
             if let applicationInfoFooter = viewModel.applicationInfoFooter {
                 Text(applicationInfoFooter)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .padding(.top, 8)
                     .accessibilityIdentifier(DetailsAccessibilityIdentifiers.appVersion)
             }

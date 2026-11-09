@@ -21,7 +21,7 @@ struct PriceAlertsScreenView: View {
             watchlistSection
         }
         .interContentPadding(8)
-        .background(Colors.Background.secondary.ignoresSafeArea())
+        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .navigationTitle(Localization.pushNotificationSettingsPriceAlertsTitle)
         .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
@@ -74,14 +74,14 @@ struct PriceAlertsScreenView: View {
         VStack(alignment: .leading, spacing: .zero) {
             // [REDACTED_TODO_COMMENT]
             Text("My watchlist")
-                .style(DesignSystem.Font.captionMediumToken, color: Colors.Text.tertiary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
                 .padding(.bottom, 4)
 
             content()
         }
-        .background(Colors.Background.primary)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadiusContinuous(14)
     }
 
@@ -107,10 +107,10 @@ struct PriceAlertsScreenView: View {
         VStack(spacing: 8) {
             // [REDACTED_TODO_COMMENT]
             Text("Your watchlist is empty")
-                .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
 
             Text("Add coins to track price moves and get notified when something changes.")
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -120,7 +120,7 @@ struct PriceAlertsScreenView: View {
 
     private var errorStateView: some View {
         Text(Localization.commonSomethingWentWrong)
-            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
             .padding(.top, Constants.stateTopPadding)

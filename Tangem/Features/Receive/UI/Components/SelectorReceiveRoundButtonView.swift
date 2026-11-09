@@ -25,16 +25,16 @@ struct SelectorReceiveRoundButtonView: View {
                 .renderingMode(.template)
                 .resizable()
                 .frame(size: .init(bothDimensions: Layout.iconSize))
-                .foregroundStyle(Colors.Icon.primary1)
+                .foregroundStyle(DesignSystem.Color.iconPrimary)
 
             Text(actionType.title)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
         }
         .padding(.horizontal, Layout.horizontalPadding)
         .padding(.vertical, Layout.verticalPadding)
         .background(
             RoundedRectangle(cornerRadius: Layout.cornerRadius)
-                .fill(Colors.Button.secondary)
+                .fill(DesignSystem.Color.bgTransparentSecondary)
         )
     }
 }

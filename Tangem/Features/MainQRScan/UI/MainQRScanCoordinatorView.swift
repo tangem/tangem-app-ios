@@ -28,6 +28,7 @@ struct MainQRScanCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.imagePickerModel) {
                 PhotoSelectorView(viewModel: $0)
                     .edgesIgnoringSafeArea(.all)
+                    .softTopScrollEdgeEffect()
             }
     }
 }

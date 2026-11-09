@@ -23,6 +23,11 @@ struct OnrampSummaryView: View {
 
             marketingBanner
 
+            CallToActionMarketingBannersView(banners: viewModel.callToActionMarketingBanners) { action in
+                keyboardActive = false
+                viewModel.userDidTapCallToActionBanner(action: action)
+            }
+
             middleContainer
 
             ForEach(viewModel.notificationInputs) { input in
@@ -70,7 +75,7 @@ struct OnrampSummaryView: View {
             ProgressView()
 
             Text(Localization.expressFetchBestRates)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
         }
         .padding(.top, 12)
     }
@@ -98,7 +103,7 @@ struct OnrampSummaryView: View {
 
                         if let footnote = item.footnote {
                             Text(footnote)
-                                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                                 .padding(.horizontal, 14)
                         }
                     }
@@ -121,7 +126,7 @@ struct OnrampSummaryView: View {
             HideKeyboardButton(focused: $keyboardActive)
                 .padding(.vertical, 5)
                 .padding(.horizontal, 12)
-                .background(Colors.Button.secondary)
+                .background(DesignSystem.Color.bgTransparentSecondary)
                 .clipShape(Capsule())
         }
         .padding(.horizontal, 12)
@@ -142,9 +147,9 @@ struct OnrampSummaryView: View {
                     SwiftUI.Button(action: { viewModel.usedDidTapPreset(preset: preset) }) {
                         Text(.init(preset.formatted))
                             .padding(.vertical, 6)
-                            .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                            .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
                             .infinityFrame(axis: .horizontal)
-                            .background(Colors.Button.secondary)
+                            .background(DesignSystem.Color.bgTransparentSecondary)
                             .clipShape(Capsule())
                     }
                 }

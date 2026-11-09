@@ -532,6 +532,74 @@ struct TransactionHistoryExpressDataMergerTests {
         #expect(synthetic.onrampInfo != nil)
     }
 
+    @Test(
+        "Exchange: an unsuccessful deal whose pay-out never landed yields no synthetic record on the receiving token",
+        arguments: [ExpressTransactionStatus.refunded, .txFailed, .paused, .unknown]
+    )
+    func exchangeUnsuccessfulPayOutWithoutMatchIsHidden(status: ExpressTransactionStatus) {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+        let exchange = unmatchedExchange(
+            status: status,
+            fromCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token)
+        )
+
+        let output = merger.merge(bsdkTransactions: [], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        #expect(output.isEmpty)
+    }
+
+    @Test(
+        "Exchange: an unsuccessful deal still yields a synthetic record on the sending token",
+        arguments: [ExpressTransactionStatus.refunded, .txFailed, .paused, .unknown]
+    )
+    func exchangeUnsuccessfulPayInWithoutMatchYieldsSynthetic(status: ExpressTransactionStatus) throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+        let exchange = unmatchedExchange(
+            status: status,
+            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            toCurrency: ExpressMergeTestDataFactory.unrelatedCurrency
+        )
+
+        let output = merger.merge(bsdkTransactions: [], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        #expect(output.count == 1)
+        #expect(try #require(output.first).hash == ExpressSyntheticTxHelper(txId: "exchange-tx").makeSyntheticTxIdentifier())
+    }
+
+    @Test(
+        "Exchange: a finished, failed or active deal yields a synthetic record on the receiving token",
+        arguments: [ExpressTransactionStatus.finished, .failed, .waiting]
+    )
+    func exchangeFinishedFailedOrActivePayOutWithoutMatchYieldsSynthetic(status: ExpressTransactionStatus) throws {
+        let token = ExpressMergeTestDataFactory.ethereumToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            ownerAddress: ExpressMergeTestDataFactory.ownerAddress,
+            feeTokenItem: token
+        )
+        let exchange = unmatchedExchange(
+            status: status,
+            fromCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token)
+        )
+
+        let output = merger.merge(bsdkTransactions: [], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        #expect(output.count == 1)
+        #expect(try #require(output.first).hash == ExpressSyntheticTxHelper(txId: "exchange-tx").makeSyntheticTxIdentifier())
+    }
+
     // MARK: - Send heuristic (Exchange)
 
     @Test("Send heuristic: matches an outgoing transfer to the pay-in address, ignoring change outputs")
@@ -2740,6 +2808,31 @@ struct TransactionHistoryExpressDataMergerTests {
     }
 
     // MARK: - Helpers
+
+    private func unmatchedExchange(
+        status: ExpressTransactionStatus,
+        fromCurrency: ExpressCurrency,
+        toCurrency: ExpressCurrency
+    ) -> ExchangeTransaction {
+        ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: status,
+            fromAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payInAddress: "0xPayIn",
+            payInHash: nil,
+            payOutAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payOutHash: nil,
+            fromCurrency: fromCurrency,
+            fromAmount: 2,
+            fromActualAmount: nil,
+            toCurrency: toCurrency,
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+    }
 
     private func record(in output: [TransactionRecord], hash: String) -> TransactionRecord? {
         output.first { $0.hash == hash }

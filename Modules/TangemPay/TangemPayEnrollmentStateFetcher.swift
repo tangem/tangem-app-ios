@@ -10,23 +10,27 @@ public struct TangemPayEnrollmentStateFetcher {
     public let customerWalletId: String
     public let availabilityService: TangemPayAvailabilityService
     public let customerService: CustomerInfoManagementService
+    public let isCustomerSummaryEnabled: Bool
 
     public init(
         customerWalletId: String,
         availabilityService: TangemPayAvailabilityService,
-        customerService: CustomerInfoManagementService
+        customerService: CustomerInfoManagementService,
+        isCustomerSummaryEnabled: Bool
     ) {
         self.customerWalletId = customerWalletId
         self.availabilityService = availabilityService
         self.customerService = customerService
+        self.isCustomerSummaryEnabled = isCustomerSummaryEnabled
     }
 
     public func getEnrollmentState() async throws(TangemPayAPIServiceError) -> (state: TangemPayEnrollmentState, customerId: String) {
         let customerInfo = try await customerService.loadCustomerInfo()
+        let summary = isCustomerSummaryEnabled ? try await customerService.loadCustomerSummary() : nil
         let customerId = customerInfo.id
 
         if customerInfo.state == .former {
-            return (.cardDeactivated(customerInfo: customerInfo), customerId)
+            return (.cardDeactivated(customerInfo: customerInfo, summary: summary), customerId)
         }
 
         switch customerInfo.kyc?.status {
@@ -43,16 +47,16 @@ public struct TangemPayEnrollmentStateFetcher {
         let cardInstances = customerInfo.cardProductInstances
 
         if cardInstances.contains(where: { $0.status == .active || $0.status == .blocked }) {
-            return (.enrolled(customerInfo: customerInfo), customerId)
+            return (.enrolled(customerInfo: customerInfo, summary: summary), customerId)
         }
 
         if !cardInstances.isEmpty,
            cardInstances.allSatisfy({ $0.status == .deactivated || $0.status == .canceled }) {
-            return (.cardDeactivated(customerInfo: customerInfo), customerId)
+            return (.cardDeactivated(customerInfo: customerInfo, summary: summary), customerId)
         }
 
         if customerInfo.paymentAccount != nil {
-            return (.enrolled(customerInfo: customerInfo), customerId)
+            return (.enrolled(customerInfo: customerInfo, summary: summary), customerId)
         }
 
         // A campaign card is ordered before KYC, so that order — not a plan transition — is what stands in
@@ -65,7 +69,7 @@ public struct TangemPayEnrollmentStateFetcher {
         )
 
         if !activeOrders.isEmpty {
-            return (.enrolled(customerInfo: customerInfo), customerId)
+            return (.enrolled(customerInfo: customerInfo, summary: summary), customerId)
         }
 
         return (.planSelectNeeded, customerId)

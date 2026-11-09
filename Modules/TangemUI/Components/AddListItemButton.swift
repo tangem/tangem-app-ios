@@ -43,10 +43,10 @@ public struct AddListItemButton: View {
 
     private var textAndIconColor: Color {
         if viewData.isEnabled {
-            return Colors.Text.accent
+            return DesignSystem.Color.textAccentBlue
         }
 
-        return Colors.Text.disabled
+        return DesignSystem.Color.textTertiary
     }
 }
 

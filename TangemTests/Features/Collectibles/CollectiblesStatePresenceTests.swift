@@ -18,24 +18,24 @@ struct CollectiblesStatePresenceTests {
     // MARK: - Answering
 
     @Test(
-        "A confirmed vault answers yes, whatever the mark says",
+        "A confirmed vault answers yes, whatever the record says",
         arguments: [SUT.ready(.stub), .rekeyRequired(.stub)], [true, false]
     )
-    func confirmedVaultAnswersYes(state: SUT, isMarkedLocally: Bool) {
-        #expect(state.hasAccount(markedLocally: isMarkedLocally))
+    func confirmedVaultAnswersYes(state: SUT, isRecorded: Bool) {
+        #expect(state.hasAccount(isRecorded: isRecorded))
+    }
+
+    @Test("A missing vault answers no even when recorded", arguments: [true, false])
+    func missingVaultAnswersNo(isRecorded: Bool) {
+        #expect(!SUT.notOnboarded.hasAccount(isRecorded: isRecorded))
     }
 
     @Test(
-        "A vault that is missing, and one with no address to read at, answer no even when marked",
-        arguments: [SUT.notOnboarded, .coldOwnerNotDerived], [true, false]
+        "A state that read nothing, and one with no address to read at, answer from the record",
+        arguments: [SUT.unresolved, .coldOwnerNotDerived], [true, false]
     )
-    func unusableVaultAnswersNo(state: SUT, isMarkedLocally: Bool) {
-        #expect(!state.hasAccount(markedLocally: isMarkedLocally))
-    }
-
-    @Test("A state that read nothing answers from the mark", arguments: [true, false])
-    func nothingReadAnswersFromTheMark(isMarkedLocally: Bool) {
-        #expect(SUT.unresolved.hasAccount(markedLocally: isMarkedLocally) == isMarkedLocally)
+    func unreadVaultAnswersFromTheRecord(state: SUT, isRecorded: Bool) {
+        #expect(state.hasAccount(isRecorded: isRecorded) == isRecorded)
     }
 
     // MARK: - Recording

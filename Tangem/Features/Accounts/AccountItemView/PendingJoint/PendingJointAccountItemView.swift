@@ -18,7 +18,7 @@ struct PendingJointAccountItemView: View {
     @ObservedObject var viewModel: PendingJointAccountItemViewModel
 
     private var cornerRadius: CGFloat = 14
-    private var backgroundColor: Color = Colors.Background.primary
+    private var backgroundColor: Color = DesignSystem.Color.bgSecondary
 
     init(viewModel: PendingJointAccountItemViewModel) {
         self.viewModel = viewModel
@@ -189,7 +189,7 @@ private func previewJointAccount(
                     JointAccountMember(
                         name: "Member \(index)",
                         address: "0x0000000000000000000000000000000000000000",
-                        role: index == 0 ? .creator : .member(inviteId: nil)
+                        role: index == 0 ? .creator : .member
                     )
                 )
             },

@@ -36,6 +36,7 @@ enum PersistentStorageKey {
     case tangemPayRecentOperations(cid: String)
     case polymarketWithdrawRecord(cid: String)
     case tangemPayPendingWithdrawExchanges(userWalletId: UserWalletId)
+    case marketingActivityBindings
 
     var path: String {
         switch self {
@@ -76,6 +77,8 @@ enum PersistentStorageKey {
         case .tangemPayPendingWithdrawExchanges(let userWalletId):
             let pathComponent = "tangem_pay_pending_withdraw_exchanges"
             return "\(pathComponent)_\(userWalletId.hashedStringValue(message: pathComponent))"
+        case .marketingActivityBindings:
+            return "marketing_activity_bindings"
         }
     }
 
@@ -127,6 +130,8 @@ enum PersistentStorageKey {
             // device locks, and complete protection would turn that write into a lost CONFIRMED or FAILED.
             false
         case .tangemPayPendingWithdrawExchanges:
+            false
+        case .marketingActivityBindings:
             false
         }
     }

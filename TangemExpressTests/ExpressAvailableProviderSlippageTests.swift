@@ -22,6 +22,7 @@ struct ExpressAvailableProviderSlippageTests {
             amountType: .from(1),
             approvePolicy: .specified,
             slippage: Decimal(string: "0.01"),
+            mcpIntentID: nil,
             quotesLoadingPerformanceTracker: nil
         ))
 
@@ -95,6 +96,7 @@ private extension ExpressAvailableProviderSlippageTests {
             amountType: .from(100),
             approvePolicy: .specified,
             slippage: slippage,
+            mcpIntentID: nil,
             quotesLoadingPerformanceTracker: nil
         )
     }
@@ -124,7 +126,7 @@ private extension ExpressAvailableProviderSlippageTests {
             ),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags()
+            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
         )
     }
 }

@@ -45,7 +45,7 @@ final class PolymarketSessionHealth {
 
         listeningTask = Task { [weak self] in
             for await _ in unauthorizedEvents {
-                await self?.verify()
+                self?.conclude(Outcome(verdict: .reconnectRequired, status: nil))
             }
         }
     }
@@ -75,13 +75,11 @@ extension PolymarketSessionVerdict {
 
     init(error: PolymarketWalletError) {
         switch error {
-        case .unauthorized:
-            self = .reconnectRequired
         case .other(.http(let statusCode, _)) where statusCode == Constants.notFoundStatusCode:
             self = .reconnectRequired
         case .cancelled:
             self = .inconclusive
-        case .badRequest, .conflict, .relayerRejected, .upstreamUnavailable, .other:
+        case .badRequest, .unauthorized, .conflict, .relayerRejected, .upstreamUnavailable, .other:
             PolymarketLogger.error("The wallet status could not be confirmed", error: error)
             self = .inconclusive
         }

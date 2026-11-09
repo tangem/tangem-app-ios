@@ -34,13 +34,16 @@ struct CollectiblesMachineView: View {
             Footer(
                 expectedValueText: viewModel.details.expectedValueText,
                 openButtonText: viewModel.openButtonText,
+                isOpenLocked: viewModel.isOpenLocked,
                 isTurboModeOn: $viewModel.isTurboModeOn,
                 onTurboModeInfoTap: viewModel.showTurboModeInfo,
                 onOpenTap: viewModel.openOrder
             )
         }
         .on(willAppear: viewModel.onWillAppear, willDisappear: viewModel.onWillDisappear)
-        .collectiblesInfoSheet(viewModel: viewModel.turboModeInfoViewModel)
+        .modalStatus(isPresented: $viewModel.isTurboModeInfoPresented) {
+            CollectiblesTurboModeInfoSheet(action: viewModel.dismissTurboModeInfo)
+        }
         .safeAreaInset(edge: .top, spacing: 0) { navigationBar }
     }
 }
@@ -269,6 +272,8 @@ private struct PreviewMachineProvider: CollectiblesMachineProvider {
                 ),
                 routable: nil,
                 prizePoolProvider: PreviewPrizePoolProvider(),
+                relinkStatusProvider: nil,
+                hasUnfinishedPurchase: { false },
                 provider: PreviewMachineProvider()
             ),
             onClose: {}

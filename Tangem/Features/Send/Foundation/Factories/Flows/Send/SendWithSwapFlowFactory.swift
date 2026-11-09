@@ -35,11 +35,7 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         predefinedValues: predefinedTransferValues
     )
     lazy var swapModel = makeSwapModel(
-        parameters: PredefinedSwapParameters(
-            userWalletInfo: sourceToken.userWalletInfo,
-            source: .resolved(sourceToken),
-            receive: .userSelection
-        ),
+        parameters: SendViaSwapPredefinedParametersBuilder(sourceToken: sourceToken).make(),
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
         pairUpdateHandler: SendWithSwapPairUpdateHandler(
@@ -65,7 +61,11 @@ class SendWithSwapFlowFactory: SendWithSwapFlowBaseDependenciesFactory {
         self.sourceToken = sourceToken
         self.predefinedSendParameters = predefinedSendParameters
         self.coordinatorSource = coordinatorSource
-        expressDependenciesFactory = CommonExpressDependenciesFactory(userWalletInfo: sourceToken.userWalletInfo)
+        expressDependenciesFactory = CommonExpressDependenciesFactory(
+            userWalletInfo: sourceToken.userWalletInfo,
+            preferredProviderId: nil,
+            mcpIntentID: nil
+        )
     }
 
     private func makeAddContactViewModel(router: SendRoutable) -> SendAddContactFinishViewModel? {

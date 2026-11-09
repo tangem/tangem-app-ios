@@ -19,6 +19,7 @@ public struct ExpressSwappableDataItem {
     public let operationType: ExpressOperationType
     public let quoteId: String?
     public let slippage: Decimal?
+    public let mcpIntentID: String?
 
     public var amount: Decimal {
         amountType.amount

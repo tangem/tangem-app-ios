@@ -21,6 +21,11 @@ protocol CollectiblesVaultUsdcAccountProvider: AnyObject {
     var vaultUsdcStatePublisher: AnyPublisher<CollectiblesVaultUsdcState, Never> { get }
 }
 
+protocol CollectiblesRelinkStatusProvider: AnyObject {
+    var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> { get }
+    var isRelinkingPublisher: AnyPublisher<Bool, Never> { get }
+}
+
 protocol CollectiblesDepositAwaiter: AnyObject {
     func awaitDeposit() async
 }
@@ -62,6 +67,7 @@ protocol CollectiblesAccountModel: BaseAccountModel,
     CollectiblesOnboarder,
     CollectiblesBalanceSource,
     CollectiblesVaultUsdcAccountProvider,
+    CollectiblesRelinkStatusProvider,
     CollectiblesDepositAwaiter,
     CollectiblesPackPurchaseInteractorProvider,
     CollectiblesBuybackInteractorProvider
@@ -70,6 +76,7 @@ protocol CollectiblesAccountModel: BaseAccountModel,
 
     var hasAccount: Bool { get }
     var hasAccountPublisher: AnyPublisher<Bool, Never> { get }
+    var isSyncRequiredPublisher: AnyPublisher<Bool, Never> { get }
 
     func update(name: String)
 }
@@ -83,9 +90,5 @@ extension CollectiblesAccountModel {
 
     func analyticsParameters(with builder: any AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
         [:]
-    }
-
-    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
-        resolver.resolve(accountModel: self)
     }
 }

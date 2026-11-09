@@ -512,34 +512,4 @@ private extension CommonMobileWalletBackupManagerTests {
     static var context: MobileWalletContext {
         MobileWalletContext(walletID: walletId, authentication: .none)
     }
-
-    @concurrent
-    func expectStorageUnavailable<T>(
-        sourceLocation: SourceLocation = #_sourceLocation,
-        _ operation: @concurrent () async throws -> T
-    ) async {
-        do {
-            _ = try await operation()
-            Issue.record("Expected storageUnavailable, but the operation succeeded", sourceLocation: sourceLocation)
-        } catch WalletBackupStorageError.storageUnavailable {
-            // Expected.
-        } catch {
-            Issue.record("Expected storageUnavailable, got \(error)", sourceLocation: sourceLocation)
-        }
-    }
-
-    @concurrent
-    func expectFileNotFound(
-        sourceLocation: SourceLocation = #_sourceLocation,
-        _ operation: @concurrent () async throws -> Void
-    ) async {
-        do {
-            try await operation()
-            Issue.record("Expected fileNotFound, but the operation succeeded", sourceLocation: sourceLocation)
-        } catch WalletBackupStorageError.fileNotFound {
-            // Expected.
-        } catch {
-            Issue.record("Expected fileNotFound, got \(error)", sourceLocation: sourceLocation)
-        }
-    }
 }

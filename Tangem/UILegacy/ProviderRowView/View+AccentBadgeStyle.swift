@@ -13,7 +13,7 @@ extension View {
     func accentBadgeStyle() -> some View {
         padding(.vertical, 2)
             .padding(.horizontal, 6)
-            .background(Colors.Icon.accent.opacity(0.1))
+            .background(DesignSystem.Color.bgAccentBlueSubtle)
             .cornerRadiusContinuous(8)
     }
 }

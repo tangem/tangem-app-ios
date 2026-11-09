@@ -290,6 +290,7 @@ struct MarketsTokenDetailsView: View {
         .bindAlert($viewModel.alert)
         .sheet(item: $viewModel.securityScoreDetailsViewModel) { detailsViewModel in
             MarketsTokenDetailsSecurityScoreDetailsRedesignedView(viewModel: detailsViewModel)
+                .softTopScrollEdgeEffect()
         }
         .animation(.default, value: viewModel.state)
         .animation(.default, value: viewModel.isLoading)

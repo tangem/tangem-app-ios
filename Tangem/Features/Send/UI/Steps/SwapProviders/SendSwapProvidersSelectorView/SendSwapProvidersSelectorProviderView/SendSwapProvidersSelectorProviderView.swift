@@ -44,17 +44,17 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
 
     private var backgroundView: some View {
         RoundedRectangle(cornerRadius: 14, style: .continuous)
-            .fill(Colors.Background.action)
+            .fill(DesignSystem.Color.bgSecondary)
     }
 
     private var titleView: some View {
         HStack(alignment: .center, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(data.title)
-                    .style(Fonts.Bold.footnote, color: data.isDimmed ? Colors.Text.secondary : Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: data.isDimmed ? DesignSystem.Color.textTertiary : DesignSystem.Color.textSecondary)
 
                 Text(data.providerType)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
             }
 
             badgeView
@@ -68,7 +68,7 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
                 switch subtitle {
                 case .text(let text):
                     Text(text)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                         .multilineTextAlignment(.leading)
                 case .percent(let text, let signType):
                     Text(text)
@@ -88,18 +88,18 @@ struct SendSwapProvidersSelectorProviderView: SelectableSectionRow {
             Text(text)
                 .style(
                     Fonts.Bold.caption2,
-                    color: data.isDimmed ? Colors.Icon.inactive : Colors.Icon.informative
+                    color: data.isDimmed ? DesignSystem.Color.textTertiary : DesignSystem.Color.textSecondary
                 )
                 .padding(.vertical, 2)
                 .padding(.horizontal, 6)
-                .background(Colors.Background.secondary)
+                .background(DesignSystem.Color.bgPrimary)
                 .cornerRadiusContinuous(8)
         case .accent(let text, let accessibilityIdentifier):
             Text(text)
-                .style(Fonts.Bold.caption2, color: Colors.Icon.accent)
+                .style(Fonts.Bold.caption2, color: DesignSystem.Color.textAccentBlue)
                 .padding(.vertical, 2)
                 .padding(.horizontal, 6)
-                .background(Colors.Icon.accent.opacity(0.1))
+                .background(DesignSystem.Color.bgAccentBlueSubtle)
                 .cornerRadiusContinuous(8)
                 .accessibilityIdentifier(accessibilityIdentifier)
         }

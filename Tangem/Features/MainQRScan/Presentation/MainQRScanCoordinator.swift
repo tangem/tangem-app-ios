@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import UIKit
+import TangemUIUtils
 
 final class MainQRScanCoordinator: CoordinatorObject {
     let dismissAction: Action<String?>

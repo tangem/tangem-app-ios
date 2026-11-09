@@ -80,7 +80,7 @@ public struct AccountIconView: View {
         switch data {
         case .composite(_, .letter(let letter, let config)):
             Text(letter.uppercased())
-                .style(settings.letterFont, color: Colors.Text.constantWhite)
+                .style(settings.letterFont, color: DesignSystem.Color.textStaticDarkPrimary)
                 // Needed for scale animation. E.g. on Main
                 .minimumScaleFactor(config.minimumScaleFactor)
 
@@ -88,7 +88,7 @@ public struct AccountIconView: View {
             imageType.image
                 .renderingMode(.template)
                 .resizable()
-                .foregroundStyle(Colors.Text.constantWhite)
+                .foregroundStyle(DesignSystem.Color.iconStaticDark)
                 .opacity(config.opacity)
 
         case .standalone(let image):

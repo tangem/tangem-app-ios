@@ -7,10 +7,21 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 protocol TokenFeeLoader {
     func estimatedFee(amount: Decimal) async throws -> [BSDKFee]
     func getFee(amount: Decimal, destination: String) async throws -> [BSDKFee]
+
+    /// Whether the loader must reject swap inputs whose bridge fee is paid in the blockchain coin because it can't forward coin value.
+    /// true for gasless loaders
+    var rejectsBridgeCoinFee: Bool { get }
+    /// Whether a triple fee for revoke-and-approve is available only when `usdtRevokeGaslessFee` is enabled.
+    /// tru for EVM gasless
+    var tripleApproveFeeRequiresFeature: Bool { get }
+
+    func supports(_ input: TokenFeeProviderInputData) -> Bool
+    func loadFees(_ input: TokenFeeProviderInputData, feeBlockchain: Blockchain) async throws -> [BSDKFee]
 }
 
 // MARK: - EthereumTokenFeeLoader
@@ -60,40 +71,11 @@ protocol TronTokenFeeLoader: TokenFeeLoader {
     func getFee(request: TronFeeRequestData) async throws -> [BSDKFee]
 }
 
-// MARK: - TokenFeeLoader+
+// MARK: - Defaults
 
 extension TokenFeeLoader {
-    func asEthereumTokenFeeLoader() throws -> EthereumTokenFeeLoader {
-        guard let ethereumTokenFeeLoader = self as? EthereumTokenFeeLoader else {
-            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
-        }
-
-        return ethereumTokenFeeLoader
-    }
-
-    func asSolanaTokenFeeLoader() throws -> SolanaTokenFeeLoader {
-        guard let solanaTokenFeeLoader = self as? SolanaTokenFeeLoader else {
-            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
-        }
-
-        return solanaTokenFeeLoader
-    }
-
-    func asBitcoinTokenFeeLoader() throws -> BitcoinTokenFeeLoader {
-        guard let bitcoinTokenFeeLoader = self as? BitcoinTokenFeeLoader else {
-            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
-        }
-
-        return bitcoinTokenFeeLoader
-    }
-
-    func asTronTokenFeeLoader() throws -> TronTokenFeeLoader {
-        guard let tronTokenFeeLoader = self as? TronTokenFeeLoader else {
-            throw TokenFeeLoaderError.tokenFeeLoaderNotFound
-        }
-
-        return tronTokenFeeLoader
-    }
+    var rejectsBridgeCoinFee: Bool { false }
+    var tripleApproveFeeRequiresFeature: Bool { false }
 }
 
 enum TokenFeeLoaderError: LocalizedError {
@@ -108,6 +90,7 @@ enum TokenFeeLoaderError: LocalizedError {
     case missingFeeRecipientAddress
     case notEnoughFeeBalance
     case noLatestImplementationForUpgrade
+    case yieldModuleVersionUnsupported
     case gaslessExecutionReverted(gaslessMinTokenAmount: Decimal)
     case executionReverted
 
@@ -124,6 +107,7 @@ enum TokenFeeLoaderError: LocalizedError {
         case .missingFeeRecipientAddress: "Missing fee recipient address"
         case .notEnoughFeeBalance: "Not enough fee balance"
         case .noLatestImplementationForUpgrade: "No latest implementation for upgrade"
+        case .yieldModuleVersionUnsupported: "Yield module version does not support yield-paid fee"
         case .gaslessExecutionReverted(let gaslessMinTokenAmount): "Gasless fee estimation execution reverted, min token amount: \(gaslessMinTokenAmount)"
         case .executionReverted: "Execution reverted"
         }

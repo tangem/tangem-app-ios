@@ -19,7 +19,7 @@ struct OnboardingFeatureDescriptionView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     private var iconBackgroundColor: Color {
-        return colorScheme == .light ? Colors.Background.secondary : Colors.Text.disabled
+        return colorScheme == .light ? DesignSystem.Color.bgPrimary : DesignSystem.Color.bgDisabled
     }
 
     var body: some View {
@@ -31,18 +31,18 @@ struct OnboardingFeatureDescriptionView: View {
                     iconImage
                         .resizable()
                         .renderingMode(.template)
-                        .foregroundColor(Colors.Text.primary1)
+                        .foregroundColor(DesignSystem.Color.iconPrimary)
                         .padding(.all, 11)
                 )
 
             VStack(alignment: .leading, spacing: 3) {
                 if let title {
                     Text(title)
-                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
                 }
 
                 Text(description)
-                    .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                    .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

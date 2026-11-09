@@ -31,7 +31,7 @@ enum MobileOnboardingFlowNavBarAction {
         case .skip(let handler):
             SwiftUI.Button(action: handler) {
                 Text(Localization.commonSkip)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                    .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
                     .frame(height: OnboardingLayoutConstants.navbarSize.height)
             }
             .accessibilityIdentifier(OnboardingAccessibilityIdentifiers.accessCodeSkipButton)

@@ -20,4 +20,5 @@ extension JointAccountsDTO.Request {
     typealias Create = SignedRequest<JointAccountCreationPayload>
     typealias Join = SignedRequest<JointAccountJoinPayload>
     typealias Activate = SignedRequest<JointAccountActivationPayload>
+    typealias Confirm = SignedRequest<JointAccountConfirmationPayload>
 }

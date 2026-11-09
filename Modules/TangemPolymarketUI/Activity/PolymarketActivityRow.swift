@@ -97,7 +97,7 @@ public extension PolymarketActivityRow {
             title: "Redeemed",
             subtitle: "Because had won in “Will Trump strike the Moon from North Korea”",
             amount: "+ $350.31",
-            tone: .positive
+            tone: .success
         ))
     }
     .padding(.horizontal, 16)

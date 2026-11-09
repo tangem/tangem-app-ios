@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemUI
 
 struct FeedProductGlowView: View {
     let color: Color
@@ -19,8 +20,8 @@ struct FeedProductGlowView: View {
             )
 
             ZStack(alignment: .topLeading) {
-                ForEach(Constants.spots.indices, id: \.self) { index in
-                    view(for: Constants.spots[index], scale: scale)
+                ForEach(indexed: Constants.spots, id: \.0) { _, spot in
+                    view(for: spot, scale: scale)
                 }
             }
             .opacity(Constants.groupOpacity)

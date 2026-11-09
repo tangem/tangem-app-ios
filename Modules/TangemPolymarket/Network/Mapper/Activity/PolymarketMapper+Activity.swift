@@ -21,7 +21,7 @@ extension PolymarketMapper {
                 }
             },
             receivedCount: response.items.count,
-            nextCursor: response.nextCursor.flatMap { $0.isEmpty ? nil : $0 }
+            nextCursor: cursor(from: response.nextCursor)
         )
     }
 

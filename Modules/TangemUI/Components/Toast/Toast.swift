@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-import class TangemUIUtils.PassThroughWindow
+import TangemUIUtils
 
 public protocol DismissibleToast: AnyObject {
     func dismiss(animated: Bool, completion: @escaping () -> Void)
@@ -40,7 +40,7 @@ public final class Toast<V: View>: DismissibleToast {
         type: PresentationTime,
         animated: Bool = true
     ) {
-        let overlayWindow = UIApplication.shared.windows.last { $0 is PassThroughWindow }
+        let overlayWindow = UIApplication.overlayWindow
         let mainWindow = UIApplication.mainWindow
 
         guard let window = overlayWindow ?? mainWindow else {

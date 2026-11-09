@@ -42,7 +42,7 @@ struct ScrollableButtonsView: View {
                     .accessibilityIdentifier(button.accessibilityIdentifier)
                     .unreadNotificationBadge(
                         button.shouldShowBadge,
-                        badgeColor: Colors.Icon.accent,
+                        badgeColor: DesignSystem.Color.iconAccentBlue,
                         accessibilityIdentifier: button.accessibilityIdentifier == ActionButtonsAccessibilityIdentifiers.swapButton
                             ? ActionButtonsAccessibilityIdentifiers.swapButtonBadge
                             : nil

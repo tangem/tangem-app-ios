@@ -27,7 +27,7 @@ struct WCFeeRowView: View {
                     .padding(.trailing, 2)
 
                 Assets.Glyphs.selectIcon.image
-                    .foregroundStyle(Colors.Icon.informative)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
             }
             .padding(.vertical, 12)
             .padding(.horizontal, 14)
@@ -43,10 +43,10 @@ struct WCFeeRowView: View {
                 .resizable()
                 .renderingMode(.template)
                 .frame(width: 24, height: 24)
-                .foregroundColor(Colors.Icon.accent)
+                .foregroundColor(DesignSystem.Color.iconAccentBlue)
 
             Text(Localization.commonNetworkFeeTitle)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
         }
     }
 
@@ -58,12 +58,12 @@ struct WCFeeRowView: View {
 
         case .success(let components):
             Text(formattedFee(components: components))
-                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textSecondary)
                 .layoutPriority(1)
 
         case .failure:
             Text(AppConstants.emDashSign)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
                 .layoutPriority(1)
         }
     }

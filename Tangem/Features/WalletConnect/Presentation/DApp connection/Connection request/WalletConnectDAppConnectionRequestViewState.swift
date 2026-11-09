@@ -46,15 +46,15 @@ extension WalletConnectDAppConnectionRequestViewState {
             let wouldLikeToGroup = BulletGroup(
                 label: Localization.wcConnectionReqeustWouldLike,
                 points: [
-                    BulletPoint(sfSymbol: SFSymbol.checkmark, iconColor: Colors.Icon.accent, title: Localization.wcConnectionReqeustCanViewBalance),
-                    BulletPoint(sfSymbol: SFSymbol.checkmark, iconColor: Colors.Icon.accent, title: Localization.wcConnectionReqeustRequestApproval),
+                    BulletPoint(sfSymbol: SFSymbol.checkmark, iconColor: DesignSystem.Color.iconAccentBlue, title: Localization.wcConnectionReqeustCanViewBalance),
+                    BulletPoint(sfSymbol: SFSymbol.checkmark, iconColor: DesignSystem.Color.iconAccentBlue, title: Localization.wcConnectionReqeustRequestApproval),
                 ]
             )
 
             let wouldNotBeAbleToGroup = BulletGroup(
                 label: Localization.wcConnectionReqeustWillNot,
                 points: [
-                    BulletPoint(sfSymbol: SFSymbol.multiply, iconColor: Colors.Icon.warning, title: Localization.wcConnectionReqeustCantSign),
+                    BulletPoint(sfSymbol: SFSymbol.multiply, iconColor: DesignSystem.Color.iconAccentRed, title: Localization.wcConnectionReqeustCantSign),
                 ]
             )
         }

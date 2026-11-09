@@ -18,7 +18,7 @@ struct MobileBackupTypesView: View {
     var body: some View {
         content
             .padding(.horizontal, 16)
-            .background(Colors.Background.secondary.ignoresSafeArea())
+            .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
             .navigationTitle(viewModel.navTitle)
             .onFirstAppear(perform: viewModel.onFirstAppear)
     }
@@ -30,7 +30,7 @@ private extension MobileBackupTypesView {
     var content: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) {
-                ForEach(Array(viewModel.sections.enumerated()), id: \.offset) { _, section in
+                ForEach(indexed: viewModel.sections, id: \.0) { _, section in
                     sectionView(section)
                 }
             }
@@ -42,12 +42,12 @@ private extension MobileBackupTypesView {
         VStack(alignment: .leading, spacing: 8) {
             section.title.map {
                 Text($0)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                     .padding(.leading, 14)
             }
 
             VStack(spacing: 8) {
-                ForEach(Array(section.items.enumerated()), id: \.offset) { _, item in
+                ForEach(indexed: section.items, id: \.0) { _, item in
                     sectionItemView(item)
                 }
             }

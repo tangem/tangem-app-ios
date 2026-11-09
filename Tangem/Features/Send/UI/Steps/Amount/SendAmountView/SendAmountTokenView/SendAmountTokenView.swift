@@ -54,7 +54,7 @@ struct SendAmountTokenView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(data.title)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                 subtitleView
             }
@@ -70,7 +70,7 @@ struct SendAmountTokenView: View {
             case .balance(let state):
                 LoadableBalanceView(
                     state: state,
-                    style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                    style: .init(font: Fonts.Regular.caption1, textColor: DesignSystem.Color.textSecondary),
                     loader: .init(size: CGSize(width: 130, height: 15))
                 )
                 .accessibilityIdentifier(SendAccessibilityIdentifiers.balanceLabel)
@@ -78,25 +78,25 @@ struct SendAmountTokenView: View {
                 LoadableTextView(
                     state: state,
                     font: Fonts.Regular.caption1,
-                    textColor: Colors.Text.tertiary,
+                    textColor: DesignSystem.Color.textSecondary,
                     loaderSize: CGSize(width: 130, height: 15)
                 )
             case .balanceAndSend(let balance, let sendLabel, let sendAmount):
                 VStack(alignment: .leading, spacing: 2) {
                     LoadableBalanceView(
                         state: balance,
-                        style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.tertiary),
+                        style: .init(font: Fonts.Regular.caption1, textColor: DesignSystem.Color.textSecondary),
                         loader: .init(size: CGSize(width: 130, height: 15))
                     )
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.balanceLabel)
 
                     HStack(spacing: 4) {
                         Text(sendLabel)
-                            .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
 
                         LoadableBalanceView(
                             state: sendAmount,
-                            style: .init(font: Fonts.Regular.caption1, textColor: Colors.Text.primary1),
+                            style: .init(font: Fonts.Regular.caption1, textColor: DesignSystem.Color.textPrimary),
                             loader: .init(size: CGSize(width: 130, height: 15))
                         )
                     }
@@ -120,7 +120,7 @@ struct SendAmountTokenView: View {
             Assets.Glyphs.selectIcon.image
                 .renderingMode(.template)
                 .resizable()
-                .foregroundStyle(Colors.Text.tertiary)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
                 .frame(width: 18, height: 24)
         case .select(.some):
             HStack(spacing: 8) {
@@ -130,7 +130,7 @@ struct SendAmountTokenView: View {
                 Assets.Glyphs.selectIcon.image
                     .renderingMode(.template)
                     .resizable()
-                    .foregroundStyle(Colors.Text.tertiary)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
                     .frame(width: 18, height: 24)
             }
         }

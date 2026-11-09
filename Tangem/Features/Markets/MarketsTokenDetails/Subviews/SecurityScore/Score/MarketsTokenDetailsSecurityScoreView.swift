@@ -63,7 +63,7 @@ private extension MarketsTokenDetailsSecurityScoreView {
 
     var starsView: some View {
         HStack(spacing: starsSpacing) {
-            ForEach(viewModel.ratingViewData.ratingBullets.indexed(), id: \.0) { _, bullet in
+            ForEach(indexed: viewModel.ratingViewData.ratingBullets, id: \.0) { _, bullet in
                 starImage(for: bullet)
                     .resizable()
                     .renderingMode(.template)

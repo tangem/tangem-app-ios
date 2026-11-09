@@ -24,13 +24,13 @@ struct WordsCaptureProtectionView: View {
             ForEach(indexRange, id: \.self) { index in
                 HStack(alignment: .center, spacing: 0) {
                     Text("\(index + 1). ") // The space character after the dot is 'U+2009 THIN SPACE'
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                         .fixedSize()
                         .readGeometry(\.size.width, onChange: updateWordsColumnMaxWidth(width:))
                         .frame(width: wordsColumnMaxWidth, alignment: .leading)
 
                     let wordView = Text("\(words[index])")
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                     wordView
                         .fixedSize()

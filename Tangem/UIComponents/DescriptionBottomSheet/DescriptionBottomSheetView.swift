@@ -42,7 +42,7 @@ struct DescriptionBottomSheetView: View {
                     FontFamily(.system())
                     FontWeight(.regular)
                     FontSize(16)
-                    ForegroundColor(Colors.Text.primary1)
+                    ForegroundColor(DesignSystem.Color.textPrimary)
                 })
                 .markdownBlockStyle(\.paragraph, body: { configuration in
                     configuration.label
@@ -79,7 +79,7 @@ private extension DescriptionBottomSheetView {
         if let title = info.title {
             Text(title)
                 .multilineTextAlignment(.center)
-                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+                .style(Fonts.Bold.body, color: DesignSystem.Color.textPrimary)
                 .padding(.vertical, 12)
         }
     }
@@ -90,7 +90,7 @@ private extension DescriptionBottomSheetView {
             dismissSheetAction()
         }, label: {
             Text(Localization.commonClose)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
                 .padding(.vertical, 8)
         })
     }

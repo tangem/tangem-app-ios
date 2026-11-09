@@ -25,6 +25,10 @@ struct MultiWalletMainContentRedesignedView: View {
             pendingJointAccountsOperations
 
             VStack(spacing: 8) {
+                if viewModel.isTangemPayMoneyAccountVisible {
+                    TangemPayMoneyAccountRowView(onTap: viewModel.openTangemPayMoneyAccount)
+                }
+
                 if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
                     TangemPayAccountView(viewModel: tangemPayAccountViewModel)
                 }
@@ -200,29 +204,27 @@ struct MultiWalletMainContentRedesignedView: View {
         sections: [MultiWalletMainContentPlainSection],
         roundBottomCorners: Bool = false
     ) -> some View {
-        ForEach(indexed: sections.indexed()) { sectionIndex, section in
+        ForEach(indexed: sections) { sectionIndex, section in
             let hasTitle = section.model.title != nil
             let isFirstVisibleSection = hasTitle && sectionIndex == 0
             let topEdgeCornerRadius = isFirstVisibleSection ? MultiWalletMainContentConstants.cornerRadius : nil
 
-            LazyVStack(spacing: .zero) {
-                TokenSectionView(
-                    title: section.model.title,
-                    topEdgeCornerRadius: topEdgeCornerRadius,
-                    backgroundColor: MultiWalletMainContentConstants.tokenListBackgroundColor
+            TokenSectionView(
+                title: section.model.title,
+                topEdgeCornerRadius: topEdgeCornerRadius,
+                backgroundColor: MultiWalletMainContentConstants.tokenListBackgroundColor
+            )
+
+            ForEach(indexed: section.items) { itemIndex, item in
+                let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
+                let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
+                let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil
+
+                TokenItemContainerView(
+                    item: item,
+                    roundedBottomCorners: roundBottomCorners && isLastItem,
+                    promoBubbleViewModel: promoBubbleViewModel
                 )
-
-                ForEach(indexed: section.items.indexed()) { itemIndex, item in
-                    let isLastItem = sectionIndex == sections.count - 1 && itemIndex == section.items.count - 1
-                    let hasPromoBubble = viewModel.tokenItemPromoBubbleViewModel?.id == item.id
-                    let promoBubbleViewModel = hasPromoBubble ? viewModel.tokenItemPromoBubbleViewModel : nil
-
-                    TokenItemContainerView(
-                        item: item,
-                        roundedBottomCorners: roundBottomCorners && isLastItem,
-                        promoBubbleViewModel: promoBubbleViewModel
-                    )
-                }
             }
         }
     }

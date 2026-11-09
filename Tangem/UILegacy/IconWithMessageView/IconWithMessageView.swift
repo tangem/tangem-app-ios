@@ -27,14 +27,14 @@ struct IconWithMessageView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
             IconWithBackground(icon: icon)
-                .foregroundColor(Colors.Icon.primary1)
+                .foregroundColor(DesignSystem.Color.iconPrimary)
 
             VStack(alignment: .leading, spacing: 2) {
                 header
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
                 description
-                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
                     .lineSpacing(4)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -50,14 +50,14 @@ struct IconWithMessageView: View {
             Assets.cryptoCurrencies,
             header: { Text("You") },
             description: {
-                Text("Will get ") + Text("10 USDT").foregroundColor(Colors.Text.primary1) + Text(" for each wallet bought by your friend on your Tron network address 0x032980ca98fdfc67ab767b")
+                Text("Will get ") + Text("10 USDT").foregroundColor(DesignSystem.Color.textPrimary) + Text(" for each wallet bought by your friend on your Tron network address 0x032980ca98fdfc67ab767b")
             }
         )
         IconWithMessageView(
             Assets.discount,
             header: { Text("Your friend") },
             description: {
-                Text("Will get a ") + Text("10% discount").foregroundColor(Colors.Text.primary1) + Text(" when buying card on tangem.com")
+                Text("Will get a ") + Text("10% discount").foregroundColor(DesignSystem.Color.textPrimary) + Text(" when buying card on tangem.com")
             }
         )
     }

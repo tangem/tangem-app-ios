@@ -20,6 +20,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case providers
         case exchangeQuote(request: ExpressDTO.Swap.ExchangeQuote.Request)
         case exchangeData(request: ExpressDTO.Swap.ExchangeData.Request)
+        case exchangeMCPIntent(request: ExpressDTO.Swap.ExchangeMCPIntent.Request)
         case exchangeStatus(request: ExpressDTO.Swap.ExchangeStatus.Request)
         case exchangeSent(request: ExpressDTO.Swap.ExchangeSent.Request)
         case exchangeHistory(request: ExpressDTO.Swap.History.Request)
@@ -80,6 +81,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case .providers: "providers"
         case .exchangeQuote: "exchange-quote"
         case .exchangeData: "exchange-data"
+        case .exchangeMCPIntent: "exchange-intent"
         case .exchangeStatus: "exchange-status"
         case .exchangeSent: "exchange-sent"
         case .exchangeHistory: "history/exchange"
@@ -110,6 +112,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case .providers,
              .exchangeQuote,
              .exchangeData,
+             .exchangeMCPIntent,
              .exchangeStatus,
              .exchangeHistory,
              .exchangeHistoryDelta,
@@ -134,6 +137,7 @@ struct ExpressAPITarget: Moya.TargetType {
         case .providers: .requestPlain
         case .exchangeQuote(let request): .requestParameters(request)
         case .exchangeData(let request): .requestParameters(request)
+        case .exchangeMCPIntent(let request): .requestParameters(request)
         case .exchangeStatus(let request): .requestParameters(request)
         case .exchangeHistory(let request): .requestParameters(request)
         case .exchangeHistoryDelta(let request): .requestParameters(request)

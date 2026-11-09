@@ -59,4 +59,5 @@ public struct EthereumTransaction: Decodable {
     let blockNumber: String?
     let hash: String
     let transactionIndex: String?
+    let input: String?
 }

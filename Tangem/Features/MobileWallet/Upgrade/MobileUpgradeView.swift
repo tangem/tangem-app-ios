@@ -43,7 +43,7 @@ private extension MobileUpgradeView {
                 logo(icon: item.icon)
 
                 Text(item.title)
-                    .style(Fonts.Bold.title1, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title1, color: DesignSystem.Color.textPrimary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 20)
@@ -66,11 +66,11 @@ private extension MobileUpgradeView {
             .renderingMode(.template)
             .aspectRatio(contentMode: .fit)
             .frame(width: 24, height: 30)
-            .foregroundStyle(Colors.Icon.primary1)
+            .foregroundStyle(DesignSystem.Color.iconPrimary)
             .padding(.vertical, 22)
             .padding(.horizontal, 24)
             .background(
-                Colors.Field.focused
+                DesignSystem.Color.bgTransparentSecondary
                     .clipShape(RoundedRectangle(cornerRadius: 20))
             )
     }
@@ -83,7 +83,7 @@ private extension MobileUpgradeView {
                         .renderingMode(.template)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .foregroundStyle(Colors.Icon.primary1)
+                        .foregroundStyle(DesignSystem.Color.iconPrimary)
                         .frame(width: 24, height: 24)
                         .padding(10)
                         .background(
@@ -93,10 +93,10 @@ private extension MobileUpgradeView {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(item.title)
-                            .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+                            .style(Fonts.Bold.callout, color: DesignSystem.Color.textPrimary)
 
                         Text(item.subtitle)
-                            .style(Fonts.Bold.subheadline, color: Colors.Text.secondary)
+                            .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textSecondary)
                             .multilineTextAlignment(.leading)
                             .fixedSize(horizontal: false, vertical: true)
                     }

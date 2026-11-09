@@ -73,7 +73,7 @@ struct DeeplinkOverlayContext {
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
                             Button(Localization.commonClose) { dismiss() }
-                                .foregroundColor(Colors.Text.primary1)
+                                .foregroundColor(DesignSystem.Color.textPrimary)
                         }
                     }
             }

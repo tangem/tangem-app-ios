@@ -34,14 +34,14 @@ struct WalletConnectNetworksSelectorView: View {
 
                 Divider()
                     .frame(height: 1)
-                    .overlay(Colors.Stroke.primary)
+                    .overlay(DesignSystem.Color.borderSecondary)
 
                 ForEach(viewState.blockchains) { blockchainViewState in
                     missingRequiredBlockchainRow(blockchainViewState, requiredLabel: viewState.requiredLabel)
                         .padding(.horizontal, 14)
                 }
             }
-            .background(Colors.Background.action)
+            .background(DesignSystem.Color.bgSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }
     }
@@ -50,7 +50,7 @@ struct WalletConnectNetworksSelectorView: View {
     private var availableSection: some View {
         if !viewModel.state.availableSection.blockchains.isEmpty {
             sectionContainer(viewModel.state.availableSection.headerTitle) {
-                ForEach(indexed: viewModel.state.availableSection.blockchains.indexed(), content: availableBlockchainRow)
+                ForEach(indexed: viewModel.state.availableSection.blockchains, content: availableBlockchainRow)
             }
         }
     }
@@ -67,14 +67,14 @@ struct WalletConnectNetworksSelectorView: View {
     private func sectionContainer<Content: View>(_ headerTitle: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: .zero) {
             Text(headerTitle)
-                .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                 .padding(.top, 12)
                 .padding(.bottom, 8)
 
             content()
         }
         .padding(.horizontal, 14)
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
@@ -82,9 +82,9 @@ struct WalletConnectNetworksSelectorView: View {
         _ blockchainViewState: WalletConnectNetworksSelectorViewState.BlockchainViewState,
         requiredLabel: String
     ) -> some View {
-        blockchainRow(blockchainViewState, blockchainIconBackgroundColor: Colors.Button.secondary, blockchainNameColor: Colors.Text.tertiary) {
+        blockchainRow(blockchainViewState, blockchainIconBackgroundColor: DesignSystem.Color.bgTransparentSecondary, blockchainNameColor: DesignSystem.Color.textSecondary) {
             Text(requiredLabel)
-                .style(Fonts.Regular.subheadline, color: Colors.Text.tertiary)
+                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
         }
     }
 
@@ -92,7 +92,7 @@ struct WalletConnectNetworksSelectorView: View {
         blockchainIndex: Int,
         viewState: WalletConnectNetworksSelectorViewState.AvailableSection.AvailableBlockchain
     ) -> some View {
-        blockchainRow(viewState.blockchainViewState, blockchainIconBackgroundColor: .clear, blockchainNameColor: Colors.Text.primary1) {
+        blockchainRow(viewState.blockchainViewState, blockchainIconBackgroundColor: .clear, blockchainNameColor: DesignSystem.Color.textPrimary) {
             if viewModel.state.requiredNetworksAreUnavailableSection == nil {
                 Toggle("", isOn: bindingFor(availableBlockchain: viewState, index: blockchainIndex))
                     .tint(Colors.Control.checked)
@@ -102,7 +102,7 @@ struct WalletConnectNetworksSelectorView: View {
     }
 
     private func notAddedBlockchainRow(viewState: WalletConnectNetworksSelectorViewState.BlockchainViewState) -> some View {
-        blockchainRow(viewState, blockchainIconBackgroundColor: Colors.Button.secondary, blockchainNameColor: Colors.Text.tertiary) {
+        blockchainRow(viewState, blockchainIconBackgroundColor: DesignSystem.Color.bgTransparentSecondary, blockchainNameColor: DesignSystem.Color.textSecondary) {
             EmptyView()
         }
     }
@@ -130,7 +130,7 @@ struct WalletConnectNetworksSelectorView: View {
                     .style(Fonts.Bold.subheadline, color: blockchainNameColor)
 
                 Text(state.currencySymbol)
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                    .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .layoutPriority(1)

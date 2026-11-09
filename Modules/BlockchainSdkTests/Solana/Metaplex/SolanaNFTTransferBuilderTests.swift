@@ -13,12 +13,13 @@ import Testing
 
 struct SolanaNFTTransferBuilderTests {
     private typealias Programmable = SolanaNFTFixtures.Programmable
+    private typealias ProgrammableToken2022 = SolanaNFTFixtures.ProgrammableToken2022
     private typealias Core = SolanaNFTFixtures.Core
 
     private let tokenMetadataProgramId = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
     private let coreProgramId = "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
-    private let tokenProgramId = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-    private let token2022ProgramId = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+    private static let tokenProgramId = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+    private static let token2022ProgramId = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
     private let recipient = "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
     private let supportedTransactionSize = 964
 
@@ -119,7 +120,7 @@ struct SolanaNFTTransferBuilderTests {
     @Test
     func fundsNothingWhenTheDestinationAccountsExist() async throws {
         var accounts = programmableAccounts()
-        accounts[Programmable.destinationToken] = SolanaRawAccount(owner: tokenProgramId, data: Data(count: 165))
+        accounts[Programmable.destinationToken] = SolanaRawAccount(owner: Self.tokenProgramId, data: Data(count: 165))
         accounts[Programmable.destinationTokenRecord] = SolanaRawAccount(owner: tokenMetadataProgramId, data: Programmable.unlockedTokenRecordData)
         let builder = makeBuilder(accounts: accounts)
 
@@ -183,6 +184,45 @@ struct SolanaNFTTransferBuilderTests {
         #expect(messageSize <= supportedTransactionSize)
     }
 
+    @Test
+    func routesAToken2022ProgrammableNFTThroughToken2022Accounts() async throws {
+        let builder = makeBuilder(accounts: token2022ProgrammableAccounts())
+
+        let plan = try await programPlan(token2022Route(builder))
+
+        let addresses = plan.instructions[0].accounts.map(\.address)
+        #expect(plan.instructions.map(\.programId) == [tokenMetadataProgramId])
+        #expect(addresses[0] == ProgrammableToken2022.ownerToken)
+        #expect(addresses[2] == ProgrammableToken2022.destinationToken)
+        #expect(addresses[7] == ProgrammableToken2022.ownerTokenRecord)
+        #expect(addresses[8] == ProgrammableToken2022.destinationTokenRecord)
+        #expect(addresses[13] == Self.token2022ProgramId)
+        #expect(plan.createdAccountSpaces == [170, 80])
+    }
+
+    @Test
+    func fundsNothingWhenTheToken2022DestinationAccountsExist() async throws {
+        var accounts = token2022ProgrammableAccounts()
+        accounts[ProgrammableToken2022.destinationToken] = SolanaRawAccount(owner: Self.token2022ProgramId, data: Data(count: 170))
+        accounts[ProgrammableToken2022.destinationTokenRecord] = SolanaRawAccount(
+            owner: tokenMetadataProgramId,
+            data: ProgrammableToken2022.unlockedTokenRecordData
+        )
+        let builder = makeBuilder(accounts: accounts)
+
+        let plan = try await programPlan(token2022Route(builder))
+
+        #expect(plan.createdAccountSpaces.isEmpty)
+    }
+
+    @Test
+    func fitsAToken2022ProgrammableTransferWithComputeBudgetIntoTheCardSigningLimit() async throws {
+        let builder = makeBuilder(accounts: token2022ProgrammableAccounts())
+        let plan = try await programPlan(token2022Route(builder))
+
+        #expect(try messageSize(plan: plan, payer: ProgrammableToken2022.owner) <= supportedTransactionSize)
+    }
+
     // MARK: - Plain SPL
 
     @Test
@@ -205,8 +245,22 @@ struct SolanaNFTTransferBuilderTests {
     }
 
     @Test
+    func keepsANonProgrammableToken2022NFTOnTheSPLPath() async throws {
+        var accounts = token2022ProgrammableAccounts()
+        accounts[ProgrammableToken2022.metadata] = SolanaRawAccount(
+            owner: tokenMetadataProgramId,
+            data: SolanaNFTMetadataBuilder(tokenStandard: 0).build()
+        )
+        let builder = makeBuilder(accounts: accounts)
+
+        let route = try await token2022Route(builder)
+
+        #expect(route.isSPLToken)
+    }
+
+    @Test
     func keepsAMintWithoutMetadataOnTheSPLPath() async throws {
-        let builder = makeBuilder(accounts: [Programmable.mint: SolanaRawAccount(owner: tokenProgramId, data: Data(count: 82))])
+        let builder = makeBuilder(accounts: [Programmable.mint: SolanaRawAccount(owner: Self.tokenProgramId, data: Data(count: 82))])
 
         let route = try await builder.route(
             assetAddress: Programmable.mint,
@@ -219,15 +273,10 @@ struct SolanaNFTTransferBuilderTests {
     }
 
     @Test
-    func keepsAToken2022MintOnTheSPLPath() async throws {
-        let builder = makeBuilder(accounts: [Programmable.mint: SolanaRawAccount(owner: token2022ProgramId, data: Data(count: 82))])
+    func keepsAToken2022MintWithoutMetadataOnTheSPLPath() async throws {
+        let builder = makeBuilder(accounts: [ProgrammableToken2022.mint: SolanaRawAccount(owner: Self.token2022ProgramId, data: Data(count: 270))])
 
-        let route = try await builder.route(
-            assetAddress: Programmable.mint,
-            owner: Programmable.owner,
-            destination: Programmable.destinationOwner,
-            payer: Programmable.owner
-        )
+        let route = try await token2022Route(builder)
 
         #expect(route.isSPLToken)
     }
@@ -270,10 +319,30 @@ struct SolanaNFTTransferBuilderTests {
 
     private func programmableAccounts() -> [String: SolanaRawAccount] {
         [
-            Programmable.mint: SolanaRawAccount(owner: tokenProgramId, data: Data(count: 82)),
+            Programmable.mint: SolanaRawAccount(owner: Self.tokenProgramId, data: Data(count: 82)),
             Programmable.metadata: SolanaRawAccount(owner: tokenMetadataProgramId, data: Programmable.metadataAccountData),
             Programmable.ownerTokenRecord: SolanaRawAccount(owner: tokenMetadataProgramId, data: Programmable.unlockedTokenRecordData),
         ]
+    }
+
+    private func token2022ProgrammableAccounts() -> [String: SolanaRawAccount] {
+        [
+            ProgrammableToken2022.mint: SolanaRawAccount(owner: Self.token2022ProgramId, data: Data(count: 270)),
+            ProgrammableToken2022.metadata: SolanaRawAccount(owner: tokenMetadataProgramId, data: ProgrammableToken2022.metadataAccountData),
+            ProgrammableToken2022.ownerTokenRecord: SolanaRawAccount(
+                owner: tokenMetadataProgramId,
+                data: ProgrammableToken2022.unlockedTokenRecordData
+            ),
+        ]
+    }
+
+    private func token2022Route(_ builder: SolanaNFTTransferBuilder) async throws -> SolanaNFTTransferRoute {
+        try await builder.route(
+            assetAddress: ProgrammableToken2022.mint,
+            owner: ProgrammableToken2022.owner,
+            destination: ProgrammableToken2022.destinationOwner,
+            payer: ProgrammableToken2022.owner
+        )
     }
 
     private func programPlan(_ route: SolanaNFTTransferRoute) throws -> SolanaNFTTransferPlan {

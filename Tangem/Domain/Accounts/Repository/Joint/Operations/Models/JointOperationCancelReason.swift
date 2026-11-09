@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum JointOperationCancelReason: Hashable {
+enum JointOperationCancelReason: String, Hashable, Codable {
     case initiator
     case threshold
 }

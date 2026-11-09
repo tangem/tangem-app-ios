@@ -19,6 +19,7 @@ actor CommonExpressManager {
     private let expressProviderManagerFactory: ExpressProviderManagerFactory
     private let expressRepository: ExpressRepository
     private let featureFlags: ExpressFeatureFlags
+    private let mcpIntentID: String?
 
     // MARK: - Inputs
 
@@ -26,10 +27,13 @@ actor CommonExpressManager {
     private var _amountType: ExpressAmountType?
     private var _approvePolicy: ApprovePolicy = .specified
     private var _slippage: Decimal?
+    private var _prefersDEX = false
 
     /// A deeplink-preferred provider, selected over the "best" pick whenever it's among the current pair's
     /// providers (surviving quote reloads). Cleared when the pair changes or the user picks a provider.
     private var _preferredProviderId: ExpressProvider.Id?
+
+    private var _hiddenProviderIds: Set<ExpressProvider.Id> = []
 
     // MARK: - State
 
@@ -41,13 +45,15 @@ actor CommonExpressManager {
         expressProviderManagerFactory: ExpressProviderManagerFactory,
         expressRepository: ExpressRepository,
         featureFlags: ExpressFeatureFlags,
-        preferredProviderId: ExpressProvider.Id? = nil
+        preferredProviderId: ExpressProvider.Id? = nil,
+        mcpIntentID: String? = nil
     ) {
         self.expressAPIProvider = expressAPIProvider
         self.expressProviderManagerFactory = expressProviderManagerFactory
         self.expressRepository = expressRepository
         self.featureFlags = featureFlags
         _preferredProviderId = preferredProviderId
+        self.mcpIntentID = mcpIntentID
     }
 }
 
@@ -78,6 +84,7 @@ extension CommonExpressManager: ExpressManager {
             if !sameAsPrevious {
                 _preferredProviderId = nil
                 _slippage = nil
+                _hiddenProviderIds = []
             }
         }
 
@@ -179,6 +186,20 @@ extension CommonExpressManager: ExpressManager {
         return currentState
     }
 
+    func update(prefersDEX: Bool) {
+        _prefersDEX = prefersDEX
+
+        guard featureFlags.isSwapBestRateDefaultProviderEnabled,
+              prefersDEX,
+              case .swap(.some(let selected), let providers) = currentState,
+              !selected.provider.type.isDEX else {
+            return
+        }
+
+        let candidates = providers.availableProviders(rate: selected.rateType)
+        update(state: .swap(selected: selectedProvider(from: candidates), providers: providers))
+    }
+
     func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState {
         guard case .swap(.some(let selectedProvider), let providers) = currentState else {
             return currentState
@@ -194,7 +215,13 @@ extension CommonExpressManager: ExpressManager {
         }
 
         let request = makeRequest()
-        return try await selectedProvider.requestData(request: request)
+
+        do {
+            return try await selectedProvider.requestData(request: request)
+        } catch let error as ExpressExchangeDataError where error.hidesProvider {
+            hide(provider: error.provider)
+            throw error
+        }
     }
 }
 
@@ -236,7 +263,9 @@ private extension CommonExpressManager {
         let providers = try await expressRepository.providers(for: pair)
 
         let supported = providers.filter { provider in
-            allSet.contains(provider.id) && pair.source.supportedProvidersFilter.isSupported(provider: provider)
+            allSet.contains(provider.id)
+                && pair.source.supportedProvidersFilter.isSupported(provider: provider)
+                && isVisible(provider)
         }
 
         let make: (ExpressProvider, ExpressProviderRateType) throws -> ExpressAvailableProvider = { provider, rateType in
@@ -272,16 +301,30 @@ private extension CommonExpressManager {
         return currentState
     }
 
+    func hide(provider: ExpressProvider) {
+        _hiddenProviderIds.insert(provider.id)
+
+        guard case .swap(let selected, let providers) = currentState else {
+            return
+        }
+
+        let visible = providers.filter { isVisible($0.provider) }
+        let candidates = visible.availableProviders(rate: preferredRate(visible, requested: selected?.rateType ?? .float))
+        candidates.updateIsBestFlagPreferringDEX()
+
+        update(state: .swap(selected: selectedProvider(from: candidates), providers: visible))
+    }
+
+    func isVisible(_ provider: ExpressProvider) -> Bool {
+        !_hiddenProviderIds.contains(provider.id)
+    }
+
     @discardableResult
     func update(state: ExpressManagerState) -> ExpressManagerState {
         currentState = state
         ExpressLogger.info(self, "Updated state: \(state.description)")
 
         return state
-    }
-
-    func bestProvider(from providers: [ExpressAvailableProvider]) -> ExpressAvailableProvider? {
-        providers.bestPreferringDEX()
     }
 
     /// Honors a deeplink-preferred provider when it's among the candidates, otherwise falls back to the best one.
@@ -291,7 +334,8 @@ private extension CommonExpressManager {
             return preferred
         }
 
-        return bestProvider(from: providers)
+        let prefersDEX = _prefersDEX || !featureFlags.isSwapBestRateDefaultProviderEnabled
+        return prefersDEX ? providers.bestPreferringDEX() : providers.best()
     }
 
     func preferredRate(
@@ -322,6 +366,7 @@ private extension CommonExpressManager {
             amountType: _amountType,
             approvePolicy: _approvePolicy,
             slippage: _slippage,
+            mcpIntentID: mcpIntentID,
             quotesLoadingPerformanceTracker: tracker
         )
     }
@@ -344,6 +389,6 @@ extension CommonExpressManager {
 
 // MARK: - CustomStringConvertible
 
-extension CommonExpressManager: @preconcurrency CustomStringConvertible {
-    var description: String { objectDescription(self) }
+extension CommonExpressManager: CustomStringConvertible {
+    nonisolated var description: String { objectDescription(self) }
 }

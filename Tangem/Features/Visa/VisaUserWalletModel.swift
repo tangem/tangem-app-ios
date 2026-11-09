@@ -22,7 +22,6 @@ import TangemPay
 /// It can't be setup on initialization, because we need to get authorization tokens to be able to request address from BFF
 /// After receiving tokens we can request customer information and get payment account address and start loading balances and limits info
 /// At first iteration we didn't store payment account information in the app, this might change later.
-/// Transaction history also requested from BFF, so it can be loaded while authorization tokens didn't retrieved
 /// If refresh token for this Visa card is staled we need to request a new one through signing authorization request using card wallet.
 final class VisaUserWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
@@ -52,24 +51,6 @@ final class VisaUserWalletModel {
         return .init(limits: cardSettings.limits)
     }
 
-    var transactionHistoryStatePublisher: AnyPublisher<TransactionHistoryServiceState, Never> {
-        // Transaction history api changed during Visa 2.0 phase.
-        // Making this functionality work for Visa 1.0 would require new implementation
-        .empty
-    }
-
-    var transactionHistoryItems: [TransactionListItem] {
-        // Transaction history api changed during Visa 2.0 phase.
-        // Making this functionality work for Visa 1.0 would require new implementation
-        []
-    }
-
-    var canFetchMoreTransactionHistory: Bool {
-        // Transaction history api changed during Visa 2.0 phase.
-        // Making this functionality work for Visa 1.0 would require new implementation
-        false
-    }
-
     var tokenItem: TokenItem?
 
     private var cardId: String {
@@ -96,8 +77,6 @@ final class VisaUserWalletModel {
     private let stateSubject = CurrentValueSubject<State, Never>(.notInitialized)
     private let alertSubject = CurrentValueSubject<AlertBinder?, Never>(nil)
 
-    private var historyReloadTask: Task<Void, Never>?
-
     init(userWalletModel: UserWalletModel, cardInfo: CardInfo) {
         self.userWalletModel = userWalletModel
         self.cardInfo = cardInfo
@@ -106,22 +85,6 @@ final class VisaUserWalletModel {
         self.cardWalletAddress = cardWalletAddress
 
         initialSetup()
-    }
-
-    func exploreURL() -> URL? {
-        guard let accountAddress else {
-            return nil
-        }
-
-        let visaBlockchain = VisaUtilities.visaBlockchain
-        let linkProvider = ExternalLinkProviderFactory().makeProvider(for: visaBlockchain)
-        return linkProvider.url(address: accountAddress, contractAddress: tokenItem?.token?.contractAddress)
-    }
-
-    func transaction(with id: UInt64) -> VisaTransactionRecord? {
-        // Transaction history api changed during Visa 2.0 phase.
-        // Making this functionality work for Visa 1.0 would require new implementation
-        nil
     }
 
     func generalUpdateAsync() async {
@@ -144,27 +107,9 @@ final class VisaUserWalletModel {
 
             group.addTask { await self.loadBalancesAndLimits() }
 
-            group.addTask { await self.reloadHistoryAsync() }
-
             await group.waitForAll()
             stateSubject.send(.idle)
         }
-    }
-
-    func reloadHistory() {
-        guard historyReloadTask == nil else {
-            return
-        }
-
-        historyReloadTask = Task { [weak self] in
-            await self?.reloadHistoryAsync()
-            self?.historyReloadTask = nil
-        }
-    }
-
-    func loadNextHistoryPage() {
-        // Transaction history api changed during Visa 2.0 phase.
-        // Making this functionality work for Visa 1.0 would require new implementation
     }
 
     private func initialSetup() {
@@ -224,21 +169,12 @@ final class VisaUserWalletModel {
             )
             customerCardInfoSubject.send(customerCardInfo)
 
-            await reloadHistoryAsync()
             let interactor = try await VisaPaymentAccountInteractorBuilder(evmSmartContractInteractor: smartContractInteractor)
                 .build(customerCardInfo: customerCardInfo)
 
             visaPaymentAccountInteractor = interactor
 
             tokenItem = .token(interactor.visaToken, .init(blockchain, derivationPath: nil))
-            if let authorizationTokensHandler,
-               let customerInfo = customerCardInfo.customerInfo,
-               let productInstance = customerInfo.productInstance(forCardId: cardId) ?? customerInfo.cardProductInstances.first {
-                setupTransactionHistoryService(
-                    productInstanceId: productInstance.id,
-                    authorizationTokensHandler: authorizationTokensHandler
-                )
-            }
             await generalUpdateAsync()
         } catch let error as VisaAuthorizationTokensHandlerError {
             if error == .refreshTokenExpired {
@@ -291,11 +227,6 @@ final class VisaUserWalletModel {
             VisaLogger.error("Failed to load card settings", error: error)
             cardSettingsSubject.send(nil)
         }
-    }
-
-    private func reloadHistoryAsync() async {
-        // Transaction history api changed during Visa 2.0 phase.
-        // Making this functionality work for Visa 1.0 would require new implementation
     }
 }
 
@@ -376,14 +307,6 @@ extension VisaUserWalletModel {
             try await walletModel.setupTokensHandler(with: tokens)
             await walletModel.setupPaymentAccountInteractorAsync()
         }
-    }
-
-    private func setupTransactionHistoryService(
-        productInstanceId: String,
-        authorizationTokensHandler: VisaAuthorizationTokensHandler
-    ) {
-        // Transaction history api changed during Visa 2.0 phase.
-        // Making this functionality work for Visa 1.0 would require new implementation
     }
 }
 

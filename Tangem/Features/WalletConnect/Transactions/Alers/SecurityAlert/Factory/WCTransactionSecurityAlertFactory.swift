@@ -22,7 +22,7 @@ enum WCTransactionSecurityAlertFactory {
                 subtitle: input.validationDescription,
                 icon: .init(
                     asset: Assets.Glyphs.knightShield,
-                    color: input.validationStatus == .malicious ? Colors.Icon.warning : Colors.Icon.attention
+                    color: input.validationStatus == .malicious ? DesignSystem.Color.iconAccentRed : DesignSystem.Color.iconAccentYellow
                 ),
                 primaryButton: .init(title: Localization.commonBack, style: .primary, isLoading: false),
                 secondaryButton: .init(title: Localization.wcSendAnyway, style: .secondary, isLoading: false),

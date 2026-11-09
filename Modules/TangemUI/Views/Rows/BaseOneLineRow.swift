@@ -50,7 +50,7 @@ public struct BaseOneLineRow<SecondLeadingView: View, TitleView: View, TrailingV
         icon?.image
             .resizable()
             .renderingMode(.template)
-            .foregroundStyle(Colors.Icon.accent)
+            .foregroundStyle(DesignSystem.Color.iconAccentBlue)
             .frame(width: 24, height: 24)
     }
 
@@ -59,7 +59,7 @@ public struct BaseOneLineRow<SecondLeadingView: View, TitleView: View, TrailingV
         Assets.Glyphs.selectIcon.image
             .resizable()
             .renderingMode(.template)
-            .foregroundStyle(Colors.Icon.informative)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
             .frame(width: 18, height: 24)
     }
 }

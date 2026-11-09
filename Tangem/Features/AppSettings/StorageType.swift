@@ -57,6 +57,7 @@ enum StorageType: String {
     case tangemPayCachedLocalState = "tangem_pay_cached_local_state"
     case tangemPayCachedTransactionHistory = "tangem_pay_cached_transaction_history"
     case tangemPayCachedCustomerInfo = "tangem_pay_cached_customer_info"
+    case tangemPayCachedCustomerSummary = "tangem_pay_cached_customer_summary"
     case tangemPayCachedCashbackSummary = "tangem_pay_cached_cashback_summary"
     case tangemPayVirtualAccountConditionsShown = "tangem_pay_virtual_account_conditions_shown"
     case tangemPayVirtualAccountCreationFailedForCustomerWalletId = "tangem_pay_virtual_account_creation_failed_for_customer_wallet_id"

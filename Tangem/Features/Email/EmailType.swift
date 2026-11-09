@@ -96,7 +96,6 @@ enum EmailCollectedDataType {
     case error
     case separator(SeparatorType)
     case token(TokenData)
-    case visaDisputeTransaction(VisaDisputeTransactionData)
     case mobileWallet(MobileWalletData)
     case tangemPayCustomerId
     case polymarket(PolymarketData)
@@ -153,27 +152,6 @@ enum EmailCollectedDataType {
         case newLine = "\n"
     }
 
-    enum VisaDisputeTransactionData: String {
-        case id = "ID"
-        case type = "Type"
-        case status = "Status"
-        case blockchainAmount = "Blockchain amount"
-        case blockchainCoinName = "Blockchain coin name"
-        case transactionAmount = "Transaction amount"
-        case currencyCode = "Currency code"
-        case billingAmount = "Billing amount"
-        case billingCurrencyCode = "Billing currency code"
-        case merchantName = "Merchant name"
-        case merchantCity = "Merchant city"
-        case merchantCountryCode = "Merchant country code"
-        case merchantCategoryCode = "Merchant category code"
-        case errorCode = "Error code"
-        case date = "Date"
-        case transactionHash = "Transaction hash"
-        case transactionStatus = "Transaction status"
-        case requests = "Blockchain requests"
-    }
-
     enum MobileWalletData: String {
         case hasSeedPhraseBackup = "Mobile Wallet is backed up (seed phrase)"
         case hasICloudBackup = "Mobile Wallet is backed up (cloud)"
@@ -198,7 +176,6 @@ enum EmailCollectedDataType {
         case .token(let data): return data.rawValue + ": "
         case .error: return "Error: "
         case .separator(let type): return type.rawValue
-        case .visaDisputeTransaction(let data): return data.rawValue + ": "
         case .mobileWallet(let data): return data.rawValue + ": "
         case .tangemPayCustomerId: return "Tangem Pay Customer ID: "
         case .polymarket(let data): return data.rawValue + ": "

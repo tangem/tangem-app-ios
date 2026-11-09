@@ -29,16 +29,16 @@ struct LineChartViewUtility {
 
     /// `Inactive` stands for the part of the chart before (on the left of) the vertical highlight line.
     func inactiveChartLineColor() -> UIColor {
-        return inactiveColor.withAlphaComponent(0.2)
+        return inactiveColor.withDynamicAlphaComponent(0.2)
     }
 
     /// `Selected` stands for the part of the chart after (on the right of) the vertical highlight line.
     func selectedChartLineColor(for trend: LineChartViewData.Trend) -> UIColor {
         switch trend {
         case .uptrend:
-            return UIColor.iconAccent.withAlphaComponent(Constants.activeLineAlpha)
+            return UIColor.iconAccent.withDynamicAlphaComponent(Constants.activeLineAlpha)
         case .downtrend:
-            return UIColor.iconWarning.withAlphaComponent(Constants.activeLineAlpha)
+            return UIColor.iconWarning.withDynamicAlphaComponent(Constants.activeLineAlpha)
         case .neutral:
             return inactiveColor
         }
@@ -58,8 +58,8 @@ struct LineChartViewUtility {
 
     private func makeChartGradientColors(fillColor: UIColor) -> [UIColor] {
         return [
-            fillColor.withAlphaComponent(0.24),
-            fillColor.withAlphaComponent(0.0),
+            fillColor.withDynamicAlphaComponent(0.24),
+            fillColor.withDynamicAlphaComponent(0.0),
         ]
     }
 }

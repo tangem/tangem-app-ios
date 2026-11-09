@@ -167,12 +167,13 @@ private extension TangemSearchField {
     }
 
     var cancelButton: some View {
-        TangemButton(
-            content: .text(AttributedString(Localization.commonCancel)),
+        Button(
+            label: Localization.commonCancel,
+            accessibilityLabel: nil,
             action: onCancel
         )
-        .setStyleType(.ghost)
-        .setSize(.x9)
+        .styleType(.ghost)
+        .size(.x9)
     }
 }
 

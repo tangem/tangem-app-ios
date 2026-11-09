@@ -27,6 +27,8 @@ public extension PolymarketEventCard {
         public let additionalOutcomesCount: Int
         public let isInActivePredicts: Bool
         public let isLive: Bool
+        public let isLiveBadgePulsing: Bool
+        public let outcomeLabelStyle: OutcomeLabelStyle
 
         public init(
             id: String,
@@ -38,7 +40,9 @@ public extension PolymarketEventCard {
             rows: [Row],
             additionalOutcomesCount: Int,
             isInActivePredicts: Bool,
-            isLive: Bool = false
+            isLive: Bool = false,
+            isLiveBadgePulsing: Bool = false,
+            outcomeLabelStyle: OutcomeLabelStyle = .bulletSeparated
         ) {
             self.id = id
             self.title = title
@@ -50,7 +54,14 @@ public extension PolymarketEventCard {
             self.additionalOutcomesCount = additionalOutcomesCount
             self.isInActivePredicts = isInActivePredicts
             self.isLive = isLive
+            self.isLiveBadgePulsing = isLiveBadgePulsing
+            self.outcomeLabelStyle = outcomeLabelStyle
         }
+    }
+
+    enum OutcomeLabelStyle: Hashable {
+        case bulletSeparated
+        case compact
     }
 
     typealias Category = PolymarketMarketMetaRow.Category

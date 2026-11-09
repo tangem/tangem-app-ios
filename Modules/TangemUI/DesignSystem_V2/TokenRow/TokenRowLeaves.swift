@@ -11,21 +11,16 @@ import TangemAssets
 
 struct TokenRowTitleText: View {
     private let text: String
-    private let isDimmed: Bool
     private let accessibilityIdentifier: String?
 
-    init(_ text: String, isDimmed: Bool = false, accessibilityIdentifier: String? = nil) {
+    init(_ text: String, accessibilityIdentifier: String? = nil) {
         self.text = text
-        self.isDimmed = isDimmed
         self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     var body: some View {
         Text(text)
-            .style(
-                DesignSystem.Font.bodyMediumToken,
-                color: isDimmed ? DesignSystem.Color.textTertiary : DesignSystem.Color.textPrimary
-            )
+            .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             .lineLimit(1)
             .truncationMode(.tail)
             .accessibilityIdentifier(accessibilityIdentifier)

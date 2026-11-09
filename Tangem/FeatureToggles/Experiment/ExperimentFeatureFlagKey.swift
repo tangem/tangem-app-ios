@@ -15,6 +15,7 @@ enum ExperimentFeatureFlagKey: String {
     case hardwareUpgradeStories = "twi_1357_main_hardware_upgrade_stories"
     case tangemPayAppleWalletProvisioning = "push_provisioning_tpay"
     case polymarket = "twi_1576_polymarket"
+    case yieldModePromo = "twi_1762_yield_mode_promo"
 }
 
 enum ExperimentFeatureVariantKey: String {

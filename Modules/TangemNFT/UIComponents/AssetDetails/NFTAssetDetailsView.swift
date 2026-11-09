@@ -34,7 +34,7 @@ public struct NFTAssetDetailsView: View {
             .padding(.horizontal, Constants.horizontalPadding)
             .navigationTitle(viewModel.name)
             .navigationBarTitleDisplayMode(.inline)
-            .background(Colors.Background.tertiary)
+            .background(DesignSystem.Color.bgPrimary)
             .onAppear(perform: viewModel.onViewAppear)
     }
 

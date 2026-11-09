@@ -29,6 +29,7 @@ struct CampaignView: View {
         )
         .sheet(item: $viewModel.tokenSelectorViewModel) { tokenSelectorViewModel in
             CampaignTokenSelectorView(viewModel: tokenSelectorViewModel)
+                .softTopScrollEdgeEffect()
         }
     }
 
@@ -95,12 +96,12 @@ struct CampaignView: View {
 
             VStack(spacing: 8) {
                 Text(viewModel.statusTitle)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 if !viewModel.statusSubtitle.isEmpty {
                     Text(viewModel.statusSubtitle)
-                        .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -135,16 +136,16 @@ struct CampaignView: View {
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(viewModel.summaryTitle)
-                    .style(Fonts.Bold.title3, color: Colors.Text.primary1)
+                    .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(viewModel.summaryDescription)
-                    .style(Fonts.Bold.caption1, color: Colors.Text.secondary)
+                    .style(Fonts.Bold.caption1, color: DesignSystem.Color.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 SwiftUI.Button(action: viewModel.openLearnMore) {
                     Text(Localization.commonLearnMore)
-                        .style(Fonts.Bold.caption1, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.caption1, color: DesignSystem.Color.textPrimary)
                 }
                 .buttonStyle(.plain)
                 .padding(.top, 8)
@@ -157,7 +158,7 @@ struct CampaignView: View {
     private var accountSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(Localization.promoCampaignSelectCashbackAccount)
-                .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
 
             if let rowViewModel = viewModel.selectedTokenRowViewModel {
                 SwiftUI.Button(action: viewModel.selectToken) {

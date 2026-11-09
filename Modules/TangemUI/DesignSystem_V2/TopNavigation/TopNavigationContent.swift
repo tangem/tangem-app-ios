@@ -110,8 +110,8 @@ struct TopNavigationActionsGroup: View {
 
     private var surfacedActions: some View {
         HStack(spacing: TopNavigationChromeMetrics.actionSpacing) {
-            ForEach(actions.indices, id: \.self) { index in
-                TopNavigationActionButton(action: actions[index], size: size)
+            ForEach(indexed: actions, id: \.0) { _, action in
+                TopNavigationActionButton(action: action, size: size)
                     .barHitTarget(size: size)
             }
         }
@@ -205,8 +205,8 @@ struct TopNavigationSystemChrome: View {
 
     var body: some View {
         VerticalBarAdaptiveStack(spacing: TopNavigationChromeMetrics.actionSpacing) {
-            ForEach(actions.indices, id: \.self) { index in
-                TopNavigationActionButton(action: actions[index], size: size)
+            ForEach(indexed: actions, id: \.0) { _, action in
+                TopNavigationActionButton(action: action, size: size)
                     .contentShape(.rect)
             }
         }
@@ -235,9 +235,7 @@ struct TopNavigationMenuItems: View {
     let items: [TopNavigation.MenuItem]
 
     var body: some View {
-        ForEach(items.indices, id: \.self) { index in
-            let item = items[index]
-
+        ForEach(indexed: items, id: \.0) { _, item in
             SwiftUI.Button(role: item.role, action: item.action) {
                 Text(item.title)
             }

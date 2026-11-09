@@ -29,11 +29,11 @@ struct WCCustomAllowanceView: View {
         HStack(spacing: 8) {
             VStack(spacing: 4) {
                 Text(Localization.commonAmount)
-                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 TextField("0", text: $viewModel.amountText)
-                    .style(Fonts.Regular.body, color: viewModel.isUnlimited ? Colors.Text.tertiary : Colors.Text.primary1)
+                    .style(Fonts.Regular.body, color: viewModel.isUnlimited ? DesignSystem.Color.textSecondary : DesignSystem.Color.textPrimary)
                     .keyboardType(.decimalPad)
                     .disabled(viewModel.isUnlimited)
                     .multilineTextAlignment(.leading)
@@ -45,7 +45,7 @@ struct WCCustomAllowanceView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadius(14)
     }
 
@@ -58,11 +58,11 @@ struct WCCustomAllowanceView: View {
             IconView(url: iconURL, size: iconSize, cornerRadius: cornerRadius)
         } else {
             RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(Colors.Background.primary)
+                .fill(DesignSystem.Color.bgSecondary)
                 .frame(size: iconSize)
                 .overlay(
                     Text(String(viewModel.tokenSymbol.prefix(1)))
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                        .style(Fonts.Bold.subheadline, color: DesignSystem.Color.textPrimary)
                 )
         }
     }
@@ -70,7 +70,7 @@ struct WCCustomAllowanceView: View {
     private var unlimitedToggleSection: some View {
         HStack(spacing: 16) {
             Text(Localization.wcUnlimitedAmount)
-                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+                .style(Fonts.Regular.body, color: DesignSystem.Color.textPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Toggle("", isOn: $viewModel.isUnlimited)
@@ -83,7 +83,7 @@ struct WCCustomAllowanceView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        .background(Colors.Background.action)
+        .background(DesignSystem.Color.bgSecondary)
         .cornerRadius(14)
     }
 }

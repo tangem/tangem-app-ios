@@ -63,13 +63,13 @@ extension CollectiblesCoordinator {
             }
 
             let tokenItem = CollectiblesChainEnvironment.usdcTokenItem(mint: account.mint)
-            let swapParameters = CollectiblesSwapParametersFactory.make(
+            let swapParametersBuilder = CollectiblesDepositSwapPredefinedParametersBuilder(
                 accountModel: options.accountModel,
-                userWalletInfo: options.userWalletInfo,
-                walletModelsProvider: options.walletModelsProvider,
+                userWalletModel: options.userWalletModel,
                 tokenItem: tokenItem,
                 fundingAddress: account.address
             )
+            let swapParameters = swapParametersBuilder.make()
             let sheet = CollectiblesAddFundsSheetViewModel(
                 input: .init(address: account.address, tokenItem: tokenItem, swapParameters: swapParameters),
                 routable: self
@@ -100,8 +100,7 @@ extension CollectiblesCoordinator {
 extension CollectiblesCoordinator.FundsCoordinator {
     struct Options {
         let accountModel: any CollectiblesBalanceSource & CollectiblesDepositAwaiter & BaseAccountModel
-        let userWalletInfo: UserWalletInfo
-        let walletModelsProvider: MainScreenUIOrderedWalletModelsProvider
+        let userWalletModel: any UserWalletModel
     }
 }
 

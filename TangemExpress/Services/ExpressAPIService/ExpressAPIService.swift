@@ -15,6 +15,9 @@ protocol ExpressAPIService {
     func providers() async throws -> [ExpressDTO.Swap.Providers.Response]
     func exchangeQuote(request: ExpressDTO.Swap.ExchangeQuote.Request) async throws -> ExpressDTO.Swap.ExchangeQuote.Response
     func exchangeData(request: ExpressDTO.Swap.ExchangeData.Request) async throws -> ExpressDTO.Swap.ExchangeData.Response
+    func exchangeMCPIntent(
+        request: ExpressDTO.Swap.ExchangeMCPIntent.Request
+    ) async throws -> ExpressDTO.Swap.ExchangeMCPIntent.Response
     func exchangeStatus(request: ExpressDTO.Swap.ExchangeStatus.Request) async throws -> ExpressDTO.Swap.ExchangeStatus.Response
     func exchangeSent(request: ExpressDTO.Swap.ExchangeSent.Request) async throws -> ExpressDTO.Swap.ExchangeSent.Response
     func exchangeHistory(request: ExpressDTO.Swap.History.Request) async throws -> ExpressDTO.Swap.History.Response

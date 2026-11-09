@@ -10,14 +10,8 @@ import Testing
 import TangemPolymarket
 @testable import Tangem
 
-@Suite("Polymarket position type filter")
+@Suite("Polymarket position type filter", .timeLimit(.minutes(1)))
 struct PolymarketPositionTypeFilterTests {
-    @Test("All keeps every row of both lists")
-    func allKeepsEverything() {
-        #expect(PolymarketPositionTypeFilter.all.accepts(Self.open(resolution: .disputed, settlement: nil)))
-        #expect(PolymarketPositionTypeFilter.all.accepts(Self.closed(status: .lost)))
-    }
-
     @Test("The live states read the resolution, not the settlement", arguments: [
         (PolymarketPositionTypeFilter.active, PolymarketResolutionStatus.open),
         (.disputed, .disputed),
@@ -59,7 +53,6 @@ struct PolymarketPositionTypeFilterTests {
         (.lost, .lost),
         (.split, .split),
         (.closed, .closed),
-        (.unknown, .unknown),
     ])
     func closedRowsFollowStatus(filter: PolymarketPositionTypeFilter, status: PolymarketClosedPositionStatus) {
         #expect(filter.accepts(Self.closed(status: status)))
@@ -69,20 +62,17 @@ struct PolymarketPositionTypeFilterTests {
         }
     }
 
-    @Test("An unrecognised ending is its own state, not every state")
-    func unknownStaysUnknown() {
-        #expect(PolymarketPositionTypeFilter.unknown.accepts(Self.open(resolution: .unknown, settlement: .unknown)))
-        #expect(!PolymarketPositionTypeFilter.unknown.accepts(Self.open(resolution: .resolved, settlement: .won)))
-    }
+    @Test("An unrecognised ending is listed only under All")
+    func unknownIsListedUnderAll() {
+        let openRow = Self.open(resolution: .unknown, settlement: .unknown)
+        let closedRow = Self.closed(status: .unknown)
 
-    @Test("Nothing closed is live, so the live states match no closed row", arguments: [
-        PolymarketPositionTypeFilter.active,
-        .disputed,
-        .pending,
-    ])
-    func liveStatesMatchNoClosedRow(filter: PolymarketPositionTypeFilter) {
-        for status in PolymarketClosedPositionStatus.allCases {
-            #expect(!filter.accepts(Self.closed(status: status)))
+        #expect(PolymarketPositionTypeFilter.all.accepts(openRow))
+        #expect(PolymarketPositionTypeFilter.all.accepts(closedRow))
+
+        for filter in PolymarketPositionTypeFilter.allCases where filter != .all {
+            #expect(!filter.accepts(openRow))
+            #expect(!filter.accepts(closedRow))
         }
     }
 }

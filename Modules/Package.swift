@@ -536,6 +536,8 @@ var unitTestsModules: [PackageDescription.Target] {
                 "TangemFoundation",
                 .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core"),
                 .product(name: "OpenTelemetrySdk", package: "opentelemetry-swift-core"),
+                .product(name: "OpenTelemetryProtocolExporterHTTP", package: "opentelemetry-swift"),
+                .product(name: "SwiftProtobuf", package: "swift-protobuf-binaries"),
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -654,6 +656,14 @@ var unitTestsModules: [PackageDescription.Target] {
             dependencies: [
                 "TangemPolymarket",
                 "Moya",
+            ],
+            swiftSettings: .swift6StrictSettings
+        ),
+        .tangemTestTarget(
+            name: "TangemSocialAuthenticationTests",
+            dependencies: [
+                "TangemFoundation",
+                "TangemSocialAuthentication",
             ],
             swiftSettings: .swift6StrictSettings
         ),

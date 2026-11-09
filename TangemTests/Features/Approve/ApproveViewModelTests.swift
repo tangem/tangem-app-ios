@@ -82,7 +82,7 @@ struct ApproveViewModelTests {
 
     @Test("Policy change during the fee phase rebuilds again and the latest selection wins")
     func policyChange_duringFeePhase_latestSelectionWins() async throws {
-        let specifiedData = ApproveTransactionData(txData: Data([0x02]), spender: testSpender, toContractAddress: "0xSpecified")
+        let specifiedData = ApproveTransactionData(txData: Data([0x02]), spender: testSpender, toContractAddress: "0xSpecified", amountRaw: 1)
 
         let env = makeEnv()
         env.allowanceService.setMakeApproveDataResult(.success(makeUnlimitedData()), for: ApprovePolicy.unlimited)
@@ -246,7 +246,7 @@ struct ApproveViewModelTests {
     }
 
     private func makeSUT(env: Env, policy: ApprovePolicy = .specified) -> ApproveViewModel {
-        let approveData = ApproveTransactionData(txData: testTxData, spender: testSpender, toContractAddress: testContractAddress)
+        let approveData = ApproveTransactionData(txData: testTxData, spender: testSpender, toContractAddress: testContractAddress, amountRaw: 1)
 
         let interactor = ApproveInteractor(
             approveInteractorState: .approve(data: approveData, policy: policy),
@@ -276,7 +276,7 @@ struct ApproveViewModelTests {
     }
 
     private func makeUnlimitedData() -> ApproveTransactionData {
-        ApproveTransactionData(txData: unlimitedTxData, spender: testSpender, toContractAddress: testContractAddress)
+        ApproveTransactionData(txData: unlimitedTxData, spender: testSpender, toContractAddress: testContractAddress, amountRaw: 1)
     }
 
     private func makeTestTokenItem() -> TokenItem {

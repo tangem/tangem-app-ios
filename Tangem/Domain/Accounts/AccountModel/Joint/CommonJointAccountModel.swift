@@ -106,11 +106,7 @@ extension CommonJointAccountModel: JointAccountModel {
         let config = try makeActivationConfig()
         try await delegate.activateJointAccount(with: config)
     }
-}
 
-// MARK: - CryptoAccountModel protocol conformance
-
-extension CommonJointAccountModel: CryptoAccountModel {
     var name: String {
         cryptoAccount.name
     }
@@ -157,6 +153,14 @@ extension CommonJointAccountModel: CryptoAccountModel {
 
     func archive() async throws(AccountArchivationError) {
         try await cryptoAccount.archive()
+    }
+}
+
+// MARK: - AccountModelResolvable protocol conformance
+
+extension CommonJointAccountModel {
+    func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
+        resolver.resolve(accountModel: self)
     }
 }
 

@@ -17,6 +17,7 @@ protocol PromotionNotificationsManager: NotificationManager {
 class CommonPromotionNotificationsManager {
     @Injected(\.promotionRepository) private var promotionRepository: PromotionRepository
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
+    @Injected(\.promoCampaignFlowLauncher) private var promoCampaignFlowLauncher: PromoCampaignFlowLaunching
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
@@ -24,7 +25,6 @@ class CommonPromotionNotificationsManager {
     private let placement: PromotionPlacement
 
     private var activePromotionSubscription: AnyCancellable?
-    private var promoCampaignCoordinator: PromoCampaignCoordinator?
 
     init(userWalletId: UserWalletId, placement: PromotionPlacement) {
         self.userWalletId = userWalletId
@@ -117,23 +117,7 @@ extension CommonPromotionNotificationsManager {
             return
         }
 
-        startPromoCampaignFlow(campaignId: campaignId)
-    }
-
-    private func startPromoCampaignFlow(campaignId: Int) {
-        if let promoCampaignCoordinator, !promoCampaignCoordinator.isStale {
-            return
-        }
-
-        let coordinator = PromoCampaignCoordinator(
-            dismissAction: { [weak self] _ in
-                self?.promoCampaignCoordinator = nil
-            },
-            popToRootAction: { _ in }
-        )
-
-        promoCampaignCoordinator = coordinator
-        coordinator.start(with: .init(campaignId: campaignId, userWalletId: userWalletId))
+        promoCampaignFlowLauncher.startFlow(campaignId: campaignId, userWalletId: userWalletId)
     }
 }
 

@@ -14,9 +14,12 @@ import TangemUI
 struct PolymarketMainDependenciesFactory {
     func make(for userWalletModel: any UserWalletModel) -> PolymarketMainDependencies {
         let walletId = userWalletModel.userWalletId.stringValue
+        let isPhaseTwoAvailable = FeatureProvider.isAvailable(.polymarketPhaseTwo)
         let apiProvider = PolymarketAPIProviderFactory().makeProvider(walletId: walletId)
         let balanceProvider = CommonPolymarketBalanceProvider(userWalletModel: userWalletModel)
-        let fundsArrivalTracker = PolymarketFundsArrivalTracker(
+        let fundsArrivalTracker = InjectedValues[\.polymarketFundsArrivalTrackerRegistry].tracker(
+            for: userWalletModel.userWalletId,
+            owner: userWalletModel,
             balancePublisher: balanceProvider.collateralBalancePublisher.map(\.value).eraseToAnyPublisher()
         )
         let refreshCenter = PolymarketMainRefreshCenter()
@@ -43,7 +46,8 @@ struct PolymarketMainDependenciesFactory {
             refreshCenter: refreshCenter,
             activityHandler: PolymarketMainActivityHandler(fundsArrivalTracker: fundsArrivalTracker, refreshCenter: refreshCenter),
             sessionHealth: sessionHealth,
-            isSingleSheetOrderEnabled: FeatureProvider.isAvailable(.polymarketPhaseTwo)
+            isSingleSheetOrderEnabled: isPhaseTwoAvailable,
+            isPhaseTwoAvailable: isPhaseTwoAvailable
         )
     }
 }
@@ -83,6 +87,7 @@ struct PolymarketMainDependencies {
     let activityHandler: PolymarketMainActivityHandler
     let sessionHealth: PolymarketSessionHealth
     let isSingleSheetOrderEnabled: Bool
+    let isPhaseTwoAvailable: Bool
 
     var walletId: String {
         userWalletModel.userWalletId.stringValue
@@ -127,14 +132,6 @@ struct PolymarketMainDependencies {
             .sell(shares: shares)
         }
     }
-
-    func makeSwapParametersFactory(accountModel: any PolymarketAccountModel) -> PolymarketSwapParametersFactory {
-        PolymarketSwapParametersFactory(
-            userWalletInfo: userWalletModel.userWalletInfo,
-            walletModelsProvider: walletModelsProvider,
-            accountModel: accountModel
-        )
-    }
 }
 
 // MARK: - Main screen blocks
@@ -173,6 +170,7 @@ private extension PolymarketMainDependencies {
             apiProvider: apiProvider,
             activityHandler: activityHandler,
             isRegionRestricted: isRegionRestricted,
+            usesPhaseTwoCards: isPhaseTwoAvailable,
             routable: routable
         )
     }
@@ -184,6 +182,8 @@ private extension PolymarketMainDependencies {
             refreshCenter: refreshCenter,
             activityHandler: activityHandler,
             liveQuotesTracker: makeFeedLiveQuotesTracker(),
+            liveGamesTracker: makeFeedLiveGamesTracker(),
+            usesPhaseTwoCards: isPhaseTwoAvailable,
             isRegionRestricted: isRegionRestricted,
             routable: routable
         )
@@ -191,7 +191,7 @@ private extension PolymarketMainDependencies {
 
     @MainActor
     func makeFeedLiveQuotesTracker() -> PolymarketFeedLiveQuotesTracker {
-        guard FeatureProvider.isAvailable(.polymarketPhaseTwo) else {
+        guard isPhaseTwoAvailable else {
             return PolymarketFeedLiveQuotesTracker(
                 quotes: { _ in AsyncStream { $0.finish() } },
                 statusChanges: { AsyncStream { $0.finish() } }
@@ -199,5 +199,17 @@ private extension PolymarketMainDependencies {
         }
 
         return PolymarketFeedLiveQuotesTracker(liveQuotes: PolymarketLiveQuotes())
+    }
+
+    @MainActor
+    func makeFeedLiveGamesTracker() -> PolymarketFeedLiveGamesTracker {
+        guard isPhaseTwoAvailable else {
+            return PolymarketFeedLiveGamesTracker(
+                games: { _ in AsyncStream { $0.finish() } },
+                statusChanges: { AsyncStream { $0.finish() } }
+            )
+        }
+
+        return PolymarketFeedLiveGamesTracker(liveGames: PolymarketLiveGames())
     }
 }

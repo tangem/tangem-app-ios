@@ -76,9 +76,7 @@ struct TransactionViewAmountViewData: Hashable {
         }
     }
 
-    /// Numeric value for the redesigned row and chip. Deliberately decoupled from `formattedAmount`, which the
-    /// legacy row reads: label-only chips carry none, while the legacy row still shows the amount of the
-    /// coin-variant enable and disable.
+    /// Numeric value for the redesigned row and chip. Label-only chips carry none.
     var displayValue: String? {
         if TransactionDisplayModel.isLabelOnlyChip(transactionType: type, isOutgoing: isOutgoing, isFromYieldContract: isFromYieldContract) {
             return nil
@@ -90,19 +88,19 @@ struct TransactionViewAmountViewData: Hashable {
     var amountColor: Color {
         switch (status, type) {
         case (.failed, _):
-            return Colors.Text.warning
+            return DesignSystem.Color.textAccentRed
 
         case (_, .tangemPay(.spend(_, _, let isDeclined, _))) where isDeclined:
-            return Colors.Text.warning
+            return DesignSystem.Color.textAccentRed
 
         case (_, .tangemPay(.spend(_, _, _, let isNegativeAmount))) where isNegativeAmount:
-            return Colors.Text.accent
+            return DesignSystem.Color.textAccentBlue
 
         case (_, .tangemPay(.transfer)) where !isOutgoing, (_, .tangemPay(.cashback)):
-            return Colors.Text.accent
+            return DesignSystem.Color.textAccentBlue
 
         default:
-            return Colors.Text.primary1
+            return DesignSystem.Color.textPrimary
         }
     }
 }

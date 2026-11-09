@@ -179,7 +179,7 @@ struct TwinsOnboardingView: View {
         })
         .preference(key: ModalSheetPreferenceKey.self, value: currentStep.isModal)
         .onAppear(perform: viewModel.onAppear)
-        .background(Colors.Background.primary.edgesIgnoringSafeArea(.all))
+        .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
     }
 }
 

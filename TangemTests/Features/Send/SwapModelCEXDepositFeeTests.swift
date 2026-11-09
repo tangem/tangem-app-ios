@@ -199,7 +199,7 @@ private extension SwapModelCEXDepositFeeTests {
                 sourceAddress: "TSourceAddress",
                 destinationAddress: "TSourceAddress",
                 tokenContractAddress: usdt.contractAddress,
-                amountRaw: "10000000",
+                amountRaw: 10_000_000,
                 feeTokenContractAddress: usdt.contractAddress
             ),
             feeRecipient: "TFeeRecipient",
@@ -231,6 +231,7 @@ private actor ExpressManagerDummy: ExpressManager {
     func update(amountType: ExpressAmountType?) async throws -> ExpressManagerState { .idle }
     func update(approvePolicy: ApprovePolicy) async throws -> ExpressManagerState { .idle }
     func update(slippage: Decimal?) async -> ExpressManagerState { .idle }
+    func update(prefersDEX: Bool) async {}
     func updateSelectedProvider(provider: ExpressAvailableProvider) async -> ExpressManagerState { .idle }
     func update(type: ExpressManagerUpdatingType) async -> ExpressManagerState { .idle }
 

@@ -41,7 +41,7 @@ struct ReceiveMainView: View {
         }
         .scrollBounceBehavior(.basedOnSize)
         .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(viewModel.viewState?.backgroundColor ?? Colors.Background.tertiary)
+            configuration.sheetBackground = .color(viewModel.viewState?.backgroundColor ?? DesignSystem.Color.bgPrimary)
             configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
             configuration.backgroundInteractionBehavior = .tapToDismiss
         }

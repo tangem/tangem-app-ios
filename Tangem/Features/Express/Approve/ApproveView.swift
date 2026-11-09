@@ -25,7 +25,7 @@ struct ApproveView: View {
             } footer: {
                 approveInfoDescriptionView
             }
-            .backgroundColor(Colors.Background.action)
+            .backgroundColor(DesignSystem.Color.bgSecondary)
 
             GroupedSection(viewModel.feeCompactViewModel) { feeViewModel in
                 FeeCompactView(viewModel: feeViewModel) {
@@ -34,12 +34,12 @@ struct ApproveView: View {
             } footer: {
                 DefaultFooterView(viewModel.feeFooterText)
             }
-            .backgroundColor(Colors.Background.action)
+            .backgroundColor(DesignSystem.Color.bgSecondary)
         }
         .padding(.top, 4)
         .padding(.bottom, 2)
         .padding(.horizontal, 16)
-        .background(Colors.Background.tertiary)
+        .background(DesignSystem.Color.bgPrimary)
         .disabled(viewModel.state.isContentLocked)
     }
 

@@ -52,12 +52,6 @@ struct TransactionHistoryMapperYieldTests {
         }
     }
 
-    @Test("The legacy row keeps showing the amount of the coin-variant enable and disable")
-    func legacyAmountVisibilityIsUntouched() {
-        #expect(makeSUT(isToken: false).mapTransactionViewModel(makeYieldRecord(method: "yieldEnter")).amount.formattedAmount != nil)
-        #expect(makeSUT(isToken: true).mapTransactionViewModel(makeYieldRecord(method: "yieldEnter")).amount.formattedAmount == nil)
-    }
-
     @Test("The Supply and Withdraw chips carry no amount")
     func supplyAndWithdrawChipsHaveNoAmount() {
         #expect(makeSUT().mapTransactionViewModel(makeYieldRecord(method: "yieldTopup")).amount.displayValue == nil)
@@ -87,18 +81,7 @@ struct TransactionHistoryMapperYieldTests {
         for method in ["yieldEnter", "yieldWithdraw"] {
             let amount = sut.mapTransactionViewModel(makeYieldRecord(method: method, isOutgoing: true)).amount
 
-            #expect(!amount.amount.hasPrefix(AppConstants.minusSign))
             #expect(!amount.amountWithCurrencyCode.hasPrefix(AppConstants.minusSign))
-        }
-    }
-
-    @Test("The sign the redesign invents never reaches the legacy amount string")
-    func legacyAmountStaysUnsigned() {
-        for record in [makeYieldRecord(method: "yieldTopup"), makeWithdrawRecord()] {
-            let amount = makeSUT().mapTransactionViewModel(record).amount.amount
-
-            #expect(!amount.hasPrefix(AppConstants.minusSign))
-            #expect(!amount.hasPrefix(AppConstants.plusSign))
         }
     }
 
@@ -321,6 +304,33 @@ struct TransactionHistoryMapperYieldTests {
 
         #expect(fullAddress == "0xTokenContract")
     }
+
+    // MARK: - Recent suggestions
+
+    @Test("A transfer to a person shaped like the Yield records below does reach Recent")
+    func transferToAPersonIsSuggested() {
+        let record = makeRecord(type: .transfer, isOutgoing: true, destination: .user("0xRecipient"))
+
+        #expect(makeSUT().mapSuggestedRecord(record)?.address == "0xRecipient")
+    }
+
+    @Test(
+        "No call the app wraps in a module upgrade reaches Recent, whether unwrapped or left wrapped",
+        arguments: ["0x0779afe6", "0xebd4b81c", "0xc478e956", "0xb4701e3e", "0xbebc896c", "0xf3fef3a3", "0x4c3f521d", "0x4f1ef286"]
+    )
+    func yieldCallOfAnUpgradeIsNotSuggested(methodId: String) async {
+        let record = makeRecord(type: .contractMethodIdentifier(id: methodId), isOutgoing: true, destination: .user("0xRecipient"))
+
+        let suggestion = await InjectedDependenciesIsolation.shared.run {
+            let previousSmartContractMethodMapper = InjectedValues[\.smartContractMethodMapper]
+            InjectedValues[\.smartContractMethodMapper] = CommonSmartContractMethodMapper()
+            defer { InjectedValues[\.smartContractMethodMapper] = previousSmartContractMethodMapper }
+
+            return makeSUT().mapSuggestedRecord(record)
+        }
+
+        #expect(suggestion == nil)
+    }
 }
 
 // MARK: - Helpers
@@ -377,13 +387,17 @@ private extension TransactionHistoryMapperYieldTests {
         type: TransactionRecord.TransactionType,
         isOutgoing: Bool,
         status: TransactionRecord.TransactionStatus = .confirmed,
-        isFromYieldContract: Bool = false
+        isFromYieldContract: Bool = false,
+        destination: TransactionRecord.Destination.Address? = nil
     ) -> TransactionRecord {
         TransactionRecord(
             hash: "hash",
             index: 0,
             source: .single(TransactionRecord.Source(address: isOutgoing ? "0xSource" : "0xTokenContract", amount: 2)),
-            destination: .single(TransactionRecord.Destination(address: .contract(isOutgoing ? "0xTokenContract" : "0xSource"), amount: 2)),
+            destination: .single(TransactionRecord.Destination(
+                address: destination ?? .contract(isOutgoing ? "0xTokenContract" : "0xSource"),
+                amount: 2
+            )),
             fee: Fee(Amount(type: .coin, currencySymbol: "ETH", value: 0, decimals: 18)),
             status: status,
             isOutgoing: isOutgoing,

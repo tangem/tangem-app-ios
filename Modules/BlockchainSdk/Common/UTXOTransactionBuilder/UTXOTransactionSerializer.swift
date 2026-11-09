@@ -24,6 +24,7 @@ enum UTXOTransactionSerializerError: LocalizedError {
     case unsupported
     case spendableScriptNotFound
     case noDestinationAmount
+    case invalidInput
     case walletCoreError(String)
 
     var errorDescription: String? {
@@ -34,6 +35,8 @@ enum UTXOTransactionSerializerError: LocalizedError {
             return "Spendable script not found"
         case .noDestinationAmount:
             return "No destination amount"
+        case .invalidInput:
+            return "Invalid transaction input"
         case .walletCoreError(let message):
             return message
         }

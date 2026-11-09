@@ -63,6 +63,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemPayMainCoordinator) {
                 TangemPayMainCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.tangemPayMoneyAccountCoordinator) {
+                TangemPayMoneyAccountCoordinatorView(coordinator: $0)
+            }
             .navigation(item: $coordinator.tangemPaySelectPlanCoordinator) {
                 TangemPaySelectPlanCoordinatorView(coordinator: $0)
             }
@@ -113,9 +116,6 @@ struct MainCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-            .shtorkaCompatibleSheet(item: $coordinator.visaTransactionDetailsViewModel) {
-                VisaTransactionDetailsView(viewModel: $0)
-            }
             .shtorkaCompatibleSheet(item: $coordinator.actionButtonsBuyCoordinator) {
                 ActionButtonsBuyCoordinatorView(coordinator: $0)
             }
@@ -125,6 +125,13 @@ struct MainCoordinatorView: CoordinatorView {
             .shtorkaCompatibleSheet(item: $coordinator.yieldModuleActiveCoordinator) {
                 YieldModuleActiveCoordinatorView(coordinator: $0)
             }
+            .shtorkaCompatibleModal(
+                item: $coordinator.yieldModePromoSheetViewModel,
+                contentLayout: .intrinsic,
+                dragIndicator: .hidden,
+                header: { YieldModePromoSheetHeaderView(viewModel: $0) },
+                content: { YieldModePromoSheetView(viewModel: $0) }
+            )
             .floatingSheetContent(for: MobileFinishActivationNeededViewModel.self) {
                 MobileFinishActivationNeededView(viewModel: $0)
             }

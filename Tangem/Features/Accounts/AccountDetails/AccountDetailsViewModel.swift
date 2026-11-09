@@ -243,10 +243,10 @@ final class AccountDetailsViewModel: ObservableObject {
         let moreInfo = Localization.jointAccountMoreInfo
         var hint = AttributedString(Localization.jointAccountSettingsNetworksInfo + " " + moreInfo)
         hint.font = Fonts.Regular.caption1
-        hint.foregroundColor = Colors.Text.tertiary
+        hint.foregroundColor = DesignSystem.Color.textSecondary
 
         if let range = hint.range(of: moreInfo) {
-            hint[range].foregroundColor = Colors.Text.accent
+            hint[range].foregroundColor = DesignSystem.Color.textAccentBlue
             // Tap on "link" will handle as navigation
             hint[range].link = URL(string: "about:blank")
         }
@@ -324,15 +324,12 @@ private extension AccountDetailsViewModel {
 
         let viewModel: AccountDetailsViewModel
 
-        func resolve(accountModel: any CryptoAccountModel) -> Result {
-            Task {
-                do throws(AccountArchivationError) {
-                    try await accountModel.archive()
-                    await viewModel.handleAccountArchivingSuccess()
-                } catch {
-                    await viewModel.handleAccountArchivingFailure(error: error)
-                }
-            }
+        func resolve(accountModel: any StandardCryptoAccountModel) -> Result {
+            archive(accountModel)
+        }
+
+        func resolve(accountModel: any JointAccountModel) -> Result {
+            archive(accountModel)
         }
 
         /// TangemPay does not support archiving
@@ -348,6 +345,17 @@ private extension AccountDetailsViewModel {
         /// Collectibles does not support archiving
         func resolve(accountModel: any CollectiblesAccountModel) -> Task<Void, Never> {
             Task {}
+        }
+
+        private func archive(_ accountModel: some CryptoAccountModel) -> Result {
+            Task {
+                do throws(AccountArchivationError) {
+                    try await accountModel.archive()
+                    await viewModel.handleAccountArchivingSuccess()
+                } catch {
+                    await viewModel.handleAccountArchivingFailure(error: error)
+                }
+            }
         }
     }
 }

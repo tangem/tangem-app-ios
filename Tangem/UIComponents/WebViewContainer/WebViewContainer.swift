@@ -43,6 +43,7 @@ struct WebViewContainer: View {
                 )
                 .navigationBarTitle("", displayMode: .inline)
             }
+            .softTopScrollEdgeEffect()
         }
     }
 
@@ -63,7 +64,7 @@ struct WebViewContainer: View {
             if viewModel.withNavigationBar {
                 webViewContent
                     .navigationBarTitle(Text(viewModel.title), displayMode: .inline)
-                    .background(Colors.Old.tangemBg.edgesIgnoringSafeArea(.all))
+                    .background(DesignSystem.Color.bgBase.edgesIgnoringSafeArea(.all))
             } else {
                 webViewContent
             }

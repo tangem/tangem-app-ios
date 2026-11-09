@@ -87,7 +87,7 @@ private extension MobileBackupICloudTypeView {
 
     var descriptionView: some View {
         Text(viewModel.description)
-            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+            .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
             .multilineTextAlignment(.leading)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -97,7 +97,7 @@ private extension MobileBackupICloudTypeView {
         Assets.chevronRightWithOffset24.image
             .renderingMode(.template)
             .resizable()
-            .foregroundStyle(Colors.Text.tertiary)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
             .frame(width: 24, height: 24)
     }
 

@@ -16,11 +16,12 @@ protocol WalletCardsBackupReportRepository {
     /// primary's stored identity (a backup card at linking), else `.blank` tagged with `primaryCardId` — and
     /// once that primary becomes `.filled`, the group's still-`.blank` cards are filled too.
     func store(card: WalletCardsCurrentlyProcessedCard, primaryCardId: String, error: TangemSdkError?)
+    func storePreviouslySavedCardIfNeeded(_ card: WalletCardsCurrentlyProcessedCard)
 
     var pendingReportsPublisher: AnyPublisher<[WalletCardsWaitingDeliveryBackupCards], Never> { get }
     var oldestPendingReport: WalletCardsWaitingDeliveryBackupCards? { get }
 
-    func removePendingReport(_ report: WalletCardsWaitingDeliveryBackupCards)
+    func removePendingReport(_ report: WalletCardsWaitingDeliveryBackupCards, wasDelivered: Bool)
 }
 
 // MARK: - DI

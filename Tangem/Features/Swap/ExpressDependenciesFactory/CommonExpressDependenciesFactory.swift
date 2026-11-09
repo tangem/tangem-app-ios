@@ -9,7 +9,7 @@
 import TangemExpress
 import TangemFoundation
 
-class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
+final class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
     @Injected(\.onrampRepository)
     private var _onrampRepository: OnrampRepository
 
@@ -21,15 +21,17 @@ class CommonExpressDependenciesFactory: ExpressDependenciesFactory {
 
     let userWalletInfo: UserWalletInfo
     private let preferredProviderId: ExpressProvider.Id?
+    private let mcpIntentID: String?
     private let expressAPIProviderFactory = ExpressAPIProviderFactory()
 
     private(set) lazy var expressManager = makeExpressManager()
     private(set) lazy var expressAPIProvider = makeExpressAPIProvider()
     private(set) lazy var onrampRepository = makeOnrampRepository()
 
-    init(userWalletInfo: UserWalletInfo, preferredProviderId: ExpressProvider.Id? = nil) {
+    init(userWalletInfo: UserWalletInfo, preferredProviderId: ExpressProvider.Id?, mcpIntentID: String?) {
         self.userWalletInfo = userWalletInfo
         self.preferredProviderId = preferredProviderId
+        self.mcpIntentID = mcpIntentID
     }
 }
 
@@ -40,8 +42,12 @@ private extension CommonExpressDependenciesFactory {
         return TangemExpressFactory().makeExpressManager(
             expressAPIProvider: expressAPIProvider,
             expressRepository: swapRepository,
-            featureFlags: ExpressFeatureFlags(),
-            preferredProviderId: preferredProviderId
+            featureFlags: ExpressFeatureFlags(
+                isSwapBestRateDefaultProviderEnabled: FeatureProvider.isAvailable(.swapBestRateDefaultProvider),
+                isHideRejectedSwapProvidersEnabled: FeatureProvider.isAvailable(.hideRejectedSwapProviders)
+            ),
+            preferredProviderId: preferredProviderId,
+            mcpIntentID: mcpIntentID
         )
     }
 

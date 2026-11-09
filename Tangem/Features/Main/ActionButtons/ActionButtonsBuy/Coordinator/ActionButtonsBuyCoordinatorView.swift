@@ -50,7 +50,7 @@ struct ActionButtonsBuyCoordinatorView: View {
         NavHolder()
             .bottomSheet(
                 item: $coordinator.addToPortfolioBottomSheetInfo,
-                backgroundColor: Colors.Background.tertiary
+                backgroundColor: DesignSystem.Color.bgPrimary
             ) {
                 HotCryptoAddToPortfolioBottomSheetView(viewModel: $0)
             }

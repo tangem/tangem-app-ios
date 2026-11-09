@@ -32,6 +32,8 @@ public protocol PolymarketCLOBService {
 
     func price(tokenId: String, side: PolymarketOrderSide) async throws -> Decimal
 
+    func priceHistory(tokenId: String, query: PolymarketPriceHistoryQuery) async throws -> [PolymarketPricePoint]
+
     func order(
         id: String,
         credentials: PolymarketL2Credentials,

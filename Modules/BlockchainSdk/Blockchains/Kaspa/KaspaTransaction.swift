@@ -40,7 +40,7 @@ struct KaspaTransaction {
         data.append(hashSequence())
         data.append(hashSigOpCounts())
         data.append(inputs[inputIndex].transactionHash)
-        data.append(UInt32(inputs[inputIndex].outputIndex).data)
+        data.append(inputs[inputIndex].outputIndex.data)
         data.append(UInt16(0).data) // script version
         data.append(UInt64(connectedScript.count).data)
         data.append(connectedScript)
@@ -67,7 +67,7 @@ struct KaspaTransaction {
         var data = Data()
         for input in inputs {
             data.append(input.transactionHash)
-            data.append(UInt32(input.outputIndex).data)
+            data.append(input.outputIndex.data)
         }
         return blake2bDigest(for: data)
     }
@@ -123,7 +123,7 @@ struct KaspaTransaction {
         let encodedInputs: [Data] = inputs.map {
             [
                 $0.transactionHash,
-                UInt32($0.outputIndex).data,
+                $0.outputIndex.data,
                 encodedInputsSigScript(for: $0, type: hashType),
                 UInt64(0).data, // Sequence
             ].reduce(Data(), +)
@@ -159,7 +159,7 @@ struct KaspaTransaction {
 extension KaspaTransaction {
     struct Input {
         let transactionHash: Data
-        let outputIndex: Int
+        let outputIndex: UInt32
         let amount: UInt64
         let script: Data
     }

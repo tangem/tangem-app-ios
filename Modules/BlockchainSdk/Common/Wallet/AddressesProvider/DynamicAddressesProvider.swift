@@ -58,15 +58,14 @@ extension DynamicAddressesProvider: Wallet.AddressesProvider {
         let usedDerivations = usedAddresses.map(\.derivationPath.rawPath)
         BSDKLogger.debug("Used dynamic addresses paths: \(usedDerivations)")
 
-        do {
-            userAddresses = try usedAddresses.reduce(into: [:]) { partialResult, address in
+        userAddresses = usedAddresses.reduce(into: [:]) { partialResult, address in
+            do {
                 partialResult[address] = try makeUsedAddress(for: address)
+            } catch {
+                BSDKLogger.error("Skipping used address \(address.derivationPath.rawPath)", error: error)
             }
-            recalculateAddresses()
-        } catch {
-            assertionFailure("Creating dynamic address error: \(error.localizedDescription)")
-            BSDKLogger.error(error: error)
         }
+        recalculateAddresses()
     }
 }
 
@@ -134,14 +133,17 @@ private extension DynamicAddressesProvider {
         // derive a BIP-44 private key from `seedKey`, which does not match
         // the BIP-84 public key — invalid signature, broadcast fails.
 
-        let derivationPath = address.derivationPath
-        let nodes = derivationPath.nodes
-        let chainNode = nodes[nodes.count - 2]
-        let addressNode = nodes[nodes.count - 1]
+        guard let nodes = XPUBAddressesDerivationHelper.addressNodes(of: address.derivationPath) else {
+            throw XPUBUtils.Error.wrongDerivationPath
+        }
 
-        let path = [chainNode, addressNode].map(\.pathDescription).joined(separator: "/")
+        let path = [nodes.chainNode, nodes.addressNode].map(\.pathDescription).joined(separator: "/")
 
-        return try makeAddress(chainNode: chainNode, addressNode: addressNode, type: .used(type, path: path))
+        return try makeAddress(
+            chainNode: nodes.chainNode,
+            addressNode: nodes.addressNode,
+            type: .used(type, path: path)
+        )
     }
 
     func addressType(for scriptType: UTXOXpubScriptType) -> AddressType {

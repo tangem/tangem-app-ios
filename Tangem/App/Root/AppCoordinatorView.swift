@@ -18,10 +18,11 @@ struct AppCoordinatorView: CoordinatorView {
 
     var body: some View {
         content
-            .accentColor(Colors.Text.primary1)
+            .accentColor(DesignSystem.Color.textPrimary)
+            .softTopScrollEdgeEffect()
             .bottomSheet(
                 item: $sensitiveTextVisibilityViewModel.informationHiddenBalancesViewModel,
-                backgroundColor: Colors.Background.primary
+                backgroundColor: DesignSystem.Color.bgPrimary
             ) {
                 InformationHiddenBalancesView(viewModel: $0)
             }

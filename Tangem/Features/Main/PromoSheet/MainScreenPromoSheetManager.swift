@@ -23,7 +23,7 @@ struct MainScreenPromoSheetPresentationSettings {
     let isOpenedFromLink: Bool
 }
 
-enum MainScreenPromoSheetManagerState {
+enum MainScreenPromoSheetManagerState: Equatable {
     case preparing
     case ready
     case unavailable(MainScreenPromoSheetSkipReason)
