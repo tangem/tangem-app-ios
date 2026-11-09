@@ -19,6 +19,8 @@ struct CollectiblesPurchaseTracker {
     private let delayProvider: any PollDelayProvider
     private let dateProvider: any DateProvider
 
+    nonisolated static let paymentTimeout: TimeInterval = 100
+
     // MARK: - Init
 
     init(
@@ -156,13 +158,13 @@ private extension CollectiblesPurchaseTracker {
         switch status {
         case .packOpened, .nftReceived:
             .opened
-        case .packPurchased, .packOpeningError, .unknown:
+        case .packPurchased, .unknown:
             .paid
         case .paused:
             .halted
         case .autoBuybacked:
             .autoSold
-        case .expired, .refunded, .manuallyBuybacked:
+        case .expired, .refunded, .packOpeningError, .manuallyBuybacked:
             .failed
         case .created, .waitingTxHash, .purchaseTxHash, .waitingForPayment:
             .pending
@@ -174,7 +176,7 @@ private extension CollectiblesPurchaseTracker {
             return Constants.paymentChecksCount
         }
 
-        let timeLeft = Constants.paymentTimeout - dateProvider.now.timeIntervalSince(createdAt)
+        let timeLeft = Self.paymentTimeout - dateProvider.now.timeIntervalSince(createdAt)
         let checksLeft = Int((timeLeft / Constants.retryInterval).rounded(.up))
 
         return min(Constants.paymentChecksCount, max(1, checksLeft))
@@ -230,8 +232,7 @@ private extension CollectiblesPurchaseTracker {
 private extension CollectiblesPurchaseTracker {
     enum Constants {
         static let retryInterval: TimeInterval = 2
-        static let paymentChecksCount = 50
-        static let paymentTimeout = TimeInterval(paymentChecksCount) * retryInterval
+        static let paymentChecksCount = Int(CollectiblesPurchaseTracker.paymentTimeout / retryInterval)
         static let openAttemptsCount = 5
         static let prizeDeliveryChecksCount = 15
     }

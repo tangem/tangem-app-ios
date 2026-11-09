@@ -61,7 +61,7 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
     @Test("A restored purchase asks for the auto buyback by its own Turbo mode, not by the toggle", arguments: [false, true])
     func restoredPurchaseKeepsTurboMode(isTurboModeOn: Bool) async throws {
         let pendingPurchase = Self.pendingPurchase(.packPurchased, isTurboModeOn: isTurboModeOn)
-        let (sut, provider, _) = makeSUT(pendingPurchase: pendingPurchase)
+        let (sut, provider, _) = makeSUT(pendingPurchases: [pendingPurchase])
 
         _ = try await purchase(sut, isTurboModeOn: !isTurboModeOn)
 
@@ -358,6 +358,29 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         #expect(provider.openedTxIDs.last == Constants.txID)
     }
 
+    @Test("A pack the backend marks failed to open ends on retry without opening again, even when an older purchase waits")
+    func failedOpeningEndsKeptOrder() async {
+        let (sut, provider, signer) = makeSUT(openResults: [.failure(Constants.error)])
+        _ = await failure(of: sut)
+        let openCalls = provider.openedTxIDs.count
+        provider.pendingPurchases = [
+            Self.pendingPurchase(
+                .packPurchased,
+                machineID: Constants.otherMachineID,
+                createdAt: Constants.now.addingTimeInterval(-600)
+            ),
+            Self.pendingPurchase(.packOpeningError, txID: Constants.txID),
+        ]
+        provider.statuses = [Self.transaction(.packOpeningError)]
+
+        let failure = await failure(of: sut)
+
+        #expect(failure == .paymentFailed(.packOpeningError))
+        #expect(provider.openedTxIDs.count == openCalls)
+        #expect(provider.generatedMachineIDs == [Constants.machineID])
+        #expect(signer.sentSignatures.count == 1)
+    }
+
     @Test("A pack the backend opened while the answers were lost is not opened again on retry")
     func openedPackRetryAwaitsCard() async throws {
         let (sut, provider, _) = makeSUT(openResults: [.failure(Constants.error)])
@@ -512,11 +535,16 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         #expect(provider.generatedMachineIDs.isEmpty)
     }
 
-    @Test("An order that never left the device gives way to the purchase the backend holds")
-    func unsentOrderGivesWayToBackendPurchase() async {
+    @Test("An order that never left the device gives way to the purchase the backend holds, also while the backend lists it", arguments: [
+        false,
+        true,
+    ])
+    func unsentOrderGivesWayToBackendPurchase(isOrderListed: Bool) async {
         let (sut, provider, _) = makeSUT(sendResults: [.failure(.rejected(Constants.error))])
         _ = await failure(of: sut)
-        provider.pendingPurchase = Self.pendingPurchase(.packPurchased, machineID: Constants.otherMachineID)
+        let backendPurchase = Self.pendingPurchase(.packPurchased, machineID: Constants.otherMachineID)
+        let listedOrder = Self.pendingPurchase(.created, txID: Constants.txID)
+        provider.pendingPurchases = isOrderListed ? [backendPurchase, listedOrder] : [backendPurchase]
 
         let failure = await failure(of: sut)
 
@@ -533,7 +561,7 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         let (sut, provider, _) = makeSUT()
         _ = try await purchase(sut)
         provider.statuses = Self.paidAndDelivered
-        provider.pendingPurchase = Self.pendingPurchase(.packOpened, txID: Constants.txID)
+        provider.pendingPurchases = [Self.pendingPurchase(.packOpened, txID: Constants.txID)]
 
         _ = try await purchase(sut, machineID: nextMachineID)
 
@@ -545,7 +573,7 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         let (sut, provider, _) = makeSUT(statuses: [Self.transaction(.waitingForPayment)])
         _ = await failure(of: sut)
         provider.statuses = Self.paidAndDelivered
-        provider.pendingPurchase = Self.pendingPurchase(.packPurchased, machineID: Constants.otherMachineID)
+        provider.pendingPurchases = [Self.pendingPurchase(.packPurchased, machineID: Constants.otherMachineID)]
 
         let wonCard = try await purchase(sut, machineID: Constants.otherMachineID)
 
@@ -559,7 +587,7 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         arguments: [false, true]
     )
     func lateLookupDoesNotRestoreFinishedPurchase(isScreenReopened: Bool) async throws {
-        let (sut, provider, _) = makeSUT(pendingPurchase: Self.pendingPurchase(.packPurchased))
+        let (sut, provider, _) = makeSUT(pendingPurchases: [Self.pendingPurchase(.packPurchased)])
         let gate = LookupGate()
         defer { gate.open() }
         provider.pendingLookupGate = gate
@@ -582,11 +610,11 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
     func keptOrderTakesBackendCreationDate() async {
         let (sut, provider, _) = makeSUT(statuses: [Self.transaction(.waitingForPayment)])
         _ = await failure(of: sut)
-        provider.pendingPurchase = Self.pendingPurchase(
+        provider.pendingPurchases = [Self.pendingPurchase(
             .waitingForPayment,
             txID: Constants.txID,
             createdAt: Constants.now.addingTimeInterval(-300)
-        )
+        )]
 
         let failure = await failure(of: sut)
 
@@ -594,15 +622,42 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         #expect(provider.statusLoadsCount == Constants.paymentChecks + 1)
     }
 
+    @Test("An order whose sent report failed takes its backend creation date even when another purchase is restored first", arguments: [
+        (CollectiblesPurchaseStatus.waitingTxHash, false, 4),
+        (CollectiblesPurchaseStatus.waitingForPayment, true, 4),
+    ])
+    func unreportedOrderTakesBackendCreationDate(
+        status: CollectiblesPurchaseStatus,
+        hasOlderPurchase: Bool,
+        expectedStatusLoads: Int
+    ) async {
+        let (sut, provider, _) = makeSUT(
+            reportResults: [.failure(Constants.error), .success(.purchaseTxHash)],
+            statuses: [Self.transaction(.waitingForPayment)]
+        )
+        _ = await failure(of: sut)
+        let olderPurchase = Self.pendingPurchase(
+            .packPurchased,
+            machineID: Constants.otherMachineID,
+            createdAt: Constants.now.addingTimeInterval(-600)
+        )
+        let keptPurchase = Self.pendingPurchase(status, txID: Constants.txID, createdAt: Constants.now.addingTimeInterval(-92))
+        provider.pendingPurchases = hasOlderPurchase ? [olderPurchase, keptPurchase] : [keptPurchase]
+
+        let failure = await failure(of: sut)
+
+        #expect(failure == .paymentTimedOut)
+        #expect(provider.statusLoadsCount == expectedStatusLoads)
+    }
+
     @Test("A purchase restored from the backend resumes from its status without ordering again", arguments: [
         (CollectiblesPurchaseStatus.waitingForPayment, true),
         (CollectiblesPurchaseStatus.packPurchased, true),
-        (CollectiblesPurchaseStatus.packOpeningError, true),
         (CollectiblesPurchaseStatus.packOpened, false),
         (CollectiblesPurchaseStatus.unknown("pack-stuck"), true),
     ])
     func resumesRestoredPurchase(status: CollectiblesPurchaseStatus, opensPack: Bool) async throws {
-        let (sut, provider, signer) = makeSUT(pendingPurchase: Self.pendingPurchase(status))
+        let (sut, provider, signer) = makeSUT(pendingPurchases: [Self.pendingPurchase(status)])
 
         let wonCard = try await purchase(sut)
 
@@ -613,13 +668,95 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         #expect(provider.openedTxIDs == expectedOpenedTxIDs)
     }
 
+    @Test("The oldest purchase the backend holds is restored, whatever order the list comes in", arguments: [true, false])
+    func oldestPendingPurchaseIsRestored(isNewerFirst: Bool) async {
+        let newer = Self.pendingPurchase(.packPurchased, txID: "tx-newer", machineID: Constants.machineID)
+        let older = Self.pendingPurchase(
+            .packPurchased,
+            txID: "tx-older",
+            machineID: Constants.otherMachineID,
+            createdAt: Constants.now.addingTimeInterval(-300)
+        )
+        let (sut, _, _) = makeSUT(pendingPurchases: isNewerFirst ? [newer, older] : [older, newer])
+
+        await sut.restorePendingPurchase()
+
+        #expect(sut.hasUnfinishedPurchase(machineID: Constants.otherMachineID))
+        #expect(!sut.hasUnfinishedPurchase(machineID: Constants.machineID))
+    }
+
+    @Test("A listed purchase that cannot be resumed does not hide a newer one that can", arguments: [
+        CollectiblesPurchaseStatus.created,
+        CollectiblesPurchaseStatus.waitingTxHash,
+        CollectiblesPurchaseStatus.paused,
+    ])
+    func unresumablePurchaseDoesNotHideResumableOne(status: CollectiblesPurchaseStatus) async {
+        let older = Self.pendingPurchase(
+            status,
+            txID: "tx-older",
+            machineID: Constants.otherMachineID,
+            createdAt: Constants.now.addingTimeInterval(-300)
+        )
+        let (sut, _, _) = makeSUT(pendingPurchases: [older, Self.pendingPurchase(.packPurchased)])
+
+        await sut.restorePendingPurchase()
+
+        #expect(sut.hasUnfinishedPurchase(machineID: Constants.machineID))
+    }
+
+    @Test("A transaction sent from this device but not reported yet keeps its order over an older purchase the backend holds")
+    func sentOrderIsNotReplacedByBackendPurchase() async throws {
+        let (sut, provider, signer) = makeSUT(reportResults: [.failure(Constants.error), .success(.purchaseTxHash)])
+        _ = await failure(of: sut)
+        provider.statuses = [Self.transaction(.waitingTxHash)] + Self.paidAndDelivered
+        provider.pendingPurchases = [Self.pendingPurchase(
+            .packPurchased,
+            machineID: Constants.otherMachineID,
+            createdAt: Constants.now.addingTimeInterval(-300)
+        )]
+
+        _ = try await purchase(sut)
+
+        #expect(signer.sentSignatures.count == 1)
+        #expect(provider.reportedHashes == [Constants.signature, Constants.signature])
+        #expect(provider.openedTxIDs == [Constants.txID])
+    }
+
+    @Test("A sent order the backend has closed gives way to the paid purchase the backend holds")
+    func closedSentOrderGivesWayToBackendPurchase() async throws {
+        let (sut, provider, _) = makeSUT(reportResults: [.failure(Constants.error)])
+        _ = await failure(of: sut)
+        provider.statuses = [Self.transaction(.expired)] + Self.paidAndDelivered
+        provider.pendingPurchases = [Self.pendingPurchase(.packPurchased, machineID: Constants.otherMachineID)]
+
+        _ = try await purchase(sut, machineID: Constants.otherMachineID)
+
+        #expect(provider.generatedMachineIDs == [Constants.machineID])
+        #expect(provider.openedTxIDs == [Constants.restoredTxID])
+    }
+
+    @Test("A purchase delivered here but still listed by the backend gives way to the next oldest one")
+    func deliveredPurchaseGivesWayToNextOldest() async throws {
+        let (sut, provider, _) = makeSUT()
+        _ = try await purchase(sut)
+        provider.pendingPurchases = [
+            Self.pendingPurchase(.packOpened, txID: Constants.txID, createdAt: Constants.now.addingTimeInterval(-300)),
+            Self.pendingPurchase(.packPurchased, machineID: Constants.otherMachineID),
+        ]
+
+        await sut.restorePendingPurchase()
+
+        #expect(sut.isDelivered(txID: Constants.txID))
+        #expect(sut.hasUnfinishedPurchase(machineID: Constants.otherMachineID))
+    }
+
     @Test("A purchase restored on another machine blocks a new order, also when its status cannot be read", arguments: [
         0,
         1,
     ])
     func restoredPurchaseBlocksOtherMachine(statusFailures: Int) async {
         let pendingPurchase = Self.pendingPurchase(.packPurchased, machineID: Constants.otherMachineID)
-        let (sut, provider, _) = makeSUT(statusFailures: statusFailures, pendingPurchase: pendingPurchase)
+        let (sut, provider, _) = makeSUT(statusFailures: statusFailures, pendingPurchases: [pendingPurchase])
 
         let failure = await failure(of: sut)
 
@@ -636,7 +773,7 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         let createdAt = Constants.now.addingTimeInterval(-secondsAgo)
         let (sut, provider, _) = makeSUT(
             statuses: [Self.transaction(.waitingForPayment)],
-            pendingPurchase: Self.pendingPurchase(.waitingForPayment, createdAt: createdAt)
+            pendingPurchases: [Self.pendingPurchase(.waitingForPayment, createdAt: createdAt)]
         )
 
         let failure = await failure(of: sut)
@@ -661,9 +798,11 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
     @Test("A restored purchase that is already over leaves the next order untouched", arguments: [
         CollectiblesPurchaseStatus.expired,
         CollectiblesPurchaseStatus.refunded,
+        CollectiblesPurchaseStatus.packOpeningError,
+        CollectiblesPurchaseStatus.nftReceived,
     ])
     func finishedRestoredPurchaseIsIgnored(status: CollectiblesPurchaseStatus) async {
-        let (sut, _, _) = makeSUT(pendingPurchase: Self.pendingPurchase(status))
+        let (sut, _, _) = makeSUT(pendingPurchases: [Self.pendingPurchase(status)])
 
         await sut.restorePendingPurchase()
 
@@ -731,6 +870,7 @@ extension RemoteCollectiblesPackPurchaseInteractorTests {
     nonisolated static let failedStatuses: [CollectiblesPurchaseStatus] = [
         .expired,
         .refunded,
+        .packOpeningError,
         .manuallyBuybacked,
     ]
 
@@ -743,7 +883,7 @@ extension RemoteCollectiblesPackPurchaseInteractorTests {
         .waitingForPayment,
     ]
 
-    nonisolated static let paidStatuses: [CollectiblesPurchaseStatus] = [.packPurchased, .packOpeningError]
+    nonisolated static let paidStatuses: [CollectiblesPurchaseStatus] = [.packPurchased]
 
     nonisolated static let rejections: [CollectiblesSendError] = [
         .rejected(Constants.error),
@@ -862,7 +1002,7 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
         statuses: [CollectiblesPurchaseTransaction] = paidAndDelivered,
         statusFailures: Int = 0,
         openResults: [Result<CollectiblesPurchaseTransaction, any Error>] = [.success(transaction(.packOpened))],
-        pendingPurchase: CollectiblesPendingPurchase? = nil
+        pendingPurchases: [CollectiblesPendingPurchase] = []
     ) -> (SUT, PurchaseProviderStub, PurchaseSignerStub) {
         let provider = PurchaseProviderStub(
             generateError: generateError,
@@ -870,7 +1010,7 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
             statuses: statuses,
             statusFailures: statusFailures,
             openResults: openResults,
-            pendingPurchase: pendingPurchase
+            pendingPurchases: pendingPurchases
         )
         let signer = PurchaseSignerStub(
             addresses: addresses,
@@ -985,7 +1125,7 @@ private final class PurchaseProviderStub: CollectiblesPurchaseGenerator, Collect
     CollectiblesPurchaseStatusProvider, CollectiblesPackOpener, CollectiblesPendingPurchaseProvider {
     var statuses: [CollectiblesPurchaseTransaction]
     var openResults: [Result<CollectiblesPurchaseTransaction, any Error>]
-    var pendingPurchase: CollectiblesPendingPurchase?
+    var pendingPurchases: [CollectiblesPendingPurchase]
     var pendingPurchaseError: (any Error)?
     var pendingLookupGate: LookupGate?
 
@@ -1008,18 +1148,18 @@ private final class PurchaseProviderStub: CollectiblesPurchaseGenerator, Collect
         statuses: [CollectiblesPurchaseTransaction],
         statusFailures: Int,
         openResults: [Result<CollectiblesPurchaseTransaction, any Error>],
-        pendingPurchase: CollectiblesPendingPurchase?
+        pendingPurchases: [CollectiblesPendingPurchase]
     ) {
         self.generateError = generateError
         self.reportResults = reportResults
         self.statuses = statuses
         self.statusFailures = statusFailures
         self.openResults = openResults
-        self.pendingPurchase = pendingPurchase
+        self.pendingPurchases = pendingPurchases
     }
 
-    func load() async throws -> CollectiblesPendingPurchase? {
-        let pendingPurchase = pendingPurchase
+    func load() async throws -> [CollectiblesPendingPurchase] {
+        let pendingPurchases = pendingPurchases
 
         if let gate = pendingLookupGate {
             pendingLookupGate = nil
@@ -1030,7 +1170,7 @@ private final class PurchaseProviderStub: CollectiblesPurchaseGenerator, Collect
             throw pendingPurchaseError
         }
 
-        return pendingPurchase
+        return pendingPurchases
     }
 
     func generate(

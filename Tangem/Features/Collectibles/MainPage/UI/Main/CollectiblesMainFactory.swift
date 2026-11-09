@@ -32,8 +32,14 @@ struct CollectiblesMainFactory {
     }
 
     @MainActor
-    func makeBanners(routable: (any CollectiblesMainRoutable)?) -> CollectiblesAccountView.Banners {
-        CollectiblesAccountView.Banners(relinkBannerViewModel: makeRelinkBannerViewModel(routable: routable))
+    func makeBanners(
+        routable: (any CollectiblesMainRoutable)?,
+        pendingPurchaseProvider: any CollectiblesPendingPurchaseProvider
+    ) -> CollectiblesAccountView.Banners {
+        CollectiblesAccountView.Banners(
+            relinkBannerViewModel: makeRelinkBannerViewModel(routable: routable),
+            pendingPurchaseBannersViewModel: makePendingPurchaseBannersViewModel(provider: pendingPurchaseProvider)
+        )
     }
 }
 
@@ -49,6 +55,19 @@ private extension CollectiblesMainFactory {
                 relinker: $0,
                 openReconnection: openReconnection,
                 closeCollectibles: { [weak routable] in routable?.closeCollectibles() }
+            )
+        }
+    }
+
+    func makePendingPurchaseBannersViewModel(
+        provider: any CollectiblesPendingPurchaseProvider
+    ) -> CollectiblesPendingPurchaseBannersViewModel? {
+        accountModel.map { accountModel in
+            CollectiblesPendingPurchaseBannersViewModel(
+                provider: provider,
+                isDelivered: { [purchaseInteractor = accountModel.purchaseInteractor] txID in
+                    purchaseInteractor.isDelivered(txID: txID)
+                }
             )
         }
     }

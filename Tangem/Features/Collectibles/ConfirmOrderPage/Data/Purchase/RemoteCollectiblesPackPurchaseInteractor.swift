@@ -70,6 +70,10 @@ extension RemoteCollectiblesPackPurchaseInteractor: CollectiblesPackPurchaseInte
         !hasUnfinishedPurchase(machineID: machineID) && signer.isRelinkRequired
     }
 
+    func isDelivered(txID: String) -> Bool {
+        deliveredTxIDs.contains(txID)
+    }
+
     func restorePendingPurchase() async {
         guard activePurchase == nil else { return }
 
@@ -370,20 +374,31 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
     }
 
     func restorePendingOrder() async throws {
-        let pendingPurchase = try await pendingPurchaseProvider.load()
+        let purchases = try await pendingPurchaseProvider.load()
         try Task.checkCancellation()
 
-        guard let pendingPurchase, !deliveredTxIDs.contains(pendingPurchase.txID) else {
+        if let keptPurchase = purchases.first(where: { $0.txID == pendingOrder?.txID }) {
+            pendingOrder?.createdAt = keptPurchase.createdAt
+            guard pendingOrder?.stage == .signed else { return }
+        }
+
+        let restorable = purchases
+            .filter { !deliveredTxIDs.contains($0.txID) }
+            .compactMap { purchase in Self.stage(resumingFrom: purchase.status).map { (purchase, $0) } }
+            .min { $0.0.createdAt < $1.0.createdAt }
+
+        // [REDACTED_TODO_COMMENT]
+        guard let (pendingPurchase, stage) = restorable, pendingPurchase.txID != pendingOrder?.txID else {
             return
         }
 
-        guard pendingPurchase.txID != pendingOrder?.txID else {
-            pendingOrder?.createdAt = pendingPurchase.createdAt
-            return
-        }
+        if let pendingOrder, pendingOrder.stage == .sent {
+            let isClosed = try await tracker.checkPurchaseIsClosed(txID: pendingOrder.txID)
+            try Task.checkCancellation()
 
-        guard let stage = Self.stage(resumingFrom: pendingPurchase.status) else {
-            return
+            guard isClosed else {
+                return
+            }
         }
 
         pendingOrder = Order(
@@ -400,11 +415,11 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
         switch status {
         case .purchaseTxHash, .waitingForPayment, .unknown:
             .reported
-        case .packPurchased, .packOpeningError:
+        case .packPurchased:
             .paid
-        case .packOpened, .nftReceived:
+        case .packOpened:
             .opened
-        case .created, .waitingTxHash, .expired, .refunded, .autoBuybacked, .manuallyBuybacked, .paused:
+        case .created, .waitingTxHash, .expired, .refunded, .packOpeningError, .nftReceived, .autoBuybacked, .manuallyBuybacked, .paused:
             nil
         }
     }

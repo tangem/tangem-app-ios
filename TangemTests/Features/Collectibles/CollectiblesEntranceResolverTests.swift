@@ -149,6 +149,10 @@ private final class CollectiblesPackPurchaseInteractorStub: CollectiblesPackPurc
         false
     }
 
+    func isDelivered(txID: String) -> Bool {
+        false
+    }
+
     func restorePendingPurchase() async {}
 
     func purchase(

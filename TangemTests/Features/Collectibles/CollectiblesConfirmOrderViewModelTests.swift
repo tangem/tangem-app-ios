@@ -814,6 +814,10 @@ private final class PurchaseInteractorStub: CollectiblesPackPurchaseInteractor {
         isLocked
     }
 
+    func isDelivered(txID: String) -> Bool {
+        false
+    }
+
     func restorePendingPurchase() async {}
 
     func purchase(

@@ -68,9 +68,14 @@ final class CollectiblesCoordinator: CoordinatorObject {
             signingActionButtonType: signingActionButtonType
         )
 
+        let banners = factory.makeBanners(
+            routable: self,
+            pendingPurchaseProvider: CommonCollectiblesPurchaseProvider(userWalletID: userWalletID)
+        )
+
         state = .main(
             factory.makeViewModel(routable: self),
-            banners: factory.makeBanners(routable: self),
+            banners: banners,
             // [REDACTED_TODO_COMMENT]
             actionsMenu: CollectiblesActionsMenuViewModel(routable: self, devnet: makeDevnetMenuViewModel())
         )
@@ -185,6 +190,7 @@ extension CollectiblesCoordinator: CollectiblesConfirmOrderRoutable {
 
     func closePackFlow() {
         machineViewModel = nil
+        reloadPendingPurchases()
     }
 }
 
@@ -206,6 +212,12 @@ private extension CollectiblesCoordinator {
             userWalletModel: options.userWalletModel
         ))
         fundsCoordinator = coordinator
+    }
+
+    func reloadPendingPurchases() {
+        guard case .main(_, let banners, _) = state else { return }
+
+        Task { await banners.load() }
     }
 
     func open(_ destination: Options.Destination) {

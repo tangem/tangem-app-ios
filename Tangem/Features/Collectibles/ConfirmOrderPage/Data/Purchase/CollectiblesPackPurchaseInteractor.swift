@@ -13,6 +13,7 @@ import TangemCollectibles
 protocol CollectiblesPackPurchaseInteractor: AnyObject {
     func hasUnfinishedPurchase(machineID: String) -> Bool
     func isPurchaseLocked(machineID: String) -> Bool
+    func isDelivered(txID: String) -> Bool
     func restorePendingPurchase() async
 
     func purchase(
