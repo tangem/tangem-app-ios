@@ -797,6 +797,7 @@ extension SwapModel {
             quote: quote,
             policy: permissionRequired.policy,
             data: permissionRequired.data,
+            approveAmount: permissionRequired.approveAmount,
             approvalFlow: permissionRequired.approvalFlow
         )
 
@@ -1906,7 +1907,7 @@ private extension SwapModel {
 
         return try await allowanceProvider.makeApproveData(
             spender: preview.approveData.approveTransactionData.spender,
-            amount: preview.quote.fromAmount,
+            amount: preview.approveData.approveAmount,
             policy: selectedApprovePolicy
         )
     }
@@ -2306,7 +2307,7 @@ extension SwapModel: ApproveFlowDataProvider, ApproveOutput {
         let sourceToken = try _sourceToken.value.get()
 
         return ApproveFlowInput(
-            approveAmount: state.quote.fromAmount,
+            approveAmount: state.approveAmount,
             selectedPolicy: state.policy,
             approveData: state.data,
             approvalFlow: state.approvalFlow,
@@ -2637,6 +2638,7 @@ extension SwapModel {
         let quote: Quote
         let policy: BSDKApprovePolicy
         let data: ApproveTransactionData
+        let approveAmount: Decimal
         let approvalFlow: ExpressProviderManagerState.ApprovalFlow
     }
 

@@ -78,6 +78,7 @@ extension DEXProviderFlowHelper {
             let provider: ExpressProvider
             let approvePolicy: ApprovePolicy
             let approveTransactionData: ApproveTransactionData
+            let approveAmount: Decimal
             let approvalFlow: ExpressProviderManagerState.ApprovalFlow
             let owner: String
         }
@@ -114,23 +115,35 @@ extension DEXProviderFlowHelper {
         if let spender = quote.allowanceContract, !isYieldModuleDEXSwap {
             do {
                 let allowanceState = try await pair.source.allowanceProvider?.allowanceState(
-                    request: request,
+                    amount: sourceAmount,
+                    approvePolicy: request.approvePolicy,
                     contractAddress: pair.source.currency.contractAddress,
                     spender: spender
                 )
+
+                let approveAmount = approveAmount(sourceAmount: sourceAmount, request: request, quoteSlippage: quote.slippage)
 
                 switch allowanceState {
                 case .none:
                     throw ExpressProviderError.allowanceProviderNotFound
                 case .enoughAllowance:
                     break
-                case .permissionRequired(let data):
+                case .permissionRequired(let requiredApproveData):
+                    let data = try await makeApproveTransactionData(
+                        requiredApproveData,
+                        amount: approveAmount,
+                        sourceAmount: sourceAmount,
+                        spender: spender,
+                        policy: request.approvePolicy
+                    )
+
                     if let owner = pair.source.address, pair.source.allowanceProvider?.supportsOneTapApprove == true {
                         return .dexApproveFlowState(
                             .init(
                                 provider: provider,
                                 approvePolicy: request.approvePolicy,
                                 approveTransactionData: data,
+                                approveAmount: approveAmount,
                                 approvalFlow: .approve,
                                 owner: owner
                             )
@@ -142,17 +155,33 @@ extension DEXProviderFlowHelper {
                                 provider: provider,
                                 policy: request.approvePolicy,
                                 data: data,
+                                approveAmount: approveAmount,
                                 approvalFlow: .approve,
                                 fee: approveFee,
                                 quote: quote
                             )
                         ))
                     }
-                case .revokeAndPermissionRequired(let revoke, let approve):
+                case .revokeAndPermissionRequired(let revoke, let requiredApproveData):
                     ExpressLogger.info("Revoke+approve allowance state for provider: \(provider.id)")
+                    let approve = try await makeApproveTransactionData(
+                        requiredApproveData,
+                        amount: approveAmount,
+                        sourceAmount: sourceAmount,
+                        spender: spender,
+                        policy: request.approvePolicy
+                    )
                     let revokeAndApproveFee = try await expressFeeProvider.revokeAndApproveTransactionFee(revokeData: revoke)
                     return .terminalState(.revokeAndPermissionRequired(
-                        .init(provider: provider, policy: request.approvePolicy, data: approve, approvalFlow: .revokeAndApprove(revokeData: revoke, feeUnit: revokeAndApproveFee.unit), fee: revokeAndApproveFee.total, quote: quote)
+                        .init(
+                            provider: provider,
+                            policy: request.approvePolicy,
+                            data: approve,
+                            approveAmount: approveAmount,
+                            approvalFlow: .revokeAndApprove(revokeData: revoke, feeUnit: revokeAndApproveFee.unit),
+                            fee: revokeAndApproveFee.total,
+                            quote: quote
+                        )
                     ))
                 case .approveTransactionInProgress:
                     return .terminalState(.restriction(.approveTransactionInProgress(spender: spender), quote: quote))
@@ -372,14 +401,16 @@ extension DEXProviderFlowHelper {
         data: ExpressTransactionData,
         approveData: RestrictionCheckResult.ApproveData
     ) async throws -> ExpressProviderManagerState {
+        let coveringApproveData = try await approveDataCoveringSwap(approveData, data: data, request: request, quote: quote)
+
         let combinedFee: ApproveWithSwapFee
         do {
-            combinedFee = try await approveAndSwapFee(data: data, approveData: approveData)
+            combinedFee = try await approveAndSwapFee(data: data, approveData: coveringApproveData)
         } catch is CancellationError {
             throw CancellationError()
         } catch {
             pair.source.analyticsLogger.logGasEstimationOverrideError(error)
-            return try await fallbackToTwoStepApprove(approveData: approveData, quote: quote)
+            return try await fallbackToTwoStepApprove(approveData: coveringApproveData, quote: quote)
         }
 
         try Task.checkCancellation()
@@ -395,10 +426,11 @@ extension DEXProviderFlowHelper {
         )
 
         let approveFlowData = ExpressProviderManagerState.DEXWithApprovePreview.DEXWithApproveFlowApproveData(
-            provider: approveData.provider,
-            approvePolicy: approveData.approvePolicy,
-            approveTransactionData: approveData.approveTransactionData,
-            approvalFlow: approveData.approvalFlow,
+            provider: coveringApproveData.provider,
+            approvePolicy: coveringApproveData.approvePolicy,
+            approveTransactionData: coveringApproveData.approveTransactionData,
+            approveAmount: coveringApproveData.approveAmount,
+            approvalFlow: coveringApproveData.approvalFlow,
             approveFee: combinedFee.approve
         )
 
@@ -440,10 +472,74 @@ extension DEXProviderFlowHelper {
                 provider: approveData.provider,
                 policy: approveData.approvePolicy,
                 data: approveData.approveTransactionData,
+                approveAmount: approveData.approveAmount,
                 approvalFlow: approveData.approvalFlow,
                 fee: fee,
                 quote: quote
             )
+        )
+    }
+}
+
+// MARK: - Approve amount
+
+private extension DEXProviderFlowHelper {
+    func approveAmount(sourceAmount: Decimal, request: ExpressManagerSwappingPairRequest, quoteSlippage: Decimal?) -> Decimal {
+        guard case .to = request.amountType,
+              let slippage = quoteSlippage ?? request.slippage ?? provider.slippage,
+              slippage > 0
+        else {
+            return sourceAmount
+        }
+
+        return (sourceAmount * (1 + slippage)).rounded(scale: pair.source.currency.decimalCount, roundingMode: .up)
+    }
+
+    func makeApproveTransactionData(
+        _ data: ApproveTransactionData,
+        amount: Decimal,
+        sourceAmount: Decimal,
+        spender: String,
+        policy: ApprovePolicy
+    ) async throws -> ApproveTransactionData {
+        guard policy == .specified, amount != sourceAmount, let allowanceProvider = pair.source.allowanceProvider else {
+            return data
+        }
+
+        return try await allowanceProvider.makeApproveData(spender: spender, amount: amount, policy: policy)
+    }
+
+    func approveDataCoveringSwap(
+        _ approveData: RestrictionCheckResult.ApproveData,
+        data: ExpressTransactionData,
+        request: ExpressManagerSwappingPairRequest,
+        quote: ExpressQuote
+    ) async throws -> RestrictionCheckResult.ApproveData {
+        let coveringAmount = approveAmount(
+            sourceAmount: data.fromAmount,
+            request: request,
+            quoteSlippage: data.slippage ?? quote.slippage
+        )
+
+        guard coveringAmount > approveData.approveAmount else {
+            return approveData
+        }
+
+        let transactionData = try await makeApproveTransactionData(
+            approveData.approveTransactionData,
+            amount: coveringAmount,
+            sourceAmount: approveData.approveAmount,
+            spender: approveData.approveTransactionData.spender,
+            policy: approveData.approvePolicy
+        )
+
+        return RestrictionCheckResult.ApproveData(
+            provider: approveData.provider,
+            approvePolicy: approveData.approvePolicy,
+            approveTransactionData: transactionData,
+            approveAmount: coveringAmount,
+            approvalFlow: approveData.approvalFlow,
+            owner: approveData.owner
         )
     }
 }

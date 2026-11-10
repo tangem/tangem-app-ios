@@ -280,6 +280,7 @@ struct ExpressAvailableProviderBestDEXTests {
             provider: provider,
             policy: .specified,
             data: ApproveTransactionData(txData: Data(), spender: "0xspender", toContractAddress: "0xcontract", amountRaw: 1),
+            approveAmount: 1,
             approvalFlow: .approve,
             fee: fee,
             quote: quote
