@@ -50,6 +50,10 @@ final class LendingWithdrawModel {
         _availableToWithdraw.value
     }
 
+    var feeUpdateTask: Task<Void, Never>? {
+        feeRequest.withLock { $0?.task }
+    }
+
     var availableToWithdrawPublisher: AnyPublisher<Decimal, Never> {
         _availableToWithdraw.eraseToAnyPublisher()
     }
