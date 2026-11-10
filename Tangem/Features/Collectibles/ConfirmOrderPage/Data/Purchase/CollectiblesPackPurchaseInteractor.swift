@@ -57,4 +57,5 @@ enum CollectiblesPackPurchaseError: Error {
     case prizeNotDelivered
     case anotherPurchaseInProgress
     case noUnfinishedPurchase
+    case openRefused
 }

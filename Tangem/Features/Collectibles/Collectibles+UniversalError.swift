@@ -43,6 +43,7 @@ extension CollectiblesPackPurchaseError: UniversalError {
         case .anotherPurchaseInProgress: 114010008
         case .relinkRequired: 114010009
         case .noUnfinishedPurchase: 114010010
+        case .openRefused: 114010011
         }
     }
 }

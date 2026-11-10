@@ -37,6 +37,7 @@ struct CollectiblesConfirmOrderView: View {
         .overlay(alignment: .top) { errorSnackbar }
         .background(PopGestureDisabler(isDisabled: !isBackAvailable))
         .onAppear { viewModel.preloadRevealAssets(for: colorScheme, isReduceMotionEnabled: reduceMotion) }
+        .onFirstDidAppear(perform: viewModel.onFirstDidAppear)
         .modalStatus(item: $viewModel.sheet, onDismiss: viewModel.sheetDidDismiss) { sheet in
             StatusSheet(
                 sheet: sheet,
@@ -47,6 +48,24 @@ struct CollectiblesConfirmOrderView: View {
             )
         }
         .onChange(of: colorScheme) { viewModel.preloadRevealAssets(for: $0, isReduceMotionEnabled: reduceMotion) }
+        .fullScreenCover(isPresented: $viewModel.isPackOpenFailedPresented, onDismiss: viewModel.packOpenFailedDidDismiss) {
+            packOpenFailed
+        }
+    }
+}
+
+// MARK: - Pack open failed
+
+private extension CollectiblesConfirmOrderView {
+    var packOpenFailed: some View {
+        StatusScreen(
+            title: Localization.collectiblesOpenPackFailedTitle,
+            description: Localization.collectiblesOpenPackFailedSubtitle,
+            actionTitle: Localization.commonClose,
+            action: viewModel.closePackOpenFailed
+        )
+        .appearance(.error)
+        .secondaryAction(title: Localization.collectiblesMainMenuGetAssistance, action: viewModel.getAssistance)
     }
 }
 

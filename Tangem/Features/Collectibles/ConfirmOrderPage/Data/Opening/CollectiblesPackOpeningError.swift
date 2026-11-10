@@ -9,5 +9,6 @@
 import Foundation
 
 enum CollectiblesPackOpeningError: Error {
+    case refused
     case spinNotFound
 }

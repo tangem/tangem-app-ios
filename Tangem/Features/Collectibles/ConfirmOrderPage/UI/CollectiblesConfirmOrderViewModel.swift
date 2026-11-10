@@ -48,6 +48,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     @Published private(set) var revealViewModel: CollectiblesPackRevealViewModel?
     @Published private(set) var errorMessage: String?
     @Published var sheet: Sheet?
+    @Published var isPackOpenFailedPresented = false
 
     // MARK: - Init
 
@@ -98,13 +99,15 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         ]
 
         bind(usdcBalanceProvider: usdcBalanceProvider, relinkStatusProvider: relinkStatusProvider)
+    }
 
+    // MARK: - Methods
+
+    func onFirstDidAppear() {
         guard unfinishedPurchase != nil else { return }
 
         resumeUnfinishedPurchase()
     }
-
-    // MARK: - Methods
 
     func approve() {
         guard buttonState == .approve else { return }
@@ -172,14 +175,23 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     }
 
     func openUnopenedPack() {
-        guard sheet != nil else { return }
-
-        dismissSheet()
-        resumeUnfinishedPurchase()
+        dismissSheet { [weak self] in self?.resumeUnfinishedPurchase() }
     }
 
     func openAgain() {
         dismissSheet { [weak self] in self?.routable?.returnToMachine() }
+    }
+
+    func getAssistance() {
+        routable?.openSupport()
+    }
+
+    func closePackOpenFailed() {
+        isPackOpenFailedPresented = false
+    }
+
+    func packOpenFailedDidDismiss() {
+        routable?.closePackFlow()
     }
 
     func sheetDidDismiss() {
@@ -187,8 +199,13 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         presentedSheet = nil
 
         guard let sheetDismissal else {
-            if case .buybackComplete = dismissedSheet {
+            switch dismissedSheet {
+            case .buybackComplete:
                 routable?.returnToMachine()
+            case .refundOnTheWay:
+                routable?.closePackFlow()
+            case .lowInventory, .packUnopened, .none:
+                break
             }
 
             return
@@ -235,6 +252,7 @@ extension CollectiblesConfirmOrderViewModel {
     enum Sheet: Hashable, Identifiable {
         case lowInventory
         case packUnopened
+        case refundOnTheWay
         case buybackComplete(BuybackComplete)
 
         var id: Self { self }
@@ -408,13 +426,13 @@ private extension CollectiblesConfirmOrderViewModel {
             present(.lowInventory)
         case .packUnopened, .openFailed, .prizeNotDelivered, .paymentTimedOut:
             present(.packUnopened)
-        // [REDACTED_TODO_COMMENT]
+        case .openRefused, .paymentFailed(.expired), .paymentFailed(.packOpeningError):
+            isPackOpenFailedPresented = true
+        case .paymentFailed(.refunded):
+            present(.refundOnTheWay)
         case .paymentFailed where isResumingPurchase:
             routable?.closePackFlow()
-        case .paymentFailed(.expired):
-            showError(message: "Your purchase has expired")
-        case .paymentFailed(.refunded):
-            showError(message: "Your payment has been refunded")
+        // [REDACTED_TODO_COMMENT]
         case .anotherPurchaseInProgress:
             showError(message: "Open your other pack first")
         case .noUnfinishedPurchase:

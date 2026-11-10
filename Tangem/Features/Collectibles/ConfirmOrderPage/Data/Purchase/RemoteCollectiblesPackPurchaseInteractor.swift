@@ -219,6 +219,9 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
         } catch CollectiblesPackPurchaseError.paymentFailed(let status) {
             pendingOrder = nil
             throw CollectiblesPackPurchaseError.paymentFailed(status)
+        } catch CollectiblesPackPurchaseError.openRefused {
+            pendingOrder = nil
+            throw CollectiblesPackPurchaseError.openRefused
         } catch let sold as CollectiblesPurchaseTracker.AutoSold {
             pendingOrder = nil
             deliveredTxIDs.insert(order.txID)
@@ -281,6 +284,8 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
     func open(_ order: Order) async throws -> CollectiblesWonCard? {
         do {
             return try await tracker.open(txID: order.txID, isTurboModeOn: order.isTurboModeOn)
+        } catch CollectiblesPackOpeningError.refused {
+            throw CollectiblesPackPurchaseError.openRefused
         } catch CollectiblesPackOpeningError.spinNotFound {
             throw CollectiblesPackPurchaseError.paymentFailed(.refunded)
         }

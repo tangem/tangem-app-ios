@@ -393,16 +393,20 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         #expect(!sut.hasUnfinishedPurchase(machineID: Constants.machineID))
     }
 
-    @Test("A spin the partner no longer knows is a refund and frees the purchase")
-    func unknownSpinIsRefund() async {
+    @Test("A pack the partner refuses ends as refused, a spin it no longer knows as a refund, and either frees the purchase", arguments: [
+        CollectiblesPackOpeningError.refused,
+        .spinNotFound,
+    ])
+    func refusedOpeningEndsPurchase(openingError: CollectiblesPackOpeningError) async {
+        let expected: Failure = openingError == .refused ? .openRefused : .paymentFailed(.refunded)
         let (sut, _, _) = makeSUT(
             statuses: [Self.transaction(.packPurchased)],
-            openResults: [.failure(CollectiblesPackOpeningError.spinNotFound)]
+            openResults: [.failure(openingError)]
         )
 
         let failure = await failure(of: sut)
 
-        #expect(failure == .paymentFailed(.refunded))
+        #expect(failure == expected)
         #expect(!sut.hasUnfinishedPurchase(machineID: Constants.machineID))
     }
 
@@ -849,6 +853,7 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
         case prizeNotDelivered
         case anotherPurchaseInProgress
         case noUnfinishedPurchase
+        case openRefused
         case other
     }
 
@@ -1046,6 +1051,7 @@ private extension RemoteCollectiblesPackPurchaseInteractorTests {
             case .prizeNotDelivered: return .prizeNotDelivered
             case .anotherPurchaseInProgress: return .anotherPurchaseInProgress
             case .noUnfinishedPurchase: return .noUnfinishedPurchase
+            case .openRefused: return .openRefused
             }
         } catch {
             return .other

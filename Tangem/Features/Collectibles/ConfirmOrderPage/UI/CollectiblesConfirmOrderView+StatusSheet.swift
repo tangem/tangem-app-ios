@@ -28,6 +28,8 @@ extension CollectiblesConfirmOrderView {
                 lowInventory
             case .packUnopened:
                 packUnopened
+            case .refundOnTheWay:
+                refundOnTheWay
             case .buybackComplete(let content):
                 buybackComplete(content)
             }
@@ -57,6 +59,15 @@ private extension CollectiblesConfirmOrderView.StatusSheet {
             description: Localization.collectiblesPackUnopenedSubtitle
         )
         .actions(primary: button(Localization.collectiblesPackUnopenedOpenPack, action: onOpenPack))
+    }
+
+    var refundOnTheWay: some View {
+        ModalStatus(
+            .info,
+            title: Localization.collectiblesRefundOnTheWayTitle,
+            description: Localization.collectiblesRefundOnTheWaySubtitle
+        )
+        .actions(primary: button(Localization.commonClose, action: onExplorePacks))
     }
 
     // [REDACTED_TODO_COMMENT]
