@@ -689,7 +689,14 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             return
         }
 
-        moneyAccountStateSubject.value = makeMoneyAccountState(summary: summary)
+        let moneyAccountState = makeMoneyAccountState(summary: summary)
+        moneyAccountStateSubject.value = moneyAccountState
+
+        if case .active(let moneyAccount) = moneyAccountState {
+            runTask {
+                await moneyAccount.updateBalance()
+            }
+        }
     }
 
     private func makeMoneyAccountState(summary: TangemPayCustomerSummaryResponse) -> TangemPayMoneyAccountState {

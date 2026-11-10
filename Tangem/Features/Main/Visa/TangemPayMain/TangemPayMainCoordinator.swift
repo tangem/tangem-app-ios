@@ -95,6 +95,7 @@ extension TangemPayMainCoordinator {
         let tangemPayAccount: TangemPayAccount
         let userWalletModel: any UserWalletModel
         let openingAction: TangemPayOpeningAction?
+        let restartOnboarding: () -> Void
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
@@ -256,6 +257,10 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             awaitingDepositCanceller: tangemPayAccount,
             closeFlow: { [weak self] in
                 self?.currentPlanCoordinator = nil
+            },
+            restartOnboarding: options.restartOnboarding,
+            returnToMain: { [weak self] in
+                self?.dismiss(with: nil)
             }
         ))
         currentPlanCoordinator = coordinator

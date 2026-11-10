@@ -69,6 +69,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemPaySelectPlanCoordinator) {
                 TangemPaySelectPlanCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.tangemPayVerifiedCoordinator) {
+                TangemPayVerifiedCoordinatorView(coordinator: $0)
+            }
             .navigation(item: $coordinator.yieldModulePromoCoordinator) {
                 YieldModulePromoCoordinatorView(coordinator: $0)
             }
@@ -158,6 +161,12 @@ struct MainCoordinatorView: CoordinatorView {
                 TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayRegionUnavailablePopupViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayMoneyAccountActivatingPopupViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayMoneyAccountFailedPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: PushNotificationsMainViewModel.self) {

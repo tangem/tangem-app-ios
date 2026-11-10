@@ -15,6 +15,7 @@ enum FeedTangemPayEntry {
     case regionUnavailable(TangemPayUnavailableRegion, any TangemPayResidencyInteractor)
     case kycDeclined(TangemPayKYCInteractor)
     case selectPlan(any TangemPayTariffPlanSelector, wallet: UserWalletModel)
+    case verified(any TangemPayUnifiedOnboardingInteractor, wallet: UserWalletModel)
 
     static func resolve(customer: any TangemPayAccountModel, wallet: UserWalletModel) -> Self? {
         switch customer.state {
@@ -28,7 +29,9 @@ enum FeedTangemPayEntry {
             return .kycDeclined(interactor)
         case .planSelectNeeded(let tariffPlanSelector):
             return .selectPlan(tariffPlanSelector, wallet: wallet)
-        case .none, .loading, .syncNeeded, .syncInProgress, .unavailable, .failedToIssueCard, .tangemPayAccount, .cardDeactivated, .cardNotOpened, .verified:
+        case .verified(let interactor):
+            return .verified(interactor, wallet: wallet)
+        case .none, .loading, .syncNeeded, .syncInProgress, .unavailable, .failedToIssueCard, .tangemPayAccount, .cardDeactivated, .cardNotOpened:
             return nil
         }
     }

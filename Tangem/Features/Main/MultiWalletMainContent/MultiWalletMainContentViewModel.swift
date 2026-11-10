@@ -430,7 +430,16 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     accountModel.moneyAccountStatePublisher.filter { $0?.isResolved ?? true },
                     accountModel.statePublisher.map(\.isKYCIncomplete)
                 )
-                .map(TangemPayMoneyAccountRowState.init(moneyAccountState:isKYCIncomplete:))
+                .flatMapLatest { moneyAccountState, isKYCIncomplete -> AnyPublisher<TangemPayMoneyAccountRowState?, Never> in
+                    guard case .active(let moneyAccount) = moneyAccountState else {
+                        let rowState = TangemPayMoneyAccountRowState(moneyAccountState: moneyAccountState, isKYCIncomplete: isKYCIncomplete)
+                        return .just(output: rowState)
+                    }
+
+                    return moneyAccount.fiatBalancePublisher
+                        .map { TangemPayMoneyAccountRowState.active(balance: $0) }
+                        .eraseToAnyPublisher()
+                }
                 .eraseToAnyPublisher()
             }
             .removeDuplicates()
@@ -935,14 +944,20 @@ extension MultiWalletMainContentViewModel {
 
 extension MultiWalletMainContentViewModel {
     func openTangemPayMoneyAccount() {
-        guard case .active(let moneyAccount) = AccountModelsAggregator(.tangemPay)
+        let moneyAccountState = AccountModelsAggregator(.tangemPay)
             .model(from: userWalletModel.accountModelsManager)?
             .moneyAccountState
-        else {
-            return
-        }
 
-        coordinator?.openTangemPayMoneyAccount(userWalletModel: userWalletModel, moneyAccount: moneyAccount)
+        switch moneyAccountState {
+        case .active(let moneyAccount):
+            coordinator?.openTangemPayMoneyAccount(userWalletModel: userWalletModel, moneyAccount: moneyAccount)
+        case .activating:
+            coordinator?.openTangemPayMoneyAccountActivatingPopup()
+        case .activationFailed(let moneyAccount):
+            coordinator?.openTangemPayMoneyAccountFailedPopup(moneyAccount: moneyAccount)
+        case .loading, .syncNeeded, .unavailable, .notStarted, .deactivated, .none:
+            break
+        }
     }
 }
 
@@ -972,6 +987,10 @@ extension MultiWalletMainContentViewModel: TangemPayAccountRoutable {
             userWalletModel: userWalletModel,
             openingAction: nil
         )
+    }
+
+    func openTangemPayVerified(interactor: any TangemPayUnifiedOnboardingInteractor) {
+        coordinator?.openTangemPayVerified(interactor: interactor, userWalletModel: userWalletModel)
     }
 
     func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector) {

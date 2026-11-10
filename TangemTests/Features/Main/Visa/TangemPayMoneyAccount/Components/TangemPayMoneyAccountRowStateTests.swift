@@ -14,12 +14,13 @@ import TangemPay
 struct TangemPayMoneyAccountRowStateTests {
     @Test("An open account is shown as active whatever the verification says", arguments: [false, true])
     func openAccountIsActive(isKYCIncomplete: Bool) throws {
-        let state = try TangemPayMoneyAccountRowState(
-            moneyAccountState: .active(makeMoneyAccount(status: "COMPLETED")),
+        let moneyAccount = try makeMoneyAccount(status: "COMPLETED")
+        let state = TangemPayMoneyAccountRowState(
+            moneyAccountState: .active(moneyAccount),
             isKYCIncomplete: isKYCIncomplete
         )
 
-        #expect(state == .active)
+        #expect(state == .active(balance: moneyAccount.fiatBalance))
     }
 
     @Test("The account waits for a deposit when its own activation step says so")

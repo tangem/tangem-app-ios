@@ -847,13 +847,18 @@ extension TangemPayAccount {
         return order
     }
 
-    func cancelAwaitingDepositOrder() async throws {
+    func cancelAwaitingDepositOrder() async throws -> TangemPayAwaitingDepositCancellationOutcome {
         guard let orderId = activeIssueOrdersSubject.value.first(where: { $0.isAwaitingDeposit })?.id else {
-            return
+            return .stay
         }
 
-        let transitions = try await customerService.getTariffPlanTransitions()
-        let isBasicFallbackAvailable = transitions.contains { $0.tariffPlan.type == Self.basicTariffPlanType }
+        let wasOnDefaultTariffPlan = customerTariffPlan?.source == .default
+
+        let isBasicFallbackAvailable = if TangemPayUnifiedOnboarding.isEnabled {
+            false
+        } else {
+            try await customerService.getTariffPlanTransitions().contains { $0.tariffPlan.type == Self.basicTariffPlanType }
+        }
 
         pendingTransitionCancellation = isBasicFallbackAvailable
             ? .cancelAndFallbackToBasic(orderId: orderId)
@@ -866,6 +871,44 @@ extension TangemPayAccount {
             await loadCustomerInfo()
             throw error
         }
+
+        guard TangemPayUnifiedOnboarding.isEnabled, wasOnDefaultTariffPlan else {
+            return .stay
+        }
+
+        return await resolveOutcomeAfterCancellation()
+    }
+
+    private func resolveOutcomeAfterCancellation() async -> TangemPayAwaitingDepositCancellationOutcome {
+        for attempt in 1 ... Constants.cancellationSettlingAttempts {
+            let summary: TangemPayCustomerSummaryResponse
+            do {
+                summary = try await customerService.loadCustomerSummary()
+            } catch {
+                return .returnToMain
+            }
+
+            let enrollmentState = TangemPaySummaryEnrollmentResolver.resolve(summary: summary, isUnifiedOnboardingEnabled: true)
+
+            if enrollmentState == .verified {
+                await account?.refreshState()
+                return .restartOnboarding
+            }
+
+            let statuses = [summary.paymentAccount.activation.status, summary.bankingAccount.activation.status]
+
+            guard statuses.contains(.processing), attempt < Constants.cancellationSettlingAttempts else {
+                return .stay
+            }
+
+            do {
+                try await Task.sleep(for: .seconds(1))
+            } catch {
+                return .stay
+            }
+        }
+
+        return .stay
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -1233,6 +1276,7 @@ private extension TangemPayAccount {
 
     enum Constants {
         static let cardIssuePollInterval: TimeInterval = 5
+        static let cancellationSettlingAttempts = 5
         static let virtualAccountOrderPollInterval: TimeInterval = 5
         static let plasticDeliveryCardArrivalMaxAttempts = 12
     }
