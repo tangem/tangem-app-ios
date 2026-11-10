@@ -19,7 +19,7 @@ struct PolymarketWelcomeView: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 0) {
-                PolymarketHero(image: Assets.Polymarket.welcomeBackground, tint: Constants.heroTint, scrollSpace: Constants.scrollSpace)
+                OnboardingHero(image: Assets.Polymarket.welcomeBackground, tint: .standard, scrollSpace: Constants.scrollSpace)
 
                 title
 
@@ -95,14 +95,16 @@ struct PolymarketWelcomeView: View {
 
             Toggle(isOn: $viewModel.isFastTradingEnabled) {
                 Text(PolymarketFastTradingStrings.onboardingToggleTitle)
-                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .tint(DesignSystem.Color.bgStatusInfo)
         }
-        .padding(Constants.fastTradingCardPadding)
-        .background(DesignSystem.Color.bgSecondary)
-        .clipShape(.rect(cornerRadius: Constants.fastTradingCardCornerRadius))
+        .roundedBackground(
+            with: DesignSystem.Color.bgSecondary,
+            padding: Constants.fastTradingCardPadding,
+            radius: Constants.fastTradingCardCornerRadius
+        )
         .glowRing(.magic)
     }
 
@@ -167,7 +169,7 @@ struct PolymarketWelcomeView: View {
 
             actionButton
         }
-        .padding(.horizontal, Constants.horizontalPadding)
+        .padding(.horizontal, Constants.footerHorizontalPadding)
         .padding(.vertical, Constants.footerVerticalPadding)
         .background {
             Fade(position: .bottom)
@@ -207,12 +209,10 @@ private extension PolymarketWelcomeView {
         static let navigationHorizontalPadding: CGFloat = 16
         static let scrollSpace = "polymarketWelcomeScroll"
 
-        static let heroTint = PolymarketHero.Tint(start: 380.0 / 608.0, end: 600.0 / 608.0)
-
         static let titleSpacing: CGFloat = 8
         static let titleVerticalPadding: CGFloat = 12
 
-        static let fastTradingCardVerticalPadding: CGFloat = 8
+        static let fastTradingCardVerticalPadding: CGFloat = 16
         static let fastTradingCardSpacing: CGFloat = 8
         static let fastTradingCaptionSpacing: CGFloat = 2
         static let fastTradingInfoHitAreaInset: CGFloat = 14
@@ -228,7 +228,8 @@ private extension PolymarketWelcomeView {
         static let highlightIconSpacing: CGFloat = 12
 
         static let footerSpacing: CGFloat = 12
-        static let footerVerticalPadding: CGFloat = 12
+        static let footerHorizontalPadding: CGFloat = 16
+        static let footerVerticalPadding: CGFloat = 8
         static let footerFadeOverhang: CGFloat = 16
     }
 }

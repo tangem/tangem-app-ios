@@ -16,24 +16,15 @@ struct PolymarketTextSection: View {
     let isSeparated: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Constants.spacing) {
-            Text(title)
-                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-
-            Text(text)
-                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
-        }
-        .fixedSize(horizontal: false, vertical: true)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, Constants.topPadding)
-        .padding(.bottom, Constants.spacing)
-        .overlay(alignment: .top) {
-            if isSeparated {
-                Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
+        OnboardingTextSection(title: title, text: text)
+            .padding(.top, Constants.topPadding)
+            .padding(.bottom, Constants.spacing)
+            .overlay(alignment: .top) {
+                if isSeparated {
+                    Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
+                }
             }
-        }
-        .padding(.top, isSeparated ? Constants.spacing : 0)
-        .accessibilityElement(children: .combine)
+            .padding(.top, isSeparated ? Constants.spacing : 0)
     }
 }
 

@@ -152,7 +152,7 @@ private extension PolymarketFastTradingViewModel {
         run(.revoke) { [service, weak self] in
             try await service.revoke(sessionKeyAddress: revocation.address)
             self?.revocation = nil
-            PolymarketFastTradingToast.showInfo(PolymarketFastTradingStrings.revocationInProgress)
+            PolymarketFastTradingToast.showInfoBelowNavigationBar(PolymarketFastTradingStrings.revocationInProgress)
         }
     }
 

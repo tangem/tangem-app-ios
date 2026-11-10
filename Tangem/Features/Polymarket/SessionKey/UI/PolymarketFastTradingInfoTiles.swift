@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct PolymarketFastTradingInfoTiles: View {
     let onDurationInfo: (() -> Void)?
@@ -73,10 +74,8 @@ struct PolymarketFastTradingInfoTiles: View {
                 .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
         }
         .fixedSize(horizontal: false, vertical: true)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(Constants.tilePadding)
-        .background(DesignSystem.Color.bgSecondary)
-        .clipShape(RoundedRectangle(cornerRadius: Constants.tileCornerRadius, style: .continuous))
+        .infinityFrame(alignment: .topLeading)
+        .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: Constants.tilePadding, radius: Constants.tileCornerRadius)
         .accessibilityElement(children: .combine)
     }
 }

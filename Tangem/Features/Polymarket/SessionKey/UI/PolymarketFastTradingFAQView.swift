@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct PolymarketFastTradingFAQView: View {
     var body: some View {
@@ -16,7 +17,7 @@ struct PolymarketFastTradingFAQView: View {
             Text(PolymarketFastTradingStrings.infoTitle)
                 .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .infinityFrame(axis: .horizontal, alignment: .leading)
                 .padding(Constants.titlePadding)
 
             PolymarketFastTradingInfoTiles(onDurationInfo: nil)

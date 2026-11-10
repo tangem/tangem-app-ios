@@ -1,5 +1,5 @@
 //
-//  PolymarketHero.swift
+//  OnboardingHero.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import SwiftUI
 import TangemAssets
 
-struct PolymarketHero: View {
+struct OnboardingHero: View {
     let image: ImageType
     let tint: Tint
     let scrollSpace: String
@@ -48,18 +48,25 @@ struct PolymarketHero: View {
 
 // MARK: - Tint
 
-extension PolymarketHero {
+extension OnboardingHero {
     struct Tint {
         let start: CGFloat
         let end: CGFloat
     }
 }
 
+extension OnboardingHero.Tint {
+    /// The mockup's tint runs from 380 of the image's 608 and is opaque by its bottom edge.
+    static let standard = Self(start: 380.0 / 608.0, end: 600.0 / 608.0)
+}
+
 // MARK: - Constants
 
-private extension PolymarketHero {
+private extension OnboardingHero {
     enum Constants {
+        /// The mockup's hero image (402×608); its bitmap is placed 405 wide and cropped to the frame.
         static let aspectRatio: CGFloat = 402.0 / 608.0
+        /// The mockup starts the content at 495 of the image's 608: the slot ends there and the image overflows it.
         static let uncoveredAspectRatio: CGFloat = 402.0 / 495.0
     }
 }

@@ -19,7 +19,7 @@ struct PolymarketFastTradingActivationView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                PolymarketHero(image: Assets.Polymarket.fastTradingHero, tint: Constants.heroTint, scrollSpace: Constants.scrollSpace)
+                OnboardingHero(image: Assets.Polymarket.fastTradingHero, tint: Constants.heroTint, scrollSpace: Constants.scrollSpace)
 
                 content
             }
@@ -93,7 +93,7 @@ private extension PolymarketFastTradingActivationView {
 
     enum Constants {
         static let scrollSpace = "polymarketFastTradingActivationScroll"
-        static let heroTint = PolymarketHero.Tint(start: 448.0 / 608.0, end: 1)
+        static let heroTint = OnboardingHero.Tint(start: 448.0 / 608.0, end: 528.0 / 608.0)
         static let topBarTopPadding: CGFloat = 8
         static let contentHorizontalPadding: CGFloat = 24
         static let blockVerticalPadding: CGFloat = 12

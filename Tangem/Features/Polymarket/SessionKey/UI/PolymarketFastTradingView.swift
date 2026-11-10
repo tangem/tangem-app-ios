@@ -10,7 +10,6 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemPolymarket
-import TangemPolymarketUI
 import TangemUI
 import TangemUIUtils
 
@@ -18,31 +17,26 @@ struct PolymarketFastTradingView: View {
     @ObservedObject var viewModel: PolymarketFastTradingViewModel
 
     var body: some View {
-        VStack(spacing: 0) {
-            PolymarketTopBar(
-                title: PolymarketFastTradingStrings.settingsTitle,
-                onBack: { viewModel.handleViewAction(.close) }
-            )
-            .padding(.top, Constants.topBarTopPadding)
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: Constants.sectionSpacing) {
-                    if !viewModel.foreignSigners.isEmpty {
-                        foreignSignersSection
-                    }
-
-                    thisDeviceSection
-
-                    if !viewModel.otherDevices.isEmpty {
-                        otherDevicesSection
-                    }
+        ScrollView {
+            VStack(alignment: .leading, spacing: Constants.itemSpacing) {
+                if !viewModel.foreignSigners.isEmpty {
+                    foreignSignersSection
                 }
-                .padding(Constants.contentPadding)
+
+                thisDeviceSection
+
+                if !viewModel.otherDevices.isEmpty {
+                    otherDevicesSection
+                }
             }
-            .refreshable { await viewModel.refresh() }
+            .padding(Constants.contentPadding)
         }
+        .refreshable { await viewModel.refresh() }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .toolbar(.hidden, for: .navigationBar)
+        .topNavigation(
+            title: PolymarketFastTradingStrings.settingsTitle,
+            leading: .custom(.back(action: { viewModel.handleViewAction(.close) }))
+        )
         .bindAlert($viewModel.alert)
         .onAppear { viewModel.handleViewAction(.onAppear) }
         .modalStatus(item: $viewModel.revocation) { revocation in
@@ -266,8 +260,7 @@ struct PolymarketFastTradingView: View {
 
     private func card(_ content: some View) -> some View {
         content
-            .background(DesignSystem.Color.bgSecondary)
-            .clipShape(RoundedRectangle(cornerRadius: Constants.cardCornerRadius, style: .continuous))
+            .roundedBackground(with: DesignSystem.Color.bgSecondary, padding: 0, radius: Constants.cardCornerRadius)
     }
 }
 
@@ -288,8 +281,8 @@ private struct PolymarketFastTradingDeviceAvatar: View {
                         .fill(DesignSystem.Color.bgStatusInfoSubtle)
                         .overlay {
                             Loader()
-                                .loaderSize(.size12)
-                                .loaderColor(DesignSystem.Color.iconStatusInfo)
+                                .loaderSize(.size20)
+                                .loaderColor(DesignSystem.Color.iconBrand)
                         }
                 }
                 .accessibilityHidden(true)
@@ -301,9 +294,7 @@ private struct PolymarketFastTradingDeviceAvatar: View {
 
 private extension PolymarketFastTradingView {
     enum Constants {
-        static let topBarTopPadding: CGFloat = 8
         static let contentPadding: CGFloat = 16
-        static let sectionSpacing: CGFloat = 24
         static let itemSpacing: CGFloat = 8
         static let sectionTitleVerticalPadding: CGFloat = 8
         static let headerSpacing: CGFloat = 12
