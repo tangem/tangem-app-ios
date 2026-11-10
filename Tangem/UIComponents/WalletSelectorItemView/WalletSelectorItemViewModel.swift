@@ -14,13 +14,13 @@ import TangemUI
 
 final class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
-    @Published var icon: LoadingResult<ImageValue, Never> = .loading
     @Published var cardSetLabel: String
     @Published var balanceState: LoadableBalanceView.State = .loading()
     @Published var isSelected: Bool = false
 
     let userWalletId: UserWalletId
     let isUserWalletLocked: Bool
+    let icon: UserWalletIcon
 
     private let totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
     private weak var infoProvider: WalletSelectorInfoProvider?
@@ -45,6 +45,7 @@ final class WalletSelectorItemViewModel: ObservableObject, Identifiable {
         self.cardSetLabel = cardSetLabel
         self.infoProvider = infoProvider
         name = infoProvider.name
+        icon = infoProvider.walletIcon
 
         self.totalBalancePublisher = totalBalancePublisher
 
@@ -52,19 +53,6 @@ final class WalletSelectorItemViewModel: ObservableObject, Identifiable {
         onTapWallet = didTapWallet
 
         bind()
-        loadImage()
-    }
-
-    func loadImage() {
-        runTask(in: self) { viewModel in
-            guard let image = await viewModel.infoProvider?.walletImageProvider.loadSmallImage() else {
-                return
-            }
-
-            await runOnMain {
-                viewModel.icon = .success(image)
-            }
-        }
     }
 
     func bind() {

@@ -291,7 +291,7 @@ struct TransactionDetailsAddContactHelperTests {
         return [
             .accountInCurrentWallet(name: "Main account", icon: icon),
             .accountInOtherWallet(accountName: "Main account", accountIcon: icon),
-            .wallet(name: "Wallet 2", imageProvider: nil, thumbnailType: nil),
+            .wallet(name: "Wallet 2", walletIcon: nil, thumbnailType: nil),
         ]
     }
 

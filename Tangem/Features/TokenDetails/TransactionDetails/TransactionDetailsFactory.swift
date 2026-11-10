@@ -1015,27 +1015,27 @@ enum TransactionDetailsFactory {
                 blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: address)
             ),
             copyAction: copyAddressAction(for: address),
-            walletImageProvider: nil
+            walletIcon: nil
         )
     }
 
     static func counterparty(for subtitleOwner: TransactionViewModel.SubtitleOwner, label: String) -> TransactionDetailsAddressViewData {
         switch subtitleOwner {
         case .accountInCurrentWallet(let name, let icon):
-            return .init(label: label, actor: .account(name: name, icon: icon), copyAction: nil, walletImageProvider: nil)
+            return TransactionDetailsAddressViewData(label: label, actor: .account(name: name, icon: icon), copyAction: nil, walletIcon: nil)
 
         case .accountInOtherWallet(let accountName, let accountIcon):
-            return .init(label: label, actor: .account(name: accountName, icon: accountIcon), copyAction: nil, walletImageProvider: nil)
+            return TransactionDetailsAddressViewData(label: label, actor: .account(name: accountName, icon: accountIcon), copyAction: nil, walletIcon: nil)
 
-        case .wallet(let name, let imageProvider, _):
-            return .init(label: label, actor: .wallet(name: name), copyAction: nil, walletImageProvider: imageProvider)
+        case .wallet(let name, let walletIcon, _):
+            return TransactionDetailsAddressViewData(label: label, actor: .wallet(name: name), copyAction: nil, walletIcon: walletIcon)
 
         case .contact(let name, let icon, let fullAddress):
             return .init(
                 label: label,
                 actor: .contact(name: name, icon),
                 copyAction: copyAddressAction(for: fullAddress),
-                walletImageProvider: nil
+                walletIcon: nil
             )
 
         case .unresolved(_, let fullAddress, let blockiesImage):
@@ -1043,7 +1043,7 @@ enum TransactionDetailsFactory {
                 label: label,
                 actor: .address(fullAddress, blockiesImage: AddressBlockiesIconViewData(image: blockiesImage)),
                 copyAction: copyAddressAction(for: fullAddress),
-                walletImageProvider: nil
+                walletIcon: nil
             )
         }
     }
@@ -1063,7 +1063,7 @@ enum TransactionDetailsFactory {
                 blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: target.address)
             ),
             copyAction: copyAddressAction(for: target.address),
-            walletImageProvider: nil
+            walletIcon: nil
         )
     }
 

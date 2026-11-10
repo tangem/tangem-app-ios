@@ -289,7 +289,12 @@ extension MCPModuleFactory {
                 return UIImage()
             }
 
-            return await userWalletModel.walletImageProvider.loadSmallUIImage()
+            switch userWalletModel.walletIcon {
+            case .loadable(let imageProvider):
+                return await imageProvider.loadSmallUIImage()
+            case .content:
+                return UIImage()
+            }
         }
     }
 

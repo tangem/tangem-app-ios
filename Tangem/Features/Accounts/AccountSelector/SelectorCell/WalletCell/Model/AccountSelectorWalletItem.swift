@@ -19,7 +19,7 @@ struct AccountSelectorWalletItem: Identifiable, Equatable {
     let wallet: UserWallet
     let mainAccount: any CryptoAccountModel
     let domainModel: any UserWalletModel
-    let walletImageProvider: WalletImageProviding
+    let walletIcon: UserWalletIcon
     let accountAvailability: AccountAvailability
 
     @CaseFlagable
@@ -53,7 +53,7 @@ extension AccountSelectorWalletItem {
     ) {
         id = userWallet.userWalletId.stringValue
         name = userWallet.name
-        walletImageProvider = userWallet.walletImageProvider
+        walletIcon = userWallet.walletIcon
         mainAccount = cryptoAccountModel
         domainModel = userWallet
         self.accountAvailability = accountAvailability

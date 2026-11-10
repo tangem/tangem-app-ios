@@ -215,7 +215,7 @@ enum PromoCampaignEnrollmentFixtures {
         PromoCampaignEnrollmentWallet(
             name: name,
             subtitle: "3 cards",
-            imageProvider: CardImageProviderMock(),
+            walletIcon: .loadable(CardImageProviderMock()),
             payout: hasPayout ? PromoCampaignEnrollmentWallet.Payout(
                 address: "0x33Bd321f9a0c4e1b7d2E5f8a6C3b21412B"
             ) : nil
@@ -226,7 +226,7 @@ enum PromoCampaignEnrollmentFixtures {
         PromoCampaignEnrolledWalletViewModel(
             name: name,
             subtitle: "3 cards",
-            imageProvider: CardImageProviderMock(),
+            walletIcon: .loadable(CardImageProviderMock()),
             isUserWalletLocked: false,
             totalBalancePublisher: .just(output: .empty)
         )

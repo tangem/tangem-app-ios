@@ -37,7 +37,8 @@ class FakeUserWalletModel: UserWalletModel {
     let backupInput: OnboardingInput? = nil
     var nftManager: NFTManager { NFTManagerStub() }
     let totalBalanceProvider: TotalBalanceProvider
-    let walletImageProvider: WalletImageProviding
+    let walletIcon: UserWalletIcon
+    let cardImageProvider: (any WalletImageProviding)?
     let signer: TangemSigner = CardSigner(filter: .cardId(""), sdkFactory: GenericTangemSdkFactory(isAccessCodeSet: false), twinKey: nil)
     let config: UserWalletConfig
     let isUserWalletLocked: Bool
@@ -113,7 +114,7 @@ class FakeUserWalletModel: UserWalletModel {
         name = userWalletName
 
         totalBalanceProvider = TotalBalanceProviderMock()
-        walletImageProvider = CardImageProvider(
+        let cardImageProvider = CardImageProvider(
             input: .init(
                 cardId: "",
                 cardPublicKey: Data(),
@@ -121,6 +122,8 @@ class FakeUserWalletModel: UserWalletModel {
                 firmwareVersionType: .release
             )
         )
+        self.cardImageProvider = cardImageProvider
+        walletIcon = .loadable(cardImageProvider)
     }
 
     var totalBalance: TotalBalanceState {

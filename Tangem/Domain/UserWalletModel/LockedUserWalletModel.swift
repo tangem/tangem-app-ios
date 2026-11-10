@@ -22,7 +22,7 @@ final class LockedUserWalletModel: UserWalletModel {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     let nftManager: NFTManager = NotSupportedNFTManager()
-    let walletImageProvider: WalletImageProviding
+    let walletIcon: UserWalletIcon
     var config: UserWalletConfig
 
     var isUserWalletLocked: Bool { true }
@@ -138,6 +138,8 @@ final class LockedUserWalletModel: UserWalletModel {
     }
 
     var name: String { userWallet.name }
+
+    var cardImageProvider: (any WalletImageProviding)? { userWallet.walletInfo.cardImageProvider }
     let backupInput: OnboardingInput? = nil
     var userWallet: StoredUserWallet
 
@@ -146,7 +148,7 @@ final class LockedUserWalletModel: UserWalletModel {
     init(with userWallet: StoredUserWallet) {
         self.userWallet = userWallet
         config = UserWalletConfigFactory().makeConfig(walletInfo: userWallet.walletInfo)
-        walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: userWallet.walletInfo)
+        walletIcon = CommonUserWalletIconFactory().icon(for: userWallet.walletInfo)
     }
 
     var backupState: UserWalletBackupState {

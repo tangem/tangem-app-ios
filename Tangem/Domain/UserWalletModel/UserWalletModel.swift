@@ -44,7 +44,8 @@ protocol UserWalletModel:
     var updatePublisher: AnyPublisher<UpdateResult, Never> { get }
     var backupInput: OnboardingInput? { get } // [REDACTED_TODO_COMMENT]
     var nftManager: NFTManager { get }
-    var walletImageProvider: WalletImageProviding { get }
+    var walletIcon: UserWalletIcon { get }
+    var cardImageProvider: (any WalletImageProviding)? { get }
     var accountModelsManager: AccountModelsManager { get }
     var derivationManager: DerivationManager? { get }
     var addressBookManager: AddressBookManager { get }

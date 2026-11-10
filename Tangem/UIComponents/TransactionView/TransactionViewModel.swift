@@ -389,7 +389,7 @@ extension TransactionViewModel {
     /// address that falls back to blockies + truncated hex.
     enum SubtitleOwner: Hashable {
         case accountInCurrentWallet(name: String, icon: AccountIconView.ViewData)
-        case wallet(name: String, imageProvider: (any WalletImageProviding)?, thumbnailType: ThumbnailWalletViewType?)
+        case wallet(name: String, walletIcon: UserWalletIcon?, thumbnailType: ThumbnailWalletViewType?)
         case accountInOtherWallet(accountName: String, accountIcon: AccountIconView.ViewData)
         /// An external address the user saved in an address book. The address travels along so the
         /// details sheet can still offer to copy it.

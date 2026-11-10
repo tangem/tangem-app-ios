@@ -10,13 +10,14 @@ import Combine
 import UIKit
 import TangemAccounts
 import TangemFoundation
+import TangemUI
 
 @MainActor
 final class UserWalletSelectorItemsStore {
     var onChange: () -> Void = {}
 
     private var balances: [UserWalletId: SelectorBalance] = [:]
-    private var images: [UserWalletId: UIImage] = [:]
+    private var icons: [UserWalletId: WalletIconContent] = [:]
     private var trackedUserWalletIds: Set<UserWalletId> = []
     private var bag = Set<AnyCancellable>()
 
@@ -24,7 +25,7 @@ final class UserWalletSelectorItemsStore {
         for userWalletModel in userWalletModels where trackedUserWalletIds.insert(userWalletModel.userWalletId).inserted {
             bindBalance(of: userWalletModel)
             bindName(of: userWalletModel)
-            loadImage(of: userWalletModel)
+            loadIcon(of: userWalletModel)
         }
     }
 
@@ -32,7 +33,7 @@ final class UserWalletSelectorItemsStore {
         UserWalletSelectorItem(
             id: userWalletModel.userWalletId,
             name: userWalletModel.name,
-            image: images[userWalletModel.userWalletId],
+            icon: icons[userWalletModel.userWalletId],
             balance: balances[userWalletModel.userWalletId] ?? .loading(cached: nil),
             availability: availability
         )
@@ -69,16 +70,21 @@ private extension UserWalletSelectorItemsStore {
             .store(in: &bag)
     }
 
-    func loadImage(of userWalletModel: any UserWalletModel) {
-        let walletImageProvider = userWalletModel.walletImageProvider
+    func loadIcon(of userWalletModel: any UserWalletModel) {
         let userWalletId = userWalletModel.userWalletId
 
-        Task { [weak self] in
-            let image = await walletImageProvider.loadSmallUIImage()
-            self?.images[userWalletId] = image
-            self?.onChange()
+        switch userWalletModel.walletIcon {
+        case .content(let content):
+            icons[userWalletId] = content
+
+        case .loadable(let imageProvider):
+            Task { [weak self] in
+                let image = await imageProvider.loadSmallUIImage()
+                self?.icons[userWalletId] = .image(image)
+                self?.onChange()
+            }
+            .eraseToAnyCancellable()
+            .store(in: &bag)
         }
-        .eraseToAnyCancellable()
-        .store(in: &bag)
     }
 }

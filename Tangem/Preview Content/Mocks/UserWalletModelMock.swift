@@ -38,7 +38,11 @@ class UserWalletModelMock: UserWalletModel {
 
     var totalBalance: TotalBalanceState { .empty }
 
-    var walletImageProvider: WalletImageProviding {
+    var walletIcon: UserWalletIcon {
+        .loadable(CardImageProviderMock())
+    }
+
+    var cardImageProvider: (any WalletImageProviding)? {
         CardImageProviderMock()
     }
 

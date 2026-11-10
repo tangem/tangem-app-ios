@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import Testing
 import TangemTestKit
 import TangemAccounts
@@ -43,6 +44,29 @@ final class UserWalletSelectorViewModelTests: LeakTrackingTestSuite {
             .first { $0 == expected }
 
         #expect(balance == expected)
+    }
+
+    @Test("A mobile wallet row shows its icon without loading")
+    func mobileWalletRowShowsIconWithoutLoading() {
+        let mobileWallet = makeLockedUserWalletModel(idSeed: "mobileWallet")
+        let (sut, _) = makeSUT(userWallets: [mobileWallet])
+
+        #expect(sut.items.first?.icon != nil)
+    }
+
+    @Test("A card wallet row gets the card image once it loads")
+    func cardWalletRowGetsCardImage() async {
+        let userWallet = makeUserWallet("userWallet")
+        let (sut, _) = makeSUT(userWallets: [userWallet])
+
+        let image = await sut.$items.bufferedValues
+            .compactMap { items -> UIImage? in
+                guard case .image(let image) = items.first?.icon else { return nil }
+                return image
+            }
+            .first { _ in true }
+
+        #expect(image != nil)
     }
 
     @Test("Renaming a user wallet updates its row")

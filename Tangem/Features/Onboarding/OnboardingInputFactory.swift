@@ -83,7 +83,7 @@ class OnboardingInputFactory {
             cardInput: .userWalletModel(
                 userWalletModel,
                 cardId: cardInfo.card.cardId,
-                cardImageProvider: userWalletModel.walletImageProvider
+                cardImageProvider: CardImageProvider(card: cardInfo.card)
             ),
             twinData: nil,
             isStandalone: true
@@ -99,7 +99,7 @@ class OnboardingInputFactory {
             return .userWalletModel(
                 userWalletModel,
                 cardId: cardInfo.card.cardId,
-                cardImageProvider: userWalletModel.walletImageProvider
+                cardImageProvider: CardImageProvider(card: cardInfo.card)
             )
         }
 

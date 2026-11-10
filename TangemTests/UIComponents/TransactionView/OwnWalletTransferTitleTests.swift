@@ -16,18 +16,18 @@ import TangemLocalization
 struct OwnWalletTransferTitleTests {
     @Test("Transfer to an own wallet is titled Transferred regardless of direction")
     func ownWalletTransferIsTransferred() {
-        #expect(title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: true, status: .confirmed) == Localization.commonTransferred)
-        #expect(title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: false, status: .confirmed) == Localization.commonTransferred)
+        #expect(title(owner: .wallet(name: "My Wallet", walletIcon: nil, thumbnailType: nil), isOutgoing: true, status: .confirmed) == Localization.commonTransferred)
+        #expect(title(owner: .wallet(name: "My Wallet", walletIcon: nil, thumbnailType: nil), isOutgoing: false, status: .confirmed) == Localization.commonTransferred)
     }
 
     @Test("Own-wallet transfer follows status for in-progress and failed")
     func ownWalletTransferStatuses() {
         #expect(
-            title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: true, status: .inProgress)
+            title(owner: .wallet(name: "My Wallet", walletIcon: nil, thumbnailType: nil), isOutgoing: true, status: .inProgress)
                 == Localization.transactionHistoryStatusTransferring
         )
         #expect(
-            title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: true, status: .failed)
+            title(owner: .wallet(name: "My Wallet", walletIcon: nil, thumbnailType: nil), isOutgoing: true, status: .failed)
                 == Localization.transactionHistoryStatusTransferFailed
         )
     }
@@ -37,7 +37,7 @@ struct OwnWalletTransferTitleTests {
         let external = TransactionViewModel.SubtitleOwner.unresolved(short: "0xAB…CD", fullAddress: "0xABCD", blockiesImage: nil)
 
         #expect(
-            title(owner: .wallet(name: "My Wallet", imageProvider: nil, thumbnailType: nil), isOutgoing: true, status: .cancelled)
+            title(owner: .wallet(name: "My Wallet", walletIcon: nil, thumbnailType: nil), isOutgoing: true, status: .cancelled)
                 == Localization.transactionHistoryStatusTransferCancelled
         )
         #expect(title(owner: external, isOutgoing: true, status: .cancelled) == Localization.transactionHistoryStatusSendCancelled)

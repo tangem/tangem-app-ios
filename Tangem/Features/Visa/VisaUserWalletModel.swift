@@ -407,7 +407,8 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var backupInput: OnboardingInput? { nil }
 
-    var walletImageProvider: WalletImageProviding { userWalletModel.walletImageProvider }
+    var walletIcon: UserWalletIcon { userWalletModel.walletIcon }
+    var cardImageProvider: (any WalletImageProviding)? { userWalletModel.cardImageProvider }
 
     var name: String { userWalletModel.name }
 

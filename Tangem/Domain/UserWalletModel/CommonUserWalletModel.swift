@@ -44,7 +44,7 @@ class CommonUserWalletModel {
 
     private(set) var name: String
 
-    private var _walletImageProvider: WalletImageProviding?
+    private var _walletIcon: UserWalletIcon?
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
 
@@ -128,13 +128,17 @@ extension CommonUserWalletModel: UserWalletModel {
         config.cardSetLabel
     }
 
-    var walletImageProvider: WalletImageProviding {
-        if let _walletImageProvider {
-            return _walletImageProvider
+    var walletIcon: UserWalletIcon {
+        if let _walletIcon {
+            return _walletIcon
         }
-        let walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: walletInfo)
-        _walletImageProvider = walletImageProvider
-        return walletImageProvider
+        let walletIcon = CommonUserWalletIconFactory().icon(for: walletInfo)
+        _walletIcon = walletIcon
+        return walletIcon
+    }
+
+    var cardImageProvider: (any WalletImageProviding)? {
+        walletInfo.cardImageProvider
     }
 
     var emailData: [EmailCollectedData] {
@@ -229,7 +233,7 @@ extension CommonUserWalletModel: UserWalletModel {
                     }
                 }
 
-                _walletImageProvider = nil
+                _walletIcon = nil
                 updateConfiguration(walletInfo: .cardWallet(mutableCardInfo)) // Upgrading from mobile wallet to card wallet
                 cleanMobileWallet(mobileWalletInfo: existingInfo)
                 syncRemoteAfterUpgrade()

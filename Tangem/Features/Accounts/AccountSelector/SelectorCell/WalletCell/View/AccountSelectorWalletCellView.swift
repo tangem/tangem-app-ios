@@ -27,9 +27,6 @@ struct AccountSelectorWalletCellButtonView: View {
     var body: some View {
         SwiftUI.Button(action: onTap) {
             content
-                .task { [weak viewModel] in
-                    await viewModel?.loadWalletImage()
-                }
         }
         .buttonStyle(.plain)
         .disabled(viewModel.isDisabled)
@@ -40,7 +37,6 @@ struct AccountSelectorWalletCellButtonView: View {
     private var content: some View {
         HStack(spacing: 12) {
             walletImage
-                .frame(size: .init(bothDimensions: style.iconSide))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(viewModel.walletModel.name)
@@ -67,25 +63,8 @@ struct AccountSelectorWalletCellButtonView: View {
     }
 
     private var walletImage: some View {
-        unwrappedWalletIcon
-            .shimmerPlaceholder(
-                viewModel.walletIcon.isLoading,
-                variant: .custom(width: style.iconSide, height: style.iconSkeletonHeight, cornerRadius: 3)
-            )
+        UserWalletIconView(icon: viewModel.walletModel.walletIcon, size: style.iconSide)
             .opacity(viewModel.isDisabled ? 0.5 : 1)
-    }
-
-    @ViewBuilder
-    private var unwrappedWalletIcon: some View {
-        switch viewModel.walletIcon {
-        case .loading:
-            Color.clear
-
-        case .success(let image):
-            image.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-        }
     }
 
     @ViewBuilder
@@ -177,7 +156,6 @@ extension AccountSelectorWalletCellButtonView {
     struct Style {
         let padding: CGFloat
         let iconSide: CGFloat
-        let iconSkeletonHeight: CGFloat
         let titleFont: TangemFontStyle
         let titleColor: Color
         let subtitleFont: TangemFontStyle
@@ -186,7 +164,6 @@ extension AccountSelectorWalletCellButtonView {
         static let legacy = Style(
             padding: 14,
             iconSide: 36,
-            iconSkeletonHeight: 22,
             titleFont: TangemFontStyle(font: Fonts.Bold.subheadline),
             titleColor: DesignSystem.Color.textPrimary,
             subtitleFont: TangemFontStyle(font: Fonts.Regular.caption1),
@@ -196,7 +173,6 @@ extension AccountSelectorWalletCellButtonView {
         static let modal = Style(
             padding: 16,
             iconSide: 40,
-            iconSkeletonHeight: 24,
             titleFont: TangemFontStyle(DesignSystem.Font.bodyMediumToken),
             titleColor: DesignSystem.Color.textPrimary,
             subtitleFont: TangemFontStyle(DesignSystem.Font.captionMediumToken),
