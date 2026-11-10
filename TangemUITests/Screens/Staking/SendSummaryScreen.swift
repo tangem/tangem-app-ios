@@ -261,7 +261,18 @@ final class SendSummaryScreen: ScreenBase<SendSummaryScreenElement> {
     @discardableResult
     func tapFeeBlock() -> SendFeeSelectorScreen {
         _ = XCTContext.runActivity(named: "Tap fee block on Send screen") { _ in
+            let feeSelector = app.descendants(matching: .any).matching(NSPredicate(
+                format: "identifier IN %@",
+                [
+                    FeeAccessibilityIdentifiers.marketFeeOption,
+                    FeeAccessibilityIdentifiers.fastFeeOption,
+                    FeeAccessibilityIdentifiers.feeSelectorApplyButton,
+                ]
+            )).firstMatch
             networkFeeBlock.waitAndTap()
+            for _ in 0 ..< 2 where !feeSelector.waitForExistence(timeout: .conditional) {
+                networkFeeBlock.tapEvenIfNotHittable()
+            }
         }
         return SendFeeSelectorScreen(app)
     }

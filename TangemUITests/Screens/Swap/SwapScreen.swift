@@ -675,12 +675,9 @@ final class SwapScreen: ScreenBase<SwapScreenElement> {
                 CGVector(dx: 0.75, dy: 0.65),
             ]
 
-            let hittablePredicate = NSPredicate(format: "isHittable == true")
-
             // Retry with short waits - the row can re-render mid-tap, or the compact row can briefly be non-tappable while quotes load.
             for i in 0 ..< 8 {
-                let hittableExpectation = XCTNSPredicateExpectation(predicate: hittablePredicate, object: providerBlock)
-                guard XCTWaiter().wait(for: [hittableExpectation], timeout: .quick) == .completed else { continue }
+                guard providerBlock.waitForStableFrame(timeout: .quick), providerBlock.isEnabled else { continue }
 
                 let offset = tapOffsets[i % tapOffsets.count]
                 providerBlock.coordinate(withNormalizedOffset: offset).tap()

@@ -53,7 +53,10 @@ final class ApplePaySheetScreen: Screen {
     }
 
     private func fillEmailIfNeeded(_ email: String) {
-        let addEmailRow = sheet.buttons[Constants.addEmail].firstMatch
+        let addEmailRow = sheet.buttons.matching(NSPredicate(
+            format: "label == %@ OR label ENDSWITH %@",
+            Constants.addEmail, Constants.addEmail
+        )).firstMatch
         let savedContactRow = sheet.buttons.matching(NSPredicate(
             format: "label BEGINSWITH %@ OR (identifier IN %@ AND label CONTAINS %@)",
             Constants.contactPrefix, Constants.Identifier.contactRows, "@"
@@ -61,10 +64,19 @@ final class ApplePaySheetScreen: Screen {
         waitForAny(addEmailRow, savedContactRow, "Apple Pay contact row should be displayed")
         guard addEmailRow.exists else { return }
 
+        let legacyOptions = sheet.buttons.matching(identifier: Constants.addEmail)
+        let legacyCountBeforeTap = legacyOptions.count
         addEmailRow.tap()
-        let addEmailOptions = sheet.buttons.matching(identifier: Constants.addEmail)
-        waitForButtonCount(addEmailOptions, atLeast: 2)
-        addEmailOptions.allElementsBoundByIndex.last?.tap()
+        let addEmailOption = sheet.buttons[Constants.Identifier.addEmailOption].firstMatch
+        let optionDisplayed = waitForCondition(timeout: .robustUIUpdate) {
+            addEmailOption.exists || legacyOptions.count > legacyCountBeforeTap
+        }
+        XCTAssertTrue(optionDisplayed, "Apple Pay add email option should be displayed")
+        if addEmailOption.exists {
+            addEmailOption.waitAndTap()
+        } else {
+            legacyOptions.allElementsBoundByIndex.last?.waitAndTap()
+        }
 
         let emailField = sheet.textFields[Constants.Field.email]
         emailField.waitAndTap()
@@ -112,14 +124,9 @@ final class ApplePaySheetScreen: Screen {
         XCTAssertEqual(XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate), .completed, message)
     }
 
-    private func waitForButtonCount(_ query: XCUIElementQuery, atLeast count: Int) {
-        let countPredicate = NSPredicate { _, _ in query.count >= count }
-        let expectation = XCTNSPredicateExpectation(predicate: countPredicate, object: nil)
-        XCTAssertEqual(
-            XCTWaiter().wait(for: [expectation], timeout: .robustUIUpdate),
-            .completed,
-            "Apple Pay sheet should show at least \(count) matching buttons"
-        )
+    private func waitForCondition(timeout: TimeInterval, _ condition: @escaping () -> Bool) -> Bool {
+        let expectation = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in condition() }, object: nil)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 
     private func scrollUntilHittable(_ element: XCUIElement) {
@@ -174,6 +181,7 @@ private extension ApplePaySheetScreen {
             static let billing = "billing-address"
             static let contactRows = ["shipping-email", "shipping-contact"]
             static let done = "Done"
+            static let addEmailOption = "add-email"
         }
 
         enum Field {
