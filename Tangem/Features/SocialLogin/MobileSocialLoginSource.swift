@@ -11,11 +11,13 @@ import Foundation
 enum MobileSocialLoginSource {
     case createWallet
     case importWallet
+    case addNewWallet
 
     var analyticsParameterValue: Analytics.ParameterValue {
         switch self {
         case .createWallet: .createWallet
         case .importWallet: .importWallet
+        case .addNewWallet: .addNewWallet
         }
     }
 }

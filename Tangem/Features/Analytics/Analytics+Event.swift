@@ -233,6 +233,7 @@ extension Analytics {
         case settingsButtonAddHardwareWallet = "[Settings] Button - Add Hardware Wallet"
         case settingsButtonAddMobileWallet = "[Settings] Button - Add Mobile Wallet"
         case settingsNoticeMoreMobileWallets = "[Settings] Notice - More Mobile Wallets"
+        case settingsNoticeMobileWalletLimit = "[Settings] Notice - Mobile Wallet Limit"
         case buttonFactoryReset = "[Settings / Card Settings] Button - Factory Reset"
         case factoryResetFinished = "[Settings / Card Settings] Factory Reset Finished"
         case factoryResetCancelled = "[Settings / Card Settings] Factory Reset Cancelled"

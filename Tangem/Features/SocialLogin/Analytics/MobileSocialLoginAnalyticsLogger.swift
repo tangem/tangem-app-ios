@@ -10,6 +10,8 @@ import Foundation
 import TangemFoundation
 
 struct MobileSocialLoginAnalyticsLogger {
+    private let creationAnalyticsLogger = MobileWalletCreationAnalyticsLogger()
+
     func logContinueWithAppleButton(source: MobileSocialLoginSource) {
         Analytics.log(
             .socialLoginButtonContinueWithApple,
@@ -51,11 +53,11 @@ struct MobileSocialLoginAnalyticsLogger {
     }
 
     func logWalletCreated() {
-        logWalletCreatedSuccessfully(creationType: .walletCreationTypeNewSeed)
+        creationAnalyticsLogger.logWalletCreated(source: .socialLogin)
     }
 
     func logWalletRestored() {
-        logWalletCreatedSuccessfully(creationType: .walletCreationTypeSeedImport)
+        creationAnalyticsLogger.logWalletRestored(source: .socialLogin)
     }
 }
 
@@ -64,31 +66,5 @@ struct MobileSocialLoginAnalyticsLogger {
 private extension MobileSocialLoginAnalyticsLogger {
     var contextParams: Analytics.ContextParams {
         .custom(.mobileWallet)
-    }
-
-    func logWalletCreatedSuccessfully(creationType: Analytics.ParameterValue) {
-        var params: [Analytics.ParameterKey: String] = [
-            .creationType: creationType.rawValue,
-            .seedLength: Constants.seedPhraseLength,
-            .passphrase: Analytics.ParameterValue.empty.rawValue,
-            .source: Analytics.ParameterValue.socialLogin.rawValue,
-        ]
-
-        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
-
-        Analytics.log(
-            event: .walletCreatedSuccessfully,
-            params: params,
-            analyticsSystems: .all,
-            contextParams: contextParams
-        )
-    }
-}
-
-// MARK: - Constants
-
-private extension MobileSocialLoginAnalyticsLogger {
-    enum Constants {
-        static let seedPhraseLength = "12"
     }
 }
