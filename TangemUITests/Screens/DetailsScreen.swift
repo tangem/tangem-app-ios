@@ -69,9 +69,8 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
 
     @discardableResult
     func openWalletConnections() -> WalletConnectionsScreen {
-        XCTContext.runActivity(named: "Open WalletConnect") { _ in
-            let walletConnectButton = button(.walletConnectButton)
-            walletConnectButton.waitAndTap()
+        XCTContext.runActivity(named: "Open Connections") { _ in
+            button(.connectionsButton).waitAndTap()
             return WalletConnectionsScreen(app)
         }
     }
@@ -140,17 +139,9 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
     }
 
     @discardableResult
-    func verifySections(walletConnect: Bool) -> Self {
-        XCTContext.runActivity(named: "Verify Details sections (walletConnect=\(walletConnect))") { _ in
-            let walletConnectRow = button(.walletConnectButton)
-            if walletConnect {
-                waitAndAssertTrue(walletConnectRow, "WalletConnect row should be visible for this card type")
-            } else {
-                XCTAssertFalse(
-                    walletConnectRow.waitForExistence(timeout: .conditional),
-                    "WalletConnect row should NOT be visible for this card type"
-                )
-            }
+    func verifySections() -> Self {
+        XCTContext.runActivity(named: "Verify Details sections") { _ in
+            waitAndAssertTrue(button(.connectionsButton), "Connections row should be visible")
 
             let walletPrefix = "walletSettingsButton_"
             let anySavedWallet = app.buttons.matching(
@@ -196,7 +187,7 @@ final class DetailsScreen: ScreenBase<DetailsScreenElement> {
 }
 
 enum DetailsScreenElement: UIElement {
-    case walletConnectButton
+    case connectionsButton
     case addNewWallet
     case buyWallet
     case contactSupport
@@ -206,8 +197,8 @@ enum DetailsScreenElement: UIElement {
 
     var accessibilityIdentifier: String {
         switch self {
-        case .walletConnectButton:
-            return WalletConnectAccessibilityIdentifiers.detailsButton
+        case .connectionsButton:
+            return DetailsAccessibilityIdentifiers.connectionsButton
         case .addNewWallet:
             return DetailsAccessibilityIdentifiers.addNewWallet
         case .buyWallet:

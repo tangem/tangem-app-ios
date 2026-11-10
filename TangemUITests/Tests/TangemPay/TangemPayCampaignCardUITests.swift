@@ -9,7 +9,7 @@
 import XCTest
 
 final class TangemPayCampaignCardUITests: BaseTestCase {
-    private let safariHelper = SafariHelper()
+    private let systemURLOpener = SystemURLOpener()
 
     func testCampaignCard_IsOrdered_WhenLinkIsOpenedWithoutWallet() {
         setAllureId(11647)
@@ -114,11 +114,9 @@ final class TangemPayCampaignCardUITests: BaseTestCase {
     }
 
     private func openCampaignLink() {
-        XCTContext.runActivity(named: "Open the campaign link \(Constants.Link.campaign) from Safari") { _ in
+        XCTContext.runActivity(named: "Open the campaign link \(Constants.Link.campaign)") { _ in
             wireMockClient.resetRequestJournalSync()
-            safariHelper.safari.launch()
-            safariHelper.openDeeplink(Constants.Link.campaign)
-            safariHelper.tapOpenButton()
+            systemURLOpener.open(Constants.Link.campaign)
         }
     }
 

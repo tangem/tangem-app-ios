@@ -12,4 +12,5 @@ public enum PushPermissionAccessibilityIdentifiers {
     public static let title = "pushPermissionTitle"
     public static let laterButton = "pushPermissionLaterButton"
     public static let allowButton = "pushPermissionAllowButton"
+    public static let warningSkipButton = "pushPermissionWarningSkipButton"
 }
