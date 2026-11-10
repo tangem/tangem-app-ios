@@ -113,9 +113,13 @@ struct SendScreenDataCollector: EmailDataCollector {
             EmailCollectedData(type: .send(.sourceAddress), data: walletModel.defaultAddressString),
             EmailCollectedData(type: .send(.destinationAddress), data: destination),
             EmailCollectedData(type: .send(.amount), data: amount.description),
-            EmailCollectedData(type: .send(.fee), data: fee.description),
+            EmailCollectedData(type: .send(.fee), data: fee?.description ?? "-"),
             EmailCollectedData(type: .send(.isFeeIncluded), data: "\(isFeeIncluded)"),
         ])
+
+        if let swapProvider {
+            data.append(EmailCollectedData(type: .send(.provider), data: swapProvider))
+        }
 
         if let stakingAction {
             data.append(EmailCollectedData(type: .staking(.stakingAction), data: stakingAction.title))
@@ -141,24 +145,26 @@ struct SendScreenDataCollector: EmailDataCollector {
 
     private let userWalletEmailData: [EmailCollectedData]
     private let walletModel: any WalletModel
-    private let fee: Amount
+    private let fee: Amount?
     private let destination: String
     private let amount: Amount
     private let isFeeIncluded: Bool
     private let lastError: SendTxError?
     private let stakingAction: StakingAction.ActionType?
     private let stakingTarget: StakingTargetInfo?
+    private let swapProvider: String?
 
     init(
         userWalletEmailData: [EmailCollectedData],
         walletModel: any WalletModel,
-        fee: Amount,
+        fee: Amount?,
         destination: String,
         amount: Amount,
         isFeeIncluded: Bool,
         lastError: SendTxError?,
         stakingAction: StakingAction.ActionType?,
-        stakingTarget: StakingTargetInfo?
+        stakingTarget: StakingTargetInfo?,
+        swapProvider: String? = nil
     ) {
         self.userWalletEmailData = userWalletEmailData
         self.walletModel = walletModel
@@ -169,6 +175,7 @@ struct SendScreenDataCollector: EmailDataCollector {
         self.lastError = lastError
         self.stakingAction = stakingAction
         self.stakingTarget = stakingTarget
+        self.swapProvider = swapProvider
     }
 }
 

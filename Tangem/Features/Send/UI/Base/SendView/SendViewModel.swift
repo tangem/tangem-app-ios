@@ -193,6 +193,9 @@ private extension SendViewModel {
                 let alertBinder = AlertBinder(title: Localization.commonError, message: message)
                 AppLogger.error(error: error)
                 await runOnMain { viewModel.alertPresenter.present(alert: alertBinder) }
+            } catch let error as ExpressExchangeDataError where error.offersSupport {
+                AppLogger.error(error: error)
+                await viewModel.proceed(exchangeDataError: error)
             } catch {
                 AppLogger.error(error: error)
                 await runOnMain { viewModel.alertPresenter.present(alert: error.alertBinder) }
@@ -227,6 +230,24 @@ private extension SendViewModel {
             })
         case .demoAlert:
             alertPresenter.present(alert: AlertBuilder.makeDemoAlert())
+        }
+    }
+
+    @MainActor
+    func proceed(exchangeDataError: ExpressExchangeDataError) {
+        alertPresenter.present(alert: alertBuilder.makeExchangeDataFailedAlert(message: exchangeDataError.localizedMessage) { [weak self] in
+            self?.openMail(exchangeDataError: exchangeDataError)
+        })
+    }
+
+    func openMail(exchangeDataError: ExpressExchangeDataError) {
+        analyticsLogger.logRequestSupport()
+
+        do {
+            let mailData = try mailDataBuilder.makeSupportData(exchangeDataError: exchangeDataError)
+            coordinator?.openMail(with: mailData.emailDataCollector, recipient: mailData.recipient)
+        } catch {
+            alertPresenter.present(alert: error.alertBinder)
         }
     }
 

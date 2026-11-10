@@ -18,6 +18,7 @@ protocol SendMailDataBuilder {
     func makeSupportData(transaction: BSDKTransaction, error: SendTxError) throws -> SupportData
     func makeSupportData(approveTransaction: ApproveTransactionData, error: SendTxError) throws -> SupportData
     func makeSupportData(expressTransaction: ExpressTransactionData, error: SendTxError) throws -> SupportData
+    func makeSupportData(exchangeDataError: ExpressExchangeDataError) throws -> SupportData
 
     // Staking transaction methods
     func makeSupportData(stakingRequestError error: UniversalError) throws -> SupportData
