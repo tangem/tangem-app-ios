@@ -193,13 +193,16 @@ private extension ButtonHoldModel {
     func cancelHolding() {
         setup(state: .canceled)
         shake()
-        pendingSubscription = Just(())
-            .delay(for: Constants.cancelDelay, scheduler: DispatchQueue.main)
-            .handleEvents(receiveOutput: { [weak self] _ in self?.notificationGenerator.notificationOccurred(.error) })
-            .delay(for: Constants.cancelHintDuration, scheduler: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.setup(state: .idle)
-            }
+
+        let clock = ContinuousClock()
+        let start = clock.now
+        let task = Task { [weak self] in
+            try await clock.sleep(until: start + Constants.cancelHapticDelay, tolerance: Constants.cancelTimerTolerance)
+            self?.notificationGenerator.notificationOccurred(.error)
+            try await clock.sleep(until: start + Constants.cancelHintDuration, tolerance: Constants.cancelTimerTolerance)
+            self?.setup(state: .idle)
+        }
+        pendingSubscription = AnyCancellable { task.cancel() }
     }
 
     func confirm() {
@@ -385,8 +388,9 @@ extension ButtonHoldModel {
         /// Ease-out curve drops intervals quickly after a brief slow start, so the acceleration
         /// is felt early and keeps building — similar to iOS Clock timer feedback.
         static let holdEndFrequency: Double = 20
-        static let cancelDelay: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.2)
-        static let cancelHintDuration: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.8)
+        static let cancelHapticDelay: Duration = .milliseconds(200)
+        static let cancelHintDuration: Duration = .seconds(Button.HoldMotion.hintTransitionDuration + Button.HoldMotion.hintVisibleDuration)
+        static let cancelTimerTolerance: Duration = .milliseconds(1)
         static let confirmDelay: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.4)
         static let confirmHitInterval: DispatchQueue.SchedulerTimeType.Stride = .seconds(0.1)
         static let loadingGracePeriod: DispatchQueue.SchedulerTimeType.Stride = .seconds(1)
