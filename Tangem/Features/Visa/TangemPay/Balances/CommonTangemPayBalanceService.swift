@@ -69,16 +69,16 @@ final class CommonTangemPayBalanceService: TangemPayBalancesService {
     private let balanceSubject = CurrentValueSubject<LoadingResult<TangemPayBalance, Error>?, Never>(nil)
     private let networksSubject = CurrentValueSubject<[TangemPayBalance.Network], Never>([])
 
-    private lazy var fiatRateProvider: FiatRateProvider = CommonFiatRateProvider(
-        tokenItem: tokenItem
-    )
+    private let fiatRateProvider: FiatRateProvider
 
     init(
         customerInfoManagementService: any CustomerInfoManagementService,
-        tokenBalancesRepository: any TokenBalancesRepository
+        tokenBalancesRepository: any TokenBalancesRepository,
+        fiatRateProvider: FiatRateProvider = CommonFiatRateProvider(tokenItem: TangemPayUtilities.usdcTokenItem)
     ) {
         self.customerInfoManagementService = customerInfoManagementService
         self.tokenBalancesRepository = tokenBalancesRepository
+        self.fiatRateProvider = fiatRateProvider
     }
 }
 
