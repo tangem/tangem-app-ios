@@ -115,7 +115,7 @@ final class PolymarketDestinationFactory {
             makeEventsViewModel: { routable in
                 dependencies.makeCategoryEventsViewModel(category: category, refreshCenter: refreshCenter, routable: routable)
             },
-            fastTradingService: dependencies.fastTradingService,
+            fastTrading: dependencies.fastTrading?.service,
             onRegionWarning: onRegionWarning,
             onActivateFastTrading: onActivateFastTrading,
             onOpenSettings: onOpenSettings,
@@ -195,12 +195,7 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
             onPlaced: onPlaced,
             onRegionWarning: onRegionWarning,
             onAddFunds: onAddFunds,
-            sessionKeyAvailability: dependencies.fastTradingService.map { service in
-                CommonPolymarketSessionKeySigningAvailability(
-                    service: service,
-                    signingRouter: PolymarketSessionKeyFactory().makeSigningRouter(for: dependencies.userWalletModel)
-                )
-            }
+            sessionKeyAvailability: dependencies.makeSessionKeySigningAvailability()
         ))
 
         return coordinator

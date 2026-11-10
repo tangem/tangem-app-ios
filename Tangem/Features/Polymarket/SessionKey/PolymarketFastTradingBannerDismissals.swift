@@ -15,6 +15,14 @@ protocol PolymarketFastTradingBannerDismissals {
     func deleteDismissals(userWalletId: UserWalletId)
 }
 
+extension PolymarketFastTradingBannerDismissals {
+    func dismissalDates(userWalletId: UserWalletId) -> PolymarketFastTradingBanner.DismissalDates {
+        PolymarketFastTradingBanner.DismissibleKind.allCases.reduce(into: [:]) { dates, kind in
+            dates[kind] = dismissalDate(of: kind, userWalletId: userWalletId)
+        }
+    }
+}
+
 // MARK: - AppSettings
 
 extension AppSettings: PolymarketFastTradingBannerDismissals {

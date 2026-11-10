@@ -11,6 +11,7 @@ import Foundation
 enum PolymarketFastTradingBanner: Equatable {
     case foreignSigners
     case activate
+    case reactivate
     case extend(daysLeft: Int)
 
     init?(state: PolymarketFastTradingState, includingForeignSigners: Bool, isDismissed: (DismissibleKind) -> Bool) {
@@ -32,15 +33,17 @@ enum PolymarketFastTradingBanner: Equatable {
         switch authorization {
         case .renew:
             guard
-                case .active(let localKey) = assessment.status,
+                let localKey = assessment.activeOrPausedLocalKey,
                 let daysLeft = PolymarketFastTradingAssessment.daysUntilExpiry(of: localKey, now: assessment.now)
             else {
                 return nil
             }
 
             banner = .extend(daysLeft: daysLeft)
-        case .enable, .reenable, .repair, .replace:
+        case .enable, .replace:
             banner = .activate
+        case .reenable, .repair:
+            banner = .reactivate
         }
 
         if let kind = banner.dismissibleKind, isDismissed(kind) {
@@ -52,9 +55,14 @@ enum PolymarketFastTradingBanner: Equatable {
 
     var dismissibleKind: DismissibleKind? {
         switch self {
-        case .foreignSigners: nil
-        case .activate: .activate
-        case .extend: .extend
+        case .foreignSigners:
+            nil
+        case .activate:
+            .activate
+        case .reactivate:
+            .reactivate
+        case .extend:
+            .extend
         }
     }
 }
@@ -62,14 +70,19 @@ enum PolymarketFastTradingBanner: Equatable {
 // MARK: - Dismissible kind
 
 extension PolymarketFastTradingBanner {
+    typealias DismissalDates = [DismissibleKind: Date]
+
     enum DismissibleKind: String, CaseIterable {
         case activate = "activate_banner"
+        case reactivate = "reactivate_banner"
         case extend = "extend_banner"
 
         var dismissalPeriod: TimeInterval {
             switch self {
-            case .activate: 30 * 24 * 60 * 60
-            case .extend: 24 * 60 * 60
+            case .activate:
+                30 * 24 * 60 * 60
+            case .reactivate, .extend:
+                24 * 60 * 60
             }
         }
 
@@ -97,7 +110,7 @@ extension PolymarketFastTradingBannerRoutable {
         switch banner {
         case .foreignSigners:
             openSettings()
-        case .activate, .extend:
+        case .activate, .reactivate, .extend:
             openFastTradingActivation()
         }
     }

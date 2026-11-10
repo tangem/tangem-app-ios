@@ -98,7 +98,7 @@ struct PolymarketFastTradingStatusTests {
     func failedLocalKeyWaitsForTheExchangeList() {
         let key = Fixture.key(.local, status: .failed)
 
-        #expect(Fixture.assess(keys: [key], signers: nil).status == .awaitingExchangeListing(key))
+        #expect(Fixture.assess(keys: [key], signers: nil).status == .exchangeUnreadable(key))
     }
 
     @Test(
@@ -123,9 +123,12 @@ struct PolymarketFastTradingStatusTests {
         #expect(assessment.status == .waitingForSettlement(settling))
     }
 
-    @Test("A key left pending for more than ten minutes no longer holds anything", arguments: [PolymarketSessionKeyFixtures.Owner.otherDevice, .previous])
+    @Test(
+        "A key left pending past the deadline of its signed batch no longer holds anything",
+        arguments: [PolymarketSessionKeyFixtures.Owner.otherDevice, .previous]
+    )
     func stalePendingKeyIsIgnored(_ owner: PolymarketSessionKeyFixtures.Owner) {
-        let stale = Fixture.key(owner, status: .pending, authorizedAt: nil, createdAt: Fixture.now.addingTimeInterval(-11 * 60))
+        let stale = Fixture.key(owner, status: .pending, authorizedAt: nil, createdAt: Fixture.now.addingTimeInterval(-Fixture.batchExecutionWindow))
 
         let assessment = Fixture.assess(keys: [stale])
 
@@ -133,11 +136,17 @@ struct PolymarketFastTradingStatusTests {
         #expect(!assessment.hasSettlingChange)
     }
 
-    @Test("A local key left pending for more than ten minutes is enabled again")
-    func stalePendingLocalKeyIsEnabledAgain() {
-        let key = Fixture.key(.local, status: .pending, authorizedAt: nil, createdAt: Fixture.now.addingTimeInterval(-11 * 60))
+    @Test(
+        "A local key left pending past the deadline of its signed batch is offered again only once the backend stops holding it pending",
+        arguments: zip([Fixture.batchExecutionWindow - 1, Fixture.batchExecutionWindow], [false, true])
+    )
+    func stalePendingLocalKeyIsEnabledAgainOnceTheBackendDropsIt(_ pendingFor: TimeInterval, _ isOffered: Bool) {
+        let key = Fixture.key(.local, status: .pending, authorizedAt: nil, createdAt: Fixture.now.addingTimeInterval(-pendingFor))
 
-        #expect(Fixture.assess(keys: [key]).status == .reenable(key))
+        let assessment = Fixture.assess(keys: [key])
+
+        #expect(assessment.status == (isOffered ? .reenable(key) : .enabling(key)))
+        #expect(PolymarketFastTradingAuthorization(assessment: assessment) == (isOffered ? .reenable : nil))
     }
 
     @Test("A local key this app is activating keeps enabling however long the relayer takes")
@@ -180,7 +189,7 @@ struct PolymarketFastTradingStatusTests {
     func previousKeyWaitsForTheExchangeList() {
         let previous = Fixture.key(.previous)
 
-        #expect(Fixture.assess(keys: [previous], signers: nil).status == .awaitingExchangeListing(previous))
+        #expect(Fixture.assess(keys: [previous], signers: nil).status == .exchangeUnreadable(previous))
     }
 
     @Test(
@@ -272,15 +281,15 @@ struct PolymarketFastTradingStatusTests {
         #expect(Fixture.assess(keys: [key], signers: [.matching(key)]).isRenewDue == isDue)
     }
 
-    @Test("A paused key is not offered an extension until it is resumed", arguments: [
+    @Test("A paused key is due for renewal as an active one is", arguments: [
         Fixture.key(.local, isEnabled: false, renewAfter: Fixture.now.addingTimeInterval(-1)),
         Fixture.key(.local, isEnabled: false, validUntil: Fixture.now.addingTimeInterval(12 * Fixture.day)),
     ])
-    func pausedKeyIsNotDueForRenewal(_ key: PolymarketSessionKey) {
+    func pausedKeyIsDueForRenewal(_ key: PolymarketSessionKey) {
         let assessment = Fixture.assess(keys: [key], signers: [.matching(key)])
 
         #expect(assessment.status == .paused(key))
-        #expect(!assessment.isRenewDue)
+        #expect(assessment.isRenewDue)
     }
 
     @Test("The backend's renewal date decides over the last 30 days of the key")
@@ -321,7 +330,7 @@ struct PolymarketFastTradingReconciliationTests {
     }
 
     @Test(
-        "A signer the backend records as live is not foreign",
+        "A signer the backend records as live or still revoking by this wallet is not foreign",
         arguments: [PolymarketSessionKey.Status.pending, .active, .revoking, .unknown("LOST")]
     )
     func recordedSignerIsNotForeign(_ status: PolymarketSessionKey.Status) {
@@ -372,13 +381,10 @@ struct PolymarketFastTradingReconciliationTests {
         #expect(assessment.foreignSigners.isEmpty)
     }
 
-    @Test(
-        "An active key the exchange lists without a validity or with one off by under a minute is in sync",
-        arguments: [nil, Fixture.validUntil.addingTimeInterval(30)]
-    )
-    func validityWithinToleranceIsInSync(_ listedValidUntil: Date?) {
+    @Test("An active key the exchange lists with a validity off by under a minute is in sync")
+    func validityWithinToleranceIsInSync() {
         let key = Fixture.key(.otherDevice)
-        let signer = PolymarketSessionSigner(address: key.address, scopes: key.scopes, validUntil: listedValidUntil)
+        let signer = PolymarketSessionSigner(address: key.address, scopes: key.scopes, validUntil: Fixture.validUntil.addingTimeInterval(30))
 
         #expect(Fixture.assess(keys: [key], signers: [signer]).mismatchedOnExchange.isEmpty)
     }
@@ -472,7 +478,6 @@ struct PolymarketFastTradingBannerTests {
 
     @Test("A device without a usable key is asked to activate", arguments: [
         [PolymarketSessionKey](),
-        [Fixture.key(.local, status: .expired)],
         [Fixture.key(.local, status: .revoked)],
         [Fixture.key(.previous)],
     ])
@@ -521,6 +526,8 @@ struct PolymarketFastTradingBannerTests {
         switch kind {
         case .activate:
             return .loaded(Fixture.assess(keys: []))
+        case .reactivate:
+            return .loaded(Fixture.assess(keys: [Fixture.key(.local, status: .expired)]))
         case .extend:
             let key = Fixture.key(.local, validUntil: Fixture.now.addingTimeInterval(12 * Fixture.day))
             return .loaded(Fixture.assess(keys: [key], signers: [.matching(key)]))

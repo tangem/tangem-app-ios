@@ -30,7 +30,6 @@ struct PolymarketMainView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) { PolymarketSearchFieldView(viewModel: viewModel.searchViewModel) }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .onAppear { viewModel.handleViewAction(.onAppear) }
     }
 
     // MARK: - Top bar
@@ -65,7 +64,8 @@ struct PolymarketMainView: View {
                     onHistory: { viewModel.handleViewAction(.openHistory) },
                     onHowItWorks: { viewModel.handleViewAction(.openHowItWorks) },
                     onSupportChat: { viewModel.handleViewAction(.openSupportChat) },
-                    onSettings: viewModel.isFastTradingAvailable ? { viewModel.handleViewAction(.openSettings) } : nil
+                    isSettingsVisible: viewModel.isFastTradingAvailable,
+                    onSettings: { viewModel.handleViewAction(.openSettings) }
                 )
             }
         )
@@ -104,8 +104,8 @@ struct PolymarketMainView: View {
             if let fastTradingBanner = viewModel.fastTradingBanner {
                 PolymarketFastTradingBannerView(
                     banner: fastTradingBanner,
-                    onAction: { viewModel.handleViewAction(.performFastTradingBannerAction) },
-                    onDismiss: { viewModel.handleViewAction(.dismissFastTradingBanner) }
+                    onAction: { viewModel.handleViewAction(.performFastTradingBannerAction(fastTradingBanner)) },
+                    onDismiss: { viewModel.handleViewAction(.dismissFastTradingBanner(fastTradingBanner)) }
                 )
                 .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
                 .padding(.top, Constants.bannerTopSpacing)

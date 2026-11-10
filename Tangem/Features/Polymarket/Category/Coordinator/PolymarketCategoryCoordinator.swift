@@ -54,7 +54,7 @@ final class PolymarketCategoryCoordinator: CoordinatorObject {
                 category: options.category,
                 eventsViewModel: options.makeEventsViewModel(self),
                 refreshCenter: options.refreshCenter,
-                fastTradingService: options.fastTradingService,
+                fastTrading: options.fastTrading,
                 coordinator: self
             )
         }
@@ -68,7 +68,7 @@ extension PolymarketCategoryCoordinator {
         let category: PolymarketCategory
         let refreshCenter: PolymarketMainRefreshCenter
         let makeEventsViewModel: @MainActor (PolymarketEventOpeningRoutable) -> PolymarketEventsBlockViewModel
-        let fastTradingService: PolymarketFastTradingServicing?
+        let fastTrading: PolymarketFastTradingBannerProviding?
         let onRegionWarning: () -> Void
         let onActivateFastTrading: @MainActor () -> Void
         let onOpenSettings: @MainActor () -> Void

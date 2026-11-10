@@ -228,10 +228,10 @@ struct PolymarketOnboardingInteractorTests {
 
         #expect(progress.last?.isReady == true)
         #expect(signer.signCalls == 1)
-        #expect(signer.signedFollowUps.count == 1)
+        #expect(signer.signedFastTradingAuthorizations.count == 1)
         #expect(fastTrading.preparedNonces == ["8"])
         #expect(fastTrading.submitted.count == 1)
-        #expect(fastTrading.submitted.first?.signature == PolymarketOnboardingSignerSpy.followUpSignature)
+        #expect(fastTrading.submitted.first?.signature == PolymarketOnboardingSignerSpy.fastTradingAuthorizationSignature)
         #expect(service.submittedBatches.count == 1)
     }
 
@@ -249,7 +249,7 @@ struct PolymarketOnboardingInteractorTests {
         let progress = await sut.collectProgress()
 
         #expect(progress.last?.isReady == true)
-        #expect(signer.signedFollowUps.isEmpty)
+        #expect(signer.signedFastTradingAuthorizations.isEmpty)
         #expect(fastTrading.preparedNonces.isEmpty)
         #expect(fastTrading.submitted.isEmpty)
     }
@@ -346,7 +346,7 @@ struct PolymarketOnboardingInteractorTests {
 
         #expect(progress.last?.isReady == true)
         #expect(fastTrading.preparedNonces.isEmpty)
-        #expect(signer.signedFollowUps.isEmpty)
+        #expect(signer.signedFastTradingAuthorizations.isEmpty)
         #expect(fastTrading.submitted.isEmpty)
     }
 

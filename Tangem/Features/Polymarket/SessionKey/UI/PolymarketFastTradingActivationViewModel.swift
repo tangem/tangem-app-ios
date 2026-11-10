@@ -24,14 +24,14 @@ final class PolymarketFastTradingActivationViewModel: ObservableObject, Identifi
 
     let signingButtonType: SigningActionButtonViewType
 
-    private let service: PolymarketFastTradingServicing
+    private let service: PolymarketFastTradingOperating
     private let showProgress: @MainActor (String) -> Void
     private let onClose: () -> Void
 
     private var stateSubscription: AnyCancellable?
 
     init(
-        service: PolymarketFastTradingServicing,
+        service: PolymarketFastTradingOperating,
         signingButtonType: SigningActionButtonViewType,
         showProgress: @escaping @MainActor (String) -> Void = PolymarketFastTradingToast.showInfo,
         onClose: @escaping () -> Void
@@ -45,7 +45,6 @@ final class PolymarketFastTradingActivationViewModel: ObservableObject, Identifi
         pendingChangeNotice = Self.pendingChangeNotice(for: service.state)
 
         stateSubscription = service.statePublisher
-            .receiveOnMain()
             .sink { [weak self] state in
                 self?.apply(state)
             }
@@ -120,37 +119,21 @@ private extension PolymarketFastTradingActivationViewModel {
         isProcessing = true
 
         Task { [weak self, service, showProgress] in
+            defer { self?.isProcessing = false }
+
             do {
-                try await service.perform(authorization)
-                self?.isProcessing = false
+                try await service.authorize(authorization)
                 showProgress(authorization.progressMessage)
                 self?.onClose()
             } catch {
-                self?.isProcessing = false
-
                 guard let failure = PolymarketFastTradingFailure(error: error) else {
                     PolymarketLogger.info("Fast trading authorization was cancelled")
                     return
                 }
 
-                PolymarketLogger.error("Fast trading authorization failed", error: error)
+                PolymarketLogger.error(error: "Fast trading authorization failed: \(PolymarketFastTradingFailure.logDescription(of: error))")
                 self?.alert = failure.alert
             }
-        }
-    }
-}
-
-// MARK: - Authorization
-
-private extension PolymarketFastTradingServicing {
-    func perform(_ authorization: PolymarketFastTradingAuthorization) async throws {
-        switch authorization {
-        case .enable, .reenable:
-            try await enable()
-        case .renew, .repair:
-            try await renew()
-        case .replace(let previous, let revokesPrevious):
-            try await replace(previous: previous, revokesPrevious: revokesPrevious)
         }
     }
 }

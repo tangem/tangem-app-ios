@@ -69,7 +69,7 @@ private extension PolymarketRedeemTransactionService {
             return try await prepareAndSubmitClaim(request)
         }
 
-        return try await operationSlot.gate.exclusively(operationSlot.userWalletId, orThrow: Error.claimInProgress) {
+        return try await operationSlot.exclusively(orThrow: Error.claimInProgress, whileKeptAuthorizationPends: Error.fastTradingChangePending) {
             try await prepareAndSubmitClaim(request)
         }
     }
@@ -200,6 +200,7 @@ extension PolymarketRedeemTransactionService {
         case claimFailed(PolymarketRedeemRecord)
         case claimUnconfirmed(PolymarketRedeemRecord)
         case refused(PolymarketRedeemError)
+        case fastTradingChangePending
 
         var errorDescription: String? {
             switch self {
@@ -211,6 +212,8 @@ extension PolymarketRedeemTransactionService {
                 Localization.predictionClaimErrorUnconfirmed
             case .refused(let error):
                 Self.message(for: error)
+            case .fastTradingChangePending:
+                PolymarketFastTradingStrings.walletOperationWaitsForChange
             }
         }
     }

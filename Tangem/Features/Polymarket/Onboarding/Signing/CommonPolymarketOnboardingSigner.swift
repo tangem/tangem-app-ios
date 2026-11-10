@@ -30,7 +30,7 @@ final class CommonPolymarketOnboardingSigner {
 extension CommonPolymarketOnboardingSigner: PolymarketOnboardingSigning {
     func sign(
         approvals: PolymarketRelayedBatch.Unsigned,
-        followUps: [PolymarketRelayedBatch.Unsigned]
+        fastTradingAuthorization: PolymarketRelayedBatch.Unsigned?
     ) async throws(PolymarketSigningError) -> PolymarketOnboardingSignatures {
         guard let ownerKey = PolymarketUtilities.getKey(from: keysRepository) else { throw .notDerived }
 
@@ -38,10 +38,10 @@ extension CommonPolymarketOnboardingSigner: PolymarketOnboardingSigning {
         let timestamp = String(Int(Date().timeIntervalSince1970))
 
         let authDigest = PolymarketClobAuth.digest(ownerAddress: ownerAddress, timestamp: timestamp)
-        var batchDigests: [Data] = []
+        var batchDigests = [try makeBatchDigest(for: approvals)]
 
-        for batch in [approvals] + followUps {
-            batchDigests.append(try makeBatchDigest(for: batch))
+        if let fastTradingAuthorization {
+            batchDigests.append(try makeBatchDigest(for: fastTradingAuthorization))
         }
 
         let signatures = try await makeSignatures(auth: authDigest, batches: batchDigests, using: ownerKey)
@@ -49,6 +49,8 @@ extension CommonPolymarketOnboardingSigner: PolymarketOnboardingSigning {
         guard let approvalsSignature = signatures.batches.first else {
             throw .unknown
         }
+
+        let fastTradingAuthorizationSignature = signatures.batches.dropFirst().first
 
         return PolymarketOnboardingSignatures(
             authHeaders: PolymarketCLOBAuthHeaders(
@@ -58,8 +60,8 @@ extension CommonPolymarketOnboardingSigner: PolymarketOnboardingSigning {
                 nonce: PolymarketClobAuth.nonce
             ),
             approvals: approvals.signed(by: ownerAddress, signature: approvalsSignature),
-            followUps: zip(followUps, signatures.batches.dropFirst()).map { batch, signature in
-                batch.signed(by: ownerAddress, signature: signature)
+            fastTradingAuthorization: fastTradingAuthorizationSignature.flatMap { signature in
+                fastTradingAuthorization?.signed(by: ownerAddress, signature: signature)
             }
         )
     }

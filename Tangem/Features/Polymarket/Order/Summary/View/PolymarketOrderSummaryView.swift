@@ -79,15 +79,13 @@ struct PolymarketOrderSummaryView: View {
     }
 
     private var placeButton: some View {
-        let signsWithSessionKey = viewModel.signsWithSessionKey
-
-        return PolymarketPlaceOrderButton(
-            signsWithSessionKey: signsWithSessionKey,
+        PolymarketPlaceOrderButton(
+            signing: viewModel.signingMethod,
             signingButtonType: viewModel.signingButtonType,
             title: viewModel.primaryActionTitle,
             isLoading: viewModel.isPlacing,
             isDisabled: !viewModel.isPlaceEnabled,
-            action: { viewModel.handleViewAction(.placeOrder(tappedWithSessionKey: signsWithSessionKey)) }
+            action: { viewModel.handleViewAction(.placeOrder(signing: $0)) }
         )
     }
 }

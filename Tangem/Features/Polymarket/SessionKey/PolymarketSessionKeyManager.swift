@@ -19,6 +19,8 @@ protocol PolymarketSessionKeyManaging {
 
     func renew(onSigned: @escaping @Sendable () -> Void) async throws -> PolymarketSessionKey
 
+    func repair(onSigned: @escaping @Sendable () -> Void) async throws -> PolymarketSessionKey
+
     func replace(
         previousSessionKeyAddress: String,
         revokesPrevious: Bool,
@@ -28,6 +30,12 @@ protocol PolymarketSessionKeyManaging {
     func revoke(sessionKeyAddress: String) async throws -> PolymarketSessionKey
 
     func setEnabled(_ isEnabled: Bool, sessionKeyAddress: String) async throws -> PolymarketSessionKey
+
+    func resumableInterruptedAuthorization() async -> PolymarketInterruptedAuthorization?
+
+    func resumeInterruptedAuthorization() async throws -> PolymarketSessionKey
+
+    func keptPausedKeyAddress() async -> String?
 }
 
 enum PolymarketSessionKeyManagerError: Error {
@@ -37,6 +45,8 @@ enum PolymarketSessionKeyManagerError: Error {
     case authorizationFailed(PolymarketSessionKey)
     case revocationFailed(PolymarketSessionKey)
     case missingSessionKey
+    case noInterruptedAuthorization
+    case nonceSpentElsewhere
 }
 
 actor CommonPolymarketSessionKeyManager {
@@ -50,10 +60,12 @@ actor CommonPolymarketSessionKeyManager {
     private let sessionKeyService: PolymarketSessionKeyService
     private let ownerCredentials: PolymarketOwnerCredentialsObtaining
     private let signingRouter: PolymarketOrderSigningRouting
+    private let interruptedAuthorizations: PolymarketInterruptedAuthorizationStore
     private let serverClock: PolymarketServerClock
     private let pollDelayProvider: PollDelayProvider
 
     private let operationGate: PolymarketWalletOperationGate
+    private let operationSlot: PolymarketWalletOperationSlot
 
     init(
         userWalletId: UserWalletId,
@@ -66,6 +78,7 @@ actor CommonPolymarketSessionKeyManager {
         sessionKeyService: PolymarketSessionKeyService,
         ownerCredentials: PolymarketOwnerCredentialsObtaining,
         signingRouter: PolymarketOrderSigningRouting,
+        interruptedAuthorizations: PolymarketInterruptedAuthorizationStore,
         serverClock: PolymarketServerClock,
         operationGate: PolymarketWalletOperationGate = .shared,
         pollDelayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
@@ -81,8 +94,16 @@ actor CommonPolymarketSessionKeyManager {
         self.sessionKeyService = sessionKeyService
         self.ownerCredentials = ownerCredentials
         self.signingRouter = signingRouter
+        self.interruptedAuthorizations = interruptedAuthorizations
         self.serverClock = serverClock
         self.pollDelayProvider = pollDelayProvider
+
+        operationSlot = PolymarketWalletOperationSlot(
+            userWalletId: userWalletId,
+            gate: operationGate,
+            interruptedAuthorizations: interruptedAuthorizations,
+            serverClock: serverClock
+        )
     }
 }
 
@@ -94,17 +115,17 @@ extension CommonPolymarketSessionKeyManager: PolymarketSessionKeyManaging {
     }
 
     func enable(onSigned: @escaping @Sendable () -> Void) async throws -> PolymarketSessionKey {
-        try await exclusively {
+        try await exclusivelyOnTheNextNonce {
             let deviceId = try deviceIdProvider.deviceId()
             let addresses = try await depositWalletResolver.resolve()
-            let sessionKeyAddress = try keyStore.heldAddress(for: userWalletId) ?? keyStore.generateKey(for: userWalletId)
+            let sessionKeyAddress = try authorizations.heldOrNewKeyAddress()
             let nonce = try await relayerService.walletNonce(ownerAddress: addresses.owner)
 
             let authorization = try makeAuthorizationBatch(
                 sessionKeyAddress: sessionKeyAddress,
                 addresses: addresses,
                 nonce: nonce,
-                deadlineOffset: Constants.deadlineOffset
+                deadlineOffset: PolymarketSessionKeyAuthorizationBatch.deadlineOffset
             )
 
             let signed = try await sign([authorization.unsigned], ownerAddress: addresses.owner, onSigned: onSigned)
@@ -124,20 +145,11 @@ extension CommonPolymarketSessionKeyManager: PolymarketSessionKeyManaging {
     }
 
     func renew(onSigned: @escaping @Sendable () -> Void) async throws -> PolymarketSessionKey {
-        try await exclusively {
-            let deviceId = try deviceIdProvider.deviceId()
+        try await reauthorizeHeldKey(as: .renewal, onSigned: onSigned)
+    }
 
-            guard let sessionKeyAddress = try keyStore.heldAddress(for: userWalletId) else {
-                throw PolymarketSessionKeyManagerError.missingSessionKey
-            }
-
-            return try await revokeThenAuthorize(
-                revokedAddress: sessionKeyAddress,
-                authorizedAddress: sessionKeyAddress,
-                deviceId: deviceId,
-                onSigned: onSigned
-            )
-        }
+    func repair(onSigned: @escaping @Sendable () -> Void) async throws -> PolymarketSessionKey {
+        try await reauthorizeHeldKey(as: .activation, onSigned: onSigned)
     }
 
     func replace(
@@ -145,15 +157,17 @@ extension CommonPolymarketSessionKeyManager: PolymarketSessionKeyManaging {
         revokesPrevious: Bool,
         onSigned: @escaping @Sendable () -> Void
     ) async throws -> PolymarketSessionKey {
-        try await exclusively {
+        try await exclusivelyOnTheNextNonce {
             let deviceId = try deviceIdProvider.deviceId()
-            let sessionKeyAddress = try keyStore.heldAddress(for: userWalletId) ?? keyStore.generateKey(for: userWalletId)
+            let sessionKeyAddress = try authorizations.heldOrNewKeyAddress()
 
             if revokesPrevious {
                 return try await revokeThenAuthorize(
                     revokedAddress: previousSessionKeyAddress,
                     authorizedAddress: sessionKeyAddress,
                     deviceId: deviceId,
+                    keepsPaused: false,
+                    purpose: .activation,
                     onSigned: onSigned
                 )
             }
@@ -165,7 +179,7 @@ extension CommonPolymarketSessionKeyManager: PolymarketSessionKeyManaging {
                 sessionKeyAddress: sessionKeyAddress,
                 addresses: addresses,
                 nonce: nonce,
-                deadlineOffset: Constants.deadlineOffset
+                deadlineOffset: PolymarketSessionKeyAuthorizationBatch.deadlineOffset
             )
 
             let signed = try await sign([authorization.unsigned], ownerAddress: addresses.owner, onSigned: onSigned)
@@ -184,7 +198,7 @@ extension CommonPolymarketSessionKeyManager: PolymarketSessionKeyManaging {
     }
 
     func revoke(sessionKeyAddress: String) async throws -> PolymarketSessionKey {
-        try await exclusively {
+        try await exclusivelyOnTheNextNonce {
             let addresses = try await depositWalletResolver.resolve(acceptedStatuses: .deployedOrLater)
             let nonce = try await relayerService.walletNonce(ownerAddress: addresses.owner)
 
@@ -213,9 +227,59 @@ extension CommonPolymarketSessionKeyManager: PolymarketSessionKeyManaging {
             try await self.sessionKeyService.setEnabled(isEnabled, sessionKeyAddress: sessionKeyAddress)
         }
 
-        await signingRouter.invalidate(sessionKeyAddress: sessionKeyAddress)
+        replaceKeptPauseIntent(of: sessionKeyAddress, keepsPaused: !isEnabled)
+
+        await signingRouter.forgetReadiness()
 
         return sessionKey
+    }
+
+    func resumableInterruptedAuthorization() async -> PolymarketInterruptedAuthorization? {
+        guard !operationGate.isBusy(userWalletId) else {
+            return nil
+        }
+
+        return interruptedAuthorization()
+    }
+
+    func resumeInterruptedAuthorization() async throws -> PolymarketSessionKey {
+        try await exclusively {
+            guard let interrupted = interruptedAuthorization() else {
+                throw PolymarketSessionKeyManagerError.noInterruptedAuthorization
+            }
+
+            return try await keepingWhileExecutable(interrupted) {
+                let listed = try await sessionKeyService.sessionKeys()
+
+                if let authorized = listed.record(of: interrupted.grant) {
+                    return try await settledInterruptedAuthorization(of: authorized, interrupted: interrupted)
+                }
+
+                guard !interrupted.isExecuted else {
+                    PolymarketLogger.warning("The backend no longer lists a renewed session key kept paused, dropping the pause")
+                    forget(interrupted)
+                    throw PolymarketSessionKeyManagerError.noInterruptedAuthorization
+                }
+
+                guard interrupted.isExecutable(at: serverClock.now) else {
+                    PolymarketLogger.warning("An interrupted fast trading authorization expired before the backend listed it, dropping it")
+                    forget(interrupted)
+                    throw PolymarketSessionKeyManagerError.noInterruptedAuthorization
+                }
+
+                try await completeInterruptedRevocation(of: interrupted, revoked: listed.decisiveRecord(of: interrupted.revokedAddress))
+
+                return try await authorizeInterrupted(interrupted)
+            }
+        }
+    }
+
+    func keptPausedKeyAddress() async -> String? {
+        guard let interrupted = interruptedAuthorization(), interrupted.keepsPaused else {
+            return nil
+        }
+
+        return interrupted.grant.sessionKeyAddress
     }
 }
 
@@ -228,18 +292,49 @@ private extension CommonPolymarketSessionKeyManager {
         }
     }
 
+    func exclusivelyOnTheNextNonce<T>(_ operation: () async throws -> T) async throws -> T {
+        try await operationSlot.exclusively(
+            orThrow: PolymarketSessionKeyManagerError.operationInProgress,
+            whileKeptAuthorizationPends: PolymarketSessionKeyManagerError.operationInProgress
+        ) {
+            try await operation()
+        }
+    }
+
+    func reauthorizeHeldKey(
+        as purpose: PolymarketInterruptedAuthorization.Purpose,
+        onSigned: @escaping @Sendable () -> Void
+    ) async throws -> PolymarketSessionKey {
+        try await exclusivelyOnTheNextNonce {
+            let deviceId = try deviceIdProvider.deviceId()
+
+            guard let sessionKeyAddress = try keyStore.heldAddress(for: userWalletId) else {
+                throw PolymarketSessionKeyManagerError.missingSessionKey
+            }
+
+            let record = try await sessionKeyService.sessionKeys().decisiveRecord(of: sessionKeyAddress)
+
+            return try await revokeThenAuthorize(
+                revokedAddress: sessionKeyAddress,
+                authorizedAddress: sessionKeyAddress,
+                deviceId: deviceId,
+                keepsPaused: record?.isPaused ?? false,
+                purpose: purpose,
+                onSigned: onSigned
+            )
+        }
+    }
+
     func revokeThenAuthorize(
         revokedAddress: String,
         authorizedAddress: String,
         deviceId: String,
+        keepsPaused: Bool,
+        purpose: PolymarketInterruptedAuthorization.Purpose,
         onSigned: @escaping @Sendable () -> Void
     ) async throws -> PolymarketSessionKey {
         let addresses = try await depositWalletResolver.resolve()
         let nonce = try await relayerService.walletNonce(ownerAddress: addresses.owner)
-
-        guard let revocationNonce = Int(nonce) else {
-            throw PolymarketSessionKeyManagerError.unparseableNonce(nonce)
-        }
 
         let revocation = try makeRevocationBatch(
             sessionKeyAddress: revokedAddress,
@@ -250,7 +345,7 @@ private extension CommonPolymarketSessionKeyManager {
         let authorization = try makeAuthorizationBatch(
             sessionKeyAddress: authorizedAddress,
             addresses: addresses,
-            nonce: String(revocationNonce + 1),
+            nonce: PolymarketSessionKeyAuthorizationBatch.nonce(following: nonce),
             deadlineOffset: PolymarketSessionKeyAuthorizationBatch.followUpDeadlineOffset
         )
 
@@ -260,17 +355,48 @@ private extension CommonPolymarketSessionKeyManager {
             throw PolymarketSigningError.unknown
         }
 
-        let revoking = try await submitRevocation(of: revokedAddress, batch: signedRevocation)
+        let interrupted = PolymarketInterruptedAuthorization(
+            revokedAddress: revokedAddress,
+            revocation: signedRevocation,
+            batch: signedAuthorization,
+            grant: authorization.grant,
+            deviceId: deviceId,
+            keepsPaused: keepsPaused,
+            purpose: purpose
+        )
 
-        await signingRouter.invalidate(sessionKeyAddress: revokedAddress)
+        try keep(interrupted)
 
-        let revocationSettlement = try await settlement(of: revoking, deadline: signedRevocation.deadline)
+        return try await keepingWhileExecutable(interrupted) {
+            try await revokeInterrupted(interrupted)
 
-        if case .settled(let revoked) = revocationSettlement, revoked.status != .revoked {
+            return try await authorizeInterrupted(interrupted)
+        }
+    }
+
+    func awaitRevocation(of revoking: PolymarketSessionKey, deadline: String) async throws {
+        let settled = try await revocationSettlement(of: revoking, deadline: deadline)
+
+        if case .settled(let revoked) = settled, revoked.status != .revoked {
             throw PolymarketSessionKeyManagerError.revocationFailed(revoked)
         }
+    }
 
-        return try await authorize(batch: signedAuthorization, grant: authorization.grant, deviceId: deviceId)
+    func confirmRevocation(of revoking: PolymarketSessionKey, deadline: String) async throws {
+        guard case .settled(let revoked) = try await revocationSettlement(of: revoking, deadline: deadline) else {
+            PolymarketLogger.warning("A revoking key the backend stopped listing does not confirm the revocation of an interrupted renewal")
+            throw PolymarketSessionKeyManagerError.revocationFailed(revoking)
+        }
+
+        guard revoked.status == .revoked else {
+            throw PolymarketSessionKeyManagerError.revocationFailed(revoked)
+        }
+    }
+
+    func revocationSettlement(of revoking: PolymarketSessionKey, deadline: String) async throws -> Settlement {
+        try await settlement(of: revoking, deadline: deadline) { listed in
+            listed.decisiveRecord(of: revoking.address)
+        }
     }
 
     func sign(
@@ -296,6 +422,22 @@ private extension CommonPolymarketSessionKeyManager {
         deviceId: String,
         replacesSessionKeyAddress: String? = nil
     ) async throws -> PolymarketSessionKey {
+        let submitted = try await submitAuthorization(
+            batch: batch,
+            grant: grant,
+            deviceId: deviceId,
+            replacesSessionKeyAddress: replacesSessionKeyAddress
+        )
+
+        return try await settledAuthorization(of: submitted, grant: grant, deadline: batch.deadline, keepsPaused: false)
+    }
+
+    func submitAuthorization(
+        batch: PolymarketRelayedBatch,
+        grant: PolymarketSessionKeyGrant,
+        deviceId: String,
+        replacesSessionKeyAddress: String? = nil
+    ) async throws -> PolymarketSessionKey {
         let authorization = try PolymarketSessionKeyAuthorization(
             batch: batch,
             grant: grant,
@@ -304,20 +446,63 @@ private extension CommonPolymarketSessionKeyManager {
             replacesSessionKeyAddress: replacesSessionKeyAddress
         )
 
-        let submitted = try await submit(sessionKeyAddress: grant.sessionKeyAddress, acceptedWhen: { $0.showsAuthorization(of: grant) }) {
+        return try await submit(sessionKeyAddress: grant.sessionKeyAddress, acceptedWhen: { $0.showsAuthorization(of: grant) }) {
             try await self.sessionKeyService.authorize(authorization)
         }
+    }
 
-        switch try await settlement(of: submitted, deadline: batch.deadline) {
-        case .settled(let sessionKey) where sessionKey.status == .active:
+    func settledAuthorization(
+        of submitted: PolymarketSessionKey,
+        grant: PolymarketSessionKeyGrant,
+        deadline: String,
+        keepsPaused: Bool
+    ) async throws -> PolymarketSessionKey {
+        let settled = try await settlement(of: submitted, deadline: deadline) { listed in
+            listed.record(of: grant)
+        }
+
+        switch settled {
+        case .settled(let authorized) where authorized.status == .active:
             await signingRouter.invalidate(sessionKeyAddress: grant.sessionKeyAddress)
-            try await awaitReadiness()
 
-            return sessionKey
+            guard keepsPaused else {
+                forgetInterruptedAuthorization(of: grant)
+
+                if authorized.isEnabled {
+                    try await awaitReadiness()
+                }
+
+                return authorized
+            }
+
+            keepOnlyThePauseIntent(of: grant)
+
+            return try await pausedKeepingTheIntent(authorized, grant: grant)
         case .settled(let sessionKey):
             throw PolymarketSessionKeyManagerError.authorizationFailed(sessionKey)
         case .vanished:
             throw PolymarketSessionKeyManagerError.authorizationFailed(submitted)
+        }
+    }
+
+    func pausedKeepingTheIntent(_ authorized: PolymarketSessionKey, grant: PolymarketSessionKeyGrant) async throws -> PolymarketSessionKey {
+        do {
+            let sessionKey = try await paused(authorized)
+            forgetInterruptedAuthorization(of: grant)
+            return sessionKey
+        } catch where !PolymarketSessionKeyError.isCancellation(error) {
+            PolymarketLogger.warning("Failed to pause the renewed session key, a later read pauses it again")
+            return authorized
+        }
+    }
+
+    func paused(_ sessionKey: PolymarketSessionKey) async throws -> PolymarketSessionKey {
+        guard sessionKey.isEnabled else {
+            return sessionKey
+        }
+
+        return try await submit(sessionKeyAddress: sessionKey.address, acceptedWhen: { !$0.isEnabled }) {
+            try await self.sessionKeyService.setEnabled(false, sessionKeyAddress: sessionKey.address)
         }
     }
 
@@ -357,7 +542,7 @@ private extension CommonPolymarketSessionKeyManager {
 
     func listedSessionKey(address: String) async -> PolymarketSessionKey? {
         do {
-            return try await sessionKeyService.sessionKeys().first { $0.address == address }
+            return try await sessionKeyService.sessionKeys().decisiveRecord(of: address)
         } catch {
             PolymarketLogger.warning("Failed to check whether the backend took an earlier copy of a session key request")
             return nil
@@ -379,6 +564,248 @@ private extension CommonPolymarketSessionKeyManager {
     }
 }
 
+// MARK: - Interrupted authorization
+
+private extension CommonPolymarketSessionKeyManager {
+    func keep(_ interrupted: PolymarketInterruptedAuthorization) throws {
+        do {
+            try save(interrupted)
+        } catch {
+            PolymarketLogger.error("Failed to keep the signed fast trading authorization for a resume, nothing is sent", error: error)
+            throw error
+        }
+    }
+
+    func save(_ interrupted: PolymarketInterruptedAuthorization) throws {
+        try Task.checkCancellation()
+        try interruptedAuthorizations.save(interrupted, for: userWalletId)
+    }
+
+    func interruptedAuthorization() -> PolymarketInterruptedAuthorization? {
+        let interrupted: PolymarketInterruptedAuthorization?
+
+        do {
+            interrupted = try interruptedAuthorizations.load(for: userWalletId)
+        } catch is DecodingError {
+            PolymarketLogger.warning("An interrupted fast trading authorization could not be decoded, dropping it")
+            deleteInterruptedAuthorization()
+            return nil
+        } catch {
+            PolymarketLogger.error("Failed to read an interrupted fast trading authorization", error: error)
+            return nil
+        }
+
+        guard let interrupted else {
+            return nil
+        }
+
+        guard interrupted.keepsPaused || interrupted.isExecutable(at: serverClock.now) else {
+            deleteInterruptedAuthorization()
+            return nil
+        }
+
+        return interrupted
+    }
+
+    func keepingWhileExecutable(
+        _ interrupted: PolymarketInterruptedAuthorization,
+        _ operation: () async throws -> PolymarketSessionKey
+    ) async throws -> PolymarketSessionKey {
+        do {
+            return try await operation()
+        } catch {
+            if Self.endsTheInterruptedAuthorization(error) {
+                forget(interrupted)
+            }
+
+            throw error
+        }
+    }
+
+    func forgettingIfRefused(
+        _ interrupted: PolymarketInterruptedAuthorization,
+        _ submit: () async throws -> PolymarketSessionKey
+    ) async throws -> PolymarketSessionKey {
+        do {
+            return try await submit()
+        } catch {
+            if Self.isFinalRefusal(error) {
+                forget(interrupted)
+            }
+
+            throw error
+        }
+    }
+
+    func revokeInterrupted(_ interrupted: PolymarketInterruptedAuthorization) async throws {
+        let revoking = try await forgettingIfRefused(interrupted) {
+            try await submitRevocation(of: interrupted.revokedAddress, batch: interrupted.revocation)
+        }
+
+        await signingRouter.invalidate(sessionKeyAddress: interrupted.revokedAddress)
+
+        try await awaitRevocation(of: revoking, deadline: interrupted.revocation.deadline)
+    }
+
+    func completeInterruptedRevocation(of interrupted: PolymarketInterruptedAuthorization, revoked: PolymarketSessionKey?) async throws {
+        let walletNonce = try await relayerService.walletNonce(ownerAddress: interrupted.batch.ownerAddress)
+        let revoking = revoked?.status == .revoking ? revoked : nil
+
+        switch interrupted.stage(atWalletNonce: walletNonce) {
+        case .revocationUnused:
+            guard interrupted.isRevocationExecutable(at: serverClock.now) else {
+                PolymarketLogger.warning("The revocation of an interrupted renewal can no longer run, dropping its authorization")
+                forget(interrupted)
+                throw PolymarketSessionKeyManagerError.noInterruptedAuthorization
+            }
+
+            if let revoking {
+                try await awaitRevocation(of: revoking, deadline: interrupted.revocation.deadline)
+                return
+            }
+
+            try await revokeInterrupted(interrupted)
+        case .revocationExecuted:
+            guard let revoked, revoked.showsRevocation else {
+                PolymarketLogger.warning("Another operation spent the wallet nonce of an interrupted revocation, dropping its authorization")
+                forget(interrupted)
+                throw PolymarketSessionKeyManagerError.nonceSpentElsewhere
+            }
+
+            if let revoking {
+                try await confirmRevocation(of: revoking, deadline: interrupted.revocation.deadline)
+            }
+        case .moved:
+            PolymarketLogger.warning("The wallet nonce matches neither the revocation nor the authorization of an interrupted renewal, dropping it")
+            forget(interrupted)
+            throw PolymarketSessionKeyManagerError.noInterruptedAuthorization
+        }
+    }
+
+    func authorizeInterrupted(_ interrupted: PolymarketInterruptedAuthorization) async throws -> PolymarketSessionKey {
+        let submitted = try await forgettingIfRefused(interrupted) {
+            try await submitAuthorization(batch: interrupted.batch, grant: interrupted.grant, deviceId: interrupted.deviceId)
+        }
+
+        return try await settledAuthorization(
+            of: submitted,
+            grant: interrupted.grant,
+            deadline: interrupted.batch.deadline,
+            keepsPaused: interrupted.keepsPaused
+        )
+    }
+
+    func settledInterruptedAuthorization(
+        of authorized: PolymarketSessionKey,
+        interrupted: PolymarketInterruptedAuthorization
+    ) async throws -> PolymarketSessionKey {
+        switch authorized.status {
+        case .pending, .active:
+            return try await settledAuthorization(
+                of: authorized,
+                grant: interrupted.grant,
+                deadline: interrupted.batch.deadline,
+                keepsPaused: interrupted.keepsPaused
+            )
+        case .failed, .expired, .unknown:
+            throw PolymarketSessionKeyManagerError.authorizationFailed(authorized)
+        case .revoking, .revoked:
+            PolymarketLogger.warning("An interrupted fast trading authorization went through and was revoked since, dropping it")
+            forget(interrupted)
+            throw PolymarketSessionKeyManagerError.noInterruptedAuthorization
+        }
+    }
+
+    static func endsTheInterruptedAuthorization(_ error: Error) -> Bool {
+        switch error {
+        case PolymarketSessionKeyManagerError.authorizationFailed, PolymarketSessionKeyManagerError.revocationFailed:
+            true
+        default:
+            false
+        }
+    }
+
+    static func isFinalRefusal(_ error: Error) -> Bool {
+        switch error {
+        case let error as PolymarketSessionKeyError where error.isBusyRefusal:
+            false
+        case PolymarketSessionKeyError.refused, is PolymarketSessionKeyRequestError:
+            true
+        default:
+            false
+        }
+    }
+
+    func forget(_ interrupted: PolymarketInterruptedAuthorization) {
+        forgetInterruptedAuthorization { $0.batch == interrupted.batch }
+    }
+
+    func forgetInterruptedAuthorization(of grant: PolymarketSessionKeyGrant) {
+        forgetInterruptedAuthorization { $0.isOf(grant) }
+    }
+
+    func forgetInterruptedAuthorization(where isForgotten: (PolymarketInterruptedAuthorization) -> Bool) {
+        let kept: PolymarketInterruptedAuthorization?
+
+        do {
+            kept = try interruptedAuthorizations.load(for: userWalletId)
+        } catch {
+            PolymarketLogger.warning("Failed to read the interrupted fast trading authorization to forget")
+            return
+        }
+
+        guard let kept, isForgotten(kept) else {
+            return
+        }
+
+        deleteInterruptedAuthorization()
+    }
+
+    func deleteInterruptedAuthorization() {
+        do {
+            try interruptedAuthorizations.delete(for: userWalletId)
+        } catch {
+            PolymarketLogger.warning("Failed to forget an interrupted fast trading authorization")
+        }
+    }
+
+    func keepOnlyThePauseIntent(of grant: PolymarketSessionKeyGrant) {
+        guard let interrupted = interruptedAuthorization(), interrupted.isOf(grant), !interrupted.isExecuted else {
+            return
+        }
+
+        do {
+            try save(interrupted.executed)
+        } catch {
+            PolymarketLogger.warning("Failed to mark an interrupted fast trading authorization as gone through")
+        }
+    }
+
+    func replaceKeptPauseIntent(of sessionKeyAddress: String, keepsPaused: Bool) {
+        guard let interrupted = interruptedAuthorization(), interrupted.isFor(sessionKeyAddress: sessionKeyAddress) else {
+            return
+        }
+
+        guard !interrupted.isExecuted else {
+            forget(interrupted)
+            return
+        }
+
+        guard interrupted.keepsPaused != keepsPaused else {
+            return
+        }
+
+        var updated = interrupted
+        updated.keepsPaused = keepsPaused
+
+        do {
+            try save(updated)
+        } catch {
+            PolymarketLogger.warning("Failed to update the pause kept for an interrupted fast trading authorization")
+        }
+    }
+}
+
 // MARK: - Settling
 
 private extension CommonPolymarketSessionKeyManager {
@@ -387,7 +814,11 @@ private extension CommonPolymarketSessionKeyManager {
         case vanished
     }
 
-    func settlement(of sessionKey: PolymarketSessionKey, deadline: String) async throws -> Settlement {
+    func settlement(
+        of sessionKey: PolymarketSessionKey,
+        deadline: String,
+        recordIn pick: ([PolymarketSessionKey]) -> PolymarketSessionKey?
+    ) async throws -> Settlement {
         let waitingLimit = settlingLimit(deadline: deadline)
         var latest = sessionKey
         var misses = 0
@@ -400,7 +831,7 @@ private extension CommonPolymarketSessionKeyManager {
             try await pollDelayProvider.wait(for: Constants.pollingInterval)
 
             do {
-                if let listed = try await sessionKeyService.sessionKeys().first(where: { $0.address == sessionKey.address }) {
+                if let listed = try await pick(sessionKeyService.sessionKeys()) {
                     latest = listed
                     misses = 0
                 } else if misses < PolymarketSessionKey.settlingMissTolerance {
@@ -418,15 +849,19 @@ private extension CommonPolymarketSessionKeyManager {
 
     func settlingLimit(deadline: String) -> Date {
         let executableUntil = TimeInterval(deadline).map(Date.init(timeIntervalSince1970:))
-            ?? serverClock.now.addingTimeInterval(TimeInterval(Constants.deadlineOffset))
+            ?? serverClock.now.addingTimeInterval(TimeInterval(PolymarketSessionKeyAuthorizationBatch.deadlineOffset))
 
-        return executableUntil.addingTimeInterval(Constants.settlingGrace)
+        return executableUntil.addingTimeInterval(PolymarketSessionKey.settlingGrace)
     }
 }
 
 // MARK: - Batches
 
 private extension CommonPolymarketSessionKeyManager {
+    var authorizations: PolymarketSessionKeyAuthorizations {
+        PolymarketSessionKeyAuthorizations(userWalletId: userWalletId, keyStore: keyStore, serverClock: serverClock)
+    }
+
     func makeAuthorizationBatch(
         sessionKeyAddress: String,
         addresses: PolymarketDepositWalletAddresses,
@@ -455,7 +890,7 @@ private extension CommonPolymarketSessionKeyManager {
         return PolymarketRelayedBatch.Unsigned(
             depositWalletAddress: addresses.depositWallet,
             nonce: nonce,
-            deadline: makeDeadline(offset: Constants.deadlineOffset),
+            deadline: makeDeadline(offset: PolymarketSessionKeyAuthorizationBatch.deadlineOffset),
             calls: [call]
         )
     }
@@ -465,20 +900,26 @@ private extension CommonPolymarketSessionKeyManager {
     }
 
     enum Constants {
-        static let deadlineOffset = 600
         static let pollingInterval: TimeInterval = 3
-        static let settlingGrace: TimeInterval = 60
         static let readinessAttempts = 10
         static let resubmitAttempts = 3
         static let deviceNameLimit = 64
-        static let validityTolerance: TimeInterval = 60
     }
 }
 
 // MARK: - Authorization batch
 
 struct PolymarketSessionKeyAuthorizationBatch {
+    static let deadlineOffset = 600
     static let followUpDeadlineOffset = 1200
+
+    static func nonce(following nonce: String) throws -> String {
+        guard let value = Int(nonce) else {
+            throw PolymarketSessionKeyManagerError.unparseableNonce(nonce)
+        }
+
+        return String(value + 1)
+    }
 
     let unsigned: PolymarketRelayedBatch.Unsigned
     let grant: PolymarketSessionKeyGrant
@@ -499,24 +940,118 @@ struct PolymarketSessionKeyAuthorizationBatch {
     }
 }
 
+// MARK: - Authorizations
+
+struct PolymarketSessionKeyAuthorizations {
+    let userWalletId: UserWalletId
+    let keyStore: PolymarketSessionKeyStore
+    let serverClock: PolymarketServerClock
+
+    func heldOrNewKeyAddress() throws -> String {
+        try keyStore.heldAddress(for: userWalletId) ?? keyStore.generateKey(for: userWalletId)
+    }
+
+    func makeFollowUp(depositWalletAddress: String, nonce: String) throws -> PolymarketSessionKeyAuthorizationBatch {
+        try PolymarketSessionKeyAuthorizationBatch(
+            sessionKeyAddress: heldOrNewKeyAddress(),
+            depositWalletAddress: depositWalletAddress,
+            nonce: nonce,
+            now: serverClock.now,
+            deadlineOffset: PolymarketSessionKeyAuthorizationBatch.followUpDeadlineOffset
+        )
+    }
+}
+
 // MARK: - Settling misses
 
 extension PolymarketSessionKey {
     static let settlingMissTolerance = 3
+    static let settlingGrace: TimeInterval = 60
+}
+
+// MARK: - Backend hold
+
+extension PolymarketSessionKey {
+    static let backendHoldGrace: TimeInterval = 10 * 60
+    static let backendHoldLimit: TimeInterval = 30 * 60
+    static let backendHoldWindow = min(
+        TimeInterval(PolymarketSessionKeyAuthorizationBatch.followUpDeadlineOffset) + backendHoldGrace,
+        backendHoldLimit
+    )
+}
+
+// MARK: - Validity tolerance
+
+extension PolymarketSessionKey {
+    static let validityTolerance: TimeInterval = 60
+}
+
+// MARK: - Cancellation
+
+extension PolymarketSessionKeyError {
+    static func isCancellation(_ error: Error) -> Bool {
+        switch error {
+        case is CancellationError, PolymarketSessionKeyError.cancelled:
+            true
+        default:
+            false
+        }
+    }
+}
+
+// MARK: - Refusals
+
+extension PolymarketSessionKeyError {
+    var isBusyRefusal: Bool {
+        guard case .refused(_, let reason, let detail) = self else {
+            return false
+        }
+
+        switch reason {
+        case .busy, .deviceHasSessionKey:
+            return true
+        case .relayerRejected:
+            return detail?.localizedCaseInsensitiveContains(Self.relayerInFlightMarker) == true
+        case .malformedRequest, .invalidWalletId, .invalidDeadline, .invalidValidUntil, .invalidCall, .invalidSignature,
+             .walletNotOwned, .walletNotReady, .ownedByAnotherWallet, .invalidReplacement, .limitReached, .notToggleable,
+             .notFound, .nonceAlreadyUsed, .unknown:
+            return false
+        }
+    }
+
+    private static let relayerInFlightMarker = "in-flight"
+}
+
+// MARK: - Grant records
+
+extension Sequence where Element == PolymarketSessionKey {
+    func record(of grant: PolymarketSessionKeyGrant) -> PolymarketSessionKey? {
+        filter { $0.isRecord(of: grant) }.decisiveRecord(of: grant.sessionKeyAddress)
+    }
+}
+
+private extension PolymarketSessionKey {
+    func isRecord(of grant: PolymarketSessionKeyGrant) -> Bool {
+        guard address.caseInsensitiveCompare(grant.sessionKeyAddress) == .orderedSame, let validUntil else {
+            return false
+        }
+
+        return abs(validUntil.timeIntervalSince(grant.validUntil)) <= PolymarketSessionKey.validityTolerance
+    }
 }
 
 // MARK: - Accepted requests
 
 private extension PolymarketSessionKey {
     func showsAuthorization(of grant: PolymarketSessionKeyGrant) -> Bool {
-        guard status == .pending || status == .active, let validUntil else {
-            return false
-        }
-
-        return abs(validUntil.timeIntervalSince(grant.validUntil)) <= CommonPolymarketSessionKeyManager.Constants.validityTolerance
+        (status == .pending || status == .active) && isRecord(of: grant)
     }
 
     var showsRevocation: Bool {
         status == .revoking || status == .revoked
+    }
+
+    var isPaused: Bool {
+        status == .active && !isEnabled
     }
 }

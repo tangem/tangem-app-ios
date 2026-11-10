@@ -19,9 +19,8 @@ final class PolymarketFastTradingPreviewService: PolymarketFastTradingServicing 
         Just(state).eraseToAnyPublisher()
     }
 
-    func bannerPublisher(includingForeignSigners: Bool) -> AnyPublisher<PolymarketFastTradingBanner?, Never> {
-        Just(PolymarketFastTradingBanner(state: state, includingForeignSigners: includingForeignSigners, isDismissed: { _ in false }))
-            .eraseToAnyPublisher()
+    var bannerDismissalsPublisher: AnyPublisher<PolymarketFastTradingBanner.DismissalDates, Never> {
+        Just([:]).eraseToAnyPublisher()
     }
 
     var failurePublisher: AnyPublisher<PolymarketFastTradingFailure, Never> {
@@ -40,19 +39,19 @@ final class PolymarketFastTradingPreviewService: PolymarketFastTradingServicing 
 
     func refresh() async {}
 
-    func enable() async throws {}
+    func cancelWork() {}
+
+    func authorize(_ authorization: PolymarketFastTradingAuthorization) async throws {}
 
     func authorize(presigned batch: PolymarketRelayedBatch, grant: PolymarketSessionKeyGrant) async throws {}
-
-    func renew() async throws {}
-
-    func replace(previous: PolymarketSessionKey, revokesPrevious: Bool) async throws {}
 
     func revoke(sessionKeyAddress: String) async throws {}
 
     func setEnabled(_ isEnabled: Bool, sessionKeyAddress: String) async throws {}
 
     func dismissBanner(_ banner: PolymarketFastTradingBanner) {}
+
+    func reportFailure(_ failure: PolymarketFastTradingFailure) {}
 }
 
 extension PolymarketFastTradingPreviewService {

@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemLocalization
+import TangemNetworkUtils
 import TangemPolymarket
 import TangemUIUtils
 
@@ -16,6 +17,7 @@ enum PolymarketFastTradingFailure: Equatable {
     case busy
     case limitReached
     case notReady
+    case notEnabled
     case generic
 
     init?(error: Error) {
@@ -24,10 +26,16 @@ enum PolymarketFastTradingFailure: Equatable {
             return nil
         case let error where error.isCancellationError:
             return nil
-        case PolymarketSessionKeyError.refused(_, let reason, let detail):
-            self.init(reason: reason, detail: detail)
+        case PolymarketSessionKeyManagerError.unsettled:
+            return nil
+        case let error as PolymarketSessionKeyError where error.isBusyRefusal:
+            self = .busy
+        case PolymarketSessionKeyError.refused(_, let reason, _):
+            self.init(reason: reason)
         case PolymarketSessionKeyManagerError.operationInProgress:
             self = .busy
+        case PolymarketSessionKeyManagerError.nonceSpentElsewhere:
+            self = .staleSignature
         case PolymarketAccountFundsError.depositWalletNotReadyToTrade:
             self = .notReady
         default:
@@ -35,11 +43,9 @@ enum PolymarketFastTradingFailure: Equatable {
         }
     }
 
-    private init(reason: PolymarketSessionKeyError.Reason, detail: String?) {
+    private init(reason: PolymarketSessionKeyError.Reason) {
         switch reason {
         case .busy, .deviceHasSessionKey:
-            self = .busy
-        case .relayerRejected where detail?.localizedCaseInsensitiveContains(Constants.relayerInFlightMarker) == true:
             self = .busy
         case .invalidDeadline, .invalidValidUntil, .invalidSignature, .nonceAlreadyUsed, .relayerRejected:
             self = .staleSignature
@@ -55,11 +61,18 @@ enum PolymarketFastTradingFailure: Equatable {
 
     var message: String {
         switch self {
-        case .staleSignature: PolymarketFastTradingStrings.staleSignature
-        case .busy: PolymarketFastTradingStrings.deviceBusy
-        case .limitReached: PolymarketFastTradingStrings.limitReached
-        case .notReady: PolymarketFastTradingStrings.notReady
-        case .generic: Localization.commonUnknownError
+        case .staleSignature:
+            PolymarketFastTradingStrings.staleSignature
+        case .busy:
+            PolymarketFastTradingStrings.deviceBusy
+        case .limitReached:
+            PolymarketFastTradingStrings.limitReached
+        case .notReady:
+            PolymarketFastTradingStrings.notReady
+        case .notEnabled:
+            PolymarketFastTradingStrings.notEnabledAfterOnboarding
+        case .generic:
+            Localization.commonUnknownError
         }
     }
 
@@ -68,10 +81,30 @@ enum PolymarketFastTradingFailure: Equatable {
     }
 }
 
-// MARK: - Constants
+// MARK: - Logging
 
-private extension PolymarketFastTradingFailure {
-    enum Constants {
-        static let relayerInFlightMarker = "in-flight"
+extension PolymarketFastTradingFailure {
+    static func logDescription(of error: Error) -> String {
+        switch error {
+        case PolymarketSessionKeyError.refused(let statusCode, let reason, _):
+            "refused with \(statusCode), \(reason)"
+        case PolymarketSessionKeyError.other(let apiError), let apiError as PolymarketAPIError:
+            apiLogDescription(of: apiError)
+        case let error as URLError:
+            "connection error \(error.code.rawValue)"
+        default:
+            "\(error)"
+        }
+    }
+
+    private static func apiLogDescription(of apiError: PolymarketAPIError) -> String {
+        switch apiError {
+        case .http(let statusCode, _):
+            "HTTP \(statusCode)"
+        case .connection(let underlying):
+            "connection error \(underlying.networkErrorCode?.rawValue ?? (underlying as NSError).code)"
+        case .decoding(let field, _):
+            "unreadable \(field)"
+        }
     }
 }

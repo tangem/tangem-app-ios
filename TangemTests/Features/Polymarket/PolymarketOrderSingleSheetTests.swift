@@ -32,7 +32,7 @@ struct PolymarketOrderSingleSheetTests {
     func summaryStepOpensSummary() async throws {
         let context = try await makeContext(isSingleSheet: false)
 
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: context.sut.signsWithSessionKey))
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
         context.sut.handleViewAction(.openSummary)
 
         #expect(!context.sut.isPlacing)
@@ -45,7 +45,7 @@ struct PolymarketOrderSingleSheetTests {
     func singleSheetPlacesDirectly() async throws {
         let context = try await makeContext(isSingleSheet: true, placement: .success(.stub(makingAmount: 100, takingAmount: 138)))
 
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: context.sut.signsWithSessionKey))
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         try await context.routable.resultOpened.next()
 
@@ -61,9 +61,9 @@ struct PolymarketOrderSingleSheetTests {
         let choice = PolymarketOrderSigningChoice(availability: availability, showNotice: { _ in })
         let context = try await makeContext(isSingleSheet: true, placement: .success(.stub(makingAmount: 100, takingAmount: 138)), signingChoice: choice)
 
-        try #require(choice.signsWithSessionKey)
+        try #require(choice.method == .sessionKey)
 
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: context.sut.signsWithSessionKey))
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         try await context.routable.resultOpened.next()
 
@@ -77,16 +77,16 @@ struct PolymarketOrderSingleSheetTests {
         let context = try await makeContext(isSingleSheet: true, placement: .success(.stub(makingAmount: 100, takingAmount: 138)), signingChoice: choice)
 
         availability.publish(false)
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: true))
+        context.sut.handleViewAction(.placeOrder(signing: .sessionKey))
 
         await context.sut.$isPlacing.firstValue(where: { !$0 })
 
         #expect(context.placementService.placements == 0)
-        #expect(!choice.signsWithSessionKey)
+        #expect(choice.method == .ownerKey)
 
         _ = await context.model.$state.firstValue { $0.quote.quote != nil && !$0.quote.isAwaitingQuote }
         _ = await context.sut.$isNextEnabled.firstValue { $0 }
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: context.sut.signsWithSessionKey))
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         try await context.routable.resultOpened.next()
 
@@ -103,12 +103,12 @@ struct PolymarketOrderSingleSheetTests {
             signingChoice: choice
         )
 
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: context.sut.signsWithSessionKey))
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         await context.sut.$isPlacing.firstValue(where: { !$0 })
 
         #expect(context.placementService.placements == 1)
-        #expect(!choice.signsWithSessionKey)
+        #expect(choice.method == .ownerKey)
         #expect(context.sut.alert == nil)
     }
 
@@ -135,7 +135,7 @@ struct PolymarketOrderSingleSheetTests {
             placement: .success(.stub(makingAmount: Self.heldShares, takingAmount: 7))
         )
 
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: context.sut.signsWithSessionKey))
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         try await context.routable.resultOpened.next()
 
@@ -231,7 +231,7 @@ struct PolymarketOrderSingleSheetTests {
     func uncoveredAmountDisablesPlacing() async throws {
         let context = try await makeContext(isSingleSheet: true, enteredAmount: 100, balance: 50)
 
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: context.sut.signsWithSessionKey))
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         #expect(!context.sut.isNextEnabled)
         #expect(!context.sut.isPlacing)
@@ -265,7 +265,7 @@ struct PolymarketOrderSingleSheetTests {
     func rejectionShowsAlert() async throws {
         let context = try await makeContext(isSingleSheet: true, placement: .failure(PolymarketOrderPlacementError.rejected(message: nil)))
 
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: context.sut.signsWithSessionKey))
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         _ = await context.sut.$alert.firstValue { $0 != nil }
 
@@ -279,7 +279,7 @@ struct PolymarketOrderSingleSheetTests {
     func cancelledSigningResumes(_ cancellation: SigningCancellation) async throws {
         let context = try await makeContext(isSingleSheet: true, placement: .failure(cancellation.error))
 
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: context.sut.signsWithSessionKey))
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         _ = await context.sut.$isPlacing.firstValue { !$0 }
 
@@ -294,7 +294,7 @@ struct PolymarketOrderSingleSheetTests {
     func tapWhileQuotingPlacesNothing() async throws {
         let context = try await makeQuotingContext(placement: .success(.stub(makingAmount: 100, takingAmount: 138)))
 
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: context.sut.signsWithSessionKey))
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         #expect(!context.sut.isNextEnabled)
         #expect(!context.sut.isPlacing)
@@ -312,7 +312,7 @@ struct PolymarketOrderSingleSheetTests {
     func closeIgnoredWhilePlacing() async throws {
         let context = try await makeContext(isSingleSheet: true, placement: nil)
 
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: context.sut.signsWithSessionKey))
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         try await context.placementService.entered.next()
 
@@ -382,7 +382,7 @@ private extension PolymarketOrderSingleSheetTests {
     func place(_ result: Result<PolymarketOrderPlacement, Error>) async throws -> PolymarketOrderResultViewModel.State? {
         let context = try await makeContext(isSingleSheet: true, placement: result)
 
-        context.sut.handleViewAction(.placeOrder(tappedWithSessionKey: context.sut.signsWithSessionKey))
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         try await context.routable.resultOpened.next()
 

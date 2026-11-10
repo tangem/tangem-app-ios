@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import TangemFoundation
 import TangemLocalization
+import TangemMacro
 import TangemPolymarket
 import TangemPolymarketUI
 import TangemUI
@@ -44,10 +45,16 @@ final class PolymarketOrderSubmission {
 
     func submit(
         quote: PolymarketOrderQuote,
-        tappedWithSessionKey: Bool,
+        signing tapped: PolymarketOrderSigningMethod,
         marketRow: @escaping () -> PolymarketOrderMarketRow.Model
     ) async -> Outcome {
-        guard let signing = signing(tappedWithSessionKey: tappedWithSessionKey) else {
+        let signing: PolymarketOrderSigningMethod
+
+        switch decision(tapped: tapped) {
+        case .sign(let method):
+            signing = method
+        case .routeChanged:
+            signingChoice?.switchToOwnerKey()
             return .signingChanged
         }
 
@@ -104,6 +111,7 @@ extension PolymarketOrderSubmission {
 // MARK: - Outcome
 
 extension PolymarketOrderSubmission {
+    @CaseFlagable
     enum Outcome {
         case cancelled
         case signingChanged
@@ -150,12 +158,8 @@ extension PolymarketOrderSubmission {
 // MARK: - Signing
 
 private extension PolymarketOrderSubmission {
-    func signing(tappedWithSessionKey: Bool) -> PolymarketOrderSigningMethod? {
-        guard let signingChoice else {
-            return .ownerKey
-        }
-
-        return signingChoice.signing(tappedWithSessionKey: tappedWithSessionKey)
+    func decision(tapped: PolymarketOrderSigningMethod) -> PolymarketOrderSigningChoice.Decision {
+        signingChoice?.decide(tapped: tapped) ?? .sign(.ownerKey)
     }
 }
 

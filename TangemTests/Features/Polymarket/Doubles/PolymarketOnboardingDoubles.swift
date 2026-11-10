@@ -302,10 +302,10 @@ final class PolymarketRelayerServiceStub: PolymarketRelayerService {
 final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
     static let batchSignature = "0xbatch"
 
-    static let followUpSignature = "0xfollowup"
+    static let fastTradingAuthorizationSignature = "0xfasttrading"
 
     private(set) var signCalls = 0
-    private(set) var signedFollowUps: [PolymarketRelayedBatch.Unsigned] = []
+    private(set) var signedFastTradingAuthorizations: [PolymarketRelayedBatch.Unsigned] = []
 
     private let error: PolymarketSigningError?
 
@@ -315,10 +315,13 @@ final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
 
     func sign(
         approvals: PolymarketRelayedBatch.Unsigned,
-        followUps: [PolymarketRelayedBatch.Unsigned]
+        fastTradingAuthorization: PolymarketRelayedBatch.Unsigned?
     ) async throws(PolymarketSigningError) -> PolymarketOnboardingSignatures {
         signCalls += 1
-        signedFollowUps.append(contentsOf: followUps)
+
+        if let fastTradingAuthorization {
+            signedFastTradingAuthorizations.append(fastTradingAuthorization)
+        }
 
         if let error {
             throw error
@@ -334,7 +337,7 @@ final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
                 nonce: PolymarketClobAuth.nonce
             ),
             approvals: approvals.signed(by: ownerAddress, signature: Self.batchSignature),
-            followUps: followUps.map { $0.signed(by: ownerAddress, signature: Self.followUpSignature) }
+            fastTradingAuthorization: fastTradingAuthorization?.signed(by: ownerAddress, signature: Self.fastTradingAuthorizationSignature)
         )
     }
 }
@@ -362,7 +365,15 @@ final class PolymarketOnboardingFastTradingSpy: PolymarketOnboardingFastTrading,
         state.withLock { $0.submitted }
     }
 
-    func makeAuthorization(depositWalletAddress: String, nonce: String) -> PolymarketRelayedBatch.Unsigned? {
+    var notEnabledReports: Int {
+        state.withLock { $0.notEnabledReports }
+    }
+
+    func makeAuthorization(depositWalletAddress: String, approvalsNonce: String, followsApprovals: Bool) -> PolymarketRelayedBatch.Unsigned? {
+        guard let nonce = try? (followsApprovals ? PolymarketSessionKeyAuthorizationBatch.nonce(following: approvalsNonce) : approvalsNonce) else {
+            return nil
+        }
+
         state.withLock { $0.preparedNonces.append(nonce) }
 
         guard preparesAuthorization else { return nil }
@@ -381,10 +392,15 @@ final class PolymarketOnboardingFastTradingSpy: PolymarketOnboardingFastTrading,
         return nil
     }
 
+    func reportNotEnabled() {
+        state.withLock { $0.notEnabledReports += 1 }
+    }
+
     private struct State {
         var isEnabled = true
         var preparedNonces: [String] = []
         var submitted: [PolymarketRelayedBatch] = []
+        var notEnabledReports = 0
     }
 }
 

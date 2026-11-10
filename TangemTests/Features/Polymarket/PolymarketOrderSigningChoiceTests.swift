@@ -18,32 +18,32 @@ struct PolymarketOrderSigningChoiceTests {
     func usableKeySignsWithSessionKey() {
         let (sut, _) = makeSUT(isAvailable: true)
 
-        #expect(sut.signsWithSessionKey)
-        #expect(sut.signing(tappedWithSessionKey: true) == .sessionKey)
+        #expect(sut.method == .sessionKey)
+        #expect(sut.decide(tapped: .sessionKey) == .sign(.sessionKey))
     }
 
     @Test("Without a usable session key the order waits for the card")
     func unusableKeySignsWithTheCard() {
         let (sut, _) = makeSUT(isAvailable: false)
 
-        #expect(!sut.signsWithSessionKey)
+        #expect(sut.method == .ownerKey)
     }
 
     @Test("A tap on the card button is signed by the owner key even if the session key turned usable since")
     func cardTapSignsWithTheOwnerKey() {
         let (sut, _) = makeSUT(isAvailable: true)
 
-        #expect(sut.signing(tappedWithSessionKey: false) == .ownerKey)
+        #expect(sut.decide(tapped: .ownerKey) == .sign(.ownerKey))
     }
 
-    @Test("A key lost after the button showed holds the tap and switches the button to the card")
+    @Test("A key lost after the button showed holds the tap and the button turns to the card")
     func lostKeyHoldsTheTap() {
         let (sut, availability) = makeSUT(isAvailable: true)
 
         availability.publish(false)
 
-        #expect(sut.signing(tappedWithSessionKey: true) == nil)
-        #expect(!sut.signsWithSessionKey)
+        #expect(sut.decide(tapped: .sessionKey) == .routeChanged)
+        #expect(sut.method == .ownerKey)
     }
 
     @Test("A declined session key keeps the order on the card even if it looks usable again")
@@ -53,8 +53,8 @@ struct PolymarketOrderSigningChoiceTests {
         sut.declineSessionKey()
         availability.publish(true)
 
-        #expect(!sut.signsWithSessionKey)
-        #expect(sut.signing(tappedWithSessionKey: true) == nil)
+        #expect(sut.method == .ownerKey)
+        #expect(sut.decide(tapped: .sessionKey) == .routeChanged)
     }
 }
 

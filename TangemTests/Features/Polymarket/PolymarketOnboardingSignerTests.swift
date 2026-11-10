@@ -69,21 +69,20 @@ struct PolymarketOnboardingSignerTests {
         #expect(headers["POLY_SIGNATURE"] != signatures.approvals.signature)
     }
 
-    @Test("A follow-up batch is signed in the same card session after the approvals and keeps its own signature")
-    func followUpsAreSignedAfterTheApprovals() async throws {
+    @Test("The fast trading authorization is signed in the same card session after the approvals and keeps its own signature")
+    func fastTradingAuthorizationIsSignedAfterTheApprovals() async throws {
         let context = try Context()
 
-        let signatures = try await context.sut.sign(approvals: Self.approvals, followUps: [Self.followUp])
+        let signatures = try await context.sut.sign(approvals: Self.approvals, fastTradingAuthorization: Self.fastTradingAuthorization)
         let approvalsDigest = try PolymarketRelayedBatchSigning.digest(for: Self.approvals)
-        let followUpDigest = try PolymarketRelayedBatchSigning.digest(for: Self.followUp)
-        let signedFollowUp = try #require(signatures.followUps.first)
+        let fastTradingAuthorizationDigest = try PolymarketRelayedBatchSigning.digest(for: Self.fastTradingAuthorization)
+        let signedFastTradingAuthorization = try #require(signatures.fastTradingAuthorization)
 
         #expect(context.signer.signCalls == 1)
-        #expect(Array(context.signer.requestedHashes.dropFirst()) == [approvalsDigest, followUpDigest])
+        #expect(Array(context.signer.requestedHashes.dropFirst()) == [approvalsDigest, fastTradingAuthorizationDigest])
         #expect(signatures.approvals.signature == context.signer.signature(over: approvalsDigest))
-        #expect(signatures.followUps.count == 1)
-        #expect(signedFollowUp.signature == context.signer.signature(over: followUpDigest))
-        #expect(signedFollowUp.nonce == Self.followUp.nonce)
+        #expect(signedFastTradingAuthorization.signature == context.signer.signature(over: fastTradingAuthorizationDigest))
+        #expect(signedFastTradingAuthorization.nonce == Self.fastTradingAuthorization.nonce)
     }
 
     @Test("Both signatures are attributed to the address the stored key resolves to")
@@ -120,7 +119,7 @@ private extension PolymarketOnboardingSignerTests {
         calls: PolymarketApprovalCalls.make()
     )
 
-    static let followUp = PolymarketRelayedBatch.Unsigned(
+    static let fastTradingAuthorization = PolymarketRelayedBatch.Unsigned(
         depositWalletAddress: "0xfAeA0f08159fcF2f573fE24E9E989B0d48f7651B",
         nonce: "8",
         deadline: "1735690800",

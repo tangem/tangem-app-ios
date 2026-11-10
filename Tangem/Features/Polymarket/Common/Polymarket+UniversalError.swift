@@ -37,6 +37,8 @@ extension PolymarketWithdrawTransactionService.Error: UniversalError {
             112000007
         case .reconnectRequired:
             112000008
+        case .fastTradingChangePending:
+            112000009
         case .refused(let refusal):
             refusal.errorCode
         }

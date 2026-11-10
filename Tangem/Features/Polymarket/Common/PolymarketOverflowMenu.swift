@@ -16,7 +16,8 @@ struct PolymarketOverflowMenu: View {
     let onHistory: () -> Void
     let onHowItWorks: () -> Void
     let onSupportChat: () -> Void
-    let onSettings: (() -> Void)?
+    let isSettingsVisible: Bool
+    let onSettings: () -> Void
 
     var body: some View {
         Menu {
@@ -41,7 +42,7 @@ struct PolymarketOverflowMenu: View {
                 )
             }
 
-            if let onSettings {
+            if isSettingsVisible {
                 SwiftUI.Button(action: onSettings) {
                     Label(
                         title: { Text(PolymarketFastTradingStrings.settingsTitle) },

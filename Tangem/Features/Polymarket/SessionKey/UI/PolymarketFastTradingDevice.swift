@@ -13,42 +13,69 @@ import TangemPolymarket
 import TangemUI
 
 struct PolymarketFastTradingDevice: Identifiable, Equatable {
-    let address: String?
+    let source: Source
     let name: String
     let owner: Owner
     let state: State
     let expiresInDays: Int?
 
     var id: String {
-        address ?? Constants.activatingDeviceId
+        switch source {
+        case .sessionKey(let address):
+            address
+        case .operationInFlight:
+            Constants.inFlightDeviceId
+        }
     }
 
     var isThisDevice: Bool {
         owner != .otherDevice
     }
 
-    init(address: String?, name: String, owner: Owner, state: State, expiresInDays: Int? = nil) {
-        self.address = address
+    init(source: Source, name: String, owner: Owner, state: State, expiresInDays: Int? = nil) {
+        self.source = source
         self.name = name
         self.owner = owner
         self.state = state
         self.expiresInDays = expiresInDays
     }
 
-    init?(sessionKey: PolymarketSessionKey, owner: Owner, isOutOfSync: Bool, now: Date) {
-        guard let state = State(sessionKey: sessionKey, isOutOfSync: isOutOfSync, now: now) else {
+    init?(sessionKey: PolymarketSessionKey, owner: Owner, assessment: PolymarketFastTradingAssessment) {
+        guard let state = Self.state(of: sessionKey, owner: owner, assessment: assessment) else {
             return nil
         }
 
         self.init(
-            address: sessionKey.address,
+            source: .sessionKey(address: sessionKey.address),
             name: sessionKey.deviceName ?? PolymarketFastTradingStrings.unknownDevice,
             owner: owner,
             state: state,
-            expiresInDays: state.showsExpiry && PolymarketFastTradingAssessment.expiresSoon(sessionKey, now: now)
-                ? PolymarketFastTradingAssessment.daysUntilExpiry(of: sessionKey, now: now)
+            expiresInDays: state.showsExpiry && PolymarketFastTradingAssessment.isRenewDue(sessionKey, now: assessment.now)
+                ? PolymarketFastTradingAssessment.daysUntilExpiry(of: sessionKey, now: assessment.now)
                 : nil
         )
+    }
+
+    private static func state(of sessionKey: PolymarketSessionKey, owner: Owner, assessment: PolymarketFastTradingAssessment) -> State? {
+        if case .thisDevice = owner, let inFlight = State(operationsInFlight: assessment.operations) {
+            return inFlight
+        }
+
+        return State(
+            sessionKey: sessionKey,
+            isOutOfSync: assessment.isOutOfSyncWithExchange(sessionKey),
+            isSettling: assessment.isSettling(sessionKey),
+            now: assessment.now
+        )
+    }
+}
+
+// MARK: - Source
+
+extension PolymarketFastTradingDevice {
+    enum Source: Equatable, Sendable {
+        case sessionKey(address: String)
+        case operationInFlight
     }
 }
 
@@ -62,46 +89,38 @@ extension PolymarketFastTradingDevice {
         let thisDevice = assessment.localKey.flatMap { sessionKey in
             PolymarketFastTradingDevice(
                 sessionKey: sessionKey,
-                owner: .thisDevice(isRenewDue: assessment.isRenewDue),
-                isOutOfSync: assessment.isOutOfSyncWithExchange(sessionKey),
-                now: assessment.now
+                owner: .thisDevice(authorization: PolymarketFastTradingAuthorization(assessment: assessment)),
+                assessment: assessment
+            )
+        } ?? operationInFlight(in: assessment, thisDeviceName: thisDeviceName)
+
+        let otherDevices = assessment.otherDeviceKeys.compactMap { sessionKey in
+            PolymarketFastTradingDevice(sessionKey: sessionKey, owner: .otherDevice, assessment: assessment)
+        }
+
+        return (thisDevice.map { [$0] } ?? []) + otherDevices
+    }
+
+    private static func operationInFlight(
+        in assessment: PolymarketFastTradingAssessment,
+        thisDeviceName: String
+    ) -> PolymarketFastTradingDevice? {
+        State(operationsInFlight: assessment.operations).map { state in
+            PolymarketFastTradingDevice(
+                source: .operationInFlight,
+                name: thisDeviceName,
+                owner: .thisDevice(authorization: nil),
+                state: state
             )
         }
-        let otherDevices = assessment.sessionKeys
-            .filter { !assessment.isLocalKey($0) }
-            .compactMap { sessionKey in
-                PolymarketFastTradingDevice(
-                    sessionKey: sessionKey,
-                    owner: .otherDevice,
-                    isOutOfSync: assessment.isOutOfSyncWithExchange(sessionKey),
-                    now: assessment.now
-                )
-            }
-
-        if let thisDevice {
-            return [thisDevice] + otherDevices
-        }
-
-        guard assessment.isActivating else {
-            return otherDevices
-        }
-
-        let activating = PolymarketFastTradingDevice(
-            address: nil,
-            name: thisDeviceName,
-            owner: .thisDevice(isRenewDue: false),
-            state: .activating
-        )
-
-        return [activating] + otherDevices
     }
 }
 
 // MARK: - Owner
 
 extension PolymarketFastTradingDevice {
-    enum Owner: Equatable, Sendable {
-        case thisDevice(isRenewDue: Bool)
+    enum Owner: Equatable {
+        case thisDevice(authorization: PolymarketFastTradingAuthorization?)
         case otherDevice
     }
 }
@@ -111,6 +130,7 @@ extension PolymarketFastTradingDevice {
 extension PolymarketFastTradingDevice {
     enum State: Equatable, Sendable {
         case activating
+        case extending
         case activationFailed
         case active(until: Date)
         case paused(until: Date)
@@ -119,12 +139,23 @@ extension PolymarketFastTradingDevice {
         case revoking
         case error
 
-        init?(sessionKey: PolymarketSessionKey, isOutOfSync: Bool, now: Date) {
+        init?(operationsInFlight operations: [PolymarketFastTradingOperation]) {
+            switch operations.first(where: \.authorizesLocalKey) {
+            case .renewal:
+                self = .extending
+            case .activation:
+                self = .activating
+            case .revocation, .toggle, nil:
+                return nil
+            }
+        }
+
+        init?(sessionKey: PolymarketSessionKey, isOutOfSync: Bool, isSettling: Bool, now: Date) {
             switch sessionKey.status {
             case .pending:
-                self = .activating
+                self = isSettling ? .activating : .activationFailed
             case .revoking:
-                self = .revoking
+                self = isSettling ? .revoking : .error
             case .revoked:
                 return nil
             case .failed:
@@ -134,18 +165,7 @@ extension PolymarketFastTradingDevice {
             case .unknown:
                 self = .error
             case .active:
-                guard !PolymarketFastTradingAssessment.isExpired(sessionKey, now: now), let validUntil = sessionKey.validUntil else {
-                    self = .expired(at: sessionKey.validUntil)
-                    return
-                }
-
-                if isOutOfSync {
-                    self = .outOfSync
-                } else if !sessionKey.isEnabled {
-                    self = .paused(until: validUntil)
-                } else {
-                    self = .active(until: validUntil)
-                }
+                self = Self.liveState(of: sessionKey, isOutOfSync: isOutOfSync, now: now)
             }
         }
 
@@ -153,9 +173,21 @@ extension PolymarketFastTradingDevice {
             switch self {
             case .active, .paused:
                 true
-            case .activating, .activationFailed, .expired, .outOfSync, .revoking, .error:
+            case .activating, .extending, .activationFailed, .expired, .outOfSync, .revoking, .error:
                 false
             }
+        }
+
+        private static func liveState(of sessionKey: PolymarketSessionKey, isOutOfSync: Bool, now: Date) -> State {
+            guard !PolymarketFastTradingAssessment.isExpired(sessionKey, now: now), let validUntil = sessionKey.validUntil else {
+                return .expired(at: sessionKey.validUntil)
+            }
+
+            guard !isOutOfSync else {
+                return .outOfSync
+            }
+
+            return sessionKey.isEnabled ? .active(until: validUntil) : .paused(until: validUntil)
         }
     }
 }
@@ -164,6 +196,7 @@ extension PolymarketFastTradingDevice {
 
 extension PolymarketFastTradingDevice {
     enum Action: Hashable, Sendable {
+        case activate
         case extend
         case pause
         case resume
@@ -172,6 +205,8 @@ extension PolymarketFastTradingDevice {
 
         var title: String {
             switch self {
+            case .activate:
+                Localization.commonActivate
             case .extend:
                 PolymarketFastTradingStrings.extendFor180Days
             case .pause:
@@ -188,6 +223,17 @@ extension PolymarketFastTradingDevice {
         var isDestructive: Bool {
             self == .revoke
         }
+
+        init(authorization: PolymarketFastTradingAuthorization) {
+            switch authorization {
+            case .renew:
+                self = .extend
+            case .enable, .replace:
+                self = .activate
+            case .reenable, .repair:
+                self = .reactivate
+            }
+        }
     }
 
     enum Trailing: Equatable, Sendable {
@@ -197,19 +243,43 @@ extension PolymarketFastTradingDevice {
     }
 
     var trailing: Trailing {
+        switch owner {
+        case .thisDevice(let authorization):
+            Self.thisDeviceTrailing(state: state, authorization: authorization)
+        case .otherDevice:
+            Self.otherDeviceTrailing(state: state)
+        }
+    }
+
+    private static func thisDeviceTrailing(state: State, authorization: PolymarketFastTradingAuthorization?) -> Trailing {
+        let offered = authorization.map(Action.init(authorization:))
+        let extend: [Action] = offered == .extend ? [.extend] : []
+        let activation = offered == .extend ? nil : offered
+
         switch state {
-        case .activating, .revoking:
-            .hidden
-        case .activationFailed:
-            isThisDevice ? .button(.reactivate) : .hidden
+        case .activating, .extending, .revoking:
+            return .hidden
+        case .activationFailed, .expired:
+            return activation.map(Trailing.button) ?? .hidden
         case .active:
-            .menu(owner == .thisDevice(isRenewDue: true) ? [.extend, .pause, .revoke] : [.pause, .revoke])
+            return .menu(extend + [.pause, .revoke])
+        case .paused:
+            return .menu(extend + [.resume, .revoke])
+        case .outOfSync, .error:
+            return activation.map { .menu([$0, .revoke]) } ?? .button(.revoke)
+        }
+    }
+
+    private static func otherDeviceTrailing(state: State) -> Trailing {
+        switch state {
+        case .activating, .extending, .revoking, .activationFailed:
+            .hidden
+        case .active:
+            .menu([.pause, .revoke])
         case .paused:
             .menu([.resume, .revoke])
-        case .expired:
-            isThisDevice ? .button(.reactivate) : .button(.revoke)
-        case .outOfSync, .error:
-            isThisDevice ? .menu([.reactivate, .revoke]) : .button(.revoke)
+        case .expired, .outOfSync, .error:
+            .button(.revoke)
         }
     }
 }
@@ -224,7 +294,7 @@ extension PolymarketFastTradingDevice {
 
     var icon: Icon {
         switch state {
-        case .activating, .revoking:
+        case .activating, .extending, .revoking:
             .spinner
         case .activationFailed, .error:
             .glyph(DesignSystem.Icons.Error.regular20, .error)
@@ -245,6 +315,8 @@ extension PolymarketFastTradingDevice {
         let parts: [String?] = switch state {
         case .activating:
             [PolymarketFastTradingStrings.statusActivating]
+        case .extending:
+            [PolymarketFastTradingStrings.statusExtending]
         case .activationFailed:
             [PolymarketFastTradingStrings.statusActivationFailed]
         case .active(let until):
@@ -273,6 +345,6 @@ extension PolymarketFastTradingDevice {
 
 private extension PolymarketFastTradingDevice {
     enum Constants {
-        static let activatingDeviceId = "this-device-activation"
+        static let inFlightDeviceId = "this-device-in-flight"
     }
 }

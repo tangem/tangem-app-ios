@@ -18,6 +18,7 @@ enum PolymarketFastTradingStrings {
     static let onboardingToggleTitle = "Enable fast trading for up to 180 days. Pause it anytime."
     static let unknownDevice = "Unknown device"
     static let foreignSigner = "Unknown signer"
+    static let signerBeingRevoked = "Revocation in progress"
 
     static let reactivate = "Reactivate"
     static let extend = "Extend"
@@ -27,6 +28,7 @@ enum PolymarketFastTradingStrings {
     static let resume = "Resume fast trading"
 
     static let statusActivating = "Activation"
+    static let statusExtending = "Extension"
     static let statusActivationFailed = "Activation failed"
     static let statusActive = "Active"
     static let statusPaused = "Paused"
@@ -37,6 +39,8 @@ enum PolymarketFastTradingStrings {
     static let activationBannerTitle = "Activate fast trading for your device"
     static let activationBannerDescription = "It's secured and you can use fast bets without tapping your card. It lasts up to 180 days."
     static let extensionBannerDescription = "Extend it by 180 days with one card tap to keep placing fast bets without tapping your card."
+    static let reactivationBannerTitle = "Fast trading stopped working on this device"
+    static let reactivationBannerDescription = "Reactivate it once to keep placing fast bets without confirming each of them."
 
     static let activationInProgress = "Activation in progress"
     static let extensionInProgress = "Extension in progress"
@@ -78,13 +82,17 @@ enum PolymarketFastTradingStrings {
     static let revocationTitle = "Revoke fast trading?"
     static let foreignDescription = "Someone else can trade with your predictions balance. If you didn't allow it, revoke these signers now."
     static let foreignBannerTitle = "Unknown signers can trade"
+    static let review = "Review"
 
     static let staleSignature = "The signature has expired. Sign again."
     static let deviceBusy = "Another change is in progress. Try again in a minute."
     static let changeInProgress = "Another fast trading change is still in progress. Wait until it finishes and try again."
     static let revocationPending = "Waiting for the revocation to finish. You can activate fast trading on this device right after."
+    static let exchangeUnreadable = "Couldn't check fast trading with Polymarket."
+    static let walletOperationWaitsForChange = "A fast trading change is still finishing on this wallet. Try again in a few minutes."
     static let limitReached = "Too many devices use fast trading. Revoke the ones you don't use."
     static let notReady = "Finish setting up predictions first."
+    static let notEnabledAfterOnboarding = "Fast trading wasn't turned on. Activate it from the banner on the main screen."
 
     static func until(_ date: String) -> String {
         "Until \(date)"

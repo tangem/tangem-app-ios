@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct PolymarketRelayedBatch: Hashable, Sendable {
+public struct PolymarketRelayedBatch: Hashable, Sendable, Codable {
     public let ownerAddress: String
     public let depositWalletAddress: String
     public let nonce: String
@@ -59,7 +59,7 @@ public extension PolymarketRelayedBatch {
         }
     }
 
-    struct Call: Hashable, Sendable {
+    struct Call: Hashable, Sendable, Codable {
         public let target: String
         public let data: String
 
@@ -68,6 +68,11 @@ public extension PolymarketRelayedBatch {
         public init(target: String, data: String) {
             self.target = target
             self.data = data
+        }
+
+        private enum CodingKeys: String, CodingKey {
+            case target
+            case data
         }
     }
 }

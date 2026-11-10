@@ -494,6 +494,7 @@ private extension PolymarketSessionKeyManagerTests {
             sessionKeyService: service,
             ownerCredentials: ownerCredentials,
             signingRouter: router,
+            interruptedAuthorizations: CommonPolymarketInterruptedAuthorizationStore(secureStorage: PolymarketSecureStorageSpy()),
             serverClock: PolymarketServerClock(deviceNow: { clock.now }),
             operationGate: operationGate,
             pollDelayProvider: clock
@@ -800,7 +801,7 @@ private actor RouterSpy: PolymarketOrderSigningRouting {
         remembersNotReady = false
     }
 
-    nonisolated func isRefused(sessionKeyAddress: String) -> Bool {
-        false
+    nonisolated func refusal(of sessionKeyAddress: String) -> PolymarketOrderSigningRefusal? {
+        nil
     }
 }

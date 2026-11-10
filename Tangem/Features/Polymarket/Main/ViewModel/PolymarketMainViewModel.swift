@@ -37,12 +37,13 @@ final class PolymarketMainViewModel: ObservableObject {
     private let fundsArrivalTracker: PolymarketFundsArrivalTracker
     private let withdrawTracker: PolymarketWithdrawTracker
     private let refreshCenter: PolymarketMainRefreshCenter
-    private let fastTradingService: PolymarketFastTradingServicing?
+    private let fastTrading: PolymarketFastTradingBannerProviding?
     private weak var coordinator: PolymarketMainRoutable?
 
     private var bag: Set<AnyCancellable> = []
     private var fastTradingSubscription: AnyCancellable?
 
+    @MainActor
     init(
         balanceViewModel: PolymarketBalanceBlockViewModel,
         positionsViewModel: PolymarketPositionsBlockViewModel,
@@ -52,7 +53,7 @@ final class PolymarketMainViewModel: ObservableObject {
         fundsArrivalTracker: PolymarketFundsArrivalTracker,
         withdrawTracker: PolymarketWithdrawTracker,
         refreshCenter: PolymarketMainRefreshCenter,
-        fastTradingService: PolymarketFastTradingServicing?,
+        fastTrading: PolymarketFastTradingBannerProviding?,
         coordinator: PolymarketMainRoutable
     ) {
         self.balanceViewModel = balanceViewModel
@@ -63,13 +64,14 @@ final class PolymarketMainViewModel: ObservableObject {
         self.fundsArrivalTracker = fundsArrivalTracker
         self.withdrawTracker = withdrawTracker
         self.refreshCenter = refreshCenter
-        self.fastTradingService = fastTradingService
+        self.fastTrading = fastTrading
         self.coordinator = coordinator
 
         bindGeoblockState()
         bindFundsArrival()
         bindWithdrawal()
         bindSearch()
+        bindFastTrading()
     }
 }
 
@@ -77,7 +79,7 @@ final class PolymarketMainViewModel: ObservableObject {
 
 extension PolymarketMainViewModel {
     var isFastTradingAvailable: Bool {
-        fastTradingService != nil
+        fastTrading != nil
     }
 }
 
@@ -105,14 +107,12 @@ extension PolymarketMainViewModel {
             coordinator?.openActivity()
         case .onTabsMove(let minY, let navBarHeight):
             updatePinnedState(tabsMinY: minY, navBarHeight: navBarHeight)
-        case .onAppear:
-            bindFastTrading()
         case .openSettings:
             coordinator?.openSettings()
-        case .performFastTradingBannerAction:
-            performFastTradingBannerAction()
-        case .dismissFastTradingBanner:
-            dismissFastTradingBanner()
+        case .performFastTradingBannerAction(let banner):
+            coordinator?.open(banner)
+        case .dismissFastTradingBanner(let banner):
+            fastTrading?.dismissBanner(banner)
         }
     }
 
@@ -122,10 +122,9 @@ extension PolymarketMainViewModel {
         case openSupportChat
         case openHistory
         case onTabsMove(minY: CGFloat, navBarHeight: CGFloat)
-        case onAppear
         case openSettings
-        case performFastTradingBannerAction
-        case dismissFastTradingBanner
+        case performFastTradingBannerAction(PolymarketFastTradingBanner)
+        case dismissFastTradingBanner(PolymarketFastTradingBanner)
     }
 }
 
@@ -180,40 +179,22 @@ private extension PolymarketMainViewModel {
 
     @MainActor
     func bindFastTrading() {
-        guard let fastTradingService, fastTradingSubscription == nil else {
-            return
-        }
+        guard let fastTrading else { return }
 
-        fastTradingSubscription = fastTradingService
-            .bannerPublisher(includingForeignSigners: true)
+        fastTradingSubscription = PolymarketFastTradingBannerMapper(includesForeignSigners: true)
+            .mapToBannerPublisher(states: fastTrading.statePublisher, dismissals: fastTrading.bannerDismissalsPublisher)
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, banner in
                 viewModel.fastTradingBanner = banner
             }
 
-        Task { await fastTradingService.refresh() }
+        Task { await fastTrading.refresh() }
     }
 
     @MainActor
     func refreshFastTrading() async {
-        await fastTradingService?.refresh()
-    }
-
-    @MainActor
-    func performFastTradingBannerAction() {
-        guard let fastTradingBanner else { return }
-
-        coordinator?.open(fastTradingBanner)
-    }
-
-    @MainActor
-    func dismissFastTradingBanner() {
-        guard let fastTradingService, let fastTradingBanner else {
-            return
-        }
-
-        fastTradingService.dismissBanner(fastTradingBanner)
+        await fastTrading?.refresh()
     }
 
     func bindSearch() {

@@ -111,8 +111,8 @@ final class PolymarketOrderViewModel: ObservableObject {
             coordinator?.closeOrder()
         case .openSummary:
             coordinator?.openSummary(model: model)
-        case .placeOrder(let tappedWithSessionKey):
-            place(tappedWithSessionKey: tappedWithSessionKey)
+        case .placeOrder(let signing):
+            place(signing: signing)
         case .openFeeBreakdown:
             guard isFeeBreakdownAvailable else { return }
 
@@ -214,7 +214,7 @@ extension PolymarketOrderViewModel {
         case selectFraction(PolymarketAmountFraction)
         case selectPreset(AmountPreset.Kind)
         case retryQuote
-        case placeOrder(tappedWithSessionKey: Bool)
+        case placeOrder(signing: PolymarketOrderSigningMethod)
         case openFeeBreakdown
         case openLegalTerms(URL)
     }
@@ -353,21 +353,21 @@ private extension PolymarketOrderViewModel {
         isFeeBreakdownAvailable = quote != nil
     }
 
-    func place(tappedWithSessionKey: Bool) {
+    func place(signing: PolymarketOrderSigningMethod) {
         guard let submission, let renderedState, !isPlacing, isNextEnabled else { return }
 
         isPlacing = true
-        placeIfReady(submission, state: renderedState, tappedWithSessionKey: tappedWithSessionKey)
+        placeIfReady(submission, state: renderedState, signing: signing)
     }
 
-    func placeIfReady(_ submission: PolymarketOrderSubmission, state: PolymarketOrderModel.State, tappedWithSessionKey: Bool) {
+    func placeIfReady(_ submission: PolymarketOrderSubmission, state: PolymarketOrderModel.State, signing: PolymarketOrderSigningMethod) {
         switch submission.readiness(of: state) {
         case .ready(let quote):
             model.handleViewAction(.holdQuote)
             placementTask = Task { @MainActor [weak self] in
                 guard let self else { return }
 
-                handle(await submission.submit(quote: quote, tappedWithSessionKey: tappedWithSessionKey) { self.marketRow })
+                handle(await submission.submit(quote: quote, signing: signing) { self.marketRow })
             }
         case .unavailable:
             isPlacing = false
@@ -501,8 +501,8 @@ private extension PolymarketOrderViewModel {
 // MARK: - Signing choice
 
 extension PolymarketOrderViewModel {
-    var signsWithSessionKey: Bool {
-        signingChoice?.signsWithSessionKey ?? false
+    var signingMethod: PolymarketOrderSigningMethod {
+        signingChoice?.method ?? .ownerKey
     }
 }
 

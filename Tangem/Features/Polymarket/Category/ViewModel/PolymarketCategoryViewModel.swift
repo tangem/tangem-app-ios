@@ -19,7 +19,7 @@ final class PolymarketCategoryViewModel: ObservableObject {
     let eventsViewModel: PolymarketEventsBlockViewModel
 
     private let refreshCenter: PolymarketMainRefreshCenter
-    private let fastTradingService: PolymarketFastTradingServicing?
+    private let fastTrading: PolymarketFastTradingBannerProviding?
     private weak var coordinator: PolymarketCategoryRoutable?
 
     private var fastTradingSubscription: AnyCancellable?
@@ -28,13 +28,13 @@ final class PolymarketCategoryViewModel: ObservableObject {
         category: PolymarketCategory,
         eventsViewModel: PolymarketEventsBlockViewModel,
         refreshCenter: PolymarketMainRefreshCenter,
-        fastTradingService: PolymarketFastTradingServicing?,
+        fastTrading: PolymarketFastTradingBannerProviding?,
         coordinator: PolymarketCategoryRoutable?
     ) {
         title = category.label
         self.eventsViewModel = eventsViewModel
         self.refreshCenter = refreshCenter
-        self.fastTradingService = fastTradingService
+        self.fastTrading = fastTrading
         self.coordinator = coordinator
 
         bindFastTrading()
@@ -48,17 +48,17 @@ extension PolymarketCategoryViewModel {
         switch action {
         case .close:
             coordinator?.closeCategory()
-        case .performFastTradingBannerAction:
-            performFastTradingBannerAction()
-        case .dismissFastTradingBanner:
-            dismissFastTradingBanner()
+        case .performFastTradingBannerAction(let banner):
+            coordinator?.open(banner)
+        case .dismissFastTradingBanner(let banner):
+            fastTrading?.dismissBanner(banner)
         }
     }
 
     enum ViewAction {
         case close
-        case performFastTradingBannerAction
-        case dismissFastTradingBanner
+        case performFastTradingBannerAction(PolymarketFastTradingBanner)
+        case dismissFastTradingBanner(PolymarketFastTradingBanner)
     }
 }
 
@@ -66,24 +66,14 @@ extension PolymarketCategoryViewModel {
 
 private extension PolymarketCategoryViewModel {
     func bindFastTrading() {
-        fastTradingSubscription = fastTradingService?
-            .bannerPublisher(includingForeignSigners: false)
+        guard let fastTrading else { return }
+
+        fastTradingSubscription = PolymarketFastTradingBannerMapper(includesForeignSigners: false)
+            .mapToBannerPublisher(states: fastTrading.statePublisher, dismissals: fastTrading.bannerDismissalsPublisher)
             .receiveOnMain()
             .sink { [weak self] banner in
                 self?.fastTradingBanner = banner
             }
-    }
-
-    func performFastTradingBannerAction() {
-        guard let fastTradingBanner else { return }
-
-        coordinator?.open(fastTradingBanner)
-    }
-
-    func dismissFastTradingBanner() {
-        guard let fastTradingService, let fastTradingBanner else { return }
-
-        fastTradingService.dismissBanner(fastTradingBanner)
     }
 }
 
@@ -91,6 +81,12 @@ private extension PolymarketCategoryViewModel {
 
 extension PolymarketCategoryViewModel {
     func refresh() async {
+        async let fastTradingRefresh: Void = refreshFastTrading()
         await refreshCenter.refresh(.full)
+        await fastTradingRefresh
+    }
+
+    private func refreshFastTrading() async {
+        await fastTrading?.refresh()
     }
 }

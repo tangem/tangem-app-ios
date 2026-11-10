@@ -10,20 +10,21 @@ import SwiftUI
 import TangemUI
 
 struct PolymarketPlaceOrderButton: View {
-    let signsWithSessionKey: Bool
+    let signing: PolymarketOrderSigningMethod
     let signingButtonType: SigningActionButtonViewType
     let title: String
     let isLoading: Bool
     let isDisabled: Bool
-    let action: () -> Void
+    let action: (PolymarketOrderSigningMethod) -> Void
 
     var body: some View {
-        if signsWithSessionKey {
-            Self.sessionKeyButton(title: title, isLoading: isLoading, isDisabled: isDisabled, action: action)
+        switch rendering {
+        case .sessionKey(let button):
+            button
                 .size(.x12)
                 .horizontalLayout(.infinity)
-        } else {
-            SigningActionButtonView(type: signingButtonType, title: title, isLoading: isLoading, isDisabled: isDisabled, action: action)
+        case .card(let button):
+            button
         }
     }
 }
@@ -31,32 +32,40 @@ struct PolymarketPlaceOrderButton: View {
 // MARK: - Footer content
 
 extension PolymarketPlaceOrderButton {
-    static func footerContent(
-        signsWithSessionKey: Bool,
-        signingButtonType: SigningActionButtonViewType,
-        title: String,
-        isLoading: Bool,
-        isDisabled: Bool,
-        action: @escaping () -> Void
-    ) -> FooterContent {
-        guard signsWithSessionKey else {
-            return .signingButton(
-                SigningActionButtonView(type: signingButtonType, title: title, isLoading: isLoading, isDisabled: isDisabled, action: action)
-            )
+    var footerContent: FooterContent {
+        switch rendering {
+        case .sessionKey(let button):
+            .buttons(primary: button)
+        case .card(let button):
+            .signingButton(button)
         }
-
-        return .buttons(primary: sessionKeyButton(title: title, isLoading: isLoading, isDisabled: isDisabled, action: action))
     }
 }
 
-// MARK: - Session key button
+// MARK: - Rendering
 
 private extension PolymarketPlaceOrderButton {
-    static func sessionKeyButton(title: String, isLoading: Bool, isDisabled: Bool, action: @escaping () -> Void) -> TangemUI.Button {
-        TangemUI.Button(label: title, accessibilityLabel: title, action: action)
-            .styleType(.primary)
-            .loading(.spinner(if: isLoading))
-            .enabled(!isDisabled)
+    enum Rendering {
+        case sessionKey(TangemUI.Button)
+        case card(SigningActionButtonView)
+    }
+
+    var rendering: Rendering {
+        let tap = { action(signing) }
+
+        switch signing {
+        case .sessionKey:
+            return .sessionKey(
+                TangemUI.Button(label: title, accessibilityLabel: title, action: tap)
+                    .styleType(.primary)
+                    .loading(.spinner(if: isLoading))
+                    .enabled(!isDisabled)
+            )
+        case .ownerKey:
+            return .card(
+                SigningActionButtonView(type: signingButtonType, title: title, isLoading: isLoading, isDisabled: isDisabled, action: tap)
+            )
+        }
     }
 }
 
@@ -65,21 +74,21 @@ private extension PolymarketPlaceOrderButton {
 #Preview {
     VStack(spacing: 16) {
         PolymarketPlaceOrderButton(
-            signsWithSessionKey: true,
+            signing: .sessionKey,
             signingButtonType: .requiredNFCInteraction,
             title: "Place order",
             isLoading: false,
             isDisabled: false,
-            action: {}
+            action: { _ in }
         )
 
         PolymarketPlaceOrderButton(
-            signsWithSessionKey: false,
+            signing: .ownerKey,
             signingButtonType: .requiredNFCInteraction,
             title: "Place order",
             isLoading: false,
             isDisabled: false,
-            action: {}
+            action: { _ in }
         )
     }
     .padding(16)

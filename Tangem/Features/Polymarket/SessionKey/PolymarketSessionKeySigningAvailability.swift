@@ -22,14 +22,14 @@ protocol PolymarketSessionKeySigningAvailability: AnyObject {
 }
 
 final class CommonPolymarketSessionKeySigningAvailability {
-    private let service: PolymarketFastTradingServicing
+    private let service: PolymarketFastTradingStateProviding
     private let signingRouter: PolymarketOrderSigningRouting
     private let now: () -> Date
 
     init(
-        service: PolymarketFastTradingServicing,
+        service: PolymarketFastTradingStateProviding,
         signingRouter: PolymarketOrderSigningRouting,
-        now: @escaping () -> Date = Date.init
+        now: @escaping () -> Date = { InjectedValues[\.polymarketServerClock].now }
     ) {
         self.service = service
         self.signingRouter = signingRouter
@@ -71,17 +71,11 @@ extension CommonPolymarketSessionKeySigningAvailability {
         at date: Date,
         isRefused: (String) -> Bool
     ) -> Bool {
-        guard
-            case .loaded(let assessment) = state,
-            !assessment.isOperationInFlight,
-            case .active(let sessionKey) = assessment.status,
-            assessment.isUsableOnExchange(sessionKey, at: date),
-            !isRefused(sessionKey.address)
-        else {
+        guard case .loaded(let assessment) = state else {
             return false
         }
 
-        return sessionKey.isUsable(at: date)
+        return assessment.signingKey(at: date, isRefused: isRefused) != nil
     }
 
     static func availableUntil(
@@ -89,14 +83,30 @@ extension CommonPolymarketSessionKeySigningAvailability {
         at date: Date,
         isRefused: (String) -> Bool
     ) -> Date? {
-        guard
-            isAvailable(in: state, at: date, isRefused: isRefused),
-            case .loaded(let assessment) = state,
-            case .active(let sessionKey) = assessment.status
-        else {
+        guard case .loaded(let assessment) = state, let sessionKey = assessment.signingKey(at: date, isRefused: isRefused) else {
             return nil
         }
 
         return assessment.usableUntil(sessionKey)
+    }
+}
+
+// MARK: - Signing key
+
+private extension PolymarketFastTradingAssessment {
+    var isIdle: Bool {
+        !isOperationInFlight
+    }
+
+    func signingKey(at date: Date, isRefused: (String) -> Bool) -> PolymarketSessionKey? {
+        guard isIdle, case .active(let sessionKey) = status, isUsable(sessionKey, at: date, isRefused: isRefused) else {
+            return nil
+        }
+
+        return sessionKey
+    }
+
+    func isUsable(_ sessionKey: PolymarketSessionKey, at date: Date, isRefused: (String) -> Bool) -> Bool {
+        sessionKey.isUsable(at: date) && isUsableOnExchange(sessionKey, at: date) && !isRefused(sessionKey.address)
     }
 }

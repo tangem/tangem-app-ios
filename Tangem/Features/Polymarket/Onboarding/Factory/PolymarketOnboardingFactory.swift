@@ -16,16 +16,19 @@ struct PolymarketOnboardingFactory {
 
     func makeWelcomeViewModel(
         for userWalletModel: any UserWalletModel,
+        fastTrading: PolymarketFastTradingContext?,
         coordinator: PolymarketWelcomeRoutable
     ) -> PolymarketWelcomeViewModel {
         let hasExistingAccount = hasExistingAccount(for: userWalletModel)
-        let fastTrading = hasExistingAccount ? nil : PolymarketSessionKeyFactory().makeOnboardingFastTrading(for: userWalletModel)
+        let onboardingFastTrading = hasExistingAccount ? nil : fastTrading.map { fastTrading in
+            PolymarketSessionKeyFactory().makeOnboardingFastTrading(for: userWalletModel, service: fastTrading.service)
+        }
 
         return PolymarketWelcomeViewModel(
-            interactor: makeInteractor(for: userWalletModel, fastTrading: fastTrading),
+            interactor: makeInteractor(for: userWalletModel, fastTrading: onboardingFastTrading),
             hasExistingAccount: hasExistingAccount,
             signingButtonType: SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config),
-            fastTrading: fastTrading,
+            fastTrading: onboardingFastTrading,
             coordinator: coordinator
         )
     }
@@ -55,7 +58,8 @@ struct PolymarketOnboardingFactory {
             relayerService: services.makeRelayerService(),
             clobService: services.makeCLOBService(),
             serverClock: InjectedValues[\.polymarketServerClock],
-            fastTrading: fastTrading
+            fastTrading: fastTrading,
+            operationSlot: PolymarketSessionKeyFactory.isFastTradingAvailable() ? PolymarketWalletOperationSlot(userWalletId: userWalletModel.userWalletId) : nil
         )
     }
 }

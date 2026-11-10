@@ -95,8 +95,8 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
             guard !isPlacing else { return }
 
             coordinator?.closeSummary()
-        case .placeOrder(let tappedWithSessionKey):
-            place(tappedWithSessionKey: tappedWithSessionKey)
+        case .placeOrder(let signing):
+            place(signing: signing)
         case .openFeeBreakdown:
             openFeeBreakdown()
         case .openLegalTerms(let url):
@@ -113,7 +113,7 @@ extension PolymarketOrderSummaryViewModel {
         case onDisappear
         case goBack
         case close
-        case placeOrder(tappedWithSessionKey: Bool)
+        case placeOrder(signing: PolymarketOrderSigningMethod)
         case openFeeBreakdown
         case openLegalTerms(URL)
     }
@@ -122,7 +122,7 @@ extension PolymarketOrderSummaryViewModel {
 // MARK: - Placement
 
 private extension PolymarketOrderSummaryViewModel {
-    func place(tappedWithSessionKey: Bool) {
+    func place(signing: PolymarketOrderSigningMethod) {
         guard let renderedState, !isPlacing else { return }
 
         switch submission.readiness(of: renderedState) {
@@ -137,7 +137,7 @@ private extension PolymarketOrderSummaryViewModel {
             placementTask = Task { @MainActor [weak self] in
                 guard let self else { return }
 
-                handle(await submission.submit(quote: quote, tappedWithSessionKey: tappedWithSessionKey) { self.marketRow })
+                handle(await submission.submit(quote: quote, signing: signing) { self.marketRow })
             }
         }
     }
@@ -293,8 +293,8 @@ private extension PolymarketOrderSummaryViewModel {
 // MARK: - Signing choice
 
 extension PolymarketOrderSummaryViewModel {
-    var signsWithSessionKey: Bool {
-        signingChoice?.signsWithSessionKey ?? false
+    var signingMethod: PolymarketOrderSigningMethod {
+        signingChoice?.method ?? .ownerKey
     }
 }
 

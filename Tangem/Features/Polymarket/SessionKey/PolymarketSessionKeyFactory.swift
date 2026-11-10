@@ -11,16 +11,8 @@ import TangemFoundation
 import TangemPolymarket
 
 struct PolymarketSessionKeyFactory {
-    private static let routers = PolymarketWalletInstanceCache<CommonPolymarketOrderSigningRouter>()
-    private static let fastTradingServices = PolymarketWalletInstanceCache<CommonPolymarketFastTradingService>()
-
     static func isFastTradingAvailable() -> Bool {
         FeatureProvider.isAvailable(.polymarketFastTrading)
-    }
-
-    static func removeInstances(for userWalletId: UserWalletId) {
-        routers.removeInstance(for: userWalletId)
-        fastTradingServices.removeInstance(for: userWalletId)
     }
 
     private let services = PolymarketOnboardingServicesFactory.makeDefault()
@@ -29,21 +21,19 @@ struct PolymarketSessionKeyFactory {
         CommonPolymarketSessionKeyStore()
     }
 
-    func makeSigningRouter(for userWalletModel: any UserWalletModel) -> PolymarketOrderSigningRouting {
-        guard Self.isFastTradingAvailable() else {
-            return makeRouter(for: userWalletModel, isEligible: false)
-        }
-
-        return Self.routers.instance(for: userWalletModel) {
-            makeRouter(for: userWalletModel, isEligible: true)
-        }
+    func makeOwnerKeySigningRouter(for userWalletModel: any UserWalletModel) -> PolymarketOrderSigningRouting {
+        makeRouter(for: userWalletModel, isEligible: false, interruptedAuthorizations: CommonPolymarketInterruptedAuthorizationStore())
     }
 
     func makeOrderDigestSigner(for userWalletModel: any UserWalletModel) -> PolymarketOrderDigestSigning {
         PolymarketSessionKeyDigestSigner(userWalletId: userWalletModel.userWalletId, keyStore: makeKeyStore())
     }
 
-    func makeManager(for userWalletModel: any UserWalletModel) -> PolymarketSessionKeyManaging {
+    func makeManager(
+        for userWalletModel: any UserWalletModel,
+        signingRouter: PolymarketOrderSigningRouting,
+        interruptedAuthorizations: PolymarketInterruptedAuthorizationStore
+    ) -> PolymarketSessionKeyManaging {
         let walletId = userWalletModel.userWalletId.stringValue
 
         return CommonPolymarketSessionKeyManager(
@@ -60,50 +50,50 @@ struct PolymarketSessionKeyFactory {
             sessionKeyService: services.makeSessionKeyService(walletId: walletId),
             ownerCredentials: CommonPolymarketOwnerCredentialsObtainer(
                 userWalletId: userWalletModel.userWalletId,
-                clobService: services.makeCLOBService(),
+                clobService: services.makeOwnerCLOBService(userWalletId: userWalletModel.userWalletId),
                 credentialsRepository: CommonPolymarketCredentialsRepository()
             ),
-            signingRouter: makeSigningRouter(for: userWalletModel),
+            signingRouter: signingRouter,
+            interruptedAuthorizations: interruptedAuthorizations,
             serverClock: InjectedValues[\.polymarketServerClock]
         )
     }
 
     @MainActor
-    func makeFastTradingService(for userWalletModel: any UserWalletModel) -> PolymarketFastTradingServicing? {
-        guard Self.isFastTradingAvailable() else {
-            return nil
-        }
+    func makeFastTradingContext(for userWalletModel: any UserWalletModel) -> PolymarketFastTradingContext {
+        let interruptedAuthorizations = CommonPolymarketInterruptedAuthorizationStore()
+        let signingRouter = makeRouter(for: userWalletModel, isEligible: true, interruptedAuthorizations: interruptedAuthorizations)
 
-        return Self.fastTradingServices.instance(for: userWalletModel) {
-            CommonPolymarketFastTradingService(
-                userWalletId: userWalletModel.userWalletId,
-                manager: makeManager(for: userWalletModel),
-                keyStore: makeKeyStore(),
-                deviceIdProvider: KeychainPolymarketDeviceIdProvider(),
-                clobService: services.makeCLOBService(),
-                credentialsRepository: CommonPolymarketCredentialsRepository(),
-                ownerAddressProvider: CommonPolymarketOwnerAddressProvider(keysRepository: userWalletModel.keysRepository),
-                bannerDismissals: AppSettings.shared,
-                refusalsPublisher: makeSigningRouter(for: userWalletModel).refusalsPublisher
-            )
-        }
+        let service = CommonPolymarketFastTradingService(
+            userWalletId: userWalletModel.userWalletId,
+            manager: makeManager(for: userWalletModel, signingRouter: signingRouter, interruptedAuthorizations: interruptedAuthorizations),
+            keyStore: makeKeyStore(),
+            deviceIdProvider: KeychainPolymarketDeviceIdProvider(),
+            clobService: services.makeOwnerCLOBService(userWalletId: userWalletModel.userWalletId),
+            credentialsRepository: CommonPolymarketCredentialsRepository(),
+            ownerAddressProvider: CommonPolymarketOwnerAddressProvider(keysRepository: userWalletModel.keysRepository),
+            bannerDismissals: AppSettings.shared,
+            signingRouter: signingRouter
+        )
+
+        return PolymarketFastTradingContext(signingRouter: signingRouter, service: service)
     }
 
-    func makeOnboardingFastTrading(for userWalletModel: any UserWalletModel) -> PolymarketOnboardingFastTrading? {
-        guard Self.isFastTradingAvailable() else {
-            return nil
-        }
-
-        return CommonPolymarketOnboardingFastTrading(
-            userWalletId: userWalletModel.userWalletId,
-            keyStore: makeKeyStore(),
-            serverClock: InjectedValues[\.polymarketServerClock],
+    func makeOnboardingFastTrading(
+        for userWalletModel: any UserWalletModel,
+        service: any PolymarketFastTradingOperating & PolymarketFastTradingFailureReporting
+    ) -> PolymarketOnboardingFastTrading {
+        CommonPolymarketOnboardingFastTrading(
+            authorizations: PolymarketSessionKeyAuthorizations(
+                userWalletId: userWalletModel.userWalletId,
+                keyStore: makeKeyStore(),
+                serverClock: InjectedValues[\.polymarketServerClock]
+            ),
             authorize: { batch, grant in
-                guard let service = await PolymarketSessionKeyFactory().makeFastTradingService(for: userWalletModel) else {
-                    return
-                }
-
                 try await service.authorize(presigned: batch, grant: grant)
+            },
+            report: { failure in
+                await service.reportFailure(failure)
             }
         )
     }
@@ -116,10 +106,13 @@ struct PolymarketSessionKeyFactory {
 // MARK: - Private implementation
 
 private extension PolymarketSessionKeyFactory {
-    func makeRouter(for userWalletModel: any UserWalletModel, isEligible: Bool) -> CommonPolymarketOrderSigningRouter {
+    func makeRouter(
+        for userWalletModel: any UserWalletModel,
+        isEligible: Bool,
+        interruptedAuthorizations: PolymarketInterruptedAuthorizationStore
+    ) -> CommonPolymarketOrderSigningRouter {
         let userWalletId = userWalletModel.userWalletId
         let keyStore = makeKeyStore()
-        let clobService = services.makeCLOBService()
 
         return CommonPolymarketOrderSigningRouter(
             userWalletId: userWalletId,
@@ -128,12 +121,13 @@ private extension PolymarketSessionKeyFactory {
             sessionCredentialsProvider: CommonPolymarketSessionCredentialsProvider(
                 userWalletId: userWalletId,
                 keyStore: keyStore,
-                clobService: clobService
+                clobService: services.makeSessionKeyCLOBService()
             ),
-            clobService: clobService,
+            clobService: services.makeOwnerCLOBService(userWalletId: userWalletId),
             sessionKeyService: services.makeSessionKeyService(walletId: userWalletId.stringValue),
             credentialsRepository: CommonPolymarketCredentialsRepository(),
-            ownerAddressProvider: CommonPolymarketOwnerAddressProvider(keysRepository: userWalletModel.keysRepository)
+            ownerAddressProvider: CommonPolymarketOwnerAddressProvider(keysRepository: userWalletModel.keysRepository),
+            interruptedAuthorizations: interruptedAuthorizations
         )
     }
 }

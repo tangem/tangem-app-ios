@@ -421,20 +421,19 @@ struct PolymarketOrderView: View {
     }
 
     private func placeFooter(signingButtonType: SigningActionButtonViewType) -> Footer {
-        let signsWithSessionKey = viewModel.signsWithSessionKey
-        let content = PolymarketPlaceOrderButton.footerContent(
-            signsWithSessionKey: signsWithSessionKey,
+        let button = PolymarketPlaceOrderButton(
+            signing: viewModel.signingMethod,
             signingButtonType: signingButtonType,
             title: viewModel.nextButtonTitle,
             isLoading: viewModel.isPlacing,
             isDisabled: !viewModel.isNextEnabled,
-            action: {
+            action: { signing in
                 isAmountFocused = false
-                viewModel.handleViewAction(.placeOrder(tappedWithSessionKey: signsWithSessionKey))
+                viewModel.handleViewAction(.placeOrder(signing: signing))
             }
         )
 
-        return Footer(content)
+        return Footer(button.footerContent)
             .caption(PolymarketLegalLine.text())
             .showFade()
     }

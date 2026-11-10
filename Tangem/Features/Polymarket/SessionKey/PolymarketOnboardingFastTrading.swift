@@ -13,31 +13,31 @@ import TangemPolymarket
 protocol PolymarketOnboardingFastTrading: AnyObject {
     var isEnabled: Bool { get set }
 
-    func makeAuthorization(depositWalletAddress: String, nonce: String) -> PolymarketRelayedBatch.Unsigned?
+    func makeAuthorization(depositWalletAddress: String, approvalsNonce: String, followsApprovals: Bool) -> PolymarketRelayedBatch.Unsigned?
 
     @discardableResult
     func submit(_ authorization: PolymarketRelayedBatch) -> Task<Void, Never>?
+
+    func reportNotEnabled()
 }
 
 final class CommonPolymarketOnboardingFastTrading {
     typealias Authorize = (_ batch: PolymarketRelayedBatch, _ grant: PolymarketSessionKeyGrant) async throws -> Void
+    typealias Report = (_ failure: PolymarketFastTradingFailure) async -> Void
 
-    private let userWalletId: UserWalletId
-    private let keyStore: PolymarketSessionKeyStore
-    private let serverClock: PolymarketServerClock
+    private let authorizations: PolymarketSessionKeyAuthorizations
     private let authorize: Authorize
+    private let report: Report
     private let state = OSAllocatedUnfairLock(initialState: State())
 
     init(
-        userWalletId: UserWalletId,
-        keyStore: PolymarketSessionKeyStore,
-        serverClock: PolymarketServerClock,
-        authorize: @escaping Authorize
+        authorizations: PolymarketSessionKeyAuthorizations,
+        authorize: @escaping Authorize,
+        report: @escaping Report
     ) {
-        self.userWalletId = userWalletId
-        self.keyStore = keyStore
-        self.serverClock = serverClock
+        self.authorizations = authorizations
         self.authorize = authorize
+        self.report = report
     }
 }
 
@@ -49,23 +49,17 @@ extension CommonPolymarketOnboardingFastTrading: PolymarketOnboardingFastTrading
         set { state.withLock { $0.isEnabled = newValue } }
     }
 
-    func makeAuthorization(depositWalletAddress: String, nonce: String) -> PolymarketRelayedBatch.Unsigned? {
+    func makeAuthorization(depositWalletAddress: String, approvalsNonce: String, followsApprovals: Bool) -> PolymarketRelayedBatch.Unsigned? {
         do {
-            let sessionKeyAddress = try keyStore.heldAddress(for: userWalletId) ?? keyStore.generateKey(for: userWalletId)
-
-            let authorization = try PolymarketSessionKeyAuthorizationBatch(
-                sessionKeyAddress: sessionKeyAddress,
-                depositWalletAddress: depositWalletAddress,
-                nonce: nonce,
-                now: serverClock.now,
-                deadlineOffset: PolymarketSessionKeyAuthorizationBatch.followUpDeadlineOffset
-            )
+            let nonce = try followsApprovals ? PolymarketSessionKeyAuthorizationBatch.nonce(following: approvalsNonce) : approvalsNonce
+            let authorization = try authorizations.makeFollowUp(depositWalletAddress: depositWalletAddress, nonce: nonce)
 
             state.withLock { $0.pendingGrant = authorization.grant }
 
             return authorization.unsigned
         } catch {
             PolymarketLogger.error("Failed to prepare the fast trading authorization for onboarding", error: error)
+            reportNotEnabled()
             return nil
         }
     }
@@ -85,8 +79,18 @@ extension CommonPolymarketOnboardingFastTrading: PolymarketOnboardingFastTrading
             do {
                 try await authorize(authorization, grant)
             } catch {
-                PolymarketLogger.error("The fast trading authorization signed during onboarding did not go through", error: error)
+                PolymarketLogger.error(
+                    error: "The fast trading authorization signed during onboarding did not go through: \(PolymarketFastTradingFailure.logDescription(of: error))"
+                )
             }
+        }
+    }
+
+    func reportNotEnabled() {
+        let report = report
+
+        Task {
+            await report(.notEnabled)
         }
     }
 }

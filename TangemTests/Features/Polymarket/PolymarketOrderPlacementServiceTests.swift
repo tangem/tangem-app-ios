@@ -147,21 +147,18 @@ struct PolymarketOrderPlacementServiceTests {
 
 @Suite("Polymarket order placement with a session key")
 struct PolymarketSessionKeyPlacementTests {
-    @Test("An order routed to the session key is placed for the owner's deposit wallet under the key's address and credentials and signed by it in the envelope")
+    @Test("An order routed to the session key is placed by the session key's placer for the owner's deposit wallet under the key's address and credentials")
     func sessionKeyPlacesTheOrder() async throws {
-        let signer = SessionKeyDigestSignerStub()
-        let (sut, ownerPlacer, sessionPlacer, _) = makeSUT(route: .sessionKey(Self.session), signer: signer)
+        let (sut, ownerPlacer, sessionPlacer, _) = makeSUT(route: .sessionKey(Self.session))
 
         _ = try await sut.place(signing: .sessionKey)
 
         let options = try #require(sessionPlacer.placed.first)
         let ownerDepositWalletAddress = try PolymarketDepositWalletDeriver.derive(ownerAddress: PolymarketOwnerAddressProviderStub.ownerAddress)
 
-        #expect(options.ownerAddress == Self.session.sessionKeyAddress)
+        #expect(options.signingKeyAddress == Self.session.sessionKeyAddress)
         #expect(options.depositWalletAddress == ownerDepositWalletAddress)
         #expect(options.credentials == Self.session.credentials)
-        #expect(options.signing.sessionKeyAddress == Self.session.sessionKeyAddress)
-        #expect(options.signing.sessionKeySigner as? SessionKeyDigestSignerStub === signer)
         #expect(ownerPlacer.placed.isEmpty)
     }
 
@@ -173,9 +170,8 @@ struct PolymarketSessionKeyPlacementTests {
 
         let options = try #require(ownerPlacer.placed.first)
 
-        #expect(options.ownerAddress == PolymarketOwnerAddressProviderStub.ownerAddress)
+        #expect(options.signingKeyAddress == PolymarketOwnerAddressProviderStub.ownerAddress)
         #expect(options.credentials == PolymarketCredentialsRepositoryStub.credentials)
-        #expect(options.signing.sessionKeyAddress == nil)
         #expect(sessionPlacer.placed.isEmpty)
     }
 
@@ -274,6 +270,10 @@ private extension PolymarketOrderPlacementServiceTests {
             ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: PolymarketOwnerAddressProviderStub.ownerAddress),
             credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
             placer: placer,
+            sessionKeyPlacement: CommonPolymarketOrderPlacementService.SessionKeyPlacement(
+                placer: OrderPlacerSpy(),
+                router: RouterSpy(route: .ownerKey)
+            ),
             delayProvider: delays
         )
 
@@ -306,8 +306,7 @@ private extension PolymarketSessionKeyPlacementTests {
     func makeSUT(
         route: PolymarketOrderSigningRoute,
         sessionPlacement: Result<PolymarketOrderPlacement, PolymarketOrderPlacementError> = .success(Self.matchedPlacement),
-        sessionRecords: [Result<PolymarketOrderRecord, Error>] = [],
-        signer: SessionKeyDigestSignerStub = SessionKeyDigestSignerStub()
+        sessionRecords: [Result<PolymarketOrderRecord, Error>] = []
     ) -> (sut: CommonPolymarketOrderPlacementService, ownerPlacer: OrderPlacerSpy, sessionPlacer: OrderPlacerSpy, router: RouterSpy) {
         let ownerPlacer = OrderPlacerSpy(placement: .success(Self.matchedPlacement))
         let sessionPlacer = OrderPlacerSpy(placement: sessionPlacement, records: sessionRecords)
@@ -318,12 +317,11 @@ private extension PolymarketSessionKeyPlacementTests {
             ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: PolymarketOwnerAddressProviderStub.ownerAddress),
             credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
             placer: ownerPlacer,
-            delayProvider: PolymarketSteppedDelayProvider(passing: { _ in true }),
             sessionKeyPlacement: CommonPolymarketOrderPlacementService.SessionKeyPlacement(
                 placer: sessionPlacer,
-                signer: signer,
                 router: router
-            )
+            ),
+            delayProvider: PolymarketSteppedDelayProvider(passing: { _ in true })
         )
 
         return (sut, ownerPlacer, sessionPlacer, router)
@@ -333,20 +331,6 @@ private extension PolymarketSessionKeyPlacementTests {
 private extension CommonPolymarketOrderPlacementService {
     func place(signing: PolymarketOrderSigningMethod) async throws -> PolymarketOrderPlacement {
         try await place(quote: .stub(status: .full), market: .fixture, outcome: .fixture, signing: signing)
-    }
-}
-
-private extension PolymarketOrderPlacer.Signing {
-    var sessionKeyAddress: String? {
-        guard case .sessionKey(let address, _) = self else { return nil }
-
-        return address
-    }
-
-    var sessionKeySigner: (any PolymarketOrderDigestSigning)? {
-        guard case .sessionKey(_, let signer) = self else { return nil }
-
-        return signer
     }
 }
 
@@ -394,7 +378,7 @@ private final class OrderPlacerSpy: PolymarketOrderPlacing {
         return try placement.get()
     }
 
-    func order(id: String, credentials: PolymarketL2Credentials, ownerAddress: String) async throws -> PolymarketOrderRecord {
+    func order(id: String, credentials: PolymarketL2Credentials, signingKeyAddress: String) async throws -> PolymarketOrderRecord {
         try state.withLockUnchecked { state in
             state.orderReads += 1
 
@@ -412,12 +396,6 @@ private final class OrderPlacerSpy: PolymarketOrderPlacing {
         var records: [Result<PolymarketOrderRecord, Error>]
         var placed: [PolymarketOrderPlacer.Options] = []
         var orderReads = 0
-    }
-}
-
-private final class SessionKeyDigestSignerStub: PolymarketOrderDigestSigning {
-    func sign(digest: Data) async throws -> String {
-        "0x"
     }
 }
 
@@ -446,7 +424,7 @@ private actor RouterSpy: PolymarketOrderSigningRouting {
 
     func forgetReadiness() {}
 
-    nonisolated func isRefused(sessionKeyAddress: String) -> Bool {
-        false
+    nonisolated func refusal(of sessionKeyAddress: String) -> PolymarketOrderSigningRefusal? {
+        nil
     }
 }

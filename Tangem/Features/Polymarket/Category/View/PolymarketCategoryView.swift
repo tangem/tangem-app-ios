@@ -52,8 +52,8 @@ struct PolymarketCategoryView: View {
                 if let fastTradingBanner = viewModel.fastTradingBanner {
                     PolymarketFastTradingBannerView(
                         banner: fastTradingBanner,
-                        onAction: { viewModel.handleViewAction(.performFastTradingBannerAction) },
-                        onDismiss: { viewModel.handleViewAction(.dismissFastTradingBanner) }
+                        onAction: { viewModel.handleViewAction(.performFastTradingBannerAction(fastTradingBanner)) },
+                        onDismiss: { viewModel.handleViewAction(.dismissFastTradingBanner(fastTradingBanner)) }
                     )
                     .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
                     .padding(.top, Constants.contentTopPadding)

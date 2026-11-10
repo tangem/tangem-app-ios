@@ -23,7 +23,7 @@ struct PolymarketFastTradingBannerView: View {
                 description: PolymarketFastTradingStrings.foreignDescription
             )
             .variant(.warning)
-            .primaryButton(MessageBannerButton(title: PolymarketFastTradingStrings.revoke, action: onAction))
+            .primaryButton(MessageBannerButton(title: PolymarketFastTradingStrings.review, action: onAction))
         case .activate:
             MessageBanner(
                 title: PolymarketFastTradingStrings.activationBannerTitle,
@@ -31,6 +31,14 @@ struct PolymarketFastTradingBannerView: View {
             )
             .glowRing(.magic)
             .primaryButton(MessageBannerButton(title: Localization.commonActivate, action: onAction))
+            .closeButton(accessibilityLabel: Localization.commonClose, action: onDismiss)
+        case .reactivate:
+            MessageBanner(
+                title: PolymarketFastTradingStrings.reactivationBannerTitle,
+                description: PolymarketFastTradingStrings.reactivationBannerDescription
+            )
+            .variant(.warning)
+            .primaryButton(MessageBannerButton(title: PolymarketFastTradingStrings.reactivate, action: onAction))
             .closeButton(accessibilityLabel: Localization.commonClose, action: onDismiss)
         case .extend(let daysLeft):
             MessageBanner(
@@ -49,6 +57,7 @@ struct PolymarketFastTradingBannerView: View {
 #Preview {
     VStack(spacing: 16) {
         PolymarketFastTradingBannerView(banner: .activate, onAction: {}, onDismiss: {})
+        PolymarketFastTradingBannerView(banner: .reactivate, onAction: {}, onDismiss: {})
         PolymarketFastTradingBannerView(banner: .extend(daysLeft: 12), onAction: {}, onDismiss: {})
         PolymarketFastTradingBannerView(banner: .foreignSigners, onAction: {}, onDismiss: {})
     }

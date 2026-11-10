@@ -22,6 +22,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.tangemStoriesPresenter) private var tangemStoriesPresenter: any TangemStoriesPresenter
+    @Injected(\.polymarketFastTradingRegistry) private var fastTradingRegistry: PolymarketFastTradingRegistry
 
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
@@ -71,6 +72,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     private var isFundingSheetPresented = false
     private var dispatchedOperation: FundingOperation?
     private var dispatchedBalance: Decimal?
+    private var fastTrading: PolymarketFastTradingContext?
     private var fastTradingFailuresSubscription: AnyCancellable?
 
     // MARK: - Init
@@ -117,12 +119,13 @@ private extension PolymarketCoordinator {
 
     @MainActor
     func openEntry(for userWalletModel: any UserWalletModel) {
-        subscribeToFastTradingFailures(for: userWalletModel)
+        fastTrading = fastTradingRegistry.context(for: userWalletModel)
+        subscribeToFastTradingFailures(fastTrading?.service)
 
         let state = AccountModelsAggregator(.polymarket).model(from: userWalletModel.accountModelsManager)?.state
 
         guard state == .active else {
-            viewState = .welcome(PolymarketOnboardingFactory().makeWelcomeViewModel(for: userWalletModel, coordinator: self))
+            viewState = .welcome(makeWelcomeViewModel(for: userWalletModel))
             return
         }
 
@@ -130,14 +133,17 @@ private extension PolymarketCoordinator {
     }
 
     @MainActor
-    func subscribeToFastTradingFailures(for userWalletModel: any UserWalletModel) {
-        fastTradingFailuresSubscription = PolymarketSessionKeyFactory()
-            .makeFastTradingService(for: userWalletModel)?
+    func subscribeToFastTradingFailures(_ failures: PolymarketFastTradingFailureReporting?) {
+        fastTradingFailuresSubscription = failures?
             .failurePublisher
             .receiveOnMain()
             .sink { failure in
                 PolymarketFastTradingToast.showFailure(failure)
             }
+    }
+
+    func makeWelcomeViewModel(for userWalletModel: any UserWalletModel) -> PolymarketWelcomeViewModel {
+        PolymarketOnboardingFactory().makeWelcomeViewModel(for: userWalletModel, fastTrading: fastTrading, coordinator: self)
     }
 }
 
@@ -181,7 +187,7 @@ extension PolymarketCoordinator: PolymarketWelcomeRoutable {
 private extension PolymarketCoordinator {
     @MainActor
     func showMain(for userWalletModel: any UserWalletModel) {
-        let dependencies = PolymarketMainDependenciesFactory().make(for: userWalletModel)
+        let dependencies = PolymarketMainDependenciesFactory().make(for: userWalletModel, fastTrading: fastTrading)
 
         redeemService = dependencies.redeemService
         signingButtonType = dependencies.signingButtonType
@@ -230,7 +236,7 @@ private extension PolymarketCoordinator {
         sheet = nil
         orderPresenter.dismiss()
 
-        viewState = .welcome(PolymarketOnboardingFactory().makeWelcomeViewModel(for: userWalletModel, coordinator: self))
+        viewState = .welcome(makeWelcomeViewModel(for: userWalletModel))
     }
 }
 
@@ -267,9 +273,13 @@ extension PolymarketCoordinator: PolymarketMainScreenRoutable {
 
     @MainActor
     func openFastTradingActivation() {
-        fastTradingActivation = viewState?.destinationFactory?.makeFastTradingActivation(onClose: { [weak self] in
+        guard let viewModel = viewState?.destinationFactory?.makeFastTradingActivation(onClose: { [weak self] in
             self?.fastTradingActivation = nil
-        })
+        }) else {
+            return
+        }
+
+        fastTradingActivation = viewModel
     }
 
     @MainActor

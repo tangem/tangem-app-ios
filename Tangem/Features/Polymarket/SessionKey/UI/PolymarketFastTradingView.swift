@@ -83,6 +83,10 @@ struct PolymarketFastTradingView: View {
             case .failed:
                 MessageBanner(title: Localization.commonUnknownError)
                     .variant(.error)
+            case .exchangeUnreadable:
+                MessageBanner(title: PolymarketFastTradingStrings.exchangeUnreadable)
+                    .variant(.error)
+                    .primaryButton(MessageBannerButton(title: Localization.commonRetry, action: { viewModel.handleViewAction(.retry) }))
             }
         }
     }
@@ -192,24 +196,35 @@ struct PolymarketFastTradingView: View {
 
     private var foreignSignersSection: some View {
         VStack(alignment: .leading, spacing: Constants.itemSpacing) {
-            MessageBanner(
-                title: PolymarketFastTradingStrings.foreignBannerTitle,
-                description: PolymarketFastTradingStrings.foreignDescription
-            )
-            .variant(.warning)
+            if viewModel.hasUnknownForeignSigners {
+                MessageBanner(
+                    title: PolymarketFastTradingStrings.foreignBannerTitle,
+                    description: PolymarketFastTradingStrings.foreignDescription
+                )
+                .variant(.warning)
+            }
 
             ForEach(viewModel.foreignSigners) { signer in
-                card(
-                    Row(title: signer.title, subtitle: PolymarketFastTradingStrings.foreignSigner)
-                        .lineOrder(.secondaryFirst)
-                        .start { PolymarketFastTradingDeviceAvatar(icon: .glyph(DesignSystem.Icons.Warning.regular20, .warning)) }
-                        .end {
-                            actionButton(title: PolymarketFastTradingStrings.revoke) {
-                                viewModel.handleViewAction(.revokeForeignSigner(signer))
-                            }
-                        }
-                )
+                card(foreignSignerRow(signer))
             }
+        }
+    }
+
+    @ViewBuilder
+    private func foreignSignerRow(_ signer: PolymarketFastTradingViewModel.ForeignSigner) -> some View {
+        if signer.isBeingRevoked {
+            Row(title: signer.title, subtitle: PolymarketFastTradingStrings.signerBeingRevoked)
+                .lineOrder(.secondaryFirst)
+                .start { PolymarketFastTradingDeviceAvatar(icon: .spinner) }
+        } else {
+            Row(title: signer.title, subtitle: PolymarketFastTradingStrings.foreignSigner)
+                .lineOrder(.secondaryFirst)
+                .start { PolymarketFastTradingDeviceAvatar(icon: .glyph(DesignSystem.Icons.Warning.regular20, .warning)) }
+                .end {
+                    actionButton(title: PolymarketFastTradingStrings.revoke) {
+                        viewModel.handleViewAction(.revokeForeignSigner(signer))
+                    }
+                }
         }
     }
 

@@ -9,10 +9,11 @@
 import Combine
 import Foundation
 import TangemFoundation
+import TangemPolymarket
 
 @MainActor
 final class PolymarketOrderSigningChoice: ObservableObject {
-    @Published private(set) var signsWithSessionKey: Bool
+    @Published private(set) var method: PolymarketOrderSigningMethod
 
     private let availability: PolymarketSessionKeySigningAvailability
     private let delayProvider: PollDelayProvider
@@ -25,7 +26,7 @@ final class PolymarketOrderSigningChoice: ObservableObject {
     init(
         availability: PolymarketSessionKeySigningAvailability,
         delayProvider: PollDelayProvider = TaskSleepPollDelayProvider(),
-        now: @escaping () -> Date = Date.init,
+        now: @escaping () -> Date = { InjectedValues[\.polymarketServerClock].now },
         showNotice: @escaping @MainActor (String) -> Void = PolymarketFastTradingToast.showInfo
     ) {
         self.availability = availability
@@ -33,7 +34,7 @@ final class PolymarketOrderSigningChoice: ObservableObject {
         self.now = now
         self.showNotice = showNotice
 
-        signsWithSessionKey = availability.isAvailable
+        method = availability.isAvailable ? .sessionKey : .ownerKey
 
         availability.isAvailablePublisher
             .sink { [weak self] isAvailable in
@@ -48,17 +49,19 @@ final class PolymarketOrderSigningChoice: ObservableObject {
         expiryTask?.cancel()
     }
 
-    func signing(tappedWithSessionKey: Bool) -> PolymarketOrderSigningMethod? {
-        guard tappedWithSessionKey else {
-            return .ownerKey
+    func decide(tapped: PolymarketOrderSigningMethod) -> Decision {
+        switch tapped {
+        case .ownerKey:
+            .sign(.ownerKey)
+        case .sessionKey:
+            allowsSessionKey(isAvailable: availability.isAvailable) ? .sign(.sessionKey) : .routeChanged
         }
+    }
 
-        guard availability.isAvailable, !isSessionKeyDeclined else {
-            switchToOwnerKey()
-            return nil
-        }
-
-        return .sessionKey
+    func switchToOwnerKey() {
+        method = .ownerKey
+        expiryTask?.cancel()
+        showNotice(PolymarketFastTradingStrings.sessionKeyUnavailableNotice)
     }
 
     func declineSessionKey() {
@@ -73,24 +76,31 @@ final class PolymarketOrderSigningChoice: ObservableObject {
     }
 }
 
+// MARK: - Decision
+
+extension PolymarketOrderSigningChoice {
+    enum Decision: Equatable {
+        case sign(PolymarketOrderSigningMethod)
+        case routeChanged
+    }
+}
+
 // MARK: - Private implementation
 
 private extension PolymarketOrderSigningChoice {
-    func apply(isAvailable: Bool) {
-        signsWithSessionKey = isAvailable && !isSessionKeyDeclined
-        scheduleExpiry()
+    func allowsSessionKey(isAvailable: Bool) -> Bool {
+        isAvailable && !isSessionKeyDeclined
     }
 
-    func switchToOwnerKey() {
-        signsWithSessionKey = false
-        expiryTask?.cancel()
-        showNotice(PolymarketFastTradingStrings.sessionKeyUnavailableNotice)
+    func apply(isAvailable: Bool) {
+        method = allowsSessionKey(isAvailable: isAvailable) ? .sessionKey : .ownerKey
+        scheduleExpiry()
     }
 
     func scheduleExpiry() {
         expiryTask?.cancel()
 
-        guard signsWithSessionKey, let availableUntil = availability.availableUntil else {
+        guard method == .sessionKey, let availableUntil = availability.availableUntil else {
             return
         }
 

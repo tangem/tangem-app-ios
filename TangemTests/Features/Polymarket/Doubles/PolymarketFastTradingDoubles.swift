@@ -48,6 +48,7 @@ enum PolymarketSessionKeyFixtures {
     static let hour: TimeInterval = 60 * 60
     static let day: TimeInterval = 24 * hour
     static let validUntil = now.addingTimeInterval(validity)
+    static let batchExecutionWindow: TimeInterval = 30 * 60
     static let deviceId = "this-device"
     static let deviceName = "iPhone"
     static let localAddress = "0x5e55000000000000000000000000000000000001"

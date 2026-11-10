@@ -36,7 +36,7 @@ struct CommonPolymarketOrderPlacementService {
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
     private let credentialsRepository: PolymarketCredentialsRepository
     private let placer: PolymarketOrderPlacing
-    private let sessionKeyPlacement: SessionKeyPlacement?
+    private let sessionKeyPlacement: SessionKeyPlacement
     private let delayProvider: PollDelayProvider
 
     init(
@@ -44,8 +44,8 @@ struct CommonPolymarketOrderPlacementService {
         ownerAddressProvider: PolymarketOwnerAddressProviding,
         credentialsRepository: PolymarketCredentialsRepository,
         placer: PolymarketOrderPlacing,
-        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider(),
-        sessionKeyPlacement: SessionKeyPlacement? = nil
+        sessionKeyPlacement: SessionKeyPlacement,
+        delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.userWalletId = userWalletId
         self.ownerAddressProvider = ownerAddressProvider
@@ -61,7 +61,6 @@ struct CommonPolymarketOrderPlacementService {
 extension CommonPolymarketOrderPlacementService {
     struct SessionKeyPlacement {
         let placer: PolymarketOrderPlacing
-        let signer: PolymarketOrderDigestSigning
         let router: PolymarketOrderSigningRouting
     }
 }
@@ -99,7 +98,7 @@ extension CommonPolymarketOrderPlacementService: PolymarketOrderPlacementService
                 quote: quote,
                 market: market,
                 outcome: outcome,
-                signer: Signer(address: ownerAddress, credentials: credentials, signing: .depositWallet),
+                signer: Signer(address: ownerAddress, credentials: credentials),
                 depositWalletAddress: depositWalletAddress
             )
         }
@@ -115,10 +114,6 @@ private extension CommonPolymarketOrderPlacementService {
         outcome: PolymarketOutcome,
         depositWalletAddress: String
     ) async throws -> PolymarketOrderPlacement {
-        guard let sessionKeyPlacement else {
-            throw PolymarketOrderPlacementSetupError.sessionKeyUnavailable
-        }
-
         let session: PolymarketSessionCredentials
 
         switch await sessionKeyPlacement.router.route() {
@@ -136,11 +131,7 @@ private extension CommonPolymarketOrderPlacementService {
                 quote: quote,
                 market: market,
                 outcome: outcome,
-                signer: Signer(
-                    address: session.sessionKeyAddress,
-                    credentials: session.credentials,
-                    signing: .sessionKey(address: session.sessionKeyAddress, signer: sessionKeyPlacement.signer)
-                ),
+                signer: Signer(address: session.sessionKeyAddress, credentials: session.credentials),
                 depositWalletAddress: depositWalletAddress
             )
         } catch let error as PolymarketOrderPlacementError where error.refusesTheSessionKey {
@@ -153,7 +144,6 @@ private extension CommonPolymarketOrderPlacementService {
     struct Signer {
         let address: String
         let credentials: PolymarketL2Credentials
-        let signing: PolymarketOrderPlacer.Signing
     }
 
     func place(
@@ -169,10 +159,9 @@ private extension CommonPolymarketOrderPlacementService {
                 quote: quote,
                 assetId: outcome.assetId,
                 isNegRisk: market.isNegRisk,
-                ownerAddress: signer.address,
+                signingKeyAddress: signer.address,
                 depositWalletAddress: depositWalletAddress,
-                credentials: signer.credentials,
-                signing: signer.signing
+                credentials: signer.credentials
             )
         )
 
@@ -185,7 +174,7 @@ private extension CommonPolymarketOrderPlacementService {
             side: quote.side,
             placer: placer,
             credentials: signer.credentials,
-            ownerAddress: signer.address
+            signingKeyAddress: signer.address
         )
     }
 }
@@ -198,7 +187,7 @@ private extension CommonPolymarketOrderPlacementService {
         side: PolymarketOrderSide,
         placer: PolymarketOrderPlacing,
         credentials: PolymarketL2Credentials,
-        ownerAddress: String
+        signingKeyAddress: String
     ) async throws -> PolymarketOrderPlacement {
         var budget = Constants.settlementBudget
 
@@ -210,7 +199,7 @@ private extension CommonPolymarketOrderPlacementService {
             let record: PolymarketOrderRecord
 
             do {
-                record = try await placer.order(id: orderId, credentials: credentials, ownerAddress: ownerAddress)
+                record = try await placer.order(id: orderId, credentials: credentials, signingKeyAddress: signingKeyAddress)
                 budget -= Self.cost(ofReadStartedAt: readStart)
             } catch is CancellationError {
                 throw CancellationError()

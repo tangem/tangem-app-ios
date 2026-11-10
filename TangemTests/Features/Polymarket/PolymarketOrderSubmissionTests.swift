@@ -168,7 +168,7 @@ struct PolymarketOrderSubmissionTests {
         )
 
         let outcome = await makeSUT(model: model, placing: .success(placement))
-            .submit(quote: .stub(status: .full), tappedWithSessionKey: false) { marketRow }
+            .submit(quote: .stub(status: .full), signing: .ownerKey) { marketRow }
 
         guard case .finished(let state, let content) = outcome else {
             Issue.record("A filled purchase is reported as \(outcome)")
@@ -240,7 +240,7 @@ private extension PolymarketOrderSubmissionTests {
         let model = await makeModel(intent: intent)
         let marketRow = PolymarketOrderMarketRow.Model.make(market: .fixture, outcome: .fixture, eventTitle: "Fixture event")
 
-        return await makeSUT(model: model, placing: result).submit(quote: quote, tappedWithSessionKey: false) { marketRow }
+        return await makeSUT(model: model, placing: result).submit(quote: quote, signing: .ownerKey) { marketRow }
     }
 }
 

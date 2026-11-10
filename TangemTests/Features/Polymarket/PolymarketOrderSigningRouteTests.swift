@@ -279,7 +279,7 @@ private final class RouterFixture {
         let signersResult: Result<[PolymarketSessionSigner], Error> = signersError.map { .failure($0) } ?? .success(signers)
         let keyStore = PolymarketSessionKeyStoreSpy(heldAddress: heldAddress)
         let clock = OSAllocatedUnfairLock(initialState: Self.now)
-        let now = { clock.withLock { $0 } }
+        let now: @Sendable () -> Date = { clock.withLock { $0 } }
 
         self.clock = clock
 
@@ -298,6 +298,7 @@ private final class RouterFixture {
             sessionKeyService: SessionKeyServiceStub(keys: backendKeys ?? [.make(isEnabled: true)], hold: backendRead),
             credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
             ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: PolymarketOwnerAddressProviderStub.ownerAddress),
+            interruptedAuthorizations: CommonPolymarketInterruptedAuthorizationStore(secureStorage: PolymarketSecureStorageSpy()),
             now: now
         )
     }

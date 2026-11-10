@@ -115,7 +115,7 @@ private extension PolymarketWithdrawTransactionService {
             return try await prepareAndSubmitWithdraw(amount: amount, to: recipientAddress)
         }
 
-        return try await operationSlot.gate.exclusively(operationSlot.userWalletId, orThrow: Error.withdrawInProgress) {
+        return try await operationSlot.exclusively(orThrow: Error.withdrawInProgress, whileKeptAuthorizationPends: Error.fastTradingChangePending) {
             try await prepareAndSubmitWithdraw(amount: amount, to: recipientAddress)
         }
     }
@@ -258,6 +258,7 @@ extension PolymarketWithdrawTransactionService {
         case transferFailed(PolymarketWithdrawRecord)
         case refused(PolymarketWithdrawError)
         case reconnectRequired
+        case fastTradingChangePending
 
         var errorDescription: String? {
             switch self {
@@ -274,6 +275,8 @@ extension PolymarketWithdrawTransactionService {
             // [REDACTED_TODO_COMMENT]
             case .reconnectRequired:
                 "Your prediction account needs to be reconnected before you can withdraw."
+            case .fastTradingChangePending:
+                PolymarketFastTradingStrings.walletOperationWaitsForChange
             }
         }
     }

@@ -30,13 +30,13 @@ enum PolymarketFastTradingAuthorization: Equatable {
         switch assessment.status {
         case .offerEnable:
             self = .enable
-        case .reenable:
-            self = .reenable
+        case .reenable(let own):
+            self = own.status == .revoked ? .enable : .reenable
         case .repairByRenewal:
             self = .repair
         case .replace(let previous, let revokesPrevious):
             self = .replace(previous: previous, revokesPrevious: revokesPrevious)
-        case .enabling, .active, .paused, .revoking, .awaitingExchangeListing, .waitingForSettlement:
+        case .enabling, .active, .paused, .revoking, .exchangeUnreadable, .waitingForSettlement:
             return nil
         }
     }
