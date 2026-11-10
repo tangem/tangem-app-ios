@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Kingfisher
+import TangemAccessibilityIdentifiers
 import TangemAccounts
 import TangemAssets
 import TangemMCP
@@ -58,10 +59,12 @@ struct ConnectionsUserWalletTabView: View {
                 Text(section.title)
                     .font(token: DesignSystem.Font.headingSmallToken)
                     .foregroundStyle(DesignSystem.Color.textPrimary)
+                    .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.noSessionsTitle)
 
                 Text(section.subtitle)
                     .font(token: DesignSystem.Font.subheadingMediumToken)
                     .foregroundStyle(DesignSystem.Color.textSecondary)
+                    .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.noSessionsDescription)
             }
             .multilineTextAlignment(.center)
             .padding(.horizontal, 16)
@@ -195,6 +198,7 @@ struct ConnectionsUserWalletTabView: View {
             Row(title: dApp.name, subtitle: dApp.domain)
                 .start { remoteIconView(dApp.iconURL, fallbackIcon: DesignSystem.Icons.Globe.regular20) }
                 .onTap { viewModel.handle(action: .dAppTapped(dApp.domainModel)) }
+                .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.dAppRow)
                 .background(DesignSystem.Color.bgSecondary, in: .rect(cornerRadius: 24))
         }
     }

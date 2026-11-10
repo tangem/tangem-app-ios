@@ -10,8 +10,7 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class WalletConnectionsScreen: ScreenBase<WalletConnectionsScreenElement> {
-    private lazy var headerTitle = staticText(.headerTitle)
-    private lazy var newConnectionButton = button(.newConnectionButton)
+    private lazy var newConnectionButton = app.buttons[Localization.wcNewConnection].firstMatch
     private lazy var noSessionsTitle = staticText(.noSessionsTitle)
     private lazy var noSessionsDescription = staticText(.noSessionsDescription)
 
@@ -40,17 +39,11 @@ final class WalletConnectionsScreen: ScreenBase<WalletConnectionsScreenElement> 
 }
 
 enum WalletConnectionsScreenElement: UIElement {
-    case headerTitle
-    case newConnectionButton
     case noSessionsTitle
     case noSessionsDescription
 
     var accessibilityIdentifier: String {
         switch self {
-        case .headerTitle:
-            return WalletConnectAccessibilityIdentifiers.headerTitle
-        case .newConnectionButton:
-            return WalletConnectAccessibilityIdentifiers.newConnectionButton
         case .noSessionsTitle:
             return WalletConnectAccessibilityIdentifiers.noSessionsTitle
         case .noSessionsDescription:
