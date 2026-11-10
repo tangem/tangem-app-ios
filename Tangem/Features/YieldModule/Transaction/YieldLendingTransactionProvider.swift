@@ -66,22 +66,15 @@ final class YieldLendingTransactionProvider {
         moduleCallData(method: EnterProtocolByOwnerWithNativeMethod(), upgradeImplementation: upgradeImplementation)
     }
 
-    func withdrawTransaction(
+    static func withdrawCallData(
         _ amount: WithdrawalAmount,
-        yieldModule: String,
-        upgradeImplementation: String?,
-        fee: Fee
-    ) async throws -> Transaction {
-        try await moduleTransaction(
-            value: .zero,
-            yieldModule: yieldModule,
-            method: withdrawMethod(amount),
-            upgradeImplementation: upgradeImplementation,
-            fee: fee
-        )
+        blockchain: Blockchain,
+        upgradeImplementation: String?
+    ) throws -> Data {
+        try moduleCallData(method: withdrawMethod(amount, blockchain: blockchain), upgradeImplementation: upgradeImplementation)
     }
 
-    private func positiveWholeWei(_ amount: Decimal) throws -> Decimal {
+    private static func positiveWholeWei(_ amount: Decimal, blockchain: Blockchain) throws -> Decimal {
         let wei = amount.rounded(scale: blockchain.decimalCount, roundingMode: .down)
 
         guard wei > 0 else {
@@ -91,12 +84,12 @@ final class YieldLendingTransactionProvider {
         return wei
     }
 
-    private func withdrawMethod(_ amount: WithdrawalAmount) throws -> SmartContractMethod {
+    private static func withdrawMethod(_ amount: WithdrawalAmount, blockchain: Blockchain) throws -> SmartContractMethod {
         switch amount {
         case .all:
             return WithdrawAndDeactivateNativeMethod()
         case .partial(let value):
-            let wei = try positiveWholeWei(value)
+            let wei = try positiveWholeWei(value, blockchain: blockchain)
 
             guard let weiValue = Amount(with: blockchain, type: .coin, value: wei).bigUIntValue else {
                 throw ValidationError.invalidAmount
