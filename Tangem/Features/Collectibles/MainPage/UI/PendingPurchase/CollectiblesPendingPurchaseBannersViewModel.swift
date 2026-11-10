@@ -10,43 +10,120 @@ import Combine
 import Foundation
 import TangemCollectibles
 import TangemFoundation
+import TangemLocalization
+import TangemUI
 
 @MainActor
 final class CollectiblesPendingPurchaseBannersViewModel: ObservableObject {
     // MARK: - Properties
 
     private let provider: any CollectiblesPendingPurchaseProvider
+    private let machineProvider: any CollectiblesMachineProvider
     private let isDelivered: @MainActor (String) -> Bool
+    private let openUnfinishedPurchase: @MainActor (CollectiblesPendingPurchase, CollectiblesMachine) -> Void
     private let delayProvider: any PollDelayProvider
 
     private var purchases: [CollectiblesPendingPurchase] = []
     private var loadTask: Task<Void, Never>?
     private var pollTask: Task<Void, Error>?
+    private var openPackTask: Task<Void, Never>?
+    private var bannerIDToOpenAfterSheet: String?
 
     // MARK: - Publishers
 
     @Published private(set) var banners: [Banner] = []
+    @Published private(set) var openingBannerID: String?
+    @Published var sheet: Sheet?
 
     // MARK: - Init
 
     init(
         provider: any CollectiblesPendingPurchaseProvider,
+        machineProvider: any CollectiblesMachineProvider,
         isDelivered: @escaping @MainActor (String) -> Bool,
+        openUnfinishedPurchase: @escaping @MainActor (CollectiblesPendingPurchase, CollectiblesMachine) -> Void,
         delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.provider = provider
+        self.machineProvider = machineProvider
         self.isDelivered = isDelivered
+        self.openUnfinishedPurchase = openUnfinishedPurchase
         self.delayProvider = delayProvider
     }
 
     deinit {
         pollTask?.cancel()
+        openPackTask?.cancel()
     }
 
     // MARK: - Methods
 
     func load() async {
         await startLoading().value
+    }
+
+    func openPack(bannerID: String) {
+        guard openPackTask == nil, let purchase = purchases.first(where: { $0.txID == bannerID }) else {
+            return
+        }
+
+        let machineID = purchase.machineID
+
+        openingBannerID = bannerID
+        openPackTask = Task { [weak self, machineProvider] in
+            defer {
+                self?.openingBannerID = nil
+                self?.openPackTask = nil
+            }
+
+            do {
+                let machine = try await machineProvider.load(id: machineID)
+                try Task.checkCancellation()
+                self?.openUnfinishedPurchase(purchase, machine)
+            } catch {
+                guard !error.isCancellationError else { return }
+
+                CollectiblesLogger.error("Collectibles machine \(machineID) failed to load for the unfinished purchase", error: error)
+                Toast(view: WarningToast(text: Localization.commonSomethingWentWrong))
+                    .present(layout: .top(padding: Constants.toastPadding), type: .temporary())
+            }
+        }
+    }
+
+    func presentSheetIfPurchaseUnfinished() -> Bool {
+        guard openPackTask == nil else {
+            return true
+        }
+
+        if let unopenedPack = banners.first(where: { $0.kind == .packToOpen }) {
+            sheet = .packUnopened(bannerID: unopenedPack.id)
+            return true
+        }
+
+        guard banners.contains(where: { $0.kind == .paymentInProgress }) else {
+            return false
+        }
+
+        sheet = .paymentInProgress
+        return true
+    }
+
+    func openPackFromSheet() {
+        guard case .packUnopened(let bannerID) = sheet else { return }
+
+        bannerIDToOpenAfterSheet = bannerID
+        sheet = nil
+    }
+
+    func closeSheet() {
+        sheet = nil
+    }
+
+    func sheetDidDismiss() {
+        guard let bannerID = bannerIDToOpenAfterSheet else { return }
+
+        bannerIDToOpenAfterSheet = nil
+        openPack(bannerID: bannerID)
     }
 }
 
@@ -135,6 +212,7 @@ private extension CollectiblesPendingPurchaseBannersViewModel {
 private extension CollectiblesPendingPurchaseBannersViewModel {
     enum Constants {
         static let pollInterval: TimeInterval = 5
+        static let toastPadding: CGFloat = 14
     }
 }
 
@@ -148,6 +226,18 @@ extension CollectiblesPendingPurchaseBannersViewModel {
         enum Kind: Equatable {
             case paymentInProgress
             case packToOpen
+        }
+    }
+
+    enum Sheet: Identifiable, Equatable {
+        case paymentInProgress
+        case packUnopened(bannerID: String)
+
+        var id: String {
+            switch self {
+            case .paymentInProgress: "paymentInProgress"
+            case .packUnopened(let bannerID): "packUnopened-\(bannerID)"
+            }
         }
     }
 }

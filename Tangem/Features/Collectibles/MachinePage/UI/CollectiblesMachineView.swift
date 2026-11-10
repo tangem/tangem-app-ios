@@ -264,12 +264,8 @@ private struct PreviewMachineProvider: CollectiblesMachineProvider {
     NavigationStack {
         CollectiblesMachineView(
             viewModel: CollectiblesMachineViewModel(
-                pack: CollectiblesPack(
-                    id: "pokemon_50",
-                    loreID: "pokemon",
-                    currencyCode: "USD",
-                    machine: PreviewMachineProvider.machine
-                ),
+                machineID: "pokemon_50",
+                machine: PreviewMachineProvider.machine,
                 routable: nil,
                 prizePoolProvider: PreviewPrizePoolProvider(),
                 relinkStatusProvider: nil,

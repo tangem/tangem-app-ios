@@ -46,7 +46,8 @@ final class CollectiblesMachineViewModel: ObservableObject {
     // MARK: - Init
 
     init(
-        pack: CollectiblesPack,
+        machineID: String,
+        machine: CollectiblesMachine,
         routable: (any CollectiblesMachineRoutable)?,
         prizePoolProvider: any CollectiblesPrizePoolProvider,
         relinkStatusProvider: (any CollectiblesRelinkStatusProvider)?,
@@ -61,13 +62,13 @@ final class CollectiblesMachineViewModel: ObservableObject {
         self.isPurchaseLocked = isPurchaseLocked
         self.relinkStatusProvider = relinkStatusProvider
 
-        title = pack.machine.name
-        artworkURL = pack.machine.artworkURL
-        openButtonText = Self.makeOpenButtonText(price: pack.machine.price)
-        details = Mapper.map(pack.machine)
-        machine = pack.machine
-        machineID = pack.id
-        prizePoolViewModel = CollectiblesPrizePoolViewModel(machineID: pack.id, provider: prizePoolProvider)
+        title = machine.name
+        artworkURL = machine.artworkURL
+        openButtonText = Self.makeOpenButtonText(price: machine.price)
+        details = Mapper.map(machine)
+        self.machine = machine
+        self.machineID = machineID
+        prizePoolViewModel = CollectiblesPrizePoolViewModel(machineID: machineID, provider: prizePoolProvider)
         appStateObserver = AppStateObserver(notificationCenter: notificationCenter)
 
         appStateObserver.start { [weak self] isInBackground in

@@ -213,7 +213,8 @@ private extension CollectiblesMachineViewModelTests {
         notificationCenter: NotificationCenter = NotificationCenter()
     ) -> SUT {
         let sut = SUT(
-            pack: Self.pack(),
+            machineID: "pokemon_50",
+            machine: Self.machine(),
             routable: nil,
             prizePoolProvider: PrizePoolProviderStub(),
             relinkStatusProvider: relinkStatusProvider,
@@ -223,15 +224,6 @@ private extension CollectiblesMachineViewModelTests {
             notificationCenter: notificationCenter
         )
         return trackForMemoryLeaks(sut)
-    }
-
-    static func pack() -> CollectiblesPack {
-        CollectiblesPack(
-            id: "pokemon_50",
-            loreID: "pokemon",
-            currencyCode: "USD",
-            machine: machine()
-        )
     }
 
     /// Waits for the loop to unwind so the leak check does not race the in-flight request.

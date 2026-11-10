@@ -54,6 +54,7 @@ struct CollectiblesMainView: View {
         .collectiblesDevnetProgress(actionsMenuViewModel.devnet)
         .task(viewModel.observe)
         .task(banners.load)
+        .collectiblesPendingPurchaseSheet(banners.pendingPurchaseBannersViewModel)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
         .toolbar { toolbarContent }
@@ -354,7 +355,7 @@ private struct PreviewCatalogueProvider: CollectiblesLoresProvider, Collectibles
                 catalogueProvider: PreviewCatalogueProvider(),
                 signingActionButtonType: .requiredNFCInteraction
             )
-            .makeViewModel(routable: nil),
+            .makeViewModel(routable: nil, pendingPurchases: nil),
             banners: CollectiblesAccountView.Banners(relinkBannerViewModel: nil, pendingPurchaseBannersViewModel: nil),
             actionsMenuViewModel: CollectiblesActionsMenuViewModel(routable: nil),
             dismissStyle: .back,

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemUI
 
 struct CollectiblesPendingPurchaseBanners: View {
@@ -15,7 +16,7 @@ struct CollectiblesPendingPurchaseBanners: View {
 
     var body: some View {
         NotificationBannerCarousel(items: viewModel.banners) { banner in
-            Self.banner(banner.kind)
+            bannerView(banner)
         }
         .hasClipShape(false)
         .paginationHasBackground(false)
@@ -28,22 +29,29 @@ private extension CollectiblesPendingPurchaseBanners {
 
     // [REDACTED_TODO_COMMENT]
     @ViewBuilder
-    static func banner(_ kind: CollectiblesPendingPurchaseBannersViewModel.Banner.Kind) -> some View {
-        switch kind {
+    func bannerView(_ banner: CollectiblesPendingPurchaseBannersViewModel.Banner) -> some View {
+        switch banner.kind {
         case .paymentInProgress:
             MessageBanner(
                 title: "Your payment is in progress",
                 description: "Please wait a bit for transaction to complete"
             )
             .glowRing(.info)
-            .slotEnd { icon(DesignSystem.Icons.Clock.regular20) }
+            .slotEnd { Self.icon(DesignSystem.Icons.Clock.regular20) }
         case .packToOpen:
             MessageBanner(
                 title: "You have pack to open",
                 description: "Please note, that if you have not opened pack in a few hours, you'll receive an automated refund from our partner"
             )
             .glowRing(.warning)
-            .slotEnd { icon(DesignSystem.Icons.Warning.regular20) }
+            .slotEnd { Self.icon(DesignSystem.Icons.Warning.regular20) }
+            .primaryButton(
+                MessageBannerButton(
+                    title: Localization.collectiblesPackUnopenedOpenPack,
+                    isLoading: viewModel.openingBannerID == banner.id,
+                    action: { viewModel.openPack(bannerID: banner.id) }
+                )
+            )
         }
     }
 

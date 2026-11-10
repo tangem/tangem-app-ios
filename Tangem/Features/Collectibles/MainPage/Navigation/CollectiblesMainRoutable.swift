@@ -9,6 +9,7 @@
 @MainActor
 protocol CollectiblesMainRoutable: CollectiblesActionsMenuRoutable, CollectiblesAccountRoutable {
     func openMachine(for pack: CollectiblesPack)
+    func openUnfinishedPurchase(_ purchase: CollectiblesPendingPurchase, machine: CollectiblesMachine)
     func openReconnection()
     func closeCollectibles()
 }

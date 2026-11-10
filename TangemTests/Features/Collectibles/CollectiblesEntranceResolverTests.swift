@@ -153,13 +153,25 @@ private final class CollectiblesPackPurchaseInteractorStub: CollectiblesPackPurc
         false
     }
 
-    func restorePendingPurchase() async {}
-
     func purchase(
         machineID: String,
         price: Decimal,
         platformFee: Decimal,
         isTurboModeOn: Bool,
+        onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
+    ) async throws -> CollectiblesPackPurchaseResult {
+        throw CancellationError()
+    }
+
+    func resumePurchase(
+        _ purchase: CollectiblesPendingPurchase,
+        onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
+    ) async throws -> CollectiblesPackPurchaseResult {
+        throw CancellationError()
+    }
+
+    func resumeKeptPurchase(
+        machineID: String,
         onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
     ) async throws -> CollectiblesPackPurchaseResult {
         throw CancellationError()

@@ -407,6 +407,48 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         #expect(doubles.routable.returnToMachineCallsCount == 0)
     }
 
+    @Test("Opened for an unfinished purchase, the screen only resumes it and never starts a new one")
+    func resumesUnfinishedPurchaseOnOpen() async {
+        let (sut, doubles) = makeSUT(unfinishedPurchaseTxID: Constants.unfinishedTxID)
+
+        await doubles.balanceRefresher.waitForCalls(1)
+
+        #expect(doubles.interactor.resumes == [Resume(machineID: Constants.machineID, txID: Constants.unfinishedTxID)])
+        #expect(doubles.interactor.purchases.isEmpty)
+        #expect(doubles.routable.revealCards.count == 1)
+        withExtendedLifetime(sut) {}
+    }
+
+    @Test("Approve on a screen opened for an unfinished purchase resumes it again and never starts a new one")
+    func approveResumesUnfinishedPurchase() async {
+        let (sut, doubles) = makeSUT(results: [.failure(URLError(.timedOut))], unfinishedPurchaseTxID: Constants.unfinishedTxID)
+        defer { sut.dismissError() }
+        await doubles.balanceRefresher.waitForCalls(1)
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
+
+        await approve(sut, in: doubles)
+
+        let resume = Resume(machineID: Constants.machineID, txID: Constants.unfinishedTxID)
+        #expect(doubles.interactor.resumes == [resume, resume])
+        #expect(doubles.interactor.purchases.isEmpty)
+    }
+
+    @Test("Opened for an unfinished purchase that is gone or ends without a card, the screen closes instead of offering a new purchase", arguments: [
+        CollectiblesPackPurchaseError.noUnfinishedPurchase,
+        .paymentFailed(.refunded),
+        .paymentFailed(.expired),
+    ])
+    func closesWhenUnfinishedPurchaseEnds(error: CollectiblesPackPurchaseError) async {
+        let (sut, doubles) = makeSUT(results: [.failure(error)], unfinishedPurchaseTxID: Constants.unfinishedTxID)
+        var closings = doubles.routable.packFlowClosings.makeAsyncIterator()
+
+        await closings.next()
+
+        #expect(doubles.interactor.resumes == [Resume(machineID: Constants.machineID, txID: Constants.unfinishedTxID)])
+        #expect(doubles.interactor.purchases.isEmpty)
+        withExtendedLifetime(sut) {}
+    }
+
     @Test("An unopened pack shows its sheet and Open pack continues the same order", arguments: Self.unopenedErrors)
     func unopenedPackSheetRetries(error: CollectiblesPackPurchaseError) async {
         let (sut, doubles) = makeSUT(results: [.failure(error), .success(.wonCard(Self.wonCard))])
@@ -420,8 +462,25 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         await doubles.balanceRefresher.waitForCalls(2)
 
         #expect(sut.sheet == nil)
-        #expect(doubles.interactor.purchases.count == 2)
+        #expect(doubles.interactor.purchases.count == 1)
+        #expect(doubles.interactor.resumes == [Resume(machineID: Constants.machineID, txID: nil)])
         #expect(doubles.routable.revealCards.count == 1)
+    }
+
+    @Test("Open pack on the unopened sheet that ends in a refund closes the flow instead of offering a new purchase")
+    func unopenedPackRefundClosesFlow() async {
+        let (sut, doubles) = makeSUT(results: [
+            .failure(CollectiblesPackPurchaseError.paymentTimedOut),
+            .failure(CollectiblesPackPurchaseError.paymentFailed(.refunded)),
+        ])
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
+        await approve(sut, in: doubles)
+        var closings = doubles.routable.packFlowClosings.makeAsyncIterator()
+
+        sut.openUnopenedPack()
+        await closings.next()
+
+        #expect(doubles.interactor.resumes == [Resume(machineID: Constants.machineID, txID: nil)])
     }
 
     @Test("A sheet that arrives while the previous one is still closing shows up after the dismissal")
@@ -478,7 +537,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
 
     @Test("Dismissing the error clears the message")
     func dismissErrorClearsMessage() async {
-        let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.paymentTimedOut)])
+        let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.accountNotReady)])
         _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
@@ -491,7 +550,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
 
     @Test("The error hides itself once its display time is over")
     func errorHidesAfterDisplayTime() async {
-        let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.paymentTimedOut)])
+        let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.accountNotReady)])
         let messages = PublisherRecorder(sut.$errorMessage.removeDuplicates().eraseToAnyPublisher())
         _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
@@ -509,8 +568,8 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("A later error leaves a single hide timer, the one of the message on screen")
     func laterErrorKeepsSingleHideTimer() async {
         let results: [Result<CollectiblesPackPurchaseResult, any Error>] = [
-            .failure(CollectiblesPackPurchaseError.paymentTimedOut),
-            .failure(CollectiblesPackPurchaseError.paymentTimedOut),
+            .failure(CollectiblesPackPurchaseError.accountNotReady),
+            .failure(CollectiblesPackPurchaseError.accountNotReady),
         ]
         let (sut, doubles) = makeSUT(results: results)
         let messages = PublisherRecorder(sut.$errorMessage.removeDuplicates().eraseToAnyPublisher())
@@ -535,7 +594,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Approving again hides the error of the previous attempt at once")
     func approvingAgainHidesPreviousError() async {
         let results: [Result<CollectiblesPackPurchaseResult, any Error>] = [
-            .failure(CollectiblesPackPurchaseError.paymentTimedOut),
+            .failure(CollectiblesPackPurchaseError.accountNotReady),
             .success(.wonCard(Self.wonCard)),
         ]
         let (sut, doubles) = makeSUT(results: results)
@@ -586,6 +645,7 @@ extension CollectiblesConfirmOrderViewModelTests {
         .packUnopened,
         .openFailed,
         .prizeNotDelivered,
+        .paymentTimedOut,
     ]
 
     nonisolated static let cardImageArguments: [(backImageURL: URL?, expected: [URL])] = [
@@ -606,7 +666,6 @@ extension CollectiblesConfirmOrderViewModelTests {
     ]
 
     nonisolated static let genericFailures: [any Error] = [
-        CollectiblesPackPurchaseError.paymentTimedOut,
         CollectiblesPackPurchaseError.paymentFailed(.manuallyBuybacked),
         CollectiblesPackPurchaseError.accountNotReady,
         CollectiblesPackPurchaseError.invalidPrice,
@@ -629,6 +688,7 @@ private extension CollectiblesConfirmOrderViewModelTests {
 
     enum Constants {
         static let machineID = "pokemon_50"
+        static let unfinishedTxID = "tx-unfinished"
         static let machineName = "Elite pack"
         static let price: Decimal = 50
         static let platformFee: Decimal = 1
@@ -717,7 +777,8 @@ private extension CollectiblesConfirmOrderViewModelTests {
         results: [Result<CollectiblesPackPurchaseResult, any Error>] = [.success(.wonCard(wonCard))],
         steps: [CollectiblesPackPurchaseStep] = [],
         hasUnfinishedPurchase: Bool = false,
-        isTurboModeOn: Bool = false
+        isTurboModeOn: Bool = false,
+        unfinishedPurchaseTxID: String? = nil
     ) -> (SUT, Doubles) {
         let interactor = PurchaseInteractorStub(
             results: results,
@@ -737,6 +798,15 @@ private extension CollectiblesConfirmOrderViewModelTests {
             machineID: Constants.machineID,
             machine: Self.machine(),
             isTurboModeOn: isTurboModeOn,
+            unfinishedPurchase: unfinishedPurchaseTxID.map { txID in
+                CollectiblesPendingPurchase(
+                    txID: txID,
+                    machineID: Constants.machineID,
+                    status: .packPurchased,
+                    createdAt: Date(timeIntervalSince1970: 0),
+                    isTurboModeOn: isTurboModeOn
+                )
+            },
             usdcBalanceProvider: doubles.balanceProvider,
             purchaseInteractor: doubles.interactor,
             relinkStatusProvider: doubles.relinkStatusProvider,
@@ -786,11 +856,17 @@ private struct PurchaseRequest: Equatable {
     let isTurboModeOn: Bool
 }
 
+private struct Resume: Equatable {
+    let machineID: String
+    let txID: String?
+}
+
 @MainActor
 private final class PurchaseInteractorStub: CollectiblesPackPurchaseInteractor {
     var isLocked = false
 
     private(set) var purchases: [PurchaseRequest] = []
+    private(set) var resumes: [Resume] = []
 
     private let steps: [CollectiblesPackPurchaseStep]
     private let isPurchaseUnfinished: Bool
@@ -818,8 +894,6 @@ private final class PurchaseInteractorStub: CollectiblesPackPurchaseInteractor {
         false
     }
 
-    func restorePendingPurchase() async {}
-
     func purchase(
         machineID: String,
         price: Decimal,
@@ -830,6 +904,26 @@ private final class PurchaseInteractorStub: CollectiblesPackPurchaseInteractor {
         purchases.append(
             PurchaseRequest(machineID: machineID, price: price, platformFee: platformFee, isTurboModeOn: isTurboModeOn)
         )
+        return try nextResult(onStep: onStep)
+    }
+
+    func resumePurchase(
+        _ purchase: CollectiblesPendingPurchase,
+        onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
+    ) async throws -> CollectiblesPackPurchaseResult {
+        resumes.append(Resume(machineID: purchase.machineID, txID: purchase.txID))
+        return try nextResult(onStep: onStep)
+    }
+
+    func resumeKeptPurchase(
+        machineID: String,
+        onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
+    ) async throws -> CollectiblesPackPurchaseResult {
+        resumes.append(Resume(machineID: machineID, txID: nil))
+        return try nextResult(onStep: onStep)
+    }
+
+    private func nextResult(onStep: (CollectiblesPackPurchaseStep) -> Void) throws -> CollectiblesPackPurchaseResult {
         steps.forEach(onStep)
 
         let result = results.count > 1 ? results.removeFirst() : results[0]
@@ -967,6 +1061,13 @@ private final class ConfirmOrderRoutableSpy: CollectiblesConfirmOrderRoutable {
     private(set) var returnToMachineCallsCount = 0
     private(set) var closePackFlowCallsCount = 0
 
+    let packFlowClosings: AsyncStream<Void>
+    private let packFlowClosingsContinuation: AsyncStream<Void>.Continuation
+
+    init() {
+        (packFlowClosings, packFlowClosingsContinuation) = AsyncStream.makeStream(of: Void.self)
+    }
+
     func openPackReveal(wonCard: CollectiblesWonCard, assets: CollectiblesRevealAssets) {
         revealCards.append(wonCard)
         revealAssets.append(assets)
@@ -978,6 +1079,7 @@ private final class ConfirmOrderRoutableSpy: CollectiblesConfirmOrderRoutable {
 
     func closePackFlow() {
         closePackFlowCallsCount += 1
+        packFlowClosingsContinuation.yield()
     }
 }
 

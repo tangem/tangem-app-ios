@@ -14,13 +14,22 @@ protocol CollectiblesPackPurchaseInteractor: AnyObject {
     func hasUnfinishedPurchase(machineID: String) -> Bool
     func isPurchaseLocked(machineID: String) -> Bool
     func isDelivered(txID: String) -> Bool
-    func restorePendingPurchase() async
 
     func purchase(
         machineID: String,
         price: Decimal,
         platformFee: Decimal,
         isTurboModeOn: Bool,
+        onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
+    ) async throws -> CollectiblesPackPurchaseResult
+
+    func resumePurchase(
+        _ purchase: CollectiblesPendingPurchase,
+        onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
+    ) async throws -> CollectiblesPackPurchaseResult
+
+    func resumeKeptPurchase(
+        machineID: String,
         onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
     ) async throws -> CollectiblesPackPurchaseResult
 }
@@ -47,4 +56,5 @@ enum CollectiblesPackPurchaseError: Error {
     case openFailed
     case prizeNotDelivered
     case anotherPurchaseInProgress
+    case noUnfinishedPurchase
 }
