@@ -2374,6 +2374,7 @@ extension SwapModel: NotificationTapDelegate {
              .openAppStoreReview,
              .empty,
              .openCurrency,
+             .changeOnrampCountry,
              .unlock,
              .openMobileFinishActivation,
              .openMobileUpgrade,

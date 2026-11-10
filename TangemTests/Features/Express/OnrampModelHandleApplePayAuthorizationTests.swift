@@ -336,6 +336,7 @@ final class OnrampModelHandleApplePayAuthorizationTests {
             autoupdatingTimer: AutoupdatingTimer(),
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
             transactionHistoryEnricherFactory: { nil },
+            isCountryByIPEnabled: false,
             predefinedValues: .init(amount: nil)
         )
     }
@@ -611,6 +612,7 @@ private final class StubOnrampModelRoutable: OnrampModelRoutable, Sendable {
     var lastOnProceedToWidget: (() -> Void)? { state.withLock { $0.lastOnProceedToWidget } }
 
     func openOnrampCountryBottomSheet(country: OnrampCountry) {}
+    func openOnrampCountrySelectorView() {}
     func openOnrampRedirecting() {}
     func openOnrampWebView(url: URL, onDismiss: @escaping () -> Void, onSuccess: @escaping (URL) -> Void) {}
     func openFinishStep() {

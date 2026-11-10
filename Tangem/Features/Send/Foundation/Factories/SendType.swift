@@ -143,10 +143,12 @@ struct PredefinedOnrampParameters: Hashable {
     static let none = PredefinedOnrampParameters(amount: .none, preferredValues: .none)
 
     let amount: Decimal?
+    let fiatCurrencyCode: String?
     let preferredValues: PreferredValues
 
-    init(amount: Decimal? = .none, preferredValues: PreferredValues = .none) {
+    init(amount: Decimal? = .none, fiatCurrencyCode: String? = .none, preferredValues: PreferredValues = .none) {
         self.amount = amount
+        self.fiatCurrencyCode = fiatCurrencyCode
         self.preferredValues = preferredValues
     }
 }

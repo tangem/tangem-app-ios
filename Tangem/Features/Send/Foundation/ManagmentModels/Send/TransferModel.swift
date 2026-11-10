@@ -741,6 +741,7 @@ extension TransferModel: NotificationTapDelegate {
              .closeGetTangemPay,
              .removeTangemPayAccount,
              .editSlippage,
+             .changeOnrampCountry,
              .linkUserWallet:
             assertionFailure("Notification tap not handled")
         }

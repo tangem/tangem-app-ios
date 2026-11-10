@@ -14,9 +14,18 @@ private struct OnrampRepositoryKey: InjectionKey {
     )
 }
 
+private struct OnrampUserCurrencyStoreKey: InjectionKey {
+    static var currentValue = OnrampUserCurrencyStore(storage: CommonOnrampStorage(key: .onrampUserCurrency))
+}
+
 extension InjectedValues {
     var onrampRepository: OnrampRepository {
         get { Self[OnrampRepositoryKey.self] }
         set { Self[OnrampRepositoryKey.self] = newValue }
+    }
+
+    var onrampUserCurrencyStore: OnrampUserCurrencyStore {
+        get { Self[OnrampUserCurrencyStoreKey.self] }
+        set { Self[OnrampUserCurrencyStoreKey.self] = newValue }
     }
 }

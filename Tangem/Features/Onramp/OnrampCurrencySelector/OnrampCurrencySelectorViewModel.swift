@@ -121,7 +121,7 @@ private extension OnrampCurrencySelectorViewModel {
             action: { [weak self] in
                 Analytics.log(event: .onrampCurrencyChosen, params: [.currency: currency.identity.code])
 
-                self?.repository.updatePreference(currency: currency)
+                self?.repository.selectCurrency(currency)
                 self?.coordinator?.dismissCurrencySelector()
             }
         )

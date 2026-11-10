@@ -62,6 +62,10 @@ public struct TangemExpressFactory {
         CommonOnrampRepository(storage: storage)
     }
 
+    public func makeCountryByIPOnrampRepository(userCurrencyStore: OnrampUserCurrencyStore) -> OnrampRepository {
+        CountryByIPOnrampRepository(userCurrencyStore: userCurrencyStore)
+    }
+
     public func makeOnrampDataRepository(expressAPIProvider: ExpressAPIProvider) -> OnrampDataRepository {
         CommonOnrampDataRepository(provider: expressAPIProvider)
     }

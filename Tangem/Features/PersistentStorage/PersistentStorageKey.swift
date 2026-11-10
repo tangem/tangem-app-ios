@@ -27,6 +27,7 @@ enum PersistentStorageKey {
     case walletCardsBackupReports
     case pendingStakingTransactions
     case onrampPreference
+    case onrampUserCurrency
     case addressBook(cid: String)
     case coinsCategoriesCache
     case coinsGeckoCategoriesCache
@@ -59,6 +60,8 @@ enum PersistentStorageKey {
             return "staking_pending_transactions"
         case .onrampPreference:
             return "onramp_preference"
+        case .onrampUserCurrency:
+            return "onramp_user_currency"
         case .addressBook(let cid):
             return "address_book_\(cid)"
         case .coinsCategoriesCache:
@@ -91,6 +94,8 @@ enum PersistentStorageKey {
             // like every other per-wallet cache, and the accounts list has to be readable while the device is locked
             false
         case .onrampPreference:
+            false
+        case .onrampUserCurrency:
             false
         case .pendingExpressTransactions:
             false

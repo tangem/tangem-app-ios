@@ -192,6 +192,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .closeGetTangemPay,
              .removeTangemPayAccount,
              .editSlippage,
+             .changeOnrampCountry,
              .linkUserWallet:
             break
         case .openFeeCurrency:
@@ -485,10 +486,25 @@ private extension TokenDetailsViewModel {
 
         return QuickTopUpBannerViewModel(
             sourceToken: sourceToken,
+            onrampCountryProvider: makeOnrampCountryProvider(),
             onOpenOnramp: { [weak self] parameters in
                 self?.openOnramp(parameters: parameters)
             }
         )
+    }
+
+    private func makeOnrampCountryProvider() -> (() async throws -> OnrampCountry)? {
+        guard FeatureProvider.isAvailable(.onrampCountryByIP) else {
+            return nil
+        }
+
+        let expressAPIProvider = CommonExpressDependenciesFactory(
+            userWalletInfo: userWalletInfo,
+            preferredProviderId: nil,
+            mcpIntentID: nil
+        ).expressAPIProvider
+
+        return { try await expressAPIProvider.onrampCountryByIP() }
     }
 
     private func makeDotsMenuSections() -> [DotsMenuSection] {

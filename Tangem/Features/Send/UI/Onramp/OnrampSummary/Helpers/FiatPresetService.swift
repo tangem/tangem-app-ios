@@ -10,11 +10,14 @@ import Foundation
 import TangemExpress
 
 struct FiatPresetService {
-    @Injected(\.onrampRepository)
-    private var onrampRepository: OnrampRepository
+    private let onrampRepository: OnrampRepository
 
     private let amounts: [Decimal] = [50, 100, 200, 300]
     private let balanceFormatter = BalanceFormatter()
+
+    init(onrampRepository: OnrampRepository) {
+        self.onrampRepository = onrampRepository
+    }
 
     func presets() -> [Preset]? {
         switch onrampRepository.preferenceCurrency?.identity.code {

@@ -166,6 +166,7 @@ private extension OnrampModelUnsupportedTokenTests {
             autoupdatingTimer: AutoupdatingTimer(),
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
             transactionHistoryEnricherFactory: { nil },
+            isCountryByIPEnabled: false,
             predefinedValues: .init(amount: nil)
         )
 
@@ -210,29 +211,6 @@ private final class AnalyticsLoggerSpy: OnrampManagementModelAnalyticsLogger {
 }
 
 // MARK: - Stub repositories / manager
-
-private actor OnrampManagerStub: OnrampManager {
-    func initialSetupCountry() async throws -> OnrampCountry { fatalError("not used") }
-    func setupProviders(request: OnrampPairRequestItem) async throws -> ProvidersList { fatalError("not used") }
-    func setupQuotes(in providers: ProvidersList, amount: OnrampUpdatingAmount) async throws -> (list: ProvidersList, provider: OnrampProvider) { fatalError("not used") }
-    func loadRedirectData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings) async throws -> OnrampRedirectData { fatalError("not used") }
-    func loadNativePaymentData(provider: OnrampProvider, redirectSettings: OnrampRedirectSettings, applePayResult: OnrampApplePayResult) async throws -> OnrampDataResult { fatalError("not used") }
-    func findRecentOnrampTransaction(
-        payoutAddress: String,
-        since: Date,
-        toContractAddress: String,
-        toNetwork: String,
-        providerId: ExpressProvider.Id,
-        limit: Int?
-    ) async throws -> OnrampTransaction? { fatalError("not used") }
-}
-
-private actor OnrampDataRepositoryStub: OnrampDataRepository {
-    func providers() async throws -> [ExpressProvider] { [] }
-    func paymentMethods() async throws -> [OnrampPaymentMethod] { [] }
-    func countries() async throws -> [OnrampCountry] { [] }
-    func currencies() async throws -> [OnrampFiatCurrency] { [] }
-}
 
 private struct OnrampRepositoryStub: OnrampRepository {
     var preferenceCountry: OnrampCountry? { nil }
