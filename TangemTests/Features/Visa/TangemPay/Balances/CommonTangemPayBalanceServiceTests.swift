@@ -20,7 +20,7 @@ struct CommonTangemPayBalanceServiceTests {
         let sut = makeSUT(balanceResults: [.success(balance)])
         let spy = NetworksSpy(publisher: sut.networksPublisher)
 
-        await load(sut)
+        await sut.loadBalance()
 
         #expect(spy.values == [[], balance.networks])
         #expect(sut.networks == balance.networks)
@@ -31,7 +31,7 @@ struct CommonTangemPayBalanceServiceTests {
         let balance = try makeBalance()
         let sut = makeSUT(balanceResults: [.success(balance)])
 
-        await load(sut)
+        await sut.loadBalance()
         let networks = try await sut.networksPublisher.first().async()
 
         #expect(networks == balance.networks)
@@ -43,8 +43,8 @@ struct CommonTangemPayBalanceServiceTests {
         let sut = makeSUT(balanceResults: [.success(balance), .failure(.unauthorized)])
         let spy = NetworksSpy(publisher: sut.networksPublisher)
 
-        await load(sut)
-        await load(sut)
+        await sut.loadBalance()
+        await sut.loadBalance()
 
         #expect(spy.values == [[], balance.networks])
         #expect(sut.networks == balance.networks)
@@ -56,8 +56,8 @@ struct CommonTangemPayBalanceServiceTests {
         let sut = makeSUT(balanceResults: [.success(balance), .success(balance)])
         let spy = NetworksSpy(publisher: sut.networksPublisher)
 
-        await load(sut)
-        await load(sut)
+        await sut.loadBalance()
+        await sut.loadBalance()
 
         #expect(spy.values == [[], balance.networks])
     }
@@ -69,8 +69,8 @@ struct CommonTangemPayBalanceServiceTests {
         let sut = makeSUT(balanceResults: [.success(first), .success(second)])
         let spy = NetworksSpy(publisher: sut.networksPublisher)
 
-        await load(sut)
-        await load(sut)
+        await sut.loadBalance()
+        await sut.loadBalance()
 
         #expect(spy.values == [[], first.networks, second.networks])
     }
@@ -82,22 +82,9 @@ private extension CommonTangemPayBalanceServiceTests {
     func makeSUT(balanceResults: [Result<TangemPayBalance, TangemPayAPIServiceError>]) -> CommonTangemPayBalanceService {
         CommonTangemPayBalanceService(
             customerInfoManagementService: CustomerInfoManagementServiceStub(balanceResults: balanceResults),
-            tokenBalancesRepository: TokenBalancesRepositoryStub()
+            tokenBalancesRepository: TokenBalancesRepositoryStub(),
+            fiatRateProvider: FiatRateProviderStub()
         )
-    }
-
-    func load(_ sut: CommonTangemPayBalanceService) async {
-        await InjectedDependenciesIsolation.shared.run {
-            guard let previousRepository = InjectedValues[\.quotesRepository] as? TokenQuotesRepository & TokenQuotesRepositoryUpdater else {
-                Issue.record("Expected quotesRepository to conform to both TokenQuotesRepository & TokenQuotesRepositoryUpdater")
-                return
-            }
-
-            InjectedValues.setTokenQuotesRepository(MockTokenQuotesRepository(quotes: [:]))
-            defer { InjectedValues.setTokenQuotesRepository(previousRepository) }
-
-            await sut.loadBalance()
-        }
     }
 
     func makeBalance(depositAddress: String = "0xdeposit") throws -> TangemPayBalance {
@@ -135,6 +122,16 @@ private final class NetworksSpy {
             state.withLock { $0.append(networks) }
         }
     }
+}
+
+private final class FiatRateProviderStub: FiatRateProvider {
+    let rate: WalletModelRate = .custom
+
+    var ratePublisher: AnyPublisher<WalletModelRate, Never> {
+        Just(rate).eraseToAnyPublisher()
+    }
+
+    func updateRate() {}
 }
 
 private final class TokenBalancesRepositoryStub: TokenBalancesRepository {
