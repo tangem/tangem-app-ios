@@ -85,7 +85,7 @@ private extension LendingDepositAmountSnapshotScenario {
         )
     }
 
-    var fee: LendingDepositAmountContentView.Fee {
+    var fee: LendingDepositFee {
         switch self {
         case .feeLoading: .loading
         case .feeUnavailable: .unavailable

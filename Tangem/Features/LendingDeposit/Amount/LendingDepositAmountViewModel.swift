@@ -22,7 +22,6 @@ final class LendingDepositAmountViewModel: ObservableObject {
     private let transferModel: TransferModel
     private let sourceToken: SendTransferableToken
     private let interactor: SendAmountInteractor
-    private let feeFormatter: FeeFormatter = CommonFeeFormatter()
     private weak var router: LendingDepositAmountRoutable?
     private var lastLoadedFee: Decimal?
     private var pendingSharePercent: Int?
@@ -232,30 +231,21 @@ private extension LendingDepositAmountViewModel {
     }
 
     func feeDidChange(_ tokenFee: TokenFee) {
-        switch tokenFee.value {
-        case .loading:
-            state.fee = .loading
-        case .failure:
-            state.fee = .unavailable
-        case .success(let fee):
-            let components = feeFormatter.formattedFeeComponents(
-                fee: fee.amount.value,
-                currencySymbol: tokenFee.tokenItem.currencySymbol,
-                currencyId: tokenFee.tokenItem.currencyId,
-                isFeeApproximate: tokenFee.tokenItem.isFeeApproximate,
-                formattingOptions: .sendCryptoFeeFormattingOptions
-            )
-            state.fee = .loaded(symbol: tokenFee.tokenItem.currencySymbol, value: components.fiatFee ?? components.cryptoFee)
-            if let lastLoadedFee {
-                capAmountIfNewFeeNoLongerFits(previousFee: lastLoadedFee, fee: fee.amount.value)
-            }
+        state.fee = LendingDepositFee(tokenFee)
 
-            lastLoadedFee = fee.amount.value
+        guard case .success(let fee) = tokenFee.value else {
+            return
+        }
 
-            if let pendingSharePercent {
-                self.pendingSharePercent = nil
-                setShare(percent: pendingSharePercent)
-            }
+        if let lastLoadedFee {
+            capAmountIfNewFeeNoLongerFits(previousFee: lastLoadedFee, fee: fee.amount.value)
+        }
+
+        lastLoadedFee = fee.amount.value
+
+        if let pendingSharePercent {
+            self.pendingSharePercent = nil
+            setShare(percent: pendingSharePercent)
         }
     }
 

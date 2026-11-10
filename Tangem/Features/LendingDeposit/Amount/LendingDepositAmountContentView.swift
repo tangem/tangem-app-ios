@@ -199,42 +199,7 @@ private extension LendingDepositAmountContentView {
 
 private extension LendingDepositAmountContentView {
     var feeRow: some View {
-        Row(title: Localization.commonNetworkFeeTitle)
-            .end {
-                HStack(spacing: Constants.feeValueSpacing) {
-                    feeValue
-
-                    if state.canChangeFeeSpeed {
-                        DesignSystem.Icons.ChevronDoubleVertical.regular20.image
-                            .renderingMode(.template)
-                            .foregroundStyle(DesignSystem.Color.iconSecondary)
-                            .accessibilityHidden(true)
-                    }
-                }
-            }
-            .includeInnerPadding(false)
-            .onTap(action: state.canChangeFeeSpeed ? openFeeSpeed : nil)
-            .padding(.vertical, Constants.feeVerticalPadding)
-            .padding(.horizontal, Constants.cardPadding)
-            .background(DesignSystem.Color.bgSecondary)
-            .cornerRadiusContinuous(Constants.cornerRadius)
-    }
-
-    @ViewBuilder
-    var feeValue: some View {
-        switch state.fee {
-        case .loading:
-            Shimmer()
-                .variant(.custom(width: Constants.feeShimmerSize.width, height: Constants.feeShimmerSize.height))
-        case .loaded(let symbol, let value):
-            Badge(label: symbol, accessibilityLabel: nil)
-
-            Text(value)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
-        case .unavailable:
-            Text(BalanceFormatter.defaultEmptyBalanceString)
-                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
-        }
+        LendingDepositFeeRow(fee: state.fee, canChangeFeeSpeed: state.canChangeFeeSpeed, action: openFeeSpeed)
     }
 
     func openFeeSpeed() {
@@ -302,7 +267,7 @@ extension LendingDepositAmountContentView {
         let tokenIconInfo: TokenIconInfo
         let tokenSymbol: String
         var balance: String
-        var fee: Fee
+        var fee: LendingDepositFee
         var canChangeFeeSpeed: Bool
         var isDepositEnabled: Bool
     }
@@ -310,12 +275,6 @@ extension LendingDepositAmountContentView {
     enum Header {
         case account(name: String, icon: AccountIconView.ViewData)
         case wallet(name: String)
-    }
-
-    enum Fee {
-        case loading
-        case loaded(symbol: String, value: String)
-        case unavailable
     }
 
     enum Action {
@@ -343,9 +302,6 @@ private extension LendingDepositAmountContentView {
         static let amountMinTextScale: CGFloat = 0.5
         static let alternativeSpacing: CGFloat = 2
         static let errorSpacing: CGFloat = 6
-        static let feeVerticalPadding: CGFloat = 12
-        static let feeValueSpacing: CGFloat = 8
-        static let feeShimmerSize = CGSize(width: 64, height: 20)
         static let chipSpacing: CGFloat = 4
         static let chipsTopPadding: CGFloat = 8
         static let keyboardAppearDelay: TimeInterval = 0.5

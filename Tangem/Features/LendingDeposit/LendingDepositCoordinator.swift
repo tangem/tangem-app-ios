@@ -7,6 +7,7 @@
 //
 
 import Combine
+import Foundation
 import TangemUI
 
 final class LendingDepositCoordinator: CoordinatorObject {
@@ -14,10 +15,15 @@ final class LendingDepositCoordinator: CoordinatorObject {
     let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
+    @Published var path: [Route] = []
     @Published private(set) var amountViewModel: LendingDepositAmountViewModel?
+    @Published private(set) var confirmViewModel: LendingDepositConfirmViewModel?
 
     private let analyticsLogger = LendingDepositAnalyticsLogger()
+    private var options: Options?
     private var transferModel: TransferModel?
 
     required init(
@@ -45,6 +51,9 @@ final class LendingDepositCoordinator: CoordinatorObject {
             )
         )
 
+        transferModel.informationRelevanceService = CommonInformationRelevanceService(input: transferModel, provider: transferModel)
+
+        self.options = options
         self.transferModel = transferModel
         amountViewModel = LendingDepositAmountViewModel(transferModel: transferModel, sourceToken: token, router: self)
     }
@@ -57,6 +66,16 @@ extension LendingDepositCoordinator {
         let token: SendTransferableToken
         let yieldModule: String
         let upgradeImplementation: String?
+        let currentApy: Decimal
+        let performanceFee: Decimal
+    }
+}
+
+// MARK: - Route
+
+extension LendingDepositCoordinator {
+    enum Route: Hashable {
+        case confirmation
     }
 }
 
@@ -84,10 +103,46 @@ extension LendingDepositCoordinator: LendingDepositAmountRoutable {
     }
 
     func openConfirmation() {
-        // [REDACTED_TODO_COMMENT]
+        guard let options, let transferModel else { return }
+
+        Task { @MainActor in
+            confirmViewModel = LendingDepositConfirmViewModel(
+                transferModel: transferModel,
+                sourceToken: options.token,
+                projection: LendingDepositProjection(currentApy: options.currentApy, performanceFee: options.performanceFee),
+                mailDataBuilder: CommonSendMailDataBuilder(baseDataInput: transferModel, sourceTokenInput: transferModel),
+                coordinator: self
+            )
+            path.append(.confirmation)
+        }
     }
 
     func closeDeposit() {
+        dismissAction(())
+    }
+}
+
+// MARK: - LendingDepositConfirmRoutable
+
+extension LendingDepositCoordinator: LendingDepositConfirmRoutable {
+    func openURL(_ url: URL) {
+        safariManager.openURL(url)
+    }
+
+    func openMail(with dataCollector: EmailDataCollector, recipient: String) {
+        let mailViewModel = MailViewModel(
+            logsComposer: LogsComposer(infoProvider: dataCollector),
+            recipient: recipient,
+            emailType: .failedToSendTx
+        )
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+
+    func depositDidSend() {
+        // [REDACTED_TODO_COMMENT]
         dismissAction(())
     }
 }

@@ -27,10 +27,20 @@ final class TransactionRecorder: @unchecked Sendable {
 
 struct RecordingTransactionDispatcher: TransactionDispatcher {
     let recorder: TransactionRecorder
+    var error: Error?
+    var entered: TestGate?
+    var release: TestGate?
 
     func send(transaction: TransactionDispatcherTransactionType) async throws -> TransactionDispatcherResult {
         if case .transfer(let bsdkTransaction) = transaction {
             recorder.record(bsdkTransaction)
+        }
+
+        entered?.open()
+        await release?.wait()
+
+        if let error {
+            throw error
         }
 
         return TransactionDispatcherResult(hash: "hash", url: nil, signerType: "test", currentHost: "test")
@@ -39,8 +49,14 @@ struct RecordingTransactionDispatcher: TransactionDispatcher {
 
 struct RecordingTransactionDispatcherProvider: TransactionDispatcherProvider {
     let recorder: TransactionRecorder
+    var error: Error?
+    var entered: TestGate?
+    var release: TestGate?
 
-    func makeTransferTransactionDispatcher() -> TransactionDispatcher { RecordingTransactionDispatcher(recorder: recorder) }
+    func makeTransferTransactionDispatcher() -> TransactionDispatcher {
+        RecordingTransactionDispatcher(recorder: recorder, error: error, entered: entered, release: release)
+    }
+
     func makeApproveTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
     func makeApproveAndDEXTransactionDispatcher() -> TransactionDispatcher { TransactionDispatcherStub() }
@@ -49,9 +65,16 @@ struct RecordingTransactionDispatcherProvider: TransactionDispatcherProvider {
 }
 
 final class InformationRelevanceServiceStub: InformationRelevanceService {
-    var isActual: Bool { true }
+    let isActual: Bool
+    private let updateResult: InformationRelevanceServiceUpdateResult
+
+    init(isActual: Bool = true, updateResult: InformationRelevanceServiceUpdateResult = .ok) {
+        self.isActual = isActual
+        self.updateResult = updateResult
+    }
+
     func updateInformation() -> AnyPublisher<InformationRelevanceServiceUpdateResult, Error> {
-        Just(.ok).setFailureType(to: Error.self).eraseToAnyPublisher()
+        Just(updateResult).setFailureType(to: Error.self).eraseToAnyPublisher()
     }
 }
 
