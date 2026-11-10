@@ -11,4 +11,5 @@ protocol SendFinishAnalyticsLogger {
 
     func logShareButton()
     func logExploreButton()
+    func logCloseButton()
 }

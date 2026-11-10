@@ -77,6 +77,7 @@ struct SendStepNavigationBarSettings: Hashable {
 
 struct SendStepBottomBarSettings: Hashable {
     static let empty = SendStepBottomBarSettings(action: .close)
+    static let hidden = SendStepBottomBarSettings(action: nil)
 
     let action: SendMainButtonType?
 

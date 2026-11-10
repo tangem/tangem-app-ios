@@ -204,6 +204,7 @@ final class SendAnalyticsLoggerStub: SendAnalyticsLogger {
     func logFinishStepOpened() {}
     func logShareButton() {}
     func logExploreButton() {}
+    func logCloseButton() {}
 
     // MARK: - SendApproveAnalyticsLogger
 

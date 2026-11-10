@@ -74,8 +74,6 @@ extension CommonOnrampStepsManager: SendStepsManager {
             return .init(title: summaryTitleProvider.title, leadingViewType: .closeButton, trailingViewType: .dotsButton { [weak self] in
                 self?.onrampStep.openOnrampSettingsView()
             })
-        case .finish:
-            return .init(leadingViewType: .closeButton)
         default:
             return .empty
         }
@@ -83,8 +81,7 @@ extension CommonOnrampStepsManager: SendStepsManager {
 
     var bottomBarSettings: SendStepBottomBarSettings {
         switch currentStep().type {
-        case .onramp: .init(action: .none)
-        case .finish: .init(action: .close)
+        case .onramp, .finish: .hidden
         default: .empty
         }
     }

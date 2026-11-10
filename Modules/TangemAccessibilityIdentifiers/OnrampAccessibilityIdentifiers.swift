@@ -45,12 +45,6 @@ public enum OnrampAccessibilityIdentifiers {
         return "onrampProviderAmountBadge_\(name.lowercased().replacingOccurrences(of: " ", with: "_"))"
     }
 
-    public static let finishFiatIcon = "onrampFinishFiatIcon"
-    public static let finishFiatAmount = "onrampFinishFiatAmount"
-    public static let finishCryptoAmount = "onrampFinishCryptoAmount"
-    public static let finishProviderIcon = "onrampFinishProviderIcon"
-    public static let finishProviderName = "onrampFinishProviderName"
-
     public static func providerInfoButton(name: String) -> String {
         return "onrampProviderInfoButton_\(name.lowercased().replacingOccurrences(of: " ", with: "_"))"
     }

@@ -74,6 +74,7 @@ final class StakingSendAnalyticsLoggerMock: StakingSendAnalyticsLogger {
     func logFinishStepOpened() {}
     func logShareButton() {}
     func logExploreButton() {}
+    func logCloseButton() {}
 
     // MARK: - SendApproveAnalyticsLogger
 

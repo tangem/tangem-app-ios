@@ -92,13 +92,11 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
         )
 
         let finish = makeSendFinishStep(
-            onrampAmountCompactViewModel: OnrampAmountCompactViewModel(
-                onrampAmountInput: onrampModel,
-                onrampProvidersInput: onrampModel,
-                tokenItem: tokenItem
-            ),
-            onrampStatusCompactViewModel: OnrampStatusCompactViewModel(
-                input: onrampModel,
+            onrampStatusScreenViewModel: OnrampStatusScreenViewModel(
+                tokenItem: tokenItem,
+                amountInput: onrampModel,
+                providersInput: onrampModel,
+                statusInput: onrampModel,
                 pendingTransactionsManager: onrampStatusTracking.manager,
                 expressStatusPollingHelper: onrampStatusTracking.pollingHelper
             ),
@@ -210,7 +208,7 @@ extension OnrampFlowFactory: SendFinishStepBuildable {
     var finishDependencies: SendFinishStepBuilder.Dependencies {
         SendFinishStepBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
-            headerTitleProvider: OnrampFinishHeaderTitleProvider()
+            headerTitleProvider: nil
         )
     }
 }

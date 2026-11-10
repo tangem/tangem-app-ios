@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Kingfisher
 import SwiftUI
 import TangemLocalization
 import TangemAssets
@@ -34,7 +35,6 @@ struct OnrampRedirectingView: View {
         }
         .onChange(of: colorScheme) { viewModel.update(colorScheme: $0) }
         .task { await viewModel.loadRedirectData() }
-        .task { await viewModel.loadProviderLogo() }
     }
 
     private var assets: some View {
@@ -44,21 +44,42 @@ struct OnrampRedirectingView: View {
             Loader()
                 .loaderSize(.size20)
 
-            providerAvatar
+            ProviderLogoAvatar(url: viewModel.providerImageURL)
+                .id(viewModel.providerImageURL)
         }
         .accessibilityHidden(true)
     }
+}
 
-    @ViewBuilder
-    private var providerAvatar: some View {
-        switch viewModel.providerLogo {
-        case .loading:
-            Avatar(.address(nil), size: .size72)
-                .environment(\.isShimmerActive, true)
-        case .loaded(let image):
-            Avatar(.asset(image), size: .size72)
-        case .unavailable:
-            Avatar(.address(nil), size: .size72)
-        }
+// MARK: - ProviderLogoAvatar
+
+private struct ProviderLogoAvatar: View {
+    let url: URL?
+
+    @State private var loadingState: LoadingState = .loading
+
+    var body: some View {
+        Avatar(.address(nil), size: .size72)
+            .environment(\.isShimmerActive, url != nil && loadingState == .loading)
+            .opacity(loadingState == .loaded ? 0 : 1)
+            .overlay {
+                if let url {
+                    KFImage(url)
+                        .onSuccess { _ in loadingState = .loaded }
+                        .onFailure { _ in loadingState = .failed }
+                        .cancelOnDisappear(true)
+                        .resizable()
+                        .scaledToFill()
+                        .clipShape(Circle())
+                }
+            }
+    }
+}
+
+private extension ProviderLogoAvatar {
+    enum LoadingState {
+        case loading
+        case loaded
+        case failed
     }
 }

@@ -653,6 +653,7 @@ private final class NoOpOnrampSendAnalyticsLogger: OnrampSendAnalyticsLogger {
     func logFinishStepOpened() {}
     func logShareButton() {}
     func logExploreButton() {}
+    func logCloseButton() {}
 
     // OnrampSendAnalyticsLogger own
     func setup(onrampProvidersInput: OnrampProvidersInput) {}

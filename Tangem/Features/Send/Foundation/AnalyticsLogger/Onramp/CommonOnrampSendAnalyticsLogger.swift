@@ -235,4 +235,8 @@ extension CommonOnrampSendAnalyticsLogger: SendFinishAnalyticsLogger {
 
     func logShareButton() {}
     func logExploreButton() {}
+
+    func logCloseButton() {
+        Analytics.log(.onrampButtonClose)
+    }
 }

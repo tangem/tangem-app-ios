@@ -92,7 +92,6 @@ final class BuyReturnToAppUITests: BaseTestCase {
         openOnrampReturnLink(Constants.ReturnLink.success)
 
         return OnrampFinishScreen(app)
-            .waitForInProgressTitle()
             .verifyTransactionDate(between: successLinkOpenedAt, and: Date())
             .verifyPurchaseDetails(
                 fiatAmount: Constants.amount,

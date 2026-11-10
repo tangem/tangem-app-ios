@@ -7,7 +7,6 @@
 //
 
 import Combine
-import Kingfisher
 import SwiftUI
 import TangemExpress
 import TangemFoundation
@@ -25,12 +24,11 @@ final class OnrampRedirectingViewModel: ObservableObject {
         interactor.onrampProvider?.provider.name ?? Localization.expressProvider
     }
 
-    @Published var alert: AlertBinder?
-    @Published private(set) var providerLogo: ProviderLogo = .loading
-
-    private var providerImageURL: URL? {
+    var providerImageURL: URL? {
         interactor.onrampProvider?.provider.imageURL
     }
+
+    @Published var alert: AlertBinder?
 
     // MARK: - Dependencies
 
@@ -68,31 +66,7 @@ final class OnrampRedirectingViewModel: ObservableObject {
         }
     }
 
-    func loadProviderLogo() async {
-        guard let providerImageURL else {
-            await runOnMain { providerLogo = .unavailable }
-            return
-        }
-
-        do {
-            let result = try await KingfisherManager.shared.retrieveImage(with: providerImageURL)
-            await runOnMain { providerLogo = .loaded(Image(uiImage: result.image)) }
-        } catch {
-            await runOnMain { providerLogo = .unavailable }
-        }
-    }
-
     func update(colorScheme: ColorScheme) {
         self.colorScheme = colorScheme
-    }
-}
-
-// MARK: - ProviderLogo
-
-extension OnrampRedirectingViewModel {
-    enum ProviderLogo {
-        case loading
-        case loaded(Image)
-        case unavailable
     }
 }
