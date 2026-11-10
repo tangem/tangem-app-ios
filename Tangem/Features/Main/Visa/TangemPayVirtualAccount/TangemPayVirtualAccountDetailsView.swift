@@ -15,7 +15,7 @@ struct TangemPayVirtualAccountDetailsView: View {
     var body: some View {
         NavigationStack {
             TangemPayVirtualAccountDetailsContentView(state: viewModel.contentState, action: handle)
-                .topNavigation(title: Localization.tangempayVaAccountDetails, close: .enabled(viewModel.close))
+                .topNavigation(title: Localization.tangempayVaAccountDetails, leading: .none, close: .enabled(viewModel.close))
         }
     }
 }

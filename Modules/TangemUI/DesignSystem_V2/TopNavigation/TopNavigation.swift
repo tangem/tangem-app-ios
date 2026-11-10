@@ -104,10 +104,13 @@ public enum TopNavigation {
         }
     }
 
+    @CaseFlagable
     public enum LeadingPolicy {
-        /// Default DS back button that calls the environment `dismiss`.
+        /// The back button with the swipe back: the system one on iOS 26+, the DS one below. Use it whenever the screen only needs to go back.
         case automatic
-        /// Explicit leading action.
+        /// A leading action that isn't a pop, e.g. switching content in place or closing a cover from its stack root.
+        /// It replaces the back button, so there is no swipe back. A pop must use `.automatic`, even one that is blocked
+        /// while loading (switch to `.none` for that state) or cleans up after itself (do it on disappear).
         case custom(Action)
         /// No leading button — for root screens.
         case none

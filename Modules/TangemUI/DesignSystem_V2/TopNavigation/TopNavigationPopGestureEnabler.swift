@@ -9,6 +9,7 @@
 import SwiftUI
 import UIKit
 
+@available(iOS, obsoleted: 26.0, message: "Delete it with the legacy back in TopNavigationModifier: iOS 26 keeps the swipe on the system back.")
 struct TopNavigationPopGestureEnabler: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> TopNavigationPopGestureController {
         TopNavigationPopGestureController()
@@ -17,6 +18,7 @@ struct TopNavigationPopGestureEnabler: UIViewControllerRepresentable {
     func updateUIViewController(_ controller: TopNavigationPopGestureController, context: Context) {}
 }
 
+@available(iOS, obsoleted: 26.0, message: "Delete it with the legacy back in TopNavigationModifier: iOS 26 keeps the swipe on the system back.")
 final class TopNavigationPopGestureController: UIViewController, UIGestureRecognizerDelegate {
     private weak var popGestureRecognizer: UIGestureRecognizer?
     private weak var previousDelegate: UIGestureRecognizerDelegate?

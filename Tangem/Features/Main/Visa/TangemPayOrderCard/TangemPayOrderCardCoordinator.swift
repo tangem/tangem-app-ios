@@ -123,16 +123,6 @@ extension TangemPayOrderCardCoordinator: TangemPayOrderCardDataRoutable {
         options?.parentCoordinator?.orderCardFlowDidFailUnexpectedly(retry: retry)
     }
 
-    func orderCardDataDidGoBack() {
-        switch options?.purpose {
-        case .issue:
-            orderCardDataViewModel = nil
-            orderCardSuccessViewModel = nil
-        case .reissue, nil:
-            dismiss()
-        }
-    }
-
     func closeOrderCardData() {
         dismiss()
     }

@@ -40,9 +40,23 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
         self.slot = slot()
     }
 
+    /// Below iOS 26 the system back has no circle, and UIKit drops the swipe back once it is hidden, so `.automatic`
+    /// draws the DS back and the enabler keeps the swipe. Callers only see `.automatic`.
+    private var drawsLegacyBack: Bool {
+        guard leadingPolicy.isAutomatic else {
+            return false
+        }
+
+        if #available(iOS 26.0, *) {
+            return false
+        }
+
+        return true
+    }
+
     private var resolvedLeading: TopNavigation.Action? {
         switch leadingPolicy {
-        case .automatic: .back { dismiss() }
+        case .automatic: drawsLegacyBack ? .back { dismiss() } : nil
         case .custom(let action): action
         case .none, .image: nil
         }
@@ -66,15 +80,15 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
     private func navigation(_ content: Content) -> some View {
         content
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden(true)
+            .navigationBarBackButtonHidden(!leadingPolicy.isAutomatic || drawsLegacyBack)
             .toolbar { toolbarContent }
             .toolbarRole(contentPosition == .start ? .editor : .automatic)
-            .background { popGestureEnabler }
+            .background { legacyPopGestureEnabler }
     }
 
     @ViewBuilder
-    private var popGestureEnabler: some View {
-        if case .automatic = leadingPolicy {
+    private var legacyPopGestureEnabler: some View {
+        if drawsLegacyBack {
             TopNavigationPopGestureEnabler()
         }
     }
@@ -201,7 +215,11 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
         barHosted {
             HStack(spacing: TopNavigationChromeMetrics.trailingGroupSpacing) {
                 if actions.isNotEmpty {
-                    TopNavigationActionsGroup(actions: actions, hasBackground: actionsHaveBackground)
+                    TopNavigationActionsGroup(
+                        actions: actions,
+                        hasBackground: actionsHaveBackground,
+                        surfaceInset: TopNavigationChromeMetrics.barSurfaceInset
+                    )
                 }
 
                 if let close {
