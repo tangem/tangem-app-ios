@@ -499,10 +499,6 @@ extension UserWalletSettingsCoordinator: MobileRemoveSocialWalletNotificationRou
 // MARK: - MobileRemoveSocialWalletRoutable
 
 extension UserWalletSettingsCoordinator: MobileRemoveSocialWalletRoutable {
-    func removeSocialWalletClose() {
-        mobileRemoveSocialWalletViewModel = nil
-    }
-
     func removeSocialWalletCompleted() {
         dismiss()
     }

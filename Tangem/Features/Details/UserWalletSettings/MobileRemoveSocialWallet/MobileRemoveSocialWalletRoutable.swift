@@ -10,6 +10,5 @@ import Foundation
 
 @MainActor
 protocol MobileRemoveSocialWalletRoutable: AnyObject {
-    func removeSocialWalletClose()
     func removeSocialWalletCompleted()
 }
