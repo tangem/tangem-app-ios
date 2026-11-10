@@ -216,7 +216,8 @@ private extension CommonUserWalletModelDependencies {
             auxiliaryDataStorage: auxiliaryDataStorage,
             persistentStorage: persistentStorage,
             storageController: persistentStorage,
-            hasTokenSynchronization: hasTokenSynchronization
+            hasTokenSynchronization: hasTokenSynchronization,
+            isJointAccountsAvailable: isJointAccountsAvailable
         )
 
         let jointAccountsNetworkService = CommonJointAccountsNetworkService(userWalletId: userWalletId)

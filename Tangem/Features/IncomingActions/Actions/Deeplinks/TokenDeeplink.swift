@@ -104,7 +104,7 @@ private extension TokenDeeplink.StatusUpdate.Kind {
             self = .swap
         case .jointTx:
             self = .jointOperation
-        case .incomeTransaction, .jointTxSent:
+        case .incomeTransaction, .jointTxSent, .jointTokens:
             return nil
         }
     }

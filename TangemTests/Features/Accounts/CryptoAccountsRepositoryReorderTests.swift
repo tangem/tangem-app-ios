@@ -50,7 +50,8 @@ private extension CryptoAccountsRepositoryReorderTests {
             auxiliaryDataStorage: AuxiliaryDataStorageStub(),
             persistentStorage: persistentStorage,
             storageController: PersistentStorageControllerStub(),
-            hasTokenSynchronization: true
+            hasTokenSynchronization: true,
+            isJointAccountsAvailable: false
         )
     }
 
