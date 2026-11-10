@@ -253,7 +253,7 @@ extension ScreenBase {
 
     func scrollToElement(_ element: XCUIElement, attempts: SwipeAttempts = .standard) {
         for _ in 0 ..< attempts.rawValue {
-            if !element.isHittable || !element.isEnabled {
+            if !element.isHittableInWindow() || !element.isEnabled {
                 let startCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.8))
                 let endCoordinate = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.1))
                 startCoordinate.press(forDuration: 0.1, thenDragTo: endCoordinate)
