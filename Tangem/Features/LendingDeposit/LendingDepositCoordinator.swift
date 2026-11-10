@@ -11,7 +11,7 @@ import Foundation
 import TangemUI
 
 final class LendingDepositCoordinator: CoordinatorObject {
-    let dismissAction: Action<Void>
+    let dismissAction: Action<OutputOptions>
     let popToRootAction: Action<PopToRootOptions>
 
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
@@ -21,13 +21,15 @@ final class LendingDepositCoordinator: CoordinatorObject {
     @Published var path: [Route] = []
     @Published private(set) var amountViewModel: LendingDepositAmountViewModel?
     @Published private(set) var confirmViewModel: LendingDepositConfirmViewModel?
+    @Published private(set) var resultViewModel: LendingDepositResultViewModel?
 
     private let analyticsLogger = LendingDepositAnalyticsLogger()
     private var options: Options?
     private var transferModel: TransferModel?
+    private var projection: LendingDepositProjection?
 
     required init(
-        dismissAction: @escaping Action<Void>,
+        dismissAction: @escaping Action<OutputOptions>,
         popToRootAction: @escaping Action<PopToRootOptions>
     ) {
         self.dismissAction = dismissAction
@@ -55,6 +57,7 @@ final class LendingDepositCoordinator: CoordinatorObject {
 
         self.options = options
         self.transferModel = transferModel
+        projection = LendingDepositProjection(currentApy: options.currentApy, performanceFee: options.performanceFee)
         amountViewModel = LendingDepositAmountViewModel(transferModel: transferModel, sourceToken: token, router: self)
     }
 }
@@ -68,6 +71,16 @@ extension LendingDepositCoordinator {
         let upgradeImplementation: String?
         let currentApy: Decimal
         let performanceFee: Decimal
+    }
+}
+
+// MARK: - OutputOptions
+
+extension LendingDepositCoordinator {
+    enum OutputOptions {
+        case close
+        case token
+        case yield
     }
 }
 
@@ -103,13 +116,13 @@ extension LendingDepositCoordinator: LendingDepositAmountRoutable {
     }
 
     func openConfirmation() {
-        guard let options, let transferModel else { return }
+        guard let options, let transferModel, let projection else { return }
 
         Task { @MainActor in
             confirmViewModel = LendingDepositConfirmViewModel(
                 transferModel: transferModel,
                 sourceToken: options.token,
-                projection: LendingDepositProjection(currentApy: options.currentApy, performanceFee: options.performanceFee),
+                projection: projection,
                 mailDataBuilder: CommonSendMailDataBuilder(baseDataInput: transferModel, sourceTokenInput: transferModel),
                 coordinator: self
             )
@@ -118,7 +131,7 @@ extension LendingDepositCoordinator: LendingDepositAmountRoutable {
     }
 
     func closeDeposit() {
-        dismissAction(())
+        dismissAction(.close)
     }
 }
 
@@ -142,8 +155,26 @@ extension LendingDepositCoordinator: LendingDepositConfirmRoutable {
     }
 
     func depositDidSend() {
-        // [REDACTED_TODO_COMMENT]
-        dismissAction(())
+        guard let options, let projection, let amount = transferModel?.sourceAmount.value?.crypto else { return }
+
+        resultViewModel = LendingDepositResultViewModel(
+            sourceToken: options.token,
+            amount: amount,
+            currentApy: projection.currentApy,
+            router: self
+        )
+    }
+}
+
+// MARK: - LendingDepositResultRoutable
+
+extension LendingDepositCoordinator: LendingDepositResultRoutable {
+    func openToken() {
+        dismissAction(.token)
+    }
+
+    func openYield() {
+        dismissAction(.yield)
     }
 }
 

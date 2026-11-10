@@ -12,13 +12,17 @@ struct LendingDepositCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: LendingDepositCoordinator
 
     var body: some View {
-        NavigationStack(path: $coordinator.path) {
-            ZStack {
-                if let amountViewModel = coordinator.amountViewModel {
-                    LendingDepositAmountView(viewModel: amountViewModel)
+        if let resultViewModel = coordinator.resultViewModel {
+            LendingDepositResultView(viewModel: resultViewModel)
+        } else {
+            NavigationStack(path: $coordinator.path) {
+                ZStack {
+                    if let amountViewModel = coordinator.amountViewModel {
+                        LendingDepositAmountView(viewModel: amountViewModel)
+                    }
                 }
+                .navigationDestination(for: LendingDepositCoordinator.Route.self, destination: destination)
             }
-            .navigationDestination(for: LendingDepositCoordinator.Route.self, destination: destination)
         }
     }
 
