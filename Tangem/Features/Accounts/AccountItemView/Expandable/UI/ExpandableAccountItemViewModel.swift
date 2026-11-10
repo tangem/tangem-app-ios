@@ -37,6 +37,10 @@ final class ExpandableAccountItemViewModel: Identifiable, ObservableObject {
 
     var isEmptyContent: Bool { rawTokensCount == 0 }
 
+    var accountPersistentIdentifier: AnyHashable {
+        accountModel.id.toPersistentIdentifier().toAnyHashable()
+    }
+
     // MARK: - Private properties
 
     @Published private var rawTokensCount: Int

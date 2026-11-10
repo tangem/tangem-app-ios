@@ -29,6 +29,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var tokensNotificationInputs: [NotificationViewInput] = []
 
     @Published private(set) var accountSections: [MultiWalletMainContentAccountSection] = []
+    @Published private(set) var accountRows: [MultiWalletMainContentAccountRow] = []
     @Published private(set) var plainSections: [MultiWalletMainContentPlainSection] = []
 
     // [REDACTED_TODO_COMMENT]
@@ -40,7 +41,6 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     @Published private(set) var tangemPayAccountViewModel: TangemPayAccountViewModel?
     @Published private(set) var tangemPayMoneyAccountRowState: TangemPayMoneyAccountRowState?
     @Published private(set) var polymarketAccountViewModel: AccountRowButtonViewModel?
-    @Published private(set) var collectiblesAccountViewModel: AccountRowButtonViewModel?
 
     @Published private(set) var pendingJointAccountViewModels: [PendingJointAccountItemViewModel] = []
     @Published private(set) var pausedJointAccountViewModels: [PausedJointAccountItemViewModel] = []
@@ -358,7 +358,7 @@ final class MultiWalletMainContentViewModel: ObservableObject {
         nftFeatureLifecycleHandler.startObserving()
 
         bindPolymarketAccountRow()
-        bindCollectiblesAccountRow()
+        bindAccountRows()
         bindPendingJointAccountPlates()
         bindPausedJointAccountPlates()
         bindPendingJointAccountOperationPlates()
@@ -469,9 +469,11 @@ final class MultiWalletMainContentViewModel: ObservableObject {
             .assign(to: &$polymarketAccountViewModel)
     }
 
-    private func bindCollectiblesAccountRow() {
-        AccountModelsAggregator(.collectibles(.shown))
-            .modelPublisher(from: userWalletModel.accountModelsManager)
+    private func bindAccountRows() {
+        let accountModelsManager = userWalletModel.accountModelsManager
+
+        let collectiblesRowPublisher = AccountModelsAggregator(.collectibles(.shown))
+            .modelPublisher(from: accountModelsManager)
             .withWeakCaptureOf(self)
             .map { viewModel, accountModel -> AccountRowButtonViewModel? in
                 accountModel.map { accountModel in
@@ -485,7 +487,16 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                 }
             }
             .receiveOnMain()
-            .assign(to: &$collectiblesAccountViewModel)
+
+        $accountSections
+            .combineLatest(collectiblesRowPublisher, accountModelsManager.accountsOrderPublisher.receiveOnMain())
+            .map { accountSections, collectiblesRow, accountsOrder in
+                let rows = accountSections.map(MultiWalletMainContentAccountRow.account)
+                let shownRows = collectiblesRow.map { rows + [.collectibles($0)] } ?? rows
+
+                return AccountModelUtils.ordered(shownRows, by: accountsOrder) { $0.accountPersistentIdentifier }
+            }
+            .assign(to: &$accountRows)
     }
 
     private func bindPendingJointAccountPlates() {
