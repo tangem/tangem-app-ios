@@ -88,8 +88,14 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     }
 
     private func bindAccountRows() {
-        AccountModelsAggregator(.crypto, .joint)
+        BaseAccountModelsAggregator(.crypto, .joint, .collectibles(.shown))
             .modelsPublisher(from: accountModelsManager)
+            .combineLatest(accountModelsManager.accountsOrderPublisher)
+            .map { accounts, accountsOrder in
+                AccountModelUtils.ordered(accounts, by: accountsOrder) { account in
+                    account.id.toPersistentIdentifier().toAnyHashable()
+                }
+            }
             .receiveOnMain()
             .withWeakCaptureOf(self)
             .sink { viewModel, accounts in
@@ -221,10 +227,14 @@ final class UserSettingsAccountsViewModel: ObservableObject {
                 return cached
             }
 
-            let viewModel = AccountRowButtonViewModel(accountModel: account) { [weak self] in
+            let hasDetails = !(account is any CollectiblesAccountModel)
+            let viewModel = AccountRowButtonViewModel(
+                accountModel: account,
+                availability: hasDetails ? .available : .unavailable()
+            ) { [weak self] in
                 self?.onTapAccount(account: account)
             }
-            let accountRow = AccountRow(viewModel: viewModel, accountModel: account)
+            let accountRow = AccountRow(viewModel: viewModel, accountModel: account, hasDetails: hasDetails)
             cachedAccountRows[id] = accountRow
 
             return accountRow
@@ -254,14 +264,17 @@ extension UserSettingsAccountsViewModel {
     struct AccountRow: Identifiable {
         var id: AccountRowButtonViewModel.ID { viewModel.id }
         let viewModel: AccountRowButtonViewModel
+        let hasDetails: Bool
         fileprivate let accountModel: any BaseAccountModel
 
         fileprivate init(
             viewModel: AccountRowButtonViewModel,
-            accountModel: any BaseAccountModel
+            accountModel: any BaseAccountModel,
+            hasDetails: Bool
         ) {
             self.viewModel = viewModel
             self.accountModel = accountModel
+            self.hasDetails = hasDetails
         }
     }
 }

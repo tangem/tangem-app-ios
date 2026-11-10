@@ -14,12 +14,14 @@ struct StoredCryptoAccountsMerger {
     /// instead of being overwritten by the `token` field of accounts from the `newAccounts` array.
     /// - Note: Has no effect when merging token items into a single account (using `merge(newTokenItems:to:)` method).
     let preserveTokensWhileMergingAccounts: Bool
+    var newAccountsPlacement: NewAccountsPlacement = .last
 
     func merge(
         oldAccounts: [StoredCryptoAccount],
         newAccounts: [StoredCryptoAccount]
     ) -> (accounts: [StoredCryptoAccount], isDirty: Bool) {
         var updatedAccounts = oldAccounts
+        var addedAccounts: [StoredCryptoAccount] = []
         var isDirty = false
 
         // Fast lookup dictionary to find existing accounts by their derivation identity
@@ -46,11 +48,16 @@ struct StoredCryptoAccountsMerger {
                 updatedAccounts[targetIndex] = newAccount
             } else {
                 isDirty = true
-                updatedAccounts.append(newAccount)
+                addedAccounts.append(newAccount)
             }
         }
 
-        return (updatedAccounts, isDirty)
+        switch newAccountsPlacement {
+        case .first:
+            return (addedAccounts + updatedAccounts, isDirty)
+        case .last:
+            return (updatedAccounts + addedAccounts, isDirty)
+        }
     }
 
     /// Backport of logic from the `CommonTokenItemsRepository.append(_:)` method.
@@ -114,5 +121,14 @@ struct StoredCryptoAccountsMerger {
         let updatedAccount = cryptoAccount.withTokens(updatedTokens)
 
         return (updatedAccount, isDirty)
+    }
+}
+
+// MARK: - Auxiliary types
+
+extension StoredCryptoAccountsMerger {
+    enum NewAccountsPlacement {
+        case first
+        case last
     }
 }

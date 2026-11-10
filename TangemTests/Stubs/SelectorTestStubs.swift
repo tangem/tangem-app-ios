@@ -78,6 +78,8 @@ final class SelectorAccountModelsManagerStub: AccountModelsManager {
     var accountModels: [AccountModel] { accountModelsSubject.value ?? [] }
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { accountModelsSubject.compactMap { $0 }.eraseToAnyPublisher() }
     var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
+    var accountsOrderPublisher: AnyPublisher<[CryptoAccountDerivationIdentity], Never> { .just(output: []) }
+    func collectiblesAccountModel() async -> (any CollectiblesAccountModel)? { nil }
     var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> { .just(output: true) }
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: accountModels.cryptoAccountsCount) }
     var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: 0) }

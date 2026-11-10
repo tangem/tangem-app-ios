@@ -79,6 +79,14 @@ final class ForYouAccountsManagerStub: AccountModelsManager {
         .just(output: 0)
     }
 
+    var accountsOrderPublisher: AnyPublisher<[CryptoAccountDerivationIdentity], Never> {
+        .just(output: [])
+    }
+
+    func collectiblesAccountModel() async -> (any CollectiblesAccountModel)? {
+        nil
+    }
+
     func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
         throw .tooManyAccounts
     }

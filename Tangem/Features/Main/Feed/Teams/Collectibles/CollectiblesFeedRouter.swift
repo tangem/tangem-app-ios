@@ -52,7 +52,7 @@ private extension CollectiblesFeedRouter {
 
             guard let self else { return }
 
-            let accountModel = wallet.collectiblesAccountModel()
+            let accountModel = await wallet.collectiblesAccountModel()
             let outcome = await CollectiblesEntranceResolver.resolve(for: accountModel, isRegionRestricted: isRegionRestricted)
 
             guard let navigation, navigation.isFeedPresented, navigation.isAtRoot,

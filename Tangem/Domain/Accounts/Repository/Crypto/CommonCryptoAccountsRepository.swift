@@ -348,11 +348,12 @@ final class CommonCryptoAccountsRepository {
     private func addNewOrUpdateExistingAccountInternal(
         withConfig config: CryptoAccountPersistentConfig,
         remoteState: CryptoAccountsRemoteState,
+        placement: StoredCryptoAccountsMerger.NewAccountsPlacement
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
         let tokenListAppearance = cryptoAccountTokenListAppearance(withConfig: config, remoteState: remoteState)
         let newCryptoAccount = StoredCryptoAccount(config: config, tokenListAppearance: tokenListAppearance)
         let existingCryptoAccounts = remoteState.accounts
-        let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: true)
+        let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: true, newAccountsPlacement: placement)
         let (editedItems, isDirty) = merger.merge(oldAccounts: existingCryptoAccounts, newAccounts: [newCryptoAccount])
 
         if isDirty {
@@ -550,9 +551,10 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
 
     func addNewCryptoAccount(
         withConfig config: CryptoAccountPersistentConfig,
-        remoteState: CryptoAccountsRemoteState
+        remoteState: CryptoAccountsRemoteState,
+        placement: StoredCryptoAccountsMerger.NewAccountsPlacement
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
-        return try await addNewOrUpdateExistingAccountInternal(withConfig: config, remoteState: remoteState)
+        return try await addNewOrUpdateExistingAccountInternal(withConfig: config, remoteState: remoteState, placement: placement)
     }
 
     func updateExistingCryptoAccount(
@@ -560,7 +562,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         remoteState: CryptoAccountsRemoteState
     ) async throws {
         // Ignoring the result, as tokens redistribution can't be performed when editing an existing account
-        let _ = try await addNewOrUpdateExistingAccountInternal(withConfig: config, remoteState: remoteState)
+        let _ = try await addNewOrUpdateExistingAccountInternal(withConfig: config, remoteState: remoteState, placement: .last)
     }
 
     func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws {

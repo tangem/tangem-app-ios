@@ -48,7 +48,8 @@ final class CryptoAccountsRepositoryStub: CryptoAccountsRepository {
 
     func addNewCryptoAccount(
         withConfig config: CryptoAccountPersistentConfig,
-        remoteState: CryptoAccountsRemoteState
+        remoteState: CryptoAccountsRemoteState,
+        placement: StoredCryptoAccountsMerger.NewAccountsPlacement
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
         throw "Not called by these tests"
     }

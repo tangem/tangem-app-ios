@@ -106,4 +106,8 @@ extension AccountModelsSelector where Self == ErasedAccountModelsSelector<any Ba
     static var tangemPay: Self {
         TangemPayAccountModelSelector().erased { $0 }
     }
+
+    static func collectibles(_ state: CollectiblesAccountModelSelector.CollectiblesAccountState) -> Self {
+        CollectiblesAccountModelSelector(state: state).erased { $0 }
+    }
 }

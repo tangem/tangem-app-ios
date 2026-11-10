@@ -34,7 +34,15 @@ actor CollectiblesAccountModelsRegistry {
         let accountModel = cachedOrNewAccountModel()
         accountModel.update(isInAccountList: storedCryptoAccounts.isNotEmpty)
 
-        return [accountModel]
+        return storedCryptoAccounts.isEmpty ? [] : [accountModel]
+    }
+
+    func accountModel() -> (any CollectiblesAccountModel)? {
+        guard FeatureProvider.isAvailable(.collectibles) else {
+            return nil
+        }
+
+        return cachedOrNewAccountModel()
     }
 }
 

@@ -470,16 +470,8 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func bindCollectiblesAccountRow() {
-        AccountModelsAggregator(.collectibles)
+        AccountModelsAggregator(.collectibles(.shown))
             .modelPublisher(from: userWalletModel.accountModelsManager)
-            .flatMapLatest { accountModel -> AnyPublisher<(any CollectiblesAccountModel)?, Never> in
-                guard let accountModel else { return .just(output: nil) }
-
-                return accountModel
-                    .hasAccountPublisher
-                    .map { [weak accountModel] hasAccount in hasAccount ? accountModel : nil }
-                    .eraseToAnyPublisher()
-            }
             .withWeakCaptureOf(self)
             .map { viewModel, accountModel -> AccountRowButtonViewModel? in
                 accountModel.map { accountModel in
