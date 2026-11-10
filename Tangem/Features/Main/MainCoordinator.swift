@@ -74,6 +74,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var tangemPayCampaignCoordinator: TangemPayCampaignCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
+    @Published var allServicesCoordinator: AllServicesCoordinator?
 
     private(set) var shtorka: MainShtorkaPresenter?
 
@@ -236,6 +237,21 @@ extension MainCoordinator: MainRoutable {
         )
         coordinator.start(with: .init())
         mainQRScanFlowCoordinator = coordinator
+    }
+
+    func openAllServices() {
+        guard allServicesCoordinator == nil else { return }
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.allServicesCoordinator = nil
+        }
+
+        let coordinator = AllServicesCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init())
+        allServicesCoordinator = coordinator
     }
 
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
@@ -634,6 +650,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             || actionButtonsSellCoordinator != nil
             || yieldModuleActiveCoordinator != nil
             || contactManagementCoordinator != nil
+            || allServicesCoordinator != nil
     }
 
     /// Changes to the slots `isPresentingOverMain` reads, so a campaign that a modal was covering gets
@@ -649,6 +666,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             $actionButtonsSellCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $yieldModuleActiveCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $contactManagementCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $allServicesCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $yieldModePromoSheetViewModel.dropFirst().mapToVoid().eraseToAnyPublisher(),
         ]
 
@@ -666,6 +684,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             $actionButtonsSellCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
             $yieldModuleActiveCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
             $contactManagementCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
+            $allServicesCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
         ]
     }
 

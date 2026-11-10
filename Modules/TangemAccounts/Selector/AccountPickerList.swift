@@ -121,11 +121,11 @@ struct AccountPickerAvatar: View {
     var body: some View {
         switch icon {
         case .composite(let fill, .letter(let letter, _)):
-            Avatar(.user(.initial(letter, fill: fill)))
+            Avatar(.account(.letter(letter.uppercased(), fill: fill)))
         case .composite(let fill, .imageType(let imageType, _)):
-            Avatar(.account(imageType, fill: fill))
+            Avatar(.account(.icon(imageType, fill: fill)))
         case .standalone(let imageType):
-            Avatar(.asset(imageType.image))
+            Avatar(.asset(imageType.image, shape: .roundedSquare))
         }
     }
 }

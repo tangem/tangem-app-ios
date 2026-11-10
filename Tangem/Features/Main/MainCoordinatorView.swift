@@ -106,6 +106,9 @@ struct MainCoordinatorView: CoordinatorView {
             .shtorkaCompatibleFullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
                 JointAccountManagementCoordinatorView(coordinator: $0)
             }
+            .shtorkaCompatibleFullScreenCover(item: $coordinator.allServicesCoordinator) {
+                AllServicesCoordinatorView(coordinator: $0)
+            }
             .shtorkaCompatibleSheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }

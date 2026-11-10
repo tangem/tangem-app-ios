@@ -95,6 +95,7 @@ struct TopNavigationModifier<Slot: View>: ViewModifier {
                 ToolbarItem(placement: .topBarLeading) {
                     systemChrome([leading])
                 }
+                .sharedBackgroundVisibility(actionsHaveBackground ? .automatic : .hidden)
                 .prefersVerticalBar()
             } else {
                 ToolbarItem(placement: .topBarLeading) {

@@ -19,6 +19,7 @@ protocol MainRoutable: AnyObject & WCTransactionRoutable {
     func openScanCardManual()
     func openPushNotificationsAuthorization()
     func openQRScan()
+    func openAllServices()
 
     func popToRoot()
 }

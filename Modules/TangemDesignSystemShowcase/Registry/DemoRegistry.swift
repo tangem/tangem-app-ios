@@ -24,7 +24,7 @@ private extension DemoRegistry {
     static var ds3: [DemoEntry] {
         [
             DemoEntry("ActionMessage", version: DSVersion(1, 0, 0), section: .ds3) { ActionMessageShowcase() },
-            DemoEntry("Avatar", version: DSVersion(1, 1, 0), section: .ds3) { AvatarShowcase() },
+            DemoEntry("Avatar", version: DSVersion(1, 3, 0), section: .ds3) { AvatarShowcase() },
             DemoEntry("Badge", version: DSVersion(1, 1, 0), section: .ds3) { BadgeShowcase() },
             DemoEntry("Button", version: DSVersion(1, 3, 1), section: .ds3) { ButtonShowcase() },
             DemoEntry("ButtonGroup", version: DSVersion(1, 0, 0), section: .ds3) { ButtonGroupShowcase() },
@@ -39,7 +39,7 @@ private extension DemoRegistry {
             DemoEntry("MessageBanner", version: DSVersion(1, 3, 0), section: .ds3) { MessageBannerShowcase() },
             DemoEntry("MessageBubble", version: DSVersion(1, 1, 0), section: .ds3) { MessageBubbleShowcase() },
             DemoEntry("Modal", version: DSVersion(1, 0, 4), section: .ds3) { ModalShowcase() },
-            DemoEntry("ModalStatus", version: DSVersion(1, 1, 1), section: .ds3) { ModalStatusShowcase() },
+            DemoEntry("ModalStatus", version: DSVersion(1, 1, 2), section: .ds3) { ModalStatusShowcase() },
             DemoEntry("Row", version: DSVersion(1, 0, 1), section: .ds3) { RowShowcase() },
             DemoEntry("Search", version: DSVersion(1, 0, 0), section: .ds3) { SearchShowcase() },
             DemoEntry("SegmentedControl", version: DSVersion(1, 0, 0), section: .ds3) { SegmentedControlShowcase() },
@@ -50,7 +50,7 @@ private extension DemoRegistry {
             DemoEntry("TokenIconV2", version: DSVersion(1, 1, 0), section: .ds3) { TokenIconV2Showcase() },
             DemoEntry("TokenRow", version: DSVersion(1, 1, 1), section: .ds3) { TokenRowShowcase() },
             DemoEntry("TokenRowMarket", version: DSVersion(1, 1, 0), section: .ds3) { TokenRowMarketShowcase() },
-            DemoEntry("TopNavigation", version: DSVersion(1, 2, 2), section: .ds3) { TopNavigationShowcase() },
+            DemoEntry("TopNavigation", version: DSVersion(1, 2, 3), section: .ds3) { TopNavigationShowcase() },
             DemoEntry("Typography", section: .ds3) { TypographyShowcase() },
             DemoEntry("UtilBalance", version: DSVersion(1, 0, 0), section: .ds3) { UtilBalanceShowcase() },
             DemoEntry("UtilGraph", version: DSVersion(1, 0, 0), section: .ds3) { UtilGraphShowcase() },
