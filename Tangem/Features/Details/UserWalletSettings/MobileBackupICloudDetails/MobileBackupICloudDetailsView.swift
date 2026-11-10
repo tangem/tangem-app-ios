@@ -45,7 +45,6 @@ private extension MobileBackupICloudDetailsView {
     var navigation: some View {
         NavigationBarButton.close(action: viewModel.onCloseTap)
             .frame(maxWidth: .infinity, alignment: .trailing)
-            .redesigned()
     }
 
     var icon: some View {

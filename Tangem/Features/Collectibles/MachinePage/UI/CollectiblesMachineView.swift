@@ -66,7 +66,6 @@ private extension CollectiblesMachineView {
             rightButtons: { NavigationBarButton.close(action: onClose) }
         )
         .padding(.top, Metrics.navigationBarTopPadding)
-        .environment(\.isRedesign, true)
         .background {
             Fade(position: .top)
                 .blurred()

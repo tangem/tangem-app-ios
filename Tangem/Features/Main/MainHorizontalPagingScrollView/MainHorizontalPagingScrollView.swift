@@ -171,7 +171,6 @@ struct MainHorizontalPagingScrollView: View {
             if selectedUserWalletScrollAdjustedValues.contentFooterOverlayIsVisible {
                 selectedUserWalletPageBuilder
                     .footerOverlay
-                    .redesigned()
                     .padding(.top, Paddings.contentFooterTop)
                     .padding(.bottom, Paddings.contentFooterBottom)
                     .offset(y: -mainShtorkaBottomInset)

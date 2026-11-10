@@ -95,7 +95,6 @@ struct NewsListView: View {
             settings: .init(backgroundColor: DesignSystem.Color.bgPrimary),
             leftButtons: { navigationBarLeadingButton }
         )
-        .environment(\.isRedesign, true)
     }
 
     @ViewBuilder

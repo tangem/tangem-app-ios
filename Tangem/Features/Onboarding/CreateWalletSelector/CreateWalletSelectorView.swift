@@ -64,7 +64,6 @@ private extension CreateWalletSelectorView {
             .padding(.leading, 16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .visible(viewModel.showsBackButton)
-            .redesigned()
     }
 
     var info: some View {

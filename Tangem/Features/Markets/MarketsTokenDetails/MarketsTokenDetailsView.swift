@@ -143,7 +143,6 @@ struct MarketsTokenDetailsView: View {
 
     private var redesignedBackButton: some View {
         NavigationBarButton.back(action: viewModel.onBackButtonTap)
-            .redesigned()
     }
 
     @ViewBuilder
@@ -169,7 +168,6 @@ struct MarketsTokenDetailsView: View {
 
     private var redesignedAddButton: some View {
         NavigationBarButton.add(action: viewModel.onTapAddButton)
-            .redesigned()
             .dimmed(!viewModel.isAddButtonEnabled)
             .accessibilityLabel(Localization.commonAddToken)
             .transition(.opacity)
@@ -177,7 +175,6 @@ struct MarketsTokenDetailsView: View {
 
     private var redesignedShareButton: some View {
         NavigationBarButton.share(action: viewModel.shareTokenDetails)
-            .redesigned()
     }
 
     // MARK: - Legacy navigation
@@ -198,11 +195,9 @@ struct MarketsTokenDetailsView: View {
     @ToolbarContentBuilder
     private var trailingToolbarContent: some ToolbarContent {
         NavigationToolbarButton.share(placement: .topBarTrailing, action: viewModel.shareTokenDetails)
-            .redesigned()
 
         if viewModel.isAddButtonVisible {
             NavigationToolbarButton.add(placement: .topBarTrailing, action: viewModel.onTapAddButton)
-                .redesigned()
                 .dimmed(!viewModel.isAddButtonEnabled)
                 .accessibilityLabel(Localization.commonAddToken)
         }

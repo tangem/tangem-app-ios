@@ -50,7 +50,6 @@ struct PolymarketWelcomeView: View {
     private var closeButton: some View {
         if !viewModel.isRunning {
             NavigationBarButton.close { viewModel.handleViewAction(.close) }
-                .redesigned()
                 .padding(.trailing, Constants.navigationHorizontalPadding)
                 .transition(.opacity)
         }

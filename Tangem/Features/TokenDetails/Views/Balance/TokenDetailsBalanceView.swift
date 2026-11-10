@@ -17,7 +17,6 @@ struct TokenDetailsBalanceView: View {
 
     @ScaledMetric private var scaleFactor: CGFloat = 1
 
-    @ScaledMetric private var tokenIconSide: CGFloat = 72
     @ScaledMetric private var balancePickerSide: CGFloat = 20
     @ScaledMetric private var balancePickerSpacing: CGFloat = 4
     @ScaledMetric private var balancePickerTopPadding: CGFloat = 12
@@ -49,8 +48,7 @@ private extension TokenDetailsBalanceView {
     }
 
     var tokenIcon: some View {
-        TokenIcon(tokenIconInfo: viewModel.tokenIconInfo, size: CGSize(width: tokenIconSide, height: tokenIconSide))
-            .redesigned()
+        TokenIconV2(tokenIconInfo: viewModel.tokenIconInfo, size: .size72)
     }
 
     var balancePicker: some View {

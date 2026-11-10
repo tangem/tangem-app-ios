@@ -38,7 +38,6 @@ struct CollectiblesWelcomeView: View {
                 onTermsTap: viewModel.onLegalTermsTap(url:)
             )
         }
-        .environment(\.isRedesign, true)
         .toolbar(.hidden, for: .navigationBar)
         .alert(item: $viewModel.alert, content: \.alert)
     }

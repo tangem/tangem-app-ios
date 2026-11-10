@@ -112,7 +112,6 @@ private extension CollectiblesConfirmOrderView {
             }
         )
         .padding(.top, Metrics.navigationBarTopPadding)
-        .environment(\.isRedesign, true)
     }
 
     var artwork: some View {

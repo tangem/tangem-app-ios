@@ -69,7 +69,6 @@ struct PolymarketMainView: View {
                 )
             }
         )
-        .environment(\.isRedesign, true)
     }
 
     private var titleView: some View {

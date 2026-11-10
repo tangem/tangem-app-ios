@@ -61,12 +61,10 @@ private extension EarnDetailViewRedesign {
             NavigationBarButton.back(action: {
                 viewModel.handleViewAction(.back)
             })
-            .redesigned()
         case .deeplink:
             NavigationBarButton.close(action: {
                 viewModel.handleViewAction(.back)
             })
-            .redesigned()
         }
     }
 

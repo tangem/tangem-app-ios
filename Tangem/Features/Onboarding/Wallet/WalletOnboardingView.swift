@@ -122,7 +122,6 @@ struct WalletOnboardingView: View {
                                     .padding(.leading, 16)
                                     .visible(viewModel.isBackButtonVisible)
                                     .disabled(!viewModel.isBackButtonEnabled)
-                                    .redesigned()
                             },
                             rightButtons: {
                                 SupportButton(

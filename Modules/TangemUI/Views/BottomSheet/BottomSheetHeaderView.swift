@@ -11,7 +11,6 @@ import TangemAssets
 import TangemUIUtils
 
 public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
-    @Environment(\.isRedesign) private var isRedesign: Bool
     @State private var sideWidth: CGFloat?
 
     private let title: String
@@ -41,20 +40,8 @@ public struct BottomSheetHeaderView<Leading: View, Trailing: View>: View {
     }
 
     public var body: some View {
-        if isRedesign {
-            redesignBody
-        } else {
-            legacyBody
-        }
-    }
-}
-
-// MARK: - Subviews
-
-private extension BottomSheetHeaderView {
-    var redesignBody: some View {
         HStack(spacing: 0) {
-            leading
+            ZStack { leading }
                 .onGeometryChange(for: CGFloat.self, of: \.size.width, action: updateSide(width:))
                 .frame(width: sideWidth, alignment: .leading)
 
@@ -76,38 +63,10 @@ private extension BottomSheetHeaderView {
 
             Spacer(minLength: horizontalSpacing)
 
-            trailing
+            ZStack { trailing }
                 .onGeometryChange(for: CGFloat.self, of: \.size.width, action: updateSide(width:))
                 .frame(width: sideWidth, alignment: .trailing)
         }
-        .padding(.vertical, verticalPadding)
-    }
-
-    var legacyBody: some View {
-        ZStack(alignment: .center) {
-            // Title layer
-            VStack(spacing: subtitleSpacing) {
-                Text(title)
-                    .style(titleStyle, color: titleColor)
-                    .accessibilityIdentifier(titleAccessibilityIdentifier)
-
-                if let subtitle {
-                    Text(subtitle)
-                        .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
-                }
-            }
-
-            // Buttons layer
-            HStack(spacing: .zero) {
-                leading
-
-                Spacer()
-
-                trailing
-            }
-        }
-        .infinityFrame(axis: .horizontal)
-        .multilineTextAlignment(.center)
         .padding(.vertical, verticalPadding)
     }
 }
