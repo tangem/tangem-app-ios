@@ -213,6 +213,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.pendingTangemPayCampaignKey)
     var pendingTangemPayCampaignKey: String? = nil
 
+    @AppStorageCompat(StorageType.pendingPromoPage)
+    var pendingPromoPage: String? = nil
+
     @AppStorageCompat(StorageType.geoIpRegionCode)
     var geoIpRegionCode: String? = nil
 

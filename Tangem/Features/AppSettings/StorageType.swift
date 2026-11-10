@@ -70,6 +70,7 @@ enum StorageType: String {
     case shouldShowMobilePromoWalletSelector = "should_show_mobile_promo_wallet_selector"
     case needsTangemPayMobileOnboarding = "needs_tangem_pay_mobile_onboarding"
     case pendingTangemPayCampaignKey = "pending_tangem_pay_campaign_key"
+    case pendingPromoPage = "pending_promo_page"
     case mobileUpgradeBannerClosed = "mobile_upgrade_banner_closed"
     case mobileUpgradeBannerWalletCreated = "mobile_upgrade_banner_wallet_created"
     case mobileUpgradeBannerWalletToppedUp = "mobile_upgrade_banner_wallet_topped_up"
