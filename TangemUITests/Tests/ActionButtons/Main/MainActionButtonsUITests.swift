@@ -13,6 +13,7 @@ final class MainActionButtonsUITests: BaseTestCase {
         setAllureId(4395)
         launchApp(
             tangemApiType: .mock,
+            expressApiType: .mock,
             clearStorage: true,
         )
 
@@ -91,7 +92,7 @@ final class MainActionButtonsUITests: BaseTestCase {
             initialState: "EmptyTokensList"
         )
 
-        launchApp(tangemApiType: .mock, clearStorage: true)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, clearStorage: true)
 
         let mainScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -113,6 +114,7 @@ final class MainActionButtonsUITests: BaseTestCase {
 
         launchApp(
             tangemApiType: .mock,
+            expressApiType: .mock,
             clearStorage: true,
         )
 
