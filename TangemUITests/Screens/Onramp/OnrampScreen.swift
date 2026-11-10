@@ -93,21 +93,25 @@ final class OnrampScreen: ScreenBase<OnrampScreenElement> {
     }
 
     @discardableResult
-    func enterAmount(_ amount: String) -> Self {
+    func enterAmount(_ amount: String, retryIfOffersMissing: Bool = false) -> Self {
         XCTContext.runActivity(named: "Enter amount '\(amount)' in amount input field") { _ in
             waitAndAssertTrue(amountInputField, "Amount input field should exist")
             amountInputField.tap()
             amountInputField.typeText(amount)
 
-            // Wait for providers to start loading after amount entry
-            // Check if All offers button appears or loading state changes
-            let providersExpectation = XCTNSPredicateExpectation(
-                predicate: NSPredicate(format: "exists == true"),
-                object: allOffersButton
-            )
+            guard retryIfOffersMissing else {
+                _ = allOffersButton.waitForExistence(timeout: .quick)
+                return
+            }
 
-            // Wait up to 5 seconds for providers to become available
-            _ = XCTWaiter.wait(for: [providersExpectation], timeout: 5.0)
+            if allOffersButton.waitForExistence(timeout: .conditional) {
+                return
+            }
+
+            let enteredLength = (amountInputField.value as? String)?.count ?? amount.count
+            amountInputField.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: enteredLength))
+            amountInputField.typeText(amount)
+            _ = allOffersButton.waitForExistence(timeout: .conditional)
         }
         return self
     }

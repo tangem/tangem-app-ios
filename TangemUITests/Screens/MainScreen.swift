@@ -293,6 +293,7 @@ final class MainScreen: ScreenBase<MainScreenElement> {
                     laterButton.tap()
                 }
                 if laterButton.waitForNonExistence(timeout: .quick) {
+                    skipPushNotificationsWarningIfShown()
                     return self
                 }
             }
@@ -1967,6 +1968,16 @@ final class MainScreen: ScreenBase<MainScreenElement> {
             return nil
         }
         return Decimal(string: label.filter { $0.isNumber || $0 == "." }, locale: UITestLocale.locale)
+    }
+
+    private func skipPushNotificationsWarningIfShown() {
+        let skipButton = app.buttons[PushPermissionAccessibilityIdentifiers.warningSkipButton].firstMatch
+        guard skipButton.waitForExistence(timeout: .quick) else {
+            return
+        }
+
+        skipButton.waitAndTap()
+        XCTAssertTrue(skipButton.waitForNonExistence(timeout: .quick), "Push notifications warning sheet should be dismissed after tapping 'Skip'")
     }
 }
 

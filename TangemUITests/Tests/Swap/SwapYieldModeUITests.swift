@@ -165,7 +165,7 @@ private extension SwapYieldModeUITests {
         enum Endpoint {
             static let post = "POST"
             static let gaslessBatchSign = "/gasless/api/v2/transaction/batch-sign"
-            static let exchangeSent = "/v1/exchange-sent"
+            static let exchangeSent = "/v2/exchange-sent"
         }
 
         enum Scenario {

@@ -375,7 +375,7 @@ private extension TangemPayWithdrawUITests {
 
         enum Endpoint {
             /// CEX withdraw submits via Express, not /customer/card/withdraw; assert single swap submission on this endpoint.
-            static let exchangeSentPattern = "/v1/exchange-sent"
+            static let exchangeSentPattern = "/v2/exchange-sent"
             static let withdraw = "/bff-v2/v1/customer/card/withdraw"
             static let withdrawData = "/bff-v2/v1/customer/card/withdraw/data"
             static let withdrawOrder = "/bff-v2/v1/order/mock-tangempay-withdraw-order-001"

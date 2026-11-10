@@ -9,7 +9,7 @@
 import XCTest
 
 final class TangemPayDeeplinkOnboardingUITests: BaseTestCase {
-    private let safariHelper = SafariHelper()
+    private let systemURLOpener = SystemURLOpener()
 
     func testOnboardingOpens_WhenOnboardVisaDeeplinkIsValid() {
         setAllureId(9527)
@@ -17,7 +17,7 @@ final class TangemPayDeeplinkOnboardingUITests: BaseTestCase {
         launchAndImportHotWallet(eligibilityState: Constants.State.notPaeraCustomer)
             .verifyTokensListDisplayed()
 
-        openFromSafari(Constants.Link.onboardVisa)
+        openLink(Constants.Link.onboardVisa)
 
         TangemPayOnboardingScreen(app)
             .waitForScreen()
@@ -34,7 +34,7 @@ final class TangemPayDeeplinkOnboardingUITests: BaseTestCase {
         )
         .verifyTokensListDisplayed()
 
-        openFromSafari(Constants.Link.onboardVisa)
+        openLink(Constants.Link.onboardVisa)
 
         let regionUnavailableScreen = TangemPayRegionUnavailableScreen(app)
             .waitForScreen()
@@ -52,7 +52,7 @@ final class TangemPayDeeplinkOnboardingUITests: BaseTestCase {
 
         launchWithoutWallet()
 
-        openFromSafari(Constants.Link.onboardVisa)
+        openLink(Constants.Link.onboardVisa)
 
         CreateWalletSelectorScreen(app)
             .waitForScreen()
@@ -74,7 +74,7 @@ final class TangemPayDeeplinkOnboardingUITests: BaseTestCase {
 
         launchWithoutWallet()
 
-        openFromSafari(Constants.Link.onboardVisa)
+        openLink(Constants.Link.onboardVisa)
 
         CreateWalletSelectorScreen(app)
             .createMobileWallet()
@@ -97,7 +97,7 @@ final class TangemPayDeeplinkOnboardingUITests: BaseTestCase {
         )
         .verifyTokensListDisplayed()
 
-        openFromSafari(Constants.Link.payApp)
+        openLink(Constants.Link.payApp)
 
         TangemPayOnboardingScreen(app)
             .waitForScreen()
@@ -114,12 +114,10 @@ final class TangemPayDeeplinkOnboardingUITests: BaseTestCase {
         )
     }
 
-    private func openFromSafari(_ link: String) {
-        XCTContext.runActivity(named: "Open \(link) from Safari") { _ in
+    private func openLink(_ link: String) {
+        XCTContext.runActivity(named: "Open \(link)") { _ in
             wireMockClient.resetRequestJournalSync()
-            safariHelper.safari.launch()
-            safariHelper.openDeeplink(link)
-            safariHelper.tapOpenButton()
+            systemURLOpener.open(link)
         }
     }
 
