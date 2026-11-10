@@ -146,6 +146,23 @@ final class LendingDepositConfirmViewModelTests: LeakTrackingTestSuite {
         #expect(router.openedURLs == [url])
     }
 
+    @Test("A tap on the failed fee row estimates the fee again")
+    func retryFee() async {
+        let feeManager = TokenFeeProvidersManagerMock(
+            feeProvider: ControllableTokenFeeProviderStub(
+                feeTokenItem: Self.tokenItem,
+                selectedTokenFee: TokenFee(option: .market, tokenItem: Self.tokenItem, value: .failure(NSError(domain: "fee", code: 1)))
+            )
+        )
+        let (sut, model, _, _) = makeSUT(feeManager: feeManager)
+        let callsBefore = feeManager.updateFeesCalls
+
+        sut.handle(.retryFee)
+        await model.feeUpdateTask?.value
+
+        #expect(feeManager.updateFeesCalls > callsBefore)
+    }
+
     @Test("The screen projects the yearly earnings of the amount")
     func projection() async {
         let (sut, model, _, _) = makeSUT()
@@ -178,7 +195,8 @@ private extension LendingDepositConfirmViewModelTests {
         relevance: InformationRelevanceService = InformationRelevanceServiceStub(),
         amountLeavesNoRoomForFee: Bool = false,
         dispatchEntered: TestGate? = nil,
-        dispatchRelease: TestGate? = nil
+        dispatchRelease: TestGate? = nil,
+        feeManager: TokenFeeProvidersManagerMock? = nil
     ) -> (LendingDepositConfirmViewModel, TransferModel, TransactionRecorder, LendingDepositConfirmRouterSpy) {
         let recorder = TransactionRecorder()
         let fee = TokenFee(
@@ -192,7 +210,7 @@ private extension LendingDepositConfirmViewModelTests {
                 validateError: amountLeavesNoRoomForFee ? ValidationError.totalExceedsBalance : nil
             ),
             transactionCreator: BuildingTransactionCreatorStub(),
-            tokenFeeProvidersManager: TokenFeeProvidersManagerMock(
+            tokenFeeProvidersManager: feeManager ?? TokenFeeProvidersManagerMock(
                 feeProvider: ControllableTokenFeeProviderStub(feeTokenItem: Self.tokenItem, selectedTokenFee: fee)
             ),
             balance: 2,

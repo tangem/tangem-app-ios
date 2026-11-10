@@ -1,5 +1,5 @@
 //
-//  LendingDepositFeeRow.swift
+//  LendingFeeRow.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,10 +11,11 @@ import TangemAssets
 import TangemLocalization
 import TangemUI
 
-struct LendingDepositFeeRow: View {
-    let fee: LendingDepositFee
+struct LendingFeeRow: View {
+    let fee: LendingFee
     let canChangeFeeSpeed: Bool
     let action: () -> Void
+    var retry: (() -> Void)?
 
     var body: some View {
         Row(title: Localization.commonNetworkFeeTitle)
@@ -22,7 +23,12 @@ struct LendingDepositFeeRow: View {
                 HStack(spacing: 8) {
                     value
 
-                    if canChangeFeeSpeed {
+                    if retryAction != nil {
+                        DesignSystem.Icons.ArrowRefresh.regular20.image
+                            .renderingMode(.template)
+                            .foregroundStyle(DesignSystem.Color.iconSecondary)
+                            .accessibilityHidden(true)
+                    } else if canChangeFeeSpeed {
                         DesignSystem.Icons.ChevronDoubleVertical.regular20.image
                             .renderingMode(.template)
                             .foregroundStyle(DesignSystem.Color.iconSecondary)
@@ -31,11 +37,16 @@ struct LendingDepositFeeRow: View {
                 }
             }
             .includeInnerPadding(false)
-            .onTap(action: canChangeFeeSpeed ? action : nil)
+            .onTap(action: retryAction ?? (canChangeFeeSpeed ? action : nil))
+            .accessibilityHint(retryAction == nil ? "" : Localization.commonRetry)
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
             .background(DesignSystem.Color.bgSecondary)
             .cornerRadiusContinuous(24)
+    }
+
+    private var retryAction: (() -> Void)? {
+        fee == .unavailable ? retry : nil
     }
 
     @ViewBuilder
@@ -56,9 +67,9 @@ struct LendingDepositFeeRow: View {
     }
 }
 
-// MARK: - LendingDepositFee
+// MARK: - LendingFee
 
-enum LendingDepositFee: Equatable {
+enum LendingFee: Equatable {
     case loading
     case loaded(symbol: String, value: String)
     case unavailable

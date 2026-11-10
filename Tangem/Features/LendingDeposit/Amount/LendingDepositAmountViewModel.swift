@@ -12,7 +12,7 @@ import TangemFoundation
 import TangemLocalization
 
 final class LendingDepositAmountViewModel: ObservableObject {
-    typealias StateModel = LendingDepositAmountContentView.StateModel
+    typealias StateModel = LendingAmountContentView.StateModel
     typealias Action = LendingDepositAmountContentView.Action
 
     let amountField: AmountInputFieldModel
@@ -56,12 +56,17 @@ final class LendingDepositAmountViewModel: ObservableObject {
         amountField = AmountInputFieldModel(tokenItem: sourceToken.tokenItem, fiatItem: sourceToken.fiatItem)
         state = StateModel(
             header: Self.header(sourceToken.header),
-            tokenIconInfo: TokenIconInfoBuilder().build(from: sourceToken.tokenItem, isCustom: sourceToken.isCustom),
-            tokenSymbol: sourceToken.tokenItem.currencySymbol,
-            balance: "",
+            source: LendingAmountContentView.Source(
+                tokenIconInfo: TokenIconInfoBuilder().build(from: sourceToken.tokenItem, isCustom: sourceToken.isCustom),
+                title: sourceToken.tokenItem.currencySymbol,
+                subtitle: ""
+            ),
             fee: .loading,
             canChangeFeeSpeed: false,
-            isDepositEnabled: false
+            notice: nil,
+            // [REDACTED_TODO_COMMENT]
+            submitTitle: "Deposit",
+            isSubmitEnabled: false
         )
 
         bind()
@@ -96,6 +101,8 @@ final class LendingDepositAmountViewModel: ObservableObject {
             setShare(percent: percent)
         case .fee:
             router?.openFeeSelector()
+        case .retryFee:
+            transferModel.updateFees(amountOrBalance: transferModel.sourceAmount.value?.crypto)
         case .deposit:
             router?.openConfirmation()
         }
@@ -105,7 +112,7 @@ final class LendingDepositAmountViewModel: ObservableObject {
 // MARK: - Private
 
 private extension LendingDepositAmountViewModel {
-    static func header(_ header: TokenHeader) -> LendingDepositAmountContentView.Header {
+    static func header(_ header: TokenHeader) -> LendingAmountContentView.Header {
         switch header {
         case .account(let name, let icon): .account(name: name, icon: icon)
         case .wallet(let name, _): .wallet(name: name)
@@ -156,7 +163,7 @@ private extension LendingDepositAmountViewModel {
         sourceToken.availableBalanceProvider.formattedBalanceTypePublisher
             .receiveOnMain()
             .sink { [weak self] balance in
-                self?.state.balance = Localization.commonBalance(balance.value)
+                self?.state.source.subtitle = Localization.commonBalance(balance.value)
             }
             .store(in: &bag)
 
@@ -191,7 +198,7 @@ private extension LendingDepositAmountViewModel {
         .removeDuplicates()
         .receiveOnMain()
         .sink { [weak self] isDepositEnabled in
-            self?.state.isDepositEnabled = isDepositEnabled
+            self?.state.isSubmitEnabled = isDepositEnabled
         }
         .store(in: &bag)
 
@@ -231,7 +238,7 @@ private extension LendingDepositAmountViewModel {
     }
 
     func feeDidChange(_ tokenFee: TokenFee) {
-        state.fee = LendingDepositFee(tokenFee)
+        state.fee = LendingFee(tokenFee)
 
         guard case .success(let fee) = tokenFee.value else {
             return

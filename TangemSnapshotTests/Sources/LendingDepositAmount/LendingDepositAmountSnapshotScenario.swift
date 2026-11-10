@@ -67,25 +67,29 @@ private extension LendingDepositAmountSnapshotScenario {
         return field
     }
 
-    var state: LendingDepositAmountContentView.StateModel {
-        LendingDepositAmountContentView.StateModel(
+    var state: LendingAmountContentView.StateModel {
+        LendingAmountContentView.StateModel(
             header: .account(name: "Main account", icon: .composite(backgroundColor: .blue, nameMode: .letter("M"))),
-            tokenIconInfo: TokenIconInfo(
-                name: "Ethereum",
-                blockchainIconAsset: nil,
-                imageURL: nil,
-                isCustom: false,
-                customTokenColor: nil
+            source: LendingAmountContentView.Source(
+                tokenIconInfo: TokenIconInfo(
+                    name: "Ethereum",
+                    blockchainIconAsset: nil,
+                    imageURL: nil,
+                    isCustom: false,
+                    customTokenColor: nil
+                ),
+                title: "ETH",
+                subtitle: Localization.commonBalance("2.01 ETH")
             ),
-            tokenSymbol: "ETH",
-            balance: Localization.commonBalance("2.01 ETH"),
             fee: fee,
             canChangeFeeSpeed: true,
-            isDepositEnabled: [.filled, .largeText, .rightToLeft].contains(self)
+            notice: nil,
+            submitTitle: "Deposit",
+            isSubmitEnabled: [.filled, .largeText, .rightToLeft].contains(self)
         )
     }
 
-    var fee: LendingDepositFee {
+    var fee: LendingFee {
         switch self {
         case .feeLoading: .loading
         case .feeUnavailable: .unavailable

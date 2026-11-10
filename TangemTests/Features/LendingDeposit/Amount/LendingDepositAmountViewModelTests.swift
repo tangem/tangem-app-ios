@@ -120,8 +120,8 @@ final class LendingDepositAmountViewModelTests: LeakTrackingTestSuite {
 
         sut.amountField.onValueChanged?(nil)
 
-        let isDepositEnabled = await MainActor.run { sut.state.isDepositEnabled }
-        #expect(!isDepositEnabled)
+        let isSubmitEnabled = await MainActor.run { sut.state.isSubmitEnabled }
+        #expect(!isSubmitEnabled)
     }
 
     @Test("Deposit stays off after the amount changes until the network fee for the new amount arrives")
@@ -137,8 +137,8 @@ final class LendingDepositAmountViewModelTests: LeakTrackingTestSuite {
         sut.amountField.onValueChanged?(1)
         await transactionBuilt(model, amount: "1")
 
-        let isDepositEnabled = await MainActor.run { sut.state.isDepositEnabled }
-        #expect(!isDepositEnabled)
+        let isSubmitEnabled = await MainActor.run { sut.state.isSubmitEnabled }
+        #expect(!isSubmitEnabled)
         feeUpdate.open()
         await depositEnabled(sut)
     }
@@ -153,7 +153,7 @@ final class LendingDepositAmountViewModelTests: LeakTrackingTestSuite {
 
         balance.set(balance: Decimal(1) / 2)
 
-        let disabled = await sut.$state.values.first { !$0.isDepositEnabled }
+        let disabled = await sut.$state.values.first { !$0.isSubmitEnabled }
         #expect(disabled != nil)
     }
 
@@ -207,8 +207,19 @@ final class LendingDepositAmountViewModelTests: LeakTrackingTestSuite {
         sut.amountField.onValueChanged?(Decimal(string: "1.9995"))
 
         await transactionBuilt(model, amount: "1.9985")
-        let isDepositEnabled = await MainActor.run { sut.state.isDepositEnabled }
-        #expect(!isDepositEnabled)
+        let isSubmitEnabled = await MainActor.run { sut.state.isSubmitEnabled }
+        #expect(!isSubmitEnabled)
+    }
+
+    @Test("A tap on the failed fee row estimates the fee again")
+    func retryFee() async throws {
+        let (sut, model, _) = try makeSUT(balance: "2", fee: "0.001")
+        let manager = try #require(model.tokenFeeProvidersManager as? TokenFeeProvidersManagerMock)
+
+        sut.handle(.retryFee)
+
+        await model.feeUpdateTask?.value
+        #expect(manager.updateFeesCalls == 1)
     }
 }
 
@@ -287,7 +298,7 @@ private extension LendingDepositAmountViewModelTests {
     }
 
     func depositEnabled(_ sut: LendingDepositAmountViewModel) async {
-        _ = await sut.$state.values.first { $0.isDepositEnabled }
+        _ = await sut.$state.values.first { $0.isSubmitEnabled }
     }
 
     func buildFinished(_ model: TransferModel) async {

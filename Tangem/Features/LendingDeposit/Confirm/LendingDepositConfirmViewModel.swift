@@ -28,7 +28,8 @@ final class LendingDepositConfirmViewModel: ObservableObject {
     private let sourceToken: SendTransferableToken
     private let projection: LendingDepositProjection
     private let mailDataBuilder: SendMailDataBuilder
-    private let sendAlertBuilder: SendAlertBuilder = CommonSendAlertBuilder()
+    // [REDACTED_TODO_COMMENT]
+    private let alertBuilder = LendingFailureAlertBuilder(failureMessage: "Something went wrong with your deposit. Please try again later.")
     private weak var coordinator: LendingDepositConfirmRoutable?
     private var bag: Set<AnyCancellable> = []
 
@@ -68,6 +69,8 @@ final class LendingDepositConfirmViewModel: ObservableObject {
             coordinator?.closeDeposit()
         case .fee:
             coordinator?.openFeeSelector()
+        case .retryFee:
+            transferModel.updateFees(amountOrBalance: transferModel.sourceAmount.value?.crypto)
         case .openURL(let url):
             guard !state.isDepositing else { return }
             coordinator?.openURL(url)
@@ -92,7 +95,7 @@ private extension LendingDepositConfirmViewModel {
         transferModel.selectedFeePublisher
             .receiveOnMain()
             .sink { [weak self] tokenFee in
-                self?.state.fee = LendingDepositFee(tokenFee)
+                self?.state.fee = LendingFee(tokenFee)
             }
             .store(in: &bag)
 
@@ -161,33 +164,10 @@ private extension LendingDepositConfirmViewModel {
     }
 
     func makeAlert(for error: TransactionDispatcherResult.Error) -> AlertBinder? {
-        switch error {
-        case .userCancelled, .transactionNotFound, .feeNotFound, .actionNotSupported:
-            return nil
-        case .informationRelevanceServiceError:
-            return sendAlertBuilder.makeFeeRetryAlert { [weak self] in
-                self?.transferModel.actualizeInformation()
-            }
-        case .informationRelevanceServiceFeeWasIncreased:
-            return AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle)
-        case .sendTxError(let transaction, let sendTxError):
-            return makeDepositFailedAlert { [weak self] in
-                self?.openSupport(transaction: transaction, error: sendTxError)
-            }
-        case .loadTransactionInfo(let error):
-            return error.alertBinder
-        case .demoAlert:
-            return AlertBuilder.makeDemoAlert()
-        }
-    }
-
-    func makeDepositFailedAlert(supportAction: @escaping () -> Void) -> AlertBinder {
-        AlertBuilder.makeAlert(
-            title: Localization.commonSomethingWentWrong,
-            // [REDACTED_TODO_COMMENT]
-            message: "Something went wrong with your deposit. Please try again later.",
-            primaryButton: .default(Text(Localization.commonSupport), action: supportAction),
-            secondaryButton: .cancel(Text(Localization.commonClose))
+        alertBuilder.makeAlert(
+            for: error,
+            retryFee: { [weak self] in self?.transferModel.actualizeInformation() },
+            openSupport: { [weak self] transaction, error in self?.openSupport(transaction: transaction, error: error) }
         )
     }
 
