@@ -1,5 +1,5 @@
 //
-//  PolymarketPublisherWaiting.swift
+//  Publisher+FirstValue.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]

@@ -153,7 +153,7 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
 
         isPurchaseLocked = true
         relinkStatusProvider.isRelinkRequiredSubject.send(true)
-        _ = await sut.$isOpenLocked.values.first { $0 }
+        await sut.$isOpenLocked.firstValue { $0 }
 
         #expect(sut.isOpenLocked)
     }

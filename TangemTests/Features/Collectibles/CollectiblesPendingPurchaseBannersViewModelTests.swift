@@ -59,7 +59,7 @@ final class CollectiblesPendingPurchaseBannersViewModelTests: LeakTrackingTestSu
         let (sut, delay) = makeSUT(answers: [.purchases([paying]), .purchases([paid])], isTimePassing: true)
 
         await sut.load()
-        _ = await sut.$banners.values_.first { $0 == [Banner(id: "tx-1", kind: .packToOpen)] }
+        await sut.$banners.firstValue { $0 == [Banner(id: "tx-1", kind: .packToOpen)] }
 
         #expect(delay.waits == [5])
     }
