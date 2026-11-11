@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import enum TangemFoundation.AppEnvironment
+import enum TangemExpress.ExpressAPIType
 import TangemVisa
 import TangemStaking
 import TangemPay
@@ -23,7 +25,7 @@ class FeatureStorage {
     var availableFeatures: [Feature: FeatureState] = [:]
 
     @AppStorageCompat(FeatureStorageKeys.apiExpress)
-    var apiExpress: String = "production"
+    var apiExpress = AppEnvironment.current.isDebug ? ExpressAPIType.develop5New : ExpressAPIType.production
 
     @AppStorageCompat(FeatureStorageKeys.supportedBlockchainsIds)
     var supportedBlockchainsIds: [String] = []
@@ -44,7 +46,7 @@ class FeatureStorage {
     var visaAPIType = VisaAPIType.prod
 
     @AppStorageCompat(FeatureStorageKeys.tangemAPIType)
-    var tangemAPIType = TangemAPIType.prod
+    var tangemAPIType = AppEnvironment.current.isDebug ? TangemAPIType.dev : TangemAPIType.prod
 
     @AppStorageCompat(FeatureStorageKeys.stakeKitAPIType)
     var stakeKitAPIType = StakeKitAPIType.prod
