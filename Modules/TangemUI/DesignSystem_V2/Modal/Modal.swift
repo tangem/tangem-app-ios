@@ -57,7 +57,7 @@ struct Modal<Header: View, Content: View>: View {
                             animatesSubtitleAppearance: !reduceMotion,
                             leading: leadingPolicy(navigation.leading),
                             actions: navigation.actions,
-                            close: navigation.isCloseEnabled ? .enabled { dismiss() } : .disabled
+                            close: navigation.isCloseEnabled ? .enabled(navigation.closeButtonTapAction ?? { dismiss() }) : .disabled
                         )
                 }
                 .environment(\.topNavigationDrawsBarBackground, false)
