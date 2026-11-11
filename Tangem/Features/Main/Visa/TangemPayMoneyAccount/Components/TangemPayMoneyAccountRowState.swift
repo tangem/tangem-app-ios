@@ -12,14 +12,14 @@ enum TangemPayMoneyAccountRowState: Equatable {
     case activating
     case awaitingDeposit
     case failed
-    case active(balance: FormattedTokenBalanceType)
+    case active(balance: FormattedTokenBalanceType, isCached: Bool)
 }
 
 extension TangemPayMoneyAccountRowState {
-    init?(moneyAccountState: TangemPayMoneyAccountState?, isKYCIncomplete: Bool) {
+    init?(moneyAccountState: TangemPayMoneyAccountState?, isKYCIncomplete: Bool, isCached: Bool) {
         switch moneyAccountState {
         case .active(let moneyAccount):
-            self = .active(balance: moneyAccount.fiatBalance)
+            self = .active(balance: moneyAccount.fiatBalance, isCached: isCached)
         case .activating(let moneyAccount) where !isKYCIncomplete:
             self = moneyAccount.activation.step == .awaitingDeposit ? .awaitingDeposit : .activating
         case .activationFailed where !isKYCIncomplete:

@@ -306,11 +306,10 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             switch error {
             case .unauthorized:
                 stateSubject.value = .syncNeeded
-                setMoneyAccountState(.syncNeeded)
             case .moyaError, .apiError, .decodingError, .serverError:
                 stateSubject.value = .unavailable
-                updateMoneyAccountState(summary: cachedCustomerSummary)
             }
+            updateMoneyAccountState(summary: cachedCustomerSummary)
             VisaLogger.error("Failed to get TangemPay enrollment state", error: error)
             return
         }

@@ -426,18 +426,23 @@ final class MultiWalletMainContentViewModel: ObservableObject {
                     return .just(output: nil)
                 }
 
-                return Publishers.CombineLatest(
+                return Publishers.CombineLatest3(
                     accountModel.moneyAccountStatePublisher.filter { $0?.isResolved ?? true },
-                    accountModel.statePublisher.map(\.isKYCIncomplete)
+                    accountModel.statePublisher.map(\.isKYCIncomplete).removeDuplicates(),
+                    accountModel.statePublisher.map(\.showsCachedData).removeDuplicates()
                 )
-                .flatMapLatest { moneyAccountState, isKYCIncomplete -> AnyPublisher<TangemPayMoneyAccountRowState?, Never> in
+                .flatMapLatest { moneyAccountState, isKYCIncomplete, isCached -> AnyPublisher<TangemPayMoneyAccountRowState?, Never> in
                     guard case .active(let moneyAccount) = moneyAccountState else {
-                        let rowState = TangemPayMoneyAccountRowState(moneyAccountState: moneyAccountState, isKYCIncomplete: isKYCIncomplete)
+                        let rowState = TangemPayMoneyAccountRowState(
+                            moneyAccountState: moneyAccountState,
+                            isKYCIncomplete: isKYCIncomplete,
+                            isCached: isCached
+                        )
                         return .just(output: rowState)
                     }
 
                     return moneyAccount.fiatBalancePublisher
-                        .map { TangemPayMoneyAccountRowState.active(balance: $0) }
+                        .map { TangemPayMoneyAccountRowState.active(balance: $0, isCached: isCached) }
                         .eraseToAnyPublisher()
                 }
                 .eraseToAnyPublisher()

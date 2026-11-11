@@ -32,9 +32,9 @@ struct TangemPayMoneyAccountRowView: View {
 
     @ViewBuilder
     private var row: some View {
-        if case .active(let balance) = state {
+        if case .active(let balance, let isCached) = state {
             Row(title: Localization.moneyAccountMainName, subtitle: subtitle)
-                .valueAccessory { balanceView(balance) }
+                .valueAccessory { balanceView(balance, isCached: isCached) }
                 .subvalueAccessory { currencyText }
                 .start { avatar }
                 .includeInnerPadding(false)
@@ -54,9 +54,9 @@ struct TangemPayMoneyAccountRowView: View {
             .frame(width: 40, height: 40)
     }
 
-    private func balanceView(_ balance: FormattedTokenBalanceType) -> some View {
+    private func balanceView(_ balance: FormattedTokenBalanceType, isCached: Bool) -> some View {
         HStack(spacing: cachedIndicatorSpacing) {
-            if balance.isFailure {
+            if isCached || balance.isFailure {
                 cachedCloudIcon
             }
 
