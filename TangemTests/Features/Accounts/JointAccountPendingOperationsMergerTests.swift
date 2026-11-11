@@ -151,17 +151,16 @@ struct JointAccountPendingOperationsMergerTests {
         #expect(merged == stored)
     }
 
-    @Test("A finished operation older than a day is dropped at any write, the rest staying")
-    func finishedOperationOlderThanADayIsDropped() {
+    @Test("A finished operation stays at any write, however long ago it finished")
+    func finishedOperationIsNeverDropped() {
         let dayOld = Self.operation("a", status: .executed, finishedAt: Self.now.addingTimeInterval(-Self.day))
-        let fresh = Self.operation("b", status: .cancelled, finishedAt: Self.now.addingTimeInterval(-Self.day + 1))
-        let stored = [Self.record(dayOld, fresh, Self.operation("c"))]
+        let stored = [Self.record(dayOld, Self.operation("c"))]
 
         let afterAnUpdate = sut.merge(stored, applying: .localOperation(Self.operation("c", status: .pending), cryptoAccountId: Self.accountId))
         let afterAListing = sut.merge(listing: [Self.record(Self.operation("c"))], into: stored, replaying: [])
 
-        #expect(afterAnUpdate == [Self.record(fresh, Self.operation("c", status: .pending))])
-        #expect(afterAListing == [Self.record(fresh, Self.operation("c"))])
+        #expect(afterAnUpdate == [Self.record(dayOld, Self.operation("c", status: .pending))])
+        #expect(afterAListing == stored)
     }
 
     @Test("The updates the listing has not seen are replayed over it in the order they were made")
@@ -194,14 +193,14 @@ struct JointAccountPendingOperationsMergerTests {
         #expect(merged == [Self.record(Self.operation("a", status: .pending))])
     }
 
-    @Test("An operation in flight read anew after the store dropped it is not brought back")
+    @Test("An operation in flight read anew that nothing is stored for is not brought in")
     func refreshedOperationInFlightIsNotBroughtBack() {
         let merged = sut.merge([], applying: .operationRefreshed(Self.operation("a", status: .pending), cryptoAccountId: Self.accountId))
 
         #expect(merged.isEmpty)
     }
 
-    @Test("A finished operation read anew after the store dropped it is kept for the day")
+    @Test("A finished operation read anew that nothing is stored for is kept")
     func refreshedFinishedOperationIsKept() {
         let merged = sut.merge([], applying: .operationRefreshed(Self.operation("a", status: .executed), cryptoAccountId: Self.accountId))
 
@@ -227,8 +226,8 @@ private extension JointAccountPendingOperationsMergerTests {
     static let now = Date(timeIntervalSince1970: 1_767_225_600)
     static let day: TimeInterval = 24 * 60 * 60
 
-    static func record(_ operations: JointAccountOperation..., cryptoAccountId: String = accountId) -> StoredJointAccountPendingOperations {
-        StoredJointAccountPendingOperations(cryptoAccountId: cryptoAccountId, operations: operations)
+    static func record(_ operations: JointAccountOperation..., cryptoAccountId: String = accountId) -> JointAccountOperations {
+        JointAccountOperations(cryptoAccountId: cryptoAccountId, operations: operations)
     }
 
     static func operation(
@@ -257,8 +256,8 @@ private extension JointAccountPendingOperationsMergerTests {
             cancelReason: nil,
             initiator: initiator,
             signatures: [],
-            createdAt: nil,
-            threshold: nil
+            createdAt: Date(timeIntervalSince1970: 1_757_323_237),
+            threshold: 2
         )
     }
 }

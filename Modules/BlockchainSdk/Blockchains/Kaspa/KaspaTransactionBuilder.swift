@@ -29,7 +29,13 @@ class KaspaTransactionBuilder {
     }
 
     func availableAmount() throws -> Amount {
-        let availableAmountInSatoshi = try unspentOutputManager.availableOutputs().sumReportingOverflow(by: \.amount)
+        let (availableAmountInSatoshi, isOverflow) = unspentOutputManager
+            .availableOutputs()
+            .sumReportingOverflow(by: \.amount)
+
+        guard !isOverflow else {
+            throw BlockchainSdkError.failedToBuildTx
+        }
 
         return Amount(with: blockchain, value: Decimal(availableAmountInSatoshi) / blockchain.decimalValue)
     }

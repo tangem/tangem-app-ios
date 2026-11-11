@@ -10,36 +10,18 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class OnrampFinishScreen: ScreenBase<OnrampFinishScreenElement> {
-    private lazy var header = staticText(.header)
-    private lazy var transactionTime = staticText(.transactionTime)
-    private lazy var fiatIcon = image(.fiatIcon)
-    private lazy var fiatAmount = textField(.fiatAmount)
-    private lazy var cryptoAmount = staticText(.cryptoAmount)
-    private lazy var providerIcon = image(.providerIcon)
-    private lazy var providerName = staticText(.providerName)
-
-    @discardableResult
-    func waitForInProgressTitle() -> Self {
-        XCTContext.runActivity(named: "Validate In progress title") { _ in
-            waitAndAssertTrue(header, "In progress title should exist")
-            XCTAssertEqual(header.label, Localization.commonInProgress, "Title should be 'In progress'")
-        }
-        return self
-    }
-
     @discardableResult
     func verifyTransactionDate(between start: Date, and end: Date) -> Self {
         XCTContext.runActivity(named: "Validate transaction date and time") { _ in
-            waitAndAssertTrue(transactionTime, "Transaction date and time should exist")
             let formatter = DateFormatter()
             formatter.locale = UITestLocale.locale
             formatter.dateStyle = .long
             formatter.timeStyle = .none
             let acceptedDates = Set([start, end].map { formatter.string(from: $0) })
-            XCTAssertTrue(
-                acceptedDates.contains { transactionTime.label.contains($0) },
-                "Transaction time '\(transactionTime.label)' should contain one of \(acceptedDates)"
-            )
+            let dateText = acceptedDates
+                .map { element(containing: $0) }
+                .first { $0.waitForExistence(timeout: .robustUIUpdate) }
+            XCTAssertNotNil(dateText, "Transaction date should contain one of \(acceptedDates)")
         }
         return self
     }
@@ -47,20 +29,9 @@ final class OnrampFinishScreen: ScreenBase<OnrampFinishScreenElement> {
     @discardableResult
     func verifyPurchaseDetails(fiatAmount expectedFiat: String, cryptoAmount expectedCrypto: String, provider: String) -> Self {
         XCTContext.runActivity(named: "Validate purchase details") { _ in
-            waitAndAssertTrue(fiatIcon, "Fiat currency icon should exist")
-            waitAndAssertTrue(fiatAmount, "Fiat amount should exist")
-            XCTAssertTrue(
-                fiatAmount.getValue().contains(expectedFiat),
-                "Fiat amount '\(fiatAmount.getValue())' should contain '\(expectedFiat)'"
-            )
-            waitAndAssertTrue(cryptoAmount, "Crypto amount should exist")
-            XCTAssertTrue(
-                cryptoAmount.label.contains(expectedCrypto),
-                "Crypto amount '\(cryptoAmount.label)' should contain '\(expectedCrypto)'"
-            )
-            waitAndAssertTrue(providerIcon, "Provider icon should exist")
-            waitAndAssertTrue(providerName, "Provider name should exist")
-            XCTAssertEqual(providerName.label, provider, "Provider name mismatch")
+            waitAndAssertTrue(row(Localization.txHistoryYouPaid, containing: expectedFiat), "'You paid' should show '\(expectedFiat)'")
+            waitAndAssertTrue(row(Localization.onrampTitleYouGet, containing: expectedCrypto), "'You get' should show '\(expectedCrypto)'")
+            waitAndAssertTrue(row(Localization.expressProvider, containing: provider), "'Provider' should show '\(provider)'")
         }
         return self
     }
@@ -68,7 +39,7 @@ final class OnrampFinishScreen: ScreenBase<OnrampFinishScreenElement> {
     @discardableResult
     func verifyTransactionStatus(_ expectedStatus: String) -> Self {
         XCTContext.runActivity(named: "Validate transaction status '\(expectedStatus)' and footer") { _ in
-            waitAndAssertTrue(app.staticTexts[expectedStatus].firstMatch, "Transaction status '\(expectedStatus)' should exist")
+            waitAndAssertTrue(app.staticTexts[expectedStatus].firstMatch, "Transaction status '\(expectedStatus)' should be the title")
             waitAndAssertTrue(
                 app.staticTexts[Localization.onrampTransactionStatusFooterText].firstMatch,
                 "Transaction status footer should exist"
@@ -86,43 +57,33 @@ final class OnrampFinishScreen: ScreenBase<OnrampFinishScreenElement> {
     }
 
     func tapClose<Destination: Screen>(to destination: Destination.Type) -> Destination {
-        XCTContext.runActivity(named: "Tap Close on In progress screen") { _ in
+        XCTContext.runActivity(named: "Tap Close on the status screen") { _ in
             closeButton.waitAndTap()
-            XCTAssertTrue(header.waitForState(state: .doesntExist, for: .robustUIUpdate), "In progress screen should be dismissed")
+            let footer = app.staticTexts[Localization.onrampTransactionStatusFooterText].firstMatch
+            XCTAssertTrue(footer.waitForState(state: .doesntExist, for: .robustUIUpdate), "Status screen should be dismissed")
             return Destination(app)
         }
     }
 
     private var closeButton: XCUIElement {
-        app.buttons[SendAccessibilityIdentifiers.sendViewNextButton].firstMatch
+        app.buttons[Localization.commonClose].firstMatch
+    }
+
+    private func row(_ title: String, containing value: String) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label BEGINSWITH %@ AND label CONTAINS %@", title, value))
+            .firstMatch
+    }
+
+    private func element(containing text: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
     }
 }
 
 enum OnrampFinishScreenElement: String, UIElement {
-    case header
-    case transactionTime
-    case fiatIcon
-    case fiatAmount
-    case cryptoAmount
-    case providerIcon
-    case providerName
+    case none
 
     var accessibilityIdentifier: String {
-        switch self {
-        case .header:
-            return SendAccessibilityIdentifiers.finishHeader
-        case .transactionTime:
-            return SendAccessibilityIdentifiers.finishTransactionTime
-        case .fiatIcon:
-            return OnrampAccessibilityIdentifiers.finishFiatIcon
-        case .fiatAmount:
-            return OnrampAccessibilityIdentifiers.finishFiatAmount
-        case .cryptoAmount:
-            return OnrampAccessibilityIdentifiers.finishCryptoAmount
-        case .providerIcon:
-            return OnrampAccessibilityIdentifiers.finishProviderIcon
-        case .providerName:
-            return OnrampAccessibilityIdentifiers.finishProviderName
-        }
+        rawValue
     }
 }

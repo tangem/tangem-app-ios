@@ -90,14 +90,8 @@ struct OnrampSummaryView: View {
 
         if !offers.recommended.isEmpty {
             OnrampOffersSectionView(title: Localization.onrampRecommendedTitle) {
-                ForEach(offers.recommended) { item in
-                    VStack(alignment: .leading, spacing: 8) {
-                        OnrampOfferView(viewModel: item.viewModel)
-
-                        if let footnote = item.footnote {
-                            OnrampOfferFootnoteView(text: footnote)
-                        }
-                    }
+                ForEach(offers.recommended) { offer in
+                    OnrampOfferView(viewModel: offer)
                 }
             }
         }
@@ -145,16 +139,6 @@ private struct OnrampOffersSectionView<Content: View>: View {
                 content()
             }
         }
-    }
-}
-
-private struct OnrampOfferFootnoteView: View {
-    let text: String
-
-    var body: some View {
-        Text(text)
-            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-            .padding(.horizontal, 16)
     }
 }
 

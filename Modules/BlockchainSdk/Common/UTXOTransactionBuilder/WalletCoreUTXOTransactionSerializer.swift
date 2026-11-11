@@ -104,7 +104,11 @@ private extension WalletCoreUTXOTransactionSerializer {
             }
         }
 
-        let availableAmount = try utxo.sumReportingOverflow(by: \.amount)
+        let (availableAmount, isOverflow) = utxo.sumReportingOverflow(by: \.amount)
+
+        guard !isOverflow else {
+            throw UTXOTransactionSerializerError.invalidInput
+        }
 
         let scripts: [String: Data] = transaction.preImage.inputs.reduce(into: [:]) { result, input in
             if case .redeemScript(let redeemScript) = input.script.spendable {

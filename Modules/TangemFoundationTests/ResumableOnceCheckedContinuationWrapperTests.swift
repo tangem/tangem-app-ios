@@ -75,6 +75,21 @@ struct ResumableOnceCheckedContinuationWrapperTests {
         }
     }
 
+    @Test("Only the resume that reached the continuation reports itself as first")
+    func reportsWhetherTheResumeWasFirst() async throws {
+        let firsts = OSAllocatedUnfairLock<[Bool]>(initialState: [])
+
+        let result: Int = try await withCheckedThrowingContinuation { continuation in
+            let wrapper = ResumableOnceCheckedContinuationWrapper(continuation)
+            let first = wrapper.resumeIfNeeded(with: .success(1))
+            let second = wrapper.resumeIfNeeded(with: .failure(TestError()))
+            firsts.withLock { $0 = [first, second] }
+        }
+
+        #expect(result == 1)
+        #expect(firsts.withLock { $0 } == [true, false])
+    }
+
     @Test("Concurrent resume(returning:) calls produce exactly one result")
     func concurrentReturningProducesOneResult() async throws {
         let iterations = 100

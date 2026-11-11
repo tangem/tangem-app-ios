@@ -19,6 +19,7 @@ struct MainHorizontalPagingScrollView: View {
 
     let pullToRefreshAction: @MainActor (UserWalletId) -> Void
     let refreshingUserWalletIDs: Set<UserWalletId>
+    let allServicesAction: (() -> Void)?
     let scanQRCodeAction: () -> Void
     let detailsAction: () -> Void
 
@@ -59,6 +60,7 @@ struct MainHorizontalPagingScrollView: View {
             opacity: blendedValue(\.backgroundOpacity)
         )
         .mainTopNavigation(
+            allServicesAction: allServicesAction,
             scanQRCodeAction: scanQRCodeAction,
             detailsAction: detailsAction,
             actionsHaveBackground: navigationActionsHaveBackground
@@ -169,7 +171,6 @@ struct MainHorizontalPagingScrollView: View {
             if selectedUserWalletScrollAdjustedValues.contentFooterOverlayIsVisible {
                 selectedUserWalletPageBuilder
                     .footerOverlay
-                    .redesigned()
                     .padding(.top, Paddings.contentFooterTop)
                     .padding(.bottom, Paddings.contentFooterBottom)
                     .offset(y: -mainShtorkaBottomInset)

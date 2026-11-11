@@ -60,7 +60,7 @@ public extension PolymarketSessionKeyError {
     }
 
     init(apiError: PolymarketAPIError) {
-        guard apiError.isClientRefusal, case .http(let statusCode, let problemDetail) = apiError else {
+        guard apiError.isClientRefusal, !apiError.isRetryable, case .http(let statusCode, let problemDetail) = apiError else {
             self = .other(apiError)
             return
         }
@@ -74,7 +74,7 @@ public extension PolymarketSessionKeyError {
 
     var isRetryableWithTheSameRequest: Bool {
         switch self {
-        case .other(let apiError): apiError.isTransient
+        case .other(let apiError): apiError.isRetryable
         case .refused, .cancelled: false
         }
     }

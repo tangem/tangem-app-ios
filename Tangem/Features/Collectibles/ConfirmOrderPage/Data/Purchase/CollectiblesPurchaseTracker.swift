@@ -19,6 +19,8 @@ struct CollectiblesPurchaseTracker {
     private let delayProvider: any PollDelayProvider
     private let dateProvider: any DateProvider
 
+    nonisolated static let paymentTimeout: TimeInterval = 100
+
     // MARK: - Init
 
     init(
@@ -101,22 +103,26 @@ struct CollectiblesPurchaseTracker {
     }
 
     func checkPurchaseIsClosed(txID: String) async throws -> Bool {
-        let transaction: CollectiblesPurchaseTransaction
-
-        do {
-            transaction = try await statusProvider.load(txID: txID, includesAutoBuyback: false)
-        } catch is CancellationError {
-            throw CancellationError()
-        } catch {
-            CollectiblesLogger.error("Collectibles purchase \(txID) status check failed", error: error)
+        guard let status = try await currentStatus(txID: txID) else {
             return false
         }
 
-        switch Self.outcome(of: transaction.status) {
+        switch Self.outcome(of: status) {
         case .failed, .autoSold:
             return true
         case .pending, .paid, .opened, .halted:
             return false
+        }
+    }
+
+    func currentStatus(txID: String) async throws -> CollectiblesPurchaseStatus? {
+        do {
+            return try await statusProvider.load(txID: txID, includesAutoBuyback: false).status
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            CollectiblesLogger.error("Collectibles purchase \(txID) status check failed", error: error)
+            return nil
         }
     }
 }
@@ -156,13 +162,13 @@ private extension CollectiblesPurchaseTracker {
         switch status {
         case .packOpened, .nftReceived:
             .opened
-        case .packPurchased, .packOpeningError, .unknown:
+        case .packPurchased, .unknown:
             .paid
         case .paused:
             .halted
         case .autoBuybacked:
             .autoSold
-        case .expired, .refunded, .manuallyBuybacked:
+        case .expired, .refunded, .packOpeningError, .manuallyBuybacked:
             .failed
         case .created, .waitingTxHash, .purchaseTxHash, .waitingForPayment:
             .pending
@@ -174,7 +180,7 @@ private extension CollectiblesPurchaseTracker {
             return Constants.paymentChecksCount
         }
 
-        let timeLeft = Constants.paymentTimeout - dateProvider.now.timeIntervalSince(createdAt)
+        let timeLeft = Self.paymentTimeout - dateProvider.now.timeIntervalSince(createdAt)
         let checksLeft = Int((timeLeft / Constants.retryInterval).rounded(.up))
 
         return min(Constants.paymentChecksCount, max(1, checksLeft))
@@ -230,8 +236,7 @@ private extension CollectiblesPurchaseTracker {
 private extension CollectiblesPurchaseTracker {
     enum Constants {
         static let retryInterval: TimeInterval = 2
-        static let paymentChecksCount = 50
-        static let paymentTimeout = TimeInterval(paymentChecksCount) * retryInterval
+        static let paymentChecksCount = Int(CollectiblesPurchaseTracker.paymentTimeout / retryInterval)
         static let openAttemptsCount = 5
         static let prizeDeliveryChecksCount = 15
     }

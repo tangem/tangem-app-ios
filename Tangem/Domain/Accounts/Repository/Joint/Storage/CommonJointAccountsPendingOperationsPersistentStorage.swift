@@ -8,51 +8,55 @@
 
 import Foundation
 import Combine
+import UIKit
+import GRDB
 import TangemFoundation
+import TangemAppDatabase
 
 final class CommonJointAccountsPendingOperationsPersistentStorage {
-    @Injected(\.persistentStorage) private var persistentStorage: PersistentStorageProtocol
+    @Injected(\.appDatabase) private var appDatabase: AppDatabase
 
-    private let key: PersistentStorageKey
-    private let workingQueue: DispatchQueue
-    private let didUpdateSubject = PassthroughSubject<Void, Never>()
+    private func inFlightRecords(safeAddresses: Set<String>, in database: Database) throws -> [JointOperationRecord] {
+        guard safeAddresses.isNotEmpty else {
+            return []
+        }
 
-    /// Warmed by the first read and kept in step with every write, so a reader does not wait for the disk.
-    private let cache = OSAllocatedUnfairLock<[StoredJointAccountPendingOperations]?>(initialState: nil)
-
-    init(storageIdentifier: String) {
-        key = .jointAccountPendingOperations(cid: storageIdentifier)
-        workingQueue = DispatchQueue(
-            label: "com.tangem.CommonJointAccountsPendingOperationsPersistentStorage.workingQueue_\(storageIdentifier)",
-            attributes: .concurrent,
-            target: .global(qos: .userInitiated)
-        )
+        return try JointOperationRecord
+            .filter(safeAddresses.contains(JointOperationRecord.Columns.safeAddress))
+            .filter(JointOperationRecord.Columns.finishedAt == nil)
+            .fetchAll(database)
+            .filter { JointAccountOperationStatus(rawValue: $0.status)?.isInFlight == true }
+            .sorted { $0.createdAt < $1.createdAt }
     }
 
-    /// - Warning: `workingQueue` only.
-    private func unsafeFetch() -> [StoredJointAccountPendingOperations] {
-        do {
-            let stored: LossyArray<StoredJointAccountPendingOperations>? = try persistentStorage.value(for: key)
-            return stored?.wrappedValue ?? []
-        } catch {
-            JointAccountsLogger.error("Unable to read the pending joint account operations of a wallet", error: error)
-            return []
+    private func storedRecords(
+        operationIds: Set<String>,
+        safeAddresses: Set<String>,
+        in database: Database
+    ) throws -> [JointOperationRecord] {
+        let touchedRecords = try JointOperationRecord.fetchAll(database, keys: Array(operationIds))
+        let inFlightRecords = try inFlightRecords(safeAddresses: safeAddresses, in: database)
+
+        return (touchedRecords + inFlightRecords).unique(by: \.id)
+    }
+
+    private func items(from records: [JointOperationRecord]) -> [JointOperationHistoryItem] {
+        records.compactMap { record in
+            do {
+                return try TransactionHistoryRecordsMapper.mapToJointOperationHistoryItem(record)
+            } catch {
+                JointAccountsLogger.warning("Skipping an unreadable stored joint operation: \(error)")
+                return nil
+            }
         }
     }
 
-    /// - Warning: `workingQueue` only.
-    private func unsafeFetchAndCache() -> [StoredJointAccountPendingOperations] {
-        let records = unsafeFetch()
-        cache.withLock { $0 = records }
+    private func save(_ changes: JointAccountsPendingOperationsChanges, in database: Database) throws {
+        if changes.removedOperationIds.isNotEmpty {
+            try JointOperationsDeleteResolver(operationIds: changes.removedOperationIds).write(in: database)
+        }
 
-        return records
-    }
-
-    /// - Warning: `workingQueue` only.
-    private func unsafeSave(_ records: [StoredJointAccountPendingOperations]) throws {
-        try persistentStorage.store(value: records, for: key)
-        cache.withLock { $0 = records }
-        didUpdateSubject.send()
+        try JointOperationsSaveResolver(items: changes.savedItems).write(in: database)
     }
 }
 
@@ -60,26 +64,61 @@ final class CommonJointAccountsPendingOperationsPersistentStorage {
 
 extension CommonJointAccountsPendingOperationsPersistentStorage: JointAccountsPendingOperationsPersistentStorage {
     var didUpdatePublisher: AnyPublisher<Void, Never> {
-        didUpdateSubject.eraseToAnyPublisher()
+        Deferred { [appDatabase] in
+            Result { try appDatabase.databaseHandle }.publisher
+        }
+        .flatMap { databaseHandle in
+            DatabaseRegionObservation(tracking: JointOperationRecord.all())
+                .publisher(in: databaseHandle)
+                .map { _ in }
+        }
+        .catch { [weak self] error -> AnyPublisher<Void, Never> in
+            JointAccountsLogger.error("Unable to observe the stored joint operations, waiting to retry", error: error)
+
+            guard let self else {
+                return Empty().eraseToAnyPublisher()
+            }
+
+            return NotificationCenter.default
+                .publisher(for: UIApplication.willEnterForegroundNotification)
+                .first()
+                .flatMap { _ in self.didUpdatePublisher.prepend(()) }
+                .eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
     }
 
-    func getList() -> [StoredJointAccountPendingOperations] {
-        if let cached = cache.withLock({ $0 }) {
-            return cached
+    func inFlightOperations(safeAddresses: Set<String>) throws -> [JointOperationHistoryItem] {
+        let records = try appDatabase.databaseHandle.read { database in
+            try inFlightRecords(safeAddresses: safeAddresses, in: database)
         }
 
-        return workingQueue.sync {
-            unsafeFetchAndCache()
-        }
+        return items(from: records)
     }
 
-    func replace(with records: [StoredJointAccountPendingOperations]) throws {
-        try workingQueue.sync(flags: .barrier) {
-            guard records != unsafeFetch() else {
+    func operation(id: String) throws -> JointOperationHistoryItem? {
+        let record = try appDatabase.databaseHandle.read { database in
+            try JointOperationRecord.fetchOne(database, key: id)
+        }
+
+        return record.flatMap { items(from: [$0]).first }
+    }
+
+    func update(
+        operationIds: Set<String>,
+        safeAddresses: Set<String>,
+        _ resolveChanges: ([JointOperationHistoryItem]) -> JointAccountsPendingOperationsChanges
+    ) throws {
+        try appDatabase.databaseHandle.write { database in
+            let records = try storedRecords(operationIds: operationIds, safeAddresses: safeAddresses, in: database)
+            let storedItems = items(from: records)
+            let changes = resolveChanges(storedItems)
+
+            guard !changes.isEmpty else {
                 return
             }
 
-            try unsafeSave(records)
+            try save(changes, in: database)
         }
     }
 }

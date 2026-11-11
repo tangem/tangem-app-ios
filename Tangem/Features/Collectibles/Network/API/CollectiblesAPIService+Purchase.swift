@@ -80,8 +80,12 @@ extension CollectiblesAPIService {
             transaction = try await request(
                 .openPack(.init(txID: txID), includesAutoBuyback: includesAutoBuyback, userWalletID: userWalletID)
             )
-        } catch Error.http(_, let body) where Self.isSpinNotFound(body) {
-            throw CollectiblesPackOpeningError.spinNotFound
+        } catch {
+            guard let openingError = Self.openingError(from: error) else {
+                throw error
+            }
+
+            throw openingError
         }
 
         return Mapper.mapToPurchaseTransaction(transaction)
@@ -93,18 +97,27 @@ extension CollectiblesAPIService {
 private extension CollectiblesAPIService {
     enum ErrorCode {
         static let lowInventory = 3016
+        static let packNotReady = 3009
         static let packOpeningFailed = 3010
+        static let openingRefusals: Set<Int> = [packNotReady, packOpeningFailed]
     }
 
     enum ErrorDetail {
         static let spinNotFound = "No spin transaction found"
     }
 
-    static func isSpinNotFound(_ body: Data) -> Bool {
-        guard let error = Mapper.mapToErrorResponse(body), error.code == ErrorCode.packOpeningFailed else {
-            return false
+    static func openingError(from error: any Swift.Error) -> CollectiblesPackOpeningError? {
+        guard
+            case Error.http(_, let body) = error,
+            let response = Mapper.mapToErrorResponse(body),
+            let code = response.code,
+            ErrorCode.openingRefusals.contains(code)
+        else {
+            return nil
         }
 
-        return error.detail?.contains(ErrorDetail.spinNotFound) == true
+        let isSpinNotFound = code == ErrorCode.packOpeningFailed && response.detail?.contains(ErrorDetail.spinNotFound) == true
+
+        return isSpinNotFound ? .spinNotFound : .refused
     }
 }

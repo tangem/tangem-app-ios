@@ -25,10 +25,12 @@ class CommonUserWalletModel {
     let nftManager: NFTManager
     let keysRepository: KeysRepository
     let totalBalanceProvider: TotalBalanceProvider
+    let notificationBadgeCounter: NotificationBadgeCounter
 
     let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
     let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
     let accountModelsManager: AccountModelsManager
+    let derivationManager: DerivationManager?
     let addressBookManager: AddressBookManager
 
     var emailConfig: EmailConfig? {
@@ -42,7 +44,7 @@ class CommonUserWalletModel {
 
     private(set) var name: String
 
-    private var _walletImageProvider: WalletImageProviding?
+    private var _walletIcon: UserWalletIcon?
 
     private let _updatePublisher: PassthroughSubject<UpdateResult, Never> = .init()
 
@@ -54,9 +56,11 @@ class CommonUserWalletModel {
         nftManager: NFTManager,
         keysRepository: KeysRepository,
         totalBalanceProvider: TotalBalanceProvider,
+        notificationBadgeCounter: NotificationBadgeCounter,
         userWalletPushNotificationsManager: UserWalletPushNotificationsManager,
         priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider,
         accountModelsManager: AccountModelsManager,
+        derivationManager: DerivationManager?,
         addressBookManager: AddressBookManager
     ) {
         self.walletInfo = walletInfo
@@ -66,9 +70,11 @@ class CommonUserWalletModel {
         self.nftManager = nftManager
         self.keysRepository = keysRepository
         self.totalBalanceProvider = totalBalanceProvider
+        self.notificationBadgeCounter = notificationBadgeCounter
         self.userWalletPushNotificationsManager = userWalletPushNotificationsManager
         self.priceAlertsSubscriptionsProvider = priceAlertsSubscriptionsProvider
         self.accountModelsManager = accountModelsManager
+        self.derivationManager = derivationManager
         self.addressBookManager = addressBookManager
     }
 
@@ -122,13 +128,17 @@ extension CommonUserWalletModel: UserWalletModel {
         config.cardSetLabel
     }
 
-    var walletImageProvider: WalletImageProviding {
-        if let _walletImageProvider {
-            return _walletImageProvider
+    var walletIcon: UserWalletIcon {
+        if let _walletIcon {
+            return _walletIcon
         }
-        let walletImageProvider = CommonWalletImageProviderFactory().imageProvider(for: walletInfo)
-        _walletImageProvider = walletImageProvider
-        return walletImageProvider
+        let walletIcon = CommonUserWalletIconFactory().icon(for: walletInfo)
+        _walletIcon = walletIcon
+        return walletIcon
+    }
+
+    var cardImageProvider: (any WalletImageProviding)? {
+        walletInfo.cardImageProvider
     }
 
     var emailData: [EmailCollectedData] {
@@ -223,7 +233,7 @@ extension CommonUserWalletModel: UserWalletModel {
                     }
                 }
 
-                _walletImageProvider = nil
+                _walletIcon = nil
                 updateConfiguration(walletInfo: .cardWallet(mutableCardInfo)) // Upgrading from mobile wallet to card wallet
                 cleanMobileWallet(mobileWalletInfo: existingInfo)
                 syncRemoteAfterUpgrade()
@@ -402,6 +412,14 @@ extension CommonUserWalletModel: TotalBalanceProvider {
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> {
         totalBalanceProvider.totalBalancePublisher
+    }
+}
+
+// MARK: - NotificationBadgeCounter
+
+extension CommonUserWalletModel: NotificationBadgeCounter {
+    var notificationBadgeCountPublisher: AnyPublisher<Int, Never> {
+        notificationBadgeCounter.notificationBadgeCountPublisher
     }
 }
 

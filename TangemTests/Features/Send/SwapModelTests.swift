@@ -1502,6 +1502,7 @@ private extension SwapModelTests {
                 provider: provider,
                 approvePolicy: .specified,
                 approveTransactionData: makeApproveTransactionData(),
+                approveAmount: 1,
                 approvalFlow: .approve,
                 approveFee: makeZeroFee()
             ),
@@ -1515,6 +1516,7 @@ private extension SwapModelTests {
             provider: provider,
             policy: .specified,
             data: makeApproveTransactionData(),
+            approveAmount: 1,
             approvalFlow: .approve,
             fee: makeZeroFee(),
             quote: ExpressQuoteFixture.make()

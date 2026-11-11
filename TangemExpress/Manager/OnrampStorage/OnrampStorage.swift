@@ -39,3 +39,18 @@ extension OnrampUserPreference {
         let precision: Int
     }
 }
+
+extension OnrampUserPreference.Currency {
+    init(_ currency: OnrampFiatCurrency) {
+        self.init(
+            name: currency.identity.name,
+            code: currency.identity.code,
+            image: currency.identity.image,
+            precision: currency.precision
+        )
+    }
+
+    var fiatCurrency: OnrampFiatCurrency {
+        OnrampFiatCurrency(identity: .init(name: name, code: code, image: image), precision: precision)
+    }
+}

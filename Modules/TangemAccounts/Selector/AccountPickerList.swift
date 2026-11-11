@@ -67,7 +67,7 @@ struct AccountPickerAccountRow: View {
 
     var body: some View {
         let row = Row(title: item.name)
-            .start { AccountPickerAvatar(icon: item.icon) }
+            .start { Avatar(.account(item.icon)) }
             .titleAccessory { titleBadge }
             .subtitleAccessory { subtitle }
             .end { end }
@@ -115,21 +115,6 @@ struct AccountPickerAccountRow: View {
     }
 }
 
-struct AccountPickerAvatar: View {
-    let icon: AccountIconView.ViewData
-
-    var body: some View {
-        switch icon {
-        case .composite(let fill, .letter(let letter, _)):
-            Avatar(.user(.initial(letter, fill: fill)))
-        case .composite(let fill, .imageType(let imageType, _)):
-            Avatar(.account(imageType, fill: fill))
-        case .standalone(let imageType):
-            Avatar(.asset(imageType.image))
-        }
-    }
-}
-
 // MARK: - Previews
 
 #Preview {
@@ -137,7 +122,7 @@ struct AccountPickerAvatar: View {
         AccountPickerAccountItem(
             id: "main",
             name: "Main account",
-            icon: .composite(backgroundColor: .blue, nameMode: .imageType(Assets.Accounts.family)),
+            icon: .icon(DesignSystem.Icons.accountFamily, fill: .blue),
             badge: nil,
             subtitle: "12 tokens •",
             balance: .loaded("$4,496.75"),
@@ -147,7 +132,7 @@ struct AccountPickerAvatar: View {
         AccountPickerAccountItem(
             id: "joint",
             name: "Family",
-            icon: .composite(backgroundColor: .orange, nameMode: .letter("F")),
+            icon: .letter("F", fill: .orange),
             badge: "Joint",
             subtitle: "3 tokens •",
             balance: .loading(cached: nil),
@@ -157,7 +142,7 @@ struct AccountPickerAvatar: View {
         AccountPickerAccountItem(
             id: "added",
             name: "Savings",
-            icon: .composite(backgroundColor: .green, nameMode: .imageType(Assets.Accounts.beach)),
+            icon: .icon(DesignSystem.Icons.accountBeach, fill: .green),
             badge: nil,
             subtitle: "1 token •",
             balance: .loaded("$12.40"),

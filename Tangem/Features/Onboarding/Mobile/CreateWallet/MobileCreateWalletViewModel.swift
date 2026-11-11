@@ -184,21 +184,7 @@ private extension MobileCreateWalletViewModel {
     }
 
     func logWalletCreatedAnalytics() {
-        var params: [Analytics.ParameterKey: String] = [
-            .creationType: Analytics.ParameterValue.walletCreationTypeNewSeed.rawValue,
-            .seedLength: Constants.seedPhraseLength,
-            .passphrase: Analytics.ParameterValue.empty.rawValue,
-            .source: source.analyticsParameterValue.rawValue,
-        ]
-
-        params.enrich(with: ReferralAnalyticsHelper().getReferralParams())
-
-        Analytics.log(
-            event: .walletCreatedSuccessfully,
-            params: params,
-            analyticsSystems: .all,
-            contextParams: analyticsContextParams
-        )
+        MobileWalletCreationAnalyticsLogger().logWalletCreated(source: source.analyticsParameterValue)
     }
 
     func logOnboardingFinishedAnalytics() {
@@ -222,11 +208,5 @@ extension MobileCreateWalletViewModel {
         let icon: ImageType
         let title: String
         let subtitle: String
-    }
-}
-
-extension MobileCreateWalletViewModel {
-    enum Constants {
-        static let seedPhraseLength = "12"
     }
 }

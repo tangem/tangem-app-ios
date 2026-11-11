@@ -9,11 +9,10 @@
 import Combine
 import TangemUI
 import TangemExpress
+import TangemLocalization
+import TangemAccessibilityIdentifiers
 
-class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingSheetContentViewModel {
-    @Injected(\.floatingSheetPresenter)
-    private var floatingSheetPresenter: any FloatingSheetPresenter
-
+class OnrampOffersSelectorViewModel: ObservableObject, Identifiable {
     @Injected(\.incomingActionHandler)
     private var incomingActionHandler: IncomingActionHandler
 
@@ -23,6 +22,22 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
             return .offers(mapToOnrampOfferViewModels(item: item))
         case .none:
             return .paymentMethods(mapToOnrampPaymentMethodRowViewData(providers: providersList))
+        }
+    }
+
+    var navigation: ModalNavigation {
+        switch selectedProviderItem {
+        case .some:
+            .title(
+                Localization.onrampAllOffersButtonTitle,
+                subtitle: Localization.onrampProvidersSubtitle,
+                leading: .custom(.back(accessibilityIdentifier: CommonUIAccessibilityIdentifiers.backButton) { [weak self] in self?.back() })
+            )
+        case .none:
+            .title(
+                Localization.onrampAllOffersButtonTitle,
+                subtitle: Localization.onrampPaymentMethodSubtitle
+            )
         }
     }
 
@@ -47,12 +62,12 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
     private let standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never>
     private let linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>
-    private var shouldOnrampPaymentMethodScreenOpenedLogged: Bool = true
 
     private lazy var onrampOfferViewModelBuilder = OnrampAllOfferViewModelBuilder(tokenItem: tokenItem)
     private lazy var onrampProvidersItemViewModelBuilder = OnrampProviderItemViewModelBuilder(tokenItem: tokenItem)
     private weak var input: OnrampProvidersInput?
     private weak var output: OnrampSummaryOutput?
+    private weak var router: OnrampOffersSelectorRoutable?
 
     @Published private var isVisible = false
     private var didLogGeoRestrictionNotice = false
@@ -66,6 +81,7 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
         linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>,
         input: OnrampProvidersInput,
         output: OnrampSummaryOutput,
+        router: OnrampOffersSelectorRoutable,
     ) {
         self.tokenItem = tokenItem
         self.analyticsLogger = analyticsLogger
@@ -74,24 +90,19 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
         self.linkedBannersPublisher = linkedBannersPublisher
         self.input = input
         self.output = output
+        self.router = router
 
         bind()
     }
 
-    /// Because floating sheet use sheet content twice
-    /// then `onAppear` calls twice too
     func onAppear() {
-        if shouldOnrampPaymentMethodScreenOpenedLogged {
-            analyticsLogger.logOnrampPaymentMethodScreenOpened()
-            shouldOnrampPaymentMethodScreenOpenedLogged = false
-        }
-
+        selectedProviderItem = nil
+        analyticsLogger.logOnrampPaymentMethodScreenOpened()
         isVisible = true
     }
 
     func onDisappear() {
         isVisible = false
-        selectedProviderItem = nil
     }
 
     func back() {
@@ -99,9 +110,7 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     }
 
     func close() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
-        }
+        router?.closeOnrampOffersSelector(then: nil)
     }
 }
 
@@ -180,7 +189,9 @@ private extension OnrampOffersSelectorViewModel {
                     self?.analyticsLogger.logOnrampProviderChosen(provider: provider.provider)
                 },
                 onWidgetBuy: { [weak self] in
-                    self?.output?.userDidRequestOnramp(provider: provider)
+                    self?.router?.closeOnrampOffersSelector { [weak self] in
+                        self?.output?.userDidRequestOnramp(provider: provider)
+                    }
                 }
             )
 

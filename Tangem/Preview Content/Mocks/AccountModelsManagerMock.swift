@@ -104,6 +104,14 @@ extension AccountModelsManagerMock: AccountModelsManager {
         .just(output: 0)
     }
 
+    var accountsOrderPublisher: AnyPublisher<[CryptoAccountDerivationIdentity], Never> {
+        .just(output: [])
+    }
+
+    func collectiblesAccountModel() async -> (any CollectiblesAccountModel)? {
+        nil
+    }
+
     var accountModels: [AccountModel] {
         accountModelsSubject.value
     }

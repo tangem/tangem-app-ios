@@ -8,7 +8,7 @@
 
 import Combine
 import TangemAccessibilityIdentifiers
-import class TangemUI.Toast
+import class TangemUI.LegacyToast
 import struct TangemUI.WarningToast
 
 final class ConnectionsQRScanCoordinator: CoordinatorObject {
@@ -52,7 +52,7 @@ extension ConnectionsQRScanCoordinator: ConnectionsQRScanRoutable {
             return
         }
 
-        Toast(
+        LegacyToast(
             view: WarningToast(text: errorMessage)
                 .accessibilityIdentifier(WalletConnectAccessibilityIdentifiers.errorToast)
         )

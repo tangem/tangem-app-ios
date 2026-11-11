@@ -25,7 +25,7 @@ extension CollectiblesWelcomeView {
                         Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
                     }
 
-                    ItemView(item: item)
+                    OnboardingTextSection(title: item.question, text: item.answer)
                         .padding(.vertical, Metrics.itemVerticalPadding)
                 }
             }
@@ -61,25 +61,6 @@ private extension FAQCollection {
                 answer: Localization.collectiblesWelcomeFaqAvailabilityAnswer
             ),
         ]
-    }
-}
-
-// MARK: - FAQCollection + ItemView
-
-private extension FAQCollection {
-    struct ItemView: View {
-        let item: Item
-
-        var body: some View {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(item.question)
-                    .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
-
-                Text(item.answer)
-                    .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
-            }
-            .infinityFrame(axis: .horizontal, alignment: .leading)
-        }
     }
 }
 

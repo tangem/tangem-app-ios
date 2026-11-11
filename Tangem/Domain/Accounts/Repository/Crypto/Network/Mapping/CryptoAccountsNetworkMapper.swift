@@ -214,13 +214,16 @@ final class CryptoAccountsNetworkMapper {
         let grouping = mapGroupingOption(groupType: response.wallet.group)
         let sorting = mapSortingOption(sortType: response.wallet.sort)
 
-        let accounts = response.accounts.map { accountDTO in
+        let accounts = response.accounts.compactMap { accountDTO -> StoredCryptoAccount? in
+            guard let type = mapAccountType(rawType: accountDTO.type) else {
+                return nil
+            }
+
             let icon = StoredCryptoAccount.Icon(
                 iconName: accountDTO.icon,
                 iconColor: accountDTO.iconColor
             )
             let tokens = map(tokens: accountDTO.tokens)
-            let type = mapAccountType(rawType: accountDTO.type)
 
             return StoredCryptoAccount(
                 derivationIndex: accountDTO.derivation,
@@ -296,16 +299,15 @@ final class CryptoAccountsNetworkMapper {
             .unique() // Additional uniqueness check for remote tokens (replicates old behavior)
     }
 
-    private func mapAccountType(rawType: String?) -> AccountType {
+    private func mapAccountType(rawType: String?) -> AccountType? {
         guard let rawType else {
             // Only the v2 endpoint provide a type; a legacy record is always consider as crypto account
             return .crypto
         }
 
         guard let type = AccountType(rawValue: rawType) else {
-            let message = "Attempt to map an unknown account type '\(rawType)'"
-            AccountsLogger.error(error: message)
-            preconditionFailure(message)
+            AccountsLogger.warning("Skipping an account of an unsupported type '\(rawType)'")
+            return nil
         }
 
         return type
@@ -401,7 +403,9 @@ final class CryptoAccountsNetworkMapper {
                 return nil
             }
 
-            let accountType = mapAccountType(rawType: archivedAccountDTO.type)
+            guard let accountType = mapAccountType(rawType: archivedAccountDTO.type) else {
+                return nil
+            }
 
             guard accountType != .collectibles else {
                 return nil

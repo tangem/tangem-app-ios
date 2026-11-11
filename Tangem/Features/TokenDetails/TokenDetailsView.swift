@@ -92,7 +92,6 @@ struct TokenDetailsView: View {
 
     private var leadingContent: some View {
         NavigationBarButton.back(action: viewModel.onBack)
-            .redesigned()
     }
 
     @ViewBuilder
@@ -177,7 +176,6 @@ struct TokenDetailsView: View {
                     },
                     label: {
                         NavigationBarButton.details(action: {})
-                            .redesigned()
                             .allowsHitTesting(false)
                     }
                 )

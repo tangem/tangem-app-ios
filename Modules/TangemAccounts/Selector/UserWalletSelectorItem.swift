@@ -8,18 +8,19 @@
 
 import UIKit
 import TangemFoundation
+import TangemUI
 
 public struct UserWalletSelectorItem: Identifiable {
     public let id: UserWalletId
     public let name: String
-    public let image: UIImage?
+    public let icon: WalletIconContent?
     public let balance: SelectorBalance
     public let availability: SelectorAvailability
 
-    public init(id: UserWalletId, name: String, image: UIImage?, balance: SelectorBalance, availability: SelectorAvailability) {
+    public init(id: UserWalletId, name: String, icon: WalletIconContent?, balance: SelectorBalance, availability: SelectorAvailability) {
         self.id = id
         self.name = name
-        self.image = image
+        self.icon = icon
         self.balance = balance
         self.availability = availability
     }

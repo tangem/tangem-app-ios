@@ -17,6 +17,19 @@ struct SendFinishView: View {
     @ObservedObject var viewModel: SendFinishViewModel
 
     var body: some View {
+        if let onrampStatusScreenViewModel = viewModel.onrampStatusScreenViewModel {
+            OnrampStatusScreenView(
+                viewModel: onrampStatusScreenViewModel,
+                transactionTime: viewModel.transactionSentTime,
+                onClose: viewModel.close
+            )
+            .onAppear(perform: viewModel.onAppear)
+        } else {
+            content
+        }
+    }
+
+    private var content: some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 14)) {
             if viewModel.showHeader, let transactionTime = viewModel.transactionSentTime {
                 header(transactionTime: transactionTime)
@@ -24,10 +37,6 @@ struct SendFinishView: View {
 
             if let sendAmountFinishViewModel = viewModel.sendAmountFinishViewModel {
                 SendAmountFinishView(viewModel: sendAmountFinishViewModel)
-            }
-
-            if let onrampAmountCompactViewModel = viewModel.onrampAmountCompactViewModel {
-                OnrampAmountCompactView(viewModel: onrampAmountCompactViewModel)
             }
 
             if let nftAssetCompactViewModel = viewModel.nftAssetCompactViewModel {
@@ -52,10 +61,6 @@ struct SendFinishView: View {
 
             if let jointAccountSignaturesCompactViewModel = viewModel.jointAccountSignaturesCompactViewModel {
                 JointAccountSignaturesCompactView(viewModel: jointAccountSignaturesCompactViewModel)
-            }
-
-            if let onrampStatusCompactViewModel = viewModel.onrampStatusCompactViewModel {
-                OnrampStatusCompactView(viewModel: onrampStatusCompactViewModel)
             }
         }
         .onAppear(perform: viewModel.onAppear)

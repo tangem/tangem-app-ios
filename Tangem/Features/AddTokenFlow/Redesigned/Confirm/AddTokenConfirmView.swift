@@ -36,7 +36,6 @@ struct AddTokenConfirmView: View {
         .padding(.horizontal, AddTokenRedesignedConstants.horizontalPadding)
         .padding(.bottom, AddTokenRedesignedConstants.verticalPadding)
         .animation(.default, value: viewModel.isSaving)
-        .task { await viewModel.loadWalletImage() }
     }
 
     // MARK: - Token Header
@@ -62,14 +61,8 @@ struct AddTokenConfirmView: View {
 
     @ViewBuilder
     private var walletIcon: some View {
-        if let imageValue = viewModel.walletIcon {
-            imageValue.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(
-                    width: AddTokenRedesignedConstants.selectorRowIconSize,
-                    height: AddTokenRedesignedConstants.selectorRowIconSize
-                )
+        if let icon = viewModel.walletIcon {
+            UserWalletIconView(icon: icon, size: AddTokenRedesignedConstants.selectorRowIconSize)
         } else {
             Color.clear
                 .frame(

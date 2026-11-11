@@ -69,7 +69,6 @@ struct TangemPayMoneyAccountContentView: View {
         .onReceive(refreshScrollState.scrollViewInteractor.$visibleBodyHeight) {
             visibleBodyHeight = $0
         }
-        .redesigned()
     }
 }
 

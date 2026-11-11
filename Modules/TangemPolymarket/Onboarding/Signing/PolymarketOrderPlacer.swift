@@ -19,22 +19,22 @@ public protocol PolymarketOrderPlacing {
     func order(
         id: String,
         credentials: PolymarketL2Credentials,
-        ownerAddress: String
+        signingKeyAddress: String
     ) async throws -> PolymarketOrderRecord
 }
 
 public struct PolymarketOrderPlacer {
     private let clobService: PolymarketCLOBService
-    private let digestSigner: PolymarketOrderDigestSigning
+    private let signing: Signing
     private let delayProvider: PollDelayProvider
 
     public init(
         clobService: PolymarketCLOBService,
-        digestSigner: PolymarketOrderDigestSigning,
+        signing: Signing,
         delayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
     ) {
         self.clobService = clobService
-        self.digestSigner = digestSigner
+        self.signing = signing
         self.delayProvider = delayProvider
     }
 }
@@ -67,14 +67,7 @@ extension PolymarketOrderPlacer: PolymarketOrderPlacing {
                 depositWalletAddress: options.depositWalletAddress
             )
 
-            let inner: String
-
-            switch options.signing {
-            case .depositWallet:
-                inner = try await digestSigner.sign(digest: digest)
-            case .sessionKey(_, let sessionKeySigner):
-                inner = try await sessionKeySigner.sign(digest: digest)
-            }
+            let inner = try await signing.digestSigner.sign(digest: digest)
 
             let wrapped = try PolymarketOrderSigning.wrap(
                 signature: inner,
@@ -82,13 +75,13 @@ extension PolymarketOrderPlacer: PolymarketOrderPlacing {
                 domain: domain
             )
 
-            switch options.signing {
+            switch signing {
             case .depositWallet:
                 signature = wrapped
-            case .sessionKey(let sessionKeyAddress, _):
+            case .sessionKey:
                 signature = try PolymarketSessionKeySignature.envelope(
                     depositWalletSignature: wrapped,
-                    sessionKeyAddress: sessionKeyAddress
+                    sessionKeyAddress: options.signingKeyAddress
                 )
             }
         } catch let error as CancellationError {
@@ -104,16 +97,16 @@ extension PolymarketOrderPlacer: PolymarketOrderPlacing {
         return try await send(
             PolymarketSignedOrder(order: order, signature: signature),
             options: options,
-            resendLimit: options.signing.resendLimit
+            resendLimit: signing.resendLimit
         )
     }
 
     public func order(
         id: String,
         credentials: PolymarketL2Credentials,
-        ownerAddress: String
+        signingKeyAddress: String
     ) async throws -> PolymarketOrderRecord {
-        try await clobService.order(id: id, credentials: credentials, ownerAddress: ownerAddress)
+        try await clobService.order(id: id, credentials: credentials, ownerAddress: signingKeyAddress)
     }
 }
 
@@ -137,7 +130,7 @@ private extension PolymarketOrderPlacer {
                 return try await clobService.placeOrder(
                     signedOrder,
                     credentials: options.credentials,
-                    ownerAddress: options.ownerAddress
+                    ownerAddress: options.signingKeyAddress
                 )
             } catch let error as PolymarketOrderPlacementError where error.neverReachedTheExchange && resends < resendLimit {
                 resends += 1
@@ -160,7 +153,7 @@ private extension PolymarketOrderPlacer {
             try await clobService.updateBalanceAllowance(
                 asset,
                 credentials: options.credentials,
-                ownerAddress: options.ownerAddress
+                ownerAddress: options.signingKeyAddress
             )
         } catch let error as CancellationError {
             throw error
@@ -177,39 +170,43 @@ public extension PolymarketOrderPlacer {
         public let quote: PolymarketOrderQuote
         public let assetId: String
         public let isNegRisk: Bool
-        public let ownerAddress: String
+        public let signingKeyAddress: String
         public let depositWalletAddress: String
         public let credentials: PolymarketL2Credentials
-        public let signing: Signing
 
         public init(
             quote: PolymarketOrderQuote,
             assetId: String,
             isNegRisk: Bool,
-            ownerAddress: String,
+            signingKeyAddress: String,
             depositWalletAddress: String,
-            credentials: PolymarketL2Credentials,
-            signing: Signing = .depositWallet
+            credentials: PolymarketL2Credentials
         ) {
             self.quote = quote
             self.assetId = assetId
             self.isNegRisk = isNegRisk
-            self.ownerAddress = ownerAddress
+            self.signingKeyAddress = signingKeyAddress
             self.depositWalletAddress = depositWalletAddress
             self.credentials = credentials
-            self.signing = signing
         }
     }
 
     enum Signing {
-        case depositWallet
-        case sessionKey(address: String, signer: any PolymarketOrderDigestSigning)
+        case depositWallet(PolymarketOrderDigestSigning)
+        case sessionKey(PolymarketOrderDigestSigning)
     }
 }
 
-// MARK: - Resending
+// MARK: - Signing
 
 private extension PolymarketOrderPlacer.Signing {
+    var digestSigner: PolymarketOrderDigestSigning {
+        switch self {
+        case .depositWallet(let signer), .sessionKey(let signer):
+            signer
+        }
+    }
+
     var resendLimit: Int {
         switch self {
         case .depositWallet: 0

@@ -159,11 +159,27 @@ struct SendView: View {
         case .none:
             EmptyView()
         case .some(let title):
-            Text(title)
-                .multilineTextAlignment(.center)
-                .style(Fonts.BoldStatic.body, color: DesignSystem.Color.textPrimary)
-                .lineLimit(1)
-                .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewTitle)
+            if let subtitle = viewModel.navigationBarSettings.subtitle {
+                VStack(spacing: 0) {
+                    Text(title)
+                        .multilineTextAlignment(.center)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                        .lineLimit(1)
+                        .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewTitle)
+
+                    Text(subtitle)
+                        .multilineTextAlignment(.center)
+                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+                        .lineLimit(1)
+                }
+                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+            } else {
+                Text(title)
+                    .multilineTextAlignment(.center)
+                    .style(Fonts.BoldStatic.body, color: DesignSystem.Color.textPrimary)
+                    .lineLimit(1)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewTitle)
+            }
         }
     }
 

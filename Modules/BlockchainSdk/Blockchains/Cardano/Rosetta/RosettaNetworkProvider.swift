@@ -59,7 +59,7 @@ class RosettaNetworkProvider: CardanoNetworkProvider {
                 self.mapToCardanoUnspentOutput(response: $0.coins, address: $0.address)
             }
 
-            return cardanoResponseMapper.mapToCardanoAddressResponse(
+            return try cardanoResponseMapper.mapToCardanoAddressResponse(
                 tokens: tokens,
                 unspentOutputs: unspentOutputs,
                 recentTransactionsHashes: []

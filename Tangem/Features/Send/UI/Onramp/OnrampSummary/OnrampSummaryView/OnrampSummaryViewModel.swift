@@ -37,8 +37,9 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     private let linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
     private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
+    private let fiatPresetService: FiatPresetService
+    private let isCountryUnsupportedPublisher: AnyPublisher<Bool, Never>
 
-    private lazy var fiatPresetService = FiatPresetService()
     private lazy var onrampOfferViewModelBuilder = OnrampSuggestedOfferViewModelBuilder(tokenItem: tokenItem)
 
     init(
@@ -49,7 +50,9 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         marketingBannerManager: OnrampMarketingBannerManager,
         linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>,
         analyticsLogger: SendOnrampOffersAnalyticsLogger,
-        buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
+        buyActionBuilder: OnrampOfferViewModelBuyActionBuilder,
+        fiatPresetService: FiatPresetService,
+        isCountryUnsupportedPublisher: AnyPublisher<Bool, Never>
     ) {
         self.onrampAmountViewModel = onrampAmountViewModel
         self.tokenItem = tokenItem
@@ -59,6 +62,8 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         self.linkedBannersPublisher = linkedBannersPublisher
         self.analyticsLogger = analyticsLogger
         self.buyActionBuilder = buyActionBuilder
+        self.fiatPresetService = fiatPresetService
+        self.isCountryUnsupportedPublisher = isCountryUnsupportedPublisher
 
         bind()
     }
@@ -102,14 +107,15 @@ private extension OnrampSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$notificationButtonIsLoading)
 
-        Publishers.CombineLatest(
+        Publishers.CombineLatest3(
             interactor.suggestedOffersPublisher,
-            linkedBannersPublisher
+            linkedBannersPublisher,
+            isCountryUnsupportedPublisher
         )
         .withWeakCaptureOf(self)
         .map { viewModel, values in
-            let (offers, banners) = values
-            return viewModel.mapToViewState(offers: offers, linkedBanners: banners)
+            let (offers, banners, isCountryUnsupported) = values
+            return viewModel.mapToViewState(offers: offers, linkedBanners: banners, isCountryUnsupported: isCountryUnsupported)
         }
         .receiveOnMain()
         .assign(to: &$viewState)
@@ -117,7 +123,8 @@ private extension OnrampSummaryViewModel {
 
     func mapToViewState(
         offers: LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>,
-        linkedBanners: [MarketingBanner]
+        linkedBanners: [MarketingBanner],
+        isCountryUnsupported: Bool
     ) -> ViewState {
         switch offers {
         case .loading:
@@ -125,7 +132,7 @@ private extension OnrampSummaryViewModel {
 
         case .success(let offers) where offers.isEmpty:
             let isEmptyTextField = onrampAmountViewModel.decimalNumberTextFieldViewModel.value ?? 0 <= 0
-            if isEmptyTextField, let presets = fiatPresetService.presets() {
+            if isEmptyTextField, !isCountryUnsupported, let presets = fiatPresetService.presets() {
                 return .presets(presets)
             }
 
@@ -134,7 +141,7 @@ private extension OnrampSummaryViewModel {
         case .success(let offers):
             return .suggestedOffers(.init(
                 recent: offers.recent.map { mapToRecentOnrampOfferViewModel(provider: $0, linkedBanners: linkedBanners) },
-                recommended: offers.recommended.map { mapToRecommendedItem(suggestedOfferType: $0, linkedBanners: linkedBanners) },
+                recommended: offers.recommended.map { mapToRecommendedOffer(suggestedOfferType: $0, linkedBanners: linkedBanners) },
             ))
         }
     }
@@ -152,10 +159,13 @@ private extension OnrampSummaryViewModel {
             }
         )
 
+        let legalNotice = buyAction.isNativeApplePay ? OnrampNativePaymentLegalLinks.legalNotice(for: provider) : nil
+
         return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
             title: title,
             provider: provider,
             buyAction: buyAction,
+            legalNotice: legalNotice,
             linkedBanner: linkedBanner(for: provider, in: linkedBanners)
         )
     }
@@ -168,7 +178,7 @@ private extension OnrampSummaryViewModel {
         )
     }
 
-    func mapToRecommendedItem(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem, linkedBanners: [MarketingBanner]) -> RecommendedItem {
+    func mapToRecommendedOffer(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem, linkedBanners: [MarketingBanner]) -> OnrampOfferViewModel {
         let provider = suggestedOfferType.provider
         let title = onrampOfferViewModelBuilder.mapToRecommendedOnrampOfferViewModelTitle(suggestedOfferType: suggestedOfferType)
 
@@ -190,9 +200,8 @@ private extension OnrampSummaryViewModel {
         let isNativeApplePay = suggestedOfferType.isNativeApplePay
         let infoAction: (() -> Void)? = isNativeApplePay ? { [weak self] in self?.openProviderRequirementsSheet() } : nil
         let legalNotice = isNativeApplePay ? OnrampNativePaymentLegalLinks.legalNotice(for: provider) : nil
-        let footnote = isNativeApplePay ? makeIdentityVerificationFootnote(for: provider) : nil
 
-        let viewModel = onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
+        return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
             title: title,
             provider: provider,
             buyAction: buyAction,
@@ -200,12 +209,6 @@ private extension OnrampSummaryViewModel {
             legalNotice: legalNotice,
             linkedBanner: linkedBanner(for: provider, in: linkedBanners)
         )
-
-        return RecommendedItem(viewModel: viewModel, footnote: footnote)
-    }
-
-    func makeIdentityVerificationFootnote(for provider: OnrampProvider) -> String {
-        Localization.onrampNativePaymentIdentityVerification(provider.provider.name)
     }
 
     func openProviderRequirementsSheet() {
@@ -229,13 +232,6 @@ extension OnrampSummaryViewModel {
 
     struct SuggestedOffers: Hashable {
         let recent: OnrampOfferViewModel?
-        let recommended: [RecommendedItem]
-    }
-
-    struct RecommendedItem: Hashable, Identifiable {
-        let viewModel: OnrampOfferViewModel
-        let footnote: String?
-
-        var id: Int { hashValue }
+        let recommended: [OnrampOfferViewModel]
     }
 }

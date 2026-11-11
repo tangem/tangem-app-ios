@@ -28,6 +28,7 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
     private(set) var updateSelectedFeeProviderCalls: [TokenFeeProviderID] = []
 
     var updateFeesGate: TestGate?
+    var updateFeesStarted: TestGate?
 
     // MARK: - Init
 
@@ -56,6 +57,7 @@ final class TokenFeeProvidersManagerMock: TokenFeeProvidersManager {
     @discardableResult
     func updateFees() -> Task<Void, Never> {
         updateFeesCalls += 1
+        updateFeesStarted?.open()
         let gate = updateFeesGate
         return Task {
             await gate?.wait()

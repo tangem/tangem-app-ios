@@ -13,4 +13,5 @@ protocol CollectiblesConfirmOrderRoutable: AnyObject {
     func openPackReveal(wonCard: CollectiblesWonCard, assets: CollectiblesRevealAssets)
     func returnToMachine()
     func closePackFlow()
+    func openSupport()
 }

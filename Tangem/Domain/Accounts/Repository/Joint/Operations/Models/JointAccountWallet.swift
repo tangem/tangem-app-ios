@@ -63,8 +63,8 @@ extension JointAccountWallet {
     }
 
     /// Declines the operation, which the initiator's own answer ends outright.
-    func reject(_ operation: JointAccountOperation) async throws {
-        try await operationsService.rejectOperation(operation, in: self)
+    func reject(operationId: String) async throws {
+        try await operationsService.rejectOperation(id: operationId, in: self)
     }
 
     /// Taken from the account rather than kept, so that a wallet handed out long ago acts through the account as it

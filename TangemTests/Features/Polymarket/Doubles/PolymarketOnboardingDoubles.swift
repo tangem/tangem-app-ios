@@ -97,13 +97,16 @@ extension PolymarketDepositWalletServiceStub {
 final class PolymarketCredentialsRepositoryStub: PolymarketCredentialsRepository {
     private(set) var deletedWalletIds: [UserWalletId] = []
     private(set) var savedCredentials: [PolymarketL2Credentials] = []
+    private(set) var credentialReads = 0
 
     private var stored: PolymarketL2Credentials?
     private let saveError: Error?
+    private let readError: Error?
 
-    init(stored: PolymarketL2Credentials? = nil, saveError: Error? = nil) {
+    init(stored: PolymarketL2Credentials? = nil, saveError: Error? = nil, readError: Error? = nil) {
         self.stored = stored
         self.saveError = saveError
+        self.readError = readError
     }
 
     func save(credentials: PolymarketL2Credentials, userWalletId: UserWalletId) throws {
@@ -116,7 +119,17 @@ final class PolymarketCredentialsRepositoryStub: PolymarketCredentialsRepository
     }
 
     func load(userWalletId: UserWalletId) -> PolymarketL2Credentials? {
-        stored
+        readError == nil ? stored : nil
+    }
+
+    func readCredentials(userWalletId: UserWalletId) throws -> PolymarketL2Credentials? {
+        credentialReads += 1
+
+        if let readError {
+            throw readError
+        }
+
+        return stored
     }
 
     func delete(userWalletId: UserWalletId) {
@@ -195,26 +208,41 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
         credentials: PolymarketL2Credentials,
         ownerAddress: String
     ) async throws -> [PolymarketSessionSigner] {
-        fatalError("Not reachable from this test")
+        guard let sessionSignersResult else {
+            fatalError("Not reachable from this test")
+        }
+
+        sessionSignerReads += 1
+        return try sessionSignersResult.get()
     }
 
     private(set) var balanceCalls = 0
-    private(set) var credentialRequests = 0
+    private(set) var deriveRequests = 0
+    private(set) var createRequests = 0
+    private(set) var authHeaders: [PolymarketCLOBAuthHeaders] = []
+    private(set) var sessionSignerReads = 0
+
+    var credentialRequests: Int {
+        deriveRequests + createRequests
+    }
 
     var queuedPriceResults: [Result<Decimal, Error>] = []
 
     private let balanceResult: Result<Decimal, Error>
     private let deriveResult: Result<PolymarketL2Credentials, Error>
     private let createResult: Result<PolymarketL2Credentials, Error>
+    private let sessionSignersResult: Result<[PolymarketSessionSigner], Error>?
 
     init(
         balanceResult: Result<Decimal, Error> = .success(0),
         deriveResult: Result<PolymarketL2Credentials, Error> = .success(PolymarketCredentialsRepositoryStub.credentials),
-        createResult: Result<PolymarketL2Credentials, Error> = .success(PolymarketCredentialsRepositoryStub.credentials)
+        createResult: Result<PolymarketL2Credentials, Error> = .success(PolymarketCredentialsRepositoryStub.credentials),
+        sessionSignersResult: Result<[PolymarketSessionSigner], Error>? = nil
     ) {
         self.balanceResult = balanceResult
         self.deriveResult = deriveResult
         self.createResult = createResult
+        self.sessionSignersResult = sessionSignersResult
     }
 
     func price(tokenId: String, side: PolymarketOrderSide) async throws -> Decimal {
@@ -228,12 +256,14 @@ final class PolymarketCLOBServiceStub: PolymarketCLOBService {
     }
 
     func createCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
-        credentialRequests += 1
+        createRequests += 1
+        self.authHeaders.append(authHeaders)
         return try createResult.get()
     }
 
     func deriveCredentials(authHeaders: PolymarketCLOBAuthHeaders) async throws -> PolymarketL2Credentials {
-        credentialRequests += 1
+        deriveRequests += 1
+        self.authHeaders.append(authHeaders)
         return try deriveResult.get()
     }
 
@@ -285,7 +315,10 @@ final class PolymarketRelayerServiceStub: PolymarketRelayerService {
 final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
     static let batchSignature = "0xbatch"
 
+    static let fastTradingAuthorizationSignature = "0xfasttrading"
+
     private(set) var signCalls = 0
+    private(set) var signedFastTradingAuthorizations: [PolymarketRelayedBatch.Unsigned] = []
 
     private let error: PolymarketSigningError?
 
@@ -294,9 +327,14 @@ final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
     }
 
     func sign(
-        approvals: PolymarketRelayedBatch.Unsigned
+        approvals: PolymarketRelayedBatch.Unsigned,
+        fastTradingAuthorization: PolymarketRelayedBatch.Unsigned?
     ) async throws(PolymarketSigningError) -> PolymarketOnboardingSignatures {
         signCalls += 1
+
+        if let fastTradingAuthorization {
+            signedFastTradingAuthorizations.append(fastTradingAuthorization)
+        }
 
         if let error {
             throw error
@@ -311,8 +349,71 @@ final class PolymarketOnboardingSignerSpy: PolymarketOnboardingSigning {
                 timestamp: "1786128353",
                 nonce: PolymarketClobAuth.nonce
             ),
-            approvals: approvals.signed(by: ownerAddress, signature: Self.batchSignature)
+            approvals: approvals.signed(by: ownerAddress, signature: Self.batchSignature),
+            fastTradingAuthorization: fastTradingAuthorization?.signed(by: ownerAddress, signature: Self.fastTradingAuthorizationSignature)
         )
+    }
+}
+
+// MARK: - Onboarding fast trading
+
+final class PolymarketOnboardingFastTradingSpy: PolymarketOnboardingFastTrading, Sendable {
+    private let preparesAuthorization: Bool
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
+    init(preparesAuthorization: Bool = true) {
+        self.preparesAuthorization = preparesAuthorization
+    }
+
+    var isEnabled: Bool {
+        get { state.withLock { $0.isEnabled } }
+        set { state.withLock { $0.isEnabled = newValue } }
+    }
+
+    var preparedNonces: [String] {
+        state.withLock { $0.preparedNonces }
+    }
+
+    var submitted: [PolymarketRelayedBatch] {
+        state.withLock { $0.submitted }
+    }
+
+    var notEnabledReports: Int {
+        state.withLock { $0.notEnabledReports }
+    }
+
+    func makeAuthorization(depositWalletAddress: String, approvalsNonce: String, followsApprovals: Bool) -> PolymarketRelayedBatch.Unsigned? {
+        guard let nonce = try? (followsApprovals ? PolymarketSessionKeyAuthorizationBatch.nonce(following: approvalsNonce) : approvalsNonce) else {
+            return nil
+        }
+
+        state.withLock { $0.preparedNonces.append(nonce) }
+
+        guard preparesAuthorization else { return nil }
+
+        return PolymarketRelayedBatch.Unsigned(
+            depositWalletAddress: depositWalletAddress,
+            nonce: nonce,
+            deadline: "0",
+            calls: []
+        )
+    }
+
+    func submit(_ authorization: PolymarketRelayedBatch) -> Task<Void, Never>? {
+        state.withLock { $0.submitted.append(authorization) }
+
+        return nil
+    }
+
+    func reportNotEnabled() {
+        state.withLock { $0.notEnabledReports += 1 }
+    }
+
+    private struct State {
+        var isEnabled = true
+        var preparedNonces: [String] = []
+        var submitted: [PolymarketRelayedBatch] = []
+        var notEnabledReports = 0
     }
 }
 

@@ -17,6 +17,10 @@ public struct ExpressExchangeDataError: LocalizedError {
         underlying as? ExpressAPIError
     }
 
+    public var isInvalidResponse: Bool {
+        underlying is ExpressAPIMapperError
+    }
+
     public var hidesProvider: Bool {
         switch provider.id {
         case "changehero":

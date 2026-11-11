@@ -15,24 +15,17 @@ public struct PriceChangeView: View {
     private let state: State
     private let showSkeletonWhenLoading: Bool
     private let showIconForNeutral: Bool
-    /// [REDACTED_INFO]: Remove this flag and legacy colors when the redesign feature toggle is deleted
-    private let useRedesignColors: Bool
-    private let isCapsuleSkeleton: Bool
     private let skeletonSize: CGSize
 
     public init(
         state: State,
         showSkeletonWhenLoading: Bool = true,
         showIconForNeutral: Bool = true,
-        useRedesignColors: Bool = false,
-        isCapsuleSkeleton: Bool = false,
         skeletonSize: CGSize = CGSize(width: 40, height: 12)
     ) {
         self.state = state
         self.showSkeletonWhenLoading = showSkeletonWhenLoading
         self.showIconForNeutral = showIconForNeutral
-        self.useRedesignColors = useRedesignColors
-        self.isCapsuleSkeleton = isCapsuleSkeleton
         self.skeletonSize = skeletonSize
     }
 
@@ -66,20 +59,16 @@ public struct PriceChangeView: View {
             if shouldShowIcon(for: changeType) {
                 changeType.imageType.image
                     .renderingMode(.template)
-                    .foregroundColor(resolvedIconColor(for: changeType))
+                    .foregroundColor(changeType.iconColor)
             }
 
-            styledText(text, textColor: resolvedTextColor(for: changeType))
+            styledText(text, textColor: changeType.color)
         }
     }
 
     private var skeleton: some View {
         Shimmer()
-            .variant(.custom(
-                width: skeletonSize.width,
-                height: skeletonSize.height,
-                cornerRadius: useRedesignColors || isCapsuleSkeleton ? nil : 3
-            ))
+            .variant(.custom(width: skeletonSize.width, height: skeletonSize.height))
     }
 
     private func shouldShowIcon(for changeType: ChangeType) -> Bool {
@@ -87,14 +76,6 @@ public struct PriceChangeView: View {
             return showIconForNeutral
         }
         return true
-    }
-
-    private func resolvedTextColor(for changeType: ChangeType) -> Color {
-        useRedesignColors ? changeType.color : changeType.legacyColor
-    }
-
-    private func resolvedIconColor(for changeType: ChangeType) -> Color {
-        useRedesignColors ? changeType.iconColor : changeType.legacyColor
     }
 
     private var defaultTextColor: Color {
@@ -105,17 +86,10 @@ public struct PriceChangeView: View {
         styledText(String.enDashSign)
     }
 
-    @ViewBuilder
     private func styledText(_ text: String, textColor: Color? = nil) -> some View {
-        let color = textColor ?? defaultTextColor
-        Group {
-            if useRedesignColors {
-                Text(text).style(DesignSystem.Font.captionMediumToken, color: color)
-            } else {
-                Text(text).style(Fonts.Regular.caption1, color: color)
-            }
-        }
-        .lineLimit(1)
+        Text(text)
+            .style(DesignSystem.Font.captionMediumToken, color: textColor ?? defaultTextColor)
+            .lineLimit(1)
     }
 }
 
@@ -189,18 +163,6 @@ public extension PriceChangeView {
                 DesignSystem.Color.iconSecondary
             case .negative:
                 DesignSystem.Color.iconAccentRed
-            }
-        }
-
-        /// [REDACTED_INFO]: Remove legacy colors when the redesign feature toggle is deleted
-        public var legacyColor: Color {
-            switch self {
-            case .positive:
-                DesignSystem.Color.textAccentBlue
-            case .neutral:
-                DesignSystem.Color.textSecondary
-            case .negative:
-                DesignSystem.Color.textAccentRed
             }
         }
     }

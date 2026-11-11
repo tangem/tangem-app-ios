@@ -33,7 +33,10 @@ class OnrampKYCVerificationSheetViewModel: FloatingSheetContentViewModel, Observ
 
     func chooseAnotherMethod() {
         Analytics.log(.onrampButtonChooseAnotherMethod)
-        routable?.onChooseAnother()
+        Task { @MainActor [floatingSheetPresenter, routable] in
+            floatingSheetPresenter.removeActiveSheet()
+            routable?.onChooseAnother()
+        }
     }
 
     func close() {

@@ -15,91 +15,94 @@ struct DebouncedCollectorTests {
     // MARK: - Functional behavior
 
     @Test("Collects values emitted within a single debounce window into one array")
-    @MainActor
-    func collectsValuesWithinWindow() async throws {
+    func collectsValuesWithinWindow() {
+        let scheduler = ManualSchedulerStub()
         let subject = PassthroughSubject<Int, Never>()
         var received: [[Int]] = []
         let cancellable = subject
-            .collect(debouncedTime: .milliseconds(50), scheduler: DispatchQueue.main)
+            .collect(debouncedTime: .milliseconds(50), scheduler: scheduler)
             .sink { received.append($0) }
 
         subject.send(1)
         subject.send(2)
         subject.send(3)
-
-        try await Task.sleep(for: .milliseconds(150))
+        scheduler.advance(by: .milliseconds(50))
         _ = cancellable
 
         #expect(received == [[1, 2, 3]])
     }
 
     @Test("Resets accumulator between two debounce windows")
-    @MainActor
-    func resetsAccumulatorBetweenWindows() async throws {
+    func resetsAccumulatorBetweenWindows() {
+        let scheduler = ManualSchedulerStub()
         let subject = PassthroughSubject<Int, Never>()
         var received: [[Int]] = []
         let cancellable = subject
-            .collect(debouncedTime: .milliseconds(50), scheduler: DispatchQueue.main)
+            .collect(debouncedTime: .milliseconds(50), scheduler: scheduler)
             .sink { received.append($0) }
 
         subject.send(1)
         subject.send(2)
-        try await Task.sleep(for: .milliseconds(150))
+        scheduler.advance(by: .milliseconds(50))
 
         subject.send(3)
         subject.send(4)
-        try await Task.sleep(for: .milliseconds(150))
+        scheduler.advance(by: .milliseconds(50))
         _ = cancellable
 
         #expect(received == [[1, 2], [3, 4]])
     }
 
     @Test("Single value within window emits array of one")
-    @MainActor
-    func singleValueEmitsArrayOfOne() async throws {
+    func singleValueEmitsArrayOfOne() {
+        let scheduler = ManualSchedulerStub()
         let subject = PassthroughSubject<Int, Never>()
         var received: [[Int]] = []
         let cancellable = subject
-            .collect(debouncedTime: .milliseconds(50), scheduler: DispatchQueue.main)
+            .collect(debouncedTime: .milliseconds(50), scheduler: scheduler)
             .sink { received.append($0) }
 
         subject.send(42)
-        try await Task.sleep(for: .milliseconds(150))
+        scheduler.advance(by: .milliseconds(50))
         _ = cancellable
 
         #expect(received == [[42]])
     }
 
     @Test("No upstream emissions produce no output")
-    @MainActor
-    func noEmissionsProduceNoOutput() async throws {
+    func noEmissionsProduceNoOutput() {
+        let scheduler = ManualSchedulerStub()
         let subject = PassthroughSubject<Int, Never>()
         var received: [[Int]] = []
         let cancellable = subject
-            .collect(debouncedTime: .milliseconds(50), scheduler: DispatchQueue.main)
+            .collect(debouncedTime: .milliseconds(50), scheduler: scheduler)
             .sink { received.append($0) }
 
-        try await Task.sleep(for: .milliseconds(150))
+        scheduler.advance(by: .milliseconds(50))
         _ = cancellable
 
         #expect(received.isEmpty)
     }
 
     @Test("Late emissions extend the debounce window")
-    @MainActor
-    func lateEmissionsExtendTheWindow() async throws {
+    func lateEmissionsExtendTheWindow() {
+        let scheduler = ManualSchedulerStub()
         let subject = PassthroughSubject<Int, Never>()
         var received: [[Int]] = []
         let cancellable = subject
-            .collect(debouncedTime: .milliseconds(80), scheduler: DispatchQueue.main)
+            .collect(debouncedTime: .milliseconds(80), scheduler: scheduler)
             .sink { received.append($0) }
 
         subject.send(1)
-        try await Task.sleep(for: .milliseconds(40))
+        scheduler.advance(by: .milliseconds(40))
         subject.send(2)
-        try await Task.sleep(for: .milliseconds(40))
+        scheduler.advance(by: .milliseconds(40))
         subject.send(3)
-        try await Task.sleep(for: .milliseconds(150))
+        scheduler.advance(by: .milliseconds(79))
+
+        #expect(received.isEmpty)
+
+        scheduler.advance(by: .milliseconds(1))
         _ = cancellable
 
         #expect(received == [[1, 2, 3]])
@@ -150,5 +153,88 @@ struct DebouncedCollectorTests {
                 }
             }
         }
+    }
+}
+
+// MARK: - Stubs
+
+private final class ManualSchedulerStub: Scheduler {
+    typealias SchedulerTimeType = DispatchQueue.SchedulerTimeType
+    typealias SchedulerOptions = DispatchQueue.SchedulerOptions
+
+    private(set) var now = SchedulerTimeType(DispatchTime(uptimeNanoseconds: 1))
+    let minimumTolerance: SchedulerTimeType.Stride = .zero
+
+    private var scheduledActions: [ScheduledAction] = []
+    private var lastActionId = 0
+
+    func advance(by stride: SchedulerTimeType.Stride) {
+        let deadline = now.advanced(by: stride)
+
+        while let next = scheduledActions.filter({ $0.date <= deadline }).min(by: { ($0.date, $0.id) < ($1.date, $1.id) }) {
+            scheduledActions.removeAll { $0.id == next.id }
+
+            if let interval = next.interval {
+                scheduledActions.append(ScheduledAction(id: next.id, date: next.date.advanced(by: interval), interval: interval, action: next.action))
+            }
+
+            now = next.date
+            next.action()
+        }
+
+        now = deadline
+    }
+
+    func schedule(options: SchedulerOptions?, _ action: @escaping () -> Void) {
+        enqueue(action, at: now, interval: nil)
+    }
+
+    func schedule(after date: SchedulerTimeType, tolerance: SchedulerTimeType.Stride, options: SchedulerOptions?, _ action: @escaping () -> Void) {
+        enqueue(action, at: date, interval: nil)
+    }
+
+    func schedule(
+        after date: SchedulerTimeType,
+        interval: SchedulerTimeType.Stride,
+        tolerance: SchedulerTimeType.Stride,
+        options: SchedulerOptions?,
+        _ action: @escaping () -> Void
+    ) -> any Cancellable {
+        ScheduledActionCancellation(scheduler: self, actionId: enqueue(action, at: date, interval: interval))
+    }
+
+    fileprivate func cancelAction(withId actionId: Int) {
+        scheduledActions.removeAll { $0.id == actionId }
+    }
+
+    @discardableResult
+    private func enqueue(_ action: @escaping () -> Void, at date: SchedulerTimeType, interval: SchedulerTimeType.Stride?) -> Int {
+        lastActionId += 1
+        scheduledActions.append(ScheduledAction(id: lastActionId, date: date, interval: interval, action: action))
+
+        return lastActionId
+    }
+}
+
+private extension ManualSchedulerStub {
+    struct ScheduledAction {
+        let id: Int
+        let date: SchedulerTimeType
+        let interval: SchedulerTimeType.Stride?
+        let action: () -> Void
+    }
+}
+
+private final class ScheduledActionCancellation: Cancellable {
+    private weak var scheduler: ManualSchedulerStub?
+    private let actionId: Int
+
+    init(scheduler: ManualSchedulerStub, actionId: Int) {
+        self.scheduler = scheduler
+        self.actionId = actionId
+    }
+
+    func cancel() {
+        scheduler?.cancelAction(withId: actionId)
     }
 }

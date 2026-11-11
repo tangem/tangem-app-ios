@@ -15,3 +15,25 @@ protocol PolymarketBatchSigning {
         as ownerAddress: String
     ) async throws(PolymarketSigningError) -> PolymarketRelayedBatch
 }
+
+protocol PolymarketBatchesSigning {
+    func sign(
+        _ batches: [PolymarketRelayedBatch.Unsigned],
+        ownerAuthTimestamp: String?,
+        as ownerAddress: String
+    ) async throws(PolymarketSigningError) -> PolymarketSignedBatches
+}
+
+extension PolymarketBatchesSigning {
+    func sign(
+        _ batches: [PolymarketRelayedBatch.Unsigned],
+        as ownerAddress: String
+    ) async throws(PolymarketSigningError) -> [PolymarketRelayedBatch] {
+        try await sign(batches, ownerAuthTimestamp: nil, as: ownerAddress).batches
+    }
+}
+
+struct PolymarketSignedBatches {
+    let batches: [PolymarketRelayedBatch]
+    let ownerAuthHeaders: PolymarketCLOBAuthHeaders?
+}

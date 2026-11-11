@@ -102,9 +102,18 @@ final class TangemPayCurrentPlanViewModel: ObservableObject {
 
         runTask(in: self) { @MainActor viewModel in
             do {
-                try await viewModel.awaitingDepositCanceller.cancelAwaitingDepositOrder()
+                let outcome = try await viewModel.awaitingDepositCanceller.cancelAwaitingDepositOrder()
 
                 viewModel.isCancellingTransition = false
+
+                switch outcome {
+                case .stay:
+                    break
+                case .restartOnboarding:
+                    viewModel.coordinator?.restartOnboarding()
+                case .returnToMain:
+                    viewModel.coordinator?.returnToMain()
+                }
             } catch {
                 viewModel.alert = AlertBinder(
                     title: Localization.commonSomethingWentWrong,
@@ -231,6 +240,8 @@ protocol TangemPayCurrentPlanRoutable: AnyObject {
     func openStayOnPlusConfirmation(planName: String, pendingPlanName: String)
     func openURL(_ url: URL)
     func openFullTerms()
+    func restartOnboarding()
+    func returnToMain()
 }
 
 extension TangemPayCurrentPlanViewModel {

@@ -26,7 +26,6 @@ struct TangemPayCurrentPlanView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbar }
             .translucentNavigationBar()
-            .redesigned()
             .environment(\.openURL, OpenURLAction { url in
                 viewModel.openURL(url)
                 return .handled

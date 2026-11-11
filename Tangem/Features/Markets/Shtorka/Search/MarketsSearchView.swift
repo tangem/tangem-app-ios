@@ -15,7 +15,7 @@ import TangemUIUtils
 
 struct MarketsSearchView: View {
     @ObservedObject var viewModel: MarketsSearchViewModel
-    let leadingButton: MarketsSearchNavigationBar<DefaultNavigationBarTitle>.LeadingButton
+    let leadingButton: MarketsSearchLeadingButton
     let onLeadingButtonAction: () -> Void
 
     @State private var headerHeight: CGFloat = .zero
@@ -123,10 +123,8 @@ struct MarketsSearchView: View {
         switch leadingButton {
         case .back:
             NavigationBarButton.back(action: onLeadingButtonAction)
-                .redesigned()
         case .close:
             NavigationBarButton.close(action: onLeadingButtonAction)
-                .redesigned()
         }
     }
 

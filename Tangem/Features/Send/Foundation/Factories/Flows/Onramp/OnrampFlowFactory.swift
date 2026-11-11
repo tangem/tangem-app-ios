@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
 import TangemExpress
 import TangemLocalization
 import struct TangemUI.TokenIconInfo
@@ -33,7 +34,8 @@ final class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
         onrampRepository: dependencies.repository,
         analyticsLogger: analyticsLogger,
         autoupdatingTimer: autoupdatingTimer,
-        predefinedValues: .init(amount: parameters.amount)
+        isCountryByIPEnabled: dependencies.isCountryByIPEnabled,
+        predefinedValues: .init(amount: parameters.amount, fiatCurrencyCode: parameters.fiatCurrencyCode)
     )
 
     lazy var buyActionBuilder = OnrampOfferViewModelBuyActionBuilder(
@@ -84,7 +86,8 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             standaloneBannersPublisher: marketingBannerManager.standaloneBannersPublisher,
             linkedBannersPublisher: marketingBannerManager.linkedBannersPublisher,
             input: onrampModel,
-            output: onrampModel
+            output: onrampModel,
+            router: router
         )
 
         let onrampStatusTracking = onrampStatusTrackingFactory.makeOnrampStatusTracking(
@@ -92,13 +95,11 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
         )
 
         let finish = makeSendFinishStep(
-            onrampAmountCompactViewModel: OnrampAmountCompactViewModel(
-                onrampAmountInput: onrampModel,
-                onrampProvidersInput: onrampModel,
-                tokenItem: tokenItem
-            ),
-            onrampStatusCompactViewModel: OnrampStatusCompactViewModel(
-                input: onrampModel,
+            onrampStatusScreenViewModel: OnrampStatusScreenViewModel(
+                tokenItem: tokenItem,
+                amountInput: onrampModel,
+                providersInput: onrampModel,
+                statusInput: onrampModel,
                 pendingTransactionsManager: onrampStatusTracking.manager,
                 expressStatusPollingHelper: onrampStatusTracking.pollingHelper
             ),
@@ -118,7 +119,7 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
 
         // If user already has saved country in the repository then the bottom sheet will not show
         // And we can show keyboard safely
-        let shouldActivateKeyboard = dependencies.repository.preferenceCountry != nil
+        let shouldActivateKeyboard = dependencies.isCountryByIPEnabled || dependencies.repository.preferenceCountry != nil
 
         let dataBuilder = CommonOnrampBaseDataBuilder(
             config: userWalletInfo.config,
@@ -195,7 +196,9 @@ extension OnrampFlowFactory: OnrampSummaryStepBuildable {
             marketingBannerManager: marketingBannerManager,
             linkedBannersPublisher: marketingBannerManager.linkedBannersPublisher,
             analyticsLogger: analyticsLogger,
-            buyActionBuilder: buyActionBuilder
+            buyActionBuilder: buyActionBuilder,
+            fiatPresetService: FiatPresetService(onrampRepository: dependencies.repository),
+            isCountryUnsupportedPublisher: onrampModel.unsupportedCountryPublisher.map { $0 != nil }.eraseToAnyPublisher()
         )
     }
 }
@@ -210,7 +213,7 @@ extension OnrampFlowFactory: SendFinishStepBuildable {
     var finishDependencies: SendFinishStepBuilder.Dependencies {
         SendFinishStepBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
-            headerTitleProvider: OnrampFinishHeaderTitleProvider()
+            headerTitleProvider: nil
         )
     }
 }

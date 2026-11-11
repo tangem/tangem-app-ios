@@ -67,6 +67,8 @@ extension TangemPayCurrentPlanCoordinator {
         let tariffPlanSelector: any TangemPayTariffPlanSelector
         let awaitingDepositCanceller: any TangemPayAwaitingDepositCanceller
         let closeFlow: () -> Void
+        let restartOnboarding: () -> Void
+        let returnToMain: () -> Void
     }
 }
 
@@ -108,6 +110,14 @@ extension TangemPayCurrentPlanCoordinator: TangemPayCurrentPlanRoutable {
             title: "",
             withCloseButton: true
         )
+    }
+
+    func restartOnboarding() {
+        options?.restartOnboarding()
+    }
+
+    func returnToMain() {
+        options?.returnToMain()
     }
 
     func openStayOnPlusConfirmation(planName: String, pendingPlanName: String) {

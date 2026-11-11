@@ -16,13 +16,11 @@ import TangemUIUtils
 ///
 /// On iOS 26, it matches look and feel of system ``NavigationStack`` back / close toolbar buttons.
 ///
-/// On earlier iOS versions, an icon with a round background is used.
+/// On earlier iOS versions, a plain system symbol is used.
 /// - SeeAlso: ``NavigationBarButton`` when you need a button outside of ``View.toolbar(content:)``.
 public struct NavigationToolbarButton: CustomizableToolbarContent {
     let sfSymbol: String
-    let iconAsset: ImageType
     let placement: ToolbarItemPlacement
-    var isRedesign: Bool
     var accessibilityIdentifier: String?
     var accessibilityLabel: String?
     var isDimmed = false
@@ -31,41 +29,27 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
     /// Creates a navigation toolbar button.
     /// - Parameters:
     ///   - sfSymbol: The name of the system symbol image. Use the SF Symbols app to look up the names of system symbol images.
-    ///   - iconAsset: The icon used for 18 and older iOS versions.
     ///   - placement: Which section of the toolbar the button should be placed in.
     ///   - action: The action to perform when the user triggers the button.
     init(
         sfSymbol: String,
-        iconAsset: ImageType,
         placement: ToolbarItemPlacement,
-        isRedesign: Bool = false,
         accessibilityIdentifier: String? = nil,
         action: @escaping () -> Void
     ) {
         self.sfSymbol = sfSymbol
-        self.iconAsset = iconAsset
         self.placement = placement
-        self.isRedesign = isRedesign
         self.accessibilityIdentifier = accessibilityIdentifier
         self.action = action
     }
 
     public var body: some CustomizableToolbarContent {
         ToolbarItem(id: sfSymbol, placement: placement) {
-            toolbarButton
+            systemLabelButton
                 .accessibilityLabel(accessibilityLabel)
                 .accessibilityIdentifier(accessibilityIdentifier)
         }
         .prefersVerticalBar()
-    }
-
-    @ViewBuilder
-    private var toolbarButton: some View {
-        if isRedesign || isLiquidGlassSupported {
-            systemLabelButton
-        } else {
-            circleIconButton
-        }
     }
 
     private var systemLabelButton: some View {
@@ -78,22 +62,6 @@ public struct NavigationToolbarButton: CustomizableToolbarContent {
 
     private var systemLabelColor: Color {
         isDimmed ? DesignSystem.Color.iconTertiary : DesignSystem.Color.iconPrimary
-    }
-
-    private var circleIconButton: some View {
-        SwiftUI.Button(action: action) {
-            iconAsset.image
-                .resizable()
-                .renderingMode(.template)
-                .frame(width: 20, height: 20)
-                .foregroundStyle(isDimmed ? DesignSystem.Color.iconTertiary : DesignSystem.Color.iconSecondary)
-                .padding(4)
-                .background {
-                    Circle()
-                        .fill(DesignSystem.Color.bgTransparentSecondary)
-                }
-                .contentShape(.rect)
-        }
     }
 }
 
@@ -113,12 +81,6 @@ public extension NavigationToolbarButton {
     func dimmed(_ isDimmed: Bool) -> Self {
         var mutableCopy = self
         mutableCopy.isDimmed = isDimmed
-        return mutableCopy
-    }
-
-    func redesigned() -> Self {
-        var mutableCopy = self
-        mutableCopy.isRedesign = true
         return mutableCopy
     }
 }
@@ -153,7 +115,6 @@ public extension NavigationToolbarButton {
     ) -> NavigationToolbarButton {
         NavigationToolbarButton(
             sfSymbol: role.sfSymbol,
-            iconAsset: role.iconAsset,
             placement: placement,
             accessibilityIdentifier: role.accessibilityIdentifier,
             action: action

@@ -95,7 +95,7 @@ extension TangemPayReceiveSheetViewModel: QRCodeReceiveAssetsRoutable {
     func copyToClipboard(with address: String) {
         UIPasteboard.general.string = address
 
-        Toast(
+        LegacyToast(
             view: TangemSnackbar(title: Localization.walletNotificationAddressCopied)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
                 .iconColor(DesignSystem.Color.iconAccentBlue)

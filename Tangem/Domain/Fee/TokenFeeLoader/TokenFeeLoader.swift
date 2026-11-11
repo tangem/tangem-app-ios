@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BigInt
 import BlockchainSdk
 
 protocol TokenFeeLoader {
@@ -31,6 +32,7 @@ struct EthereumFeeRequestData {
     let destination: String
     let txData: Data
     let otherNativeFee: Decimal?
+    var gasLimitIncreasePercent: BigUInt = EthereumFeeParametersConstants.defaultGasLimitIncreasePercent
 }
 
 protocol EthereumTokenFeeLoader: TokenFeeLoader {

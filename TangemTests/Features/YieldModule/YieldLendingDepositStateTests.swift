@@ -25,29 +25,15 @@ struct YieldLendingDepositStateTests {
         #expect(SUT.make(module: .failure(ReadError())) == .failedToLoad)
     }
 
-    @Test("Without a module, a paused factory makes lending temporarily unavailable")
-    func noModuleWhileFactoryPaused() {
-        #expect(SUT.make(module: .success(.notDeployed(isFactoryPaused: true))) == .temporarilyUnavailable)
-    }
-
     @Test("Without a module, the module is deployed first")
     func noModuleDeploysOne() {
-        #expect(SUT.make(module: .success(.notDeployed(isFactoryPaused: false))) == .deployModule)
+        #expect(SUT.make(module: .success(.notDeployed)) == .deployModule)
     }
 
     @Test("A module that cannot reach the native version blocks lending whatever the token state")
     func unsupportedModule() {
         for token in tokenStates {
             #expect(SUT.make(module: .success(.deployed(nativeSupport: .unavailable, token: token))) == .unsupportedModule)
-        }
-    }
-
-    @Test("Suspended entry pauses deposits whatever the token state")
-    func entrySuspended() {
-        for token in tokenStates {
-            let module = SUT.Module.deployed(nativeSupport: .supported(isEntrySuspended: true), token: token)
-
-            #expect(SUT.make(module: .success(module)) == .depositsPaused)
         }
     }
 
@@ -67,7 +53,7 @@ struct YieldLendingDepositStateTests {
 
     @Test("An active token on a native-capable module deposits without an upgrade")
     func depositWithoutUpgrade() {
-        let module = SUT.Module.deployed(nativeSupport: .supported(isEntrySuspended: false), token: activeToken)
+        let module = SUT.Module.deployed(nativeSupport: .supported, token: activeToken)
 
         #expect(SUT.make(module: .success(module)) == .depositAvailable(withUpgrade: false))
     }
@@ -83,7 +69,7 @@ struct YieldLendingDepositStateTests {
 // MARK: - Fixtures
 
 private extension YieldLendingDepositStateTests {
-    static let depositableNativeSupport: [SUT.NativeSupport] = [.supported(isEntrySuspended: false), .afterUpgrade]
+    static let depositableNativeSupport: [SUT.NativeSupport] = [.supported, .afterUpgrade]
 
     var activeToken: YieldModuleSmartContractState.InitializationState {
         .initialized(activeState: .active(info: .init(balance: nil, maxNetworkFee: BigUInt(1))))

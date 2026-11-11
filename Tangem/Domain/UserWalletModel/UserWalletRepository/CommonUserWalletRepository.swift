@@ -74,7 +74,9 @@ final class CommonUserWalletRepository: UserWalletRepository {
     private let supportChatTokenStorage = SupportChatTokenStorage()
     private let polymarketCredentialsRepository = CommonPolymarketCredentialsRepository()
     private let polymarketAccountPresenceStore: PolymarketAccountPresenceStore = AppSettings.shared
+    private let polymarketBannerDismissals: PolymarketFastTradingBannerDismissals = AppSettings.shared
     private let polymarketSessionKeyStore: any PolymarketSessionKeyStore = CommonPolymarketSessionKeyStore()
+    private let polymarketInterruptedAuthorizations: any PolymarketInterruptedAuthorizationStore = CommonPolymarketInterruptedAuthorizationStore()
     private let tangemPayResidencyStatusStorage: TangemPayResidencyStatusStorage = AppSettings.shared
     private let tangemPayStorageCleaner: TangemPayStorageCleaner = AppSettings.shared
     private let tangemPayCustomerSummaryCacheStorage: TangemPayCustomerSummaryCacheStorage = AppSettings.shared
@@ -238,8 +240,10 @@ final class CommonUserWalletRepository: UserWalletRepository {
         tangemPayCustomerSummaryCacheStorage.clearCachedCustomerSummary(userWalletId: userWalletId)
         polymarketCredentialsRepository.delete(userWalletId: userWalletId)
         polymarketAccountPresenceStore.delete(userWalletId: userWalletId)
+        polymarketBannerDismissals.deleteDismissals(userWalletId: userWalletId)
         PolymarketWithdrawRecordStore(userWalletId: userWalletId).delete()
         try? polymarketSessionKeyStore.deleteKey(for: userWalletId)
+        try? polymarketInterruptedAuthorizations.delete(for: userWalletId)
         try? collectiblesSessionKeyWalletStore.deleteKey(for: userWalletId)
         collectiblesAccountPresenceStore.remove(userWalletId)
 

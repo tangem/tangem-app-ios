@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemUIUtils
 
 extension Button {
     struct Style: ButtonStyle {
@@ -19,6 +20,7 @@ extension Button {
         @Environment(\.isEnabled) private var isEnabled
         @Environment(\.buttonPaintsPressOverlay) private var paintsPressOverlay
         @Environment(\.buttonHoldFill) private var holdFill
+        @Environment(\.layoutDirection) private var layoutDirection
         @ScaledMetric private var height: CGFloat
         @ScaledMetric private var labelMinWidth: CGFloat
         @ScaledMetric private var horizontalPadding: CGFloat
@@ -69,6 +71,7 @@ extension Button {
 
         private func fixedChromeBody(configuration: Configuration) -> some View {
             paddedLabel(configuration: configuration)
+                .if(holdFill != nil) { $0.clipShape(Capsule()) }
                 .background {
                     Capsule()
                         .fill(resolvedBackgroundColor)
@@ -110,13 +113,10 @@ extension Button {
         @ViewBuilder
         private var holdOverlay: some View {
             if let holdFill {
-                GeometryReader { proxy in
-                    styleType.pressOverlay
-                        .frame(width: holdFill.isFilled ? proxy.size.width : 0)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .animation(holdFill.animation, value: holdFill.isFilled)
-                        .opacity(holdFill.isCompleted ? 0 : 1)
-                }
+                styleType.pressOverlay
+                    .scaleEffect(x: holdFill.isFilled ? 1 : 0, anchor: layoutDirection == .rightToLeft ? .trailing : .leading)
+                    .animation(holdFill.animation, value: holdFill.isFilled)
+                    .opacity(holdFill.isCompleted ? 0 : 1)
             }
         }
 

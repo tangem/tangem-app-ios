@@ -17,17 +17,20 @@ struct CommonJointAccountOperationsService {
     private let pendingOperationsRepository: JointAccountPendingOperationsRepository
     private let signerFactory: TangemSignerFactory
     private let compositionVerifier: JointAccountCompositionVerifier
+    private let formVerifier: JointOperationFormVerifier
     private let blockaidGate: JointOperationBlockaidGate
 
     init(
         pendingOperationsRepository: JointAccountPendingOperationsRepository,
         signerFactory: TangemSignerFactory,
         compositionVerifier: JointAccountCompositionVerifier = JointAccountCompositionVerifier(),
+        formVerifier: JointOperationFormVerifier = JointOperationFormVerifier(),
         blockaidGate: JointOperationBlockaidGate = CommonJointOperationBlockaidGate()
     ) {
         self.pendingOperationsRepository = pendingOperationsRepository
         self.signerFactory = signerFactory
         self.compositionVerifier = compositionVerifier
+        self.formVerifier = formVerifier
         self.blockaidGate = blockaidGate
     }
 }
@@ -71,6 +74,8 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
     @discardableResult
     func signOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws -> JointAccountOperation {
         let account = try await activeAccount(of: wallet)
+        try formVerifier.verify(safeTransaction: operation.safeTransaction, safeAddress: account.safeAddress)
+
         let safeOperationsService = try safeOperationsService(of: wallet)
 
         // Checked anew: nothing binds the Safe on chain to what it was when the operation was created
@@ -92,11 +97,11 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
 
     /// Neither signed nor given anything to send: cancelling and declining are one and the same call, and which of
     /// the two it is the endpoint works out from the wallet it was made for.
-    func rejectOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws {
+    func rejectOperation(id: String, in wallet: JointAccountWallet) async throws {
         let account = try await activeAccount(of: wallet)
 
         try await pendingOperationsRepository.rejectOperation(
-            id: operation.id,
+            id: id,
             forCryptoAccountId: account.cryptoAccountId
         )
     }
@@ -161,7 +166,7 @@ private extension CommonJointAccountOperationsService {
     /// - Note: Read off the store rather than off the list the screens are given, which leaves out an operation in a
     /// token this device has not added — an operation nobody here can show holds the network all the same.
     func ensureNetworkIsFree(chainId: Int, cryptoAccountId: String) async throws {
-        let records = try await pendingOperationsRepository.operationsPublisher.async()
+        let records = try await pendingOperationsRepository.pendingOperationsPublisher.async()
         let operations = records.first(by: cryptoAccountId)?.operations ?? []
         let isBusy = operations.contains { $0.chainId == chainId && $0.status.isInFlight }
 

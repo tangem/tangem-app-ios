@@ -19,36 +19,29 @@ struct MobileRemoveSocialWalletView: View {
     @ScaledMetric private var titleTopPadding: CGFloat = Layout.titleTopPadding
     @ScaledMetric private var subtitleTopPadding: CGFloat = Layout.subtitleTopPadding
 
+    @State private var isLoadingCoverPresented = false
+
     var body: some View {
         content
             .padding(.horizontal, Layout.horizontalPadding)
             .padding(.bottom, Layout.bottomPadding)
             .background(DesignSystem.Color.bgPrimary)
-            .overlay { loadingOverlay }
-            .topNavigation(
-                title: viewModel.navigationTitle,
-                leading: .custom(.back(action: viewModel.onBackTap))
-            )
+            .fullScreenCover(isPresented: $isLoadingCoverPresented) {
+                LoadingCover()
+                    .presentationBackground(.clear)
+            }
+            .onChange(of: viewModel.isLoading) { isLoading in
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) { isLoadingCoverPresented = isLoading }
+            }
+            .topNavigation(title: viewModel.navigationTitle)
     }
 }
 
 // MARK: - Subviews
 
 private extension MobileRemoveSocialWalletView {
-    @ViewBuilder
-    var loadingOverlay: some View {
-        if viewModel.isLoading {
-            ZStack {
-                DesignSystem.Color.overlayModal
-                    .ignoresSafeArea()
-
-                Loader()
-                    .loaderColor(DesignSystem.Color.iconSecondary)
-                    .loaderSize(.size32)
-            }
-        }
-    }
-
     var content: some View {
         VStack(spacing: .zero) {
             Spacer()
@@ -104,6 +97,21 @@ private extension MobileRemoveSocialWalletView {
         .loading(.spinner(if: viewModel.isLoading))
         .disabled(!viewModel.isActionEnabled)
         .confirmationDialog(viewModel: $viewModel.confirmationDialog)
+    }
+}
+
+// MARK: - LoadingCover
+
+private struct LoadingCover: View {
+    @State private var isVisible = false
+
+    var body: some View {
+        DesignSystem.Color.overlayModal
+            .ignoresSafeArea()
+            .opacity(isVisible ? 1 : 0)
+            .onAppear {
+                withAnimation(.easeOut(duration: 0.2)) { isVisible = true }
+            }
     }
 }
 

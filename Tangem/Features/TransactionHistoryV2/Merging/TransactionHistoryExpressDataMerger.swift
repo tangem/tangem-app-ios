@@ -533,9 +533,16 @@ struct TransactionHistoryExpressDataMerger {
     // MARK: - Helpers
 
     private func isSentByOwner(_ bsdkTransaction: TransactionRecord) -> Bool {
-        return bsdkTransaction.source.sources.contains { source in
-            walletModelAddresses.contains(lowerCasedAddressStringIfNeeded(source.address))
+        switch bsdkTransaction.source {
+        case .single(let source):
+            return isWalletModelAddress(source.address)
+        case .multiple(let sources):
+            return sources.contains { isWalletModelAddress($0.address) }
         }
+    }
+
+    private func isWalletModelAddress(_ address: String) -> Bool {
+        return walletModelAddresses.contains(lowerCasedAddressStringIfNeeded(address))
     }
 
     /// Groups BSDK transactions by their (normalized) destination address, building the grouping lazily on first

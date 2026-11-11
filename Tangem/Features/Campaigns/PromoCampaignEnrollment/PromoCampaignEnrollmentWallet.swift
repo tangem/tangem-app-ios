@@ -9,7 +9,7 @@
 struct PromoCampaignEnrollmentWallet {
     let name: String
     let subtitle: String
-    let imageProvider: WalletImageProviding
+    let walletIcon: UserWalletIcon
     let payout: Payout?
 }
 

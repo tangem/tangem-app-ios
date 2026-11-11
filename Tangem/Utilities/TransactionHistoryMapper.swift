@@ -327,6 +327,15 @@ struct TransactionHistoryMapper {
             return nil
         }
 
+        switch record.historyExtraInfo {
+        case .jointOperation(let info):
+            guard isSuggestable(info, hash: record.hash) else {
+                return nil
+            }
+        case .express, nil:
+            break
+        }
+
         let type = transactionType(from: record)
 
         // Only simple transfer
@@ -390,6 +399,19 @@ private extension TransactionHistoryMapper {
             amount: transactionType.isNetworkFee ? record.fee.amount.value : transferAmountValue(from: record),
             approve: approve(from: record)
         )
+    }
+
+    func isSuggestable(_ info: JointOperationHistoryInfo, hash: String) -> Bool {
+        guard !JointOperationSyntheticTxHelper.isSyntheticIdentifier(hash) else {
+            return false
+        }
+
+        switch info.item.operation.status {
+        case .executed:
+            return true
+        case .awaitingSignatures, .pending, .failed, .cancelled, .unknown:
+            return false
+        }
     }
 
     func isZeroTransferPaidByTronResources(_ prepared: PreparedRecord) -> Bool {
@@ -594,7 +616,9 @@ private extension TransactionHistoryMapper {
             return .swap
         case .express(.onramp):
             return .onramp
-        case .jointOperation, nil:
+        case .jointOperation(let info):
+            return jointOperationType(of: info)
+        case nil:
             break
         }
 
@@ -621,6 +645,13 @@ private extension TransactionHistoryMapper {
             case .claimRewards: return .claimRewards
             case .restake: return .restake
             }
+        }
+    }
+
+    func jointOperationType(of info: JointOperationHistoryInfo) -> TransactionViewModel.TransactionType {
+        switch info.innerCallType {
+        case .transfer(.coin), .transfer(.token):
+            return .transfer
         }
     }
 
@@ -783,7 +814,7 @@ private extension TransactionHistoryMapper {
     func displayedStatus(from prepared: PreparedRecord) -> TransactionViewModel.Status {
         let status = status(from: prepared.record)
 
-        if prepared.transactionType.isNetworkFee, status == .failed {
+        if prepared.transactionType.isNetworkFee, status.isFailed {
             return .confirmed
         }
 
@@ -928,7 +959,7 @@ private extension TransactionHistoryMapper {
         let sign = switch status {
         case .inProgress: tilde
         case .confirmed: AppConstants.plusSign
-        case .failed, .undefined: ""
+        case .failed, .cancelled, .undefined: ""
         }
 
         return makeFormattedAmount(amount, symbol: currencySymbol, sign: sign)

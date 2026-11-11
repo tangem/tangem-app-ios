@@ -322,11 +322,11 @@ final class AccountFormViewModel: ObservableObject, Identifiable {
     private func handleFlowSuccess(_ output: AccountFormOperationResult) {
         switch (flowType, output) {
         case (.edit, _):
-            Toast(view: SuccessToast(text: Localization.accountEditSuccessMessage))
+            LegacyToast(view: SuccessToast(text: Localization.accountEditSuccessMessage))
                 .present(layout: .top(padding: 24), type: .temporary(interval: 4))
 
         case (.create, .crypto):
-            Toast(view: SuccessToast(text: Localization.accountCreateSuccessMessage))
+            LegacyToast(view: SuccessToast(text: Localization.accountCreateSuccessMessage))
                 .present(layout: .top(padding: 24), type: .temporary(interval: 4))
 
             Analytics.log(.walletSettingsAccountCreated)

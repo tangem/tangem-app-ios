@@ -23,6 +23,15 @@ struct BalanceFormattingOptions: Hashable {
         )
     }
 
+    static var wholeFiatFormattingOptions: BalanceFormattingOptions {
+        .init(
+            minFractionDigits: 0,
+            maxFractionDigits: 0,
+            formatEpsilonAsLowestRepresentableValue: false,
+            roundingType: .default(roundingMode: .plain, scale: 0)
+        )
+    }
+
     static var defaultCryptoFormattingOptions: BalanceFormattingOptions {
         .init(
             minFractionDigits: 2,

@@ -24,6 +24,14 @@ public extension SocialAuthAPIError {
 
         return problemDetail.code == Constants.recoveryBindingNotFoundCode
     }
+
+    var isAppAttestRejected: Bool {
+        guard case .http(statusCode: Constants.badRequestStatusCode, problemDetail: let problemDetail?) = self else {
+            return false
+        }
+
+        return problemDetail.code == Constants.appAttestRejectedCode
+    }
 }
 
 // MARK: - Constants
@@ -31,7 +39,9 @@ public extension SocialAuthAPIError {
 private extension SocialAuthAPIError {
     enum Constants {
         static let notFoundStatusCode = 404
+        static let badRequestStatusCode = 400
         static let recoveryBindingNotFoundCode = "RECOVERY_BINDING_NOT_FOUND"
+        static let appAttestRejectedCode = "APPATTEST_REJECTED"
     }
 }
 

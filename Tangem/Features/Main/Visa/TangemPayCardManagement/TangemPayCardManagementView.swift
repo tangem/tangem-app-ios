@@ -37,7 +37,6 @@ struct TangemPayCardManagementView: View {
             .alert(item: $viewModel.alert) { $0.alert }
             .onAppear(perform: viewModel.onAppear)
             .translucentNavigationBar()
-            .redesigned()
     }
 
     private var scrollableContent: some View {

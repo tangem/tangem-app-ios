@@ -86,6 +86,10 @@ extension ExpressExchangeDataError: BindableError {
         AlertBuilder.makeOkErrorAlert(message: localizedMessage, okAction: okAction)
     }
 
+    var offersSupport: Bool {
+        apiError != nil || isInvalidResponse || underlying is ExpressExchangeDataDecoderError
+    }
+
     var localizedMessage: String {
         switch apiError {
         case .some(let apiError) where apiError.errorCode == .exchangeNotPossibleError:

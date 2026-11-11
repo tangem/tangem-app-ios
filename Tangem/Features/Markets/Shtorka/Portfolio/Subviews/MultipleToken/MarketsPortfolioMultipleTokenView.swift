@@ -98,7 +98,7 @@ private extension MarketsPortfolioMultipleTokenView {
     }
 
     func fiatBalance() -> some View {
-        balanceState(viewModel.fiatBalanceState, skeletonSize: CGSize(width: 64, height: 20) * scaleFactor)
+        balanceState(viewModel.fiatBalanceState, skeletonSize: CGSize(width: 64, height: 20) * scaleFactor, token: DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
     }
 
     func tokensCount() -> some View {
@@ -108,13 +108,15 @@ private extension MarketsPortfolioMultipleTokenView {
     }
 
     func cryptoBalance() -> some View {
-        balanceState(viewModel.cryptoBalanceState, skeletonSize: CGSize(width: 52, height: 16) * scaleFactor)
+        balanceState(viewModel.cryptoBalanceState, skeletonSize: CGSize(width: 52, height: 16) * scaleFactor, token: DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
     }
 
-    func balanceState(_ state: ViewModel.BalanceState, skeletonSize: CGSize) -> some View {
+    func balanceState(_ state: ViewModel.BalanceState, skeletonSize: CGSize, token: TangemTypographyToken, color: Color) -> some View {
         MarketsPortfolioTokenBalanceView(
             state: state,
-            skeletonSize: skeletonSize
+            skeletonSize: skeletonSize,
+            token: token,
+            color: color
         )
     }
 }

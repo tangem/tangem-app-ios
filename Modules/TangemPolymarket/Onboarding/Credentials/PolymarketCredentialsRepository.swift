@@ -12,6 +12,13 @@ import TangemFoundation
 public protocol PolymarketCredentialsRepository {
     func save(credentials: PolymarketL2Credentials, userWalletId: UserWalletId) throws
     func load(userWalletId: UserWalletId) -> PolymarketL2Credentials?
+    func readCredentials(userWalletId: UserWalletId) throws -> PolymarketL2Credentials?
     func delete(userWalletId: UserWalletId)
     func clean(genericPasswordAccounts: [String])
+}
+
+public extension PolymarketCredentialsRepository {
+    func readCredentials(userWalletId: UserWalletId) throws -> PolymarketL2Credentials? {
+        load(userWalletId: userWalletId)
+    }
 }

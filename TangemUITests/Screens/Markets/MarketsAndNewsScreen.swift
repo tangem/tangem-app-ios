@@ -15,6 +15,7 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
     private lazy var addAccountBanner = app.buttons[AccountsAccessibilityIdentifiers.feedAddAccountBanner].firstMatch
     private lazy var forYouWidget = app.buttons[MainAccessibilityIdentifiers.feedForYouWidget].firstMatch
     private lazy var tangemPayBanner = app.buttons[TangemPayAccessibilityIdentifiers.feedBanner].firstMatch
+    private lazy var polymarketWidget = app.buttons[PolymarketAccessibilityIdentifiers.feedWidget].firstMatch
 
     @discardableResult
     func openAddAccountTypeSelector() -> AddAccountTypeSelectorSheet {
@@ -149,6 +150,45 @@ final class MarketsAndNewsScreen: ScreenBase<MarketsAndNewsScreenElement> {
         }
     }
 
+    @discardableResult
+    func verifyPolymarketWidgetDisplayed() -> Self {
+        XCTContext.runActivity(named: "Verify 'Predictions' widget is displayed in the feed") { _ in
+            waitAndAssertTrue(polymarketWidget, timeout: .networkRequest, "'Predictions' widget should be displayed in the feed")
+            return self
+        }
+    }
+
+    @discardableResult
+    func openPolymarket() -> PolymarketOnboardingScreen {
+        tapPolymarketWidget()
+        return PolymarketOnboardingScreen(app)
+    }
+
+    @discardableResult
+    func openPolymarketAccount() -> PolymarketMainScreen {
+        tapPolymarketWidget()
+        return PolymarketMainScreen(app)
+    }
+
+    private func tapPolymarketWidget() {
+        XCTContext.runActivity(named: "Tap 'Predictions' widget in the feed") { _ in
+            waitAndAssertTrue(polymarketWidget, timeout: .networkRequest, "'Predictions' widget should be displayed in the feed")
+            revealPolymarketWidget()
+            XCTAssertTrue(polymarketWidget.waitAndTap(timeout: .networkRequest), "'Predictions' widget should be tappable in the feed")
+        }
+    }
+
+    private func revealPolymarketWidget() {
+        let origin = app.coordinate(withNormalizedOffset: .zero)
+
+        for _ in 0 ..< Constants.carouselSwipeAttempts where polymarketWidget.frame.maxX > app.frame.maxX {
+            let rowY = polymarketWidget.frame.midY
+            let start = origin.withOffset(CGVector(dx: app.frame.width * Constants.swipeStartRatio, dy: rowY))
+            let end = origin.withOffset(CGVector(dx: app.frame.width * Constants.swipeEndRatio, dy: rowY))
+            start.press(forDuration: Constants.swipePressDuration, thenDragTo: end)
+        }
+    }
+
     private func tapTangemPayBanner() {
         XCTContext.runActivity(named: "Tap 'Tangem Pay' banner in the feed") { _ in
             XCTAssertTrue(tangemPayBanner.waitAndTap(), "'Tangem Pay' banner should be tappable in the feed")
@@ -189,5 +229,9 @@ enum MarketsAndNewsScreenElement: String, UIElement {
 private extension MarketsAndNewsScreen {
     enum Constants {
         static let defaultCategory = "rating"
+        static let carouselSwipeAttempts = 5
+        static let swipeStartRatio: CGFloat = 0.85
+        static let swipeEndRatio: CGFloat = 0.15
+        static let swipePressDuration: TimeInterval = 0.1
     }
 }

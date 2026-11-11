@@ -56,5 +56,6 @@ enum IncomingActionConstants {
         case swapStatusUpdate = "swap_status_update"
         case jointTxSent = "joint_tx_sent"
         case jointTx = "joint_tx"
+        case jointTokens = "joint_tokens"
     }
 }

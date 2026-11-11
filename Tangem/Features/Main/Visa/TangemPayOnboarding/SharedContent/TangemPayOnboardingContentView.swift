@@ -58,7 +58,7 @@ struct TangemPayOnboardingContentView: View {
             VStack(alignment: .leading, spacing: 0) {
                 textSection
 
-                featureGrid
+                features
                     .padding(.top, 36)
 
                 if let onLegalLinkTap {
@@ -119,7 +119,7 @@ struct TangemPayOnboardingContentView: View {
                     textSection
 
                     VStack(spacing: 24) {
-                        featureGrid
+                        features
 
                         if let onLegalLinkTap {
                             legalLine(onLinkTap: onLegalLinkTap)
@@ -163,44 +163,97 @@ struct TangemPayOnboardingContentView: View {
 
     // MARK: - Shared content
 
+    private var content: Content {
+        TangemPayUnifiedOnboarding.isEnabled ? .unified : .card
+    }
+
     private var textSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(Localization.tangempayNewonboardTitle)
+            Text(content.title)
                 .font(token: DesignSystem.Font.headingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textPrimary)
                 .accessibilityIdentifier(titleAccessibilityIdentifier)
 
-            Text(Localization.tangempayNewonboardBody)
+            Text(content.body)
                 .font(token: DesignSystem.Font.subheadingMediumToken)
                 .foregroundStyle(DesignSystem.Color.textSecondary)
         }
         .infinityFrame(axis: .horizontal, alignment: .leading)
     }
 
-    private var featureGrid: some View {
+    @ViewBuilder
+    private var features: some View {
+        switch content.features {
+        case .iconGrid(let topLeft, let topRight, let bottomLeft, let bottomRight):
+            featureGrid(topLeft: topLeft, topRight: topRight, bottomLeft: bottomLeft, bottomRight: bottomRight)
+        case .sections(let sections):
+            featureSections(sections)
+        }
+    }
+
+    private func featureGrid(
+        topLeft: Content.Tile,
+        topRight: Content.Tile,
+        bottomLeft: Content.Tile,
+        bottomRight: Content.Tile
+    ) -> some View {
         let columns = [GridItem(.flexible(), spacing: 8), GridItem(.flexible())]
         return LazyVGrid(columns: columns, spacing: 8) {
-            featureTile(
-                icon: Assets.Visa.tangemPayOnboardingNewLightning,
-                primary: Localization.tangempayNewonboardTopleftTitle,
-                secondary: Localization.tangempayNewonboardTopleftBody
-            )
-            featureTile(
-                icon: Assets.Visa.tangemPayOnboardingNewHeart,
-                primary: Localization.tangempayNewonboardToprightTitle,
-                secondary: Localization.tangempayNewonboardToprightBody
-            )
-            featureTile(
-                icon: Assets.Visa.tangemPayOnboardingNewShield,
-                primary: Localization.tangempayNewonboardBottomleftTitle,
-                secondary: Localization.tangempayNewonboardBottomleftBody
-            )
-            featureTile(
-                icon: Assets.Visa.tangemPayOnboardingNewPercent,
-                primary: Localization.tangempayNewonboardBottomrightTitle,
-                secondary: Localization.tangempayNewonboardBottomrightBody
-            )
+            featureTile(icon: Assets.Visa.tangemPayOnboardingNewLightning, primary: topLeft.primary, secondary: topLeft.secondary)
+            featureTile(icon: Assets.Visa.tangemPayOnboardingNewHeart, primary: topRight.primary, secondary: topRight.secondary)
+            featureTile(icon: Assets.Visa.tangemPayOnboardingNewShield, primary: bottomLeft.primary, secondary: bottomLeft.secondary)
+            featureTile(icon: Assets.Visa.tangemPayOnboardingNewPercent, primary: bottomRight.primary, secondary: bottomRight.secondary)
         }
+    }
+
+    private func featureSections(_ sections: [Content.FeatureSection]) -> some View {
+        VStack(alignment: .leading, spacing: 24) {
+            ForEach(sections, id: \.title) { section in
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(section.title)
+                        .font(token: DesignSystem.Font.subheadingMediumToken)
+                        .foregroundStyle(DesignSystem.Color.textSecondary)
+                        .padding(.vertical, 8)
+
+                    VStack(spacing: 8) {
+                        ForEach(section.rows, id: \.self) { row in
+                            HStack(alignment: .top, spacing: 8) {
+                                ForEach(row, id: \.caption) { card in
+                                    featureCard(card)
+                                }
+                            }
+                            .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func featureCard(_ card: Content.FeatureCard) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(card.caption)
+                .font(token: DesignSystem.Font.captionMediumToken)
+                .foregroundStyle(DesignSystem.Color.textSecondary)
+
+            Text(featureValue(card))
+                .font(token: DesignSystem.Font.headingSmallToken)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(16)
+        .background(DesignSystem.Color.bgSecondary)
+        .cornerRadiusContinuous(24)
+    }
+
+    private func featureValue(_ card: Content.FeatureCard) -> AttributedString {
+        var value = AttributedString(card.value)
+        value.foregroundColor = DesignSystem.Color.textPrimary
+
+        if let secondaryPart = card.secondaryPart, let range = value.range(of: secondaryPart) {
+            value[range].foregroundColor = DesignSystem.Color.textSecondary
+        }
+
+        return value
     }
 
     private func featureTile(icon: ImageType, primary: String, secondary: String) -> some View {
@@ -235,7 +288,7 @@ struct TangemPayOnboardingContentView: View {
 
     private var getCardButton: some View {
         TangemUI.Button(
-            label: Localization.tangempayOnboardingGetCardButtonText,
+            label: content.buttonTitle,
             accessibilityLabel: nil
         ) {
             onGetCard()
@@ -285,5 +338,111 @@ private extension TangemPayOnboardingContentView {
         static let buttonBottomInset: CGFloat = 32
         static let buttonBottomInsetWithoutHomeIndicator: CGFloat = 16
         static let scrollCoordinateSpace = "TangemPayOnboardingScroll"
+    }
+}
+
+private extension TangemPayOnboardingContentView {
+    struct Content {
+        struct Tile {
+            let primary: String
+            let secondary: String
+        }
+
+        struct FeatureCard: Hashable {
+            let caption: String
+            let value: String
+            let secondaryPart: String?
+        }
+
+        struct FeatureSection {
+            let title: String
+            let rows: [[FeatureCard]]
+        }
+
+        enum Features {
+            case iconGrid(topLeft: Tile, topRight: Tile, bottomLeft: Tile, bottomRight: Tile)
+            case sections([FeatureSection])
+        }
+
+        let title: String
+        let body: String
+        let features: Features
+        let buttonTitle: String
+
+        static let card = Content(
+            title: Localization.tangempayNewonboardTitle,
+            body: Localization.tangempayNewonboardBody,
+            features: .iconGrid(
+                topLeft: Tile(
+                    primary: Localization.tangempayNewonboardTopleftTitle,
+                    secondary: Localization.tangempayNewonboardTopleftBody
+                ),
+                topRight: Tile(
+                    primary: Localization.tangempayNewonboardToprightTitle,
+                    secondary: Localization.tangempayNewonboardToprightBody
+                ),
+                bottomLeft: Tile(
+                    primary: Localization.tangempayNewonboardBottomleftTitle,
+                    secondary: Localization.tangempayNewonboardBottomleftBody
+                ),
+                bottomRight: Tile(
+                    primary: Localization.tangempayNewonboardBottomrightTitle,
+                    secondary: Localization.tangempayNewonboardBottomrightBody
+                )
+            ),
+            buttonTitle: Localization.tangempayOnboardingGetCardButtonText
+        )
+
+        static let unified = Content(
+            title: Localization.tangempayTitle,
+            body: Localization.tangempayUnifiedOnboardingDescription,
+            features: .sections([
+                FeatureSection(
+                    title: Localization.tangempayUnifiedOnboardingPaymentAccountHeader,
+                    rows: [[
+                        FeatureCard(
+                            caption: Localization.tangempayUnifiedOnboardingCashbackCaption,
+                            value: Localization.tangempayUnifiedOnboardingCashbackTitle(
+                                Localization.tangempayUnifiedOnboardingCashbackSubtitle
+                            ),
+                            secondaryPart: Localization.tangempayUnifiedOnboardingCashbackSubtitle
+                        ),
+                        FeatureCard(
+                            caption: Localization.tangempayUnifiedOnboardingPaymentAccountCaption,
+                            value: Localization.tangempayUnifiedOnboardingPaymentAccountTitle,
+                            secondaryPart: nil
+                        ),
+                    ]]
+                ),
+                FeatureSection(
+                    title: Localization.tangempayUnifiedOnboardingMoneyAccountHeader,
+                    rows: [
+                        [FeatureCard(
+                            caption: Localization.tangempayUnifiedOnboardingFeesCaption,
+                            value: Localization.tangempayUnifiedOnboardingFeesTitle(Localization.tangempayUnifiedOnboardingFeesSubtitle),
+                            secondaryPart: Localization.tangempayUnifiedOnboardingFeesSubtitle
+                        )],
+                        [
+                            FeatureCard(
+                                caption: Localization.tangempayUnifiedOnboardingMoneyAccountCaption,
+                                value: Localization.tangempayUnifiedOnboardingMoneyAccountTitleV2,
+                                secondaryPart: nil
+                            ),
+                            FeatureCard(
+                                caption: Localization.tangempayUnifiedOnboardingPaymentsCaption,
+                                value: Localization.tangempayUnifiedOnboardingPaymentsTitle,
+                                secondaryPart: nil
+                            ),
+                        ],
+                        [FeatureCard(
+                            caption: Localization.tangempayUnifiedOnboardingInterestCaption,
+                            value: Localization.tangempayUnifiedOnboardingInterestTitle,
+                            secondaryPart: nil
+                        )],
+                    ]
+                ),
+            ]),
+            buttonTitle: Localization.commonGetStarted
+        )
     }
 }

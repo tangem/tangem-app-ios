@@ -91,7 +91,7 @@ extension TokenActionAvailabilityProvider {
         return actions
     }
 
-    /// Uses for decide visibility on the long tap menu action buttons list on `TokenItemView`
+    /// Uses for decide visibility on the long tap menu action buttons list on the Main token rows (`TokenRow`)
     func buildTokenContextActions() -> [TokenActionType] {
         guard isTokenInteractionAvailable(), isContextMenuAvailable() else {
             return []

@@ -24,6 +24,7 @@ import TangemFoundation
 // `011` - CommonUserTokensManager.Error
 // `012` - CloreMigrationSigningError
 // `013` - JointOperationError
+// `014` - DerivationManagerError
 
 extension CommonError: UniversalError {
     var errorCode: Int {
@@ -214,6 +215,15 @@ extension CloreMigrationSigningError: UniversalError {
             100012002
         case .invalidSignature:
             100012003
+        }
+    }
+}
+
+extension DerivationManagerError: UniversalError {
+    var errorCode: Int {
+        switch self {
+        case .keysDerivingProviderNotFound:
+            100014000
         }
     }
 }

@@ -44,6 +44,8 @@ enum OnrampSummaryStepBuilder {
         let linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>
         let analyticsLogger: any SendOnrampOffersAnalyticsLogger
         let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
+        let fiatPresetService: FiatPresetService
+        let isCountryUnsupportedPublisher: AnyPublisher<Bool, Never>
     }
 
     typealias ReturnValue = OnrampSummaryStep
@@ -72,7 +74,9 @@ enum OnrampSummaryStepBuilder {
             marketingBannerManager: dependencies.marketingBannerManager,
             linkedBannersPublisher: dependencies.linkedBannersPublisher,
             analyticsLogger: dependencies.analyticsLogger,
-            buyActionBuilder: dependencies.buyActionBuilder
+            buyActionBuilder: dependencies.buyActionBuilder,
+            fiatPresetService: dependencies.fiatPresetService,
+            isCountryUnsupportedPublisher: dependencies.isCountryUnsupportedPublisher
         )
 
         let step = OnrampSummaryStep(tokenItem: types.tokenItem, viewModel: viewModel, interactor: interactor)

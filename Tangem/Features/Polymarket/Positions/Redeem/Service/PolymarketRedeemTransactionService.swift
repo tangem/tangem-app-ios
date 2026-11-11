@@ -18,6 +18,7 @@ actor PolymarketRedeemTransactionService {
     private let signer: PolymarketBatchSigning
     private let serverClock: PolymarketServerClock
     private let pollDelayProvider: PollDelayProvider
+    private let operationSlot: PolymarketWalletOperationSlot?
 
     private var isClaimInProgress = false
 
@@ -27,7 +28,8 @@ actor PolymarketRedeemTransactionService {
         depositWalletResolver: PolymarketDepositWalletResolver,
         signer: PolymarketBatchSigning,
         serverClock: PolymarketServerClock,
-        pollDelayProvider: PollDelayProvider = TaskSleepPollDelayProvider()
+        pollDelayProvider: PollDelayProvider = TaskSleepPollDelayProvider(),
+        operationSlot: PolymarketWalletOperationSlot? = nil
     ) {
         self.redeemService = redeemService
         self.relayerService = relayerService
@@ -35,6 +37,7 @@ actor PolymarketRedeemTransactionService {
         self.signer = signer
         self.serverClock = serverClock
         self.pollDelayProvider = pollDelayProvider
+        self.operationSlot = operationSlot
     }
 }
 
@@ -62,6 +65,16 @@ private extension PolymarketRedeemTransactionService {
 
         defer { isClaimInProgress = false }
 
+        guard let operationSlot else {
+            return try await prepareAndSubmitClaim(request)
+        }
+
+        return try await operationSlot.exclusively(orThrow: Error.claimInProgress, whileKeptAuthorizationPends: Error.fastTradingChangePending) {
+            try await prepareAndSubmitClaim(request)
+        }
+    }
+
+    func prepareAndSubmitClaim(_ request: PolymarketRedeemCallRequest) async throws -> PolymarketRedeemRecord {
         let addresses = try await depositWalletResolver.resolve()
         let calls = try await redeemService.calls(for: request)
         let nonce = try await relayerService.walletNonce(ownerAddress: addresses.owner)
@@ -187,6 +200,7 @@ extension PolymarketRedeemTransactionService {
         case claimFailed(PolymarketRedeemRecord)
         case claimUnconfirmed(PolymarketRedeemRecord)
         case refused(PolymarketRedeemError)
+        case fastTradingChangePending
 
         var errorDescription: String? {
             switch self {
@@ -198,6 +212,8 @@ extension PolymarketRedeemTransactionService {
                 Localization.predictionClaimErrorUnconfirmed
             case .refused(let error):
                 Self.message(for: error)
+            case .fastTradingChangePending:
+                PolymarketFastTradingStrings.walletOperationWaitsForChange
             }
         }
     }

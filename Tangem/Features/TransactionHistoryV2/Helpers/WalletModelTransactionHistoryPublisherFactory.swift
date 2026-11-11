@@ -113,7 +113,7 @@ enum WalletModelTransactionHistoryPublisherFactory {
                 // [REDACTED_TODO_COMMENT]
                 var exchangeTransactions: [ExchangeTransaction] = []
                 var onrampTransactions: [OnrampTransaction] = []
-                var jointOperations: [JointOperationHistoryItem] = []
+                var jointOperations: [JointOperationHistoryInfo] = []
                 for record in records.unique() { // One row per index entry, e.g. the yield contract and the wallet
                     switch record {
                     case .express(.exchange(let transactionInfo)):
@@ -121,7 +121,7 @@ enum WalletModelTransactionHistoryPublisherFactory {
                     case .express(.onramp(let transactionInfo)):
                         onrampTransactions.append(transactionInfo.transaction)
                     case .jointOperation(let info) where isJointAccountsAvailable:
-                        jointOperations.append(info.item)
+                        jointOperations.append(info)
                     case .jointOperation:
                         break
                     }
@@ -186,7 +186,7 @@ enum WalletModelTransactionHistoryPublisherFactory {
 
     private static func enrich(
         _ transactions: [TransactionRecord],
-        with jointOperations: [JointOperationHistoryItem],
+        with jointOperations: [JointOperationHistoryInfo],
         syntheticWindowStart: Date?,
         using enricher: TransactionHistoryJointOperationEnricher
     ) -> [TransactionRecord] {

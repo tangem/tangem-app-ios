@@ -94,7 +94,7 @@ private extension JointAccountJoinCoordinator {
     }
 
     func showJoinSuccessToast() {
-        Toast(view: SuccessToast(text: Localization.jointAccountJoinSuccessMessage))
+        LegacyToast(view: SuccessToast(text: Localization.jointAccountJoinSuccessMessage))
             .present(layout: .top(padding: 24), type: .temporary(interval: 4))
     }
 }

@@ -45,8 +45,7 @@ public struct PolymarketPositionRow: View {
             if let change = model.change {
                 PriceChangeView(
                     state: .loaded(changeType: change.type, text: change.text),
-                    showIconForNeutral: false,
-                    useRedesignColors: true
+                    showIconForNeutral: false
                 )
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(change.type.accessibilitySign + change.text)

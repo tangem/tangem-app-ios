@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Kingfisher
 import SwiftUI
 import TangemLocalization
 import TangemAssets
@@ -19,7 +20,12 @@ struct OnrampRedirectingView: View {
         ZStack {
             DesignSystem.Color.bgPrimary.ignoresSafeArea()
 
-            content
+            ModalStatus(
+                title: Localization.onrampRedirectingToProviderTitle(viewModel.providerName),
+                description: Localization.onrampRedirectingToProviderSubtitle(viewModel.providerName)
+            ) {
+                assets
+            }
         }
         .navigationTitle(Text(viewModel.title))
         .navigationBarTitleDisplayMode(.inline)
@@ -31,37 +37,49 @@ struct OnrampRedirectingView: View {
         .task { await viewModel.loadRedirectData() }
     }
 
-    private var content: some View {
-        VStack(alignment: .center, spacing: 24) {
-            HStack(spacing: 12) {
-                tangemIcon
+    private var assets: some View {
+        HStack(spacing: 12) {
+            Avatar(.icon(DesignSystem.Icons.LogoTangem.regular32), size: .size72)
 
-                ProgressDots(style: .large)
+            Loader()
+                .loaderSize(.size20)
 
-                IconView(url: viewModel.providerImageURL, size: CGSize(width: 64, height: 64), cornerRadius: 8)
-            }
-
-            VStack(alignment: .center, spacing: 12) {
-                Text(Localization.onrampRedirectingToProviderTitle(viewModel.providerName))
-                    .style(Fonts.Bold.title3, color: DesignSystem.Color.textPrimary)
-
-                Text(Localization.onrampRedirectingToProviderSubtitle(viewModel.providerName))
-                    .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
-                    .multilineTextAlignment(.center)
-            }
+            ProviderLogoAvatar(url: viewModel.providerImageURL)
+                .id(viewModel.providerImageURL)
         }
-        .padding(.horizontal, 50)
+        .accessibilityHidden(true)
     }
+}
 
-    var tangemIcon: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(DesignSystem.Color.bgSecondary)
-                .frame(width: 64, height: 64)
+// MARK: - ProviderLogoAvatar
 
-            Assets.tangemIconMedium.image
-                .renderingMode(.template)
-                .foregroundColor(DesignSystem.Color.iconPrimary)
-        }
+private struct ProviderLogoAvatar: View {
+    let url: URL?
+
+    @State private var loadingState: LoadingState = .loading
+
+    var body: some View {
+        Avatar(.address(nil), size: .size72)
+            .environment(\.isShimmerActive, url != nil && loadingState == .loading)
+            .opacity(loadingState == .loaded ? 0 : 1)
+            .overlay {
+                if let url {
+                    KFImage(url)
+                        .onSuccess { _ in loadingState = .loaded }
+                        .onFailure { _ in loadingState = .failed }
+                        .cancelOnDisappear(true)
+                        .resizable()
+                        .scaledToFill()
+                        .clipShape(Circle())
+                }
+            }
+    }
+}
+
+private extension ProviderLogoAvatar {
+    enum LoadingState {
+        case loading
+        case loaded
+        case failed
     }
 }

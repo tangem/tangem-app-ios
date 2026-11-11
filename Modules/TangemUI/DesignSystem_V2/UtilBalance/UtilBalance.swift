@@ -21,11 +21,15 @@ public struct UtilBalance: View, Setupable {
     }
 
     public init(_ value: String) {
-        self.init(.string(value))
+        self.init(Value.string(value))
     }
 
     public init(_ value: AttributedString) {
-        self.init(.attributed(value))
+        self.init(Value.attributed(value))
+    }
+
+    public init(_ text: SensitiveText.TextType) {
+        self.init(Value(text))
     }
 
     public var body: some View {
@@ -79,6 +83,19 @@ public extension UtilBalance {
     }
 
     static let maskGlyph = "\u{2217}\u{2217}\u{2217}"
+}
+
+public extension UtilBalance.Value {
+    init(_ text: SensitiveText.TextType) {
+        switch text {
+        case .string(let value):
+            self = .string(value)
+        case .attributed(let value):
+            self = .attributed(value)
+        case .builder(let builder, let sensitive):
+            self = .string(builder(sensitive))
+        }
+    }
 }
 
 // MARK: - Masking

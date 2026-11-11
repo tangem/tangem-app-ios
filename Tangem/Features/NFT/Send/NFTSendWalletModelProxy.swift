@@ -135,6 +135,10 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.yieldModuleManager
     }
 
+    var lendingModuleReader: (any LendingModuleReader)? {
+        mainTokenWalletModel.lendingModuleReader
+    }
+
     var stakeKitTransactionSender: StakeKitTransactionSender? {
         // No staking for NFT
         nil

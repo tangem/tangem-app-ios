@@ -290,6 +290,8 @@ extension VisaWalletModel: WalletModel {
 
     var yieldModuleManager: (any YieldModuleManager)? { nil }
 
+    var lendingModuleReader: (any LendingModuleReader)? { nil }
+
     var stakeKitTransactionSender: (any StakeKitTransactionSender)? { nil }
 
     var p2pTransactionSender: P2PTransactionSender? {

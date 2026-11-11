@@ -51,11 +51,9 @@ private extension MarketsDescriptionDialogueView {
                 .styleType(.secondary(.default))
             }
         )
-        .titleFont(DesignSystem.Font.bodyMediumToken.font) // [REDACTED_INFO]: tracking deferred
-        .titleColor(DesignSystem.Color.textPrimary)
+        .titleStyle(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
         .padding(.horizontal, 16)
         .padding(.top, 12)
-        .environment(\.isRedesign, true)
     }
 
     var descriptionContent: some View {

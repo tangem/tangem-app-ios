@@ -9,6 +9,7 @@
 import Foundation
 import TangemFoundation
 import TangemPay
+import TangemUI
 
 final class TangemPaySelectPlanCoordinator: CoordinatorObject {
     let dismissAction: Action<DismissReason>
@@ -48,6 +49,18 @@ final class TangemPaySelectPlanCoordinator: CoordinatorObject {
                 coordinator: self
             )
 
+        case .createOnboardingOrder(let products, let interactor, let addressSigner, let signingType):
+            selectPlanViewModel = TangemPaySelectPlanViewModel(
+                tariffPlanSelector: options.tariffPlanSelector,
+                mode: .createOnboardingOrder(
+                    signingType: products.isAccountAvailable ? signingType : nil,
+                    start: { (transition: TangemPayTariffPlanTransition) async throws(TangemPayOnboardingOrderError) in
+                        try await interactor.placeOnboardingOrder(products: products, plan: transition, addressSigner: addressSigner)
+                    }
+                ),
+                coordinator: self
+            )
+
         case .planChange(let customerTariffPlan):
             selectPlanViewModel = TangemPaySelectPlanViewModel(
                 currentTariffPlan: customerTariffPlan.tariffPlan,
@@ -73,6 +86,12 @@ extension TangemPaySelectPlanCoordinator {
 
     enum Mode {
         case onboarding
+        case createOnboardingOrder(
+            products: TangemPayProductsAvailability,
+            interactor: any TangemPayUnifiedOnboardingInteractor,
+            addressSigner: TangemPayBankingAccountAddressSigning,
+            signingType: SigningActionButtonViewType
+        )
         case planChange(customerTariffPlan: VisaCustomerInfoResponse.CustomerTariffPlan)
     }
 

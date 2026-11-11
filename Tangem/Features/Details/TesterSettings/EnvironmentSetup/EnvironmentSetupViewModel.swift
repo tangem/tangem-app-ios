@@ -118,8 +118,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 selection: BindingValue<String>(
                     root: featureStorage,
                     default: ExpressAPIType.production.rawValue,
-                    get: { $0.apiExpress },
-                    set: { $0.apiExpress = $1 }
+                    get: { $0.apiExpress.rawValue },
+                    set: { $0.apiExpress = ExpressAPIType(rawValue: $1) ?? .production }
                 ),
                 pickerStyle: .menu
             ),

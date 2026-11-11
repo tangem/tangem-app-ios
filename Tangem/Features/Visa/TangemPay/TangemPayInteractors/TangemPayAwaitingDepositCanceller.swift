@@ -10,5 +10,11 @@ import Combine
 
 protocol TangemPayAwaitingDepositCanceller {
     var awaitingDepositInfoPublisher: AnyPublisher<TangemPayAwaitingDepositInfo?, Never> { get }
-    func cancelAwaitingDepositOrder() async throws
+    func cancelAwaitingDepositOrder() async throws -> TangemPayAwaitingDepositCancellationOutcome
+}
+
+enum TangemPayAwaitingDepositCancellationOutcome {
+    case stay
+    case restartOnboarding
+    case returnToMain
 }

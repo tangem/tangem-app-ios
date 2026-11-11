@@ -176,8 +176,8 @@ enum WalletConnectModuleFactory {
         )
     }
 
-    static func makeSuccessToast(with message: String) -> Toast<SuccessToast> {
-        Toast(view: SuccessToast(text: message))
+    static func makeSuccessToast(with message: String) -> LegacyToast<SuccessToast> {
+        LegacyToast(view: SuccessToast(text: message))
     }
 
     // MARK: - Formatters
@@ -188,7 +188,7 @@ enum WalletConnectModuleFactory {
 
     // MARK: - Errors factory methods
 
-    static func makeDAppProposalLoadingErrorToast(_ proposalLoadingError: WalletConnectDAppProposalLoadingError) -> Toast<WarningToast>? {
+    static func makeDAppProposalLoadingErrorToast(_ proposalLoadingError: WalletConnectDAppProposalLoadingError) -> LegacyToast<WarningToast>? {
         let errorMessage: String
 
         switch proposalLoadingError {
@@ -205,10 +205,10 @@ enum WalletConnectModuleFactory {
             return nil
         }
 
-        return Toast(view: WarningToast(text: errorMessage))
+        return LegacyToast(view: WarningToast(text: errorMessage))
     }
 
-    static func makeDAppProposalApprovalErrorToast(_ proposalApprovalError: WalletConnectDAppProposalApprovalError) -> Toast<WarningToast>? {
+    static func makeDAppProposalApprovalErrorToast(_ proposalApprovalError: WalletConnectDAppProposalApprovalError) -> LegacyToast<WarningToast>? {
         let errorMessage: String
 
         switch proposalApprovalError {
@@ -222,15 +222,15 @@ enum WalletConnectModuleFactory {
             return nil
         }
 
-        return Toast(view: WarningToast(text: errorMessage))
+        return LegacyToast(view: WarningToast(text: errorMessage))
     }
 
-    static func makeDAppPersistenceErrorToast(_ dAppPersistenceError: WalletConnectDAppPersistenceError) -> Toast<WarningToast> {
-        return Toast(view: WarningToast(text: Localization.wcAlertUnsupportedMethodTitle))
+    static func makeDAppPersistenceErrorToast(_ dAppPersistenceError: WalletConnectDAppPersistenceError) -> LegacyToast<WarningToast> {
+        return LegacyToast(view: WarningToast(text: Localization.wcAlertUnsupportedMethodTitle))
     }
 
-    static func makeGenericErrorToast(_ error: some Error) -> Toast<WarningToast> {
-        Toast(
+    static func makeGenericErrorToast(_ error: some Error) -> LegacyToast<WarningToast> {
+        LegacyToast(
             view: WarningToast(
                 text: Localization.wcAlertUnknownErrorDescription(formattedErrorCode(from: error.toUniversalError()))
             )

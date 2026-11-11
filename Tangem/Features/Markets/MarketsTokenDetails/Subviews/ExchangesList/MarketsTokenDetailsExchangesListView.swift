@@ -66,7 +66,7 @@ struct MarketsTokenDetailsExchangesListView: View {
             VStack(spacing: 0) {
                 if sheetSize.isFeedSheet {
                     NavigationHeader(
-                        leadingContent: { NavigationBarButton.back(action: viewModel.onBackButtonAction).redesigned() },
+                        leadingContent: { NavigationBarButton.back(action: viewModel.onBackButtonAction) },
                         principalContent: {
                             Text(navigationBarTitle)
                                 .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)

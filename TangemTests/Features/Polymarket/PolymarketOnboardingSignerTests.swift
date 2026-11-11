@@ -69,6 +69,22 @@ struct PolymarketOnboardingSignerTests {
         #expect(headers["POLY_SIGNATURE"] != signatures.approvals.signature)
     }
 
+    @Test("The fast trading authorization is signed in the same card session after the approvals and keeps its own signature")
+    func fastTradingAuthorizationIsSignedAfterTheApprovals() async throws {
+        let context = try Context()
+
+        let signatures = try await context.sut.sign(approvals: Self.approvals, fastTradingAuthorization: Self.fastTradingAuthorization)
+        let approvalsDigest = try PolymarketRelayedBatchSigning.digest(for: Self.approvals)
+        let fastTradingAuthorizationDigest = try PolymarketRelayedBatchSigning.digest(for: Self.fastTradingAuthorization)
+        let signedFastTradingAuthorization = try #require(signatures.fastTradingAuthorization)
+
+        #expect(context.signer.signCalls == 1)
+        #expect(Array(context.signer.requestedHashes.dropFirst()) == [approvalsDigest, fastTradingAuthorizationDigest])
+        #expect(signatures.approvals.signature == context.signer.signature(over: approvalsDigest))
+        #expect(signedFastTradingAuthorization.signature == context.signer.signature(over: fastTradingAuthorizationDigest))
+        #expect(signedFastTradingAuthorization.nonce == Self.fastTradingAuthorization.nonce)
+    }
+
     @Test("Both signatures are attributed to the address the stored key resolves to")
     func ownerAddressIsConsistent() async throws {
         let context = try Context()
@@ -100,6 +116,13 @@ private extension PolymarketOnboardingSignerTests {
         depositWalletAddress: "0xfAeA0f08159fcF2f573fE24E9E989B0d48f7651B",
         nonce: "7",
         deadline: "1735690200",
+        calls: PolymarketApprovalCalls.make()
+    )
+
+    static let fastTradingAuthorization = PolymarketRelayedBatch.Unsigned(
+        depositWalletAddress: "0xfAeA0f08159fcF2f573fE24E9E989B0d48f7651B",
+        nonce: "8",
+        deadline: "1735690800",
         calls: PolymarketApprovalCalls.make()
     )
 

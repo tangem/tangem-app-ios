@@ -181,6 +181,29 @@ struct CommonJointAccountOperationsServiceTests {
         #expect(signed.signature.count == 65)
     }
 
+    @Test("A co-signer does not sign an operation of an unsupported form")
+    func signAnUnsupportedFormIsRefused() async throws {
+        let context = try makeContext()
+        let operation = Self.operation(innerCall: SafeInnerCall(to: Constants.safeAddress, value: 1, data: Data()))
+
+        await #expect(throws: JointOperationError.unsupportedOperationForm) {
+            try await context.sut.signOperation(operation, in: context.wallet)
+        }
+        #expect(context.repository.signedOperations.isEmpty)
+        #expect(context.signer.signedHashes.isEmpty)
+    }
+
+    @Test("An unsupported form is refused before the operation is checked for being malicious")
+    func signAnUnsupportedFormIsRefusedBeforeTheSecurityCheck() async throws {
+        let context = try makeContext(blockaidVerdict: .malicious)
+        let operation = Self.operation(innerCall: SafeInnerCall(to: Constants.safeAddress, value: 1, data: Data()))
+
+        await #expect(throws: JointOperationError.unsupportedOperationForm) {
+            try await context.sut.signOperation(operation, in: context.wallet)
+        }
+        #expect(context.signer.signedHashes.isEmpty)
+    }
+
     /// The nonce the operation was created with is the one the Safe is still waiting to use.
     @Test("An operation the Safe has moved past is not worth a signature")
     func signOperationTheSafeHasMovedPastIsRefused() async throws {
@@ -252,9 +275,8 @@ struct CommonJointAccountOperationsServiceTests {
     @Test("A decline names the operation and the account it belongs to, and carries nothing else")
     func rejectedOperationIsHandedOn() async throws {
         let context = try makeContext()
-        let operation = Self.operation(id: "op_01HZX")
 
-        try await context.sut.rejectOperation(operation, in: context.wallet)
+        try await context.sut.rejectOperation(id: "op_01HZX", in: context.wallet)
 
         let rejected = try #require(context.repository.rejectedOperations.first)
 
@@ -271,7 +293,7 @@ struct CommonJointAccountOperationsServiceTests {
     func rejectDoesNotReadTheSafe() async throws {
         let context = try makeContext(state: nil)
 
-        try await context.sut.rejectOperation(Self.operation(), in: context.wallet)
+        try await context.sut.rejectOperation(id: "op_01HZX", in: context.wallet)
 
         #expect(context.repository.rejectedOperations.count == 1)
     }
@@ -300,7 +322,7 @@ private extension CommonJointAccountOperationsServiceTests {
         let cryptoAccountId = account.id.rawValue.hexString
         let records = pendingOperations.isEmpty
             ? []
-            : [StoredJointAccountPendingOperations(cryptoAccountId: cryptoAccountId, operations: pendingOperations)]
+            : [JointAccountOperations(cryptoAccountId: cryptoAccountId, operations: pendingOperations)]
         let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: records, registeredOperation: registeredOperation)
 
         let signer = try TangemSignerDouble()
@@ -366,20 +388,21 @@ private extension CommonJointAccountOperationsServiceTests {
         id: String = "op",
         chainId: Int = Constants.chainId,
         nonce: Int = Constants.nonce,
-        status: JointAccountOperationStatus = .awaitingSignatures
+        status: JointAccountOperationStatus = .awaitingSignatures,
+        innerCall: SafeInnerCall = Constants.innerCall
     ) -> JointAccountOperation {
         JointAccountOperation(
             id: id,
             chainId: chainId,
-            safeTransaction: SafeTransaction(innerCall: Constants.innerCall, feeParameters: Constants.feeParameters, nonce: nonce),
+            safeTransaction: SafeTransaction(innerCall: innerCall, feeParameters: Constants.feeParameters, nonce: nonce),
             status: status,
             txHash: nil,
             finishedAt: nil,
             cancelReason: nil,
             initiator: Constants.members[0],
             signatures: [],
-            createdAt: nil,
-            threshold: nil
+            createdAt: Date(timeIntervalSince1970: 1_757_323_237),
+            threshold: 2
         )
     }
 }

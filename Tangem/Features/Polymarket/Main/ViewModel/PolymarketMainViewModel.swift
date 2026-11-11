@@ -18,6 +18,7 @@ final class PolymarketMainViewModel: ObservableObject {
     @Published private(set) var isAwaitingFunds = false
     @Published private(set) var scrollToTopRequest = 0
     @Published private(set) var withdrawalState: PolymarketWithdrawState?
+    @Published private(set) var fastTradingBanner: PolymarketFastTradingBanner?
 
     var fundingNotifications: [PolymarketOrderNotification] {
         [
@@ -36,10 +37,13 @@ final class PolymarketMainViewModel: ObservableObject {
     private let fundsArrivalTracker: PolymarketFundsArrivalTracker
     private let withdrawTracker: PolymarketWithdrawTracker
     private let refreshCenter: PolymarketMainRefreshCenter
+    private let fastTrading: PolymarketFastTradingBannerProviding?
     private weak var coordinator: PolymarketMainRoutable?
 
     private var bag: Set<AnyCancellable> = []
+    private var fastTradingSubscription: AnyCancellable?
 
+    @MainActor
     init(
         balanceViewModel: PolymarketBalanceBlockViewModel,
         positionsViewModel: PolymarketPositionsBlockViewModel,
@@ -49,6 +53,7 @@ final class PolymarketMainViewModel: ObservableObject {
         fundsArrivalTracker: PolymarketFundsArrivalTracker,
         withdrawTracker: PolymarketWithdrawTracker,
         refreshCenter: PolymarketMainRefreshCenter,
+        fastTrading: PolymarketFastTradingBannerProviding?,
         coordinator: PolymarketMainRoutable
     ) {
         self.balanceViewModel = balanceViewModel
@@ -59,12 +64,22 @@ final class PolymarketMainViewModel: ObservableObject {
         self.fundsArrivalTracker = fundsArrivalTracker
         self.withdrawTracker = withdrawTracker
         self.refreshCenter = refreshCenter
+        self.fastTrading = fastTrading
         self.coordinator = coordinator
 
         bindGeoblockState()
         bindFundsArrival()
         bindWithdrawal()
         bindSearch()
+        bindFastTrading()
+    }
+}
+
+// MARK: - Fast trading
+
+extension PolymarketMainViewModel {
+    var isFastTradingAvailable: Bool {
+        fastTrading != nil
     }
 }
 
@@ -92,6 +107,12 @@ extension PolymarketMainViewModel {
             coordinator?.openActivity()
         case .onTabsMove(let minY, let navBarHeight):
             updatePinnedState(tabsMinY: minY, navBarHeight: navBarHeight)
+        case .openSettings:
+            coordinator?.openSettings()
+        case .performFastTradingBannerAction(let banner):
+            coordinator?.open(banner)
+        case .dismissFastTradingBanner(let banner):
+            fastTrading?.dismissBanner(banner)
         }
     }
 
@@ -101,6 +122,9 @@ extension PolymarketMainViewModel {
         case openSupportChat
         case openHistory
         case onTabsMove(minY: CGFloat, navBarHeight: CGFloat)
+        case openSettings
+        case performFastTradingBannerAction(PolymarketFastTradingBanner)
+        case dismissFastTradingBanner(PolymarketFastTradingBanner)
     }
 }
 
@@ -111,7 +135,9 @@ extension PolymarketMainViewModel {
     func refresh() async {
         geoblockStateProvider.refresh()
 
+        async let fastTradingRefresh: Void = refreshFastTrading()
         await refreshCenter.refresh(.full)
+        await fastTradingRefresh
     }
 }
 
@@ -149,6 +175,26 @@ private extension PolymarketMainViewModel {
                 }
             }
             .store(in: &bag)
+    }
+
+    @MainActor
+    func bindFastTrading() {
+        guard let fastTrading else { return }
+
+        fastTradingSubscription = PolymarketFastTradingBannerMapper(includesForeignSigners: true)
+            .mapToBannerPublisher(states: fastTrading.statePublisher, dismissals: fastTrading.bannerDismissalsPublisher)
+            .receiveOnMain()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, banner in
+                viewModel.fastTradingBanner = banner
+            }
+
+        Task { await fastTrading.refresh() }
+    }
+
+    @MainActor
+    func refreshFastTrading() async {
+        await fastTrading?.refresh()
     }
 
     func bindSearch() {

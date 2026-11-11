@@ -52,6 +52,10 @@ extension PolymarketAccountModel {
         .empty
     }
 
+    var pendingDerivationProvider: AccountPendingDerivationProvider {
+        NoopAccountPendingDerivationProvider()
+    }
+
     func analyticsParameters(with builder: any AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
         [:]
     }

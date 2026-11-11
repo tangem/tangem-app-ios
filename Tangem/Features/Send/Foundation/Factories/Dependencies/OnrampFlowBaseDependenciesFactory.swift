@@ -34,12 +34,16 @@ extension OnrampFlowBaseDependenciesFactory {
     func makeOnrampDependencies(preferredValues: PreferredValues) -> (
         manager: OnrampManager,
         repository: OnrampRepository,
-        dataRepository: OnrampDataRepository
+        dataRepository: OnrampDataRepository,
+        isCountryByIPEnabled: Bool
     ) {
         let apiProvider = expressDependenciesFactory.expressAPIProvider
-        let repository: OnrampRepository = expressDependenciesFactory.onrampRepository
-
         let factory = TangemExpressFactory()
+        let isCountryByIPEnabled = FeatureProvider.isAvailable(.onrampCountryByIP)
+        let repository: OnrampRepository = isCountryByIPEnabled
+            ? factory.makeCountryByIPOnrampRepository(userCurrencyStore: InjectedValues[\.onrampUserCurrencyStore])
+            : expressDependenciesFactory.onrampRepository
+
         let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
 
         let analyticsLogger = CommonExpressAnalyticsLogger(tokenItem: tokenItem)
@@ -55,7 +59,8 @@ extension OnrampFlowBaseDependenciesFactory {
         return (
             manager: manager,
             repository: repository,
-            dataRepository: dataRepository
+            dataRepository: dataRepository,
+            isCountryByIPEnabled: isCountryByIPEnabled
         )
     }
 
@@ -67,6 +72,7 @@ extension OnrampFlowBaseDependenciesFactory {
         onrampRepository: some OnrampRepository,
         analyticsLogger: some OnrampSendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
+        isCountryByIPEnabled: Bool,
         predefinedValues: OnrampModel.PredefinedValues
     ) -> OnrampModel {
         OnrampModel(
@@ -80,6 +86,7 @@ extension OnrampFlowBaseDependenciesFactory {
             autoupdatingTimer: autoupdatingTimer,
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
             transactionHistoryEnricherFactory: { [sourceToken] in await sourceToken.transactionHistoryEnricher },
+            isCountryByIPEnabled: isCountryByIPEnabled,
             predefinedValues: predefinedValues
         )
     }

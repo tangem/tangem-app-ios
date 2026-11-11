@@ -40,12 +40,15 @@ protocol MultiWalletMainContentRoutable: SingleTokenBaseRoutable {
         userWalletModel: UserWalletModel,
         moneyAccount: any TangemPayMoneyAccountModel
     )
+    func openTangemPayMoneyAccountActivatingPopup()
+    func openTangemPayMoneyAccountFailedPopup(moneyAccount: any TangemPayMoneyAccountModel)
+    func openTangemPayVerified(interactor: any TangemPayUnifiedOnboardingInteractor, userWalletModel: UserWalletModel)
     func openGetTangemPay(availableSelection: TangemPayWalletSelectionType)
     func openPolymarket(userWalletModel: UserWalletModel)
     func openCollectibles(with options: CollectiblesCoordinator.Options)
     func openJointAccountMembers(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
     func openJointAccountOperationDetails(
-        pendingOperation: JointAccountPendingOperation,
+        handle: JointAccountPendingOperationHandle,
         userWalletInfo: UserWalletInfo,
         addressBookManager: AddressBookManager
     )

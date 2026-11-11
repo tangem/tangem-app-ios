@@ -24,7 +24,7 @@ struct TransactionHistoryJointOperationEnricher {
 
     func enrich(
         _ records: [TransactionRecord],
-        with operations: [JointOperationHistoryItem],
+        with operations: [JointOperationHistoryInfo],
         syntheticWindowStart: Date?
     ) -> [TransactionRecord] {
         var recordsGroupedByHash = Dictionary(grouping: records) { $0.hash.lowercased() }
@@ -32,7 +32,7 @@ struct TransactionHistoryJointOperationEnricher {
         var syntheticRecords: [TransactionRecord] = []
 
         for operation in operations {
-            if let txHash = operation.operation.txHash?.lowercased(), let matchedRecords = recordsGroupedByHash.removeValue(forKey: txHash) {
+            if let txHash = operation.item.operation.txHash?.lowercased(), let matchedRecords = recordsGroupedByHash.removeValue(forKey: txHash) {
                 output.append(contentsOf: takeOver(matchedRecords, by: operation))
                 continue
             }
@@ -51,7 +51,7 @@ struct TransactionHistoryJointOperationEnricher {
 
     // MARK: - Matched records
 
-    private func takeOver(_ records: [TransactionRecord], by item: JointOperationHistoryItem) -> [TransactionRecord] {
+    private func takeOver(_ records: [TransactionRecord], by info: JointOperationHistoryInfo) -> [TransactionRecord] {
         if records.contains(where: { $0.historyExtraInfo != nil }) {
             TransactionHistoryLogger.warning("A joint operation matched a record that already carries Express data, leaving it as is")
             return records
@@ -65,7 +65,8 @@ struct TransactionHistoryJointOperationEnricher {
             TransactionHistoryLogger.warning("A joint operation matched \(records.count) records of one hash, keeping one of them")
         }
 
-        let transfer = innerTransfer(of: item.operation)
+        let item = info.item
+        let transfer = innerTransfer(of: info)
         let operationFee = refundFee(among: records, of: item.operation) ?? fee(of: item.operation, replacing: anchor.fee) ?? anchor.fee
 
         let enriched = TransactionRecord(
@@ -82,7 +83,7 @@ struct TransactionHistoryJointOperationEnricher {
             isFromYieldContract: anchor.isFromYieldContract,
             isFolded: anchor.isFolded,
             nonce: anchor.nonce,
-            extraInfo: TransactionHistoryExtraInfo.jointOperation(JointOperationHistoryInfo(item: item))
+            extraInfo: TransactionHistoryExtraInfo.jointOperation(info)
         )
 
         return [enriched]
@@ -97,7 +98,8 @@ struct TransactionHistoryJointOperationEnricher {
 
     // MARK: - Synthetic records
 
-    private func makeSyntheticRecord(from item: JointOperationHistoryItem, windowStart: Date?) -> TransactionRecord? {
+    private func makeSyntheticRecord(from info: JointOperationHistoryInfo, windowStart: Date?) -> TransactionRecord? {
+        let item = info.item
         let operation = item.operation
 
         guard let status = backendStatus(of: operation.status) else {
@@ -110,7 +112,7 @@ struct TransactionHistoryJointOperationEnricher {
             return nil
         }
 
-        let transfer = innerTransfer(of: operation)
+        let transfer = innerTransfer(of: info)
         let amount = transfer?.amount ?? 0
         let fee = operation.status == .executed ? fee(of: operation, replacing: nil) : nil
 
@@ -126,7 +128,7 @@ struct TransactionHistoryJointOperationEnricher {
             date: date,
             tokenTransfers: [],
             nonce: nil,
-            extraInfo: TransactionHistoryExtraInfo.jointOperation(JointOperationHistoryInfo(item: item))
+            extraInfo: TransactionHistoryExtraInfo.jointOperation(info)
         )
     }
 
@@ -143,15 +145,12 @@ struct TransactionHistoryJointOperationEnricher {
 
     // MARK: - Amounts
 
-    private func innerTransfer(of operation: JointAccountOperation) -> (destination: String, amount: Decimal)? {
-        guard
-            let callType = try? SafeInnerCallTypeParser.parse(try operation.safeTransaction.innerCall),
-            let value = callType.value.decimal
-        else {
+    private func innerTransfer(of info: JointOperationHistoryInfo) -> (destination: String, amount: Decimal)? {
+        guard let value = info.innerCallType.value.decimal else {
             return nil
         }
 
-        return (destination: callType.destination, amount: value / currentToken.decimalValue)
+        return (destination: info.innerCallType.destination, amount: value / currentToken.decimalValue)
     }
 
     private func refundFee(among records: [TransactionRecord], of operation: JointAccountOperation) -> Fee? {

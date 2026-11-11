@@ -190,7 +190,7 @@ private extension CollectiblesAccountView {
 
         CollectiblesAccountView(
             viewModel: CollectiblesAccountViewModel(accountModel: nil, routable: nil),
-            banners: CollectiblesAccountView.Banners(relinkBannerViewModel: nil),
+            banners: CollectiblesAccountView.Banners(relinkBannerViewModel: nil, pendingPurchaseBannersViewModel: nil),
             balanceCoordinateSpace: .local,
             onBalanceMaxYChange: { _ in }
         )

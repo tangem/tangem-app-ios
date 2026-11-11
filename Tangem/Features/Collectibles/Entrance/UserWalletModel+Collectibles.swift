@@ -20,8 +20,8 @@ extension UserWalletModel {
         return (try? keysRepository.masterKey(curve: CollectiblesAccountKeyPath.curve(for: config.derivationStyle))) != nil
     }
 
-    func collectiblesAccountModel() -> (any CollectiblesAccountModel)? {
-        AccountModelsAggregator(.collectibles).model(from: accountModelsManager)
+    func collectiblesAccountModel() async -> (any CollectiblesAccountModel)? {
+        await accountModelsManager.collectiblesAccountModel()
     }
 
     var collectiblesSyncRequiredPublisher: AnyPublisher<Bool, Never> {

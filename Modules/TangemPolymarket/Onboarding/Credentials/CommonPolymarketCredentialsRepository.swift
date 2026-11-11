@@ -27,20 +27,26 @@ extension CommonPolymarketCredentialsRepository: PolymarketCredentialsRepository
     }
 
     public func load(userWalletId: UserWalletId) -> PolymarketL2Credentials? {
-        let key = makeKey(userWalletId: userWalletId)
-
         do {
-            guard let data = try secureStorage.get(key) else {
-                return nil
-            }
-
-            return try decoder.decode(StoredCredentials.self, from: data).credentials
-        } catch let error as DecodingError {
-            PolymarketLogger.error("Dropping credentials that cannot be decoded", error: error)
-            try? secureStorage.delete(key)
-            return nil
+            return try readCredentials(userWalletId: userWalletId)
         } catch {
             PolymarketLogger.error("Failed to read the stored credentials", error: error)
+            return nil
+        }
+    }
+
+    public func readCredentials(userWalletId: UserWalletId) throws -> PolymarketL2Credentials? {
+        let key = makeKey(userWalletId: userWalletId)
+
+        guard let data = try secureStorage.get(key) else {
+            return nil
+        }
+
+        do {
+            return try decoder.decode(StoredCredentials.self, from: data).credentials
+        } catch {
+            PolymarketLogger.error("Dropping credentials that cannot be decoded", error: error)
+            try? secureStorage.delete(key)
             return nil
         }
     }

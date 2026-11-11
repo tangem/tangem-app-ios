@@ -18,6 +18,11 @@ import TangemUIUtils
 final class PolymarketWelcomeViewModel: ObservableObject {
     @Published private(set) var runState: RunState = .idle
     @Published private(set) var reportedStatus: PolymarketDepositWalletStatus?
+    @Published var isFastTradingEnabled: Bool {
+        didSet { fastTrading?.isEnabled = isFastTradingEnabled }
+    }
+
+    @Published var isFastTradingFAQPresented = false
     @Published var alert: AlertBinder?
 
     let copy: PolymarketWelcomeCopy
@@ -25,23 +30,29 @@ final class PolymarketWelcomeViewModel: ObservableObject {
 
     var isRunning: Bool { runState != .idle }
 
+    var showsFastTradingToggle: Bool { fastTrading != nil }
+
     var stageMessage: String? {
         PolymarketOnboardingCopy.stage(for: runState, status: reportedStatus)
     }
 
     private let interactor: PolymarketOnboardingInteractor
+    private let fastTrading: PolymarketOnboardingFastTrading?
     private weak var coordinator: PolymarketWelcomeRoutable?
 
     init(
         interactor: PolymarketOnboardingInteractor,
         hasExistingAccount: Bool,
         signingButtonType: SigningActionButtonViewType,
+        fastTrading: PolymarketOnboardingFastTrading? = nil,
         coordinator: PolymarketWelcomeRoutable
     ) {
         self.interactor = interactor
         self.signingButtonType = signingButtonType
+        self.fastTrading = fastTrading
         self.coordinator = coordinator
 
+        isFastTradingEnabled = fastTrading?.isEnabled ?? false
         copy = PolymarketWelcomeCopy(hasExistingAccount: hasExistingAccount)
     }
 }
@@ -57,6 +68,8 @@ extension PolymarketWelcomeViewModel {
             onCloseTap()
         case .openLegalTerms(let url):
             onLegalTermsTap(url: url)
+        case .openFastTradingFAQ:
+            isFastTradingFAQPresented = true
         }
     }
 
@@ -64,6 +77,7 @@ extension PolymarketWelcomeViewModel {
         case startOnboarding
         case close
         case openLegalTerms(URL)
+        case openFastTradingFAQ
     }
 }
 
@@ -140,7 +154,7 @@ private extension PolymarketWelcomeViewModel {
     @MainActor
     func presentAccountCreatedToast() {
         // [REDACTED_TODO_COMMENT]
-        Toast(view: SuccessToast(text: "Predictions account is ready"))
+        LegacyToast(view: SuccessToast(text: "Predictions account is ready"))
             .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 

@@ -11,11 +11,11 @@ import Combine
 import BlockchainSdk
 
 protocol JointAccountPendingOperationsRepository {
-    var operations: [StoredJointAccountPendingOperations] { get }
+    var pendingOperations: [JointAccountOperations] { get }
 
-    var operationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> { get }
+    var pendingOperationsPublisher: AnyPublisher<[JointAccountOperations], Never> { get }
 
-    func operationPublisher(id: String, in cryptoAccountId: String) -> AnyPublisher<JointAccountOperation, Never>
+    func operationPublisher(id: String) -> AnyPublisher<JointAccountOperation?, Never>
 
     /// Has the operation read anew far more often than its regular pace, for as long as the returned token is kept.
     /// - Returns: `nil` when nothing polls the operation — it is no longer in flight, or joint accounts are off — so

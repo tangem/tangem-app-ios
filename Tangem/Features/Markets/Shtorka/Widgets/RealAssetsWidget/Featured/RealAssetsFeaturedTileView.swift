@@ -72,7 +72,7 @@ private extension RealAssetsFeaturedTileView {
                 .lineLimit(1)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
 
-            PriceChangeView(state: item.priceChangeState, useRedesignColors: true)
+            PriceChangeView(state: item.priceChangeState)
         }
     }
 }

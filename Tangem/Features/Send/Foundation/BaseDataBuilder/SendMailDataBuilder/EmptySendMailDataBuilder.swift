@@ -28,6 +28,10 @@ struct EmptySendMailDataBuilder: SendMailDataBuilder {
         throw SendMailDataBuilderError.notSupported
     }
 
+    func makeSupportData(exchangeDataError: ExpressExchangeDataError) throws -> SupportData {
+        throw SendMailDataBuilderError.notSupported
+    }
+
     // MARK: - Staking transaction methods
 
     func makeSupportData(stakingRequestError error: UniversalError) throws -> SupportData {

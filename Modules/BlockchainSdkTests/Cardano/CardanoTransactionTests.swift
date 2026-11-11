@@ -366,4 +366,162 @@ struct CardanoTransactionTests {
 
         sizeTester.testTxSize(dataForSign)
     }
+
+    // MARK: - Amount sums
+
+    @Test
+    func addressResponseSumsCoinAndExactTokenAmounts() throws {
+        let outputs = [
+            makeOutput(index: 0, amount: 1_500_000, assets: [makeAGIXAsset(amount: 50_000_000), makeOtherAGIXPolicyAsset(amount: 7)]),
+            makeOutput(index: 1, amount: 3_384_392, assets: [makeAGIXAsset(amount: 42_070_000)]),
+        ]
+
+        let response = try CardanoResponseMapper().mapToCardanoAddressResponse(
+            tokens: [agixToken],
+            unspentOutputs: outputs,
+            recentTransactionsHashes: []
+        )
+        let agixBalance = try #require(response.tokenBalances[agixToken]).get()
+
+        #expect(response.balance == 4_884_392)
+        #expect(response.tokenBalances.count == 1)
+        #expect(agixBalance == 92_070_000)
+    }
+
+    @Test
+    func addressResponseThrowsWhenCoinAmountsOverflow() {
+        let outputs = [
+            makeOutput(index: 0, amount: .max, assets: []),
+            makeOutput(index: 1, amount: 1, assets: []),
+        ]
+
+        #expect(throws: (any Error).self) {
+            try CardanoResponseMapper().mapToCardanoAddressResponse(tokens: [], unspentOutputs: outputs, recentTransactionsHashes: [])
+        }
+    }
+
+    @Test("A token whose amounts overflow fails on its own, while ADA and the other tokens still load")
+    func overflowingTokenFailsAlone() throws {
+        let outputs = [
+            makeOutput(
+                index: 0,
+                amount: 1_500_000,
+                assets: [makeAGIXAsset(amount: .max), makeOtherAGIXPolicyAsset(amount: 7)]
+            ),
+            makeOutput(index: 1, amount: 1_500_000, assets: [makeAGIXAsset(amount: 1)]),
+        ]
+
+        let response = try CardanoResponseMapper().mapToCardanoAddressResponse(
+            tokens: [agixToken, otherAGIXPolicyToken],
+            unspentOutputs: outputs,
+            recentTransactionsHashes: []
+        )
+        let agixBalance = try #require(response.tokenBalances[agixToken])
+        let otherBalance = try #require(response.tokenBalances[otherAGIXPolicyToken]).get()
+
+        #expect(response.balance == 3_000_000)
+        #expect(throws: CardanoError.tokenBalanceOverflow) {
+            try agixBalance.get()
+        }
+        #expect(otherBalance == 7)
+    }
+
+    @Test
+    func minChangeHandlesAssetAmountsAboveUInt64() throws {
+        let junkAsset = CardanoUnspentOutput.Asset(policyID: Self.junkPolicyID, assetNameHex: "4a554e4b", amount: .max)
+        transactionBuilder.update(outputs: [
+            makeOutput(index: 0, amount: 1_500_000, assets: [junkAsset]),
+            makeOutput(index: 1, amount: 1_500_000, assets: [junkAsset]),
+        ])
+
+        let referenceBuilder = CardanoTransactionBuilder(address: ownAddress, ttl: 190000000)
+        referenceBuilder.update(outputs: [
+            makeOutput(
+                index: 0,
+                amount: 1_500_000,
+                assets: [CardanoUnspentOutput.Asset(policyID: Self.junkPolicyID, assetNameHex: "4a554e4b", amount: 1)]
+            ),
+        ])
+
+        let hasTokens = try transactionBuilder.hasTokensWithBalance(exclude: nil)
+        let minChange = try transactionBuilder.minChange(amount: Amount(with: blockchain, value: 1))
+        let expectedMinChange = try referenceBuilder.minChange(amount: Amount(with: blockchain, value: 1))
+
+        #expect(hasTokens)
+        #expect(minChange == expectedMinChange)
+    }
+
+    @Test
+    func tokenSpreadOverOutputsIsExcludedEntirely() throws {
+        transactionBuilder.update(outputs: [
+            makeOutput(index: 0, amount: 1_500_000, assets: [makeAGIXAsset(amount: 50_000_000)]),
+            makeOutput(index: 1, amount: 3_384_392, assets: [makeAGIXAsset(amount: 42_070_000)]),
+        ])
+
+        let hasOtherTokens = try transactionBuilder.hasTokensWithBalance(exclude: agixToken)
+
+        #expect(!hasOtherTokens)
+    }
+
+    @Test
+    func sendingFullTokenAmountIgnoresOtherAssetsOfTheSamePolicy() throws {
+        transactionBuilder.update(outputs: [
+            makeOutput(index: 0, amount: 1_500_000, assets: [makeAGIXAsset(amount: 50_000_000), makeOtherAGIXPolicyAsset(amount: 7)]),
+            makeOutput(index: 1, amount: 3_384_392, assets: [makeAGIXAsset(amount: 42_070_000)]),
+        ])
+
+        let referenceBuilder = CardanoTransactionBuilder(address: ownAddress, ttl: 190000000)
+        referenceBuilder.update(outputs: [
+            makeOutput(index: 0, amount: 1_500_000, assets: [makeOtherAGIXPolicyAsset(amount: 7)]),
+        ])
+
+        let fullTokenAmount = Amount(with: agixToken, value: Decimal(sign: .plus, exponent: -8, significand: 92_070_000))
+        let minChange = try transactionBuilder.minChange(amount: fullTokenAmount)
+        let expectedMinChange = try referenceBuilder.minChange(amount: Amount(with: blockchain, value: 1))
+
+        #expect(minChange == expectedMinChange)
+    }
+}
+
+// MARK: - Private
+
+private extension CardanoTransactionTests {
+    static let agixPolicyID = "f43a62fdc3965df486de8a0d32fe800963589c41b38946602a0dc535"
+    static let junkPolicyID = "a0028f350aaabe0545fdcb56b039bfb08e4bb4d8c4d7c3c7d481c235"
+
+    var agixToken: Token {
+        Token(
+            name: "SingularityNET",
+            symbol: "AGIX",
+            contractAddress: "asset1wwyy88f8u937hz7kunlkss7gu446p6ed5gdfp6",
+            decimalCount: 8
+        )
+    }
+
+    var otherAGIXPolicyToken: Token {
+        Token(
+            name: "Other",
+            symbol: "OTHER",
+            contractAddress: "asset1nhn7t2zkl32f8lmmd06ur3pjzm4k9g0eke0lzz",
+            decimalCount: 0
+        )
+    }
+
+    func makeAGIXAsset(amount: UInt64) -> CardanoUnspentOutput.Asset {
+        CardanoUnspentOutput.Asset(policyID: Self.agixPolicyID, assetNameHex: "41474958", amount: amount)
+    }
+
+    func makeOtherAGIXPolicyAsset(amount: UInt64) -> CardanoUnspentOutput.Asset {
+        CardanoUnspentOutput.Asset(policyID: Self.agixPolicyID, assetNameHex: "4f54484552", amount: amount)
+    }
+
+    func makeOutput(index: UInt64, amount: UInt64, assets: [CardanoUnspentOutput.Asset]) -> CardanoUnspentOutput {
+        CardanoUnspentOutput(
+            address: ownAddress,
+            amount: amount,
+            outputIndex: index,
+            transactionHash: "482d88eb2d3b40b8a4e6bb8545cef842a5703e8f9eab9e3caca5c2edd1f31a7f",
+            assets: assets
+        )
+    }
 }

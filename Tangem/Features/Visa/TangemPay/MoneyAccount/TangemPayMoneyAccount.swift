@@ -15,9 +15,11 @@ final class TangemPayMoneyAccount: TangemPayMoneyAccountModel {
     let customerId: String
     let walletModel: any WalletModel
 
+    private let customerService: any CustomerInfoManagementService
     private let balanceProvider: TokenBalanceProvider
     private let bankingAccountSubject: CurrentValueSubject<TangemPayCustomerSummaryResponse.BankingAccount, Never>
     private let customerTariffPlanSubject: CurrentValueSubject<VisaCustomerInfoResponse.CustomerTariffPlan?, Never>
+    private let bankCredentialsStorage = OSAllocatedUnfairLock<TangemPayBankCredentialsResponse?>(initialState: nil)
 
     private weak var account: (any TangemPayAccountModel)?
 
@@ -25,10 +27,12 @@ final class TangemPayMoneyAccount: TangemPayMoneyAccountModel {
         customerId: String,
         bankingAccount: TangemPayCustomerSummaryResponse.BankingAccount,
         walletModel: any WalletModel,
+        customerService: any CustomerInfoManagementService,
         account: (any TangemPayAccountModel)?
     ) {
         self.customerId = customerId
         self.walletModel = walletModel
+        self.customerService = customerService
         self.account = account
         balanceProvider = TangemPayFiatTokenBalanceProvider(
             cryptoBalanceProvider: walletModel.totalTokenBalanceProvider
@@ -104,6 +108,10 @@ final class TangemPayMoneyAccount: TangemPayMoneyAccountModel {
         account?.statePublisher ?? .empty
     }
 
+    var bankCredentials: TangemPayBankCredentialsResponse? {
+        bankCredentialsStorage.withLock { $0 }
+    }
+
     func updateBalance() async {
         await walletModel.update(silent: false, options: .balances)
     }
@@ -132,9 +140,28 @@ final class TangemPayMoneyAccount: TangemPayMoneyAccountModel {
         account?.renewSession(authorizingInteractor: authorizingInteractor, completion: completion)
     }
 
+    func loadBankCredentials() async throws {
+        guard bankCredentials == nil else {
+            return
+        }
+
+        let customerInfo = try await customerService.loadCustomerInfo()
+
+        guard let productInstanceId = customerInfo.collateralBankingAccountProductInstance?.id else {
+            return
+        }
+
+        let credentials = try await customerService.getBankCredentials(productInstanceId: productInstanceId)
+        bankCredentialsStorage.withLock { $0 = credentials }
+    }
+
     // MARK: Internal Interface
 
     func update(bankingAccount: TangemPayCustomerSummaryResponse.BankingAccount) {
+        if bankingAccount.id != accountId {
+            bankCredentialsStorage.withLock { $0 = nil }
+        }
+
         bankingAccountSubject.send(bankingAccount)
     }
 

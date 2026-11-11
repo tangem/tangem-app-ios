@@ -43,8 +43,7 @@ extension CommonJointAccountUserRoleService: JointAccountUserRoleService {
         do throws(JointAccountUserRoleServiceError) {
             return try isMe(member: creator)
         } catch {
-            // [REDACTED_TODO_COMMENT]
-            JointAccountsLogger.warning("This wallet's key of the joint account at index \(derivationIndex) is not derived, so its own address is unknown")
+            JointAccountsLogger.error("Key of the joint account at index \(derivationIndex) is not derived, so its own address is unknown", error: error)
             throw error
         }
     }

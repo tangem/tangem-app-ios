@@ -160,6 +160,20 @@ struct CommonJointAccountPendingOperationsProviderTests {
         #expect(operations.map(\.id) == ["coin"])
     }
 
+    @Test("An operation aimed at the Safe itself is left out")
+    func operationAimedAtTheSafeIsLeftOut() async throws {
+        let account = makeJointAccount()
+        let toSafe = Self.operation(id: "to-safe", to: Self.safeAddress, value: 1, data: Data())
+        let sut = Self.makeSUT(
+            records: [Self.record(operations: [toSafe, Self.coinTransfer()])],
+            walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]
+        ).provider
+
+        let operations = try await sut.pendingOperationsPublisher.async()
+
+        #expect(operations.map(\.id) == ["coin"])
+    }
+
     @Test("A wallet no operation of a joint account goes through is left out: one without a Safe, or one of the wallet's own accounts")
     func operationThroughAnUnfitWalletIsLeftOut() async throws {
         let account = makeJointAccount()
@@ -315,37 +329,60 @@ struct CommonJointAccountPendingOperationsProviderTests {
         }
     }
 
-    @Test("Each operation is followed through the store to its end, and falls silent once the store drops it")
+    @Test("Each operation is followed through the store to its end, also once it has left what is in flight")
     func operationIsFollowedToItsEnd() async throws {
         let account = makeJointAccount()
         let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: [Self.record(operations: [Self.coinTransfer()])])
         let sut = Self.makeSUT(repository: repository, walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]).provider
-        let operation = try #require(try await sut.pendingOperationsPublisher.async().first)
-        var statuses: [JointAccountOperationStatus] = []
-        let subscription = operation.didChangePublisher.sink { statuses.append($0.status) }
+        let pendingOperation = try #require(try await sut.pendingOperationsPublisher.async().first)
+        var statuses: [JointAccountOperationStatus?] = []
+        let subscription = pendingOperation.makeHandle().pendingOperationPublisher.sink { statuses.append($0?.status) }
 
         repository.store(pendingOperations: [Self.record(operations: [Self.coinTransfer(status: .pending)])])
-        repository.store(pendingOperations: [Self.record(operations: [Self.coinTransfer(status: .executed)])])
+        repository.store(operations: [Self.coinTransfer(status: .executed)])
         repository.store(pendingOperations: [])
 
         #expect(statuses == [.awaitingSignatures, .pending, .executed])
         withExtendedLifetime(subscription) {}
     }
 
-    @Test("An operation of another account is not taken for this one, whatever its identifier")
-    func operationOfAnotherAccountIsNotFollowed() async throws {
+    @Test("An operation the store rewrites is read anew, recipient and amount included")
+    func rewrittenOperationIsReadAnew() async throws {
         let account = makeJointAccount()
         let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: [Self.record(operations: [Self.coinTransfer()])])
         let sut = Self.makeSUT(repository: repository, walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]).provider
-        let operation = try #require(try await sut.pendingOperationsPublisher.async().first)
-        var statuses: [JointAccountOperationStatus] = []
-        let subscription = operation.didChangePublisher.sink { statuses.append($0.status) }
+        let pendingOperation = try #require(try await sut.pendingOperationsPublisher.async().first)
+        var operations: [JointAccountPendingOperation] = []
+        let subscription = pendingOperation.makeHandle().pendingOperationPublisher.compactMap { $0 }.sink { operations.append($0) }
 
         repository.store(pendingOperations: [
-            Self.record(operations: [Self.coinTransfer(status: .executed)], cryptoAccountId: String(repeating: "0", count: 64)),
+            Self.record(operations: [Self.operation(id: "coin", to: Self.otherRecipient, value: 2_000_000_000_000_000, data: Data())]),
         ])
 
-        #expect(statuses == [.awaitingSignatures])
+        #expect(operations.map(\.destination) == [Self.recipient, Self.otherRecipient])
+        #expect(operations.map(\.amount?.value) == [0.001, 0.002])
+        withExtendedLifetime(subscription) {}
+    }
+
+    @Test("An operation the store rewrites into another token goes through that token's wallet")
+    func rewrittenOperationFollowsItsToken() async throws {
+        let account = makeJointAccount()
+        let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: [Self.record(operations: [Self.coinTransfer()])])
+        let sut = Self.makeSUT(
+            repository: repository,
+            walletModels: [
+                Self.makeWalletModel(tokenItem: Self.coin, account: account),
+                Self.makeWalletModel(tokenItem: Self.token, account: account),
+            ]
+        ).provider
+        let pendingOperation = try #require(try await sut.pendingOperationsPublisher.async().first)
+        var tokenItems: [TokenItem] = []
+        let subscription = pendingOperation.makeHandle().pendingOperationPublisher.compactMap { $0 }.sink { tokenItems.append($0.tokenItem) }
+
+        let tokenTransfer = try Self.tokenTransfer(id: "coin")
+        repository.store(pendingOperations: [Self.record(operations: [tokenTransfer])])
+
+        #expect(tokenItems == [Self.coin, Self.token])
         withExtendedLifetime(subscription) {}
     }
 
@@ -392,13 +429,14 @@ private extension CommonJointAccountPendingOperationsProviderTests {
     )
 
     static let recipient = "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c"
+    static let otherRecipient = "0x9d4c2e1b7a5f80361c8a0e2b4d6f8a0c2e4b6d17"
     static let creatorAddress = "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf"
     static let ownAddress = "0x3c9e1b7a5d2f80461c8a0e2b4d6f8a0c2e4b6c90"
     static let creator = JointAccountMember(name: "Isaac", address: creatorAddress, role: .creator, isMe: false, signature: nil)
     static let safeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
 
     static func makeSUT(
-        records: [StoredJointAccountPendingOperations],
+        records: [JointAccountOperations],
         walletModels: [any WalletModel],
         members: [JointAccountMember] = [creator]
     ) -> (provider: CommonJointAccountPendingOperationsProvider, walletModelsManager: WalletModelsManagerTestsMock) {
@@ -457,8 +495,8 @@ private extension CommonJointAccountPendingOperationsProviderTests {
         )
     }
 
-    static func record(operations: [JointAccountOperation], cryptoAccountId: String = cryptoAccountId) -> StoredJointAccountPendingOperations {
-        StoredJointAccountPendingOperations(cryptoAccountId: cryptoAccountId, operations: operations)
+    static func record(operations: [JointAccountOperation], cryptoAccountId: String = cryptoAccountId) -> JointAccountOperations {
+        JointAccountOperations(cryptoAccountId: cryptoAccountId, operations: operations)
     }
 
     /// 0.001 of the coin to the recipient.
@@ -520,8 +558,8 @@ private extension CommonJointAccountPendingOperationsProviderTests {
             cancelReason: nil,
             initiator: initiator,
             signatures: [],
-            createdAt: nil,
-            threshold: nil
+            createdAt: Date(timeIntervalSince1970: 1_757_323_237),
+            threshold: 2
         )
     }
 

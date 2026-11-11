@@ -68,9 +68,14 @@ final class CollectiblesCoordinator: CoordinatorObject {
             signingActionButtonType: signingActionButtonType
         )
 
+        let banners = factory.makeBanners(
+            routable: self,
+            pendingPurchaseProvider: CommonCollectiblesPurchaseProvider(userWalletID: userWalletID)
+        )
+
         state = .main(
-            factory.makeViewModel(routable: self),
-            banners: factory.makeBanners(routable: self),
+            factory.makeViewModel(routable: self, pendingPurchases: banners.pendingPurchaseBannersViewModel),
+            banners: banners,
             // [REDACTED_TODO_COMMENT]
             actionsMenu: CollectiblesActionsMenuViewModel(routable: self, devnet: makeDevnetMenuViewModel())
         )
@@ -109,17 +114,16 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
     }
 
     func openMachine(for pack: CollectiblesPack) {
-        guard machineViewModel == nil else { return }
+        openMachine(machineID: pack.id, machine: pack.machine)
+    }
 
-        confirmOrderViewModel = nil
-        machineViewModel = CollectiblesMachineViewModel(
-            pack: pack,
-            routable: self,
-            prizePoolProvider: CommonCollectiblesPrizePoolProvider(userWalletID: userWalletID),
-            relinkStatusProvider: accountModel,
-            isPurchaseLocked: { [purchaseInteractor = accountModel?.purchaseInteractor] in
-                purchaseInteractor?.isPurchaseLocked(machineID: pack.id) ?? false
-            }
+    func openUnfinishedPurchase(_ purchase: CollectiblesPendingPurchase, machine: CollectiblesMachine) {
+        openMachine(machineID: purchase.machineID, machine: machine)
+        openConfirmOrder(
+            machineID: purchase.machineID,
+            machine: machine,
+            isTurboModeOn: purchase.isTurboModeOn,
+            unfinishedPurchase: purchase
         )
     }
 
@@ -139,19 +143,7 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
 
 extension CollectiblesCoordinator: CollectiblesMachineRoutable {
     func openConfirmOrder(machineID: String, machine: CollectiblesMachine, isTurboModeOn: Bool) {
-        guard confirmOrderViewModel == nil, let accountModel else { return }
-
-        confirmOrderViewModel = CollectiblesConfirmOrderViewModel(
-            machineID: machineID,
-            machine: machine,
-            isTurboModeOn: isTurboModeOn,
-            usdcBalanceProvider: accountModel.usdcTokenBalanceProvider,
-            purchaseInteractor: accountModel.purchaseInteractor,
-            relinkStatusProvider: accountModel,
-            routable: self,
-            revealAssetsPreloader: RemoteCollectiblesRevealAssetsPreloader(openingMedia: machine.openingMedia),
-            refreshBalance: accountModel.refreshState
-        )
+        openConfirmOrder(machineID: machineID, machine: machine, isTurboModeOn: isTurboModeOn, unfinishedPurchase: nil)
     }
 }
 
@@ -184,7 +176,9 @@ extension CollectiblesCoordinator: CollectiblesConfirmOrderRoutable {
     }
 
     func closePackFlow() {
+        confirmOrderViewModel = nil
         machineViewModel = nil
+        reloadPendingPurchases()
     }
 }
 
@@ -206,6 +200,52 @@ private extension CollectiblesCoordinator {
             userWalletModel: options.userWalletModel
         ))
         fundsCoordinator = coordinator
+    }
+
+    @MainActor
+    func openMachine(machineID: String, machine: CollectiblesMachine) {
+        guard machineViewModel == nil else { return }
+
+        confirmOrderViewModel = nil
+        machineViewModel = CollectiblesMachineViewModel(
+            machineID: machineID,
+            machine: machine,
+            routable: self,
+            prizePoolProvider: CommonCollectiblesPrizePoolProvider(userWalletID: userWalletID),
+            relinkStatusProvider: accountModel,
+            isPurchaseLocked: { [purchaseInteractor = accountModel?.purchaseInteractor] in
+                purchaseInteractor?.isPurchaseLocked(machineID: machineID) ?? false
+            }
+        )
+    }
+
+    @MainActor
+    func openConfirmOrder(
+        machineID: String,
+        machine: CollectiblesMachine,
+        isTurboModeOn: Bool,
+        unfinishedPurchase: CollectiblesPendingPurchase?
+    ) {
+        guard confirmOrderViewModel == nil, let accountModel else { return }
+
+        confirmOrderViewModel = CollectiblesConfirmOrderViewModel(
+            machineID: machineID,
+            machine: machine,
+            isTurboModeOn: isTurboModeOn,
+            unfinishedPurchase: unfinishedPurchase,
+            usdcBalanceProvider: accountModel.usdcTokenBalanceProvider,
+            purchaseInteractor: accountModel.purchaseInteractor,
+            relinkStatusProvider: accountModel,
+            routable: self,
+            revealAssetsPreloader: RemoteCollectiblesRevealAssetsPreloader(openingMedia: machine.openingMedia),
+            refreshBalance: accountModel.refreshState
+        )
+    }
+
+    func reloadPendingPurchases() {
+        guard case .main(_, let banners, _) = state else { return }
+
+        Task { await banners.load() }
     }
 
     func open(_ destination: Options.Destination) {

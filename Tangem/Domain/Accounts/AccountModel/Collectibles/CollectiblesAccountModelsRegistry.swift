@@ -34,7 +34,15 @@ actor CollectiblesAccountModelsRegistry {
         let accountModel = cachedOrNewAccountModel()
         accountModel.update(isInAccountList: storedCryptoAccounts.isNotEmpty)
 
-        return [accountModel]
+        return storedCryptoAccounts.isEmpty ? [] : [accountModel]
+    }
+
+    func accountModel() -> (any CollectiblesAccountModel)? {
+        guard FeatureProvider.isAvailable(.collectibles) else {
+            return nil
+        }
+
+        return cachedOrNewAccountModel()
     }
 }
 
@@ -62,8 +70,7 @@ private extension CollectiblesAccountModelsRegistry {
             name: Localization.collectiblesMainTitle,
             balanceService: dependencies.balanceService,
             buybackSigningLimits: dependencies.buybackSigningLimits,
-            coldOwnerNetwork: dependencies.coldOwnerNetwork,
-            keysPublisher: dependencies.keysPublisher
+            pendingDerivationProvider: dependencies.pendingDerivationProvider
         )
     }
 

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemPolymarketUI
 import TangemUI
@@ -62,17 +63,19 @@ struct PolymarketMainView: View {
                 PolymarketOverflowMenu(
                     onHistory: { viewModel.handleViewAction(.openHistory) },
                     onHowItWorks: { viewModel.handleViewAction(.openHowItWorks) },
-                    onSupportChat: { viewModel.handleViewAction(.openSupportChat) }
+                    onSupportChat: { viewModel.handleViewAction(.openSupportChat) },
+                    isSettingsVisible: viewModel.isFastTradingAvailable,
+                    onSettings: { viewModel.handleViewAction(.openSettings) }
                 )
             }
         )
-        .environment(\.isRedesign, true)
     }
 
     private var titleView: some View {
         VStack(spacing: Constants.titleSpacing) {
             Text(Localization.predictionAccountTitle)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.mainScreenTitle)
 
             Text(Localization.predictionMainSubtitle)
                 .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textTertiary)
@@ -98,6 +101,17 @@ struct PolymarketMainView: View {
                     .transition(.opacity)
             }
 
+            if let fastTradingBanner = viewModel.fastTradingBanner {
+                PolymarketFastTradingBannerView(
+                    banner: fastTradingBanner,
+                    onAction: { viewModel.handleViewAction(.performFastTradingBannerAction(fastTradingBanner)) },
+                    onDismiss: { viewModel.handleViewAction(.dismissFastTradingBanner(fastTradingBanner)) }
+                )
+                .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
+                .padding(.top, Constants.bannerTopSpacing)
+                .transition(.opacity)
+            }
+
             PolymarketPositionsBlockView(viewModel: viewModel.positionsViewModel)
 
             exploreEventsTitle
@@ -115,6 +129,7 @@ struct PolymarketMainView: View {
         .glowRing(.warning)
         .slotEnd { bannerInfoIcon }
         .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
+        .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.regionRestrictionBanner)
     }
 
     private var bannerInfoIcon: some View {
@@ -159,8 +174,9 @@ struct PolymarketMainView: View {
 
                 PolymarketEventsListView(viewModel: viewModel.eventsViewModel)
             }
-            .animation(.easeInOut(duration: Constants.bannerAnimationDuration), value: viewModel.isRegionRestricted)
-            .animation(.easeInOut(duration: Constants.bannerAnimationDuration), value: viewModel.isAwaitingFunds)
+            .animation(PolymarketMainLayout.bannerAnimation, value: viewModel.isRegionRestricted)
+            .animation(PolymarketMainLayout.bannerAnimation, value: viewModel.isAwaitingFunds)
+            .animation(PolymarketMainLayout.bannerAnimation, value: viewModel.fastTradingBanner)
         }
         .safeAreaInset(edge: .top, spacing: 0) {
             Color.clear.frame(height: navBarHeight)
@@ -184,7 +200,6 @@ extension PolymarketMainView {
         static let headerSpacing: CGFloat = 40
         static let bannerTopSpacing: CGFloat = 24
         static let bannerIconSide: CGFloat = 20
-        static let bannerAnimationDuration: TimeInterval = 0.3
         static let scrollToTopDuration: TimeInterval = 0.6
     }
 }

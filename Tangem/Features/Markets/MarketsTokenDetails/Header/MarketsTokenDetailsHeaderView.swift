@@ -15,7 +15,7 @@ import protocol Combine.Publisher
 struct MarketsTokenDetailsHeaderView: View {
     let tokenName: String
     let tokenSymbol: String
-    let price: AttributedString?
+    let price: String?
     let priceDate: String
     let priceChangeState: PriceChangeView.State?
     let priceChangeAnimation: Published<ForegroundBlinkAnimationChange>.Publisher
@@ -62,7 +62,7 @@ private extension MarketsTokenDetailsHeaderView {
         .lineLimit(1)
     }
 
-    func priceView(_ price: AttributedString) -> some View {
+    func priceView(_ price: String) -> some View {
         ZStack {
             // This `Text` view acts as an invisible container, maintaining constant height
             // to prevent UI from jumping when the font of the price label is scaled down
@@ -72,7 +72,7 @@ private extension MarketsTokenDetailsHeaderView {
                 .accessibilityHidden(true)
 
             AttributedStringBlinkAnimationView(
-                originalString: price,
+                originalString: styledPrice(price),
                 publisher: priceChangeAnimation,
                 positiveColor: DesignSystem.Color.textAccentBlue,
                 negativeColor: DesignSystem.Color.textAccentRed,
@@ -85,6 +85,13 @@ private extension MarketsTokenDetailsHeaderView {
         .truncationMode(.middle)
     }
 
+    func styledPrice(_ price: String) -> AttributedString {
+        var attributed = AttributedString(price)
+        attributed.setFontStyle(DesignSystem.Font.displayMediumToken)
+        attributed.foregroundColor = DesignSystem.Color.textPrimary
+        return attributed
+    }
+
     var priceChangeView: some View {
         HStack(alignment: .firstTextBaseline, spacing: priceSpacing) {
             Text(priceDate)
@@ -93,8 +100,7 @@ private extension MarketsTokenDetailsHeaderView {
             if let priceChangeState {
                 PriceChangeView(
                     state: priceChangeState,
-                    showSkeletonWhenLoading: true,
-                    useRedesignColors: true
+                    showSkeletonWhenLoading: true
                 )
                 .animation(.none, value: priceDate)
             }

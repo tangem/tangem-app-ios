@@ -15,6 +15,7 @@ protocol OnrampNotificationManagerInput {
     var errorPublisher: AnyPublisher<Error?, Never> { get }
     /// Emits the token when it isn't onrampable (`onrampState == .unavailable`), `nil` otherwise.
     var unsupportedTokenPublisher: AnyPublisher<TokenItem?, Never> { get }
+    var unsupportedCountryPublisher: AnyPublisher<OnrampCountry?, Never> { get }
 }
 
 protocol OnrampNotificationManager: NotificationManager {}
@@ -36,21 +37,27 @@ class CommonOnrampNotificationManager {
 
 private extension CommonOnrampNotificationManager {
     func bind(input: some OnrampNotificationManagerInput) {
-        inputSubscription = Publishers.CombineLatest(
+        inputSubscription = Publishers.CombineLatest3(
             input.errorPublisher.prepend(nil),
-            input.unsupportedTokenPublisher.prepend(nil)
+            input.unsupportedTokenPublisher.prepend(nil),
+            input.unsupportedCountryPublisher
         )
         .withWeakCaptureOf(self)
         .sink { manager, args in
-            let (error, unsupportedToken) = args
-            manager.update(error: error, unsupportedToken: unsupportedToken)
+            let (error, unsupportedToken, unsupportedCountry) = args
+            manager.update(error: error, unsupportedToken: unsupportedToken, unsupportedCountry: unsupportedCountry)
         }
     }
 
-    func update(error: Error?, unsupportedToken: TokenItem?) {
+    func update(error: Error?, unsupportedToken: TokenItem?, unsupportedCountry: OnrampCountry?) {
         // The unsupported-token notice has priority and suppresses currency/residency errors — mirrors Swap's `unsupportedPair`.
         if let unsupportedToken {
             show(event: .tokenNotSupported(tokenName: unsupportedToken.name))
+            return
+        }
+
+        if unsupportedCountry != nil {
+            show(event: .countryNotSupported)
             return
         }
 

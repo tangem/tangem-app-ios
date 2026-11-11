@@ -22,6 +22,10 @@ struct JointAccountPendingOperationsProviderMock: JointAccountPendingOperationsP
         nil
     }
 
+    func pendingOperation(from operation: JointAccountOperation) async throws -> JointAccountPendingOperation {
+        throw JointAccountPendingOperationsProviderError.walletNotFound
+    }
+
     func loadOperation(id: String) async throws -> JointAccountPendingOperation {
         throw JointOperationError.operationNotFound
     }

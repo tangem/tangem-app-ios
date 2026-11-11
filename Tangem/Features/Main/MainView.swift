@@ -30,6 +30,7 @@ struct MainView: View {
             selectedCardIndex: $viewModel.selectedCardIndex,
             pullToRefreshAction: viewModel.pullToRefresh(userWalletID:),
             refreshingUserWalletIDs: viewModel.refreshingUserWalletIDs,
+            allServicesAction: viewModel.isAllServicesAvailable ? viewModel.openAllServices : nil,
             scanQRCodeAction: viewModel.openQRScan,
             detailsAction: viewModel.openDetails
         )

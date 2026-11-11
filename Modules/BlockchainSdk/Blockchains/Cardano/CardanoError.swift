@@ -18,6 +18,7 @@ public enum CardanoError: Error, LocalizedError {
     case feeParametersNotFound
     case failedToHashTransactionData
     case invalidDestinationAddress
+    case tokenBalanceOverflow
 
     public var errorDescription: String? {
         Localization.genericErrorCode(errorCode)

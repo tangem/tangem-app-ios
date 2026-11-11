@@ -141,9 +141,11 @@ struct PolymarketSessionKeyErrorTests {
         #expect(reason == expected)
     }
 
-    @Test("Only a server outage or a lost connection invites the same request again", arguments: [
+    @Test("Only a server outage, a lost connection, a timeout or throttling invites the same request again", arguments: [
         (PolymarketAPIError.http(statusCode: 502, problemDetail: nil), true),
         (.http(statusCode: 503, problemDetail: nil), true),
+        (.http(statusCode: 408, problemDetail: nil), true),
+        (.http(statusCode: 429, problemDetail: nil), true),
         (.http(statusCode: 422, problemDetail: nil), false),
         (.connection(underlying: URLError(.networkConnectionLost)), true),
         (.decoding(field: "status", value: "?"), false),

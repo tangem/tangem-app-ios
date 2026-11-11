@@ -702,7 +702,7 @@ private extension PolymarketEventsBlockViewModel {
 
 extension PolymarketEventsBlockViewModel {
     static func presentOutdatedDataToast() {
-        Toast(view: WarningToast(text: Localization.predictionMainDataOutdated))
+        LegacyToast(view: WarningToast(text: Localization.predictionMainDataOutdated))
             .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 }

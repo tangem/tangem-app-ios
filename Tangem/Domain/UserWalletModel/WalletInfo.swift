@@ -60,6 +60,13 @@ enum WalletInfo: Codable {
         }
     }
 
+    var cardImageProvider: (any WalletImageProviding)? {
+        switch self {
+        case .cardWallet(let cardInfo): CardImageProvider(card: cardInfo.card)
+        case .mobileWallet: nil
+        }
+    }
+
     var promoCampaignIdentity: PromoCampaignIdentity {
         switch self {
         case .cardWallet(let cardInfo): .card(batchId: cardInfo.card.batchId)

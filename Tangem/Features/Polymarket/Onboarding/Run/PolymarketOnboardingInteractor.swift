@@ -26,6 +26,8 @@ final class CommonPolymarketOnboardingInteractor {
     private let relayerService: PolymarketRelayerService
     private let clobService: PolymarketCLOBService
     private let serverClock: PolymarketServerClock
+    private let fastTrading: PolymarketOnboardingFastTrading?
+    private let operationSlot: PolymarketWalletOperationSlot?
     private let pollInterval: TimeInterval
 
     init(
@@ -40,6 +42,8 @@ final class CommonPolymarketOnboardingInteractor {
         relayerService: PolymarketRelayerService,
         clobService: PolymarketCLOBService,
         serverClock: PolymarketServerClock,
+        fastTrading: PolymarketOnboardingFastTrading? = nil,
+        operationSlot: PolymarketWalletOperationSlot? = nil,
         pollInterval: TimeInterval = PolymarketDepositWalletPoller.Constants.interval
     ) {
         self.userWalletId = userWalletId
@@ -53,6 +57,8 @@ final class CommonPolymarketOnboardingInteractor {
         self.relayerService = relayerService
         self.clobService = clobService
         self.serverClock = serverClock
+        self.fastTrading = fastTrading
+        self.operationSlot = operationSlot
         self.pollInterval = pollInterval
     }
 }
@@ -186,8 +192,9 @@ private extension CommonPolymarketOnboardingInteractor {
             status: status,
             storedCredentials: credentialsRepository.load(userWalletId: userWalletId)
         )
+        let fastTrading = enabledFastTrading(after: status)
 
-        if !status.owesApprovals, let credentials = account.storedCredentials {
+        if fastTrading == nil, let credentials = account.credentialsWithoutSigning {
             return .authorised(account, credentials: credentials)
         }
 
@@ -195,9 +202,41 @@ private extension CommonPolymarketOnboardingInteractor {
             try await ensureRegionAllows()
         }
 
-        continuation.yield(.awaitingSignature)
+        guard let fastTrading else {
+            continuation.yield(.awaitingSignature)
+            let nonce = try await readNonce(ownerAddress: addresses.owner)
+            let signatures = try await sign(addresses: addresses, nonce: nonce, fastTradingAuthorization: nil, signer: signer)
 
-        let signatures = try await sign(addresses: addresses, signer: signer)
+            return .signed(account, signatures: signatures)
+        }
+
+        let nonce: String
+
+        do {
+            nonce = try await readNonce(ownerAddress: addresses.owner)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            guard let credentials = account.credentialsWithoutSigning else {
+                throw error
+            }
+
+            fastTrading.reportNotEnabled()
+            return .authorised(account, credentials: credentials)
+        }
+
+        let authorization = fastTrading.makeAuthorization(
+            depositWalletAddress: addresses.depositWallet,
+            approvalsNonce: nonce,
+            followsApprovals: status.owesApprovals
+        )
+
+        if authorization == nil, let credentials = account.credentialsWithoutSigning {
+            return .authorised(account, credentials: credentials)
+        }
+
+        continuation.yield(.awaitingSignature)
+        let signatures = try await sign(addresses: addresses, nonce: nonce, fastTradingAuthorization: authorization, signer: signer)
 
         return .signed(account, signatures: signatures)
     }
@@ -275,6 +314,10 @@ private extension CommonPolymarketOnboardingInteractor {
         var isNewAccount: Bool {
             status != .readyToTrade
         }
+
+        var credentialsWithoutSigning: PolymarketL2Credentials? {
+            status.owesApprovals ? nil : storedCredentials
+        }
     }
 }
 
@@ -300,18 +343,25 @@ private extension CommonPolymarketOnboardingInteractor {
 // MARK: - Signatures
 
 private extension CommonPolymarketOnboardingInteractor {
-    func sign(addresses: Addresses, signer: PolymarketOnboardingSigning) async throws -> PolymarketOnboardingSignatures {
-        let nonce: String
-
+    func readNonce(ownerAddress: String) async throws -> String {
         do {
-            nonce = try await relayerService.walletNonce(ownerAddress: addresses.owner)
+            return try await inOperationSlot {
+                try await relayerService.walletNonce(ownerAddress: ownerAddress)
+            }
         } catch is CancellationError {
             throw CancellationError()
         } catch {
             PolymarketLogger.error("Failed to read the relayer nonce", error: error)
             throw PolymarketOnboardingError.unknown
         }
+    }
 
+    func sign(
+        addresses: Addresses,
+        nonce: String,
+        fastTradingAuthorization: PolymarketRelayedBatch.Unsigned?,
+        signer: PolymarketOnboardingSigning
+    ) async throws -> PolymarketOnboardingSignatures {
         let approvals = PolymarketRelayedBatch.Unsigned(
             depositWalletAddress: addresses.depositWallet,
             nonce: nonce,
@@ -322,7 +372,7 @@ private extension CommonPolymarketOnboardingInteractor {
         let signatures: PolymarketOnboardingSignatures
 
         do {
-            signatures = try await signer.sign(approvals: approvals)
+            signatures = try await signer.sign(approvals: approvals, fastTradingAuthorization: fastTradingAuthorization)
         } catch {
             throw PolymarketOnboardingError.signing(error)
         }
@@ -338,8 +388,38 @@ private extension CommonPolymarketOnboardingInteractor {
         return signatures
     }
 
+    func enabledFastTrading(after status: PolymarketDepositWalletStatus) -> PolymarketOnboardingFastTrading? {
+        guard let fastTrading, fastTrading.isEnabled else {
+            return nil
+        }
+
+        guard status != .approvalsInProgress else {
+            PolymarketLogger.warning("The approvals in flight hold the relayer nonce, fast trading stays off in this run")
+            fastTrading.reportNotEnabled()
+            return nil
+        }
+
+        return fastTrading
+    }
+
     func makeDeadline() -> String {
         String(Int(serverClock.now.timeIntervalSince1970) + Constants.deadlineOffset)
+    }
+}
+
+// MARK: - Wallet nonce
+
+private extension CommonPolymarketOnboardingInteractor {
+    func inOperationSlot<T>(_ operation: () async throws -> T) async throws -> T {
+        guard let operationSlot else {
+            return try await operation()
+        }
+
+        return try await operationSlot.exclusively(
+            orThrow: PolymarketOnboardingError.unknown,
+            whileKeptAuthorizationPends: PolymarketOnboardingError.unknown,
+            operation
+        )
     }
 }
 
@@ -377,6 +457,7 @@ private extension CommonPolymarketOnboardingInteractor {
                 case .reached(let deployed):
                     status = deployed
                 case .ceiling(let reported):
+                    reportUnsent(signatures.fastTradingAuthorization)
                     continuation.yield(.handedOff(reported))
                     return
                 }
@@ -393,6 +474,7 @@ private extension CommonPolymarketOnboardingInteractor {
             credentials: credentials,
             poller: poller,
             isNewAccount: isNewAccount,
+            fastTradingAuthorization: signatures.fastTradingAuthorization,
             reporting: continuation
         )
     }
@@ -433,8 +515,10 @@ private extension CommonPolymarketOnboardingInteractor {
         let status: PolymarketDepositWalletStatus
 
         do {
-            status = try await walletService.submitApprovals(signatures.approvals)
-        } catch {
+            status = try await inOperationSlot {
+                try await walletService.submitApprovals(signatures.approvals)
+            }
+        } catch let error as PolymarketWalletError {
             throw PolymarketOnboardingError.wallet(error)
         }
 
@@ -453,6 +537,7 @@ private extension CommonPolymarketOnboardingInteractor {
         credentials: PolymarketL2Credentials,
         poller: PolymarketDepositWalletPoller,
         isNewAccount: Bool,
+        fastTradingAuthorization: PolymarketRelayedBatch? = nil,
         reporting continuation: PolymarketOnboardingContinuation
     ) async throws {
         if status != .readyToTrade {
@@ -460,6 +545,7 @@ private extension CommonPolymarketOnboardingInteractor {
             case .reached:
                 break
             case .ceiling(let reported):
+                reportUnsent(fastTradingAuthorization)
                 continuation.yield(.handedOff(reported))
                 return
             }
@@ -467,7 +553,18 @@ private extension CommonPolymarketOnboardingInteractor {
 
         await primeBalanceCache(credentials: credentials, ownerAddress: addresses.owner)
 
+        if let fastTradingAuthorization {
+            fastTrading?.submit(fastTradingAuthorization)
+        }
+
         continuation.yield(.ready(isNewAccount: isNewAccount))
+    }
+
+    func reportUnsent(_ fastTradingAuthorization: PolymarketRelayedBatch?) {
+        guard fastTradingAuthorization != nil else { return }
+
+        PolymarketLogger.warning("The wallet is not ready to trade yet, the fast trading authorization signed in this run stays unsent")
+        fastTrading?.reportNotEnabled()
     }
 }
 
@@ -478,23 +575,12 @@ private extension CommonPolymarketOnboardingInteractor {
         let credentials: PolymarketL2Credentials
 
         do {
-            credentials = try await clobService.deriveCredentials(authHeaders: authHeaders)
+            credentials = try await clobService.deriveOrCreateCredentials(authHeaders: authHeaders)
         } catch is CancellationError {
             throw CancellationError()
         } catch {
-            guard error.isClientRefusal else {
-                PolymarketLogger.error("Failed to derive the trading credentials", error: error)
-                throw PolymarketOnboardingError.credentials
-            }
-
-            do {
-                credentials = try await clobService.createCredentials(authHeaders: authHeaders)
-            } catch is CancellationError {
-                throw CancellationError()
-            } catch {
-                PolymarketLogger.error("Failed to create the trading credentials", error: error)
-                throw PolymarketOnboardingError.credentials
-            }
+            PolymarketLogger.error("Failed to obtain the trading credentials", error: error)
+            throw PolymarketOnboardingError.credentials
         }
 
         do {
@@ -513,16 +599,6 @@ private extension CommonPolymarketOnboardingInteractor {
         } catch {
             PolymarketLogger.error("Failed to prime the collateral balance", error: error)
         }
-    }
-}
-
-// MARK: - Client refusals
-
-private extension Error {
-    var isClientRefusal: Bool {
-        guard let apiError = self as? PolymarketAPIError else { return false }
-
-        return apiError.isClientRefusal
     }
 }
 

@@ -8,105 +8,61 @@
 
 import SwiftUI
 import TangemUI
-import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
-import TangemUIUtils
 
 struct OnrampKYCVerificationSheetView: View {
     @ObservedObject var viewModel: OnrampKYCVerificationSheetViewModel
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            content
-
-            NavigationBarButton.close(action: viewModel.close)
-                .padding(.all, 16)
-        }
-    }
-
-    private var content: some View {
         VStack(spacing: .zero) {
-            VStack(spacing: 24) {
-                iconSection
+            OnrampSheetHeaderView(closeAction: viewModel.close)
 
-                VStack(spacing: 8) {
-                    Text(Localization.onrampKycVerificationTitle)
-                        .style(Fonts.BoldStatic.title3, color: DesignSystem.Color.textPrimary)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    Text(Localization.onrampKycVerificationSubtitle(viewModel.providerName))
-                        .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .multilineTextAlignment(.center)
-            }
-            .padding(.top, 50)
-            .padding(.bottom, 24)
-            .padding(.horizontal, 16)
+            ModalStatus(
+                .info,
+                title: Localization.onrampKycVerificationTitle,
+                description: Localization.onrampKycVerificationSubtitle(viewModel.providerName)
+            )
 
             whatsImportantSection
-                .padding(.horizontal, 16)
-                .padding(.bottom, 24)
 
-            VStack(spacing: 8) {
-                MainButton(
-                    title: Localization.onrampKycVerificationVerifyButton,
-                    style: .primary,
+            Footer(.buttons(
+                primary: TangemUI.Button(
+                    label: Localization.onrampKycVerificationVerifyButton,
+                    accessibilityLabel: nil,
                     action: viewModel.verify
                 )
-
-                MainButton(
-                    title: Localization.onrampKycVerificationChooseAnother,
-                    style: .secondary,
+                .styleType(.primary),
+                secondary: TangemUI.Button(
+                    label: Localization.onrampKycVerificationChooseAnother,
+                    accessibilityLabel: nil,
                     action: viewModel.chooseAnotherMethod
                 )
-            }
-            .padding(.all, 16)
+                .styleType(.secondary(.default))
+            ))
         }
-        .infinityFrame(axis: .horizontal)
-    }
-
-    private var iconSection: some View {
-        Assets.Kyc.identityDocument.image
-            .renderingMode(.template)
-            .resizable()
-            .frame(width: 32, height: 32)
-            .foregroundStyle(DesignSystem.Color.iconAccentBlue)
-            .padding(12)
-            .background(Circle().fill(DesignSystem.Color.bgAccentBlueSubtle))
-            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.kycIcon)
+        .frame(maxWidth: .infinity)
     }
 
     private var whatsImportantSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 8) {
             Text(Localization.onrampKycVerificationWhatsImportant)
-                .style(Fonts.Bold.footnote, color: DesignSystem.Color.textSecondary)
+                .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
+                .padding(.vertical, 12)
 
-            Separator(height: .minimal, color: DesignSystem.Color.borderSecondary)
-
-            VStack(alignment: .leading, spacing: 8) {
-                bulletItem(Localization.onrampKycVerificationBulletFree)
-                bulletItem(Localization.onrampKycVerificationBulletUnlocks)
-                bulletItem(Localization.onrampKycVerificationBulletPrivacy)
-            }
+            importantItem(Localization.onrampKycVerificationBulletFree)
+            importantItem(Localization.onrampKycVerificationBulletUnlocks)
+            importantItem(Localization.onrampKycVerificationBulletPrivacy)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(DesignSystem.Color.bgSecondary)
-        )
     }
 
-    private func bulletItem(_ text: String) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            Text(AppConstants.dotSign)
-                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
-
-            Text(text)
-                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
+    private func importantItem(_ text: String) -> some View {
+        Text(text)
+            .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.vertical, 12)
     }
 }
 

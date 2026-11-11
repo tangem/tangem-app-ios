@@ -10,12 +10,14 @@ import SwiftUI
 import TangemAssets
 import TangemLocalization
 import TangemUI
+import TangemUIUtils
 import TangemAccessibilityIdentifiers
 
 struct OnrampOfferView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     let viewModel: OnrampOfferViewModel
+    var cardBackground: Color = DesignSystem.Color.bgSecondary
 
     private static let cornerRadius: CGFloat = 24
 
@@ -25,9 +27,11 @@ struct OnrampOfferView: View {
                 .padding(16)
                 .background(
                     RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
-                        .fill(DesignSystem.Color.bgSecondary)
+                        .fill(cardBackground)
                 )
-                .environment(\.colorScheme, resolvedColorScheme)
+                .if(viewModel.isNativePayment) { card in
+                    card.glowRing(size: .card(cornerRadius: Self.cornerRadius), isVisible: viewModel.isAvailable)
+                }
                 .zIndex(1)
 
             if let linkedBanner = viewModel.linkedBanner {
@@ -50,14 +54,6 @@ struct OnrampOfferView: View {
             }
             .padding(.top, 12)
         }
-    }
-
-    private var resolvedColorScheme: ColorScheme {
-        guard viewModel.isNativePayment else {
-            return colorScheme
-        }
-
-        return colorScheme == .light ? .dark : .light
     }
 
     private var topView: some View {
@@ -116,34 +112,52 @@ struct OnrampOfferView: View {
     }
 
     private var amount: some View {
-        HStack(spacing: 4) {
-            Text(viewModel.amount.formatted)
-                .style(
-                    DesignSystem.Font.bodyMediumToken,
-                    color: viewModel.isAvailable ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
-                )
-                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.provider.name))
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 4) {
+                amountText
+                amountAccessories
+            }
 
-            OnrampAmountBadge(badge: viewModel.amount.badge)
-                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmountBadge(name: viewModel.provider.name))
-
-            if let infoAction = viewModel.amount.infoAction {
-                SwiftUI.Button(action: infoAction) {
-                    DesignSystem.Icons.Info.regular16.image
-                        .renderingMode(.template)
-                        .foregroundStyle(DesignSystem.Color.iconSecondary)
-                }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerInfoButton(name: viewModel.provider.name))
+            VStack(alignment: .leading, spacing: 4) {
+                amountText
+                HStack(spacing: 4) { amountAccessories }
             }
         }
     }
 
+    private var amountText: some View {
+        Text(viewModel.amount.formatted)
+            .style(
+                DesignSystem.Font.bodyMediumToken,
+                color: viewModel.isAvailable ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
+            )
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.provider.name))
+    }
+
+    @ViewBuilder
+    private var amountAccessories: some View {
+        OnrampAmountBadge(badge: viewModel.amount.badge)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmountBadge(name: viewModel.provider.name))
+
+        if let infoAction = viewModel.amount.infoAction {
+            SwiftUI.Button(action: infoAction) {
+                DesignSystem.Icons.Info.regular16.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerInfoButton(name: viewModel.provider.name))
+        }
+    }
+
     private func legalNoticeView(_ notice: OnrampOfferViewModel.LegalNotice) -> some View {
-        let attributed = Self.makeLegalNoticeAttributedString(notice)
-        return Text(attributed)
-            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: 4) {
+            Text(Self.makeLegalNoticeAttributedString(notice))
+
+            Text(Localization.onrampNativePaymentIdentityVerification(notice.providerName))
+        }
+        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private static func makeLegalNoticeAttributedString(
@@ -168,12 +182,23 @@ struct OnrampOfferView: View {
     }
 
     private var bottomView: some View {
-        HStack(spacing: .zero) {
-            leadingBottomView
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: .zero) {
+                HStack(spacing: 8) {
+                    timeView
+                    providerView
+                }
 
-            Spacer(minLength: 8)
+                Spacer(minLength: 8)
 
-            trailingBottomView
+                trailingBottomView
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                timeView
+                providerView
+                trailingBottomView
+            }
         }
     }
 
@@ -185,6 +210,7 @@ struct OnrampOfferView: View {
                 .size(.x10)
                 .styleType(.primary)
                 .enabled(viewModel.isAvailable)
+                .fixedSize()
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerBuyButton(name: viewModel.provider.name))
         case .nativeApplePay(let onTap):
             PKPaymentButtonRepresentable(action: onTap)
@@ -196,27 +222,27 @@ struct OnrampOfferView: View {
         }
     }
 
-    private var leadingBottomView: some View {
-        HStack(spacing: 8) {
-            HStack(spacing: 2) {
-                DesignSystem.Icons.Clock.regular16.image
-                    .renderingMode(.template)
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+    private var timeView: some View {
+        HStack(spacing: 2) {
+            DesignSystem.Icons.Clock.regular16.image
+                .renderingMode(.template)
+                .foregroundStyle(DesignSystem.Color.iconSecondary)
 
-                Text(viewModel.provider.timeFormatted)
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            Text(viewModel.provider.timeFormatted)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+        }
+    }
+
+    private var providerView: some View {
+        HStack(spacing: 2) {
+            if let iconURL = viewModel.provider.iconURL {
+                IconView(url: iconURL, size: CGSize(width: 16, height: 16), forceKingfisher: false)
+                    .clipShape(Circle())
+                    .accessibilityHidden(true)
             }
 
-            HStack(spacing: 2) {
-                if let iconURL = viewModel.provider.iconURL {
-                    IconView(url: iconURL, size: CGSize(width: 16, height: 16), forceKingfisher: false)
-                        .clipShape(Circle())
-                        .accessibilityHidden(true)
-                }
-
-                Text(Localization.onrampViaProvider(viewModel.provider.name))
-                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-            }
+            Text(Localization.onrampViaProvider(viewModel.provider.name))
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
         }
     }
 
@@ -230,7 +256,7 @@ struct OnrampOfferView: View {
                 Text(Localization.onrampPayWith)
                     .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-                IconView(url: viewModel.provider.paymentType.themedImageURL(isDark: resolvedColorScheme == .dark), size: .height(16)) {
+                IconView(url: viewModel.provider.paymentType.themedImageURL(isDark: colorScheme == .dark), size: .height(16)) {
                     Shimmer().variant(.custom(width: 30, height: 16, cornerRadius: 6))
                 }
                 .foregroundStyle(DesignSystem.Color.iconSecondary)

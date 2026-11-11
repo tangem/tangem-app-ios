@@ -272,22 +272,10 @@ struct JointAccountsNetworkMapperTests {
         #expect(operation.threshold == 2)
     }
 
-    @Test("An operation stored before it kept its creation date and threshold is still read")
-    func operationStoredWithoutCreationDateAndThresholdIsRead() throws {
-        let operation = JointAccountCompositionFixture.coinTransfer()
-        let storedBlob = try JSONEncoder().encode(StoredJointAccountPendingOperations(cryptoAccountId: "account", operations: [operation]))
-        let storedJSON = String(decoding: storedBlob, as: UTF8.self)
-
-        let decoded = try JSONDecoder().decode(StoredJointAccountPendingOperations.self, from: storedBlob)
-
-        #expect(!storedJSON.contains("createdAt"))
-        #expect(!storedJSON.contains("threshold"))
-        #expect(decoded.operations == [operation])
-    }
-
     @Test("An operation is stored with its creation date and threshold")
     func operationIsStoredWithCreationDateAndThreshold() throws {
-        let operation = JointAccountCompositionFixture.coinTransfer(createdAt: ISO8601DateFormatter().date(from: "2026-09-02T10:15:00Z"), threshold: 2)
+        let createdAt = try #require(ISO8601DateFormatter().date(from: "2026-09-02T10:15:00Z"))
+        let operation = JointAccountCompositionFixture.coinTransfer(createdAt: createdAt, threshold: 2)
 
         let decoded = try JSONDecoder().decode(JointAccountOperation.self, from: JSONEncoder().encode(operation))
 
@@ -312,6 +300,7 @@ struct JointAccountsNetworkMapperTests {
             ("\"baseGas\": \"118000\"", "\"baseGas\": \"lots\"", "baseGas"),
             ("\"nonce\": \"7\"", "\"nonce\": \"seven\"", "nonce"),
             ("\"nonce\": \"7\"", "\"nonce\": \"-1\"", "nonce"),
+            ("\"createdAt\": \"2026-09-02T10:15:00Z\"", "\"createdAt\": \"yesterday\"", "createdAt"),
         ]
     )
     func malformedOperationIsRefused(original: String, malformed: String, field: String) throws {

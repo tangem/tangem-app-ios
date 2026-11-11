@@ -23,114 +23,53 @@ final class YieldLendingTransactionProviderTests: LeakTrackingTestSuite {
     private static let upgradeImplementation = "0xaaF16358336a5e292b1D70057f99c3f2e8241C63"
     private static let fee = Fee(Amount(with: blockchain, type: .coin, value: Decimal(string: "0.0004")!))
 
-    @Test("A deposit sends the amount as the transaction value to the module, with no approval")
-    func deposit() async throws {
-        let transaction = try await makeSUT().depositTransaction(
-            amount: Decimal(string: "0.5")!,
-            yieldModule: Self.yieldModule,
-            upgradeImplementation: nil,
-            fee: Self.fee
-        )
-
-        #expect(transaction.amount == Amount(with: Self.blockchain, type: .coin, value: Decimal(string: "0.5")!))
-        #expect(transaction.destinationAddress == Self.yieldModule)
-        #expect(transaction.contractAddress == Self.yieldModule)
-        #expect(Self.callData(of: transaction) == "0921ecd4")
+    @Test("A deposit calls the module's native entry, with no approval")
+    func deposit() {
+        #expect(YieldLendingTransactionProvider.depositCallData(upgradeImplementation: nil).hex() == "0921ecd4")
     }
 
-    @Test("A deposit into a module that needs an upgrade carries the deposit inside the upgrade and keeps its value")
-    func depositWithUpgrade() async throws {
-        let transaction = try await makeSUT().depositTransaction(
-            amount: Decimal(string: "0.5")!,
-            yieldModule: Self.yieldModule,
-            upgradeImplementation: Self.upgradeImplementation,
-            fee: Self.fee
-        )
+    @Test("A deposit into a module that needs an upgrade carries the deposit inside the upgrade")
+    func depositWithUpgrade() {
+        let data = YieldLendingTransactionProvider.depositCallData(upgradeImplementation: Self.upgradeImplementation)
 
-        #expect(transaction.amount == Amount(with: Self.blockchain, type: .coin, value: Decimal(string: "0.5")!))
-        #expect(transaction.destinationAddress == Self.yieldModule)
-        #expect(transaction.contractAddress == Self.yieldModule)
-        #expect(Self.callData(of: transaction) == Self.upgradeCall(wrapping: "0921ecd4"))
-    }
-
-    @Test("A deposit amount finer than a wei is rounded down to whole wei")
-    func depositFinerThanWei() async throws {
-        let transaction = try await makeSUT().depositTransaction(
-            amount: Decimal(string: "0.50000000000000000099")!,
-            yieldModule: Self.yieldModule,
-            upgradeImplementation: nil,
-            fee: Self.fee
-        )
-
-        #expect(transaction.amount == Amount(with: Self.blockchain, type: .coin, value: Decimal(string: "0.5")!))
-    }
-
-    @Test("A deposit of less than a wei is rejected instead of paying gas for an empty deposit", arguments: ["0", "0.0000000000000000009", "-1"])
-    func emptyDeposit(amount: String) async {
-        await #expect(throws: ValidationError.invalidAmount) {
-            try await makeSUT().depositTransaction(
-                amount: Decimal(string: amount)!,
-                yieldModule: Self.yieldModule,
-                upgradeImplementation: nil,
-                fee: Self.fee
-            )
-        }
+        #expect(data.hex() == Self.upgradeCall(wrapping: "0921ecd4"))
     }
 
     @Test("Withdrawing part of the position withdraws exactly that amount in wei", arguments: ["0.4", "0.40000000000000000099"])
-    func partialWithdrawal(amount: String) async throws {
-        let transaction = try await makeSUT().withdrawTransaction(
-            .partial(Decimal(string: amount)!),
-            yieldModule: Self.yieldModule,
-            upgradeImplementation: nil,
-            fee: Self.fee
-        )
+    func partialWithdrawal(amount: String) throws {
+        let value = try #require(Decimal(string: amount))
 
-        #expect(transaction.amount.value == 0)
-        #expect(transaction.destinationAddress == Self.yieldModule)
-        #expect(transaction.contractAddress == Self.yieldModule)
-        #expect(Self.callData(of: transaction) == "84276d81000000000000000000000000000000000000000000000000058d15e176280000")
+        let data = try YieldLendingTransactionProvider.withdrawCallData(.partial(value), blockchain: Self.blockchain, upgradeImplementation: nil)
+
+        #expect(data.hex() == "84276d81000000000000000000000000000000000000000000000000058d15e176280000")
     }
 
     @Test("A partial withdrawal from a module that needs an upgrade carries the withdrawal inside the upgrade")
-    func partialWithdrawalWithUpgrade() async throws {
-        let transaction = try await makeSUT().withdrawTransaction(
-            .partial(Decimal(string: "0.2")!),
-            yieldModule: Self.yieldModule,
-            upgradeImplementation: Self.upgradeImplementation,
-            fee: Self.fee
+    func partialWithdrawalWithUpgrade() throws {
+        let value = try #require(Decimal(string: "0.2"))
+
+        let data = try YieldLendingTransactionProvider.withdrawCallData(
+            .partial(value),
+            blockchain: Self.blockchain,
+            upgradeImplementation: Self.upgradeImplementation
         )
 
-        #expect(transaction.amount.value == 0)
-        #expect(transaction.destinationAddress == Self.yieldModule)
-        #expect(transaction.contractAddress == Self.yieldModule)
-        #expect(Self.callData(of: transaction) == Self.upgradeCall(wrapping: "84276d81" + Self.word("2c68af0bb140000")))
+        #expect(data.hex() == Self.upgradeCall(wrapping: "84276d81" + Self.word("2c68af0bb140000")))
     }
 
     @Test("Withdrawing everything closes the position, however much it has grown since it was read")
-    func fullWithdrawal() async throws {
-        let transaction = try await makeSUT().withdrawTransaction(
-            .all,
-            yieldModule: Self.yieldModule,
-            upgradeImplementation: nil,
-            fee: Self.fee
-        )
+    func fullWithdrawal() throws {
+        let data = try YieldLendingTransactionProvider.withdrawCallData(.all, blockchain: Self.blockchain, upgradeImplementation: nil)
 
-        #expect(transaction.amount.value == 0)
-        #expect(transaction.destinationAddress == Self.yieldModule)
-        #expect(transaction.contractAddress == Self.yieldModule)
-        #expect(Self.callData(of: transaction) == "4423380d")
+        #expect(data.hex() == "4423380d")
     }
 
     @Test("A partial withdrawal of less than a wei is rejected instead of sending nothing", arguments: ["0", "0.0000000000000000009", "-1"])
-    func emptyPartialWithdrawal(amount: String) async {
-        await #expect(throws: ValidationError.invalidAmount) {
-            try await makeSUT().withdrawTransaction(
-                .partial(Decimal(string: amount)!),
-                yieldModule: Self.yieldModule,
-                upgradeImplementation: nil,
-                fee: Self.fee
-            )
+    func emptyPartialWithdrawal(amount: String) throws {
+        let value = try #require(Decimal(string: amount))
+
+        #expect(throws: ValidationError.invalidAmount) {
+            try YieldLendingTransactionProvider.withdrawCallData(.partial(value), blockchain: Self.blockchain, upgradeImplementation: nil)
         }
     }
 

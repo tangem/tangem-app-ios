@@ -1,5 +1,5 @@
 //
-//  TokenItemView.swift
+//  TokenItemViewLeadingComponent.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]

@@ -13,6 +13,7 @@ enum OnrampNotificationEvent: Hashable {
     case refreshRequired(title: String, message: String)
     case tokenNotSupported(tokenName: String)
     case providersRestricted
+    case countryNotSupported
 }
 
 extension OnrampNotificationEvent: NotificationEvent {
@@ -24,6 +25,8 @@ extension OnrampNotificationEvent: NotificationEvent {
             return .string(Localization.onrampTokenIsNotSupportedBannerTitle(tokenName))
         case .providersRestricted:
             return .string(Localization.expressOnrampRestrictionsTitle)
+        case .countryNotSupported:
+            return .string(Localization.onrampResidencyBottomsheetCountryNotSupported)
         }
     }
 
@@ -35,6 +38,8 @@ extension OnrampNotificationEvent: NotificationEvent {
             return Localization.onrampTokenIsNotSupportedBannerSubtitle
         case .providersRestricted:
             return Localization.expressOnrampRestrictionsText
+        case .countryNotSupported:
+            return Localization.onrampSettingsResidenceDescription
         }
     }
 
@@ -42,14 +47,14 @@ extension OnrampNotificationEvent: NotificationEvent {
         switch self {
         case .refreshRequired:
             return .action
-        case .tokenNotSupported, .providersRestricted:
+        case .tokenNotSupported, .providersRestricted, .countryNotSupported:
             return .secondary
         }
     }
 
     var icon: NotificationView.MessageIcon {
         switch self {
-        case .refreshRequired, .tokenNotSupported, .providersRestricted:
+        case .refreshRequired, .tokenNotSupported, .providersRestricted, .countryNotSupported:
             return .init(iconType: .image(Assets.attention))
         }
     }
@@ -58,7 +63,7 @@ extension OnrampNotificationEvent: NotificationEvent {
         switch self {
         case .refreshRequired:
             return .critical
-        case .tokenNotSupported, .providersRestricted:
+        case .tokenNotSupported, .providersRestricted, .countryNotSupported:
             return .warning
         }
     }
@@ -67,6 +72,8 @@ extension OnrampNotificationEvent: NotificationEvent {
         switch self {
         case .refreshRequired:
             return .init(.refresh, withLoader: true)
+        case .countryNotSupported:
+            return .init(.changeOnrampCountry)
         case .tokenNotSupported, .providersRestricted:
             return nil
         }

@@ -117,6 +117,8 @@ final class AccountModelsManagerStub: AccountModelsManager {
     }
 
     var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: 0) }
+    var accountsOrderPublisher: AnyPublisher<[CryptoAccountDerivationIdentity], Never> { .just(output: []) }
+    func collectiblesAccountModel() async -> (any CollectiblesAccountModel)? { nil }
 
     func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
         throw .tooManyAccounts
@@ -213,7 +215,7 @@ enum PromoCampaignEnrollmentFixtures {
         PromoCampaignEnrollmentWallet(
             name: name,
             subtitle: "3 cards",
-            imageProvider: CardImageProviderMock(),
+            walletIcon: .loadable(CardImageProviderMock()),
             payout: hasPayout ? PromoCampaignEnrollmentWallet.Payout(
                 address: "0x33Bd321f9a0c4e1b7d2E5f8a6C3b21412B"
             ) : nil
@@ -224,7 +226,7 @@ enum PromoCampaignEnrollmentFixtures {
         PromoCampaignEnrolledWalletViewModel(
             name: name,
             subtitle: "3 cards",
-            imageProvider: CardImageProviderMock(),
+            walletIcon: .loadable(CardImageProviderMock()),
             isUserWalletLocked: false,
             totalBalancePublisher: .just(output: .empty)
         )

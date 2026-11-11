@@ -50,7 +50,11 @@ struct GaslessTransactionBuilder {
         )
         let smartContractNonce = try await getSmartContractNonce(address: walletModel.defaultAddressString)
 
-        let feeData = try await makeGaslessTransactionFee(bsdkFee: bsdkTransaction.fee, feeRecipientAddress: feeRecipientAddress)
+        let feeData = try await makeGaslessTransactionFee(
+            bsdkFee: bsdkTransaction.fee,
+            feeRecipientAddress: feeRecipientAddress,
+            keepsYieldWithdrawReserve: false
+        )
         let transactionData = TransactionData(transaction: transaction, fee: feeData, nonce: smartContractNonce)
 
         let signedData = try await makeSignedGaslessData(
@@ -101,7 +105,11 @@ struct GaslessTransactionBuilder {
         )
         let smartContractNonce = try await getSmartContractNonce(address: walletModel.defaultAddressString)
 
-        let feeData = try await makeGaslessTransactionFee(bsdkFee: bsdkTransaction.fee, feeRecipientAddress: feeRecipientAddress)
+        let feeData = try await makeGaslessTransactionFee(
+            bsdkFee: bsdkTransaction.fee,
+            feeRecipientAddress: feeRecipientAddress,
+            keepsYieldWithdrawReserve: true
+        )
         let withdrawTransaction = try makeYieldWithdrawTransaction(
             bsdkFee: bsdkTransaction.fee,
             fee: feeData,
@@ -292,16 +300,21 @@ struct GaslessTransactionBuilder {
         executorVersion.requiresCallGasLimit ? parameters.callGasLimit.description : nil
     }
 
-    private func makeGaslessTransactionFee(bsdkFee: BSDKFee, feeRecipientAddress: String) async throws -> GaslessTransactionFee {
+    private func makeGaslessTransactionFee(
+        bsdkFee: BSDKFee,
+        feeRecipientAddress: String,
+        keepsYieldWithdrawReserve: Bool
+    ) async throws -> GaslessTransactionFee {
         let (parameters, token) = try gaslessFeeParameters(from: bsdkFee)
         guard parameters.gasLimit > 0 else {
             throw GaslessTransactionBuilderError.invalidFeeParameters
         }
 
-        let maxTokenFeeInTokenUnitsDecimal = (bsdkFee.amount.value * token.decimalValue)
-            .rounded(roundingMode: .up)
-
-        guard let maxTokenFeeInTokenUnits = BigUInt(decimal: maxTokenFeeInTokenUnitsDecimal) else {
+        guard let maxTokenFeeInTokenUnits = GaslessMaxTokenFeeCalculator.maxTokenFee(
+            feeAmount: bsdkFee.amount.value,
+            decimalValue: token.decimalValue,
+            keepsYieldWithdrawReserve: keepsYieldWithdrawReserve
+        ) else {
             throw GaslessTransactionBuilderError.invalidFeeParameters
         }
 
@@ -442,7 +455,11 @@ extension GaslessTransactionBuilder {
                 from: bsdkTransaction,
                 gasLimit: callGasLimit(parameters, executorVersion: eip7702Data.executorVersion)
             )
-            let feeData = try await makeGaslessTransactionFee(bsdkFee: bsdkTransaction.fee, feeRecipientAddress: feeRecipientAddress)
+            let feeData = try await makeGaslessTransactionFee(
+                bsdkFee: bsdkTransaction.fee,
+                feeRecipientAddress: feeRecipientAddress,
+                keepsYieldWithdrawReserve: false
+            )
             let nonce = (baseNonce + index).description
 
             transactionsData.append(TransactionData(transaction: transaction, fee: feeData, nonce: nonce))
@@ -524,7 +541,11 @@ extension GaslessTransactionBuilder {
             transactions.append(try await makeTransaction(from: bsdkTransaction, gasLimit: gasLimit))
         }
 
-        let feeData = try await makeGaslessTransactionFee(bsdkFee: batchFee, feeRecipientAddress: feeRecipientAddress)
+        let feeData = try await makeGaslessTransactionFee(
+            bsdkFee: batchFee,
+            feeRecipientAddress: feeRecipientAddress,
+            keepsYieldWithdrawReserve: parameters.yieldWithdraw != nil
+        )
 
         if let yieldWithdraw = parameters.yieldWithdraw {
             var batchHandlesUpgrade = false

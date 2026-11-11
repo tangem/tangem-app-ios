@@ -35,7 +35,14 @@ final class TokenDetailsCoordinator: CoordinatorObject {
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
+    @Published var earnYieldPickerCoordinator: EarnYieldPickerCoordinator? = nil
+    @Published var lendingPositionCoordinator: LendingPositionCoordinator? = nil
     @Published var contactManagementCoordinator: AddressBookContactManagementCoordinator? = nil
+    @Published var ethYieldSheet: EthYieldSheetViewModel? = nil
+
+    private var ethYieldSheetDismissAction: (() -> Void)?
+
+    private var earnYieldPickerOutput: EarnYieldPickerCoordinator.DismissOptions?
 
     // MARK: - Child view models
 
@@ -189,19 +196,19 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openJointAccountOperationDetails(
-        pendingOperation: JointAccountPendingOperation,
+        handle: JointAccountPendingOperationHandle,
         userWalletInfo: UserWalletInfo,
         addressBookManager: AddressBookManager
     ) {
         let addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
         let viewModel = JointAccountOperationDetailsViewModel(
-            pendingOperation: pendingOperation,
+            handle: handle,
             addressBookWallet: addressBookWallet,
             recipientSource: CommonJointAccountOperationRecipientSource(addressBookWallet: addressBookWallet),
             coordinator: self,
             analyticsLogger: CommonJointAccountOperationAnalyticsLogger(
-                tokenItem: pendingOperation.tokenItem,
-                policy: pendingOperation.wallet.account?.policy
+                tokenItem: handle.wallet.tokenItem,
+                policy: handle.wallet.account?.policy
             )
         )
 
@@ -244,6 +251,50 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
 
         let coordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
         yieldModuleActiveCoordinator = coordinator
+    }
+
+    func openEarnYieldPicker(options: EarnYieldPickerCoordinator.Options) {
+        let coordinator = EarnYieldPickerCoordinator(
+            dismissAction: { [weak self] output in
+                guard let self, earnYieldPickerCoordinator != nil else {
+                    return
+                }
+
+                earnYieldPickerOutput = output
+                earnYieldPickerCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: options)
+        earnYieldPickerCoordinator = coordinator
+    }
+
+    func openEthYieldSheet(_ viewModel: EthYieldSheetViewModel) {
+        ethYieldSheet = viewModel
+    }
+
+    func closeEthYieldSheet(then action: @escaping () -> Void) {
+        ethYieldSheetDismissAction = action
+        ethYieldSheet = nil
+    }
+
+    func ethYieldSheetDidDismiss() {
+        let action = ethYieldSheetDismissAction
+        ethYieldSheetDismissAction = nil
+        action?()
+    }
+
+    func openLendingPosition(options: LendingPositionCoordinator.Options) {
+        let coordinator = LendingPositionCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.lendingPositionCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: options)
+        lendingPositionCoordinator = coordinator
     }
 
     func openCloreMigration(factory: CloreMigrationModuleFlowFactory) {
@@ -597,6 +648,27 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
         )
         coordinator.start(with: options)
         sendCoordinator = coordinator
+    }
+}
+
+// MARK: - Earn yield picker
+
+extension TokenDetailsCoordinator {
+    func earnYieldPickerDidDismiss() {
+        guard let output = earnYieldPickerOutput else {
+            return
+        }
+
+        earnYieldPickerOutput = nil
+
+        switch output {
+        case .openStaking:
+            tokenDetailsViewModel?.openStaking()
+        case .addFunds(let type):
+            tokenDetailsViewModel?.actionsViewModel?.performAddFunds(type)
+        case .openLendingPosition:
+            tokenDetailsViewModel?.openLendingPosition()
+        }
     }
 }
 

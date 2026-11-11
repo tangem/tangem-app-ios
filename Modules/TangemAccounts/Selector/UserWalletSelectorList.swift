@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemFoundation
 import TangemUI
 import TangemUIUtils
@@ -41,10 +40,9 @@ struct UserWalletSelectorRow: View {
 
     var body: some View {
         Row(title: item.name)
-            .start { UserWalletImage(image: item.image) }
+            .start { WalletIconView(content: item.icon, width: 40) }
             .subtitleAccessory { subtitle }
             .end { badge }
-            .overrideTextColors(RowOverrideTextColors(title: isLocked ? DesignSystem.Color.textSecondary : nil))
             .onTap(action: onTap)
             .disabled(isLocked)
     }
@@ -70,24 +68,6 @@ struct UserWalletSelectorRow: View {
     }
 }
 
-struct UserWalletImage: View {
-    let image: UIImage?
-
-    var body: some View {
-        Group {
-            if let image {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-            } else {
-                Shimmer()
-                    .variant(.custom(width: 40, height: 25, cornerRadius: 4))
-            }
-        }
-        .frame(width: 40, height: 40)
-    }
-}
-
 // MARK: - Previews
 
 #Preview {
@@ -95,10 +75,10 @@ struct UserWalletImage: View {
 
     UserWalletSelectorList(
         items: [
-            UserWalletSelectorItem(id: UserWalletId(value: Data([1])), name: "My wallet", image: nil, balance: .loaded("$4,496.75"), availability: .unavailable(unavailableReason)),
-            UserWalletSelectorItem(id: UserWalletId(value: Data([2])), name: "My wallet 2", image: nil, balance: .loading(cached: "$12,399.12"), availability: .available),
-            UserWalletSelectorItem(id: UserWalletId(value: Data([3])), name: "My wallet 3", image: nil, balance: .loading(cached: nil), availability: .available),
-            UserWalletSelectorItem(id: UserWalletId(value: Data([4])), name: "My wallet 4", image: nil, balance: .loaded("$901.44"), availability: .locked),
+            UserWalletSelectorItem(id: UserWalletId(value: Data([1])), name: "My wallet", icon: nil, balance: .loaded("$4,496.75"), availability: .unavailable(unavailableReason)),
+            UserWalletSelectorItem(id: UserWalletId(value: Data([2])), name: "My wallet 2", icon: nil, balance: .loading(cached: "$12,399.12"), availability: .available),
+            UserWalletSelectorItem(id: UserWalletId(value: Data([3])), name: "My wallet 3", icon: nil, balance: .loading(cached: nil), availability: .available),
+            UserWalletSelectorItem(id: UserWalletId(value: Data([4])), name: "My wallet 4", icon: nil, balance: .loaded("$901.44"), availability: .locked),
         ],
         isBalanceMasked: false,
         onTap: { _ in }

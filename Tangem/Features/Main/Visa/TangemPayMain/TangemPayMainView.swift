@@ -61,7 +61,6 @@ struct TangemPayMainView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
         .translucentNavigationBar()
-        .redesigned()
     }
 
     private var headerOpacity: CGFloat {

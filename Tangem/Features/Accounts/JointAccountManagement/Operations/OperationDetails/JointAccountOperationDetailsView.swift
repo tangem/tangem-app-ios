@@ -28,13 +28,15 @@ struct JointAccountOperationDetailsView: View {
         ZStack(alignment: .top) {
             switch viewModel.viewState {
             case .details:
-                TransactionDetailsContentView(
-                    header: viewModel.header,
-                    blocks: viewModel.blocks,
-                    animatesBlockChanges: true,
-                    onAction: viewModel.handleViewAction
-                )
-                .transition(.transactionDetailsContent)
+                if let header = viewModel.header {
+                    TransactionDetailsContentView(
+                        header: header,
+                        blocks: viewModel.blocks,
+                        animatesBlockChanges: true,
+                        onAction: viewModel.handleViewAction
+                    )
+                    .transition(.transactionDetailsContent)
+                }
             case .signers(let signersViewModel):
                 JointAccountSignersView(viewModel: signersViewModel)
                     .transition(.transactionDetailsOverlay)

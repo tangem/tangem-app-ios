@@ -10,7 +10,9 @@ import Combine
 import TangemFoundation
 
 final class AuthWalletViewModel: ObservableObject {
-    @Published var icon: LoadingResult<ImageValue, Never> = .loading
+    var icon: UserWalletIcon {
+        item.icon
+    }
 
     var title: String {
         item.title
@@ -28,7 +30,6 @@ final class AuthWalletViewModel: ObservableObject {
 
     init(item: AuthViewState.WalletItem) {
         self.item = item
-        loadImage()
     }
 }
 
@@ -41,23 +42,5 @@ extension AuthWalletViewModel {
 
     func isUnlocking(with userWalletId: UserWalletId?) -> Bool {
         item.isUnlocking(userWalletId)
-    }
-}
-
-// MARK: - Private methods
-
-private extension AuthWalletViewModel {
-    func loadImage() {
-        guard icon.value == nil else {
-            return
-        }
-
-        runTask(in: self) { viewModel in
-            let image = await viewModel.item.imageProvider.loadSmallImage()
-
-            await runOnMain {
-                viewModel.icon = .success(image)
-            }
-        }
     }
 }

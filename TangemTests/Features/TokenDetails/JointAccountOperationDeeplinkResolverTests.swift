@@ -32,6 +32,26 @@ struct JointAccountOperationDeeplinkResolverTests {
         let resolved = try await sut.resolve(operationId: Constants.operationId)
 
         #expect(resolved == listed)
+        #expect(provider.historyBuiltIds.isEmpty)
+        #expect(provider.loadedIds.isEmpty)
+    }
+
+    @Test("An operation the store does not keep but the loaded history shows is opened from the history, without the endpoint", arguments: [
+        JointAccountOperationStatus.executed,
+        .failed,
+        .cancelled,
+    ])
+    func historyOperationIsOpenedWithoutTheEndpoint(status: JointAccountOperationStatus) async throws {
+        let provider = PendingOperationsProviderSpy()
+        let fromHistory = try makePendingOperation(id: Constants.operationId, status: status, provider: provider)
+        provider.historyAnswer = .success(fromHistory)
+        let historyOperation = JointAccountCompositionFixture.coinTransfer(id: Constants.operationId, status: status)
+        let sut = makeSUT(provider: provider, historyOperations: [historyOperation])
+
+        let resolved = try await sut.resolve(operationId: Constants.operationId)
+
+        #expect(resolved == fromHistory)
+        #expect(provider.historyBuiltIds == [Constants.operationId])
         #expect(provider.loadedIds.isEmpty)
     }
 
@@ -104,8 +124,16 @@ struct JointAccountOperationDeeplinkResolverTests {
 // MARK: - Helpers
 
 private extension JointAccountOperationDeeplinkResolverTests {
-    func makeSUT(provider: PendingOperationsProviderSpy, timeout: Duration = .seconds(30)) -> JointAccountOperationDeeplinkResolver {
-        JointAccountOperationDeeplinkResolver(jointAccount: makeJointAccount(provider: provider), timeout: timeout)
+    func makeSUT(
+        provider: PendingOperationsProviderSpy,
+        historyOperations: [JointAccountOperation] = [],
+        timeout: Duration = .seconds(30)
+    ) -> JointAccountOperationDeeplinkResolver {
+        JointAccountOperationDeeplinkResolver(
+            jointAccount: makeJointAccount(provider: provider),
+            historyOperations: historyOperations,
+            timeout: timeout
+        )
     }
 
     func makeJointAccount(provider: any JointAccountPendingOperationsProvider) -> any JointAccountModel {
@@ -146,9 +174,9 @@ private extension JointAccountOperationDeeplinkResolverTests {
             wallet: wallet,
             initiator: .unlisted(address: operation.initiator),
             operation: operation,
-            operationPublisher: Just(operation).eraseToAnyPublisher(),
             innerCallType: .transfer(.coin(destination: Constants.recipient, value: 1_000_000_000_000_000)),
-            feeTokenItem: Constants.coin
+            feeTokenItem: Constants.coin,
+            handleProvider: JointAccountPendingOperationHandleProviderStub()
         )
     }
 }
@@ -166,6 +194,7 @@ private extension JointAccountOperationDeeplinkResolverTests {
 
 private final class PendingOperationsProviderSpy: JointAccountPendingOperationsProvider {
     var listedOperations: [JointAccountPendingOperation] = []
+    var historyAnswer: Result<JointAccountPendingOperation, Error> = .failure("The test handed no answer for the history operation")
     var loadedAnswer: Result<JointAccountPendingOperation, Error> = .failure("The test handed no answer for the endpoint to read the operation with")
     var loadGate: TestGate?
 
@@ -173,6 +202,10 @@ private final class PendingOperationsProviderSpy: JointAccountPendingOperationsP
 
     var loadedIds: [String] {
         calls.withLock(\.loadedIds)
+    }
+
+    var historyBuiltIds: [String] {
+        calls.withLock(\.historyBuiltIds)
     }
 
     func hasPendingOperations(chainId: Int) -> Bool {
@@ -187,6 +220,12 @@ private final class PendingOperationsProviderSpy: JointAccountPendingOperationsP
         nil
     }
 
+    func pendingOperation(from operation: JointAccountOperation) async throws -> JointAccountPendingOperation {
+        calls.withLock { $0.historyBuiltIds.append(operation.id) }
+
+        return try historyAnswer.get()
+    }
+
     func loadOperation(id: String) async throws -> JointAccountPendingOperation {
         calls.withLock { $0.loadedIds.append(id) }
         await loadGate?.wait()
@@ -197,6 +236,7 @@ private final class PendingOperationsProviderSpy: JointAccountPendingOperationsP
 
 private extension PendingOperationsProviderSpy {
     struct Calls {
+        var historyBuiltIds: [String] = []
         var loadedIds: [String] = []
     }
 }

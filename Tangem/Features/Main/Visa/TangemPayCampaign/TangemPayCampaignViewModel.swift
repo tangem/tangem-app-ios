@@ -344,7 +344,7 @@ private extension TangemPayCampaignViewModel {
         let snackbar = TangemSnackbar(title: Localization.commonUnknownError)
             .icon(DesignSystem.Icons.Error.regular20)
             .iconColor(DesignSystem.Color.iconStatusError)
-        Toast(view: snackbar).present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
+        LegacyToast(view: snackbar).present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 
     func isTariffPlanUpgradeAvailable(on tangemPayAccount: TangemPayAccount) async -> Bool {

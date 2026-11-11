@@ -85,7 +85,7 @@ private extension PromoCampaignEnrollmentStateMapper {
         PromoCampaignEnrollmentWallet(
             name: userWalletModel.name,
             subtitle: userWalletModel.cardSetLabel,
-            imageProvider: userWalletModel.walletImageProvider,
+            walletIcon: userWalletModel.walletIcon,
             payout: payoutAddress.map { PromoCampaignEnrollmentWallet.Payout(address: $0) }
         )
     }

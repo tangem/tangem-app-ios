@@ -19,6 +19,8 @@ protocol JointAccountPendingOperationsProvider {
 
     func requestFrequentUpdates(operationId: String) -> AnyCancellable?
 
+    func pendingOperation(from operation: JointAccountOperation) async throws -> JointAccountPendingOperation
+
     func loadOperation(id: String) async throws -> JointAccountPendingOperation
 }
 

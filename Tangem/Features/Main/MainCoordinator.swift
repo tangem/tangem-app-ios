@@ -34,6 +34,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Injected(\.storiesV2Presenter) private var storiesV2Presenter: any StoriesV2Presenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: FloatingSheetPresenter
     @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: FloatingSheetPresentingStateProvider
+    @Injected(\.overlayViewPresentingStateProvider) private var overlayStateProvider: OverlayViewPresentingStateProvider
     @Injected(\.incomingActionHandler) private var incomingActionHandler: IncomingActionHandler
     @Injected(\.mobileFinishActivationManager) private var mobileFinishActivationManager: MobileFinishActivationManager
 
@@ -69,10 +70,12 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     @Published var actionButtonsSellCoordinator: ActionButtonsSellCoordinator? = nil
     @Published var tangemPayMainCoordinator: TangemPayMainCoordinator?
     @Published var tangemPaySelectPlanCoordinator: TangemPaySelectPlanCoordinator?
+    @Published var tangemPayVerifiedCoordinator: TangemPayVerifiedCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
     @Published var tangemPayCampaignCoordinator: TangemPayCampaignCoordinator?
     @Published var mobileBackupTypesCoordinator: MobileBackupTypesCoordinator?
     @Published var mainQRScanFlowCoordinator: MainQRScanFlowCoordinator?
+    @Published var allServicesCoordinator: AllServicesCoordinator?
 
     private(set) var shtorka: MainShtorkaPresenter?
 
@@ -235,6 +238,21 @@ extension MainCoordinator: MainRoutable {
         )
         coordinator.start(with: .init())
         mainQRScanFlowCoordinator = coordinator
+    }
+
+    func openAllServices() {
+        guard allServicesCoordinator == nil else { return }
+
+        let dismissAction: Action<Void> = { [weak self] _ in
+            self?.allServicesCoordinator = nil
+        }
+
+        let coordinator = AllServicesCoordinator(
+            dismissAction: dismissAction,
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init())
+        allServicesCoordinator = coordinator
     }
 
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
@@ -485,7 +503,10 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
                 userWalletInfo: userWalletInfo,
                 tangemPayAccount: tangemPayAccount,
                 userWalletModel: userWalletModel,
-                openingAction: openingAction
+                openingAction: openingAction,
+                restartOnboarding: { [weak self] in
+                    self?.restartTangemPayOnboarding(userWalletModel: userWalletModel)
+                }
             )
         )
         tangemPayMainCoordinator = coordinator
@@ -522,6 +543,20 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         tangemPayMoneyAccountCoordinator = coordinator
     }
 
+    func openTangemPayMoneyAccountActivatingPopup() {
+        Task { @MainActor in
+            let viewModel = TangemPayMoneyAccountActivatingPopupViewModel(coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openTangemPayMoneyAccountFailedPopup(moneyAccount: any TangemPayMoneyAccountModel) {
+        Task { @MainActor in
+            let viewModel = TangemPayMoneyAccountFailedPopupViewModel(moneyAccount: moneyAccount, coordinator: self)
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
     func openTangemPaySelectPlan(
         tariffPlanSelector: any TangemPayTariffPlanSelector,
         userWalletModel: any UserWalletModel
@@ -543,6 +578,33 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
         )
         coordinator.start(with: .init(tariffPlanSelector: tariffPlanSelector, mode: .onboarding))
         tangemPaySelectPlanCoordinator = coordinator
+    }
+
+    func openTangemPayVerified(interactor: any TangemPayUnifiedOnboardingInteractor, userWalletModel: any UserWalletModel) {
+        mainBottomSheetUIManager.hide()
+
+        let coordinator = TangemPayVerifiedCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.tangemPayVerifiedCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+        coordinator.start(with: .init(interactor: interactor, userWalletModel: userWalletModel))
+        tangemPayVerifiedCoordinator = coordinator
+    }
+
+    private func restartTangemPayOnboarding(userWalletModel: any UserWalletModel) {
+        tangemPayMainCoordinator = nil
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + Constants.tangemPayPlanActivationNavigationDelay) { [weak self] in
+            let tangemPayState = AccountModelsAggregator(.tangemPay).model(from: userWalletModel.accountModelsManager)?.state
+
+            guard case .verified(let interactor) = tangemPayState else {
+                return
+            }
+
+            self?.openTangemPayVerified(interactor: interactor, userWalletModel: userWalletModel)
+        }
     }
 
     private func openTangemPayMainViewAfterPlanActivation(userWalletModel: any UserWalletModel) {
@@ -633,6 +695,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             || actionButtonsSellCoordinator != nil
             || yieldModuleActiveCoordinator != nil
             || contactManagementCoordinator != nil
+            || allServicesCoordinator != nil
     }
 
     /// Changes to the slots `isPresentingOverMain` reads, so a campaign that a modal was covering gets
@@ -648,6 +711,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             $actionButtonsSellCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $yieldModuleActiveCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $contactManagementCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
+            $allServicesCoordinator.dropFirst().mapToVoid().eraseToAnyPublisher(),
             $yieldModePromoSheetViewModel.dropFirst().mapToVoid().eraseToAnyPublisher(),
         ]
 
@@ -665,6 +729,7 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
             $actionButtonsSellCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
             $yieldModuleActiveCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
             $contactManagementCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
+            $allServicesCoordinator.map { $0 != nil }.eraseToAnyPublisher(),
         ]
     }
 
@@ -757,19 +822,19 @@ extension MainCoordinator: MultiWalletMainContentRoutable {
     }
 
     func openJointAccountOperationDetails(
-        pendingOperation: JointAccountPendingOperation,
+        handle: JointAccountPendingOperationHandle,
         userWalletInfo: UserWalletInfo,
         addressBookManager: AddressBookManager
     ) {
         let addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
         let viewModel = JointAccountOperationDetailsViewModel(
-            pendingOperation: pendingOperation,
+            handle: handle,
             addressBookWallet: addressBookWallet,
             recipientSource: CommonJointAccountOperationRecipientSource(addressBookWallet: addressBookWallet),
             coordinator: self,
             analyticsLogger: CommonJointAccountOperationAnalyticsLogger(
-                tokenItem: pendingOperation.tokenItem,
-                policy: pendingOperation.wallet.account?.policy
+                tokenItem: handle.wallet.tokenItem,
+                policy: handle.wallet.account?.policy
             )
         )
 
@@ -1114,6 +1179,21 @@ extension MainCoordinator: TangemPayRegionUnavailableRoutable {
     }
 }
 
+extension MainCoordinator: TangemPayMoneyAccountPopupRoutable {
+    func closeTangemPayMoneyAccountPopup() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openMailFromTangemPayMoneyAccountPopup(mailViewModel: MailViewModel) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+}
+
 // MARK: - NFTEntrypointRoutable
 
 extension MainCoordinator: NFTEntrypointRoutable {
@@ -1162,7 +1242,7 @@ extension MainCoordinator: WCTransactionRoutable {
         floatingSheetPresenter.enqueue(sheet: floatingSheetViewModel)
     }
 
-    func show(toast: Toast<WarningToast>) {
+    func show(toast: LegacyToast<WarningToast>) {
         toast.present(layout: .top(padding: 20), type: .temporary())
     }
 }
@@ -1240,6 +1320,8 @@ extension MainCoordinator: FeedHostRoutable {
             openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: tangemPayKYCInteractor)
         case .selectPlan(let tariffPlanSelector, let userWalletModel):
             openTangemPaySelectPlan(tariffPlanSelector: tariffPlanSelector, userWalletModel: userWalletModel)
+        case .verified(let interactor, let userWalletModel):
+            openTangemPayVerified(interactor: interactor, userWalletModel: userWalletModel)
         }
     }
 }
@@ -1255,11 +1337,12 @@ extension MainCoordinator: MainScreenPromoSheetHost {
             hasPresentedModalPublisher,
             isRootHiddenPublisher,
             didEnterBackgroundPublisher,
+            overlayStateProvider.isPresentingPublisher,
         ]
     }
 
     var isSurfaceBusy: Bool {
-        isPresentingOverMain || tangemPayCampaignCoordinator != nil
+        isPresentingOverMain || tangemPayCampaignCoordinator != nil || overlayStateProvider.presentedOverlayId != nil
     }
 
     private var didEnterBackgroundPublisher: AnyPublisher<Bool, Never> {

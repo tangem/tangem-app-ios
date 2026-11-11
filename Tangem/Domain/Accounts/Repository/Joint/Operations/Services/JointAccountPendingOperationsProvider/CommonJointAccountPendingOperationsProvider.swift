@@ -24,6 +24,7 @@ final class CommonJointAccountPendingOperationsProvider {
 
     private let cryptoAccountId: String
     private let walletBuilder = JointAccountWalletBuilder()
+    private let formVerifier = JointOperationFormVerifier()
 
     private lazy var sharedPendingOperationsPublisher = makePendingOperationsPublisher()
 
@@ -45,26 +46,44 @@ final class CommonJointAccountPendingOperationsProvider {
     }
 
     private func makePendingOperationsPublisher() -> AnyPublisher<[JointAccountPendingOperation], Never> {
-        let cryptoAccountId = cryptoAccountId
+        makeInputsPublisher()
+            .withWeakCaptureOf(self)
+            .map { $0.pendingOperations(in: $1.0, walletModels: $1.1, members: $1.2) }
+            .removeDuplicates()
+            .share(replay: 1)
+            .eraseToAnyPublisher()
+    }
 
-        return Publishers.CombineLatest3(
-            pendingOperationsRepository.operationsPublisher
-                .map { $0.first(by: cryptoAccountId) }
-                .removeDuplicates(),
+    private func makePendingOperationPublisher(id: String) -> AnyPublisher<JointAccountPendingOperation?, Never> {
+        Publishers.CombineLatest3(
+            pendingOperationsRepository.operationPublisher(id: id),
             walletModelsManager.walletModelsPublisher,
             membersService.slotsPublisher
                 .map(\.members)
                 .removeDuplicates()
         )
-        .withWeakCaptureOf(self)
-        .map { $0.pendingOperations(in: $1.0, walletModels: $1.1, members: $1.2) }
+        .map { [weak self] operation, walletModels, members in
+            operation.flatMap { operation in
+                self?.mapToJointAccountPendingOperation(operation: operation, walletModels: walletModels, members: members)
+            }
+        }
         .removeDuplicates()
-        .share(replay: 1)
+        .eraseToAnyPublisher()
+    }
+
+    private func makeInputsPublisher() -> AnyPublisher<(JointAccountOperations?, [any WalletModel], [JointAccountMember]), Never> {
+        let cryptoAccountId = cryptoAccountId
+
+        return Publishers.CombineLatest3(
+            pendingOperationsRepository.pendingOperationsPublisher.map { $0.first(by: cryptoAccountId) }.removeDuplicates(),
+            walletModelsManager.walletModelsPublisher,
+            membersService.slotsPublisher.map(\.members).removeDuplicates()
+        )
         .eraseToAnyPublisher()
     }
 
     private func pendingOperations(
-        in record: StoredJointAccountPendingOperations?,
+        in record: JointAccountOperations?,
         walletModels: [any WalletModel],
         members: [JointAccountMember]
     ) -> [JointAccountPendingOperation] {
@@ -93,6 +112,7 @@ final class CommonJointAccountPendingOperationsProvider {
         let innerCallType = try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall)
         let walletModel = try walletModel(relatedTo: innerCallType, chainId: operation.chainId, among: walletModels)
         let wallet = try walletBuilder.build(walletModel: walletModel)
+        try verifyForm(of: operation, in: wallet)
         let feeTokenItem = feeTokenItem(of: operation, through: walletModel, among: walletModels)
         let initiator = initiator(of: operation, wallet: wallet, members: members)
 
@@ -100,10 +120,18 @@ final class CommonJointAccountPendingOperationsProvider {
             wallet: wallet,
             initiator: initiator,
             operation: operation,
-            operationPublisher: pendingOperationsRepository.operationPublisher(id: operation.id, in: cryptoAccountId),
             innerCallType: innerCallType,
-            feeTokenItem: feeTokenItem
+            feeTokenItem: feeTokenItem,
+            handleProvider: self
         )
+    }
+
+    private func verifyForm(of operation: JointAccountOperation, in wallet: JointAccountWallet) throws {
+        guard case .active(let safeAddress) = wallet.account?.jointAccountStatusProvider.status else {
+            throw JointOperationError.accountNotActive
+        }
+
+        try formVerifier.verify(safeTransaction: operation.safeTransaction, safeAddress: safeAddress)
     }
 
     /// The account's wallet of the token a transfer moves: the network's own for the coin, the one at the contract for a
@@ -178,7 +206,7 @@ final class CommonJointAccountPendingOperationsProvider {
 
 extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperationsProvider {
     func hasPendingOperations(chainId: Int) -> Bool {
-        let operations = pendingOperationsRepository.operations.first(by: cryptoAccountId)?.operations ?? []
+        let operations = pendingOperationsRepository.pendingOperations.first(by: cryptoAccountId)?.operations ?? []
         return operations.contains { $0.chainId == chainId && $0.status.isInFlight }
     }
 
@@ -190,13 +218,29 @@ extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperat
         pendingOperationsRepository.requestFrequentUpdates(operationId: operationId)
     }
 
-    func loadOperation(id: String) async throws -> JointAccountPendingOperation {
-        let operation = try await pendingOperationsRepository.loadOperation(id: id, forCryptoAccountId: cryptoAccountId)
-
-        return try await makePendingOperation(
+    func pendingOperation(from operation: JointAccountOperation) async throws -> JointAccountPendingOperation {
+        try await makePendingOperation(
             from: operation,
             walletModels: walletModelsManager.walletModels,
             members: membersService.slotsPublisher.async().members
+        )
+    }
+
+    func loadOperation(id: String) async throws -> JointAccountPendingOperation {
+        let operation = try await pendingOperationsRepository.loadOperation(id: id, forCryptoAccountId: cryptoAccountId)
+
+        return try await pendingOperation(from: operation)
+    }
+}
+
+// MARK: - JointAccountPendingOperationHandleProvider protocol conformance
+
+extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperationHandleProvider {
+    func makeHandle(for pendingOperation: JointAccountPendingOperation) -> JointAccountPendingOperationHandle {
+        JointAccountPendingOperationHandle(
+            id: pendingOperation.id,
+            wallet: pendingOperation.wallet,
+            pendingOperationPublisher: makePendingOperationPublisher(id: pendingOperation.id)
         )
     }
 }

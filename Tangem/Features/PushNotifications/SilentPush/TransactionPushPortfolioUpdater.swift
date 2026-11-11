@@ -46,8 +46,10 @@ final class TransactionPushPortfolioUpdater {
 extension TransactionPushPortfolioUpdater: SilentPushNotificationHandling {
     func handle(_ userInfo: SilentPushUserInfo) {
         guard
+            !userWalletRepository.isLocked,
             let payload = TransactionPushPayload(userInfo: userInfo.raw),
-            let userWalletModel = walletModelLocator.findUserWalletModel(userWalletModelId: payload.userWalletId)
+            let userWalletModel = walletModelLocator.findUserWalletModel(userWalletModelId: payload.userWalletId),
+            !userWalletModel.isUserWalletLocked
         else {
             return
         }
@@ -60,10 +62,6 @@ extension TransactionPushPortfolioUpdater: SilentPushNotificationHandling {
             derivation: payload.derivationPath,
             accountId: payload.accountId
         ) {
-            guard !userWalletRepository.isLocked else {
-                return
-            }
-
             walletModel.startUpdateTask()
             return
         }

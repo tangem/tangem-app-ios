@@ -21,15 +21,15 @@ final class TangemPayVirtualAccountDetailsViewModel: ObservableObject, Identifia
 
     @Injected(\.overlayShareActivitiesPresenter) private var shareActivitiesPresenter: any ShareActivitiesPresenter
 
-    private let tangemPayAccount: TangemPayAccount
+    private let feesSource: FeesSource
     private let onClose: () -> Void
 
     init(
         credentials: TangemPayBankCredentialsResponse,
-        tangemPayAccount: TangemPayAccount,
+        feesSource: FeesSource,
         onClose: @escaping () -> Void
     ) {
-        self.tangemPayAccount = tangemPayAccount
+        self.feesSource = feesSource
         self.onClose = onClose
 
         let rows: [TangemPayVirtualAccountDetailsContentView.Row] = [
@@ -62,7 +62,7 @@ final class TangemPayVirtualAccountDetailsViewModel: ObservableObject, Identifia
 
         UIPasteboard.general.string = row.value
 
-        Toast(
+        LegacyToast(
             view: TangemSnackbar(title: Localization.commonValueCopied)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
                 .iconColor(DesignSystem.Color.iconAccentBlue)
@@ -82,17 +82,33 @@ final class TangemPayVirtualAccountDetailsViewModel: ObservableObject, Identifia
     }
 
     private func loadFees() {
-        runTask(in: self) { @MainActor viewModel in
-            do {
-                let fees = try await viewModel.tangemPayAccount
-                    .loadOnrampFees()
-                    .compactMap(TangemPayVirtualAccountFee.init(response:))
+        switch feesSource {
+        case .known(let fees):
+            contentState.fees = Self.feesState(from: fees)
 
-                viewModel.contentState.fees = fees.isEmpty ? .empty : .loaded(fees)
-            } catch {
-                VisaLogger.error("Failed to load virtual account onramp fees", error: error)
-                viewModel.contentState.fees = .failed
+        case .remote(let loadFees):
+            runTask(in: self) { @MainActor viewModel in
+                do {
+                    let fees = try await loadFees().compactMap(TangemPayVirtualAccountFee.init(response:))
+                    viewModel.contentState.fees = Self.feesState(from: fees)
+                } catch {
+                    VisaLogger.error("Failed to load virtual account onramp fees", error: error)
+                    viewModel.contentState.fees = .failed
+                }
             }
         }
+    }
+
+    private static func feesState(from fees: [TangemPayVirtualAccountFee]) -> TangemPayVirtualAccountDetailsContentView.Fees {
+        fees.isEmpty ? .empty : .loaded(fees)
+    }
+}
+
+// MARK: - FeesSource
+
+extension TangemPayVirtualAccountDetailsViewModel {
+    enum FeesSource {
+        case remote(() async throws -> [TangemPayFeeResponse])
+        case known([TangemPayVirtualAccountFee])
     }
 }

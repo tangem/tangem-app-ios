@@ -18,14 +18,6 @@ final class JointOperationsHistoryWriterStub: JointOperationsHistoryWriter {
         state.withLock { $0.savedRemoteOperationIds }
     }
 
-    var savedLocalItems: [[JointOperationHistoryItem]] {
-        state.withLock { $0.savedLocalItems }
-    }
-
-    var deletedOperationIds: [[String]] {
-        state.withLock { $0.deletedOperationIds }
-    }
-
     init(isFailing: Bool) {
         self.isFailing = isFailing
     }
@@ -33,16 +25,6 @@ final class JointOperationsHistoryWriterStub: JointOperationsHistoryWriter {
     func save(remote items: [JointOperationHistoryItem]) async throws {
         try failIfNeeded()
         state.withLock { $0.savedRemoteOperationIds.append(items.map(\.operation.id)) }
-    }
-
-    func save(local items: [JointOperationHistoryItem]) async throws {
-        try failIfNeeded()
-        state.withLock { $0.savedLocalItems.append(items) }
-    }
-
-    func delete(operationIds: [String]) async throws {
-        try failIfNeeded()
-        state.withLock { $0.deletedOperationIds.append(operationIds) }
     }
 
     private func failIfNeeded() throws {
@@ -57,7 +39,5 @@ final class JointOperationsHistoryWriterStub: JointOperationsHistoryWriter {
 private extension JointOperationsHistoryWriterStub {
     struct State {
         var savedRemoteOperationIds: [[String]] = []
-        var savedLocalItems: [[JointOperationHistoryItem]] = []
-        var deletedOperationIds: [[String]] = []
     }
 }

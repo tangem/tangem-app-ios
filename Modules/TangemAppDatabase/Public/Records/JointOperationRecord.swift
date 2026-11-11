@@ -115,6 +115,8 @@ extension JointOperationRecord: FetchableRecord {}
 extension JointOperationRecord: TableRecord {
     public enum Columns {
         public static let id = Column(CodingKeys.id)
+        public static let safeAddress = Column(CodingKeys.safeAddress)
+        public static let finishedAt = Column(CodingKeys.finishedAt)
     }
 
     public static let databaseTableName = JointOperationsTable.tableName

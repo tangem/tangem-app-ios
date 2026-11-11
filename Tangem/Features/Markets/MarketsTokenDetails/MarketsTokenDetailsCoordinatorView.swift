@@ -26,13 +26,11 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                 content
                     .toolbar {
                         NavigationToolbarButton.close(placement: .topBarLeading, action: coordinator.dismiss)
-                            .redesigned()
 
                         NavigationToolbarButton.share(
                             placement: .topBarTrailing,
                             action: { coordinator.rootViewModel?.shareTokenDetails() }
                         )
-                        .redesigned()
                     }
             }
         }
@@ -111,7 +109,6 @@ struct MarketsTokenDetailsCoordinatorView: CoordinatorView {
                             NavigationToolbarButton.back(placement: .topBarLeading) {
                                 coordinator.tokenDetailsCoordinator = nil
                             }
-                            .redesigned()
                         }
                 }
                 .softTopScrollEdgeEffect()

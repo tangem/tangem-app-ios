@@ -74,7 +74,9 @@ enum TransactionDetailsFactory {
             return .swap(swapContent(info, transaction: transaction, record: record, context: context))
         case .express(.onramp(let info)):
             return .onramp(onrampContent(info, context: context))
-        case .jointOperation, nil:
+        case .jointOperation:
+            return .generic(sendReceiveContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context))
+        case nil:
             return onChainContent(for: transaction, record: record, cryptoAmount: cryptoAmount, context: context)
         }
     }
@@ -203,7 +205,7 @@ enum TransactionDetailsFactory {
         .init(
             tokens: tokensBlock(
                 for: transaction,
-                isFailed: transaction.status == .failed,
+                isFailed: transaction.status.isFailed,
                 caption: nil,
                 fiatText: nil,
                 icon: .token(context.tokenIconInfo)
@@ -227,7 +229,7 @@ enum TransactionDetailsFactory {
         .init(
             tokens: tokensBlock(
                 for: transaction,
-                isFailed: transaction.status == .failed,
+                isFailed: transaction.status.isFailed,
                 caption: nil,
                 fiatText: fiatText(amount: cryptoAmount, currencyId: context.tokenCurrencyId),
                 icon: .token(context.tokenIconInfo)
@@ -245,7 +247,7 @@ enum TransactionDetailsFactory {
         record: TransactionRecord,
         context: TransactionDetailsContext
     ) -> TransactionDetailsGenericOperationViewData {
-        let isFailed = transaction.status == .failed
+        let isFailed = transaction.status.isFailed
 
         return .init(
             tokens: tokensBlock(
@@ -264,7 +266,7 @@ enum TransactionDetailsFactory {
     }
 
     private static func stakingStatusBanner(for transaction: TransactionViewModel) -> TransactionDetailsStatusBannerViewData? {
-        guard transaction.status == .failed else {
+        guard transaction.status.isFailed else {
             return nil
         }
 
@@ -332,7 +334,7 @@ enum TransactionDetailsFactory {
         .init(
             tokens: tokensBlock(
                 for: transaction,
-                isFailed: transaction.status == .failed,
+                isFailed: transaction.status.isFailed,
                 caption: nil,
                 fiatText: fiatText(amount: cryptoAmount, currencyId: context.tokenCurrencyId),
                 icon: .token(context.tokenIconInfo)
@@ -374,7 +376,7 @@ enum TransactionDetailsFactory {
                 amountText: transaction.amount.amountWithCurrencyCode,
                 caption: stage.caption,
                 fiatText: fiatText(amount: cryptoAmount, currencyId: context.tokenCurrencyId),
-                isAmountStrikethrough: transaction.status == .failed
+                isAmountStrikethrough: transaction.status.isFailed
             ),
             statusBanner: nil,
             info: networkFeeInfo(
@@ -469,6 +471,7 @@ enum TransactionDetailsFactory {
         )
         // "Go to token" adds the refund token to the portfolio if needed, then opens it.
         let action = TransactionDetailsActionButtonViewData(
+            id: "refundToken",
             title: Localization.commonGoToToken,
             icon: DesignSystem.Icons.ChevronRight.regular20,
             style: .secondary,
@@ -710,7 +713,7 @@ enum TransactionDetailsFactory {
         return .init(
             tokens: tokensBlock(
                 for: transaction,
-                isFailed: transaction.status == .failed,
+                isFailed: transaction.status.isFailed,
                 caption: nil,
                 fiatText: fiatText(amount: cryptoAmount, currencyId: context.tokenCurrencyId),
                 icon: .token(context.tokenIconInfo)
@@ -793,6 +796,7 @@ enum TransactionDetailsFactory {
         }
 
         return .init(
+            id: "provider",
             title: source.actionTitle,
             icon: DesignSystem.Icons.ArrowTopRight.regular20,
             style: .default,
@@ -919,7 +923,8 @@ enum TransactionDetailsFactory {
         switch record.historyExtraInfo {
         case .express(.exchange): DesignSystem.Icons.ArrowSwapHorizontal.regular20
         case .express(.onramp): DesignSystem.Icons.Card.regular20
-        case .jointOperation, nil: yieldStage(for: transaction) == .balanceMovement ? DesignSystem.Icons.Lightning.regular20 : nil
+        case .jointOperation: nil
+        case nil: yieldStage(for: transaction) == .balanceMovement ? DesignSystem.Icons.Lightning.regular20 : nil
         }
     }
 
@@ -950,7 +955,7 @@ enum TransactionDetailsFactory {
     private static func onChainTitleStyle(for status: TransactionViewModel.Status) -> TransactionDetailsHeaderViewData.TitleStyle {
         switch status {
         case .inProgress: .active
-        case .failed, .undefined: .failed
+        case .failed, .cancelled, .undefined: .failed
         case .confirmed: .neutral
         }
     }
@@ -1010,27 +1015,27 @@ enum TransactionDetailsFactory {
                 blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: address)
             ),
             copyAction: copyAddressAction(for: address),
-            walletImageProvider: nil
+            walletIcon: nil
         )
     }
 
     static func counterparty(for subtitleOwner: TransactionViewModel.SubtitleOwner, label: String) -> TransactionDetailsAddressViewData {
         switch subtitleOwner {
         case .accountInCurrentWallet(let name, let icon):
-            return .init(label: label, actor: .account(name: name, icon: icon), copyAction: nil, walletImageProvider: nil)
+            return TransactionDetailsAddressViewData(label: label, actor: .account(name: name, icon: icon), copyAction: nil, walletIcon: nil)
 
         case .accountInOtherWallet(let accountName, let accountIcon):
-            return .init(label: label, actor: .account(name: accountName, icon: accountIcon), copyAction: nil, walletImageProvider: nil)
+            return TransactionDetailsAddressViewData(label: label, actor: .account(name: accountName, icon: accountIcon), copyAction: nil, walletIcon: nil)
 
-        case .wallet(let name, let imageProvider, _):
-            return .init(label: label, actor: .wallet(name: name), copyAction: nil, walletImageProvider: imageProvider)
+        case .wallet(let name, let walletIcon, _):
+            return TransactionDetailsAddressViewData(label: label, actor: .wallet(name: name), copyAction: nil, walletIcon: walletIcon)
 
         case .contact(let name, let icon, let fullAddress):
             return .init(
                 label: label,
                 actor: .contact(name: name, icon),
                 copyAction: copyAddressAction(for: fullAddress),
-                walletImageProvider: nil
+                walletIcon: nil
             )
 
         case .unresolved(_, let fullAddress, let blockiesImage):
@@ -1038,7 +1043,7 @@ enum TransactionDetailsFactory {
                 label: label,
                 actor: .address(fullAddress, blockiesImage: AddressBlockiesIconViewData(image: blockiesImage)),
                 copyAction: copyAddressAction(for: fullAddress),
-                walletImageProvider: nil
+                walletIcon: nil
             )
         }
     }
@@ -1058,7 +1063,7 @@ enum TransactionDetailsFactory {
                 blockiesImage: AddressIconProvider.makeBlockiesIconViewData(address: target.address)
             ),
             copyAction: copyAddressAction(for: target.address),
-            walletImageProvider: nil
+            walletIcon: nil
         )
     }
 

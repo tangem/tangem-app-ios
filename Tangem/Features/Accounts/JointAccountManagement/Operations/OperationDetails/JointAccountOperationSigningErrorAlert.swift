@@ -15,11 +15,16 @@ struct JointAccountOperationSigningErrorAlert: Equatable {
     let buttonText: String
 
     init(error: Error) {
-        if error as? JointOperationError == .maliciousOperation {
+        switch error as? JointOperationError {
+        case .maliciousOperation:
             title = Localization.jointOperationMaliciousTitle
             message = Localization.jointOperationMaliciousSubtitle
             buttonText = Localization.commonClose
-        } else {
+        case .unsupportedOperationForm:
+            title = Localization.jointOperationSigningBlockedTitle
+            message = Localization.jointOperationSigningBlockedSubtitle
+            buttonText = Localization.commonClose
+        default:
             title = Localization.commonSomethingWentWrong
             message = Localization.accountGenericErrorDialogMessage
             buttonText = Localization.commonOk

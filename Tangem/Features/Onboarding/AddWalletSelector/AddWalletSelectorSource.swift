@@ -9,4 +9,5 @@
 enum AddWalletSelectorSource {
     case signIn
     case settings
+    case allServices
 }

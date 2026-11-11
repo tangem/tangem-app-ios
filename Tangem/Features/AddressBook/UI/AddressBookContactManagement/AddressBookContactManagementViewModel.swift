@@ -378,7 +378,7 @@ private extension AddressBookContactManagementViewModel {
         let snackbar = TangemSnackbar(title: title)
             .icon(DesignSystem.Icons.Success.regular20)
             .iconColor(DesignSystem.Color.iconAccentBlue)
-        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
+        LegacyToast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
     }
 }
 

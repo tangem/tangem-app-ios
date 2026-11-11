@@ -58,6 +58,7 @@ protocol WalletModel:
 
     // [REDACTED_TODO_COMMENT]
     var yieldModuleManager: YieldModuleManager? { get }
+    var lendingModuleReader: (any LendingModuleReader)? { get }
 }
 
 extension WalletModel {

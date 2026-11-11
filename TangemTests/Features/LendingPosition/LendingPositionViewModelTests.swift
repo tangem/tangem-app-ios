@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import Testing
 import TangemFoundation
@@ -108,16 +109,98 @@ final class LendingPositionViewModelTests: LeakTrackingTestSuite {
         #expect(sut.state.canWithdraw)
     }
 
-    @Test("Withdraw opens the withdrawal with the loaded position")
+    @Test("Withdraw opens the withdrawal with the loaded position and the amount available right now")
     func withdrawOpensWithPosition() async {
         let router = RouterSpy()
-        let sut = makeSUT(position: .success(2), router: router)
+        let sut = makeSUT(position: .success(2), available: .success(Decimal(15) / 10), router: router)
 
         sut.onAppear()
         await sut.positionTask?.value
         sut.handle(.withdraw)
 
         #expect(router.withdrawnPositions == [2])
+        #expect(router.withdrawnAvailable == [Decimal(15) / 10])
+    }
+
+    @Test("When the available amount couldn't be read, the withdrawal gets none and reads it itself")
+    func withdrawWithoutAvailable() async {
+        let router = RouterSpy()
+        let sut = makeSUT(position: .success(2), available: .failure(StubError()), router: router)
+
+        sut.onAppear()
+        await sut.positionTask?.value
+        sut.handle(.withdraw)
+
+        #expect(router.withdrawnPositions == [2])
+        #expect(router.withdrawnAvailable == [nil])
+    }
+
+    @Test("A confirmed transaction reads the position again, so a fresh deposit or withdrawal shows up")
+    func confirmedTransactionReloadsPosition() async {
+        let pending = CurrentValueSubject<[PendingTransactionRecord], Never>([Self.pendingTransaction])
+        let liquidity = LiquidityProviderStub(position: .success(0), available: .success(0))
+        let sut = makeSUT(liquidity: liquidity, pendingTransactions: pending.eraseToAnyPublisher())
+        var reads = liquidity.positionReads.makeAsyncIterator()
+        sut.onAppear()
+        _ = await reads.next()
+        await sut.positionTask?.value
+
+        liquidity.position = .success(2)
+        pending.send([])
+        _ = await reads.next()
+        await sut.positionTask?.value
+
+        #expect(sut.state.canWithdraw)
+    }
+
+    @Test("Withdraw opens the withdrawal once and waits while the module is being read")
+    func withdrawWaitsWhileLoading() async {
+        let router = RouterSpy()
+        let sut = makeSUT(position: .success(2), router: router)
+        sut.onAppear()
+        await sut.positionTask?.value
+
+        sut.handle(.withdraw)
+        sut.setWithdrawLoading(true)
+        sut.handle(.withdraw)
+
+        #expect(router.withdrawnPositions == [2])
+        #expect(sut.state.isWithdrawLoading)
+    }
+
+    @Test(
+        "While one button is reading the module, the other one does nothing",
+        arguments: [(LendingPositionContentView.Action.withdraw, true), (.addFunds, false)]
+    )
+    func buttonsWaitForEachOther(tapped: LendingPositionContentView.Action, addFundsLoading: Bool) async {
+        let router = RouterSpy()
+        let sut = makeSUT(position: .success(2), router: router)
+        sut.onAppear()
+        await sut.positionTask?.value
+
+        if addFundsLoading {
+            sut.setAddFundsLoading(true)
+        } else {
+            sut.setWithdrawLoading(true)
+        }
+
+        sut.handle(tapped)
+
+        #expect(router.withdrawnPositions.isEmpty)
+        #expect(router.addFundsCount == 0)
+    }
+
+    @Test("Add funds opens the deposit once and waits while the module is being read")
+    func addFundsWaitsWhileLoading() {
+        let router = RouterSpy()
+        let sut = makeSUT(router: router)
+
+        sut.handle(.addFunds)
+        sut.setAddFundsLoading(true)
+        sut.handle(.addFunds)
+
+        #expect(router.addFundsCount == 1)
+        #expect(sut.state.isAddFundsLoading)
     }
 
     @Test("Without a current APY the calculator is off and the rate shows a dash")
@@ -203,6 +286,7 @@ private extension LendingPositionViewModelTests {
         currentApy: Decimal? = Decimal(string: "0.0449"),
         fiat: Decimal? = 4000,
         history: ApyHistoryProviderSpy = ApyHistoryProviderSpy(result: .success(LendingPositionViewModelTests.chartData)),
+        pendingTransactions: AnyPublisher<[PendingTransactionRecord], Never> = .just(output: []),
         router: RouterSpy = RouterSpy()
     ) -> LendingPositionViewModel {
         let sut = LendingPositionViewModel(
@@ -214,11 +298,24 @@ private extension LendingPositionViewModelTests {
             liquidityProvider: liquidity ?? LiquidityProviderStub(position: position, available: available),
             apyHistoryProvider: history,
             fiatConverter: { _ in fiat },
+            pendingTransactions: pendingTransactions,
             router: router
         )
 
         return trackForMemoryLeaks(sut)
     }
+
+    static let pendingTransaction = PendingTransactionRecord(
+        hash: "0xPending",
+        source: "0x2222222222222222222222222222222222222222",
+        destination: "0x00000000000000000000000000000000000000a1",
+        amount: Amount(with: .ethereum(testnet: false), type: .coin, value: 1),
+        fee: Fee(Amount(with: .ethereum(testnet: false), type: .coin, value: Decimal(1) / 1000)),
+        date: Date(),
+        isIncoming: false,
+        transactionType: .transfer,
+        transactionParams: nil
+    )
 }
 
 // MARK: - Stubs
@@ -228,8 +325,12 @@ private struct StubError: Error {}
 private final class LiquidityProviderStub: YieldModuleLendingLiquidityProvider {
     private let state: OSAllocatedUnfairLock<(position: Result<Decimal, Error>, available: Result<Decimal, Error>)>
 
+    let positionReads: AsyncStream<Void>
+    private let positionReadsContinuation: AsyncStream<Void>.Continuation
+
     init(position: Result<Decimal, Error>, available: Result<Decimal, Error>) {
         state = OSAllocatedUnfairLock(initialState: (position, available))
+        (positionReads, positionReadsContinuation) = AsyncStream.makeStream()
     }
 
     var position: Result<Decimal, Error> {
@@ -242,7 +343,8 @@ private final class LiquidityProviderStub: YieldModuleLendingLiquidityProvider {
     }
 
     func nativePosition() async throws -> Decimal {
-        try state.withLock { $0.position }.get()
+        defer { positionReadsContinuation.yield() }
+        return try state.withLock { $0.position }.get()
     }
 
     func availableToWithdraw(nativePosition: Decimal) async throws -> Decimal {
@@ -287,17 +389,28 @@ private final class ApyHistoryProviderSpy: LendingApyHistoryProvider {
 }
 
 private final class RouterSpy: LendingPositionRoutable {
-    private let state = OSAllocatedUnfairLock(initialState: [Decimal]())
+    private let state = OSAllocatedUnfairLock(initialState: (withdrawals: [(position: Decimal, available: Decimal?)](), addFundsCount: 0))
 
     var withdrawnPositions: [Decimal] {
-        state.withLock { $0 }
+        state.withLock { $0.withdrawals.map(\.position) }
     }
 
-    func openWithdraw(position: Decimal) {
-        state.withLock { $0.append(position) }
+    var withdrawnAvailable: [Decimal?] {
+        state.withLock { $0.withdrawals.map(\.available) }
     }
 
-    func openAddFunds() {}
+    var addFundsCount: Int {
+        state.withLock { $0.addFundsCount }
+    }
+
+    func openWithdraw(position: Decimal, available: Decimal?) {
+        state.withLock { $0.withdrawals.append((position, available)) }
+    }
+
+    func openAddFunds() {
+        state.withLock { $0.addFundsCount += 1 }
+    }
+
     func openHowItWorks() {}
     func openURL(_ url: URL) {}
     func closeLendingPosition() {}

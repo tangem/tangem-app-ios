@@ -51,7 +51,8 @@ private extension PromoCampaignEnrolledWalletsView {
                     balance
                 }
                 .start {
-                    PromoCampaignWalletImageView(imageProvider: viewModel.imageProvider, side: Constants.walletImageSide)
+                    UserWalletIconView(icon: viewModel.walletIcon, size: Constants.walletImageSide)
+                        .accessibilityHidden(true)
                 }
         }
 
@@ -95,7 +96,7 @@ extension PromoCampaignEnrollmentWallet {
         PromoCampaignEnrollmentWallet(
             name: "Main wallet",
             subtitle: "3 cards",
-            imageProvider: CardImageProviderMock(),
+            walletIcon: .loadable(CardImageProviderMock()),
             payout: Payout(
                 address: "0x33Bd321fS9a0c4e1b7d2E5f8a6C3b0xxdSga21412B"
             )
@@ -103,7 +104,7 @@ extension PromoCampaignEnrollmentWallet {
         PromoCampaignEnrollmentWallet(
             name: "Multi Card",
             subtitle: "1 card",
-            imageProvider: CardImageProviderMock(),
+            walletIcon: .loadable(CardImageProviderMock()),
             payout: nil
         ),
     ]

@@ -87,7 +87,7 @@ private extension CommonEthereumTokenFeeLoader {
         // For EVM networks increase gas limit
         fees = fees.map {
             $0.increasingGasLimit(
-                byPercents: EthereumFeeParametersConstants.defaultGasLimitIncreasePercent,
+                byPercents: request.gasLimitIncreasePercent,
                 blockchain: feeBlockchain,
                 decimalValue: feeBlockchain.decimalValue
             )
@@ -143,12 +143,13 @@ extension EthereumTokenFeeLoader {
             return try await estimatedFee(amount: amount)
         case .dex(.ethereumEstimate(let estimatedGasLimit, let otherNativeFee)):
             return [try await estimatedFee(estimatedGasLimit: estimatedGasLimit, otherNativeFee: otherNativeFee)]
-        case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee)):
+        case .dex(.ethereum(let amount, let destination, let txData, let otherNativeFee, let gasLimitIncreasePercent)):
             return try await getFee(request: EthereumFeeRequestData(
                 amount: amount,
                 destination: destination,
                 txData: txData,
-                otherNativeFee: otherNativeFee
+                otherNativeFee: otherNativeFee,
+                gasLimitIncreasePercent: gasLimitIncreasePercent
             ))
         case .approve(let txData, let toContractAddress, _, _, _):
             let zeroAmount = BSDKAmount(with: feeBlockchain, type: .coin, value: 0)

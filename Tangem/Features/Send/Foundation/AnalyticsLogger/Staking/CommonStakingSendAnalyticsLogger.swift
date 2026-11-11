@@ -234,6 +234,8 @@ extension CommonStakingSendAnalyticsLogger: SendFinishAnalyticsLogger {
             params: [.token: tokenItem.currencySymbol]
         )
     }
+
+    func logCloseButton() {}
 }
 
 // MARK: - SendBaseViewAnalyticsLogger

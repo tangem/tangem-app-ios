@@ -74,6 +74,20 @@ public struct TopNavigationActions: View {
     }
 }
 
+// MARK: - Chrome button
+
+public struct TopNavigationChromeButton: View {
+    private let action: TopNavigation.Action
+
+    public init(action: TopNavigation.Action) {
+        self.action = action
+    }
+
+    public var body: some View {
+        TopNavigationCircleButton(action: action)
+    }
+}
+
 // MARK: - Leading decoration
 
 /// Non-interactive leading content — no button chrome, no hit target. `size` scales with Dynamic Type.
@@ -101,6 +115,7 @@ public struct TopNavigationDecoration: View {
 struct TopNavigationActionsGroup: View {
     let actions: [TopNavigation.Action]
     let hasBackground: Bool
+    var surfaceInset: CGFloat = 0
 
     private let size = TopNavigationChromeMetrics.actionButtonSize
 
@@ -115,9 +130,9 @@ struct TopNavigationActionsGroup: View {
                     .barHitTarget(size: size)
             }
         }
-        .padding(.horizontal, TopNavigationChromeMetrics.capsuleEndPadding)
+        .padding(.horizontal, TopNavigationChromeMetrics.capsuleEndPadding + surfaceInset)
         .tangemMaterialSurface(
-            in: Capsule(),
+            in: Capsule().inset(by: surfaceInset),
             isVisible: hasBackground,
             interactive: true,
             shadow: DesignSystem.Shadow.fallbackButton
@@ -261,11 +276,12 @@ private extension View {
 
 enum TopNavigationChromeMetrics {
     static let actionButtonSize: TangemUI.Button.Size = .x9
-    static let chromeButtonSize: TangemUI.Button.Size = .x11
+    static let chromeButtonSize: TangemUI.Button.Size = .x10
     static let iconSize: CGFloat = 24
     static let actionSpacing: CGFloat = 4
     static let trailingGroupSpacing: CGFloat = 8
     static let capsuleEndPadding: CGFloat = 4
+    static let barSurfaceInset: CGFloat = 2
 
     static let maxDynamicTypeSize: DynamicTypeSize = .xxxLarge
 

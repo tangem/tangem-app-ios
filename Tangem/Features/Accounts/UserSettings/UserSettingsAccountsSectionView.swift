@@ -20,7 +20,9 @@ struct UserSettingsAccountsSectionView: View {
             reorderableModels: $viewModel.accountRows,
             reorderableContent: { accountRow in
                 AccountRowButtonView(viewModel: accountRow.viewModel) {
-                    trailingChevron
+                    if accountRow.hasDetails {
+                        trailingChevron
+                    }
                 }
             },
             staticModels: [

@@ -25,11 +25,12 @@ struct TangemPayOrderCardDataView: View {
             .topNavigation(
                 title: viewModel.title,
                 subtitle: Localization.tangempayOrderDataSubtitle,
-                leading: .custom(.back(action: viewModel.back)),
+                leading: viewModel.isPushed ? .automatic : .none,
                 close: .enabled(viewModel.close)
             )
             .alert(item: $viewModel.alert) { $0.alert }
             .onChange(of: focusedField, perform: viewModel.focusedFieldDidChange(to:))
+            .onDisappear(perform: viewModel.cancelOrder)
     }
 
     private var content: some View {

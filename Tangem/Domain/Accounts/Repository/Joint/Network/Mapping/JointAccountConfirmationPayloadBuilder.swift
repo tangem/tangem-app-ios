@@ -13,13 +13,6 @@ struct JointAccountConfirmationPayloadBuilder: JointAccountPayloadBuilder {
     let safeAddress: String
 
     func makePayload(address _: String, derivationIndex _: Int) -> JointAccountConfirmationPayload {
-        JointAccountConfirmationPayload(
-            name: config.name,
-            icon: config.icon,
-            iconColor: config.iconColor,
-            membersCount: config.membersCount,
-            threshold: config.threshold,
-            safeAddress: safeAddress.lowercased()
-        )
+        JointAccountConfirmationPayload(config: config, safeAddress: safeAddress)
     }
 }

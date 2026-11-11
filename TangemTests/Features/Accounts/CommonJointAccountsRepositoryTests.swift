@@ -88,50 +88,42 @@ struct CommonJointAccountsRepositoryTests {
         #expect(storage.accounts.map(\.invites) == [[invite]])
     }
 
-    @Test("The operations riding inside an account are stored apart from it")
+    @Test("The operations riding inside an account the wallet has not stored yet are stored apart from it, at its Safe")
     func pendingOperationsAreStoredApartFromTheAccount() async throws {
         let operation = Self.operation()
         let storage = JointAccountsPersistentStorageStub(accounts: [])
         let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub()
         let networkService = JointAccountsNetworkServiceStub(jointAccounts: [
-            Self.remoteAccount(status: .active(safeAddress: "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"), operations: [operation]),
+            Self.remoteAccount(status: .active(safeAddress: Self.safeAddress), operations: [operation]),
             Self.remoteAccount(cryptoAccountId: Self.otherAccountId),
         ])
         let sut = Self.makeSUT(
             networkService: networkService,
             storage: storage,
-            pendingOperationsSynchronizer: CommonJointAccountPendingOperationsSynchronizer(
-                persistentStorage: pendingOperationsStorage,
-                historyEnricherFactory: { nil }
-            )
+            pendingOperationsSynchronizer: Self.makeSynchronizer(accountsStorage: storage, pendingOperationsStorage: pendingOperationsStorage)
         )
 
         try await sut.loadJointAccountsFromRemote()
 
         #expect(storage.accounts.map(\.cryptoAccountId) == [Self.accountId, Self.otherAccountId])
-        #expect(pendingOperationsStorage.records == [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [operation])])
+        #expect(pendingOperationsStorage.items == [Self.pendingItem(operation)])
     }
 
     @Test("An operation the listing no longer reports is left to its poller rather than dropped")
     func operationNoLongerListedIsKept() async throws {
-        let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount()])
-        let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub(records: [
-            StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [Self.operation()]),
-        ])
-        let networkService = JointAccountsNetworkServiceStub(jointAccounts: [Self.remoteAccount()])
+        let storage = JointAccountsPersistentStorageStub(accounts: [Self.storedAccount(status: .active(safeAddress: Self.safeAddress))])
+        let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub(items: [Self.pendingItem(Self.operation())])
+        let networkService = JointAccountsNetworkServiceStub(jointAccounts: [Self.remoteAccount(status: .active(safeAddress: Self.safeAddress))])
         let sut = Self.makeSUT(
             networkService: networkService,
             storage: storage,
-            pendingOperationsSynchronizer: CommonJointAccountPendingOperationsSynchronizer(
-                persistentStorage: pendingOperationsStorage,
-                historyEnricherFactory: { nil }
-            )
+            pendingOperationsSynchronizer: Self.makeSynchronizer(accountsStorage: storage, pendingOperationsStorage: pendingOperationsStorage)
         )
 
         try await sut.loadJointAccountsFromRemote()
 
         #expect(storage.accounts.count == 1)
-        #expect(pendingOperationsStorage.records == [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [Self.operation()])])
+        #expect(pendingOperationsStorage.items == [Self.pendingItem(Self.operation())])
     }
 
     @Test("An account the endpoint no longer reports is no longer stored")
@@ -285,7 +277,7 @@ struct CommonJointAccountsRepositoryTests {
         let operation = Self.operation()
         let storage = JointAccountsPersistentStorageStub(accounts: [])
         let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub()
-        let synchronizer = CommonJointAccountPendingOperationsSynchronizer(persistentStorage: pendingOperationsStorage, historyEnricherFactory: { nil })
+        let synchronizer = Self.makeSynchronizer(accountsStorage: storage, pendingOperationsStorage: pendingOperationsStorage)
         let eTagStorage = JointAccountsETagStorageStub()
         let networkService = JointAccountsNetworkServiceStub(
             suspendedFirstAnswer: .changed([Self.remoteAccount(status: .active(safeAddress: Self.safeAddress))], eTag: "stale-etag")
@@ -303,7 +295,7 @@ struct CommonJointAccountsRepositoryTests {
         networkService.answerFirstRequest()
         try await read.value
 
-        #expect(pendingOperationsStorage.records == [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [operation])])
+        #expect(pendingOperationsStorage.items == [Self.pendingItem(operation)])
         #expect(networkService.getJointAccountsCallsCount == 1)
         #expect(eTagStorage.eTag == nil)
         #expect(storage.accounts.map(\.cryptoAccountId) == [Self.accountId])
@@ -313,7 +305,7 @@ struct CommonJointAccountsRepositoryTests {
     func theReadAfterAReplayedListingIsAFullOne() async throws {
         let storage = JointAccountsPersistentStorageStub(accounts: [])
         let pendingOperationsStorage = JointAccountsPendingOperationsPersistentStorageStub()
-        let synchronizer = CommonJointAccountPendingOperationsSynchronizer(persistentStorage: pendingOperationsStorage, historyEnricherFactory: { nil })
+        let synchronizer = Self.makeSynchronizer(accountsStorage: storage, pendingOperationsStorage: pendingOperationsStorage)
         let eTagStorage = JointAccountsETagStorageStub()
         let networkService = JointAccountsNetworkServiceStub(
             suspendedFirstAnswer: .changed([Self.remoteAccount(status: .active(safeAddress: Self.safeAddress))], eTag: "stale-etag")
@@ -333,7 +325,7 @@ struct CommonJointAccountsRepositoryTests {
         try await sut.loadJointAccountsFromRemote()
 
         #expect(networkService.sentKnownETags == [nil, nil])
-        #expect(pendingOperationsStorage.records == [StoredJointAccountPendingOperations(cryptoAccountId: Self.accountId, operations: [Self.operation()])])
+        #expect(pendingOperationsStorage.items == [Self.pendingItem(Self.operation())])
         #expect(eTagStorage.eTag == JointAccountsNetworkServiceStub.listingETag)
     }
 
@@ -380,10 +372,7 @@ private extension CommonJointAccountsRepositoryTests {
     static func makeSUT(
         networkService: JointAccountsNetworkService,
         storage: JointAccountsPersistentStorage,
-        pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer = CommonJointAccountPendingOperationsSynchronizer(
-            persistentStorage: JointAccountsPendingOperationsPersistentStorageStub(),
-            historyEnricherFactory: { nil }
-        ),
+        pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer? = nil,
         eTagStorage: ETagStorage = JointAccountsETagStorageStub(),
         isJointAccountsAvailable: Bool = true
     ) -> CommonJointAccountsRepository {
@@ -392,7 +381,7 @@ private extension CommonJointAccountsRepositoryTests {
             networkService: networkService,
             derivationInteractorFactory: JointAccountDerivationInteractorFactory(),
             persistentStorage: storage,
-            pendingOperationsSynchronizer: pendingOperationsSynchronizer,
+            pendingOperationsSynchronizer: pendingOperationsSynchronizer ?? makeSynchronizer(accountsStorage: storage),
             eTagStorage: eTagStorage,
             isJointAccountsAvailable: isJointAccountsAvailable
         )
@@ -457,6 +446,26 @@ private extension CommonJointAccountsRepositoryTests {
         )
     }
 
+    static func makeSynchronizer(
+        accountsStorage: JointAccountsPersistentStorage,
+        pendingOperationsStorage: JointAccountsPendingOperationsPersistentStorage = JointAccountsPendingOperationsPersistentStorageStub()
+    ) -> CommonJointAccountPendingOperationsSynchronizer {
+        CommonJointAccountPendingOperationsSynchronizer(
+            persistentStorage: pendingOperationsStorage,
+            safeAddressResolver: CommonJointAccountSafeAddressResolver(persistentStorage: accountsStorage)
+        )
+    }
+
+    static func pendingItem(_ operation: JointAccountOperation) -> JointOperationHistoryItem {
+        JointOperationHistoryItem(
+            operation: operation,
+            cryptoAccountId: accountId,
+            safeAddress: safeAddress.lowercased(),
+            createdAt: operation.createdAt,
+            threshold: operation.threshold
+        )
+    }
+
     static func operation(chainId: Int = 1, status: JointAccountOperationStatus = .awaitingSignatures) -> JointAccountOperation {
         JointAccountOperation(
             id: "0E2F4A6C-8D0B-4C5E-9F1A-2D4B6C8E0F2A",
@@ -479,8 +488,8 @@ private extension CommonJointAccountsRepositoryTests {
             cancelReason: nil,
             initiator: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
             signatures: [JointAccountOperation.Signature(address: "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", state: .signed, at: "2026-09-02T10:15:00Z")],
-            createdAt: nil,
-            threshold: nil
+            createdAt: Date(timeIntervalSince1970: 1_757_323_237),
+            threshold: 2
         )
     }
 

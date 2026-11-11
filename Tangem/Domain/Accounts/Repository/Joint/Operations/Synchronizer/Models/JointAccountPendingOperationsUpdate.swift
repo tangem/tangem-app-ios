@@ -1,0 +1,29 @@
+//
+//  JointAccountPendingOperationsUpdate.swift
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+
+enum JointAccountPendingOperationsUpdate: Equatable {
+    case localOperation(JointAccountOperation, cryptoAccountId: String)
+    case operationAdded(JointAccountOperation, cryptoAccountId: String)
+    case operationRefreshed(JointAccountOperation, cryptoAccountId: String)
+    case operationRemoved(id: String, cryptoAccountId: String)
+}
+
+// MARK: - Convenience
+
+extension JointAccountPendingOperationsUpdate {
+    var operationId: String {
+        switch self {
+        case .localOperation(let operation, _), .operationAdded(let operation, _), .operationRefreshed(let operation, _):
+            operation.id
+        case .operationRemoved(let id, _):
+            id
+        }
+    }
+}

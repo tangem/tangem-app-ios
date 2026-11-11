@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemLocalization
 import TangemUI
 
 extension CollectiblesPackRevealView {
@@ -23,7 +24,6 @@ extension CollectiblesPackRevealView {
     }
 }
 
-// [REDACTED_TODO_COMMENT]
 extension CollectiblesPackRevealView.Prize {
     init(wonCard: CollectiblesWonCard) {
         let rarity = wonCard.rarity
@@ -31,20 +31,31 @@ extension CollectiblesPackRevealView.Prize {
         self.init(
             imageURL: wonCard.imageFrontURL,
             backImageURL: wonCard.imageBackURL,
-            rarityTitle: rarity.map { "\($0.rawValue.capitalized) pull" },
+            rarityTitle: rarity.map(Self.rarityTitle(of:)),
             badgeAppearance: rarity.map(Self.badgeAppearance(of:)) ?? .neutral,
             glow: rarity.flatMap(Self.glow(of:)),
             name: [wonCard.year, wonCard.set].compactMap { $0 }.joined(separator: " "),
             number: wonCard.serialNumber.map { "#\($0)" } ?? "",
             subtitle: wonCard.insuredValue.map {
-                "Market value \(CollectiblesPriceFormatter.formatWithCents($0)) · Insured"
+                Localization.collectiblesOpenPackMarketValue(CollectiblesPriceFormatter.formatWithCents($0))
             } ?? "",
-            keepTitle: "Keep card"
+            keepTitle: Localization.collectiblesOpenPackKeepCardButton
         )
     }
 }
 
 private extension CollectiblesPackRevealView.Prize {
+    static func rarityTitle(of rarity: CollectiblesMachine.Tier) -> String {
+        switch rarity {
+        case .common: Localization.collectiblesOpenPackPullCommon
+        case .uncommon: Localization.collectiblesOpenPackPullUncommon
+        case .rare: Localization.collectiblesOpenPackPullRare
+        case .epic: Localization.collectiblesOpenPackPullEpic
+        // [REDACTED_TODO_COMMENT]
+        case .legendary: "\(rarity.rawValue.capitalized) pull"
+        }
+    }
+
     static func badgeAppearance(of rarity: CollectiblesMachine.Tier) -> BadgeAppearance {
         switch rarity {
         case .common: .neutral

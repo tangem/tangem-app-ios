@@ -10,6 +10,8 @@ import Foundation
 
 protocol ActionButtonsBuyRoutable: AnyObject {
     func openAddFunds(userWalletInfo: UserWalletInfo, walletModel: any WalletModel)
+    func openAddToken(viewModel: AddTokenFlowRedesignedViewModel)
+    func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel)
 
     func dismiss()
 }
