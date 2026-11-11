@@ -36,14 +36,13 @@ private struct CollectiblesPendingPurchaseSheet: ViewModifier {
 private extension CollectiblesPendingPurchaseSheet {
     // MARK: - View properties
 
-    // [REDACTED_TODO_COMMENT]
     @ViewBuilder
     func sheetView(_ sheet: CollectiblesPendingPurchaseBannersViewModel.Sheet) -> some View {
         switch sheet {
         case .paymentInProgress:
             ModalStatus(
-                title: "Payment in progress",
-                description: "We noticed you have closed screen while the payment was in progress. Please wait a little bit for payment to be processed"
+                title: Localization.collectiblesPaymentInProgressSheetTitle,
+                description: Localization.collectiblesPaymentInProgressSheetSubtitle
             ) {
                 Avatar(.icon(DesignSystem.Icons.Clock.regular32, appearance: .info), size: .size72)
             }

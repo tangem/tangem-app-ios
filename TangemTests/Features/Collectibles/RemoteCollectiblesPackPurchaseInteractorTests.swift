@@ -92,7 +92,7 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
     }
 
     @Test(
-        "A node or program rejection keeps the signed order, the retry sends the same transaction",
+        "A rejected send stops the purchase without reporting it, the retry sends the same transaction",
         arguments: Self.rejections
     )
     func rejectionResendsSameOrder(rejection: CollectiblesSendError) async throws {
@@ -100,6 +100,7 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
 
         let failure = await failure(of: sut)
         #expect(failure == .other)
+        #expect(provider.reportedHashes.isEmpty)
 
         _ = try await purchase(sut)
 
@@ -137,7 +138,7 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         ]
     )
     func relinkLocksOnlyNewPurchases(isRelinkRequired: Bool, order: OrderStage, isLocked: Bool) async {
-        let (sut, _, signer) = makeSUT(sendResults: [order.sendResult], reportResults: [.failure(Constants.error)])
+        let (sut, _, signer) = makeSUT(sendResults: [order.sendResult], reportResults: [.failure(CancellationError())])
 
         if order != .noOrder {
             _ = await failure(of: sut)
@@ -220,32 +221,79 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         #expect(replacement.sentSignatures == [Constants.signature])
     }
 
-    // MARK: - Unknown send outcome
+    // MARK: - Send and report failures
 
-    @Test("An unknown or expired send outcome is left to the backend status", arguments: UndecidedSend.allCases)
-    func undecidedSendGoesToBackend(outcome: UndecidedSend) async throws {
-        let (sut, provider, _) = makeSUT(sendResults: [.failure(outcome.error)])
+    @Test("An expired send stops the purchase without reporting it, the retry signs a fresh order")
+    func expiredSendSignsFreshOrder() async throws {
+        let (sut, provider, signer) = makeSUT(sendResults: [.failure(.transactionExpired), .success(())])
+
+        let failure = await failure(of: sut)
+        #expect(failure == .other)
+        #expect(provider.reportedHashes.isEmpty)
+        #expect(!sut.hasUnfinishedPurchase(machineID: Constants.machineID))
+
+        _ = try await purchase(sut)
+
+        #expect(provider.generatedMachineIDs.count == 2)
+        #expect(signer.confirmedPrices.count == 2)
+    }
+
+    @Test("A failed report does not stop the purchase, the payment is awaited and the pack opens")
+    func failedReportAwaitsPayment() async throws {
+        let (sut, provider, signer) = makeSUT(reportResults: [.failure(Constants.error)])
 
         let wonCard = try await purchase(sut)
 
         #expect(wonCard.gradingID == Constants.gradingID)
+        #expect(signer.sentSignatures == [Constants.signature])
         #expect(provider.reportedHashes == [Constants.signature])
     }
 
-    @Test("A failed report shows the unopened pack and its retry does not send the transaction again")
-    func failedReportDoesNotResend() async throws {
-        let (sut, provider, signer) = makeSUT(reportResults: [.failure(Constants.error), .success(.purchaseTxHash)])
+    @Test("An unconfirmed send goes again only while the backend has not seen it, and is dropped once the backend expired it", arguments: [
+        (status: CollectiblesPurchaseStatus.waitingTxHash, isExpired: false),
+        (status: CollectiblesPurchaseStatus.expired, isExpired: true),
+    ])
+    func unconfirmedSendRetry(status: CollectiblesPurchaseStatus, isExpired: Bool) async {
+        let (sut, provider, signer) = makeSUT(
+            sendResults: [.failure(.outcomeUnknown), .failure(.transactionExpired)],
+            statuses: [Self.transaction(status)]
+        )
+        _ = await failure(of: sut)
 
         let failure = await failure(of: sut)
-        #expect(failure == .packUnopened)
-        #expect(sut.hasUnfinishedPurchase(machineID: Constants.machineID))
 
-        var steps: [CollectiblesPackPurchaseStep] = []
-        _ = try await purchase(sut) { steps.append($0) }
+        #expect(failure == .other)
+        #expect(signer.sentSignatures.count == (isExpired ? 1 : 2))
+        #expect(provider.reportedHashes.isEmpty)
+        #expect(sut.hasUnfinishedPurchase(machineID: Constants.machineID) == !isExpired)
+    }
 
-        #expect(steps == [.confirming, .opening])
+    @Test("An unconfirmed send the backend already sees as paid opens the pack without sending or reporting it again")
+    func paidUnconfirmedSendOpensPack() async throws {
+        let (sut, provider, signer) = makeSUT(
+            sendResults: [.failure(.outcomeUnknown)],
+            statuses: [Self.transaction(.packPurchased)] + Self.paidAndDelivered
+        )
+        _ = await failure(of: sut)
+
+        let wonCard = try await purchase(sut)
+
+        #expect(wonCard.gradingID == Constants.gradingID)
         #expect(signer.sentSignatures.count == 1)
-        #expect(provider.reportedHashes == [Constants.signature, Constants.signature])
+        #expect(provider.reportedHashes.isEmpty)
+        #expect(provider.openedTxIDs == [Constants.txID])
+    }
+
+    @Test("A banner for an unconfirmed send continues from the backend status without sending or reporting it again")
+    func bannerContinuesUnconfirmedSend() async throws {
+        let (sut, provider, signer) = makeSUT(sendResults: [.failure(.outcomeUnknown)])
+        _ = await failure(of: sut)
+
+        _ = try await sut.resumePurchase(Self.pendingPurchase(.packPurchased, txID: Constants.txID), onStep: { _ in })
+
+        #expect(signer.sentSignatures.count == 1)
+        #expect(provider.reportedHashes.isEmpty)
+        #expect(provider.openedTxIDs == [Constants.txID])
     }
 
     // MARK: - Payment
@@ -579,7 +627,7 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         (CollectiblesPurchaseStatus.expired, true),
     ])
     func sentOrderHoldsOffBannerPurchase(sentOrderStatus: CollectiblesPurchaseStatus, isClosed: Bool) async {
-        let (sut, provider, _) = makeSUT(reportResults: [.failure(Constants.error)])
+        let (sut, provider, _) = makeSUT(reportResults: [.failure(CancellationError())])
         _ = await failure(of: sut)
         provider.statuses = [Self.transaction(sentOrderStatus)] + Self.paidAndDelivered
 
@@ -690,6 +738,23 @@ final class RemoteCollectiblesPackPurchaseInteractorTests: LeakTrackingTestSuite
         #expect(!sut.hasUnfinishedPurchase(machineID: Constants.machineID))
     }
 
+    @Test("An unconfirmed send holds off another machine until the backend closes its order", arguments: [
+        (status: CollectiblesPurchaseStatus.waitingTxHash, isClosed: false),
+        (status: CollectiblesPurchaseStatus.expired, isClosed: true),
+    ])
+    func unconfirmedSendHoldsOffOtherMachine(status: CollectiblesPurchaseStatus, isClosed: Bool) async {
+        let (sut, provider, _) = makeSUT(
+            sendResults: [.failure(.outcomeUnknown), .success(())],
+            statuses: [Self.transaction(status)] + Self.paidAndDelivered
+        )
+        _ = await failure(of: sut)
+
+        let failure = await failure(of: sut, machineID: Constants.otherMachineID)
+
+        #expect(failure == (isClosed ? nil : .anotherPurchaseInProgress))
+        #expect(provider.generatedMachineIDs == (isClosed ? [Constants.machineID, Constants.otherMachineID] : [Constants.machineID]))
+    }
+
     // MARK: - Unfinished purchase on the backend
 
     @Test("A purchase does not start while the unfinished purchases cannot be read")
@@ -768,18 +833,6 @@ extension RemoteCollectiblesPackPurchaseInteractorTests {
     enum FailingStep: CaseIterable, Sendable {
         case generation
         case signing
-    }
-
-    enum UndecidedSend: CaseIterable, Sendable {
-        case expired
-        case unknown
-
-        var error: CollectiblesSendError {
-            switch self {
-            case .expired: .transactionExpired
-            case .unknown: .outcomeUnknown
-            }
-        }
     }
 
     nonisolated static let priceArguments: [(price: Decimal, platformFee: Decimal, expected: Units)] = [

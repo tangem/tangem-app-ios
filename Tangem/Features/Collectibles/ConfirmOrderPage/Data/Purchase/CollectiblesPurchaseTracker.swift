@@ -103,22 +103,26 @@ struct CollectiblesPurchaseTracker {
     }
 
     func checkPurchaseIsClosed(txID: String) async throws -> Bool {
-        let transaction: CollectiblesPurchaseTransaction
-
-        do {
-            transaction = try await statusProvider.load(txID: txID, includesAutoBuyback: false)
-        } catch is CancellationError {
-            throw CancellationError()
-        } catch {
-            CollectiblesLogger.error("Collectibles purchase \(txID) status check failed", error: error)
+        guard let status = try await currentStatus(txID: txID) else {
             return false
         }
 
-        switch Self.outcome(of: transaction.status) {
+        switch Self.outcome(of: status) {
         case .failed, .autoSold:
             return true
         case .pending, .paid, .opened, .halted:
             return false
+        }
+    }
+
+    func currentStatus(txID: String) async throws -> CollectiblesPurchaseStatus? {
+        do {
+            return try await statusProvider.load(txID: txID, includesAutoBuyback: false).status
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            CollectiblesLogger.error("Collectibles purchase \(txID) status check failed", error: error)
+            return nil
         }
     }
 }

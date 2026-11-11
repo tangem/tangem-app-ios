@@ -27,21 +27,20 @@ struct CollectiblesPendingPurchaseBanners: View {
 private extension CollectiblesPendingPurchaseBanners {
     // MARK: - View properties
 
-    // [REDACTED_TODO_COMMENT]
     @ViewBuilder
     func bannerView(_ banner: CollectiblesPendingPurchaseBannersViewModel.Banner) -> some View {
         switch banner.kind {
         case .paymentInProgress:
             MessageBanner(
-                title: "Your payment is in progress",
-                description: "Please wait a bit for transaction to complete"
+                title: Localization.collectiblesPaymentInProgressBannerTitle,
+                description: Localization.collectiblesPaymentInProgressBannerSubtitle
             )
             .glowRing(.info)
             .slotEnd { Self.icon(DesignSystem.Icons.Clock.regular20) }
         case .packToOpen:
             MessageBanner(
-                title: "You have pack to open",
-                description: "Please note, that if you have not opened pack in a few hours, you'll receive an automated refund from our partner"
+                title: Localization.collectiblesPackToOpenBannerTitle,
+                description: Localization.collectiblesPackToOpenBannerSubtitle
             )
             .glowRing(.warning)
             .slotEnd { Self.icon(DesignSystem.Icons.Warning.regular20) }

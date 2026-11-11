@@ -134,6 +134,7 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
 
     enum Stage {
         case signed
+        case sendUnconfirmed
         case sent
         case reported
         case paymentWaitOver
@@ -200,7 +201,11 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
             report(.confirming)
         }
 
-        if order.stage == .signed, let signedPurchase = order.signedPurchase {
+        if order.stage == .sendUnconfirmed {
+            order = try await reconciledUnconfirmedOrder(order)
+        }
+
+        if order.stage == .signed || order.stage == .sendUnconfirmed, let signedPurchase = order.signedPurchase {
             try await send(signedPurchase, of: order)
             order.stage = .sent
             pendingOrder = order
@@ -380,8 +385,7 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
         } catch is CancellationError {
             throw CancellationError()
         } catch {
-            CollectiblesLogger.error("Collectibles purchase \(order.txID) sent report failed", error: error)
-            throw CollectiblesPackPurchaseError.packUnopened
+            CollectiblesLogger.error("Collectibles purchase \(order.txID) sent report failed, the backend finds the payment by its memo", error: error)
         }
     }
 
@@ -390,8 +394,17 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
             try await signer.sendPurchase(signedPurchase)
         } catch {
             switch error {
-            case .transactionExpired, .outcomeUnknown:
-                CollectiblesLogger.info("Collectibles purchase \(order.txID) send outcome is unknown, the backend status decides")
+            case .transactionExpired:
+                if order.stage == .signed {
+                    pendingOrder = nil
+                }
+
+                throw error
+            case .outcomeUnknown:
+                var order = order
+                order.stage = .sendUnconfirmed
+                pendingOrder = order
+                throw error
             case .rejected(let rejection):
                 guard rejection as? CollectiblesProgramRejection == .unauthorized else {
                     throw error
@@ -404,12 +417,27 @@ private extension RemoteCollectiblesPackPurchaseInteractor {
         }
     }
 
+    func reconciledUnconfirmedOrder(_ order: Order) async throws -> Order {
+        switch try await tracker.currentStatus(txID: order.txID) {
+        case nil, .created, .waitingTxHash:
+            return order
+        case .expired:
+            pendingOrder = nil
+            throw CollectiblesSendError.transactionExpired
+        default:
+            var order = order
+            order.stage = .reported
+            pendingOrder = order
+            return order
+        }
+    }
+
     func resumableOrder(of purchase: CollectiblesPendingPurchase) async throws -> Order {
-        if let pendingOrder, pendingOrder.txID == purchase.txID, pendingOrder.stage != .signed {
+        if let pendingOrder, pendingOrder.txID == purchase.txID, pendingOrder.stage != .signed, pendingOrder.stage != .sendUnconfirmed {
             return pendingOrder
         }
 
-        if let pendingOrder, pendingOrder.stage == .sent {
+        if let pendingOrder, pendingOrder.txID != purchase.txID, pendingOrder.stage == .sent || pendingOrder.stage == .sendUnconfirmed {
             guard try await tracker.checkPurchaseIsClosed(txID: pendingOrder.txID) else {
                 throw CollectiblesPackPurchaseError.anotherPurchaseInProgress
             }

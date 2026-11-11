@@ -226,10 +226,10 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         #expect(doubles.presenceStore.contains(Fixtures.userWalletId))
     }
 
-    @Test("Points a vault naming a foreign session key back at the held one, keeping the held key")
+    @Test("Names a freshly generated session key in a vault that answers to a foreign one")
     func onboardingRekeysVault() async throws {
         let (sut, doubles) = await makeSUT(start: .rekeyMismatch)
-        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.reissuedVault()) }
 
         try await sut.onboard()
 
@@ -237,9 +237,9 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         #expect(transaction.instructions.count == 1)
         #expect(transaction.instructions.first?.data.prefix(8) == CollectiblesVaultProgram.instructionDiscriminator("update_vault"))
         #expect(transaction.feePayer == Fixtures.coldOwnerKey)
-        #expect(doubles.sessionKeySigner.generateCount == 0)
+        #expect(doubles.sessionKeySigner.generateCount == 1)
         #expect(doubles.chainService.broadcasts.first?.startSendingTimestamp == Fixtures.blockhashFetchedAt)
-        #expect(sut.state == .ready(Fixtures.vault()))
+        #expect(sut.state == .ready(Fixtures.reissuedVault()))
     }
 
     @Test("A relink that finds no vault for the derived key signs nothing and reports the account missing")
@@ -254,17 +254,23 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         #expect(sut.state == .notOnboarded)
     }
 
-    @Test("A relink points a vault naming a foreign session key back at the held one")
+    @Test("A relink names a freshly generated session key, never the one held from before")
     func relinkRekeysVault() async throws {
         let (sut, doubles) = await makeSUT(start: .rekeyMismatch)
-        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.reissuedVault()) }
 
         let outcome = try await sut.relink()
 
         let transaction = try #require(doubles.chainService.transactions.first)
+        let expectedInstruction = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId).updateVaultInstruction(
+            coldOwner: Fixtures.coldOwnerKey,
+            sessionKey: Fixtures.generatedSessionKey,
+            perSpinCap: nil,
+            dailyCap: nil
+        )
         #expect(outcome == .relinked)
-        #expect(transaction.instructions.first?.data.prefix(8) == CollectiblesVaultProgram.instructionDiscriminator("update_vault"))
-        #expect(sut.state == .ready(Fixtures.vault()))
+        #expect(transaction.instructions.map(\.data) == [expectedInstruction.data])
+        #expect(sut.state == .ready(Fixtures.reissuedVault()))
     }
 
     @Test(
@@ -275,14 +281,14 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         let dateProvider = DateProviderFake(now: Fixtures.blockhashFetchedAt)
         let (sut, doubles) = await makeSUT(start: .rekeyMismatch, dateProvider: dateProvider)
         let foreignVault = Fixtures.vault(sessionKey: Fixtures.foreignSessionKey)
-        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.reissuedVault()) }
         _ = try await sut.relink()
 
         doubles.vaultReader.vault = foreignVault
         dateProvider.advance(by: elapsed)
         await sut.refreshState()
 
-        let expectedState: CollectiblesState = isRelinkRequired ? .rekeyRequired(foreignVault) : .ready(Fixtures.vault())
+        let expectedState: CollectiblesState = isRelinkRequired ? .rekeyRequired(foreignVault) : .ready(Fixtures.reissuedVault())
         #expect(sut.state == expectedState)
     }
 
@@ -293,7 +299,7 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
     func relinkGracePeriodLetsOtherPhonesKeyThrough(check: StateCheck) async throws {
         let dateProvider = DateProviderFake(now: Fixtures.blockhashFetchedAt)
         let (sut, doubles) = await makeSUT(start: .rekeyMismatch, dateProvider: dateProvider)
-        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.reissuedVault()) }
         _ = try await sut.relink()
 
         doubles.vaultReader.vault = Fixtures.vault(sessionKey: Fixtures.otherPhoneSessionKey)
@@ -317,18 +323,18 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         let dateProvider = DateProviderFake(now: Fixtures.blockhashFetchedAt)
         let (sut, doubles) = await makeSUT(start: .rekeyMismatch, dateProvider: dateProvider)
         doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in
-            vaultReader.land(Fixtures.vault(), afterStaleReads: 50)
+            vaultReader.land(Fixtures.reissuedVault(), afterStaleReads: 50)
         }
         await #expect(throws: CollectiblesOnboardingError.self) {
             try await sut.relink()
         }
 
-        doubles.vaultReader.land(Fixtures.vault())
+        doubles.vaultReader.land(Fixtures.reissuedVault())
         await sut.refreshState()
         doubles.vaultReader.vault = Fixtures.vault(sessionKey: Fixtures.foreignSessionKey)
         await sut.refreshState()
 
-        #expect(sut.state == .ready(Fixtures.vault()))
+        #expect(sut.state == .ready(Fixtures.reissuedVault()))
     }
 
     @Test("A relink that fails to send does not hold back reads of the foreign key")
@@ -340,7 +346,7 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
             try await sut.relink()
         }
 
-        doubles.vaultReader.vault = Fixtures.vault()
+        doubles.vaultReader.vault = Fixtures.reissuedVault()
         await sut.refreshState()
         doubles.vaultReader.vault = foreignVault
         await sut.refreshState()
@@ -354,7 +360,7 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         let (sut, doubles) = await makeSUT(start: .rekeyMismatch, dateProvider: dateProvider)
         doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in
             dateProvider.advance(by: 100)
-            vaultReader.land(Fixtures.vault())
+            vaultReader.land(Fixtures.reissuedVault())
         }
         _ = try await sut.relink()
 
@@ -362,22 +368,23 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         dateProvider.advance(by: 60)
         await sut.refreshState()
 
-        #expect(sut.state == .ready(Fixtures.vault()))
+        #expect(sut.state == .ready(Fixtures.reissuedVault()))
     }
 
     @Test("A relink that derives the key in the same tap still holds back reads of the replaced key")
     func relinkWithDerivationKeepsStaleReadsOut() async throws {
-        let (sut, doubles) = await makeSUT(start: .coldOwnerNotDerived)
+        let (sut, doubles) = await makeSUT(start: .coldOwnerNotDerived, dateProvider: DateProviderFake(now: Fixtures.blockhashFetchedAt))
         let foreignVault = Fixtures.vault(sessionKey: Fixtures.foreignSessionKey)
         doubles.vaultReader.vault = foreignVault
-        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.reissuedVault()) }
         _ = try await sut.relink()
 
         doubles.vaultReader.vault = foreignVault
         await sut.refreshState()
 
         #expect(doubles.coldKeyInteractor.deriveCount == 1)
-        #expect(sut.state == .ready(Fixtures.vault()))
+        #expect(doubles.sessionKeySigner.generateCount == 1)
+        #expect(sut.state == .ready(Fixtures.reissuedVault()))
     }
 
     @Test("An onboarding started while another runs joins it instead of signing again")
@@ -385,7 +392,7 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
         let (sut, doubles) = await makeSUT(start: .rekeyMismatch)
         let sendGate = SendGate()
         doubles.chainService.sendGate = sendGate
-        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.reissuedVault()) }
 
         var sendGateArrivals = sendGate.arrivals.makeAsyncIterator()
 
@@ -402,13 +409,13 @@ final class CollectiblesManagerTests: LeakTrackingTestSuite {
 
         #expect(!isSecondSending)
         #expect(doubles.chainService.broadcasts.count == 1)
-        #expect(sut.state == .ready(Fixtures.vault()))
+        #expect(sut.state == .ready(Fixtures.reissuedVault()))
     }
 
     @Test("Reports the onboarding as running only while it runs")
     func onboardingProgressIsReported() async throws {
         let (sut, doubles) = await makeSUT(start: .rekeyMismatch)
-        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.vault()) }
+        doubles.chainService.onSend = { [vaultReader = doubles.vaultReader] in vaultReader.land(Fixtures.reissuedVault()) }
         let recorder = PublisherRecorder(sut.isOnboardingPublisher)
 
         try await sut.onboard()
@@ -730,7 +737,7 @@ extension CollectiblesManagerTests {
 
         var blockhashFetchedAt: Date {
             switch self {
-            case .blockhashNotFound, .nodeRejection, .programRejection: Date()
+            case .blockhashNotFound, .nodeRejection, .programRejection: Fixtures.unexpiringBlockhashFetchedAt
             case .staleNodeRejection, .unknown: Fixtures.blockhashFetchedAt
             }
         }
@@ -776,6 +783,7 @@ private extension CollectiblesManagerTests {
         static let usdcMint = Data(repeating: 0x55, count: 32)
         static let blockhash = Data(repeating: 0x66, count: 32).base58EncodedString
         static let blockhashFetchedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        static let unexpiringBlockhashFetchedAt = Date.distantFuture
         static let usdcAccount = CollectiblesVaultUsdcAccount(
             address: "7UX2i7SucgLMQcfZ75s3VXmZZY4YRUyJN9X1RgfMoDUi",
             mint: usdcMint.base58EncodedString
@@ -816,6 +824,10 @@ private extension CollectiblesManagerTests {
                 spentToday: spentToday,
                 dayIndex: 0
             )
+        }
+
+        static func reissuedVault() -> CollectiblesVaultInfo {
+            vault(sessionKey: generatedSessionKey)
         }
 
         static func usdcInfo(balance: UInt64 = 1_000_000) -> CollectiblesVaultUsdcInfo {
