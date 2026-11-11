@@ -29,9 +29,6 @@ public enum OnrampAccessibilityIdentifiers {
         return "onrampCurrencyItem_\(code)"
     }
 
-    /// Providers screen
-    public static let providersScreenTitle = "onrampProvidersScreenTitle"
-
     /// Provider card elements - using provider name for uniqueness
     public static func providerAmount(name: String) -> String {
         return "onrampProviderAmount_\(name.lowercased().replacingOccurrences(of: " ", with: "_"))"

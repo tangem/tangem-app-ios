@@ -9,25 +9,9 @@
 import SwiftUI
 import TangemUI
 import TangemAssets
-import TangemLocalization
-import TangemAccessibilityIdentifiers
 
 struct OnrampOffersSelectorView: View {
     @ObservedObject var viewModel: OnrampOffersSelectorViewModel
-
-    var subtitle: String {
-        switch viewModel.viewState {
-        case .paymentMethods: Localization.onrampPaymentMethodSubtitle
-        case .offers: Localization.onrampProvidersSubtitle
-        }
-    }
-
-    var backAction: (() -> Void)? {
-        switch viewModel.viewState {
-        case .paymentMethods: nil
-        case .offers: viewModel.back
-        }
-    }
 
     var contentSpacing: CGFloat {
         switch viewModel.viewState {
@@ -37,37 +21,22 @@ struct OnrampOffersSelectorView: View {
     }
 
     var body: some View {
-        VStack(spacing: .zero) {
-            OnrampSheetHeaderView(
-                title: Localization.onrampAllOffersButtonTitle,
-                subtitle: subtitle,
-                titleAccessibilityIdentifier: OnrampAccessibilityIdentifiers.providersScreenTitle,
-                backAction: backAction,
-                closeAction: viewModel.close
-            )
-
-            GroupedScrollView(contentType: .plain(alignment: .leading, spacing: contentSpacing)) {
-                if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
-                    StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
-                }
-
-                if let restrictedNotificationInput = viewModel.restrictedNotificationInput {
-                    NotificationView(input: restrictedNotificationInput)
-                }
-
-                content
+        VStack(alignment: .leading, spacing: contentSpacing) {
+            if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
+                StandaloneMarketingBannersView(banners: standaloneMarketingBanners)
             }
-            .scrollBounceBehavior(.basedOnSize)
-            .animation(.contentFrameUpdate, value: viewModel.viewState.isPaymentMethods)
-            .padding(.bottom, 16)
+
+            if let restrictedNotificationInput = viewModel.restrictedNotificationInput {
+                NotificationView(input: restrictedNotificationInput)
+            }
+
+            content
         }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
+        .animation(.contentFrameUpdate, value: viewModel.viewState.isPaymentMethods)
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
-        .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
-            configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-            configuration.backgroundInteractionBehavior = .tapToDismiss
-        }
     }
 
     @ViewBuilder
@@ -79,7 +48,7 @@ struct OnrampOffersSelectorView: View {
             }
         case .offers(let providers):
             ForEach(providers) {
-                OnrampOfferView(viewModel: $0, cardBackground: DesignSystem.Color.bgTransparentPrimary)
+                OnrampOfferView(viewModel: $0, cardBackground: DesignSystem.Color.bgTransparentOnMaterialPrimary)
             }
         }
     }

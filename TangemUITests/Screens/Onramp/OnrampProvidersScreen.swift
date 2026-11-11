@@ -10,14 +10,16 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
-    private lazy var screenTitle = staticText(.screenTitle)
+    private lazy var screenTitle = app.staticTexts.matching(NSPredicate(format: "label == %@", Localization.onrampAllOffersButtonTitle)).firstMatch
     private lazy var closeButton = button(.closeButton)
+    private lazy var backButton = button(.backButton)
 
     @discardableResult
     func waitForProviders() -> Self {
         XCTContext.runActivity(named: "Validate OnRamp providers screen elements") { _ in
             waitAndAssertTrue(screenTitle, "Providers screen title should exist")
             waitAndAssertTrue(closeButton, "Close button should exist")
+            waitAndAssertTrue(backButton, "Back button to the payment methods should exist")
 
             let amountsQuery = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'onrampProviderAmount_'"))
             let firstAmount = amountsQuery.firstMatch
@@ -216,15 +218,15 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
 }
 
 enum OnrampProvidersScreenElement: String, UIElement {
-    case screenTitle
     case closeButton
+    case backButton
 
     var accessibilityIdentifier: String {
         switch self {
-        case .screenTitle:
-            return OnrampAccessibilityIdentifiers.providersScreenTitle
         case .closeButton:
             return CommonUIAccessibilityIdentifiers.closeButton
+        case .backButton:
+            return CommonUIAccessibilityIdentifiers.backButton
         }
     }
 }

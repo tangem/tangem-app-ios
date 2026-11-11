@@ -86,7 +86,8 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             standaloneBannersPublisher: marketingBannerManager.standaloneBannersPublisher,
             linkedBannersPublisher: marketingBannerManager.linkedBannersPublisher,
             input: onrampModel,
-            output: onrampModel
+            output: onrampModel,
+            router: router
         )
 
         let onrampStatusTracking = onrampStatusTrackingFactory.makeOnrampStatusTracking(

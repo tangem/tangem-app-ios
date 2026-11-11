@@ -22,7 +22,7 @@ struct OnrampProviderItemView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(DesignSystem.Color.bgTransparentPrimary)
+                        .fill(DesignSystem.Color.bgTransparentOnMaterialPrimary)
                 )
                 .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         }

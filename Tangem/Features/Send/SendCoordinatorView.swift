@@ -101,6 +101,12 @@ struct SendCoordinatorView: CoordinatorView {
                     .softTopScrollEdgeEffect()
             }
             .modal(
+                item: $coordinator.onrampOffersSelectorViewModel,
+                navigation: { $0.navigation },
+                onDismiss: coordinator.onrampOffersSelectorDidDismiss,
+                content: { OnrampOffersSelectorView(viewModel: $0) }
+            )
+            .modal(
                 item: $coordinator.demandSurveySheet,
                 contentLayout: demandSurveyContentLayout,
                 navigation: demandSurveyNavigation,
