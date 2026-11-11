@@ -31,6 +31,7 @@ final class WalletModelTestsMock: WalletModel {
     var availableBalanceProviderMock: TokenBalanceProvider?
     var stakingManagerMock: StakingManager?
     var yieldModuleManagerMock: (any YieldModuleManager)?
+    var lendingModuleReaderMock: (any LendingModuleReader)?
     var tronAccountActivationStateProviderMock: (any TronAccountActivationStateProvider)?
     var tronGaslessTransactionsBuilderMock: (any TronGaslessTransactionsBuilder)?
     var solanaGaslessTransactionBuilderMock: (any SolanaGaslessTransactionBuilder)?
@@ -210,7 +211,7 @@ final class WalletModelTestsMock: WalletModel {
     var p2pTransactionSender: (any P2PTransactionSender)? { nil }
     var account: (any CryptoAccountModel)? { _account }
     var yieldModuleManager: YieldModuleManager? { yieldModuleManagerMock }
-    var lendingModuleReader: (any LendingModuleReader)? { nil }
+    var lendingModuleReader: (any LendingModuleReader)? { lendingModuleReaderMock }
     var feeTokenItemBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var availableBalanceProvider: TokenBalanceProvider {
         availableBalanceProviderMock ?? TokenBalanceProviderTestsMock(balance: 0)

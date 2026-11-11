@@ -13,6 +13,7 @@ enum TokenDetailsStakingState {
     case available(item: AvailableItem)
     case enable(item: EnableItem)
     case unavailable(item: UnavailableItem)
+    case yieldEnabled(item: YieldEnabledItem)
     case earn(item: AvailableItem)
 }
 
@@ -44,5 +45,12 @@ extension TokenDetailsStakingState {
         let title: String
         let description: String
         let action: (() -> Void)?
+    }
+
+    struct YieldEnabledItem {
+        let title: String
+        let balance: String
+        let activeCount: String
+        let action: () -> Void
     }
 }

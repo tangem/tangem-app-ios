@@ -43,6 +43,29 @@ struct LendingDepositEntryLoader {
             return .blocked(.make(module: .failure(error)))
         }
     }
+
+    func withdrawalTarget() async throws -> LendingWithdrawalTarget? {
+        guard let yieldModule = try await reader.yieldModule() else {
+            return nil
+        }
+
+        let support = try await Self.nativeSupport(for: reader.upgradeStatus(yieldModule: yieldModule))
+
+        guard support.nativeSupport != .unavailable else {
+            throw LendingWithdrawalTargetError.unsupportedModule
+        }
+
+        return LendingWithdrawalTarget(yieldModule: yieldModule, upgradeImplementation: support.upgradeImplementation)
+    }
+}
+
+struct LendingWithdrawalTarget: Equatable {
+    let yieldModule: String
+    let upgradeImplementation: String?
+}
+
+enum LendingWithdrawalTargetError: Error {
+    case unsupportedModule
 }
 
 // MARK: - Private
@@ -51,7 +74,7 @@ private extension LendingDepositEntryLoader {
     static func nativeSupport(
         for status: YieldModuleUpgradeStatus
     ) -> (nativeSupport: YieldLendingDepositState.NativeSupport, upgradeImplementation: String?) {
-        if case .upgradeAvailable(let target, let targetVersion) = status, targetVersion >= LendingOnAave.nativeSupportVersion {
+        if let target = nativeUpgradeTarget(of: status) {
             return (.afterUpgrade, target)
         }
 
@@ -60,6 +83,14 @@ private extension LendingDepositEntryLoader {
         }
 
         return (.supported, nil)
+    }
+
+    static func nativeUpgradeTarget(of status: YieldModuleUpgradeStatus) -> String? {
+        guard case .upgradeAvailable(let target, let targetVersion) = status, targetVersion >= LendingOnAave.nativeSupportVersion else {
+            return nil
+        }
+
+        return target
     }
 
     static func initializationState(of status: YieldSupplyStatus) -> YieldModuleSmartContractState.InitializationState {
@@ -80,6 +111,7 @@ protocol LendingModuleReader {
     func yieldModule() async throws -> String?
     func upgradeStatus(yieldModule: String) async throws -> YieldModuleUpgradeStatus
     func tokenStatus(wrappedNative: String) async throws -> YieldSupplyStatus
+    func liquidityProvider() -> YieldModuleLendingLiquidityProvider?
 }
 
 struct YieldSupplyLendingModuleReader: LendingModuleReader {
@@ -103,5 +135,9 @@ struct YieldSupplyLendingModuleReader: LendingModuleReader {
 
     func tokenStatus(wrappedNative: String) async throws -> YieldSupplyStatus {
         try await service.getYieldSupplyStatus(tokenContractAddress: wrappedNative)
+    }
+
+    func liquidityProvider() -> YieldModuleLendingLiquidityProvider? {
+        service.makeLendingLiquidityProvider()
     }
 }

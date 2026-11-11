@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import TangemStaking
 
 enum EthEarnProducts {
     static let pooledStakingPerformanceFee = Decimal(8) / 100
@@ -31,24 +32,57 @@ enum EthEarnProducts {
         products.max { $0.apy < $1.apy }
     }
 
-    static func banner(staking: Staking, lendingApy: LoadingResult<Decimal, Error>) -> Banner? {
-        switch (staking, lendingApy) {
-        case (.staked, _):
-            return nil
+    static func banner(
+        staking: Staking,
+        lendingApy: LoadingResult<Decimal, Error>,
+        lendingPosition: LoadingResult<Decimal, Never>
+    ) -> Banner? {
+        switch (staking, lendingPosition) {
         case (.loading, _), (_, .loading):
             return .loading
         default:
             break
         }
 
-        let stakingApy: Decimal? = switch staking {
-        case .available(let apy): apy
-        case .loading, .staked, .unavailable: nil
+        let lendingBalance = lendingPosition.value ?? 0
+        var active: [Position] = []
+        var stakingApy: Decimal?
+
+        switch staking {
+        case .staked(let balance, let apy):
+            active.append(Position(id: .pooledStaking, balance: balance, apy: apy))
+        case .available(let apy):
+            stakingApy = apy
+        case .loading, .unavailable:
+            break
         }
 
-        let products = make(stakingApy: stakingApy, lendingApy: lendingApy.value)
+        if lendingBalance > 0 {
+            active.append(Position(id: .lendingOnAave, balance: lendingBalance, apy: lendingApy.value))
+        }
 
-        return bestProduct(in: products).map { .earn(products: products, best: $0) }
+        let inactive = make(stakingApy: stakingApy, lendingApy: lendingBalance > 0 ? nil : lendingApy.value)
+
+        guard active.isEmpty else {
+            return .yieldEnabled(active: active, inactive: inactive)
+        }
+
+        if case .loading = lendingApy {
+            return .loading
+        }
+
+        return bestProduct(in: inactive).map { .earn(products: inactive, best: $0) }
+    }
+
+    static func stakingRoute(for state: StakingManagerState) -> StakingRoute? {
+        switch state {
+        case .staked:
+            return .staking
+        case .unavailableInRegion:
+            return .regionUnavailable
+        case .loading, .loadingError, .temporaryUnavailable, .availableToStake, .notEnabled:
+            return nil
+        }
     }
 }
 
@@ -58,12 +92,24 @@ extension EthEarnProducts {
     enum Staking: Equatable {
         case loading
         case available(apy: Decimal)
-        case staked
+        case staked(balance: Decimal, apy: Decimal)
         case unavailable
     }
 
     enum Banner: Equatable {
         case loading
         case earn(products: [EarnYieldPickerProduct], best: EarnYieldPickerProduct)
+        case yieldEnabled(active: [Position], inactive: [EarnYieldPickerProduct])
+    }
+
+    struct Position: Equatable {
+        let id: EarnYieldPickerProduct.ID
+        let balance: Decimal
+        let apy: Decimal?
+    }
+
+    enum StakingRoute: Equatable {
+        case staking
+        case regionUnavailable
     }
 }

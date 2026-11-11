@@ -36,7 +36,11 @@ final class TokenDetailsCoordinator: CoordinatorObject {
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
     @Published var earnYieldPickerCoordinator: EarnYieldPickerCoordinator? = nil
+    @Published var lendingPositionCoordinator: LendingPositionCoordinator? = nil
     @Published var contactManagementCoordinator: AddressBookContactManagementCoordinator? = nil
+    @Published var ethYieldSheet: EthYieldSheetViewModel? = nil
+
+    private var ethYieldSheetDismissAction: (() -> Void)?
 
     private var earnYieldPickerOutput: EarnYieldPickerCoordinator.DismissOptions?
 
@@ -264,6 +268,33 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
 
         coordinator.start(with: options)
         earnYieldPickerCoordinator = coordinator
+    }
+
+    func openEthYieldSheet(_ viewModel: EthYieldSheetViewModel) {
+        ethYieldSheet = viewModel
+    }
+
+    func closeEthYieldSheet(then action: @escaping () -> Void) {
+        ethYieldSheetDismissAction = action
+        ethYieldSheet = nil
+    }
+
+    func ethYieldSheetDidDismiss() {
+        let action = ethYieldSheetDismissAction
+        ethYieldSheetDismissAction = nil
+        action?()
+    }
+
+    func openLendingPosition(options: LendingPositionCoordinator.Options) {
+        let coordinator = LendingPositionCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.lendingPositionCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: options)
+        lendingPositionCoordinator = coordinator
     }
 
     func openCloreMigration(factory: CloreMigrationModuleFlowFactory) {
@@ -635,6 +666,8 @@ extension TokenDetailsCoordinator {
             tokenDetailsViewModel?.openStaking()
         case .addFunds(let type):
             tokenDetailsViewModel?.actionsViewModel?.performAddFunds(type)
+        case .openLendingPosition:
+            tokenDetailsViewModel?.openLendingPosition()
         }
     }
 }

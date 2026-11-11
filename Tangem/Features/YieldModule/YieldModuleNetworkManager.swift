@@ -303,8 +303,8 @@ private extension CommonYieldModuleNetworkManager {
     }
 }
 
-private struct YieldModuleNetworkManagerKey: InjectionKey {
-    static var currentValue: YieldModuleNetworkManager = {
+private struct YieldModuleAPIServiceKey: InjectionKey {
+    static var currentValue: YieldModuleAPIService = {
         let apiType: YieldModuleAPIType = AppEnvironment.current.isProduction
             ? .prod
             : FeatureStorage.instance.yieldModuleAPIType
@@ -313,27 +313,35 @@ private struct YieldModuleNetworkManagerKey: InjectionKey {
             ? .prod
             : FeatureStorage.instance.tangemAPIType
 
-        let manager = CommonYieldModuleNetworkManager(
-            yieldModuleAPIService: CommonYieldModuleAPIService(
-                provider: .init(
-                    configuration: .ephemeralConfiguration,
-                    additionalPlugins: [
-                        DeviceInfoPlugin(),
-                        YieldModuleAuthorizationPlugin(),
-                        CachePolicyPlugin(),
-                    ]
-                ),
-                yieldModuleAPIType: apiType,
-                tangemAPIType: tangemApiType
+        return CommonYieldModuleAPIService(
+            provider: .init(
+                configuration: .ephemeralConfiguration,
+                additionalPlugins: [
+                    DeviceInfoPlugin(),
+                    YieldModuleAuthorizationPlugin(),
+                    CachePolicyPlugin(),
+                ]
             ),
-            yieldMarketsRepository: CommonYieldModuleMarketsRepository(),
-            yieldModuleChartManager: CommonYieldModuleChartManager()
+            yieldModuleAPIType: apiType,
+            tangemAPIType: tangemApiType
         )
-        return manager
     }()
 }
 
+private struct YieldModuleNetworkManagerKey: InjectionKey {
+    static var currentValue: YieldModuleNetworkManager = CommonYieldModuleNetworkManager(
+        yieldModuleAPIService: YieldModuleAPIServiceKey.currentValue,
+        yieldMarketsRepository: CommonYieldModuleMarketsRepository(),
+        yieldModuleChartManager: CommonYieldModuleChartManager()
+    )
+}
+
 extension InjectedValues {
+    var yieldModuleAPIService: YieldModuleAPIService {
+        get { Self[YieldModuleAPIServiceKey.self] }
+        set { Self[YieldModuleAPIServiceKey.self] = newValue }
+    }
+
     var yieldModuleNetworkManager: YieldModuleNetworkManager {
         get { Self[YieldModuleNetworkManagerKey.self] }
         set { Self[YieldModuleNetworkManagerKey.self] = newValue }

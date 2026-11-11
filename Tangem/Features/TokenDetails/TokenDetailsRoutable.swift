@@ -33,6 +33,9 @@ protocol TokenDetailsRoutable: FeeCurrencyNavigating, CloreMigrationRoutable {
     func openDynamicAddressesUnavailableSheet(messageType: DynamicAddressesUnavailableSheetViewModel.MessageType)
     func openStakingRegionUnavailableSheet()
     func openEarnYieldPicker(options: EarnYieldPickerCoordinator.Options)
+    func openEthYieldSheet(_ viewModel: EthYieldSheetViewModel)
+    func closeEthYieldSheet(then action: @escaping () -> Void)
+    func openLendingPosition(options: LendingPositionCoordinator.Options)
     func openDynamicAddressesDisableSheet(
         walletModelDynamicAddressesProvider: WalletModelDynamicAddressesProvider,
         compoundFlowBaseDependenciesFactory: DynamicAddressesCompoundFlowBaseDependenciesFactory,

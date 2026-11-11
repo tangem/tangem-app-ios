@@ -272,7 +272,10 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     override func onPullToRefresh() async {
-        earnStateProvider?.refresh()
+        await MainActor.run {
+            earnStateProvider?.refresh()
+        }
+
         await super.onPullToRefresh()
     }
 
@@ -710,6 +713,9 @@ private extension TokenDetailsViewModel {
             coordinator: coordinator,
             addFundsOptions: { [weak self] in
                 self?.actionsViewModel?.addFundsOptions() ?? []
+            },
+            openStaking: { [weak self] in
+                self?.openStaking()
             }
         )
     }
@@ -1061,5 +1067,13 @@ extension TokenDetailsViewModel {
                 }
             }
         }
+    }
+}
+
+// MARK: - Lending on Aave position
+
+extension TokenDetailsViewModel {
+    func openLendingPosition() {
+        earnStateProvider?.openLendingPosition()
     }
 }

@@ -44,6 +44,8 @@ struct TokenDetailsStakingView: View {
             enableView(item: item)
         case .unavailable(let item):
             unavailableView(item: item)
+        case .yieldEnabled(let item):
+            yieldEnabledView(item: item)
         case .earn(let item):
             earnView(item: item)
         }
@@ -148,18 +150,42 @@ private extension TokenDetailsStakingView {
         .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
     }
 
+    func yieldEnabledView(item: TokenDetailsStakingState.YieldEnabledItem) -> some View {
+        let balance = visibilityState.isHidden ? visibilityState.maskedBalanceString : item.balance
+
+        return MessageBanner(title: item.title, description: "\(balance) \(AppConstants.dotSign) \(item.activeCount)")
+            .glowRing(.info)
+            .slotStart {
+                yieldIllustration
+            }
+            .slotEnd {
+                DesignSystem.Icons.ChevronRight.regular20.image
+                    .renderingMode(.template)
+                    .flipsForRightToLeftLayoutDirection(true)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                    .frame(height: iconDimension)
+                    .accessibilityHidden(true)
+            }
+            .onTap(item.action)
+            .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
+    }
+
+    var yieldIllustration: some View {
+        EarnIllustrationView(illustration: DesignSystem.Icons.accountYield)
+            .shadow(
+                color: DesignSystem.Color.bgAccentBlue.opacity(0.35),
+                radius: iconShadowBlurRadius,
+                x: .zero,
+                y: iconShadowOffsetX
+            )
+    }
+
     func earnView(item: TokenDetailsStakingState.AvailableItem) -> some View {
         MessageBanner(title: item.title, description: item.description)
             .variant(.info)
             .glowRing(.info)
             .slotStart {
-                EarnIllustrationView(illustration: DesignSystem.Icons.accountYield)
-                    .shadow(
-                        color: DesignSystem.Color.bgAccentBlue.opacity(0.35),
-                        radius: iconShadowBlurRadius,
-                        x: .zero,
-                        y: iconShadowOffsetX
-                    )
+                yieldIllustration
             }
             .slotEnd {
                 TangemUI.Button(label: item.actionTitle, accessibilityLabel: nil, action: item.action)

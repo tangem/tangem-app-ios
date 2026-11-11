@@ -20,6 +20,44 @@ struct LendingDepositEntryTests {
 
         #expect(entry == scenario.expected)
     }
+
+    @Test("A withdrawal goes to the module as is when no newer native version is available")
+    func withdrawalWithoutUpgrade() async throws {
+        let target = try await makeSUT(reader: ReaderStub()).withdrawalTarget()
+
+        #expect(target == LendingWithdrawalTarget(yieldModule: ReaderStub.module, upgradeImplementation: nil))
+    }
+
+    @Test("A withdrawal carries the module upgrade when a newer native version is available")
+    func withdrawalWithUpgrade() async throws {
+        let reader = ReaderStub(upgrade: .success(.upgradeAvailable(targetImplementation: ReaderStub.implementation, targetVersion: .v3)))
+
+        let target = try await makeSUT(reader: reader).withdrawalTarget()
+
+        #expect(target == LendingWithdrawalTarget(yieldModule: ReaderStub.module, upgradeImplementation: ReaderStub.implementation))
+    }
+
+    @Test("A withdrawal from a module that can't take the native call, and can't be upgraded to one, is refused before anything is built")
+    func withdrawalFromOldModule() async {
+        let statuses: [YieldModuleUpgradeStatus] = [
+            .upgradeUnavailable(version: .v2),
+            .upToDate(version: .v2),
+            .upgradeAvailable(targetImplementation: ReaderStub.implementation, targetVersion: .v2),
+        ]
+
+        for status in statuses {
+            await #expect(throws: LendingWithdrawalTargetError.unsupportedModule) {
+                try await makeSUT(reader: ReaderStub(upgrade: .success(status))).withdrawalTarget()
+            }
+        }
+    }
+
+    @Test("Without a module there is nothing to withdraw from")
+    func withdrawalWithoutModule() async throws {
+        let target = try await makeSUT(reader: ReaderStub(module: .success(nil))).withdrawalTarget()
+
+        #expect(target == nil)
+    }
 }
 
 // MARK: - Helpers
@@ -102,6 +140,10 @@ private struct ReaderStub: LendingModuleReader {
 
     func upgradeStatus(yieldModule: String) async throws -> YieldModuleUpgradeStatus {
         try upgrade.get()
+    }
+
+    func liquidityProvider() -> YieldModuleLendingLiquidityProvider? {
+        nil
     }
 
     func tokenStatus(wrappedNative: String) async throws -> YieldSupplyStatus {

@@ -68,6 +68,7 @@ extension EarnYieldPickerCoordinator {
     enum DismissOptions {
         case openStaking
         case addFunds(TokenActionType)
+        case openLendingPosition
     }
 }
 
@@ -175,8 +176,7 @@ private extension EarnYieldPickerCoordinator {
         case .token:
             dismissAction(nil)
         case .yield:
-            // [REDACTED_TODO_COMMENT]
-            dismissAction(nil)
+            dismissAction(.openLendingPosition)
         }
     }
 }

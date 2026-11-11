@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import BlockchainSdk
 import TangemFoundation
@@ -30,6 +31,7 @@ final class LendingPositionViewModel: ObservableObject {
     private var availableToWithdraw: Decimal?
     private(set) var positionTask: Task<Void, Never>?
     private(set) var chartTask: Task<Void, Never>?
+    private var bag = Set<AnyCancellable>()
 
     init(
         tokenItem: TokenItem,
@@ -40,6 +42,7 @@ final class LendingPositionViewModel: ObservableObject {
         liquidityProvider: YieldModuleLendingLiquidityProvider,
         apyHistoryProvider: LendingApyHistoryProvider,
         fiatConverter: @escaping (Decimal) async -> Decimal?,
+        pendingTransactions: AnyPublisher<[PendingTransactionRecord], Never> = .just(output: []),
         router: LendingPositionRoutable?
     ) {
         self.tokenItem = tokenItem
@@ -67,14 +70,37 @@ final class LendingPositionViewModel: ObservableObject {
             projector: CompoundingEarnCalculatorProjector(apy: currentApy ?? 0, performanceFee: performanceFee),
             currencyCode: currencyCode
         )
+
+        pendingTransactions
+            .map(\.isEmpty)
+            .removeDuplicates()
+            .dropFirst()
+            .filter { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.reloadPosition()
+            }
+            .store(in: &bag)
     }
 
     func onAppear() {
-        loadPosition()
+        reloadPosition()
 
         if chartTask == nil {
             loadChart()
         }
+    }
+
+    func reloadPosition() {
+        loadPosition()
+    }
+
+    func setAddFundsLoading(_ isLoading: Bool) {
+        state.isAddFundsLoading = isLoading
+    }
+
+    func setWithdrawLoading(_ isLoading: Bool) {
+        state.isWithdrawLoading = isLoading
     }
 
     func handle(_ action: Action) {
@@ -84,9 +110,10 @@ final class LendingPositionViewModel: ObservableObject {
             state.period = period
             loadChart()
         case .withdraw:
-            guard state.canWithdraw, let position else { return }
+            guard state.canWithdraw, !state.isRouteLoading, let position else { return }
             router?.openWithdraw(position: position, available: availableToWithdraw)
         case .addFunds:
+            guard !state.isRouteLoading else { return }
             router?.openAddFunds()
         case .howItWorks:
             router?.openHowItWorks()

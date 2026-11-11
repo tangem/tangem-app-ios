@@ -35,6 +35,9 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.yieldModulePromoCoordinator) {
                 YieldModulePromoCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.lendingPositionCoordinator) {
+                LendingPositionCoordinatorView(coordinator: $0)
+            }
             .modifyView { view in
                 view.fullScreenCover(item: $coordinator.marketsTokenDetailsCoordinator) { marketsTokenDetailsCoordinator in
                     MarketsTokenDetailsCoordinatorView(coordinator: marketsTokenDetailsCoordinator)
@@ -75,6 +78,14 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             }
             .floatingSheetContent(for: StakingRegionUnavailableSheetViewModel.self) {
                 StakingRegionUnavailableSheetView(viewModel: $0)
+            }
+            .modal(
+                item: $coordinator.ethYieldSheet,
+                contentLayout: { _ in .intrinsic },
+                navigation: { .title($0.title) },
+                onDismiss: coordinator.ethYieldSheetDidDismiss
+            ) {
+                EthYieldSheetView(viewModel: $0)
             }
             .addressBookContactManagementSheet($coordinator.contactManagementCoordinator)
             .fullScreenCover(item: $coordinator.earnYieldPickerCoordinator, onDismiss: coordinator.earnYieldPickerDidDismiss) {
