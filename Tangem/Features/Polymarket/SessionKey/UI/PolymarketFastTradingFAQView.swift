@@ -36,13 +36,15 @@ struct PolymarketFastTradingFAQView: View {
 // MARK: - Content
 
 private extension PolymarketFastTradingFAQView {
-    static let sections: [PolymarketFastTradingStrings.Section] = [
-        PolymarketFastTradingStrings.whatItIs,
-        PolymarketFastTradingStrings.howLongItLasts,
-        PolymarketFastTradingStrings.whatItCanDo,
-        PolymarketFastTradingStrings.whatItCantDo,
-        PolymarketFastTradingStrings.youAreInControl,
-    ]
+    static var sections: [PolymarketFastTradingStrings.Section] {
+        [
+            PolymarketFastTradingStrings.whatItIs,
+            PolymarketFastTradingStrings.howLongItLasts,
+            PolymarketFastTradingStrings.whatItCanDo,
+            PolymarketFastTradingStrings.whatItCantDo,
+            PolymarketFastTradingStrings.youAreInControl,
+        ]
+    }
 
     enum Constants {
         static let titlePadding: CGFloat = 24

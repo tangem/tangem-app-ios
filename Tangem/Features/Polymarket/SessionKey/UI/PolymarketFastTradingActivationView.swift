@@ -84,12 +84,14 @@ struct PolymarketFastTradingActivationView: View {
 // MARK: - Content
 
 private extension PolymarketFastTradingActivationView {
-    static let sections: [PolymarketFastTradingStrings.Section] = [
-        PolymarketFastTradingStrings.whatItIs,
-        PolymarketFastTradingStrings.whatItCanDo,
-        PolymarketFastTradingStrings.whatItCantDo,
-        PolymarketFastTradingStrings.youAreInControl,
-    ]
+    static var sections: [PolymarketFastTradingStrings.Section] {
+        [
+            PolymarketFastTradingStrings.whatItIs,
+            PolymarketFastTradingStrings.whatItCanDo,
+            PolymarketFastTradingStrings.whatItCantDo,
+            PolymarketFastTradingStrings.youAreInControl,
+        ]
+    }
 
     enum Constants {
         static let scrollSpace = "polymarketFastTradingActivationScroll"

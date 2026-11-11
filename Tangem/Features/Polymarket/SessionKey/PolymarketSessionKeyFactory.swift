@@ -15,6 +15,10 @@ struct PolymarketSessionKeyFactory {
         FeatureProvider.isAvailable(.polymarketFastTrading)
     }
 
+    static func isFastTradingPauseAvailable() -> Bool {
+        isFastTradingAvailable() && FeatureProvider.isAvailable(.polymarketFastTradingPause)
+    }
+
     private let services = PolymarketOnboardingServicesFactory.makeDefault()
 
     func makeKeyStore() -> PolymarketSessionKeyStore {

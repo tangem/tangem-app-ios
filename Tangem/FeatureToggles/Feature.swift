@@ -38,6 +38,7 @@ enum Feature: String, Hashable, CaseIterable {
     case walletLinking
     case expressApiV2
     case polymarketFastTrading
+    case polymarketFastTradingPause
     case allServices
     case intentSurvey
     case onrampCountryByIP
@@ -76,6 +77,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletLinking: return "[REDACTED_INFO]_wallet_linking"
         case .expressApiV2: return "TWI-1906_express_api_v2"
         case .polymarketFastTrading: return "[REDACTED_INFO]_polymarket_fast_trading"
+        case .polymarketFastTradingPause: return "[REDACTED_INFO]_polymarket_fast_trading_pause"
         case .allServices: return "TWI-1720_all_services"
         case .intentSurvey: return "TWI-1899_intent_survey"
         case .onrampCountryByIP: return "[REDACTED_INFO]_onramp_country_by_ip"
@@ -114,6 +116,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .walletLinking: return .version("6.8")
         case .expressApiV2: return .version("6.8")
         case .polymarketFastTrading: return .unspecified
+        case .polymarketFastTradingPause: return .unspecified
         case .allServices: return .unspecified
         case .intentSurvey: return .unspecified
         case .onrampCountryByIP: return .unspecified

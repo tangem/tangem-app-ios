@@ -142,7 +142,7 @@ struct PolymarketFastTradingView: View {
 
     @ViewBuilder
     private func trailing(for device: PolymarketFastTradingDevice) -> some View {
-        switch device.trailing {
+        switch viewModel.trailing(for: device) {
         case .hidden:
             EmptyView()
         case .button(let action):

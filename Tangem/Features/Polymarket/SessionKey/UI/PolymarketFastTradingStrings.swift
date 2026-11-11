@@ -15,7 +15,12 @@ enum PolymarketFastTradingStrings {
     static let whatIsFastTrading = "What is fast trading?"
     static let thisDevice = "This device"
     static let otherDevices = "Other devices"
-    static let onboardingToggleTitle = "Enable fast trading for up to 180 days. Pause it anytime."
+    static var onboardingToggleTitle: String {
+        PolymarketSessionKeyFactory.isFastTradingPauseAvailable()
+            ? "Enable fast trading for up to 180 days. Pause it anytime."
+            : "Enable fast trading for up to 180 days."
+    }
+
     static let unknownDevice = "Unknown device"
     static let foreignSigner = "Unknown signer"
     static let signerBeingRevoked = "Revocation in progress"
@@ -74,10 +79,14 @@ enum PolymarketFastTradingStrings {
         text: "Move your money. Deposits and withdrawals always need a tap of your Tangem card or ring."
     )
 
-    static let youAreInControl = Section(
-        title: "You are in control",
-        text: "See every active session key (one per device). Pause any of them anytime, or revoke one with a Tangem tap. Switch it off on this phone and every order will need a tap again."
-    )
+    static var youAreInControl: Section {
+        Section(
+            title: "You are in control",
+            text: PolymarketSessionKeyFactory.isFastTradingPauseAvailable()
+                ? "See every active session key (one per device). Pause any of them anytime, or revoke one with a Tangem tap. Switch it off on this phone and every order will need a tap again."
+                : "See every active session key (one per device) and revoke any of them with a Tangem tap. Switch it off on this phone and every order will need a tap again."
+        )
+    }
 
     static let revocationTitle = "Revoke fast trading?"
     static let foreignDescription = "Someone else can trade with your predictions balance. If you didn't allow it, revoke these signers now."

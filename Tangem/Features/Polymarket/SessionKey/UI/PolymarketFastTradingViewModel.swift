@@ -26,6 +26,7 @@ final class PolymarketFastTradingViewModel: ObservableObject, Identifiable {
 
     private let service: PolymarketFastTradingOperating
     private let thisDeviceName: String
+    private let isPauseAvailable: Bool
     private let onClose: () -> Void
 
     private var stateSubscription: AnyCancellable?
@@ -34,11 +35,13 @@ final class PolymarketFastTradingViewModel: ObservableObject, Identifiable {
         service: PolymarketFastTradingOperating,
         signingButtonType: SigningActionButtonViewType,
         thisDeviceName: String,
+        isPauseAvailable: Bool = PolymarketSessionKeyFactory.isFastTradingPauseAvailable(),
         onClose: @escaping () -> Void
     ) {
         self.service = service
         self.signingButtonType = signingButtonType
         self.thisDeviceName = thisDeviceName
+        self.isPauseAvailable = isPauseAvailable
         self.onClose = onClose
 
         state = service.state
@@ -60,6 +63,14 @@ extension PolymarketFastTradingViewModel {
 
     var otherDevices: [PolymarketFastTradingDevice] {
         assessment.map { PolymarketFastTradingDevice.devices(from: $0, thisDeviceName: thisDeviceName) }?.filter { !$0.isThisDevice } ?? []
+    }
+
+    func trailing(for device: PolymarketFastTradingDevice) -> PolymarketFastTradingDevice.Trailing {
+        guard !isPauseAvailable, case .menu(let actions) = device.trailing else {
+            return device.trailing
+        }
+
+        return .menu(actions.filter { $0 != .pause })
     }
 
     var foreignSigners: [ForeignSigner] {
@@ -134,7 +145,7 @@ private extension PolymarketFastTradingViewModel {
         case .activate, .reactivate, .extend:
             openActivation()
         case .pause, .resume:
-            guard case .sessionKey(let address) = device.source else { return }
+            guard case .sessionKey(let address) = device.source, action == .resume || isPauseAvailable else { return }
 
             run(action) { [service] in
                 try await service.setEnabled(action == .resume, sessionKeyAddress: address)
