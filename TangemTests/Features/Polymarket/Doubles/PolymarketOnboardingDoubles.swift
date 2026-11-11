@@ -97,13 +97,16 @@ extension PolymarketDepositWalletServiceStub {
 final class PolymarketCredentialsRepositoryStub: PolymarketCredentialsRepository {
     private(set) var deletedWalletIds: [UserWalletId] = []
     private(set) var savedCredentials: [PolymarketL2Credentials] = []
+    private(set) var credentialReads = 0
 
     private var stored: PolymarketL2Credentials?
     private let saveError: Error?
+    private let readError: Error?
 
-    init(stored: PolymarketL2Credentials? = nil, saveError: Error? = nil) {
+    init(stored: PolymarketL2Credentials? = nil, saveError: Error? = nil, readError: Error? = nil) {
         self.stored = stored
         self.saveError = saveError
+        self.readError = readError
     }
 
     func save(credentials: PolymarketL2Credentials, userWalletId: UserWalletId) throws {
@@ -116,7 +119,17 @@ final class PolymarketCredentialsRepositoryStub: PolymarketCredentialsRepository
     }
 
     func load(userWalletId: UserWalletId) -> PolymarketL2Credentials? {
-        stored
+        readError == nil ? stored : nil
+    }
+
+    func readCredentials(userWalletId: UserWalletId) throws -> PolymarketL2Credentials? {
+        credentialReads += 1
+
+        if let readError {
+            throw readError
+        }
+
+        return stored
     }
 
     func delete(userWalletId: UserWalletId) {

@@ -49,8 +49,10 @@ enum PolymarketSessionKeyFixtures {
     static let day: TimeInterval = 24 * hour
     static let validUntil = now.addingTimeInterval(validity)
     static let batchExecutionWindow: TimeInterval = 30 * 60
+    static let plainBatchExecutionWindow: TimeInterval = 11 * 60
     static let deviceId = "this-device"
     static let deviceName = "iPhone"
+    static let thisDeviceName = "iPhone 16 Air"
     static let localAddress = "0x5e55000000000000000000000000000000000001"
 
     enum Owner {
@@ -60,16 +62,21 @@ enum PolymarketSessionKeyFixtures {
 
         var address: String {
             switch self {
-            case .local: PolymarketSessionKeyFixtures.localAddress
-            case .previous: "0x5e55000000000000000000000000000000000002"
-            case .otherDevice: "0x5e55000000000000000000000000000000000003"
+            case .local:
+                PolymarketSessionKeyFixtures.localAddress
+            case .previous:
+                "0x5e55000000000000000000000000000000000002"
+            case .otherDevice:
+                "0x5e55000000000000000000000000000000000003"
             }
         }
 
         var deviceId: String {
             switch self {
-            case .local, .previous: PolymarketSessionKeyFixtures.deviceId
-            case .otherDevice: "other-device"
+            case .local, .previous:
+                PolymarketSessionKeyFixtures.deviceId
+            case .otherDevice:
+                "other-device"
             }
         }
     }
@@ -101,7 +108,9 @@ enum PolymarketSessionKeyFixtures {
         keys: [PolymarketSessionKey],
         signers: [PolymarketSessionSigner]? = [],
         localAddress: String? = PolymarketSessionKeyFixtures.localAddress,
-        operations: [PolymarketFastTradingOperation] = []
+        operations: [PolymarketFastTradingOperation] = [],
+        isLocalKeyRefused: Bool = false,
+        revokingSince: [String: Date] = [:]
     ) -> PolymarketFastTradingAssessment {
         PolymarketFastTradingAssessment(
             snapshot: PolymarketFastTradingSnapshot(
@@ -110,7 +119,9 @@ enum PolymarketSessionKeyFixtures {
                 deviceId: deviceId,
                 signers: signers,
                 now: now,
-                operations: operations
+                operations: operations,
+                isLocalKeyRefused: isLocalKeyRefused,
+                revokingSince: revokingSince
             )
         )
     }
@@ -192,5 +203,99 @@ final class PolymarketSessionKeyStoreSpy: PolymarketSessionKeyStore, Sendable {
     private struct State {
         var heldAddresses: [Result<String?, Error>]
         var generatedKeys = 0
+    }
+}
+
+@MainActor
+final class PolymarketFastTradingServiceSpy: PolymarketFastTradingServicing {
+    let refreshes = PolymarketTestSignal<Void>()
+
+    private(set) var dismissedBanners: [PolymarketFastTradingBanner] = []
+    private(set) var isWorkCancelled = false
+
+    private let stateSubject: CurrentValueSubject<PolymarketFastTradingState, Never>
+
+    init(state: PolymarketFastTradingState = .loading) {
+        stateSubject = CurrentValueSubject(state)
+    }
+
+    var state: PolymarketFastTradingState {
+        stateSubject.value
+    }
+
+    var statePublisher: AnyPublisher<PolymarketFastTradingState, Never> {
+        stateSubject.eraseToAnyPublisher()
+    }
+
+    var bannerDismissalsPublisher: AnyPublisher<PolymarketFastTradingBanner.DismissalDates, Never> {
+        Just([:]).eraseToAnyPublisher()
+    }
+
+    var failurePublisher: AnyPublisher<PolymarketFastTradingFailure, Never> {
+        .empty
+    }
+
+    func refresh() async {
+        refreshes.send()
+    }
+
+    func cancelWork() {
+        isWorkCancelled = true
+    }
+
+    func dismissBanner(_ banner: PolymarketFastTradingBanner) {
+        dismissedBanners.append(banner)
+    }
+
+    func authorize(_ authorization: PolymarketFastTradingAuthorization) async throws {}
+
+    func authorize(presigned batch: PolymarketRelayedBatch, grant: PolymarketSessionKeyGrant) async throws {}
+
+    func revoke(sessionKeyAddress: String) async throws {}
+
+    func setEnabled(_ isEnabled: Bool, sessionKeyAddress: String) async throws {}
+
+    func reportFailure(_ failure: PolymarketFastTradingFailure) {}
+}
+
+final class PolymarketOrderSigningRouterSpy: PolymarketOrderSigningRouting, Sendable {
+    private let state: OSAllocatedUnfairLock<State>
+
+    init(refusals: [String: PolymarketOrderSigningRefusal] = [:]) {
+        state = OSAllocatedUnfairLock(initialState: State(refusals: refusals))
+    }
+
+    var invalidated: [String] {
+        state.withLock { $0.invalidated }
+    }
+
+    var refusalsPublisher: AnyPublisher<Void, Never> {
+        .empty
+    }
+
+    func route() async -> PolymarketOrderSigningRoute {
+        .ownerKey
+    }
+
+    func reportRefused(sessionKeyAddress: String) async {
+        state.withLock { $0.refusals[sessionKeyAddress] = PolymarketOrderSigningRefusal(refusedAt: PolymarketSessionKeyFixtures.now, routedOn: nil) }
+    }
+
+    func invalidate(sessionKeyAddress: String) async {
+        state.withLock { state in
+            state.refusals[sessionKeyAddress] = nil
+            state.invalidated.append(sessionKeyAddress)
+        }
+    }
+
+    func forgetReadiness() async {}
+
+    func refusal(of sessionKeyAddress: String) -> PolymarketOrderSigningRefusal? {
+        state.withLock { $0.refusals[sessionKeyAddress] }
+    }
+
+    private struct State {
+        var refusals: [String: PolymarketOrderSigningRefusal]
+        var invalidated: [String] = []
     }
 }

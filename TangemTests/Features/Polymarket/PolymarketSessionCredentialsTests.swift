@@ -44,9 +44,9 @@ struct PolymarketSessionCredentialsTests {
         #expect(fixture.clob.createRequests == 1)
     }
 
-    @Test("An outage while deriving is reported instead of minting a second set of credentials")
-    func outageIsNotACreation() async {
-        let fixture = Fixture(deriveResult: .failure(PolymarketAPIError.http(statusCode: 503, problemDetail: nil)))
+    @Test("An outage, a timeout or throttling while deriving is reported instead of minting a second set of credentials", arguments: [503, 408, 429])
+    func outageIsNotACreation(_ statusCode: Int) async {
+        let fixture = Fixture(deriveResult: .failure(PolymarketAPIError.http(statusCode: statusCode, problemDetail: nil)))
 
         await #expect(throws: PolymarketAPIError.self) {
             try await fixture.sut.credentials()

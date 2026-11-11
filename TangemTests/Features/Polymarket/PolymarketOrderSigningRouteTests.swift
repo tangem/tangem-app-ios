@@ -67,6 +67,13 @@ struct PolymarketOrderSigningRouterTests {
         #expect(await fixture.sut.route() == .ownerKey)
     }
 
+    @Test("The live record of the session key decides when the backend also lists an earlier revoked one")
+    func liveRecordDecides() async {
+        let fixture = RouterFixture(signers: [.usable], backendKeys: [.make(isEnabled: true, status: .revoked), .make(isEnabled: true)])
+
+        #expect(await fixture.sut.route() == .sessionKey(RouterFixture.session))
+    }
+
     @Test(
         "A backend record that is not active or about to expire keeps the session key off orders",
         arguments: [
@@ -101,6 +108,32 @@ struct PolymarketOrderSigningRouterTests {
         await fixture.sut.reportRefused(sessionKeyAddress: RouterFixture.sessionKeyAddress)
 
         #expect(await fixture.sut.route() == .ownerKey)
+    }
+
+    @Test("A refusal keeps the backend record and the exchange listing the refused order was routed on")
+    func refusalKeepsWhatTheOrderWasRoutedOn() async {
+        let fixture = RouterFixture(signers: [.usable])
+
+        _ = await fixture.sut.route()
+        await fixture.sut.reportRefused(sessionKeyAddress: RouterFixture.sessionKeyAddress)
+
+        let refusal = PolymarketOrderSigningRefusal(
+            refusedAt: RouterFixture.now,
+            routedOn: PolymarketSessionKeyConfirmation(record: .make(isEnabled: true), signer: .usable)
+        )
+
+        #expect(fixture.sut.refusal(of: RouterFixture.sessionKeyAddress) == refusal)
+    }
+
+    @Test("A refusal does not lapse with time, the key stays off orders until it changes")
+    func refusalDoesNotLapse() async {
+        let fixture = RouterFixture(signers: [.usable])
+
+        await fixture.sut.reportRefused(sessionKeyAddress: RouterFixture.sessionKeyAddress)
+        fixture.advanceClock(by: 24 * 60 * 60)
+
+        #expect(await fixture.sut.route() == .ownerKey)
+        #expect(fixture.sut.isRefused(sessionKeyAddress: RouterFixture.sessionKeyAddress))
     }
 
     @Test("A refused session key stays off orders when another key changes")
@@ -140,6 +173,52 @@ struct PolymarketOrderSigningRouterTests {
         #expect(await fixture.sut.route() == .ownerKey)
         #expect(await fixture.sut.route() == .ownerKey)
         #expect(fixture.clob.sessionSignerReads == 1)
+    }
+
+    @Test(
+        "Only the exchange's refusal of the session key's credentials reports the key refused; another failure to get them, or a key this device can't sign with, does not",
+        arguments: zip(
+            [
+                PolymarketAPIError.http(statusCode: 401, problemDetail: nil) as Error,
+                PolymarketAPIError.http(statusCode: 400, problemDetail: nil),
+                PolymarketAPIError.decoding(field: "apiKey", value: ""),
+                CommonPolymarketSessionKeyStore.KeyError.keyMissing,
+            ],
+            [true, false, false, false]
+        )
+    )
+    func credentialsRefusalIsReported(_ error: Error, _ isRefused: Bool) async {
+        let fixture = RouterFixture(signers: [.usable], credentialsError: error)
+
+        #expect(await fixture.sut.route() == .ownerKey)
+        #expect(fixture.sut.isRefused(sessionKeyAddress: RouterFixture.sessionKeyAddress) == isRefused)
+    }
+
+    @Test("A session key whose credentials failed for another reason than a refusal is checked with the exchange again a minute later")
+    func credentialsFailureIsCheckedAgainAfterAMinute() async {
+        let fixture = RouterFixture(signers: [.usable], credentialsError: PolymarketAPIError.http(statusCode: 400, problemDetail: nil))
+
+        _ = await fixture.sut.route()
+        fixture.advanceClock(by: 60)
+        _ = await fixture.sut.route()
+
+        #expect(fixture.clob.sessionSignerReads == 2)
+    }
+
+    @Test("A session key kept paused after its renewal signs no orders, even while the backend lists it switched on")
+    func keptPausedKeyUsesTheOwnerKey() async {
+        let fixture = RouterFixture(signers: [.usable], keptPausedAddress: RouterFixture.sessionKeyAddress)
+
+        #expect(await fixture.sut.route() == .ownerKey)
+        #expect(fixture.clob.sessionSignerReads == 0)
+    }
+
+    @Test("A pause record the keychain fails to read keeps the order on the card instead of signing it in one tap")
+    func unreadablePauseRecordUsesTheOwnerKey() async {
+        let fixture = RouterFixture(signers: [.usable], keptPauseReadError: KeychainFailure())
+
+        #expect(await fixture.sut.route() == .ownerKey)
+        #expect(fixture.clob.sessionSignerReads == 0)
     }
 
     @Test("A forgotten readiness answer is checked with the exchange again")
@@ -184,6 +263,64 @@ struct PolymarketOrderSigningRouterTests {
         #expect(await fixture.sut.route() == .unverified)
         #expect(await fixture.sut.route() == .unverified)
         #expect(fixture.clob.sessionSignerReads == 2)
+    }
+
+    @Test("Session key credentials that could not be fetched over the network are fetched again for the next order, without asking the exchange again")
+    func transientCredentialsFailureIsNotRemembered() async {
+        let fixture = RouterFixture(signers: [.usable], credentialsError: PolymarketAPIError.http(statusCode: 503, problemDetail: nil))
+
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(fixture.sessionCredentials.reads == 2)
+        #expect(fixture.clob.sessionSignerReads == 1)
+    }
+
+    @Test("A throttled or timed out check of the session key is made again for the next order", arguments: [408, 429])
+    func throttledCheckIsUnverified(_ statusCode: Int) async {
+        let fixture = RouterFixture(signers: [.usable], signersError: PolymarketAPIError.http(statusCode: statusCode, problemDetail: nil))
+
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(fixture.clob.sessionSignerReads == 2)
+    }
+
+    @Test("A throttled or timed out read of the wallet's session keys is made again for the next order", arguments: [408, 429])
+    func throttledBackendCheckIsUnverified(_ statusCode: Int) async {
+        let fixture = RouterFixture(
+            signers: [.usable],
+            backendError: PolymarketSessionKeyError(apiError: .http(statusCode: statusCode, problemDetail: nil))
+        )
+
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(fixture.clob.sessionSignerReads == 2)
+    }
+
+    @Test("A session key address the keychain fails to read leaves the order unrouted instead of falling back to the card")
+    func unreadableKeyAddressIsUnverified() async {
+        let fixture = RouterFixture(heldAddressError: PolymarketSessionKeyStoreSpy.ReadError(), signers: [.usable])
+
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(fixture.clob.sessionSignerReads == 0)
+    }
+
+    @Test("Session key credentials the keychain fails to read leave the order unrouted and are read again for the next order")
+    func unreadableSessionCredentialsAreUnverified() async {
+        let fixture = RouterFixture(signers: [.usable], credentialsError: PolymarketSessionKeyStoreSpy.ReadError())
+
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(fixture.sessionCredentials.reads == 2)
+    }
+
+    @Test("Owner credentials the keychain fails to read leave the order unrouted and are read again for the next order")
+    func unreadableOwnerCredentialsAreUnverified() async {
+        let fixture = RouterFixture(signers: [.usable], ownerCredentialsReadError: PolymarketSessionKeyStoreSpy.ReadError())
+
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(await fixture.sut.route() == .unverified)
+        #expect(fixture.ownerCredentials.credentialReads == 2)
+        #expect(fixture.clob.sessionSignerReads == 0)
     }
 
     @Test("A check answered after the session key was paused neither signs the order nor is remembered")
@@ -261,6 +398,8 @@ private final class RouterFixture {
     )
 
     let clob: PolymarketCLOBServiceStub
+    let sessionCredentials: SessionCredentialsStub
+    let ownerCredentials: PolymarketCredentialsRepositoryStub
     let sut: CommonPolymarketOrderSigningRouter
 
     private let clock: OSAllocatedUnfairLock<Date>
@@ -268,26 +407,34 @@ private final class RouterFixture {
     init(
         isEligible: Bool = true,
         heldAddress: String? = RouterFixture.sessionKeyAddress,
+        heldAddressError: Error? = nil,
         signers: [PolymarketSessionSigner],
         signersError: Error? = nil,
         backendKeys: [PolymarketSessionKey]? = nil,
+        backendError: PolymarketSessionKeyError? = nil,
         backendRead: PolymarketHeldCall? = nil,
         credentialsRead: PolymarketHeldCall? = nil,
         credentialsError: Error? = nil,
-        derivesCredentials: Bool = false
+        ownerCredentialsReadError: Error? = nil,
+        derivesCredentials: Bool = false,
+        keptPausedAddress: String? = nil,
+        keptPauseReadError: Error? = nil
     ) {
         let signersResult: Result<[PolymarketSessionSigner], Error> = signersError.map { .failure($0) } ?? .success(signers)
-        let keyStore = PolymarketSessionKeyStoreSpy(heldAddress: heldAddress)
+        let keyStore = heldAddressError.map { PolymarketSessionKeyStoreSpy(heldAddresses: [.failure($0)]) }
+            ?? PolymarketSessionKeyStoreSpy(heldAddress: heldAddress)
         let clock = OSAllocatedUnfairLock(initialState: Self.now)
         let now: @Sendable () -> Date = { clock.withLock { $0 } }
 
         self.clock = clock
 
         clob = PolymarketCLOBServiceStub(sessionSignersResult: signersResult)
+        sessionCredentials = SessionCredentialsStub(session: Self.session, hold: credentialsRead, error: credentialsError)
+        ownerCredentials = PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials, readError: ownerCredentialsReadError)
 
         let sessionCredentialsProvider: PolymarketSessionCredentialsProviding = derivesCredentials
             ? CommonPolymarketSessionCredentialsProvider(userWalletId: Self.userWalletId, keyStore: keyStore, clobService: clob, now: now)
-            : SessionCredentialsStub(session: Self.session, hold: credentialsRead, error: credentialsError)
+            : sessionCredentials
 
         sut = CommonPolymarketOrderSigningRouter(
             userWalletId: Self.userWalletId,
@@ -295,10 +442,13 @@ private final class RouterFixture {
             keyStore: keyStore,
             sessionCredentialsProvider: sessionCredentialsProvider,
             clobService: clob,
-            sessionKeyService: SessionKeyServiceStub(keys: backendKeys ?? [.make(isEnabled: true)], hold: backendRead),
-            credentialsRepository: PolymarketCredentialsRepositoryStub(stored: PolymarketCredentialsRepositoryStub.credentials),
+            sessionKeyService: SessionKeyServiceStub(keys: backendKeys ?? [.make(isEnabled: true)], error: backendError, hold: backendRead),
+            credentialsRepository: ownerCredentials,
             ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: PolymarketOwnerAddressProviderStub.ownerAddress),
-            interruptedAuthorizations: CommonPolymarketInterruptedAuthorizationStore(secureStorage: PolymarketSecureStorageSpy()),
+            interruptedAuthorizations: InterruptedAuthorizationStoreStub(
+                stored: keptPausedAddress.map(PolymarketInterruptedAuthorization.keptPaused),
+                readError: keptPauseReadError
+            ),
             now: now
         )
     }
@@ -357,12 +507,74 @@ private extension PolymarketSessionKey {
 
 // MARK: - Stubs
 
-private struct SessionCredentialsStub: PolymarketSessionCredentialsProviding {
-    let session: PolymarketSessionCredentials
-    let hold: PolymarketHeldCall?
-    var error: Error?
+private struct KeychainFailure: Error {}
+
+private struct InterruptedAuthorizationStoreStub: PolymarketInterruptedAuthorizationStore {
+    let stored: PolymarketInterruptedAuthorization?
+    let readError: Error?
+
+    func save(_ authorization: PolymarketInterruptedAuthorization, for userWalletId: UserWalletId) throws {}
+
+    func load(for userWalletId: UserWalletId) throws -> PolymarketInterruptedAuthorization? {
+        if let readError {
+            throw readError
+        }
+
+        return stored
+    }
+
+    func delete(for userWalletId: UserWalletId) throws {}
+}
+
+private extension PolymarketInterruptedAuthorization {
+    static func keptPaused(_ sessionKeyAddress: String) -> PolymarketInterruptedAuthorization {
+        let call = PolymarketRelayedBatch.Call(target: sessionKeyAddress, data: "0x")
+
+        return PolymarketInterruptedAuthorization(
+            revokedAddress: sessionKeyAddress,
+            revocation: PolymarketRelayedBatch(
+                ownerAddress: PolymarketOwnerAddressProviderStub.ownerAddress,
+                depositWalletAddress: "0xd000000000000000000000000000000000000001",
+                nonce: "7",
+                deadline: "0",
+                calls: [call],
+                signature: "0xrevocation"
+            ),
+            batch: PolymarketRelayedBatch(
+                ownerAddress: PolymarketOwnerAddressProviderStub.ownerAddress,
+                depositWalletAddress: "0xd000000000000000000000000000000000000001",
+                nonce: "8",
+                deadline: "0",
+                calls: [call],
+                signature: "0xbatch"
+            ),
+            grant: PolymarketSessionKeyGrant(sessionKeyAddress: sessionKeyAddress, validUntil: RouterFixture.now, call: call),
+            deviceId: PolymarketSessionKeyFixtures.deviceId,
+            keepsPaused: true,
+            purpose: .renewal,
+            isExecuted: true
+        )
+    }
+}
+
+private final class SessionCredentialsStub: PolymarketSessionCredentialsProviding {
+    private let session: PolymarketSessionCredentials
+    private let hold: PolymarketHeldCall?
+    private let error: Error?
+    private let readCount = OSAllocatedUnfairLock(initialState: 0)
+
+    init(session: PolymarketSessionCredentials, hold: PolymarketHeldCall?, error: Error?) {
+        self.session = session
+        self.hold = hold
+        self.error = error
+    }
+
+    var reads: Int {
+        readCount.withLock { $0 }
+    }
 
     func credentials() async throws -> PolymarketSessionCredentials {
+        readCount.withLock { $0 += 1 }
         await hold?.pass()
 
         if let error {
@@ -377,10 +589,15 @@ private struct SessionCredentialsStub: PolymarketSessionCredentialsProviding {
 
 private struct SessionKeyServiceStub: PolymarketSessionKeyService {
     let keys: [PolymarketSessionKey]
+    let error: PolymarketSessionKeyError?
     let hold: PolymarketHeldCall?
 
     func sessionKeys() async throws(PolymarketSessionKeyError) -> [PolymarketSessionKey] {
         await hold?.pass()
+
+        if let error {
+            throw error
+        }
 
         return keys
     }

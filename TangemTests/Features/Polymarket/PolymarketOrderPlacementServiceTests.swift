@@ -187,6 +187,19 @@ struct PolymarketSessionKeyPlacementTests {
         #expect(sessionPlacer.placed.isEmpty)
     }
 
+    @Test("An order whose session key could not be checked is not placed and keeps the session key")
+    func unverifiedSessionKeyIsNotPlaced() async {
+        let (sut, ownerPlacer, sessionPlacer, router) = makeSUT(route: .unverified)
+
+        await #expect(throws: PolymarketOrderPlacementSetupError.sessionKeyUnverified) {
+            try await sut.place(signing: .sessionKey)
+        }
+
+        #expect(ownerPlacer.placed.isEmpty)
+        #expect(sessionPlacer.placed.isEmpty)
+        #expect(await router.refusedAddresses.isEmpty)
+    }
+
     @Test(
         "An order the exchange refused for the session key's sake is not signed by the owner key behind the user's back",
         arguments: [
@@ -413,7 +426,7 @@ private actor RouterSpy: PolymarketOrderSigningRouting {
     }
 
     nonisolated var refusalsPublisher: AnyPublisher<Void, Never> {
-        Empty().eraseToAnyPublisher()
+        .empty
     }
 
     func reportRefused(sessionKeyAddress: String) {

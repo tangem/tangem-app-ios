@@ -16,6 +16,45 @@ import TangemPolymarketUI
 @MainActor
 @Suite("Polymarket order submission", .timeLimit(.minutes(1)))
 struct PolymarketOrderSubmissionTests {
+    // MARK: - Signing
+
+    @Test(
+        "A session key tap that can't be signed turns the button to the card: until the key is usable again when it got lost before the tap, for the rest of the order when the placement refused it",
+        arguments: SessionKeyLoss.allCases
+    )
+    func lostSessionKeyTurnsTheButtonToTheCard(_ loss: SessionKeyLoss) async {
+        let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true)
+        let choice = PolymarketOrderSigningChoice(availability: availability, showNotice: { _ in })
+        let placing: Result<PolymarketOrderPlacement, Error> = switch loss {
+        case .beforeTheTap:
+            .failure(StubError())
+        case .refusedByThePlacement:
+            .failure(PolymarketOrderPlacementSetupError.sessionKeyUnavailable)
+        }
+        let model = await makeModel()
+        let marketRow = PolymarketOrderMarketRow.Model.make(market: .fixture, outcome: .fixture, eventTitle: "Fixture event")
+
+        if loss == .beforeTheTap {
+            availability.publish(false)
+        }
+
+        let outcome = await makeSUT(model: model, placing: placing, signingChoice: choice)
+            .submit(quote: .stub(status: .full), signing: .sessionKey) { marketRow }
+
+        #expect(outcome.isSigningChanged)
+        #expect(choice.method == .ownerKey)
+
+        availability.publish(true)
+
+        switch loss {
+        case .beforeTheTap:
+            #expect(choice.method == .sessionKey)
+        case .refusedByThePlacement:
+            #expect(choice.method == .ownerKey)
+            #expect(choice.decide(tapped: .sessionKey) == .routeChanged)
+        }
+    }
+
     // MARK: - Readiness
 
     @Test("A quote received within the allowed age is ready to place")
@@ -227,9 +266,15 @@ private extension PolymarketOrderSubmissionTests {
     func makeSUT(
         model: PolymarketOrderModel,
         placing result: Result<PolymarketOrderPlacement, Error> = .failure(StubError()),
+        signingChoice: PolymarketOrderSigningChoice? = nil,
         now: @escaping () -> Date = Date.init
     ) -> PolymarketOrderSubmission {
-        PolymarketOrderSubmission(model: model, placementService: PlacementServiceStub(result: result), now: now)
+        PolymarketOrderSubmission(
+            model: model,
+            placementService: PlacementServiceStub(result: result),
+            signingChoice: signingChoice,
+            now: now
+        )
     }
 
     func submit(
@@ -245,6 +290,13 @@ private extension PolymarketOrderSubmissionTests {
 }
 
 // MARK: - Doubles
+
+extension PolymarketOrderSubmissionTests {
+    enum SessionKeyLoss: CaseIterable, Sendable {
+        case beforeTheTap
+        case refusedByThePlacement
+    }
+}
 
 private struct PlacementServiceStub: PolymarketOrderPlacementService {
     let result: Result<PolymarketOrderPlacement, Error>

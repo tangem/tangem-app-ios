@@ -94,11 +94,14 @@ struct PolymarketFastTradingStatusTests {
         #expect(Fixture.assess(keys: [key], signers: []).status == .reenable(key))
     }
 
-    @Test("A failed local key waits for the exchange's list before a repair is chosen")
-    func failedLocalKeyWaitsForTheExchangeList() {
+    @Test("A failed local key whose exchange list can't be read is shown as a failed read, not as a wait that reads again for half an hour")
+    func failedLocalKeyWithoutTheExchangeListIsAFailedRead() {
         let key = Fixture.key(.local, status: .failed)
 
-        #expect(Fixture.assess(keys: [key], signers: nil).status == .exchangeUnreadable(key))
+        let assessment = Fixture.assess(keys: [key], signers: nil)
+
+        #expect(assessment.status == .exchangeUnreadable(key))
+        #expect(!assessment.needsFollowUpReads)
     }
 
     @Test(
@@ -136,6 +139,13 @@ struct PolymarketFastTradingStatusTests {
         #expect(!assessment.hasSettlingChange)
     }
 
+    @Test("A pending key is waited for as long as the relayer can still execute its signed batch")
+    func pendingKeyIsAwaitedUntilItsBatchDeadline() {
+        let pending = Fixture.key(.otherDevice, status: .pending, authorizedAt: nil, createdAt: Fixture.now.addingTimeInterval(1 - Fixture.batchExecutionWindow))
+
+        #expect(Fixture.assess(keys: [pending]).status == .waitingForSettlement(pending))
+    }
+
     @Test(
         "A local key left pending past the deadline of its signed batch is offered again only once the backend stops holding it pending",
         arguments: zip([Fixture.batchExecutionWindow - 1, Fixture.batchExecutionWindow], [false, true])
@@ -149,11 +159,89 @@ struct PolymarketFastTradingStatusTests {
         #expect(PolymarketFastTradingAuthorization(assessment: assessment) == (isOffered ? .reenable : nil))
     }
 
-    @Test("A local key this app is activating keeps enabling however long the relayer takes")
-    func localKeyBeingActivatedKeepsEnabling() {
-        let key = Fixture.key(.local, status: .pending, authorizedAt: nil, createdAt: Fixture.now.addingTimeInterval(-11 * 60))
+    @Test(
+        "Another device's pending key holds past a plain authorization's deadline whatever else the wallet lists, since a renewal may have rewritten its record",
+        arguments: [
+            [Fixture.key(.local)],
+            [Fixture.key(.previous, status: .revoked)],
+            [],
+        ] as [[PolymarketSessionKey]]
+    )
+    func pendingKeyOfAnotherDeviceHoldsForAFollowUpBatch(_ otherRecords: [PolymarketSessionKey]) {
+        let pending = Fixture.key(.otherDevice, status: .pending, authorizedAt: nil, createdAt: Fixture.now.addingTimeInterval(-Fixture.plainBatchExecutionWindow))
 
-        #expect(Fixture.assess(keys: [key], operations: [.activation]).status == .enabling(key))
+        #expect(Fixture.assess(keys: otherRecords + [pending], signers: nil).hasSettlingChange)
+    }
+
+    @Test(
+        "Another device's key holds changes only while its revocation can still run",
+        arguments: zip([Fixture.batchExecutionWindow - 1, Fixture.batchExecutionWindow], [true, false])
+    )
+    func revokingKeyHoldsWhileItsRevocationCanRun(_ revokingFor: TimeInterval, _ isHeld: Bool) {
+        let revoking = Fixture.key(.otherDevice, status: .revoking)
+
+        let assessment = Fixture.assess(keys: [revoking], revokingSince: [revoking.address: Fixture.now.addingTimeInterval(-revokingFor)])
+
+        #expect(assessment.hasSettlingChange == isHeld)
+        #expect(PolymarketFastTradingAuthorization(assessment: assessment) == (isHeld ? nil : .enable))
+    }
+
+    @Test(
+        "This device's key waits for its revocation only while the backend can still hold it, then is offered again",
+        arguments: zip(
+            [Fixture.batchExecutionWindow - 1, Fixture.batchExecutionWindow],
+            [
+                PolymarketFastTradingAssessment.Status.revoking(Fixture.key(.local, status: .revoking)),
+                .reenable(Fixture.key(.local, status: .revoking)),
+            ]
+        )
+    )
+    func revokingLocalKeyWaitsOnlyWhileTheBackendHoldsIt(_ revokingFor: TimeInterval, _ status: PolymarketFastTradingAssessment.Status) {
+        let key = Fixture.key(.local, status: .revoking)
+
+        let assessment = Fixture.assess(keys: [key], revokingSince: [key.address: Fixture.now.addingTimeInterval(-revokingFor)])
+
+        #expect(assessment.status == status)
+    }
+
+    @Test(
+        "A local key this app is activating or renewing keeps enabling however long the relayer takes, one nobody authorizes is offered again",
+        arguments: zip(
+            [[PolymarketFastTradingOperation.activation], [.renewal], []],
+            [
+                PolymarketFastTradingAssessment.Status.enabling(Self.longPendingLocalKey),
+                .enabling(Self.longPendingLocalKey),
+                .reenable(Self.longPendingLocalKey),
+            ]
+        )
+    )
+    func localKeyBeingAuthorizedKeepsEnabling(_ operations: [PolymarketFastTradingOperation], _ status: PolymarketFastTradingAssessment.Status) {
+        #expect(Fixture.assess(keys: [Self.longPendingLocalKey], operations: operations).status == status)
+    }
+
+    private static let longPendingLocalKey = Fixture.key(
+        .local,
+        status: .pending,
+        authorizedAt: nil,
+        createdAt: Fixture.now.addingTimeInterval(-2 * Fixture.batchExecutionWindow)
+    )
+
+    @Test(
+        "A local key the exchange refused is no longer active: it is repaired, enabled again or shown as a failed read of the exchange's list",
+        arguments: zip(
+            [[PolymarketSessionSigner.matching(Fixture.key(.local))], [], nil] as [[PolymarketSessionSigner]?],
+            [
+                PolymarketFastTradingAssessment.Status.repairByRenewal(Fixture.key(.local)),
+                .reenable(Fixture.key(.local)),
+                .exchangeUnreadable(Fixture.key(.local)),
+            ]
+        )
+    )
+    func refusedLocalKeyIsNotActive(_ signers: [PolymarketSessionSigner]?, _ status: PolymarketFastTradingAssessment.Status) {
+        let assessment = Fixture.assess(keys: [Fixture.key(.local)], signers: signers, isLocalKeyRefused: true)
+
+        #expect(assessment.status == status)
+        #expect(assessment.isOutOfSyncWithExchange(Fixture.key(.local)))
     }
 
     @Test("This device's working key keeps trading while another key of the wallet is changing")
@@ -349,6 +437,23 @@ struct PolymarketFastTradingReconciliationTests {
         #expect(Fixture.assess(keys: [key], signers: [.matching(key)]).foreignSigners.map(\.address) == [key.address])
     }
 
+    @Test(
+        "A signer this device saw revoking is a revocation in progress for half an hour, then a foreign signer again",
+        arguments: zip([29 * 60, 30 * 60] as [TimeInterval], [true, false])
+    )
+    func signerSeenRevokingIsInProgressForHalfAnHour(_ sinceRevoking: TimeInterval, _ isInProgress: Bool) {
+        let key = Fixture.key(.otherDevice, status: .revoked)
+
+        let assessment = Fixture.assess(
+            keys: [key],
+            signers: [.matching(key)],
+            revokingSince: [key.address: Fixture.now.addingTimeInterval(-sinceRevoking)]
+        )
+
+        #expect(assessment.signersBeingRevoked.map(\.address) == (isInProgress ? [key.address] : []))
+        #expect(assessment.foreignSigners.map(\.address) == (isInProgress ? [] : [key.address]))
+    }
+
     @Test("The local key the exchange lists after a failure is repaired, not reported foreign")
     func failedLocalKeyIsNotForeign() {
         let key = Fixture.key(.local, status: .failed)
@@ -389,6 +494,18 @@ struct PolymarketFastTradingReconciliationTests {
         #expect(Fixture.assess(keys: [key], signers: [signer]).mismatchedOnExchange.isEmpty)
     }
 
+    @Test("A local key the exchange lists without a validity can't sign, so it is out of sync and repaired")
+    func signerWithoutValidityIsRepaired() {
+        let key = Fixture.key(.local)
+        let signer = PolymarketSessionSigner(address: key.address, scopes: key.scopes, validUntil: nil)
+
+        let assessment = Fixture.assess(keys: [key], signers: [signer])
+
+        #expect(!assessment.isUsableOnExchange(key, at: Fixture.now))
+        #expect(assessment.mismatchedOnExchange == [key.address])
+        #expect(assessment.status == .repairByRenewal(key))
+    }
+
     @Test("An active key without an authorization date is checked against the exchange once it is past the grace period")
     func keyWithoutAuthorizationDateIsReconciled() {
         let key = Fixture.key(.local, authorizedAt: nil, createdAt: Fixture.now.addingTimeInterval(-Fixture.day))
@@ -422,6 +539,33 @@ struct PolymarketFastTradingReconciliationTests {
         let key = Fixture.key(.otherDevice)
 
         #expect(Fixture.assess(keys: [key], signers: []).missingOnExchange == [key.address])
+    }
+
+    @Test(
+        "A refusal is lifted only by a record or a listing that changed after it, never by the ones the refused order was routed on",
+        arguments: [
+            (PolymarketSessionKeyConfirmation(record: Fixture.key(.local), signer: .matching(Fixture.key(.local))), false),
+            (PolymarketSessionKeyConfirmation(record: Fixture.key(.local).withMixedCaseAddress, signer: PolymarketSessionSigner.matching(Fixture.key(.local).withMixedCaseAddress)), false),
+            (PolymarketSessionKeyConfirmation(record: Fixture.key(.local, authorizedAt: Fixture.now.addingTimeInterval(-2 * Fixture.day)), signer: .matching(Fixture.key(.local))), false),
+            (PolymarketSessionKeyConfirmation(record: Fixture.key(.local).renamed, signer: .matching(Fixture.key(.local))), false),
+            (PolymarketSessionKeyConfirmation(record: Fixture.key(.local, validUntil: Fixture.validUntil.addingTimeInterval(-Fixture.day)), signer: .matching(Fixture.key(.local))), true),
+            (PolymarketSessionKeyConfirmation(record: Fixture.key(.local, isEnabled: false), signer: .matching(Fixture.key(.local))), true),
+            (PolymarketSessionKeyConfirmation(record: Fixture.key(.local), signer: PolymarketSessionSigner(address: Fixture.localAddress, scopes: ["ALL"], validUntil: Fixture.validUntil)), true),
+            (nil, false),
+        ] as [(PolymarketSessionKeyConfirmation?, Bool)]
+    )
+    func refusalIsLiftedByNewerEvidenceOnly(_ routedOn: PolymarketSessionKeyConfirmation?, _ isLifted: Bool) {
+        let key = Fixture.key(.local)
+        let snapshot = PolymarketFastTradingSnapshot(
+            sessionKeys: [key],
+            localKeyAddress: Fixture.localAddress,
+            deviceId: Fixture.deviceId,
+            signers: [.matching(key)],
+            now: Fixture.now
+        )
+        let refusal = PolymarketOrderSigningRefusal(refusedAt: Fixture.now, routedOn: routedOn)
+
+        #expect(PolymarketFastTradingAssessment.confirmsLocalKey(after: refusal, in: snapshot) == isLifted)
     }
 
     @Test("Without the exchange's list nothing is reported foreign, missing or out of sync")
@@ -476,15 +620,25 @@ struct PolymarketFastTradingBannerTests {
         #expect(PolymarketFastTradingBanner(state: state, includingForeignSigners: true, isDismissed: { _ in false }) == .extend(daysLeft: 12))
     }
 
-    @Test("A device without a usable key is asked to activate", arguments: [
-        [PolymarketSessionKey](),
-        [Fixture.key(.local, status: .revoked)],
-        [Fixture.key(.previous)],
-    ])
+    @Test("A device that never had a key of its own is asked to activate", arguments: [[PolymarketSessionKey](), [Fixture.key(.previous)]])
     func activationBanner(_ keys: [PolymarketSessionKey]) {
         let state = PolymarketFastTradingState.loaded(Fixture.assess(keys: keys))
 
         #expect(PolymarketFastTradingBanner(state: state, includingForeignSigners: true, isDismissed: { _ in false }) == .activate)
+    }
+
+    @Test(
+        "A device whose key stopped working is asked to reactivate even after the activation banner was closed, one whose key the user revoked is offered the activation",
+        arguments: zip([PolymarketSessionKey.Status.expired, .revoked], [PolymarketFastTradingBanner.reactivate, .activate])
+    )
+    func reactivationBannerIgnoresClosedActivation(_ status: PolymarketSessionKey.Status, _ banner: PolymarketFastTradingBanner) {
+        let state = PolymarketFastTradingState.loaded(Fixture.assess(keys: [Fixture.key(.local, status: status)]))
+
+        #expect(PolymarketFastTradingBanner(state: state, includingForeignSigners: true, isDismissed: { _ in false }) == banner)
+        #expect(
+            PolymarketFastTradingBanner(state: state, includingForeignSigners: true, isDismissed: { $0 == .activate })
+                == (banner == .activate ? nil : banner)
+        )
     }
 
     @Test(
@@ -545,6 +699,16 @@ struct PolymarketFastTradingAuthorizationTests {
     @Test("A stopped local key is enabled again")
     func stoppedKeyReenables() {
         #expect(PolymarketFastTradingAuthorization(assessment: Fixture.assess(keys: [Fixture.key(.local, status: .expired)])) == .reenable)
+    }
+
+    @Test("A key the user revoked is activated anew, with the verb its banner uses")
+    func revokedKeyIsActivatedAnew() throws {
+        let assessment = Fixture.assess(keys: [Fixture.key(.local, status: .revoked)])
+        let authorization = try #require(PolymarketFastTradingAuthorization(assessment: assessment))
+
+        #expect(authorization == .enable)
+        #expect(PolymarketFastTradingBanner(state: .loaded(assessment), includingForeignSigners: true, isDismissed: { _ in false }) == .activate)
+        #expect(PolymarketFastTradingDevice.Action(authorization: authorization) == .activate)
     }
 
     @Test("A key due for renewal is extended")
@@ -640,6 +804,13 @@ struct PolymarketFastTradingFailureTests {
         #expect(PolymarketFastTradingFailure(error: error) == .busy)
     }
 
+    @Test("An authorization still settling when this app stops waiting is not reported as a failure, its key keeps showing as activating")
+    func unsettledAuthorizationIsNotAFailure() {
+        let error = PolymarketSessionKeyManagerError.unsettled(Fixture.key(.local, status: .pending))
+
+        #expect(PolymarketFastTradingFailure(error: error) == nil)
+    }
+
     @Test("A failure with no known cause is reported as an unknown error, not as an expired signature")
     func unexplainedFailureIsGeneric() {
         #expect(PolymarketFastTradingFailure(error: PolymarketSessionKeyManagerError.unparseableNonce("abc")) == .generic)
@@ -665,6 +836,27 @@ struct PolymarketFastTradingFailureTests {
     )
     func cancellationIsSilent(_ error: Error) {
         #expect(PolymarketFastTradingFailure(error: error) == nil)
+    }
+
+    @Test(
+        "A failed request is logged without the address it was sent to, which carries the wallet id",
+        arguments: [
+            PolymarketSessionKeyError.other(.connection(underlying: Self.failedRequest)) as Error,
+            PolymarketAPIError.connection(underlying: Self.failedRequest),
+            Self.failedRequest,
+        ]
+    )
+    func failedRequestIsLoggedWithoutTheWalletId(_ error: Error) {
+        let description = PolymarketFastTradingFailure.logDescription(of: error)
+
+        #expect(!description.contains(Self.walletId))
+        #expect(description.contains(String(URLError.Code.timedOut.rawValue)))
+    }
+
+    private static let walletId = "c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00"
+
+    private static var failedRequest: URLError {
+        URLError(.timedOut, userInfo: [NSURLErrorFailingURLStringErrorKey: "https://bff.example/api/predictions/v1/wallet?walletId=\(walletId)"])
     }
 }
 
@@ -702,4 +894,36 @@ private extension PolymarketSessionSigner {
         scopes: ["CLOB"],
         validUntil: Fixture.validUntil
     )
+}
+
+private extension PolymarketSessionKey {
+    var withMixedCaseAddress: PolymarketSessionKey {
+        PolymarketSessionKey(
+            address: "0x" + address.dropFirst(2).uppercased(),
+            deviceId: deviceId,
+            deviceName: deviceName,
+            isEnabled: isEnabled,
+            status: status,
+            scopes: scopes,
+            validUntil: validUntil,
+            renewAfter: renewAfter,
+            authorizedAt: authorizedAt,
+            createdAt: createdAt
+        )
+    }
+
+    var renamed: PolymarketSessionKey {
+        PolymarketSessionKey(
+            address: address,
+            deviceId: deviceId,
+            deviceName: "Renamed",
+            isEnabled: isEnabled,
+            status: status,
+            scopes: scopes.map { $0.lowercased() },
+            validUntil: validUntil,
+            renewAfter: renewAfter,
+            authorizedAt: authorizedAt,
+            createdAt: createdAt
+        )
+    }
 }

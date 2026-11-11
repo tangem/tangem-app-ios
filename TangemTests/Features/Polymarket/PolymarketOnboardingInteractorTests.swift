@@ -29,6 +29,42 @@ struct PolymarketOnboardingInteractorTests {
         #expect(signer.signCalls == 0)
     }
 
+    @Test("With fast trading off the card prompt shows before the relayer nonce is read, so a failed read fails on the signing step")
+    func nonceReadFollowsTheCardPrompt() async throws {
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.deployed]),
+            relayerService: PolymarketRelayerServiceStub(result: .failure(URLError(.notConnectedToInternet)))
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.dropLast().last?.isAwaitingSignature == true)
+        #expect(progress.last?.failure?.isUnknown == true)
+    }
+
+    @Test("A fast trading authorization kept on the wallet's next nonce stops the run before it reads the nonce for its approvals")
+    func keptAuthorizationStopsTheRunBeforeTheNonceIsRead() async throws {
+        let events = PolymarketTestSignal<String>()
+        let store = CommonPolymarketInterruptedAuthorizationStore(secureStorage: PolymarketSecureStorageSpy())
+        try store.save(.holdingTheNonce(until: PolymarketSessionKeyFixtures.now.addingTimeInterval(60)), for: Self.userWalletId)
+        let slot = PolymarketWalletOperationSlot(
+            userWalletId: Self.userWalletId,
+            gate: PolymarketWalletOperationGate(),
+            interruptedAuthorizations: store,
+            serverClock: PolymarketServerClock(deviceNow: { PolymarketSessionKeyFixtures.now })
+        )
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.deployed]),
+            relayerService: NonceReadSpy(events: events),
+            operationSlot: slot
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(events.recorded.isEmpty)
+        #expect(progress.last?.failure?.isUnknown == true)
+    }
+
     @Test("A blocked region stops the run before the card is asked to sign")
     func blockedRegionRefusesToOnboard() async throws {
         let signer = PolymarketOnboardingSignerSpy()
@@ -268,6 +304,27 @@ struct PolymarketOnboardingInteractorTests {
         #expect(progress.last?.isHandedOff == true)
         #expect(fastTrading.preparedNonces.count == 1)
         #expect(fastTrading.submitted.isEmpty)
+        #expect(fastTrading.notEnabledReports == 1)
+    }
+
+    @Test("A ready account with stored credentials still enters when the relayer is down, and fast trading is reported as not turned on")
+    func readyAccountEntersWithoutTheRelayer() async throws {
+        let signer = PolymarketOnboardingSignerSpy()
+        let fastTrading = PolymarketOnboardingFastTradingSpy()
+        let sut = try makeSUT(
+            walletService: makeWalletService(statuses: [.readyToTrade]),
+            credentials: PolymarketCredentialsRepositoryStub.credentials,
+            signer: signer,
+            fastTrading: fastTrading,
+            relayerService: PolymarketRelayerServiceStub(result: .failure(URLError(.notConnectedToInternet)))
+        )
+
+        let progress = await sut.collectProgress()
+
+        #expect(progress.last?.isReady == true)
+        #expect(signer.signCalls == 0)
+        #expect(fastTrading.submitted.isEmpty)
+        #expect(fastTrading.notEnabledReports == 1)
     }
 
     @Test("Continuing a ready account with fast trading on asks for a card tap and signs the key at the relayer's nonce, as no approvals go first")
@@ -329,7 +386,7 @@ struct PolymarketOnboardingInteractorTests {
     }
 
     @Test(
-        "Approvals of an earlier run still in flight keep fast trading out of the run, as they may still hold the relayer's nonce",
+        "Approvals of an earlier run still in flight keep fast trading out of the run, as they may still hold the relayer's nonce, and say so",
         arguments: [PolymarketCredentialsRepositoryStub.credentials, nil]
     )
     func approvalsInFlightGetNoFastTrading(_ credentials: PolymarketL2Credentials?) async throws {
@@ -348,6 +405,7 @@ struct PolymarketOnboardingInteractorTests {
         #expect(fastTrading.preparedNonces.isEmpty)
         #expect(signer.signedFastTradingAuthorizations.isEmpty)
         #expect(fastTrading.submitted.isEmpty)
+        #expect(fastTrading.notEnabledReports == 1)
     }
 
     @Test("A ready wallet the backend demoted to deployed signs only the approvals again")
@@ -675,6 +733,8 @@ private extension PolymarketOnboardingInteractorTests {
         ownerKeySession: PolymarketOwnerKeySession = PolymarketOwnerKeySessionSpy(),
         isKeyStored: Bool = true,
         fastTrading: PolymarketOnboardingFastTrading? = nil,
+        relayerService: PolymarketRelayerService = PolymarketRelayerServiceStub(),
+        operationSlot: PolymarketWalletOperationSlot? = nil,
         hasExistingAccount: @escaping () -> Bool = { false }
     ) throws -> CommonPolymarketOnboardingInteractor {
         CommonPolymarketOnboardingInteractor(
@@ -689,11 +749,49 @@ private extension PolymarketOnboardingInteractorTests {
             credentialsRepository: credentialsRepository ?? PolymarketCredentialsRepositoryStub(stored: credentials),
             geoblockService: geoblockService,
             walletService: walletService,
-            relayerService: PolymarketRelayerServiceStub(),
+            relayerService: relayerService,
             clobService: clobService,
             serverClock: serverClock,
             fastTrading: fastTrading,
+            operationSlot: operationSlot,
             pollInterval: 0
+        )
+    }
+}
+
+private final class NonceReadSpy: PolymarketRelayerService {
+    private let events: PolymarketTestSignal<String>
+
+    init(events: PolymarketTestSignal<String>) {
+        self.events = events
+    }
+
+    func walletNonce(ownerAddress: String) async throws -> String {
+        events.send("nonce")
+        return PolymarketRelayerServiceStub.nonce
+    }
+}
+
+private extension PolymarketInterruptedAuthorization {
+    static func holdingTheNonce(until deadline: Date) -> PolymarketInterruptedAuthorization {
+        let call = PolymarketRelayedBatch.Call(target: PolymarketSessionKeyFixtures.localAddress, data: "0x")
+        let batch = PolymarketRelayedBatch(
+            ownerAddress: PolymarketOwnerAddressProviderStub.ownerAddress,
+            depositWalletAddress: "0xd000000000000000000000000000000000000001",
+            nonce: PolymarketRelayerServiceStub.nonce,
+            deadline: String(Int(deadline.timeIntervalSince1970)),
+            calls: [call],
+            signature: "0xbatch"
+        )
+
+        return PolymarketInterruptedAuthorization(
+            revokedAddress: PolymarketSessionKeyFixtures.localAddress,
+            revocation: batch,
+            batch: batch,
+            grant: PolymarketSessionKeyGrant(sessionKeyAddress: PolymarketSessionKeyFixtures.localAddress, validUntil: deadline, call: call),
+            deviceId: PolymarketSessionKeyFixtures.deviceId,
+            keepsPaused: false,
+            purpose: .activation
         )
     }
 }

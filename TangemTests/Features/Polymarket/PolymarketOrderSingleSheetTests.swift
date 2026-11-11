@@ -93,6 +93,28 @@ struct PolymarketOrderSingleSheetTests {
         #expect(context.placementService.signings == [.ownerKey])
     }
 
+    @Test("A session key that could not be checked keeps the session key button and asks to try again without a support alert")
+    func unverifiedSessionKeyKeepsTheButton() async throws {
+        let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true)
+        let notices = PolymarketTestSignal<String>()
+        let choice = PolymarketOrderSigningChoice(availability: availability, showNotice: { notices.send($0) })
+        let context = try await makeContext(
+            isSingleSheet: true,
+            placement: .failure(PolymarketOrderPlacementSetupError.sessionKeyUnverified),
+            signingChoice: choice
+        )
+        _ = await context.sut.$isNextEnabled.firstValue { $0 }
+
+        context.sut.handleViewAction(.placeOrder(signing: .sessionKey))
+
+        await context.sut.$isPlacing.firstValue(where: { !$0 })
+
+        #expect(context.placementService.signings == [.sessionKey])
+        #expect(context.sut.alert == nil)
+        #expect(choice.method == .sessionKey)
+        #expect(notices.recorded == [PolymarketFastTradingStrings.sessionKeyUnverifiedNotice])
+    }
+
     @Test("A session key the exchange turns down switches the order to a card signature without placing it")
     func refusedSessionKeyWaitsForTheCard() async throws {
         let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true)

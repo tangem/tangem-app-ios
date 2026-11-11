@@ -171,7 +171,7 @@ struct PolymarketSessionKeyManagerTests {
         #expect(keyStore.generatedKeys == 0)
     }
 
-    @Test("A renewal whose revocation did not go through keeps the signed authorization unsent")
+    @Test("A renewal whose revocation did not go through neither sends the signed authorization nor keeps it for a resume")
     func failedRevocationStopsRenewal() async throws {
         let service = SessionKeyServiceSpy(afterRevocation: [.active])
         let sut = try makeSUT(service: service)
@@ -181,6 +181,213 @@ struct PolymarketSessionKeyManagerTests {
         }
 
         #expect(service.authorizations.isEmpty)
+        #expect(await sut.resumableInterruptedAuthorization() == nil)
+    }
+
+    @Test("A renewal cut off after its revocation went out is completed on the next start with the authorization signed for it")
+    func interruptedRenewalIsResumedOnTheNextStart() async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let signer = BatchesSignerSpy()
+        let service = SessionKeyServiceSpy(unauthorizedValidityShift: -PolymarketSessionKeyFixtures.day, authorizeFailures: Self.unansweredAuthorization)
+        let clock = PollingClockSpy()
+        let interrupted = try makeSUT(signer: signer, service: service, clock: clock, secureStorage: storage)
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await interrupted.renew()
+        }
+
+        let restarted = try makeSUT(signer: signer, service: service, clock: clock, secureStorage: storage, walletNonce: Self.authorizationNonce)
+
+        #expect(await restarted.resumableInterruptedAuthorization() != nil)
+
+        let sessionKey = try await restarted.resumeInterruptedAuthorization()
+
+        #expect(sessionKey.status == .active)
+        #expect(signer.calls.count == 1)
+        #expect(service.revocations.count == 1)
+        #expect(service.authorizations.count == Self.unansweredAuthorization.count + 1)
+        #expect(Set(service.authorizations).count == 1)
+        #expect(storage.items.isEmpty)
+    }
+
+    @Test("A renewal whose task is cancelled after the card signed keeps nothing for a resume and sends nothing")
+    func cancelledRenewalKeepsNothing() async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let signer = BatchesSignerSpy()
+        let service = SessionKeyServiceSpy()
+        let sut = try makeSUT(signer: signer, service: service, secureStorage: storage)
+        let renewal = Task { try await sut.renew() }
+
+        renewal.cancel()
+
+        await #expect(throws: CancellationError.self) {
+            try await renewal.value
+        }
+
+        #expect(signer.calls.count == 1)
+        #expect(storage.items.isEmpty)
+        #expect(service.revocations.isEmpty)
+        #expect(service.authorizations.isEmpty)
+    }
+
+    @Test("Extending a paused key leaves it paused once the renewal settles, without another card tap")
+    func renewalKeepsAPausedKeyPaused() async throws {
+        let signer = BatchesSignerSpy()
+        let service = SessionKeyServiceSpy(listings: [Self.localAddress: [.active]], disabled: [Self.localAddress])
+        let sut = try makeSUT(signer: signer, service: service)
+
+        let sessionKey = try await sut.renew()
+
+        #expect(!sessionKey.isEnabled)
+        #expect(service.events == [.revoke, .authorize, .setEnabled(false)])
+        #expect(signer.calls.count == 1)
+    }
+
+    @Test("A paused key's renewal cut off after its revocation went out is completed on the next start and still ends paused")
+    func interruptedRenewalOfAPausedKeyEndsPaused() async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let service = SessionKeyServiceSpy(
+            listings: [Self.localAddress: [.active]],
+            disabled: [Self.localAddress],
+            unauthorizedValidityShift: -PolymarketSessionKeyFixtures.day,
+            authorizeFailures: Self.unansweredAuthorization
+        )
+        let clock = PollingClockSpy()
+        let interrupted = try makeSUT(service: service, clock: clock, secureStorage: storage)
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await interrupted.renew()
+        }
+
+        let restarted = try makeSUT(service: service, clock: clock, secureStorage: storage, walletNonce: Self.authorizationNonce)
+        let sessionKey = try await restarted.resumeInterruptedAuthorization()
+
+        #expect(!sessionKey.isEnabled)
+        #expect(service.events == [.revoke, .authorize, .setEnabled(false)])
+    }
+
+    @Test("A paused key whose renewal went through is paused by a later resume when the backend first refuses the pause, even past the renewal's deadline")
+    func refusedPauseOfARenewedKeyIsRetried() async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let clock = PollingClockSpy()
+        let service = SessionKeyServiceSpy(
+            listings: [Self.localAddress: [.active]],
+            disabled: [Self.localAddress],
+            setEnabledFailures: [.refused(statusCode: 409, reason: .busy, detail: nil)]
+        )
+        let sut = try makeSUT(service: service, clock: clock, secureStorage: storage)
+
+        let renewed = try await sut.renew()
+
+        #expect(renewed.isEnabled)
+
+        try await clock.wait(for: TimeInterval(PolymarketSessionKeyAuthorizationBatch.followUpDeadlineOffset))
+
+        let restarted = try makeSUT(service: service, clock: clock, secureStorage: storage)
+        let paused = try await restarted.resumeInterruptedAuthorization()
+
+        #expect(!paused.isEnabled)
+        #expect(service.events == [.revoke, .authorize, .setEnabled(false)])
+        #expect(storage.items.isEmpty)
+    }
+
+    @Test("An authorization kept from a cut-off renewal is dropped instead of sent once its batch can no longer run")
+    func expiredInterruptedAuthorizationIsDropped() async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let service = SessionKeyServiceSpy(authorizeFailures: Self.unansweredAuthorization)
+        let clock = PollingClockSpy()
+        let interrupted = try makeSUT(service: service, clock: clock, secureStorage: storage)
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await interrupted.renew()
+        }
+
+        try #require(!storage.items.isEmpty)
+        try await clock.wait(for: TimeInterval(PolymarketSessionKeyAuthorizationBatch.followUpDeadlineOffset))
+
+        let restarted = try makeSUT(service: service, clock: clock, secureStorage: storage)
+
+        #expect(await restarted.resumableInterruptedAuthorization() == nil)
+        await #expect(throws: PolymarketSessionKeyManagerError.self) {
+            try await restarted.resumeInterruptedAuthorization()
+        }
+
+        #expect(service.authorizations.count == Self.unansweredAuthorization.count)
+        #expect(storage.items.isEmpty)
+    }
+
+    @Test(
+        "A card operation that spends the wallet's next nonce is refused while a renewal's signed authorization still holds it",
+        arguments: [ManagerOperation.enable, .revoke, .renew]
+    )
+    func nonceSpendingOperationWaitsForAKeptAuthorization(_ operation: ManagerOperation) async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let signer = BatchesSignerSpy()
+        let sut = try makeSUT(signer: signer, service: SessionKeyServiceSpy(authorizeFailures: Self.unansweredAuthorization), secureStorage: storage)
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await sut.renew()
+        }
+
+        let refusal = await #expect(throws: PolymarketSessionKeyManagerError.self) {
+            try await operation.run(on: sut)
+        }
+
+        #expect(refusal?.isOperationInProgress == true)
+        #expect(signer.calls.count == 1)
+        #expect(!storage.items.isEmpty)
+    }
+
+    @Test("A paused key's renewal that went through stops holding the wallet's next nonce while the pause waits for a retry")
+    func renewedKeyKeptPausedDoesNotHoldTheNextNonce() async throws {
+        let service = SessionKeyServiceSpy(
+            listings: [Self.localAddress: [.active]],
+            disabled: [Self.localAddress],
+            setEnabledFailures: [.refused(statusCode: 409, reason: .busy, detail: nil)]
+        )
+        let sut = try makeSUT(service: service)
+
+        _ = try await sut.renew()
+        _ = try await sut.revoke(sessionKeyAddress: Self.previousAddress)
+
+        #expect(service.revocations.map(\.sessionKeyAddress) == [Self.localAddress, Self.previousAddress])
+        #expect(await sut.keptPausedKeyAddress() == Self.localAddress)
+    }
+
+    @Test("Resuming a key kept paused after its renewal drops the kept pause, so the key is not paused again")
+    func resumingAKeptPausedKeyDropsThePause() async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let service = SessionKeyServiceSpy(
+            listings: [Self.localAddress: [.active]],
+            disabled: [Self.localAddress],
+            setEnabledFailures: [.refused(statusCode: 409, reason: .busy, detail: nil)]
+        )
+        let sut = try makeSUT(service: service, secureStorage: storage)
+
+        _ = try await sut.renew()
+        _ = try await sut.setEnabled(true, sessionKeyAddress: Self.localAddress)
+
+        #expect(await sut.keptPausedKeyAddress() == nil)
+        #expect(storage.items.isEmpty)
+    }
+
+    @Test(
+        "A cut-off renewal is kept for its resume as a renewal and a cut-off repair as an activation, though both authorize the same key",
+        arguments: zip([ManagerOperation.renew, .repair], [PolymarketInterruptedAuthorization.Purpose.renewal, .activation])
+    )
+    func interruptedReauthorizationKeepsItsPurpose(_ operation: ManagerOperation, _ purpose: PolymarketInterruptedAuthorization.Purpose) async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let clock = PollingClockSpy()
+        let service = SessionKeyServiceSpy(authorizeFailures: Self.unansweredAuthorization)
+        let interrupted = try makeSUT(service: service, clock: clock, secureStorage: storage)
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await operation.run(on: interrupted)
+        }
+
+        let restarted = try makeSUT(service: service, clock: clock, secureStorage: storage)
+
+        #expect(await restarted.resumableInterruptedAuthorization()?.purpose == purpose)
     }
 
     @Test("A revocation the relayer runs after five minutes, still within its deadline, is followed by the authorization")
@@ -267,6 +474,37 @@ struct PolymarketSessionKeyManagerTests {
         #expect(service.authorizations.count == 4)
     }
 
+    @Test("A throttled or timed out request is sent again unchanged", arguments: [408, 429])
+    func throttledRequestIsResent(_ statusCode: Int) async throws {
+        let throttled = SessionKeyServiceSpy.Failure(
+            error: PolymarketSessionKeyError(apiError: .http(statusCode: statusCode, problemDetail: nil)),
+            isTaken: false
+        )
+        let service = SessionKeyServiceSpy(authorizeFailures: [throttled, throttled])
+        let sut = try makeSUT(service: service)
+
+        _ = try await sut.enable()
+
+        #expect(service.authorizations.count == 3)
+        #expect(Set(service.authorizations).count == 1)
+    }
+
+    @Test("A request the backend refuses with a client error is not sent again", arguments: [400, 403, 409, 422])
+    func clientRefusalIsNotResent(_ statusCode: Int) async throws {
+        let refusal = SessionKeyServiceSpy.Failure(
+            error: PolymarketSessionKeyError(apiError: .http(statusCode: statusCode, problemDetail: nil)),
+            isTaken: false
+        )
+        let service = SessionKeyServiceSpy(authorizeFailures: [refusal])
+        let sut = try makeSUT(service: service)
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await sut.enable()
+        }
+
+        #expect(service.authorizations.count == 1)
+    }
+
     @Test("A refused request is not sent again")
     func refusalIsNotResent() async throws {
         let service = SessionKeyServiceSpy(authorizeFailures: [.busy])
@@ -351,6 +589,19 @@ struct PolymarketSessionKeyManagerTests {
         #expect(clock.now > Self.now.addingTimeInterval(600))
     }
 
+    @Test("A key the backend briefly leaves out is waited for instead of being judged by an earlier revoked record of the same address")
+    func earlierRecordDoesNotStandInForAMissingOne() async throws {
+        let service = SessionKeyServiceSpy(
+            earlierRecords: [Self.key(address: Self.localAddress, status: .revoked, validityShift: -PolymarketSessionKeyFixtures.day)],
+            afterAuthorization: [nil, .active]
+        )
+        let sut = try makeSUT(service: service)
+
+        let sessionKey = try await sut.enable()
+
+        #expect(sessionKey.status == .active)
+    }
+
     @Test("A pending key the backend leaves out of a few reads is still waited for")
     func briefGapKeepsWaiting() async throws {
         let gap = [PolymarketSessionKey.Status?](repeating: nil, count: PolymarketSessionKey.settlingMissTolerance)
@@ -360,6 +611,19 @@ struct PolymarketSessionKeyManagerTests {
         let sessionKey = try await sut.enable()
 
         #expect(sessionKey.status == .active)
+    }
+
+    @Test("A throttled or timed out read while the key settles is waited out instead of failing the activation after the card tap", arguments: [408, 429])
+    func throttledSettlementReadKeepsWaiting(_ statusCode: Int) async throws {
+        let service = SessionKeyServiceSpy(
+            readFailuresAfterAuthorization: [PolymarketSessionKeyError(apiError: .http(statusCode: statusCode, problemDetail: nil))]
+        )
+        let sut = try makeSUT(service: service)
+
+        let sessionKey = try await sut.enable()
+
+        #expect(sessionKey.status == .active)
+        #expect(service.sessionKeyReads >= 2)
     }
 
     @Test("A pending key the backend stops listing fails the activation without waiting out its deadline")
@@ -453,6 +717,312 @@ struct PolymarketSessionKeyManagerTests {
 
         #expect(service.authorizations.count == 1)
     }
+
+    @Test("A renewal cut off before the backend took its revocation sends the kept revocation first, then the authorization, without another card tap")
+    func keptRevocationIsSentBeforeItsAuthorization() async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let clock = PollingClockSpy()
+        let signer = BatchesSignerSpy()
+        let service = SessionKeyServiceSpy(listings: [Self.localAddress: [.active]], unauthorizedValidityShift: -PolymarketSessionKeyFixtures.day, revokeFailures: Self.unansweredRevocation)
+        let interrupted = try makeSUT(signer: signer, service: service, clock: clock, secureStorage: storage)
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await interrupted.renew()
+        }
+
+        let restarted = try makeSUT(signer: signer, service: service, clock: clock, secureStorage: storage)
+        let sessionKey = try await restarted.resumeInterruptedAuthorization()
+
+        #expect(sessionKey.status == .active)
+        #expect(signer.calls.count == 1)
+        #expect(service.events == [.revoke, .authorize])
+        #expect(Set(service.revocations).count == 1)
+        #expect(storage.items.isEmpty)
+    }
+
+    @Test(
+        "A kept authorization is dropped unsent once its revocation can no longer run or another operation took its nonce",
+        arguments: zip([TimeInterval(PolymarketSessionKeyAuthorizationBatch.deadlineOffset), 0], [Self.revocationNonce, "9"])
+    )
+    func keptAuthorizationIsDroppedWhenItCanNoLongerFollowItsRevocation(_ elapsed: TimeInterval, _ walletNonce: String) async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let clock = PollingClockSpy()
+        let service = SessionKeyServiceSpy(listings: [Self.localAddress: [.active]], unauthorizedValidityShift: -PolymarketSessionKeyFixtures.day, revokeFailures: Self.unansweredRevocation)
+        let interrupted = try makeSUT(service: service, clock: clock, secureStorage: storage)
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await interrupted.renew()
+        }
+
+        try await clock.wait(for: elapsed)
+
+        let restarted = try makeSUT(service: service, clock: clock, secureStorage: storage, walletNonce: walletNonce)
+
+        let failure = await #expect(throws: PolymarketSessionKeyManagerError.self) {
+            try await restarted.resumeInterruptedAuthorization()
+        }
+
+        #expect(failure?.isNoInterruptedAuthorization == true)
+        #expect(service.events.isEmpty)
+        #expect(service.authorizations.isEmpty)
+        #expect(storage.items.isEmpty)
+    }
+
+    @Test(
+        "A resent authorization the backend refuses as busy stays kept for a later resume, a final refusal drops it",
+        arguments: zip([PolymarketSessionKeyError.Reason.busy, .nonceAlreadyUsed], [true, false])
+    )
+    func busyRefusalKeepsTheInterruptedAuthorization(_ reason: PolymarketSessionKeyError.Reason, _ isKept: Bool) async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let clock = PollingClockSpy()
+        let refusal = SessionKeyServiceSpy.Failure(error: .refused(statusCode: 409, reason: reason, detail: nil), isTaken: false)
+        let service = SessionKeyServiceSpy(unauthorizedValidityShift: -PolymarketSessionKeyFixtures.day, authorizeFailures: Self.unansweredAuthorization + [refusal])
+        let interrupted = try makeSUT(service: service, clock: clock, secureStorage: storage)
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await interrupted.renew()
+        }
+
+        let restarted = try makeSUT(service: service, clock: clock, secureStorage: storage, walletNonce: Self.authorizationNonce)
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await restarted.resumeInterruptedAuthorization()
+        }
+
+        #expect((await restarted.resumableInterruptedAuthorization() != nil) == isKept)
+    }
+
+    @Test("A kept authorization whose revocation nonce another operation spent is dropped and reported instead of finishing as a replacement")
+    func keptAuthorizationIsDroppedWhenAnotherOperationSpentTheRevocationNonce() async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let clock = PollingClockSpy()
+        let interrupted = try makeSUT(
+            service: SessionKeyServiceSpy(listings: [Self.previousAddress: [.active]], revokeFailures: Self.unansweredRevocation),
+            clock: clock,
+            secureStorage: storage
+        )
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await interrupted.replace(previousSessionKeyAddress: Self.previousAddress, revokesPrevious: true)
+        }
+
+        let service = SessionKeyServiceSpy(listings: [Self.previousAddress: [.active]])
+        let restarted = try makeSUT(service: service, clock: clock, secureStorage: storage, walletNonce: Self.authorizationNonce)
+
+        let failure = await #expect(throws: PolymarketSessionKeyManagerError.self) {
+            try await restarted.resumeInterruptedAuthorization()
+        }
+
+        #expect(failure?.isNonceSpentElsewhere == true)
+        #expect(service.authorizations.isEmpty)
+        #expect(storage.items.isEmpty)
+    }
+
+    @Test("A pause kept for a renewed key outlives another authorization of the key settling, so the key stays off one-tap orders")
+    func keptPauseOutlivesAnotherAuthorization() async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let service = SessionKeyServiceSpy(
+            listings: [Self.localAddress: [.active]],
+            disabled: [Self.localAddress],
+            setEnabledFailures: [.refused(statusCode: 409, reason: .busy, detail: nil)]
+        )
+        let sut = try makeSUT(service: service, secureStorage: storage)
+
+        _ = try await sut.renew()
+
+        try #require(await sut.keptPausedKeyAddress() == Self.localAddress)
+
+        _ = try await sut.enable()
+
+        #expect(await sut.keptPausedKeyAddress() == Self.localAddress)
+    }
+
+    @Test("A kept authorization the relayer failed is reported as a failed authorization and dropped")
+    func failedKeptAuthorizationIsReported() async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let clock = PollingClockSpy()
+        let interrupted = try makeSUT(
+            service: SessionKeyServiceSpy(authorizeFailures: Self.unansweredAuthorization),
+            clock: clock,
+            secureStorage: storage
+        )
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await interrupted.renew()
+        }
+
+        let failed = SessionKeyServiceSpy(earlierRecords: [Self.key(address: Self.localAddress, status: .failed)])
+        let restarted = try makeSUT(service: failed, clock: clock, secureStorage: storage, walletNonce: Self.authorizationNonce)
+
+        let failure = await #expect(throws: PolymarketSessionKeyManagerError.self) {
+            try await restarted.resumeInterruptedAuthorization()
+        }
+
+        #expect(failure?.isAuthorizationFailed == true)
+        #expect(failed.authorizations.isEmpty)
+        #expect(storage.items.isEmpty)
+    }
+
+    @Test("A renewal whose signed batches can't be kept for a resume sends nothing")
+    func unkeptRenewalSendsNothing() async throws {
+        let storage = PolymarketSecureStorageSpy()
+        storage.writeError = CommonPolymarketSessionKeyStore.KeyError.keyMissing
+        let service = SessionKeyServiceSpy()
+        let sut = try makeSUT(service: service, secureStorage: storage)
+
+        await #expect(throws: CommonPolymarketSessionKeyStore.KeyError.self) {
+            try await sut.renew()
+        }
+
+        #expect(service.revocations.isEmpty)
+        #expect(service.authorizations.isEmpty)
+    }
+
+    @Test("A kept authorization stays kept when reading the keys fails during its resend")
+    func keptAuthorizationSurvivesAFailedRead() async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let clock = PollingClockSpy()
+        let interrupted = try makeSUT(
+            service: SessionKeyServiceSpy(authorizeFailures: Self.unansweredAuthorization),
+            clock: clock,
+            secureStorage: storage
+        )
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await interrupted.renew()
+        }
+
+        let unreadable = SessionKeyServiceSpy(readFailures: [PolymarketSessionKeyError(apiError: .http(statusCode: 401, problemDetail: nil))])
+        let restarted = try makeSUT(service: unreadable, clock: clock, secureStorage: storage)
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await restarted.resumeInterruptedAuthorization()
+        }
+
+        #expect(unreadable.authorizations.isEmpty)
+        #expect(await restarted.resumableInterruptedAuthorization() != nil)
+    }
+
+    @Test(
+        "A kept authorization whose revocation the backend still shows revoking at the next wallet nonce is sent only once the key settles revoked",
+        arguments: zip([PolymarketSessionKey.Status?.some(.revoked), .some(.active), nil], [true, false, false])
+    )
+    func revocationAtTheNextNonceMustSettleRevoked(_ settled: PolymarketSessionKey.Status?, _ isSent: Bool) async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let clock = PollingClockSpy()
+        let interrupted = try makeSUT(
+            service: SessionKeyServiceSpy(authorizeFailures: Self.unansweredAuthorization),
+            clock: clock,
+            secureStorage: storage
+        )
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await interrupted.renew()
+        }
+
+        let service = SessionKeyServiceSpy(listings: [Self.localAddress: [.revoking, settled]], unauthorizedValidityShift: -PolymarketSessionKeyFixtures.day)
+        let restarted = try makeSUT(service: service, clock: clock, secureStorage: storage, walletNonce: Self.authorizationNonce)
+
+        if isSent {
+            #expect(try await restarted.resumeInterruptedAuthorization().status == .active)
+        } else {
+            let failure = await #expect(throws: PolymarketSessionKeyManagerError.self) {
+                try await restarted.resumeInterruptedAuthorization()
+            }
+
+            #expect(failure?.isRevocationFailed == true)
+        }
+
+        #expect(service.authorizations.count == (isSent ? 1 : 0))
+    }
+
+    @Test(
+        "A kept renewal of a paused key stays kept with its pause when the read after its resend fails with a client error or an unreadable answer",
+        arguments: [
+            PolymarketSessionKeyError.refused(statusCode: 403, reason: .unknown(nil), detail: nil),
+            .other(.decoding(field: "status", value: "SUSPENDED?")),
+        ]
+    )
+    func keptPausedRenewalSurvivesAFailedReadAfterItsResend(_ readFailure: PolymarketSessionKeyError) async throws {
+        let storage = PolymarketSecureStorageSpy()
+        let clock = PollingClockSpy()
+        let interrupted = try makeSUT(
+            service: SessionKeyServiceSpy(
+                listings: [Self.localAddress: [.active]],
+                disabled: [Self.localAddress],
+                authorizeFailures: Self.unansweredAuthorization
+            ),
+            clock: clock,
+            secureStorage: storage
+        )
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await interrupted.renew()
+        }
+
+        let service = SessionKeyServiceSpy(listings: [Self.localAddress: [.revoked]], unauthorizedValidityShift: -PolymarketSessionKeyFixtures.day, readFailuresAfterAuthorization: [readFailure])
+        let restarted = try makeSUT(service: service, clock: clock, secureStorage: storage, walletNonce: Self.authorizationNonce)
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await restarted.resumeInterruptedAuthorization()
+        }
+
+        #expect(service.authorizations.count == 1)
+        #expect(!storage.items.isEmpty)
+        #expect(await restarted.keptPausedKeyAddress() == Self.localAddress)
+    }
+
+    @Test("A kept authorization is not offered for a resend while another operation holds the wallet")
+    func keptAuthorizationWaitsForAFreeWallet() async throws {
+        let gate = PolymarketWalletOperationGate()
+        let sut = try makeSUT(operationGate: gate, service: SessionKeyServiceSpy(authorizeFailures: Self.unansweredAuthorization))
+
+        await #expect(throws: PolymarketSessionKeyError.self) {
+            try await sut.renew()
+        }
+
+        let entered = TestGate()
+        let release = TestGate()
+        let holding = Task {
+            try await gate.exclusively(Self.userWalletId, orThrow: CancellationError()) {
+                entered.open()
+                await release.wait()
+            }
+        }
+
+        await entered.wait()
+
+        #expect(await sut.resumableInterruptedAuthorization() == nil)
+
+        release.open()
+        try await holding.value
+
+        #expect(await sut.resumableInterruptedAuthorization() != nil)
+    }
+}
+
+// MARK: - Arguments
+
+extension PolymarketSessionKeyManagerTests {
+    enum ManagerOperation {
+        case enable
+        case revoke
+        case renew
+        case repair
+
+        func run(on manager: PolymarketSessionKeyManaging) async throws {
+            switch self {
+            case .enable:
+                _ = try await manager.enable()
+            case .revoke:
+                _ = try await manager.revoke(sessionKeyAddress: PolymarketSessionKeyManagerTests.previousAddress)
+            case .renew:
+                _ = try await manager.renew()
+            case .repair:
+                _ = try await manager.repair()
+            }
+        }
+    }
 }
 
 // MARK: - Helpers
@@ -464,6 +1034,11 @@ private extension PolymarketSessionKeyManagerTests {
     static let previousAddress = "0x5e55000000000000000000000000000000000002"
     static let deviceId = PolymarketSessionKeyFixtures.deviceId
     static let deviceName = "iPhone 16 Pro"
+    static let userWalletId = UserWalletId(value: Data(repeating: 0x03, count: 32))
+    static let unansweredAuthorization = [SessionKeyServiceSpy.Failure](repeating: .gatewayFailure, count: 4)
+    static let unansweredRevocation = unansweredAuthorization
+    static let revocationNonce = PolymarketRelayerServiceStub.nonce
+    static let authorizationNonce = "8"
 
     func makeSUT(
         operationGate: PolymarketWalletOperationGate = PolymarketWalletOperationGate(),
@@ -475,13 +1050,15 @@ private extension PolymarketSessionKeyManagerTests {
         service: SessionKeyServiceSpy = SessionKeyServiceSpy(),
         ownerCredentials: OwnerCredentialsSpy = OwnerCredentialsSpy(hasCredentials: true),
         router: RouterSpy = RouterSpy(),
-        clock: PollingClockSpy = PollingClockSpy()
+        clock: PollingClockSpy = PollingClockSpy(),
+        secureStorage: PolymarketSecureStorageSpy = PolymarketSecureStorageSpy(),
+        walletNonce: String = Self.revocationNonce
     ) throws -> CommonPolymarketSessionKeyManager {
         let ownerAddress = PolymarketOwnerAddressProviderStub.ownerAddress
         let depositWalletAddress = try PolymarketDepositWalletDeriver.derive(ownerAddress: ownerAddress)
 
         return CommonPolymarketSessionKeyManager(
-            userWalletId: UserWalletId(value: Data(repeating: 0x03, count: 32)),
+            userWalletId: Self.userWalletId,
             keyStore: keyStore,
             deviceIdProvider: deviceIdProvider,
             deviceName: deviceName,
@@ -489,24 +1066,29 @@ private extension PolymarketSessionKeyManagerTests {
                 walletService: PolymarketDepositWalletServiceStub(status: walletStatus, depositWalletAddress: depositWalletAddress),
                 ownerAddressProvider: PolymarketOwnerAddressProviderStub(derived: ownerAddress)
             ),
-            relayerService: PolymarketRelayerServiceStub(),
+            relayerService: PolymarketRelayerServiceStub(result: .success(walletNonce)),
             signer: signer,
             sessionKeyService: service,
             ownerCredentials: ownerCredentials,
             signingRouter: router,
-            interruptedAuthorizations: CommonPolymarketInterruptedAuthorizationStore(secureStorage: PolymarketSecureStorageSpy()),
+            interruptedAuthorizations: CommonPolymarketInterruptedAuthorizationStore(secureStorage: secureStorage),
             serverClock: PolymarketServerClock(deviceNow: { clock.now }),
             operationGate: operationGate,
             pollDelayProvider: clock
         )
     }
 
-    static func key(address: String, status: PolymarketSessionKey.Status, validityShift: TimeInterval = 0) -> PolymarketSessionKey {
+    static func key(
+        address: String,
+        status: PolymarketSessionKey.Status,
+        isEnabled: Bool = true,
+        validityShift: TimeInterval = 0
+    ) -> PolymarketSessionKey {
         PolymarketSessionKey(
             address: address,
             deviceId: deviceId,
             deviceName: deviceName,
-            isEnabled: true,
+            isEnabled: isEnabled,
             status: status,
             scopes: ["CLOB"],
             validUntil: now.addingTimeInterval(PolymarketSessionKeyFixtures.validity + validityShift),
@@ -526,6 +1108,10 @@ private extension PolymarketSessionKeyManaging {
         try await renew(onSigned: {})
     }
 
+    func repair() async throws -> PolymarketSessionKey {
+        try await repair(onSigned: {})
+    }
+
     func replace(previousSessionKeyAddress: String, revokesPrevious: Bool) async throws -> PolymarketSessionKey {
         try await replace(previousSessionKeyAddress: previousSessionKeyAddress, revokesPrevious: revokesPrevious, onSigned: {})
     }
@@ -534,6 +1120,38 @@ private extension PolymarketSessionKeyManaging {
 private extension PolymarketSessionKeyManagerError {
     var isOperationInProgress: Bool {
         guard case .operationInProgress = self else {
+            return false
+        }
+
+        return true
+    }
+
+    var isNoInterruptedAuthorization: Bool {
+        guard case .noInterruptedAuthorization = self else {
+            return false
+        }
+
+        return true
+    }
+
+    var isAuthorizationFailed: Bool {
+        guard case .authorizationFailed = self else {
+            return false
+        }
+
+        return true
+    }
+
+    var isNonceSpentElsewhere: Bool {
+        guard case .nonceSpentElsewhere = self else {
+            return false
+        }
+
+        return true
+    }
+
+    var isRevocationFailed: Bool {
+        guard case .revocationFailed = self else {
             return false
         }
 
@@ -584,6 +1202,7 @@ private final class SessionKeyServiceSpy: PolymarketSessionKeyService, Sendable 
     enum Event: Equatable {
         case authorize
         case revoke
+        case setEnabled(Bool)
     }
 
     struct Failure {
@@ -598,22 +1217,36 @@ private final class SessionKeyServiceSpy: PolymarketSessionKeyService, Sendable 
 
     private let state: OSAllocatedUnfairLock<State>
     private let listedValidityShift: TimeInterval
+    private let unauthorizedValidityShift: TimeInterval
+    private let earlierRecords: [PolymarketSessionKey]
 
     init(
         listings: [String: [PolymarketSessionKey.Status?]] = [:],
+        disabled: Set<String> = [],
+        earlierRecords: [PolymarketSessionKey] = [],
         listedValidityShift: TimeInterval = 0,
+        unauthorizedValidityShift: TimeInterval = 0,
         afterAuthorization: [PolymarketSessionKey.Status?] = [.active],
         afterRevocation: [PolymarketSessionKey.Status?] = [.revoked],
         authorizeFailures: [Failure] = [],
-        revokeFailures: [Failure] = []
+        revokeFailures: [Failure] = [],
+        setEnabledFailures: [PolymarketSessionKeyError] = [],
+        readFailures: [PolymarketSessionKeyError] = [],
+        readFailuresAfterAuthorization: [PolymarketSessionKeyError] = []
     ) {
         self.listedValidityShift = listedValidityShift
+        self.unauthorizedValidityShift = unauthorizedValidityShift
+        self.earlierRecords = earlierRecords
         state = OSAllocatedUnfairLock(initialState: State(
             listings: listings,
+            disabled: disabled,
             afterAuthorization: afterAuthorization,
             afterRevocation: afterRevocation,
             authorizeFailures: authorizeFailures,
-            revokeFailures: revokeFailures
+            revokeFailures: revokeFailures,
+            setEnabledFailures: setEnabledFailures,
+            readFailures: readFailures,
+            readFailuresAfterAuthorization: readFailuresAfterAuthorization
         ))
     }
 
@@ -634,15 +1267,32 @@ private final class SessionKeyServiceSpy: PolymarketSessionKeyService, Sendable 
     }
 
     func sessionKeys() async throws(PolymarketSessionKeyError) -> [PolymarketSessionKey] {
-        state.withLock { state in
+        let read = state.withLock { state -> Result<[PolymarketSessionKey], PolymarketSessionKeyError> in
             state.sessionKeyReads += 1
 
-            return state.listings.keys.sorted().compactMap { address in
-                state.nextStatus(of: address).map {
-                    PolymarketSessionKeyManagerTests.key(address: address, status: $0, validityShift: listedValidityShift)
-                }
+            if !state.readFailures.isEmpty {
+                return .failure(state.readFailures.removeFirst())
             }
+
+            if !state.authorizations.isEmpty, !state.readFailuresAfterAuthorization.isEmpty {
+                return .failure(state.readFailuresAfterAuthorization.removeFirst())
+            }
+
+            return .success(earlierRecords + state.listings.keys.sorted().compactMap { address in
+                let validityShift = listedValidityShift + (state.authorized.contains(address) ? 0 : unauthorizedValidityShift)
+
+                return state.nextStatus(of: address).map {
+                    PolymarketSessionKeyManagerTests.key(
+                        address: address,
+                        status: $0,
+                        isEnabled: !state.disabled.contains(address),
+                        validityShift: validityShift
+                    )
+                }
+            })
         }
+
+        return try read.get()
     }
 
     func authorize(_ authorization: PolymarketSessionKeyAuthorization) async throws(PolymarketSessionKeyError) -> PolymarketSessionKey {
@@ -676,18 +1326,43 @@ private final class SessionKeyServiceSpy: PolymarketSessionKeyService, Sendable 
     }
 
     func setEnabled(_ isEnabled: Bool, sessionKeyAddress: String) async throws(PolymarketSessionKeyError) -> PolymarketSessionKey {
-        PolymarketSessionKeyManagerTests.key(address: sessionKeyAddress, status: .active)
+        let failure = state.withLock { state -> PolymarketSessionKeyError? in
+            guard state.setEnabledFailures.isEmpty else {
+                return state.setEnabledFailures.removeFirst()
+            }
+
+            state.events.append(.setEnabled(isEnabled))
+
+            if isEnabled {
+                state.disabled.remove(sessionKeyAddress)
+            } else {
+                state.disabled.insert(sessionKeyAddress)
+            }
+
+            return nil
+        }
+
+        if let failure {
+            throw failure
+        }
+
+        return PolymarketSessionKeyManagerTests.key(address: sessionKeyAddress, status: .active, isEnabled: isEnabled)
     }
 
     private struct State {
         var listings: [String: [PolymarketSessionKey.Status?]]
+        var disabled: Set<String>
         let afterAuthorization: [PolymarketSessionKey.Status?]
         let afterRevocation: [PolymarketSessionKey.Status?]
         var authorizeFailures: [Failure]
         var revokeFailures: [Failure]
+        var setEnabledFailures: [PolymarketSessionKeyError]
+        var readFailures: [PolymarketSessionKeyError]
+        var readFailuresAfterAuthorization: [PolymarketSessionKeyError]
         var authorizations: [PolymarketSessionKeyAuthorization] = []
         var revocations: [PolymarketSessionKeyRevocation] = []
         var events: [Event] = []
+        var authorized: Set<String> = []
         var sessionKeyReads = 0
 
         mutating func receive(_ event: Event, of address: String) -> PolymarketSessionKeyError? {
@@ -698,11 +1373,18 @@ private final class SessionKeyServiceSpy: PolymarketSessionKeyService, Sendable 
                 failure = authorizeFailures.isEmpty ? nil : authorizeFailures.removeFirst()
             case .revoke:
                 failure = revokeFailures.isEmpty ? nil : revokeFailures.removeFirst()
+            case .setEnabled:
+                failure = nil
             }
 
             if failure?.isTaken ?? true {
                 events.append(event)
                 listings[address] = event == .authorize ? afterAuthorization : afterRevocation
+
+                if event == .authorize {
+                    disabled.remove(address)
+                    authorized.insert(address)
+                }
             }
 
             return failure?.error
@@ -767,7 +1449,7 @@ private actor RouterSpy: PolymarketOrderSigningRouting {
     }
 
     nonisolated var refusalsPublisher: AnyPublisher<Void, Never> {
-        Empty().eraseToAnyPublisher()
+        .empty
     }
 
     func route() -> PolymarketOrderSigningRoute {
