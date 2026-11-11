@@ -106,7 +106,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .yieldModePromo: return .version("6.8")
         case .tangemPayMoneyAccount: return .unspecified
         case .tangemPayCustomerSummary: return .unspecified
-        case .solanaGasless: return .version("6.8")
+        case .solanaGasless: return .unspecified
         case .promoPage: return .unspecified
         case .dogecoinPsbtBdkFeeRateLimit: return .unspecified
         case .walletLinking: return .version("6.8")

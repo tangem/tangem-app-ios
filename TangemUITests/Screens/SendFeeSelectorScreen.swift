@@ -138,6 +138,36 @@ final class SendFeeSelectorScreen: ScreenBase<SendFeeSelectorElement> {
     }
 
     @discardableResult
+    func setMaxFeePerGasAboveMarket(byPercent percent: Int) -> Self {
+        XCTContext.runActivity(named: "Set custom max fee per gas \(percent)% above market") { _ in
+            waitAndAssertTrue(maxFeePerGasField, "Max fee per gas field should exist")
+            let market = NumericValueHelper.parseNumericValue(from: (maxFeePerGasField.value as? String) ?? "")
+            XCTAssertGreaterThan(market, 0, "Prefilled market max fee per gas should be a positive number")
+
+            let bumped = market * Decimal(100 + percent) / 100
+            let formatter = NumberFormatter()
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.numberStyle = .decimal
+            formatter.usesGroupingSeparator = false
+            formatter.minimumFractionDigits = 0
+            // The EVM max-fee-per-gas field accepts up to 9 fractional digits; keep them so a +20% bump on a
+            // low gas price (e.g. 0.01 → 0.012) is not rounded back to the market value.
+            formatter.maximumFractionDigits = 9
+            let text = formatter.string(from: bumped as NSDecimalNumber) ?? "\(bumped)"
+
+            maxFeePerGasField.waitAndTap()
+            clearTextBySelectingAll(element: maxFeePerGasField)
+            maxFeePerGasField.typeText(text)
+
+            let applied = NumericValueHelper.parseNumericValue(from: (maxFeePerGasField.value as? String) ?? "")
+            XCTAssertGreaterThan(applied, market, "Custom max fee per gas should be higher than market (+\(percent)%)")
+
+            XCTContext.runActivity(named: "Market max fee per gas: \(market); custom (+\(percent)%): \(applied)") { _ in }
+        }
+        return self
+    }
+
+    @discardableResult
     func waitForCustomFields() -> Self {
         XCTContext.runActivity(named: "Validate custom fee fields are displayed") { _ in
             CustomField.allCases.forEach { field in
