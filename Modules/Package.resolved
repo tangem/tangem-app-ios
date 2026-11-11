@@ -1,5 +1,5 @@
 {
-  "originHash" : "49dc7c4b441cde9947c08ff3fcf4d58027cf042cabaf9a23dedd19de6dea2521",
+  "originHash" : "eb0a695976c223986d53b394cca7f8c7364f6300f18477e555b6fb9262c60554",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -571,10 +571,10 @@
     {
       "identity" : "swiftcbor",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/valpackett/SwiftCBOR.git",
+      "location" : "git@github.com:tangem-developments/SwiftCBOR.git",
       "state" : {
-        "revision" : "fd929a6d8f7651ce0f63fc99397fd5762358cc29",
-        "version" : "0.6.0"
+        "revision" : "2255b7cc7959be1f6e99c1eef3edbde1449ff410",
+        "version" : "0.6.0-tangem1"
       }
     },
     {
