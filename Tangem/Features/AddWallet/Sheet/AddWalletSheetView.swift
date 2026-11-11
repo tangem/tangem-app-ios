@@ -62,6 +62,19 @@ private extension AddWalletSheetView {
     }
 }
 
+// MARK: - Navigation
+
+extension AddWalletSheetView {
+    static func navigation(for viewModel: AddWalletSheetViewModel) -> ModalNavigation {
+        switch viewModel.state {
+        case .options:
+            .title(viewModel.title, isCloseEnabled: !viewModel.isLoading)
+        case .importWallet(let importViewModel):
+            .title("", leading: .custom(.back(action: importViewModel.onBackTap)))
+        }
+    }
+}
+
 // MARK: - Constants
 
 private extension AddWalletSheetView {

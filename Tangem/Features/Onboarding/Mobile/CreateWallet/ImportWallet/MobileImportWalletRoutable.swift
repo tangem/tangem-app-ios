@@ -10,6 +10,7 @@ import Foundation
 
 @MainActor
 protocol MobileImportWalletRoutable: AnyObject {
+    func backFromImportWallet()
     func closeImportWallet()
     func openOnboarding(options: OnboardingCoordinator.Options)
 }

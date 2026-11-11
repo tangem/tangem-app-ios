@@ -43,10 +43,11 @@ class MobileCreateWalletCoordinator: CoordinatorObject {
 
 extension MobileCreateWalletCoordinator: MobileCreateWalletRoutable {
     func openImportWallet() {
-        importWalletViewModel = MobileImportWalletViewModel(coordinator: self)
+        importWalletViewModel = MobileImportWalletViewModel(mode: .standalone, coordinator: self)
     }
 
     func openOnboarding(options: OnboardingCoordinator.Options) {
+        importWalletViewModel = nil
         openOnboarding(inputOptions: options)
     }
 
@@ -70,6 +71,10 @@ extension MobileCreateWalletCoordinator: MobileCreateWalletDelegate {
 // MARK: - MobileImportWalletRoutable
 
 extension MobileCreateWalletCoordinator: MobileImportWalletRoutable {
+    func backFromImportWallet() {
+        importWalletViewModel = nil
+    }
+
     func closeImportWallet() {
         importWalletViewModel = nil
     }
