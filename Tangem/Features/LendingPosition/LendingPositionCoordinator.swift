@@ -203,7 +203,7 @@ private extension LendingPositionCoordinator {
             return known
         }
 
-        return try? await CommonLendingRateProvider().currentApy()
+        return try? await InjectedValues[\.lendingRateRepository].refreshApy()
     }
 
     func handleDepositOutput(_ output: LendingDepositCoordinator.OutputOptions) {

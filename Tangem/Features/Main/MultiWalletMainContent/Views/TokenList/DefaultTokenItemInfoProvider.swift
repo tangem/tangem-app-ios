@@ -11,6 +11,8 @@ import Combine
 import TangemStaking
 
 class DefaultTokenItemInfoProvider {
+    @Injected(\.lendingRateRepository) private var lendingRateRepository: LendingRateRepository
+
     private let walletModel: any WalletModel
 
     private let balanceProvider: TokenBalanceProvider
@@ -71,12 +73,13 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
     }
 
     var leadingBadgePublisher: AnyPublisher<TokenItemViewModel.LeadingBadge?, Never> {
-        Publishers.CombineLatest3(
+        Publishers.CombineLatest4(
             hasPendingTransactions,
             yieldModuleStatePublisher,
-            walletModel.stakingManagerStatePublisher
+            walletModel.stakingManagerStatePublisher,
+            lendingApyPublisher
         )
-        .map { hasPendingTransactions, yieldModuleState, stakingManagerState -> TokenItemViewModel.LeadingBadge? in
+        .map { hasPendingTransactions, yieldModuleState, stakingManagerState, lendingApy -> TokenItemViewModel.LeadingBadge? in
             guard !hasPendingTransactions else {
                 return .pendingTransaction
             }
@@ -84,7 +87,7 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
             if let yieldModuleState, let marketInfo = yieldModuleState.marketInfo {
                 return LeadingBadgeMapper.mapRewards(marketInfo: marketInfo, state: yieldModuleState.state)
             } else {
-                return LeadingBadgeMapper.mapRewards(stakingManagerState: stakingManagerState)
+                return LeadingBadgeMapper.mapRewards(stakingManagerState: stakingManagerState, lendingApy: lendingApy)
             }
         }
         .eraseToAnyPublisher()
@@ -112,6 +115,24 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 }
 
 private extension DefaultTokenItemInfoProvider {
+    var lendingApyPublisher: AnyPublisher<Decimal?, Never> {
+        guard LendingOnAave.isOffered(on: walletModel) else {
+            return .just(output: nil)
+        }
+
+        let lendingRateRepository = lendingRateRepository
+
+        return walletModel.stakingManagerStatePublisher
+            .filter(\.isLoading)
+            .map { _ in () }
+            .prepend(())
+            .handleEvents(receiveOutput: { lendingRateRepository.loadApyIfNeeded() })
+            .map { _ in lendingRateRepository.apyPublisher }
+            .switchToLatest()
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
     var yieldModuleStatePublisher: AnyPublisher<YieldModuleManagerStateInfo?, Never> {
         if let manager = yieldModuleManager {
             manager.statePublisher
@@ -140,9 +161,32 @@ extension DefaultTokenItemInfoProvider: Equatable {
     }
 }
 
-private enum LeadingBadgeMapper {
+enum LeadingBadgeMapper {
     typealias RewardsInfo = TokenItemViewModel.RewardsInfo
     typealias LeadingBadge = TokenItemViewModel.LeadingBadge
+
+    static func mapRewards(stakingManagerState: StakingManagerState, lendingApy: Decimal?) -> LeadingBadge? {
+        guard let lendingApy, lendingApy > 0 else {
+            return mapRewards(stakingManagerState: stakingManagerState)
+        }
+
+        switch EthEarnProducts.staking(from: stakingManagerState) {
+        case .staked:
+            return mapRewards(stakingManagerState: stakingManagerState)
+        case .loading where stakingManagerState.apy == nil:
+            return nil
+        case .loading, .available:
+            guard let stakingApy = stakingManagerState.apy,
+                  let rewardType = stakingManagerState.rewardType,
+                  stakingApy >= lendingApy else {
+                return inactiveRewards(apy: lendingApy, type: .apy, isUpdating: stakingManagerState.isLoading)
+            }
+
+            return inactiveRewards(apy: stakingApy, type: rewardType, isUpdating: stakingManagerState.isLoading)
+        case .unavailable:
+            return inactiveRewards(apy: lendingApy, type: .apy, isUpdating: false)
+        }
+    }
 
     static func mapRewards(stakingManagerState: StakingManagerState) -> LeadingBadge? {
         guard let apy = stakingManagerState.apy,
@@ -158,6 +202,17 @@ private enum LeadingBadgeMapper {
                 rewardValue: formattedRewardValue,
                 isActive: stakingManagerState.isActive,
                 isUpdating: stakingManagerState.isLoading
+            )
+        )
+    }
+
+    static func inactiveRewards(apy: Decimal, type: RewardType, isUpdating: Bool) -> LeadingBadge {
+        .rewards(
+            RewardsInfo(
+                type: type,
+                rewardValue: PercentFormatter().format(apy, option: .yield),
+                isActive: false,
+                isUpdating: isUpdating
             )
         )
     }

@@ -74,6 +74,21 @@ enum EthEarnProducts {
         return bestProduct(in: inactive).map { .earn(products: inactive, best: $0) }
     }
 
+    static func staking(from state: StakingManagerState) -> Staking {
+        switch state {
+        case .availableToStake(let info):
+            return .available(apy: info.rewardRateValues.max)
+        case .staked(let staked):
+            return .staked(balance: staked.balances.stakes().sum(), apy: state.apy ?? staked.yieldInfo.rewardRateValues.max)
+        case .loading(let cached):
+            return cachedStake(cached) ?? .loading
+        case .loadingError(_, let cached), .unavailableInRegion(let cached), .temporaryUnavailable(_, let cached):
+            return cachedStake(cached) ?? .unavailable
+        case .notEnabled:
+            return .unavailable
+        }
+    }
+
     static func stakingRoute(for state: StakingManagerState) -> StakingRoute? {
         switch state {
         case .staked:
@@ -83,6 +98,18 @@ enum EthEarnProducts {
         case .loading, .loadingError, .temporaryUnavailable, .availableToStake, .notEnabled:
             return nil
         }
+    }
+}
+
+// MARK: - Private
+
+private extension EthEarnProducts {
+    static func cachedStake(_ cached: CachedStakingManagerState?) -> Staking? {
+        guard let cached, case .staked(let balance) = cached.stakeState else {
+            return nil
+        }
+
+        return .staked(balance: balance, apy: cached.apy)
     }
 }
 

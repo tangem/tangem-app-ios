@@ -28,6 +28,20 @@ struct TokenDetailsEarnStateProviderTests {
         #expect(item.title == "Earn")
     }
 
+    @Test("A rate the main screen already loaded shows on the ETH page without asking for it again")
+    func loadedRateShowsAtOnce() async throws {
+        let rateRepository = RateStub(results: [.failure(RateError())], loadedApy: Self.rate)
+
+        let state = try await settledState(of: makeSUT(rateRepository: rateRepository))
+
+        guard case .earn(.earn) = state else {
+            Issue.record("Expected the Earn banner, got \(state)")
+            return
+        }
+
+        #expect(rateRepository.refreshCalls == 0)
+    }
+
     @Test("A failed lending rate leaves the staking state as it is")
     func failedRateFallsBackToStaking() async throws {
         let state = try await settledState(of: makeSUT(rates: [.failure(RateError())]))
@@ -130,6 +144,14 @@ private extension TokenDetailsEarnStateProviderTests {
         staking: StakingManagerState = .notEnabled,
         lendingPositions: [Result<Decimal, Error>]? = nil
     ) -> TokenDetailsEarnStateProvider {
+        makeSUT(rateRepository: RateStub(results: rates), staking: staking, lendingPositions: lendingPositions)
+    }
+
+    func makeSUT(
+        rateRepository: RateStub,
+        staking: StakingManagerState = .notEnabled,
+        lendingPositions: [Result<Decimal, Error>]? = nil
+    ) -> TokenDetailsEarnStateProvider {
         let walletModel = WalletModelTestsMock(fiatBalance: 0, priceChange24h: nil)
         walletModel.stakingManagerStateMock = staking
         walletModel.lendingModuleReaderMock = lendingPositions.map { ReaderStub(positions: PositionStub(results: $0)) }
@@ -146,7 +168,7 @@ private extension TokenDetailsEarnStateProviderTests {
                 emailDataProvider: EmailDataProviderStub()
             ),
             coordinator: nil,
-            rateProvider: RateStub(results: rates),
+            rateRepository: rateRepository,
             addFundsOptions: { [] },
             openStaking: {}
         )
@@ -170,15 +192,38 @@ private extension TokenDetailsEarnStateProviderTests {
     }
 }
 
-private final class RateStub: LendingRateProvider, Sendable {
-    private let results: OSAllocatedUnfairLock<[Result<Decimal, Error>]>
+private final class RateStub: LendingRateRepository {
+    private let results: OSAllocatedUnfairLock<(pending: [Result<Decimal, Error>], refreshCalls: Int)>
+    private let apySubject: CurrentValueSubject<Decimal?, Never>
 
-    init(results: [Result<Decimal, Error>]) {
-        self.results = OSAllocatedUnfairLock(initialState: results)
+    init(results: [Result<Decimal, Error>], loadedApy: Decimal? = nil) {
+        self.results = OSAllocatedUnfairLock(initialState: (results, 0))
+        apySubject = CurrentValueSubject(loadedApy)
     }
 
-    func currentApy() async throws -> Decimal {
-        try results.withLock { $0.count > 1 ? $0.removeFirst() : $0[0] }.get()
+    var refreshCalls: Int {
+        results.withLock { $0.refreshCalls }
+    }
+
+    var apy: Decimal? {
+        apySubject.value
+    }
+
+    var apyPublisher: AnyPublisher<Decimal?, Never> {
+        apySubject.eraseToAnyPublisher()
+    }
+
+    func loadApyIfNeeded() {}
+
+    func refreshApy() async throws -> Decimal {
+        let result = results.withLock { results in
+            results.refreshCalls += 1
+            return results.pending.count > 1 ? results.pending.removeFirst() : results.pending[0]
+        }
+
+        let apy = try result.get()
+        apySubject.send(apy)
+        return apy
     }
 }
 

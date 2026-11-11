@@ -19,7 +19,7 @@ final class TokenDetailsEarnStateProvider {
     private let walletModel: any WalletModel
     private let userWalletInfo: UserWalletInfo
     private weak var coordinator: (any TokenDetailsRoutable)?
-    private let rateProvider: LendingRateProvider
+    private let rateRepository: LendingRateRepository
     private let addFundsOptions: () -> [TokenDetailsActionsViewModel.AddFundsOption]
     private let openStaking: () -> Void
     private let balanceConverter = BalanceConverter()
@@ -36,18 +36,18 @@ final class TokenDetailsEarnStateProvider {
         walletModel: any WalletModel,
         userWalletInfo: UserWalletInfo,
         coordinator: (any TokenDetailsRoutable)?,
-        rateProvider: LendingRateProvider = CommonLendingRateProvider(),
+        rateRepository: LendingRateRepository = InjectedValues[\.lendingRateRepository],
         addFundsOptions: @escaping () -> [TokenDetailsActionsViewModel.AddFundsOption],
         openStaking: @escaping () -> Void
     ) {
         self.walletModel = walletModel
         self.userWalletInfo = userWalletInfo
         self.coordinator = coordinator
-        self.rateProvider = rateProvider
+        self.rateRepository = rateRepository
         self.addFundsOptions = addFundsOptions
         self.openStaking = openStaking
         bindState()
-        loadLendingApy()
+        bindLendingApy()
         bindLendingPosition()
     }
 
@@ -63,10 +63,7 @@ final class TokenDetailsEarnStateProvider {
     }
 
     func refresh() {
-        if case .failure = lendingApy.value {
-            loadLendingApy()
-        }
-
+        loadLendingApy()
         loadLendingPosition()
     }
 
@@ -105,7 +102,7 @@ private extension TokenDetailsEarnStateProvider {
         lendingApy: LoadingResult<Decimal, Error>,
         lendingPosition: LoadingResult<Decimal, Never>
     ) -> State {
-        switch EthEarnProducts.banner(staking: earnStaking(from: staking), lendingApy: lendingApy, lendingPosition: lendingPosition) {
+        switch EthEarnProducts.banner(staking: EthEarnProducts.staking(from: staking), lendingApy: lendingApy, lendingPosition: lendingPosition) {
         case .none:
             return .staking(staking)
         case .loading:
@@ -115,29 +112,6 @@ private extension TokenDetailsEarnStateProvider {
         case .yieldEnabled(let active, let inactive):
             return .earn(makeYieldEnabledState(active: active, inactive: inactive, staking: staking))
         }
-    }
-
-    func earnStaking(from staking: StakingManagerState) -> EthEarnProducts.Staking {
-        switch staking {
-        case .availableToStake(let info):
-            return .available(apy: info.rewardRateValues.max)
-        case .staked(let staked):
-            return .staked(balance: staked.balances.stakes().sum(), apy: staking.apy ?? staked.yieldInfo.rewardRateValues.max)
-        case .loading(let cached):
-            return cachedStake(cached) ?? .loading
-        case .loadingError(_, let cached), .unavailableInRegion(let cached), .temporaryUnavailable(_, let cached):
-            return cachedStake(cached) ?? .unavailable
-        case .notEnabled:
-            return .unavailable
-        }
-    }
-
-    func cachedStake(_ cached: CachedStakingManagerState?) -> EthEarnProducts.Staking? {
-        guard let cached, case .staked(let balance) = cached.stakeState else {
-            return nil
-        }
-
-        return .staked(balance: balance, apy: cached.apy)
     }
 
     func makeEarnBannerState(products: [EarnYieldPickerProduct], bestProduct: EarnYieldPickerProduct) -> TokenDetailsStakingState {
@@ -286,24 +260,35 @@ private extension TokenDetailsEarnStateProvider {
             .store(in: &bag)
     }
 
+    func bindLendingApy() {
+        rateRepository.apyPublisher
+            .compactMap { $0 }
+            .sink { [weak self] apy in
+                self?.lendingApy.send(.success(apy))
+            }
+            .store(in: &bag)
+
+        if rateRepository.apy == nil {
+            loadLendingApy()
+        }
+    }
+
     func loadLendingApy() {
-        let rateProvider = rateProvider
+        let rateRepository = rateRepository
 
         lendingApyTask?.cancel()
         lendingApyTask = Task { [weak self] in
-            let apy: LoadingResult<Decimal, Error>
-
             do {
-                let value = try await rateProvider.currentApy()
-                apy = .success(value)
+                _ = try await rateRepository.refreshApy()
             } catch {
                 AppLogger.error(error: error)
-                apy = .failure(error)
+
+                guard !Task.isCancelled, rateRepository.apy == nil else {
+                    return
+                }
+
+                self?.lendingApy.send(.failure(error))
             }
-
-            guard !Task.isCancelled else { return }
-
-            self?.lendingApy.send(apy)
         }
     }
 
