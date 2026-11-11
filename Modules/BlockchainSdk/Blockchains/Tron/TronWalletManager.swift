@@ -74,7 +74,7 @@ class TronWalletManager: BaseWalletManager, WalletManager {
         feePublisher(amount: amount, destination: destination, callData: nil, memo: nil)
     }
 
-    private func feePublisher(amount: Amount, destination: String, callData: Data?, memo: String?) -> AnyPublisher<[Fee], Error> {
+    private func feePublisher(amount: Amount, destination: String, callData: Data?, memo: Data?) -> AnyPublisher<[Fee], Error> {
         let hasMemo = memo?.isEmpty == false
         let energyFeePublisher = energyFeeParameters(amount: amount, destination: destination, callData: callData, hasMemo: hasMemo)
 
@@ -381,7 +381,7 @@ extension TronWalletManager: TronAllowanceProvider {
 // MARK: - TronTransactionFeeProvider
 
 extension TronWalletManager: TronTransactionFeeProvider {
-    func getFee(amount: Amount, destination: String, callData: Data?, memo: String?) async throws -> [Fee] {
+    func getFee(amount: Amount, destination: String, callData: Data?, memo: Data?) async throws -> [Fee] {
         try await feePublisher(amount: amount, destination: destination, callData: callData, memo: memo).async()
     }
 }

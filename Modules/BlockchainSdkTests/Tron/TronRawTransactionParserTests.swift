@@ -37,7 +37,16 @@ struct TronRawTransactionParserTests {
         #expect(call.callData.prefix(4) == Data([0xA9, 0x05, 0x9C, 0xBB]))
         #expect(call.callValue == 0)
         #expect(call.feeLimit == 10_000_000)
-        #expect(call.memo == "=:ETH.USDT:0xd7ABce6612079A05e431752cb85Bf7010E40FdF5:140119e4/1/0:-_/tan:0/144")
+        #expect(call.memo == Data("=:ETH.USDT:0xd7ABce6612079A05e431752cb85Bf7010E40FdF5:140119e4/1/0:-_/tan:0/144".utf8))
+    }
+
+    @Test("keeps a binary Chainflip payload byte for byte")
+    func parse_swapKitChainflipTransaction_keepsBinaryMemo() throws {
+        let call = try #require(parseContractCall(Fixtures.swapKitChainflipRawTransactionHex))
+
+        #expect(call.ownerAddress == "TQ6fQ4heoDVBx2m1fcUgAZ5VjawxFT4kMr")
+        #expect(call.contractAddress == "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
+        #expect(call.memo == Fixtures.swapKitChainflipMemo)
     }
 
     /// A real SwapKit-built transaction for a TRX-coin source: a plain `TransferContract`
@@ -137,7 +146,7 @@ struct TronRawTransactionParserTests {
             return
         }
 
-        #expect(result.memo == "=:ETH.ETH:0xd7ABce6612079A05e431752cb85Bf7010E40FdF5")
+        #expect(result.memo == Data("=:ETH.ETH:0xd7ABce6612079A05e431752cb85Bf7010E40FdF5".utf8))
         #expect(result.amount == 1_000_000)
     }
 
@@ -202,6 +211,8 @@ struct TronRawTransactionParserTests {
 /// Mirrored in `TangemTests/Features/Express/TronDEXFixtures.swift` — the targets can't share sources; keep in sync.
 private enum Fixtures {
     // swiftformat:disable wrap
+    static let swapKitChainflipRawTransactionHex = "0a02e276220842d1cddb2e26d13b4088acf48c9a34527d030089f41556bf96473c76fe061f3ccdb36c1ca2ba4000910101960000009afab51fe7f06e325bc833caf376b22c39f50a05000000000000000000403b97bf09e0ff00000000000000000000000000000000000132000000e08affbdaac0211709784a45048c804828d0588d0ed2e507cd6f2d60782b7c49000004d5005aae01081f12a9010a31747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e54726967676572536d617274436f6e747261637412740a15419afab51fe7f06e325bc833caf376b22c39f50a05121541a614f803b6fd780986a42c78ec9c7f77e6ded13c2244a9059cbb00000000000000000000000032e07e5dfcb75c2977adddc593eb8d6b6e71f96e00000000000000000000000000000000000000000000000000000002540be400709d97e28c9a34900180ade204"
+    static let swapKitChainflipMemo = Data(hex: "030089f41556bf96473c76fe061f3ccdb36c1ca2ba4000910101960000009afab51fe7f06e325bc833caf376b22c39f50a05000000000000000000403b97bf09e0ff00000000000000000000000000000000000132000000e08affbdaac0211709784a45048c804828d0588d0ed2e507cd6f2d60782b7c49000004d500")
     static let swapKitRawTransactionHex = "0a02b5a82208a887e8d1ec0f7ce24088fdcf99fb33524f3d3a4554482e555344543a3078643741426365363631323037394130356534333137353263623835426637303130453430466446353a31343031313965342f312f303a2d5f2f74616e3a302f3134345aae01081f12a9010a31747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e54726967676572536d617274436f6e747261637412740a1541ab63886b97ccb4cadb942ceb09c3c01a4c6953e8121541a614f803b6fd780986a42c78ec9c7f77e6ded13c2244a9059cbb00000000000000000000000015a18266c5331ac3a7f6bc5cdf25bcc55561b4fa0000000000000000000000000000000000000000000000000000000000e4e1c070e6d9bd99fb33900180ade204"
 
     static let swapKitTransferRawTransactionHex = "0a0218512208ca7b78786c91057240d0e2e1bdfb335a68080112640a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412330a1541ab63886b97ccb4cadb942ceb09c3c01a4c6953e812154166583b8482f2462b48f5ba128cf2f46567c0d3111880e1eb1770e6cfcfbdfb33"

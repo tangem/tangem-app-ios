@@ -10,5 +10,5 @@ import Foundation
 public protocol TronTransactionFeeProvider {
     /// Non-nil `callData` prices a smart-contract call — `amount` must then be coin-typed, its value
     /// becomes the TRX `call_value`. `nil` prices a plain transfer of `amount`.
-    func getFee(amount: Amount, destination: String, callData: Data?, memo: String?) async throws -> [Fee]
+    func getFee(amount: Amount, destination: String, callData: Data?, memo: Data?) async throws -> [Fee]
 }

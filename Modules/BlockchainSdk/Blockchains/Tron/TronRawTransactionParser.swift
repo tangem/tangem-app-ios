@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemSdk
 
 /// Lifts the payload out of a provider-built `Transaction.raw` protobuf.
@@ -26,7 +27,7 @@ public struct TronRawTransactionParser {
         /// In sun; `nil` when the transaction doesn't set one.
         public let feeLimit: Int64?
         /// From the transaction-level `raw.data` field.
-        public let memo: String?
+        public let memo: Data?
     }
 
     public struct Transfer {
@@ -35,7 +36,7 @@ public struct TronRawTransactionParser {
         /// In sun.
         public let amount: Int64
         /// From the transaction-level `raw.data` field.
-        public let memo: String?
+        public let memo: Data?
     }
 
     public init() {}
@@ -53,7 +54,7 @@ public struct TronRawTransactionParser {
             throw TronRawTransactionParserError.unexpectedContractCount
         }
 
-        let memo = raw.data.isEmpty ? nil : String(data: raw.data, encoding: .utf8)
+        let memo = raw.data.nilIfEmpty
 
         switch contract.type {
         case .triggerSmartContract:

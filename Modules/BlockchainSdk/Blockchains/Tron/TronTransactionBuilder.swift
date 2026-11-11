@@ -50,7 +50,7 @@ class TronTransactionBuilder {
             ]
             $0.feeLimit = feeLimit
             if let memo = params?.memo, !memo.isEmpty {
-                $0.data = Data(memo.utf8)
+                $0.data = memo
             }
         }
 
