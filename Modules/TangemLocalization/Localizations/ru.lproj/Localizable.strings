@@ -3141,9 +3141,9 @@
 "warning_kaspa_unfinished_token_transaction_message" = "Ваша транзакция %1$@ %2$@ не была завершена. Вы можете попробовать отправить ее еще раз.";
 "warning_kaspa_unfinished_token_transaction_title" = "У вас есть незавершенная транзакция";
 "warning_last_balance_updated_time" = "Последнее обновление %@";
-"warning_link_wallet_cold_message" = "Отсканируйте карту, чтобы привязать кошелёк к этому устройству.";
-"warning_link_wallet_hot_message" = "Подтвердите привязку кошелька к этому устройству.";
-"warning_link_wallet_title" = "Привяжите кошелёк к этому устройству";
+"warning_link_wallet_cold_message" = "Синхронизируйте кошелёк с сервисами Tangem для дополнительной защиты.";
+"warning_link_wallet_hot_message" = "Синхронизируйте кошелёк с сервисами Tangem для дополнительной защиты.";
+"warning_link_wallet_title" = "Защитите своё соединение";
 "warning_long_transaction_message" = "iPhone 7/7+ не может подписывать транзакции в данной сети. Для завершения этой операции, пожалуйста, используйте другой телефон";
 "warning_long_transaction_title" = "Невозможно подписать транзакцию";
 "warning_low_signatures_message" = "На этой карте осталось всего %@ подписей. Вам следует вывести все ваши средства.";

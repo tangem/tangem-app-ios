@@ -3143,7 +3143,7 @@
 "warning_last_balance_updated_time" = "上次更新时间是 %@";
 "warning_link_wallet_cold_message" = "扫描您的卡片，将您的钱包与该设备绑定。";
 "warning_link_wallet_hot_message" = "请确认将您的钱包与该设备绑定。";
-"warning_link_wallet_title" = "Link your wallet to this device";
+"warning_link_wallet_title" = "Secure your connection";
 "warning_long_transaction_message" = "iPhone 7/7+ 无法在此网络上签署交易。请使用其他手机完成此操作。";
 "warning_long_transaction_title" = "交易签名不可用";
 "warning_low_signatures_message" = "该卡上只剩下 %@ 签名。您必须提取所有资金。";

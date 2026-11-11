@@ -3141,9 +3141,9 @@
 "warning_kaspa_unfinished_token_transaction_message" = "Su transacción con un importe de %1$@ %2$@ no se ha completado. Puede volver a intentarlo para completarla.";
 "warning_kaspa_unfinished_token_transaction_title" = "Tiene una transacción sin terminar";
 "warning_last_balance_updated_time" = "Última actualización hace %@";
-"warning_link_wallet_cold_message" = "Escanee su tarjeta para vincular su billetera a este dispositivo.";
-"warning_link_wallet_hot_message" = "Confirme para vincular su billetera a este dispositivo.";
-"warning_link_wallet_title" = "Vincule su billetera a este dispositivo.";
+"warning_link_wallet_cold_message" = "Sincroniza tu billetera con los servicios de Tangem para añadir una capa adicional de seguridad.";
+"warning_link_wallet_hot_message" = "Sincroniza tu billetera con los servicios de Tangem para añadir una capa adicional de seguridad.";
+"warning_link_wallet_title" = "Protege tu conexión";
 "warning_long_transaction_message" = "iPhone 7/7+ no puede firmar transacciones en esta red. Para completar esta operación, por favor use un teléfono diferente.";
 "warning_long_transaction_title" = "Firma de transacción no disponible";
 "warning_low_signatures_message" = "Solo quedan %@ firmas en esta tarjeta. Debe retirar todos sus fondos.";

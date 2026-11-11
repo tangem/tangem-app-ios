@@ -3141,9 +3141,9 @@
 "warning_kaspa_unfinished_token_transaction_message" = "Votre transaction d'un montant de %1$@ %2$@ n'a pas été finalisée. Vous pouvez réessayer plus tard pour la finaliser.";
 "warning_kaspa_unfinished_token_transaction_title" = "Vous avez une transaction inachevée";
 "warning_last_balance_updated_time" = "La dernière mise à jour a été %@";
-"warning_link_wallet_cold_message" = "Scannez votre carte pour associer votre portefeuille à cet appareil.";
-"warning_link_wallet_hot_message" = "Confirmez pour associer votre portefeuille à cet appareil.";
-"warning_link_wallet_title" = "Associez votre portefeuille à cet appareil";
+"warning_link_wallet_cold_message" = "Synchronisez votre portefeuille avec les services Tangem pour bénéficier d'une protection supplémentaire.";
+"warning_link_wallet_hot_message" = "Synchronisez votre portefeuille avec les services Tangem pour bénéficier d'une protection supplémentaire.";
+"warning_link_wallet_title" = "Sécurisez votre connexion";
 "warning_long_transaction_message" = "L'iPhone 7/7+ ne peut pas signer de transactions sur ce réseau. Pour effectuer cette opération, veuillez utiliser un autre téléphone.";
 "warning_long_transaction_title" = "Signature de transaction indisponible";
 "warning_low_signatures_message" = "Il ne reste que %@ signatures sur cette carte. Vous devez retirer tous vos fonds.";
