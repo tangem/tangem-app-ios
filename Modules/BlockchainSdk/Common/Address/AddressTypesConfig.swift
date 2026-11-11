@@ -122,6 +122,10 @@ struct AddressTypesConfig {
              .arc,
              .publicMasterpiece,
              .onyx,
+             .zeniq,
+             .katana,
+             .xLayer,
+             .ink,
              .seiEvm:
             return [.default]
         }

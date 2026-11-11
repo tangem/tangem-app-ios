@@ -7,11 +7,13 @@
 //
 
 import Foundation
+import BigInt
 
 enum EthereumOptimisticRollupSmartContractMethod: SmartContractTargetMethodType {
     case getL1Fee(data: Data)
     case getL1GasUsed(data: Data)
     case l1BaseFee
+    case getOperatorFee(gasUsed: BigUInt)
 
     var methodName: String {
         switch self {
@@ -21,6 +23,8 @@ enum EthereumOptimisticRollupSmartContractMethod: SmartContractTargetMethodType 
             return "getL1GasUsed"
         case .l1BaseFee:
             return "l1BaseFee"
+        case .getOperatorFee:
+            return "getOperatorFee"
         }
     }
 
@@ -32,6 +36,8 @@ enum EthereumOptimisticRollupSmartContractMethod: SmartContractTargetMethodType 
             return [.bytes(data)]
         case .l1BaseFee:
             return []
+        case .getOperatorFee(let gasUsed):
+            return [.uint256(gasUsed)]
         }
     }
 }

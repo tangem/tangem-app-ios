@@ -148,6 +148,10 @@ struct TransactionParamsBuilder {
              .arc,
              .publicMasterpiece,
              .onyx,
+             .zeniq,
+             .katana,
+             .xLayer,
+             .ink,
              .seiEvm:
             throw TransactionParamsBuilderError.extraIdNotSupported
         }

@@ -464,4 +464,21 @@ struct SmartContractMethodTests {
         #expect(data.count == 4 + 32 + 32 + 32 + 32 + 32 + 32)
         #expect(data.prefix(4).hex() == "f242432a")
     }
+
+    @Test
+    func optimisticRollupGetOperatorFeeMethod() {
+        // give
+        let method = EthereumOptimisticRollupSmartContractMethod.getOperatorFee(gasUsed: BigUInt(21000))
+
+        // when
+        let encoded = WalletCoreABIEncoder().encode(method: method.methodName, parameters: method.parameters)
+
+        // then
+        let expectedData = [
+            "0x275aedd2",
+            "0000000000000000000000000000000000000000000000000000000000005208",
+        ]
+
+        #expect(encoded.lowercased() == expectedData.joined())
+    }
 }

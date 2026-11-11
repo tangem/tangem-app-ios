@@ -223,6 +223,14 @@ public struct ExternalLinkProviderFactory {
             return PublicMasterpieceExternalLinkProvider()
         case .onyx:
             return OnyxExternalLinkProvider(isTestnet: isTestnet)
+        case .zeniq:
+            return ZeniqExternalLinkProvider()
+        case .katana:
+            return KatanaExternalLinkProvider(isTestnet: isTestnet)
+        case .xLayer:
+            return XLayerExternalLinkProvider(isTestnet: isTestnet)
+        case .ink:
+            return InkExternalLinkProvider(isTestnet: isTestnet)
         case .seiEvm:
             return SeiEvmExternalLinkProvider(isTestnet: isTestnet)
         }

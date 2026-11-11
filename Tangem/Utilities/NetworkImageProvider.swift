@@ -217,6 +217,14 @@ struct NetworkImageProvider: NFTChainIconProvider {
             filled ? Tokens.publicmasterpieceFill : Tokens.publicmasterpiece
         case .onyx:
             filled ? Tokens.onyxFill : Tokens.onyx
+        case .zeniq:
+            filled ? Tokens.zeniqFill : Tokens.zeniq
+        case .katana:
+            filled ? Tokens.katanaFill : Tokens.katana
+        case .xLayer:
+            filled ? Tokens.xlayerFill : Tokens.xlayer
+        case .ink:
+            filled ? Tokens.inkFill : Tokens.ink
         case .seiEvm:
             filled ? Tokens.seiFill : Tokens.sei
         }

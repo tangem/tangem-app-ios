@@ -134,6 +134,10 @@ struct CustomTokenContractAddressConverter {
              .arc,
              .publicMasterpiece,
              .onyx,
+             .zeniq,
+             .katana,
+             .xLayer,
+             .ink,
              .seiEvm,
              .hedera:
             // Did you get a compilation error here? If so, check if the network supports multiple token contract address

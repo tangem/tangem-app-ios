@@ -68,6 +68,10 @@ struct SupportedBlockchains {
         [
             .vanar(testnet: false),
             .zkLinkNova(testnet: false),
+            .zeniq,
+            .katana(testnet: false),
+            .xLayer(testnet: false),
+            .ink(testnet: false),
         ]
     }
 
@@ -250,6 +254,9 @@ struct SupportedBlockchains {
             .seiEvm(testnet: true),
             .arc(testnet: true),
             .onyx(testnet: true),
+            .katana(testnet: true),
+            .xLayer(testnet: true),
+            .ink(testnet: true),
         ]
     }
 

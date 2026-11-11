@@ -13,6 +13,7 @@ struct TestnetAPINodeInfoProvider {
     let blockchain: Blockchain
     let keysConfig: BlockchainSdkKeysConfig
 
+    /// add URLs without trailing slash
     func urls() -> [NodeInfo]? {
         guard blockchain.isTestnet else {
             return nil
@@ -328,16 +329,28 @@ struct TestnetAPINodeInfoProvider {
             return [
                 .init(url: URL(string: "https://rpc.testnet.goliath.net/")!),
             ]
+        case .katana:
+            return [
+                .init(url: URL(string: "https://rpc-bokuto.katanarpc.com")!),
+            ]
+        case .xLayer:
+            return [
+                .init(url: URL(string: "https://testrpc.xlayer.tech/terigon")!),
+            ]
+        case .ink:
+            return [
+                .init(url: URL(string: "https://rpc-gel-sepolia.inkonchain.com")!),
+            ]
         case .seiEvm:
             return [
-                .init(url: URL(string: "https://evm-rpc-testnet.sei-apis.com/")!),
+                .init(url: URL(string: "https://evm-rpc-testnet.sei-apis.com")!),
             ]
         // [REDACTED_TODO_COMMENT]
         case .bitcoin, .litecoin, .disChain, .rsk, .bitcoinCash, .binance, .cardano,
              .xrp, .ducatus, .tezos, .dogecoin, .solana, .kusama, .dash, .gnosis,
              .terraV1, .terraV2, .cronos, .octa, .playa3ullGames, .radiant, .joystream,
              .bittensor, .internetComputer, .filecoin, .energyWebX, .canxium, .xodex, .clore,
-             .fact0rn, .gonka, .arbitrumNova, .publicMasterpiece:
+             .fact0rn, .gonka, .arbitrumNova, .publicMasterpiece, .zeniq:
             return nil
         }
     }

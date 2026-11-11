@@ -37,16 +37,17 @@ final class EthereumOptimisticRollupWalletManager: EthereumWalletManager {
         )
     }
 
-    /// We are override this method to combine the two fee's layers in the `Optimistic-Ethereum` network.
+    /// We are override this method to combine the three fee's components in the `Optimistic-Ethereum` network.
     /// Read more:
     /// https://community.optimism.io/docs/developers/build/transaction-fees/#the-l1-data-fee
     /// https://help.optimism.io/hc/en-us/articles/4411895794715-How-do-transaction-fees-on-Optimism-work
+    /// https://docs.optimism.io/op-stack/transactions/fees#operator-fee
     /// Short information:
     /// `L2` - Used to provide this transaction in the `Optimistic-etherium` network like a usual tx.
     /// `L1` - Used to processing a transaction in the `Etherium` network  for "safety".
-    /// This L1 fee will be added to the transaction fee automatically after it is sent to the network.
-    /// This L1 fee calculated the Optimism smart-contract oracle.
-    /// This L1 fee have to used ONLY for showing to a user.
+    /// `Operator` - Charged by the chain operator for the `L2` gas limit. Zero if the chain doesn't support it.
+    /// `L1` and `Operator` fees are calculated by the smart-contract oracle and added by the network automatically after the tx is sent.
+    /// The node checks the balance against all three, so they're added to the fee for showing to a user and to keep the max amount sendable.
     /// When we're building transaction we have to used `gasLimit`, `gasPrice` or `baseFee` ONLY from `L2`
     override func getFee(
         destination: String,
@@ -65,14 +66,16 @@ final class EthereumOptimisticRollupWalletManager: EthereumWalletManager {
                         return .anyFail(error: BlockchainSdkError.failedToLoadFee)
                     }
 
-                    return walletManager
-                        .getLayer1Fee(destination: destination, value: value, data: data, fee: fee)
-                        .map { (layer2Fees, $0) }
-                        .eraseToAnyPublisher()
+                    return Publishers.Zip(
+                        walletManager.getLayer1Fee(destination: destination, value: value, data: data, fee: fee),
+                        walletManager.getOperatorFee(fee: fee)
+                    )
+                    .map { layer1Fee, operatorFee in (layer2Fees, layer1Fee + operatorFee) }
+                    .eraseToAnyPublisher()
                 }
-                .map { layer2Fees, layer1Fee -> [Fee] in
+                .map { layer2Fees, additionalFee -> [Fee] in
                     layer2Fees.map { fee in
-                        let newAmount = Amount(with: fee.amount, value: fee.amount.value + layer1Fee)
+                        let newAmount = Amount(with: fee.amount, value: fee.amount.value + additionalFee)
                         let newFee = Fee(newAmount, parameters: fee.parameters)
                         return newFee
                     }
@@ -115,5 +118,25 @@ private extension EthereumOptimisticRollupWalletManager {
         } catch {
             return .anyFail(error: error)
         }
+    }
+
+    func getOperatorFee(fee: Fee) -> AnyPublisher<Decimal, Error> {
+        guard let gasLimit = (fee.parameters as? EthereumFeeParameters)?.gasLimit else {
+            return .justWithError(output: 0)
+        }
+
+        return networkService
+            .read(contractAddress: l1SmartContractAddress, method: EthereumOptimisticRollupSmartContractMethod.getOperatorFee(gasUsed: gasLimit))
+            .withWeakCaptureOf(self)
+            .tryMap { walletManager, response in
+                guard let value = EthereumUtils.parseEthereumDecimal(response, decimalsCount: walletManager.wallet.blockchain.decimalCount) else {
+                    throw BlockchainSdkError.failedToLoadFee
+                }
+
+                return value
+            }
+            .replaceError(with: 0)
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
     }
 }

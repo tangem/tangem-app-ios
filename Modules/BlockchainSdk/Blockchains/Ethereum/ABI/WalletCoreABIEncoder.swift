@@ -16,6 +16,8 @@ struct WalletCoreABIEncoder: ABIEncoder {
             switch parameter {
             case .bytes(let data):
                 function.addParamBytes(val: data, isOutput: false)
+            case .uint256(let value):
+                function.addParamUInt256(val: value.serialize(), isOutput: false)
             }
         }
 

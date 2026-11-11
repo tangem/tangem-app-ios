@@ -115,6 +115,10 @@ public extension Blockchain {
         case .arc: break
         case .publicMasterpiece: break
         case .onyx: break
+        case .zeniq: break
+        case .katana: break
+        case .xLayer: break
+        case .ink: break
             // READ BELOW:
             //
             // Did you get a compilation error here? If so, add your new blockchain to the array below
@@ -228,6 +232,10 @@ public extension Blockchain {
             .arc(testnet: false),
             .publicMasterpiece,
             .onyx(testnet: false),
+            .zeniq,
+            .katana(testnet: false),
+            .xLayer(testnet: false),
+            .ink(testnet: false),
         ]
     }
 }
