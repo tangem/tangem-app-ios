@@ -65,7 +65,6 @@ private extension DemoRegistry {
             DemoEntry("NotificationBanner", section: .legacy) { NotificationBannerShowcase() },
             DemoEntry("TangemCallout", section: .legacy) { TangemCalloutShowcase() },
             DemoEntry("TangemDropDown", section: .legacy) { TangemDropDownShowcase() },
-            DemoEntry("TangemSearchField", section: .legacy) { TangemSearchFieldShowcase() },
             DemoEntry("TangemSegmentedPicker", section: .legacy) { TangemSegmentedPickerShowcase() },
             DemoEntry("TangemSnackbar", section: .legacy) { TangemSnackbarShowcase() },
             DemoEntry("TangemTokenRow", section: .legacy) { TangemTokenRowShowcase() },

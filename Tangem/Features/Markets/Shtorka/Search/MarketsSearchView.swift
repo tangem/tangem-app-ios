@@ -112,8 +112,8 @@ struct MarketsSearchView: View {
                     .transition(.move(edge: .leading).combined(with: .opacity))
             }
 
-            MainBottomSheetHeaderView(viewModel: viewModel.headerViewModel, backgroundColor: .clear)
-                .searchFieldInsets(searchFieldInsets)
+            MarketsSearchHeaderView(viewModel: viewModel.headerViewModel)
+                .padding(searchFieldInsets)
         }
         .animation(.easeInOut(duration: 0.2), value: viewModel.isSearchFieldFocused)
     }

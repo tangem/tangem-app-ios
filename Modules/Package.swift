@@ -610,6 +610,7 @@ var unitTestsModules: [PackageDescription.Target] {
             name: "TangemFoundationTests",
             dependencies: [
                 "TangemFoundation",
+                .product(name: "TangemTestKit", package: "TangemTestKit"),
             ],
             swiftSettings: .swift6StrictSettings
         ),

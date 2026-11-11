@@ -1,5 +1,5 @@
 //
-//  MainBottomSheetHeaderViewModel.swift
+//  MarketsSearchHeaderViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import TangemLocalization
 
-final class MainBottomSheetHeaderViewModel: ObservableObject {
+final class MarketsSearchHeaderViewModel: ObservableObject {
     var enteredSearchInputPublisher: AnyPublisher<SearchInput, Never> {
         searchInputSubject.eraseToAnyPublisher()
     }
@@ -21,7 +21,6 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
     let searchPlaceholder = Localization.marketsSearchTitlePlaceholder
 
     private let searchInputSubject = CurrentValueSubject<SearchInput, Never>(.textInput(""))
-    private var shouldSkipNextTextInput = false
 
     private var inputSubscription: AnyCancellable?
 
@@ -29,55 +28,24 @@ final class MainBottomSheetHeaderViewModel: ObservableObject {
         bind()
     }
 
-    func focusSearchBarAction() {
-        inputShouldBecomeFocused = true
-    }
-
     func clearSearchBarAction() {
-        if enteredSearchText.isEmpty {
-            return
-        }
-
         searchInputSubject.send(.clearInput)
-        shouldSkipNextTextInput = true
-        enteredSearchText = ""
     }
 
     func cancelSearchBarAction() {
         searchInputSubject.send(.cancelInput)
-        shouldSkipNextTextInput = true
-        enteredSearchText = ""
         inputShouldBecomeFocused = false
-    }
-
-    func focusChangedAction(_ focused: Bool) {
-        syncWithInput(focused: focused)
     }
 
     private func bind() {
         inputSubscription = $enteredSearchText
             .removeDuplicates()
-            .withWeakCaptureOf(self)
-            .filter { viewModel, input in
-                if viewModel.shouldSkipNextTextInput {
-                    viewModel.shouldSkipNextTextInput = false
-                    return false
-                }
-
-                return true
-            }
-            .map { SearchInput.textInput($1) }
+            .map { SearchInput.textInput($0) }
             .assign(to: \.value, on: searchInputSubject, ownership: .weak)
-    }
-
-    private func syncWithInput(focused: Bool) {
-        if inputShouldBecomeFocused != focused {
-            inputShouldBecomeFocused = focused
-        }
     }
 }
 
-extension MainBottomSheetHeaderViewModel {
+extension MarketsSearchHeaderViewModel {
     enum SearchInput: Equatable {
         case textInput(String)
         case clearInput
