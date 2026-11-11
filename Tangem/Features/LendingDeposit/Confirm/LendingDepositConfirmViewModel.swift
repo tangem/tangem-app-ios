@@ -28,6 +28,7 @@ final class LendingDepositConfirmViewModel: ObservableObject {
     private let sourceToken: SendTransferableToken
     private let projection: LendingDepositProjection
     private let mailDataBuilder: SendMailDataBuilder
+    private let analyticsLogger: LendingAnalyticsLogger
     // [REDACTED_TODO_COMMENT]
     private let alertBuilder = LendingFailureAlertBuilder(failureMessage: "Something went wrong with your deposit. Please try again later.")
     private weak var coordinator: LendingDepositConfirmRoutable?
@@ -38,12 +39,14 @@ final class LendingDepositConfirmViewModel: ObservableObject {
         sourceToken: SendTransferableToken,
         projection: LendingDepositProjection,
         mailDataBuilder: SendMailDataBuilder,
+        analyticsLogger: LendingAnalyticsLogger,
         coordinator: LendingDepositConfirmRoutable?
     ) {
         self.transferModel = transferModel
         self.sourceToken = sourceToken
         self.projection = projection
         self.mailDataBuilder = mailDataBuilder
+        self.analyticsLogger = analyticsLogger
         self.coordinator = coordinator
 
         state = StateModel(
@@ -152,10 +155,12 @@ private extension LendingDepositConfirmViewModel {
     func performDeposit() async {
         do {
             _ = try await transferModel.performAction()
+            analyticsLogger.logSent(amount: transferModel.sourceAmount.value?.crypto)
             coordinator?.depositDidSend()
         } catch is CancellationError {
             return
         } catch let error as TransactionDispatcherResult.Error {
+            analyticsLogger.logFailure(error)
             alert = makeAlert(for: error)
         } catch {
             AppLogger.error(error: error)
@@ -167,7 +172,11 @@ private extension LendingDepositConfirmViewModel {
         alertBuilder.makeAlert(
             for: error,
             retryFee: { [weak self] in self?.transferModel.actualizeInformation() },
-            openSupport: { [weak self] transaction, error in self?.openSupport(transaction: transaction, error: error) }
+            openSupport: { [weak self] transaction, error in
+                self?.analyticsLogger.logErrorPopupAction(.support)
+                self?.openSupport(transaction: transaction, error: error)
+            },
+            close: { [analyticsLogger] in analyticsLogger.logErrorPopupAction(.close) }
         )
     }
 

@@ -630,6 +630,26 @@ extension Analytics {
         case earnPageLoadError = "[Earn] Page Load Error"
         case earnBestOpportunitiesLoadError = "[Earn] Best Opportunities Load Error"
 
+        // MARK: - ETH Lending
+
+        case ethLendingDepositScreenOpened = "[ETH Lending] Deposit Screen Opened"
+        case ethLendingWithdrawScreenOpened = "[ETH Lending] Withdraw Screen Opened"
+        case ethLendingButtonCurrencyToggle = "[ETH Lending] Button - Currency Toggle"
+        case ethLendingButtonMax = "[ETH Lending] Button - Max"
+        case ethLendingButtonPercent = "[ETH Lending] Button - Percent"
+        case ethLendingButtonFeeSpeed = "[ETH Lending] Button - Fee Speed"
+        case ethLendingNoticeInsufficientBalance = "[ETH Lending] Notice - Insufficient Balance"
+        case ethLendingNoticeInsufficientFee = "[ETH Lending] Notice - Insufficient Fee"
+        case ethLendingConfirmScreenOpened = "[ETH Lending] Confirm Screen Opened"
+        case ethLendingTransactionSigned = "[ETH Lending] Transaction Signed"
+        case ethLendingErrorSignCancelled = "[ETH Lending] Error - Sign Cancelled"
+        case ethLendingTransactionSubmitted = "[ETH Lending] Transaction Submitted"
+        case ethLendingErrorTransactionFailed = "[ETH Lending] Error - Transaction Failed"
+        case ethLendingNoticeErrorPopup = "[ETH Lending] Notice - Error Popup"
+        case ethLendingButtonErrorPopup = "[ETH Lending] Button - Error Popup"
+        case ethLendingSuccessScreenOpened = "[ETH Lending] Success Screen Opened"
+        case ethLendingButtonResultAction = "[ETH Lending] Button - Result Action"
+
         // MARK: - Markets / Chart
 
         case marketsChartScreenOpened = "[Markets / Chart] Token Chart Screen Opened"

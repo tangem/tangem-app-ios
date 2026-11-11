@@ -33,6 +33,7 @@ struct LendingDepositAmountContentView: View {
 
     private func handle(_ amountAction: LendingAmountContentView.Action) {
         switch amountAction {
+        case .max: action(.max)
         case .share(let percent): action(.share(percent))
         case .fee: action(.fee)
         case .retryFee: action(.retryFee)
@@ -47,6 +48,7 @@ extension LendingDepositAmountContentView {
     enum Action {
         case info
         case close
+        case max
         case share(Int)
         case fee
         case retryFee

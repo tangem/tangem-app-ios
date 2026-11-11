@@ -108,6 +108,51 @@ final class LendingWithdrawAmountViewModelTests: LeakTrackingTestSuite {
         let isWithdrawEnabled = await sut.$state.values.first { !$0.isSubmitEnabled }?.isSubmitEnabled
         #expect(isWithdrawEnabled == false)
     }
+
+    @Test("A not enough to withdraw notice is logged only while the amount screen is shown")
+    func noticeOnlyWhileShown() async {
+        let events = OSAllocatedUnfairLock(initialState: [Analytics.Event]())
+        let (model, token, _) = makeModel(liquidity: .success(Decimal(15) / 10))
+        await model.loadAvailableToWithdraw()
+        let sut = makeAmount(model: model, token: token, analyticsSink: { event, _ in events.withLock { $0.append(event) } })
+        sut.amountField.onValueChanged?(Decimal(string: "1.8"))
+        _ = await sut.amountField.$bottomInfoText.values.first { $0 != nil }
+        #expect(events.withLock { $0 }.isEmpty)
+
+        sut.onAppear()
+
+        #expect(events.withLock { $0 } == [.ethLendingWithdrawScreenOpened, .ethLendingNoticeInsufficientBalance])
+        await sut.loadTask?.value
+    }
+
+    @Test("Not enough ETH for the network fee is logged as a fee notice once the amount screen is shown")
+    func feeNoticeWhenShown() async {
+        let events = OSAllocatedUnfairLock(initialState: [Analytics.Event]())
+        let (model, token, _) = makeModel(walletBalance: Decimal(1) / 10000)
+        let sut = makeAmount(model: model, token: token, analyticsSink: { event, _ in events.withLock { $0.append(event) } })
+        _ = await sut.amountField.$bottomInfoText.values.first { $0 != nil }
+        #expect(events.withLock { $0 }.isEmpty)
+
+        sut.onAppear()
+
+        #expect(events.withLock { $0 } == [.ethLendingWithdrawScreenOpened, .ethLendingNoticeInsufficientFee])
+        await sut.loadTask?.value
+    }
+
+    @Test("A fee re-estimate while not enough ETH is shown keeps the notice, so it is logged once")
+    func feeReloadLogsNoticeOnce() async throws {
+        let events = OSAllocatedUnfairLock(initialState: [Analytics.Event]())
+        let (model, token, manager) = makeModel(walletBalance: Decimal(1) / 10000)
+        let feeProvider = try #require(manager.selectedFeeProvider as? ControllableTokenFeeProviderStub)
+        let sut = makeAmount(model: model, token: token, analyticsSink: { event, _ in events.withLock { $0.append(event) } })
+        sut.onAppear()
+        await sut.loadTask?.value
+
+        feeProvider.set(selectedTokenFee: TokenFee(option: .market, tokenItem: Self.tokenItem, value: .loading))
+        feeProvider.set(selectedTokenFee: Self.loadedFee)
+
+        #expect(events.withLock { $0 }.filter { $0 == .ethLendingNoticeInsufficientFee }.count == 1)
+    }
 }
 
 // MARK: - Helpers
@@ -131,14 +176,16 @@ private extension LendingWithdrawAmountViewModelTests {
         )
     }
 
-    func makeFeeManager() -> TokenFeeProvidersManagerMock {
-        let fee = TokenFee(
+    static var loadedFee: TokenFee {
+        TokenFee(
             option: .market,
-            tokenItem: Self.tokenItem,
-            value: .success(Fee(Amount(with: Self.blockchain, type: .coin, value: Decimal(1) / 1000)))
+            tokenItem: tokenItem,
+            value: .success(Fee(Amount(with: blockchain, type: .coin, value: Decimal(1) / 1000)))
         )
+    }
 
-        return TokenFeeProvidersManagerMock(feeProvider: ControllableTokenFeeProviderStub(feeTokenItem: Self.tokenItem, selectedTokenFee: fee))
+    func makeFeeManager() -> TokenFeeProvidersManagerMock {
+        TokenFeeProvidersManagerMock(feeProvider: ControllableTokenFeeProviderStub(feeTokenItem: Self.tokenItem, selectedTokenFee: Self.loadedFee))
     }
 
     func makeModel(
@@ -159,7 +206,11 @@ private extension LendingWithdrawAmountViewModelTests {
         return (trackForMemoryLeaks(model), token, manager)
     }
 
-    func makeAmount(model: LendingWithdrawModel, token: SendTransferableTokenStub) -> LendingWithdrawAmountViewModel {
-        trackForMemoryLeaks(LendingWithdrawAmountViewModel(model: model, sourceToken: token, router: nil))
+    func makeAmount(
+        model: LendingWithdrawModel,
+        token: SendTransferableTokenStub,
+        analyticsSink: @escaping LendingAnalyticsLogger.Sink = { _, _ in }
+    ) -> LendingWithdrawAmountViewModel {
+        trackForMemoryLeaks(LendingWithdrawAmountViewModel(model: model, sourceToken: token, analyticsLogger: LendingAnalyticsLogger(transactionType: .withdraw, isWithUpgrade: false, usdPrice: { nil }, sink: analyticsSink), router: nil))
     }
 }

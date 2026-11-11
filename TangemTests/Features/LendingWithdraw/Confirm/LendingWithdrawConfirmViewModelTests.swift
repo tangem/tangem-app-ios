@@ -23,17 +23,23 @@ final class LendingWithdrawConfirmViewModelTests: LeakTrackingTestSuite {
 
     @Test("A sent withdrawal is reported, a failed one shows the withdrawal error pop-up instead", arguments: [false, true])
     func sendOutcome(fails: Bool) async {
+        let events = OSAllocatedUnfairLock(initialState: [Analytics.Event]())
         let (model, token, _) = makeModel(dispatchError: fails ? Self.sendError() : nil)
         model.sourceAmountDidChanged(amount: amount("0.5"))
         model.updateFees()
         let router = LendingWithdrawConfirmRouterSpy()
-        let sut = makeConfirm(model: model, token: token, router: router)
+        let sut = makeConfirm(model: model, token: token, router: router, analyticsSink: { event, _ in events.withLock { $0.append(event) } })
 
         sut.handle(.withdraw)
         await sut.withdrawTask?.value
 
         #expect(router.sentWithdrawals == (fails ? 0 : 1))
         #expect(await MainActor.run { sut.alert != nil } == fails)
+
+        let signingEvents = events.withLock { $0 }.filter(Self.signingEventKinds.contains)
+        #expect(signingEvents == (fails
+                ? [.ethLendingErrorTransactionFailed, .ethLendingNoticeErrorPopup]
+                : [.ethLendingTransactionSigned, .ethLendingTransactionSubmitted]))
     }
 
     @Test("A tap on the failed fee row estimates the fee again")
@@ -153,17 +159,27 @@ private extension LendingWithdrawConfirmViewModelTests {
     func makeConfirm(
         model: LendingWithdrawModel,
         token: SendTransferableTokenStub,
-        router: LendingWithdrawConfirmRouterSpy
+        router: LendingWithdrawConfirmRouterSpy,
+        analyticsSink: @escaping LendingAnalyticsLogger.Sink = { _, _ in }
     ) -> LendingWithdrawConfirmViewModel {
         let sut = LendingWithdrawConfirmViewModel(
             model: model,
             sourceToken: token,
             mailDataBuilder: CommonSendMailDataBuilder(baseDataInput: model, sourceTokenInput: model),
+            analyticsLogger: LendingAnalyticsLogger(transactionType: .withdraw, isWithUpgrade: false, usdPrice: { nil }, sink: analyticsSink),
             router: router
         )
 
         return trackForMemoryLeaks(sut)
     }
+
+    static let signingEventKinds: Set<Analytics.Event> = [
+        .ethLendingTransactionSigned,
+        .ethLendingTransactionSubmitted,
+        .ethLendingErrorSignCancelled,
+        .ethLendingErrorTransactionFailed,
+        .ethLendingNoticeErrorPopup,
+    ]
 
     static func sendError() -> TransactionDispatcherResult.Error {
         let transaction = Transaction(

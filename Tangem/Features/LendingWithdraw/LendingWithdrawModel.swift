@@ -15,7 +15,8 @@ final class LendingWithdrawModel {
     private let token: SendTransferableToken
     private let yieldModule: String
     private let upgradeImplementation: String?
-    private let positionBalance: Decimal
+    let positionBalance: Decimal
+    let knownAvailableToWithdraw: Decimal?
     private let liquidityProvider: YieldModuleLendingLiquidityProvider?
     private let pendingTransactions: AnyPublisher<[PendingTransactionRecord], Never>
 
@@ -39,6 +40,7 @@ final class LendingWithdrawModel {
         self.yieldModule = yieldModule
         self.upgradeImplementation = upgradeImplementation
         self.positionBalance = positionBalance
+        knownAvailableToWithdraw = availableToWithdraw
         self.liquidityProvider = liquidityProvider
         self.pendingTransactions = pendingTransactions
         _availableToWithdraw = CurrentValueSubject(availableToWithdraw ?? positionBalance)

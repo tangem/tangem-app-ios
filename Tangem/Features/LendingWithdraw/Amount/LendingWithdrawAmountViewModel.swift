@@ -22,15 +22,23 @@ final class LendingWithdrawAmountViewModel: ObservableObject {
 
     private let model: LendingWithdrawModel
     private let sourceToken: SendTransferableToken
+    private let analyticsLogger: LendingAnalyticsLogger
     private let interactor: SendAmountInteractor
     private weak var router: LendingWithdrawAmountRoutable?
+    private let isShown = CurrentValueSubject<Bool, Never>(false)
     private let isFeeOutdated = CurrentValueSubject<Bool, Never>(false)
     private var feeRefresh: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
-    init(model: LendingWithdrawModel, sourceToken: SendTransferableToken, router: LendingWithdrawAmountRoutable?) {
+    init(
+        model: LendingWithdrawModel,
+        sourceToken: SendTransferableToken,
+        analyticsLogger: LendingAnalyticsLogger,
+        router: LendingWithdrawAmountRoutable?
+    ) {
         self.model = model
         self.sourceToken = sourceToken
+        self.analyticsLogger = analyticsLogger
         self.router = router
 
         interactor = CommonSendAmountInteractor(
@@ -70,14 +78,26 @@ final class LendingWithdrawAmountViewModel: ObservableObject {
     }
 
     func onAppear() {
-        guard loadTask == nil else {
+        let isFirstAppearance = loadTask == nil
+
+        if isFirstAppearance {
+            analyticsLogger.logWithdrawScreenOpened(positionBalance: model.positionBalance, availableToWithdraw: model.knownAvailableToWithdraw)
+        }
+
+        isShown.send(true)
+
+        guard isFirstAppearance else {
             return
         }
 
         loadTask = Task { @MainActor [weak model] in
-            await model?.loadAvailableToWithdraw()
+            _ = await model?.loadAvailableToWithdraw()
             model?.updateFees()
         }
+    }
+
+    func onDisappear() {
+        isShown.send(false)
     }
 
     func handle(_ action: Action) {
@@ -86,7 +106,11 @@ final class LendingWithdrawAmountViewModel: ObservableObject {
             router?.openHowItWorks()
         case .close:
             router?.closeWithdrawal()
+        case .max:
+            analyticsLogger.logMax()
+            setShare(percent: 100)
         case .share(let percent):
+            analyticsLogger.logPercent(percent)
             setShare(percent: percent)
         case .fee:
             router?.openFeeSelector()
@@ -116,6 +140,7 @@ private extension LendingWithdrawAmountViewModel {
             .sink { [weak self] amountType in
                 guard let self else { return }
 
+                analyticsLogger.logCurrencyToggled(to: amountType)
                 let amount = try? interactor.update(sourceType: amountType)
                 amountField.updateAmountsUI(amount: amount)
             }
@@ -132,6 +157,30 @@ private extension LendingWithdrawAmountViewModel {
         .receiveOnMain()
         .sink { [weak self] info in
             self?.amountField.bottomInfoText = info
+        }
+        .store(in: &bag)
+
+        Publishers.CombineLatest4(
+            interactor.sourceFieldInfoPublisher.map { info in
+                guard case .error = info else { return true }
+                return false
+            },
+            model.selectedFeePublisher.compactMap(\.value.value).map(Optional.some).prepend(nil),
+            sourceToken.availableBalanceProvider.balanceTypePublisher.map(\.value),
+            isShown
+        )
+        .map { isAmountValid, fee, balance, isShown -> LendingAnalyticsLogger.Notice? in
+            guard isShown else { return nil }
+
+            return LendingAnalyticsLogger.Notice.withdraw(
+                isAmountValid: isAmountValid,
+                isFeeCovered: Self.isFeeCovered(fee: fee, balance: balance)
+            )
+        }
+        .removeDuplicates()
+        .compactMap { $0 }
+        .sink { [analyticsLogger] notice in
+            analyticsLogger.logNotice(notice)
         }
         .store(in: &bag)
 
@@ -219,11 +268,19 @@ private extension LendingWithdrawAmountViewModel {
         balance: Decimal?,
         currencySymbol: String
     ) -> SendAmountViewModel.BottomInfoTextType? {
-        guard let fee, fee.amount.type == .coin, let balance, balance < fee.amount.value else {
+        guard !isFeeCovered(fee: fee, balance: balance) else {
             return interactorInfo
         }
 
         return .error(LendingWithdrawText.notEnough(currencySymbol))
+    }
+
+    static func isFeeCovered(fee: BSDKFee?, balance: Decimal?) -> Bool {
+        guard let fee, fee.amount.type == .coin, let balance else {
+            return true
+        }
+
+        return balance >= fee.amount.value
     }
 
     func setShare(percent: Int) {

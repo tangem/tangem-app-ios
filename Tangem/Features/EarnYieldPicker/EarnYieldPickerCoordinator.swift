@@ -151,7 +151,8 @@ private extension EarnYieldPickerCoordinator {
                 yieldModule: yieldModule,
                 upgradeImplementation: upgradeImplementation,
                 currentApy: product.apy,
-                performanceFee: product.performanceFee
+                performanceFee: product.performanceFee,
+                source: .yieldPicker
             ))
 
             lendingDepositCoordinator = coordinator

@@ -164,7 +164,8 @@ extension LendingPositionCoordinator: LendingPositionRoutable {
                     yieldModule: yieldModule,
                     upgradeImplementation: upgradeImplementation,
                     currentApy: currentApy,
-                    performanceFee: LendingOnAave.performanceFee
+                    performanceFee: LendingOnAave.performanceFee,
+                    source: .infoScreen
                 ))
 
                 depositCoordinator = coordinator

@@ -185,7 +185,7 @@ private extension LendingAmountContentView {
                 TangemUI.Button(
                     label: Localization.sendMaxAmount,
                     accessibilityLabel: nil,
-                    action: { action(.share(100)) }
+                    action: { action(.max) }
                 )
                 .size(.x8)
                 .styleType(.secondary(.default))
@@ -289,6 +289,7 @@ extension LendingAmountContentView {
     }
 
     enum Action {
+        case max
         case share(Int)
         case fee
         case retryFee

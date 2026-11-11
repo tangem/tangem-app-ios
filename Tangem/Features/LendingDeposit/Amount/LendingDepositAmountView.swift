@@ -18,5 +18,6 @@ struct LendingDepositAmountView: View {
             action: viewModel.handle
         )
         .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
     }
 }

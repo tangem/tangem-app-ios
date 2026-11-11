@@ -18,12 +18,14 @@ final class LendingWithdrawCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
     @Published var path: [Route] = []
     @Published private(set) var amountViewModel: LendingWithdrawAmountViewModel?
     @Published private(set) var confirmViewModel: LendingWithdrawConfirmViewModel?
 
-    private let analyticsLogger = LendingWithdrawAnalyticsLogger()
+    private var analyticsLogger: LendingAnalyticsLogger?
+    private var feeSelectorOutput: LendingFeeSelectorOutput?
     private var options: Options?
     private var model: LendingWithdrawModel?
 
@@ -36,6 +38,12 @@ final class LendingWithdrawCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
+        let tokenItem = options.token.tokenItem
+        let analyticsLogger = LendingAnalyticsLogger(
+            transactionType: .withdraw,
+            isWithUpgrade: options.upgradeImplementation != nil,
+            usdPrice: { [quotesRepository] in quotesRepository.quote(for: tokenItem)?.priceUsd }
+        )
         let model = LendingWithdrawModel(
             sourceToken: options.token,
             yieldModule: options.yieldModule,
@@ -48,7 +56,14 @@ final class LendingWithdrawCoordinator: CoordinatorObject {
 
         self.options = options
         self.model = model
-        amountViewModel = LendingWithdrawAmountViewModel(model: model, sourceToken: options.token, router: self)
+        self.analyticsLogger = analyticsLogger
+        feeSelectorOutput = LendingFeeSelectorOutput(output: model, analyticsLogger: analyticsLogger)
+        amountViewModel = LendingWithdrawAmountViewModel(
+            model: model,
+            sourceToken: options.token,
+            analyticsLogger: analyticsLogger,
+            router: self
+        )
     }
 }
 
@@ -91,11 +106,16 @@ extension LendingWithdrawCoordinator: LendingWithdrawAmountRoutable {
     }
 
     func openFeeSelector() {
-        guard let model else { return }
+        guard let model, let analyticsLogger, let feeSelectorOutput else { return }
+
+        analyticsLogger.startFeeSelection(
+            on: path.isEmpty ? analyticsLogger.amountScreen : .confirm,
+            from: model.tokenFeeProvidersManager?.selectedTokenFee.option ?? .market
+        )
 
         let builder = SendFeeSelectorBuilder(
             tokenFeeManagerProviding: model,
-            feeSelectorOutput: model,
+            feeSelectorOutput: feeSelectorOutput,
             analyticsLogger: analyticsLogger
         )
 
@@ -107,16 +127,18 @@ extension LendingWithdrawCoordinator: LendingWithdrawAmountRoutable {
     }
 
     func openConfirmation() {
-        guard let options, let model else { return }
+        guard let options, let model, let analyticsLogger else { return }
 
         Task { @MainActor in
             confirmViewModel = LendingWithdrawConfirmViewModel(
                 model: model,
                 sourceToken: options.token,
                 mailDataBuilder: CommonSendMailDataBuilder(baseDataInput: model, sourceTokenInput: model),
+                analyticsLogger: analyticsLogger,
                 router: self
             )
             path.append(.confirmation)
+            analyticsLogger.logConfirmScreenOpened(amount: model.sourceAmount.value?.crypto, currentApy: nil, performanceFee: nil)
         }
     }
 

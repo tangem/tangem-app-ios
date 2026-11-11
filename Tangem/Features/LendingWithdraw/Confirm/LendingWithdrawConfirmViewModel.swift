@@ -25,6 +25,7 @@ final class LendingWithdrawConfirmViewModel: ObservableObject {
     private let model: LendingWithdrawModel
     private let sourceToken: SendTransferableToken
     private let mailDataBuilder: SendMailDataBuilder
+    private let analyticsLogger: LendingAnalyticsLogger
     private let alertBuilder = LendingFailureAlertBuilder(failureMessage: LendingWithdrawText.failure)
     private weak var router: LendingWithdrawConfirmRoutable?
     private var bag: Set<AnyCancellable> = []
@@ -33,11 +34,13 @@ final class LendingWithdrawConfirmViewModel: ObservableObject {
         model: LendingWithdrawModel,
         sourceToken: SendTransferableToken,
         mailDataBuilder: SendMailDataBuilder,
+        analyticsLogger: LendingAnalyticsLogger,
         router: LendingWithdrawConfirmRoutable?
     ) {
         self.model = model
         self.sourceToken = sourceToken
         self.mailDataBuilder = mailDataBuilder
+        self.analyticsLogger = analyticsLogger
         self.router = router
 
         state = StateModel(
@@ -147,14 +150,20 @@ private extension LendingWithdrawConfirmViewModel {
     func performWithdrawal() async {
         do {
             _ = try await model.withdraw()
+            analyticsLogger.logSent(amount: model.sourceAmount.value?.crypto)
             router?.withdrawalDidSend()
         } catch is CancellationError {
             return
         } catch let error as TransactionDispatcherResult.Error {
+            analyticsLogger.logFailure(error)
             alert = alertBuilder.makeAlert(
                 for: error,
                 retryFee: { [weak self] in self?.model.updateFees() },
-                openSupport: { [weak self] transaction, error in self?.openSupport(transaction: transaction, error: error) }
+                openSupport: { [weak self] transaction, error in
+                    self?.analyticsLogger.logErrorPopupAction(.support)
+                    self?.openSupport(transaction: transaction, error: error)
+                },
+                close: { [analyticsLogger] in analyticsLogger.logErrorPopupAction(.close) }
             )
         } catch {
             AppLogger.error(error: error)

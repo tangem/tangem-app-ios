@@ -221,6 +221,36 @@ final class LendingDepositAmountViewModelTests: LeakTrackingTestSuite {
         await model.feeUpdateTask?.value
         #expect(manager.updateFeesCalls == 1)
     }
+
+    @Test("A not enough ETH notice is logged only while the amount screen is shown")
+    func noticeOnlyWhileShown() async throws {
+        let events = OSAllocatedUnfairLock(initialState: [Analytics.Event]())
+        let (sut, model, _) = try makeSUT(balance: "2", fee: "0.001", analyticsSink: { event, _ in events.withLock { $0.append(event) } })
+        await feeShown(sut)
+        sut.amountField.onValueChanged?(Decimal(string: "1.9995"))
+        _ = await shownBottomInfo(sut)
+        #expect(events.withLock { $0 }.isEmpty)
+
+        sut.onAppear()
+
+        #expect(events.withLock { $0 } == [.ethLendingNoticeInsufficientFee])
+        await buildFinished(model)
+    }
+
+    @Test("A new fee that the amount is brought down for logs no not enough ETH notice, since the screen never shows one")
+    func cappedAmountLogsNoNotice() async throws {
+        let events = OSAllocatedUnfairLock(initialState: [Analytics.Event]())
+        let (sut, model, feeProvider) = try makeSUT(balance: "2", fee: "0.001", analyticsSink: { event, _ in events.withLock { $0.append(event) } })
+        sut.onAppear()
+        sut.handle(.share(100))
+        await transactionBuilt(model, amount: "1.999")
+
+        feeProvider.set(selectedTokenFee: try Self.tokenFee("0.002"))
+        await transactionBuilt(model, amount: "1.998")
+        await MainActor.run {}
+
+        #expect(!events.withLock { $0 }.contains(.ethLendingNoticeInsufficientFee))
+    }
 }
 
 // MARK: - Helpers
@@ -241,7 +271,8 @@ private extension LendingDepositAmountViewModelTests {
         fee: String,
         isFeeLoaded: Bool = true,
         amountLeavesNoRoomForFee: Bool = false,
-        balanceProvider: TokenBalanceProvider? = nil
+        balanceProvider: TokenBalanceProvider? = nil,
+        analyticsSink: @escaping LendingAnalyticsLogger.Sink = { _, _ in }
     ) throws -> (LendingDepositAmountViewModel, TransferModel, ControllableTokenFeeProviderStub) {
         let balanceValue = try #require(Decimal(string: balance))
         let initialFee = try isFeeLoaded ? Self.tokenFee(fee) : TokenFee(option: .market, tokenItem: Self.tokenItem, value: .loading)
@@ -272,7 +303,12 @@ private extension LendingDepositAmountViewModelTests {
             )
         )
 
-        let sut = LendingDepositAmountViewModel(transferModel: model, sourceToken: token, router: nil)
+        let sut = LendingDepositAmountViewModel(
+            transferModel: model,
+            sourceToken: token,
+            analyticsLogger: LendingAnalyticsLogger(transactionType: .deposit, isWithUpgrade: false, usdPrice: { nil }, sink: analyticsSink),
+            router: nil
+        )
 
         return (trackForMemoryLeaks(sut), trackForMemoryLeaks(model), feeProvider)
     }

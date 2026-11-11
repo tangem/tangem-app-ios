@@ -19,7 +19,8 @@ struct LendingFailureAlertBuilder {
     func makeAlert(
         for error: TransactionDispatcherResult.Error,
         retryFee: @escaping () -> Void,
-        openSupport: @escaping (TransactionDispatcherTransactionType, SendTxError) -> Void
+        openSupport: @escaping (TransactionDispatcherTransactionType, SendTxError) -> Void,
+        close: @escaping () -> Void
     ) -> AlertBinder? {
         switch error {
         case .userCancelled, .transactionNotFound, .feeNotFound, .actionNotSupported:
@@ -29,7 +30,7 @@ struct LendingFailureAlertBuilder {
         case .informationRelevanceServiceFeeWasIncreased:
             return AlertBuilder.makeOkGotItAlert(message: Localization.sendNotificationHighFeeTitle)
         case .sendTxError(let transaction, let sendTxError):
-            return makeFailureAlert { openSupport(transaction, sendTxError) }
+            return makeFailureAlert(supportAction: { openSupport(transaction, sendTxError) }, closeAction: close)
         case .loadTransactionInfo(let error):
             return error.alertBinder
         case .demoAlert:
@@ -37,12 +38,12 @@ struct LendingFailureAlertBuilder {
         }
     }
 
-    private func makeFailureAlert(supportAction: @escaping () -> Void) -> AlertBinder {
+    private func makeFailureAlert(supportAction: @escaping () -> Void, closeAction: @escaping () -> Void) -> AlertBinder {
         AlertBuilder.makeAlert(
             title: Localization.commonSomethingWentWrong,
             message: failureMessage,
             primaryButton: .default(Text(Localization.commonSupport), action: supportAction),
-            secondaryButton: .cancel(Text(Localization.commonClose))
+            secondaryButton: .cancel(Text(Localization.commonClose), action: closeAction)
         )
     }
 }

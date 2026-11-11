@@ -23,7 +23,8 @@ final class LendingDepositConfirmViewModelTests: LeakTrackingTestSuite {
 
     @Test("Deposit sends the amount to the module with the deposit call and reports the deposit as sent")
     func deposit() async throws {
-        let (sut, model, recorder, router) = makeSUT()
+        let events = OSAllocatedUnfairLock(initialState: [Analytics.Event]())
+        let (sut, model, recorder, router) = makeSUT(analyticsSink: { event, _ in events.withLock { $0.append(event) } })
         await transactionBuilt(model)
 
         sut.handle(.deposit)
@@ -36,11 +37,16 @@ final class LendingDepositConfirmViewModelTests: LeakTrackingTestSuite {
         #expect((transaction.params as? EthereumTransactionParams)?.data == Self.callData)
         #expect(router.sentDeposits == 1)
         #expect(sut.alert == nil)
+        #expect(Self.signingEvents(events) == [.ethLendingTransactionSigned, .ethLendingTransactionSubmitted])
     }
 
-    @Test("A declined card tap leaves the screen as it was, with no pop-up")
+    @Test("A declined card tap leaves the screen as it was, with no pop-up, and is logged as a cancelled signature only")
     func declinedCardTap() async {
-        let (sut, model, recorder, router) = makeSUT(dispatchError: TransactionDispatcherResult.Error.userCancelled)
+        let events = OSAllocatedUnfairLock(initialState: [Analytics.Event]())
+        let (sut, model, recorder, router) = makeSUT(
+            dispatchError: TransactionDispatcherResult.Error.userCancelled,
+            analyticsSink: { event, _ in events.withLock { $0.append(event) } }
+        )
         await transactionBuilt(model)
 
         sut.handle(.deposit)
@@ -49,11 +55,16 @@ final class LendingDepositConfirmViewModelTests: LeakTrackingTestSuite {
         #expect(recorder.dispatchedTransactions.count == 1)
         #expect(router.sentDeposits == 0)
         #expect(sut.alert == nil)
+        #expect(Self.signingEvents(events) == [.ethLendingErrorSignCancelled])
     }
 
     @Test("A deposit that fails to send shows the error pop-up instead of reporting it sent")
     func failedDeposit() async {
-        let (sut, model, _, router) = makeSUT(dispatchError: Self.sendError())
+        let events = OSAllocatedUnfairLock(initialState: [Analytics.Event]())
+        let (sut, model, _, router) = makeSUT(
+            dispatchError: Self.sendError(),
+            analyticsSink: { event, _ in events.withLock { $0.append(event) } }
+        )
         await transactionBuilt(model)
 
         sut.handle(.deposit)
@@ -61,6 +72,7 @@ final class LendingDepositConfirmViewModelTests: LeakTrackingTestSuite {
 
         #expect(router.sentDeposits == 0)
         #expect(sut.alert != nil)
+        #expect(Self.signingEvents(events) == [.ethLendingErrorTransactionFailed, .ethLendingNoticeErrorPopup])
     }
 
     @Test("A fee that went up since it was shown stops the deposit and tells the user")
@@ -178,6 +190,18 @@ final class LendingDepositConfirmViewModelTests: LeakTrackingTestSuite {
 // MARK: - Helpers
 
 private extension LendingDepositConfirmViewModelTests {
+    static let signingEventKinds: Set<Analytics.Event> = [
+        .ethLendingTransactionSigned,
+        .ethLendingTransactionSubmitted,
+        .ethLendingErrorSignCancelled,
+        .ethLendingErrorTransactionFailed,
+        .ethLendingNoticeErrorPopup,
+    ]
+
+    static func signingEvents(_ events: OSAllocatedUnfairLock<[Analytics.Event]>) -> [Analytics.Event] {
+        events.withLock { $0 }.filter(signingEventKinds.contains)
+    }
+
     static func sendError() -> TransactionDispatcherResult.Error {
         let transaction = BSDKTransaction(
             amount: Amount(with: blockchain, type: .coin, value: Decimal(5) / 10),
@@ -196,7 +220,8 @@ private extension LendingDepositConfirmViewModelTests {
         amountLeavesNoRoomForFee: Bool = false,
         dispatchEntered: TestGate? = nil,
         dispatchRelease: TestGate? = nil,
-        feeManager: TokenFeeProvidersManagerMock? = nil
+        feeManager: TokenFeeProvidersManagerMock? = nil,
+        analyticsSink: @escaping LendingAnalyticsLogger.Sink = { _, _ in }
     ) -> (LendingDepositConfirmViewModel, TransferModel, TransactionRecorder, LendingDepositConfirmRouterSpy) {
         let recorder = TransactionRecorder()
         let fee = TokenFee(
@@ -248,6 +273,7 @@ private extension LendingDepositConfirmViewModelTests {
                 locale: Locale(identifier: "en_US")
             ),
             mailDataBuilder: CommonSendMailDataBuilder(baseDataInput: model, sourceTokenInput: model),
+            analyticsLogger: LendingAnalyticsLogger(transactionType: .deposit, isWithUpgrade: false, usdPrice: { nil }, sink: analyticsSink),
             coordinator: router
         )
 

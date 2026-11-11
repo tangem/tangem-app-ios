@@ -17,13 +17,15 @@ final class LendingDepositCoordinator: CoordinatorObject {
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
+    @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
 
     @Published var path: [Route] = []
     @Published private(set) var amountViewModel: LendingDepositAmountViewModel?
     @Published private(set) var confirmViewModel: LendingDepositConfirmViewModel?
     @Published private(set) var resultViewModel: LendingDepositResultViewModel?
 
-    private let analyticsLogger = LendingDepositAnalyticsLogger()
+    private var analyticsLogger: LendingAnalyticsLogger?
+    private var feeSelectorOutput: LendingFeeSelectorOutput?
     private var options: Options?
     private var transferModel: TransferModel?
     private var projection: LendingDepositProjection?
@@ -38,6 +40,11 @@ final class LendingDepositCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let token = options.token
+        let analyticsLogger = LendingAnalyticsLogger(
+            transactionType: .deposit,
+            isWithUpgrade: options.upgradeImplementation != nil,
+            usdPrice: { [quotesRepository] in quotesRepository.quote(for: token.tokenItem)?.priceUsd }
+        )
         let transferModel = TransferModel(
             userWalletId: token.userWalletInfo.id,
             userToken: token,
@@ -57,8 +64,16 @@ final class LendingDepositCoordinator: CoordinatorObject {
 
         self.options = options
         self.transferModel = transferModel
+        self.analyticsLogger = analyticsLogger
+        feeSelectorOutput = LendingFeeSelectorOutput(output: transferModel, analyticsLogger: analyticsLogger)
         projection = LendingDepositProjection(currentApy: options.currentApy, performanceFee: options.performanceFee)
-        amountViewModel = LendingDepositAmountViewModel(transferModel: transferModel, sourceToken: token, router: self)
+        amountViewModel = LendingDepositAmountViewModel(
+            transferModel: transferModel,
+            sourceToken: token,
+            analyticsLogger: analyticsLogger,
+            router: self
+        )
+        analyticsLogger.logDepositScreenOpened(source: options.source, currentApy: options.currentApy)
     }
 }
 
@@ -71,6 +86,7 @@ extension LendingDepositCoordinator {
         let upgradeImplementation: String?
         let currentApy: Decimal
         let performanceFee: Decimal
+        let source: LendingAnalyticsLogger.Source
     }
 }
 
@@ -100,11 +116,16 @@ extension LendingDepositCoordinator: LendingDepositAmountRoutable {
     }
 
     func openFeeSelector() {
-        guard let transferModel else { return }
+        guard let transferModel, let analyticsLogger, let feeSelectorOutput else { return }
+
+        analyticsLogger.startFeeSelection(
+            on: path.isEmpty ? analyticsLogger.amountScreen : .confirm,
+            from: transferModel.tokenFeeProvidersManager?.selectedTokenFee.option ?? .market
+        )
 
         let builder = SendFeeSelectorBuilder(
             tokenFeeManagerProviding: transferModel,
-            feeSelectorOutput: transferModel,
+            feeSelectorOutput: feeSelectorOutput,
             analyticsLogger: analyticsLogger
         )
 
@@ -116,7 +137,7 @@ extension LendingDepositCoordinator: LendingDepositAmountRoutable {
     }
 
     func openConfirmation() {
-        guard let options, let transferModel, let projection else { return }
+        guard let options, let transferModel, let projection, let analyticsLogger else { return }
 
         Task { @MainActor in
             confirmViewModel = LendingDepositConfirmViewModel(
@@ -124,9 +145,15 @@ extension LendingDepositCoordinator: LendingDepositAmountRoutable {
                 sourceToken: options.token,
                 projection: projection,
                 mailDataBuilder: CommonSendMailDataBuilder(baseDataInput: transferModel, sourceTokenInput: transferModel),
+                analyticsLogger: analyticsLogger,
                 coordinator: self
             )
             path.append(.confirmation)
+            analyticsLogger.logConfirmScreenOpened(
+                amount: transferModel.sourceAmount.value?.crypto,
+                currentApy: options.currentApy,
+                performanceFee: options.performanceFee
+            )
         }
     }
 
@@ -157,12 +184,15 @@ extension LendingDepositCoordinator: LendingDepositConfirmRoutable {
     func depositDidSend() {
         guard let options, let projection, let amount = transferModel?.sourceAmount.value?.crypto else { return }
 
+        amountViewModel = nil
+        confirmViewModel = nil
         resultViewModel = LendingDepositResultViewModel(
             sourceToken: options.token,
             amount: amount,
             currentApy: projection.currentApy,
             router: self
         )
+        analyticsLogger?.logSuccessScreenOpened(currentApy: options.currentApy)
     }
 }
 
@@ -170,10 +200,12 @@ extension LendingDepositCoordinator: LendingDepositConfirmRoutable {
 
 extension LendingDepositCoordinator: LendingDepositResultRoutable {
     func openToken() {
+        analyticsLogger?.logResultAction(.token)
         dismissAction(.token)
     }
 
     func openYield() {
+        analyticsLogger?.logResultAction(.yield)
         dismissAction(.yield)
     }
 }
