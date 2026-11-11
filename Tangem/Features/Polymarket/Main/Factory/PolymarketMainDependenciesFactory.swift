@@ -52,7 +52,8 @@ struct PolymarketMainDependenciesFactory {
             sessionHealth: sessionHealth,
             fastTrading: fastTrading,
             isSingleSheetOrderEnabled: isPhaseTwoAvailable,
-            isPhaseTwoAvailable: isPhaseTwoAvailable
+            isPhaseTwoAvailable: isPhaseTwoAvailable,
+            isEventChartEnabled: isPhaseTwoAvailable && FeatureProvider.isAvailable(.polymarketEventCharts)
         )
     }
 }
@@ -94,6 +95,7 @@ struct PolymarketMainDependencies {
     let fastTrading: PolymarketFastTradingContext?
     let isSingleSheetOrderEnabled: Bool
     let isPhaseTwoAvailable: Bool
+    let isEventChartEnabled: Bool
 
     var walletId: String {
         userWalletModel.userWalletId.stringValue

@@ -235,7 +235,7 @@ extension PolymarketDestinationFactory: PolymarketEventDetailsBuilder {
 
 private extension PolymarketDestinationFactory {
     func makeEventChartServices() -> PolymarketEventDetailsViewModel.ChartServices? {
-        guard dependencies.isPhaseTwoAvailable else { return nil }
+        guard dependencies.isEventChartEnabled else { return nil }
 
         return PolymarketEventDetailsViewModel.ChartServices(
             clobService: dependencies.clobService,

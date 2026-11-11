@@ -42,6 +42,7 @@ enum Feature: String, Hashable, CaseIterable {
     case intentSurvey
     case onrampCountryByIP
     case lendingOnAave
+    case polymarketEventCharts
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -79,6 +80,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .intentSurvey: return "TWI-1899_intent_survey"
         case .onrampCountryByIP: return "[REDACTED_INFO]_onramp_country_by_ip"
         case .lendingOnAave: return "TWI-1676_lending_on_aave"
+        case .polymarketEventCharts: return "TWI-1912_polymarket_event_charts"
         }
     }
 
@@ -116,6 +118,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .intentSurvey: return .unspecified
         case .onrampCountryByIP: return .unspecified
         case .lendingOnAave: return .unspecified
+        case .polymarketEventCharts: return .unspecified
         }
     }
 }
