@@ -129,7 +129,7 @@ private extension PriceAlertBellViewModel {
     func presentConfirmationToast(isSubscribed: Bool) {
         // [REDACTED_TODO_COMMENT]
         let text = isSubscribed ? "Token added to price alert" : "Token removed from price alert"
-        Toast(view: SuccessToast(text: text))
+        LegacyToast(view: SuccessToast(text: text))
             .present(layout: .top(padding: 14), type: .temporary())
     }
 

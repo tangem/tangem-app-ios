@@ -1242,7 +1242,7 @@ extension MainCoordinator: WCTransactionRoutable {
         floatingSheetPresenter.enqueue(sheet: floatingSheetViewModel)
     }
 
-    func show(toast: Toast<WarningToast>) {
+    func show(toast: LegacyToast<WarningToast>) {
         toast.present(layout: .top(padding: 20), type: .temporary())
     }
 }

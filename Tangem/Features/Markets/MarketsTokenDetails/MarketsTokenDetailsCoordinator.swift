@@ -578,7 +578,7 @@ extension MarketsTokenDetailsCoordinator: AddTokenFlowRoutable {
     }
 
     func presentSuccessToast(with text: String) {
-        Toast(view: SuccessToast(text: text))
+        LegacyToast(view: SuccessToast(text: text))
             .present(
                 layout: .top(padding: ToastConstants.topPadding),
                 type: .temporary()
@@ -586,7 +586,7 @@ extension MarketsTokenDetailsCoordinator: AddTokenFlowRoutable {
     }
 
     func presentErrorToast(with text: String) {
-        Toast(view: WarningToast(text: text))
+        LegacyToast(view: WarningToast(text: text))
             .present(
                 layout: .top(padding: ToastConstants.topPadding),
                 type: .temporary()

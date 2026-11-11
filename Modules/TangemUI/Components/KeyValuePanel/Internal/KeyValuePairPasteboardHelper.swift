@@ -17,7 +17,7 @@ struct KeyValuePairPasteboardHelper {
         let heavyImpactGenerator = UIImpactFeedbackGenerator(style: .heavy)
         heavyImpactGenerator.impactOccurred()
 
-        Toast(view: SuccessToast(text: Localization.commonValueCopied))
+        LegacyToast(view: SuccessToast(text: Localization.commonValueCopied))
             .present(
                 layout: .top(padding: 20.0),
                 type: .temporary()

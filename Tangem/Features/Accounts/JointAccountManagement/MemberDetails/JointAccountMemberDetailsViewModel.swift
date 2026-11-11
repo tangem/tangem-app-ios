@@ -40,7 +40,7 @@ final class JointAccountMemberDetailsViewModel: Identifiable {
         let snackbar = TangemSnackbar(title: Localization.addressBookAddressCopied)
             .icon(DesignSystem.Icons.Success.regular20)
             .iconColor(DesignSystem.Color.iconAccentBlue)
-        Toast(view: snackbar).present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
+        LegacyToast(view: snackbar).present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 
     func onCloseTap() {

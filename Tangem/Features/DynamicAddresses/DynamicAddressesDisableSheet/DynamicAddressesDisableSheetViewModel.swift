@@ -115,7 +115,7 @@ final class DynamicAddressesDisableSheetViewModel: ObservableObject, FloatingShe
     }
 
     private func showSuccessToast() {
-        Toast(view: SuccessToast(text: Localization.dynamicAddressesDisabledPopupTitle))
+        LegacyToast(view: SuccessToast(text: Localization.dynamicAddressesDisabledPopupTitle))
             .present(layout: .top(), type: .temporary())
     }
 }

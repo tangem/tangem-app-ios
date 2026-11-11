@@ -62,7 +62,7 @@ final class TangemPayVirtualAccountDetailsViewModel: ObservableObject, Identifia
 
         UIPasteboard.general.string = row.value
 
-        Toast(
+        LegacyToast(
             view: TangemSnackbar(title: Localization.commonValueCopied)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
                 .iconColor(DesignSystem.Color.iconAccentBlue)

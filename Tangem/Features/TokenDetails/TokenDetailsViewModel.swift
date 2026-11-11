@@ -261,7 +261,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             ],
             analyticsSystems: .all
         )
-        Toast(
+        LegacyToast(
             view: SuccessToast(text: Localization.walletNotificationAddressCopied)
                 .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
         )

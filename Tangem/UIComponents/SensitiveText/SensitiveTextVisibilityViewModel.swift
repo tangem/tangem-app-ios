@@ -100,7 +100,7 @@ private extension SensitiveTextVisibilityViewModel {
             action: TangemSnackbar.Action(title: Localization.toastUndo, handler: undoHandler)
         )
         .icon(type.image)
-        let presenter = Toast(view: snackbar)
+        let presenter = LegacyToast(view: snackbar)
         presenter.present(layout: .top(padding: 8), type: .temporary())
         toast = presenter
     }

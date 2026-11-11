@@ -127,7 +127,7 @@ private extension CollectiblesDevnetMenuViewModel {
     }
 
     static func present(_ toast: some View) {
-        Toast(view: toast).present(layout: .top(padding: Constants.toastPadding), type: .temporary())
+        LegacyToast(view: toast).present(layout: .top(padding: Constants.toastPadding), type: .temporary())
     }
 
     enum Constants {

@@ -292,7 +292,7 @@ private extension JointAccountOperationDetailsViewModel {
     }
 
     func showDeletedToast() {
-        Toast(
+        LegacyToast(
             view: TangemSnackbar(title: Localization.jointOperationDeletedSnackbar)
                 .icon(DesignSystem.Icons.TrashBin.regular20)
                 .iconColor(DesignSystem.Color.iconStatusError)

@@ -167,7 +167,7 @@ final class ReferralViewModel: ObservableObject {
         Analytics.log(.referralButtonCopyCode)
         UIPasteboard.general.string = referralProgramInfo?.referral?.promoCode
 
-        Toast(view: SuccessToast(text: Localization.referralPromoCodeCopied))
+        LegacyToast(view: SuccessToast(text: Localization.referralPromoCodeCopied))
             .present(
                 layout: .top(padding: 12),
                 type: .temporary()

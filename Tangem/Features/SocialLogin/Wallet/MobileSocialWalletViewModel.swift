@@ -19,7 +19,7 @@ import TangemSocialAuthentication
 import struct TangemSdk.Mnemonic
 import struct TangemUIUtils.AlertBinder
 import struct TangemUI.TangemSnackbar
-import class TangemUI.Toast
+import class TangemUI.LegacyToast
 
 final class MobileSocialWalletViewModel: ObservableObject {
     @Published private(set) var state: State = .idle
@@ -376,7 +376,7 @@ private extension MobileSocialWalletViewModel {
             .icon(DesignSystem.Icons.Success.filled20)
             .iconColor(DesignSystem.Color.iconAccentBlue)
 
-        Toast(view: snackbar).present(
+        LegacyToast(view: snackbar).present(
             layout: .top(padding: Constants.toastTopPadding),
             type: .temporary()
         )

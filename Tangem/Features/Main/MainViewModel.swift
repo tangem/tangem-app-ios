@@ -584,7 +584,7 @@ extension MainViewModel: MainLockedUserWalletDelegate {
 
 extension MainViewModel: MultiWalletMainContentDelegate, SingleWalletMainContentDelegate {
     func displayAddressCopiedToast() {
-        Toast(
+        LegacyToast(
             view: SuccessToast(text: Localization.walletNotificationAddressCopied)
                 .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
         )

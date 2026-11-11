@@ -695,7 +695,7 @@ private extension TangemPayCardManagementViewModel {
     }
 
     func showCloseCardErrorToast() {
-        Toast(view: WarningToast(text: Localization.commonSomethingWentWrong))
+        LegacyToast(view: WarningToast(text: Localization.commonSomethingWentWrong))
             .present(layout: .top(padding: 20), type: .temporary())
     }
 }
@@ -715,7 +715,7 @@ private extension TangemPayCardManagementViewModel {
             ? Localization.tangemPayFreezeCardFailed
             : Localization.tangemPayUnfreezeCardFailed
 
-        Toast(view: WarningToast(text: message))
+        LegacyToast(view: WarningToast(text: message))
             .present(
                 layout: .top(padding: 20),
                 type: .temporary()

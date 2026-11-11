@@ -122,7 +122,7 @@ extension EarnFeedRouter: EarnAddTokenRoutable {
     }
 
     func presentSuccessToast(with text: String) {
-        Toast(view: SuccessToast(text: text))
+        LegacyToast(view: SuccessToast(text: text))
             .present(
                 layout: .top(padding: Constants.toastTopPadding),
                 type: .temporary()
@@ -130,7 +130,7 @@ extension EarnFeedRouter: EarnAddTokenRoutable {
     }
 
     func presentErrorToast(with text: String) {
-        Toast(view: WarningToast(text: text))
+        LegacyToast(view: WarningToast(text: text))
             .present(
                 layout: .top(padding: Constants.toastTopPadding),
                 type: .temporary()

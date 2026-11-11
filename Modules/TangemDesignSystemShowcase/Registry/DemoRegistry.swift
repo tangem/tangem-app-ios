@@ -47,6 +47,7 @@ private extension DemoRegistry {
             DemoEntry("Shtorka", version: DSVersion(1, 0, 1), section: .ds3) { ShtorkaShowcase() },
             DemoEntry("StatusScreen", version: DSVersion(1, 0, 2), section: .ds3) { StatusScreenShowcase() },
             DemoEntry("TabNavigation", version: DSVersion(1, 0, 3), section: .ds3) { TabNavigationShowcase() },
+            DemoEntry("Toast", version: DSVersion(1, 1, 0), section: .ds3) { ToastShowcase() },
             DemoEntry("TokenIconV2", version: DSVersion(1, 1, 0), section: .ds3) { TokenIconV2Showcase() },
             DemoEntry("TokenRow", version: DSVersion(1, 1, 1), section: .ds3) { TokenRowShowcase() },
             DemoEntry("TokenRowMarket", version: DSVersion(1, 1, 0), section: .ds3) { TokenRowMarketShowcase() },

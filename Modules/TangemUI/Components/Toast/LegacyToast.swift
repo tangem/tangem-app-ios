@@ -1,5 +1,5 @@
 //
-//  Toast.swift
+//  LegacyToast.swift
 //  TangemUI
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,7 +13,7 @@ public protocol DismissibleToast: AnyObject {
     func dismiss(animated: Bool, completion: @escaping () -> Void)
 }
 
-public final class Toast<V: View>: DismissibleToast {
+public final class LegacyToast<V: View>: DismissibleToast {
     private var timer: Timer?
 
     private lazy var hostingController: UIHostingController<some View> = {
@@ -27,8 +27,12 @@ public final class Toast<V: View>: DismissibleToast {
 
     private let view: V
 
-    public init(view: V) {
-        self.view = view
+    private init(content: V) {
+        view = content
+    }
+
+    public convenience init(view: V) {
+        self.init(content: view)
     }
 
     deinit {
@@ -97,9 +101,19 @@ public final class Toast<V: View>: DismissibleToast {
     }
 }
 
+@available(iOS, deprecated: 100000.0, message: "Use LegacyToast, or ToastPresenter for the DS3 ToastView")
+public typealias Toast<V: View> = LegacyToast<V>
+
+public extension LegacyToast where V == ToastView {
+    @available(*, deprecated, message: "Show ToastView through ToastPresenter, which owns its dismissal")
+    convenience init(view: ToastView) {
+        self.init(content: view)
+    }
+}
+
 // MARK: - Layout
 
-private extension Toast {
+private extension LegacyToast {
     func setupConstraints(with safeAreaLayoutGuide: UILayoutGuide, and verticalLayout: Layout) {
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
 
@@ -138,7 +152,7 @@ private extension Toast {
     }
 }
 
-public extension Toast {
+public extension LegacyToast {
     enum PresentationTime {
         case always
         case temporary(interval: TimeInterval = 2)

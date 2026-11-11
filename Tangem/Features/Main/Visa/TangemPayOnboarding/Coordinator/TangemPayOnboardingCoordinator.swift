@@ -101,7 +101,7 @@ extension TangemPayOnboardingCoordinator: TangemPayOnboardingRoutable {
                 self?.kycLaunchTask?.cancel()
                 interactor.hideAccountFromHome()
                 self?.dismiss(with: ())
-                Toast(view: SuccessToast(text: Localization.tangempayWaitlistJoinedMessage))
+                LegacyToast(view: SuccessToast(text: Localization.tangempayWaitlistJoinedMessage))
                     .present(layout: .top(padding: 12), type: .temporary())
 
             case .closed, .none:
@@ -144,7 +144,7 @@ extension TangemPayOnboardingCoordinator: TangemPayOnboardingRoutable {
     @MainActor
     private func dismissAfterKYCLaunchFailure() {
         dismiss(with: ())
-        Toast(view: WarningToast(text: Localization.commonSomethingWentWrong))
+        LegacyToast(view: WarningToast(text: Localization.commonSomethingWentWrong))
             .present(layout: .top(padding: 20), type: .temporary())
     }
 

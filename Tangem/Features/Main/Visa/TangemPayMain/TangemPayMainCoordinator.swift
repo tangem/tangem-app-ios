@@ -701,7 +701,7 @@ private extension TangemPayMainCoordinator {
 
     @MainActor
     func showVirtualAccountRequestSentToast() {
-        Toast(
+        LegacyToast(
             view: TangemSnackbar(title: Localization.tangempayBankTransferRequestSent)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
                 .iconColor(DesignSystem.Color.iconAccentBlue)

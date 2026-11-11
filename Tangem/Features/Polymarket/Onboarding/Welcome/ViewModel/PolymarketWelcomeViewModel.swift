@@ -154,7 +154,7 @@ private extension PolymarketWelcomeViewModel {
     @MainActor
     func presentAccountCreatedToast() {
         // [REDACTED_TODO_COMMENT]
-        Toast(view: SuccessToast(text: "Predictions account is ready"))
+        LegacyToast(view: SuccessToast(text: "Predictions account is ready"))
             .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 
