@@ -14,9 +14,9 @@ public struct TronTransactionParams: TransactionParams {
 
     public let transactionType: TransactionType
     /// Written to the transaction-level `raw.data` field (e.g. a THORChain swap memo).
-    public let memo: String?
+    public let memo: Data?
 
-    public init(transactionType: TransactionType, memo: String? = nil) {
+    public init(transactionType: TransactionType, memo: Data? = nil) {
         self.transactionType = transactionType
         self.memo = memo
     }

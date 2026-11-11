@@ -55,7 +55,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     func buttonFollowsBalance(balance: TokenBalanceType, expected: SUT.ButtonState) async {
         let (sut, _) = makeSUT(balance: balance)
 
-        let state = await sut.$buttonState.values.first { $0 == expected }
+        let state = await firstValue(of: sut.$buttonState) { $0 == expected }
 
         #expect(state == expected)
     }
@@ -64,11 +64,11 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     func reloadingBalanceKeepsButton() async {
         let (sut, doubles) = makeSUT()
         let states = PublisherRecorder(sut.$buttonState.removeDuplicates().eraseToAnyPublisher())
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         doubles.balanceProvider.updateBalance(.loading(nil))
         doubles.balanceProvider.updateBalance(.loaded(Constants.total - 1))
-        _ = await sut.$buttonState.values.first { $0 == .notEnoughFunds }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .notEnoughFunds }
 
         #expect(states.values == [.balanceLoading, .approve, .notEnoughFunds])
     }
@@ -77,7 +77,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     func unfinishedPurchaseKeepsApprove(balance: TokenBalanceType) async {
         let (sut, _) = makeSUT(balance: balance, hasUnfinishedPurchase: true)
 
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         #expect(sut.buttonState == .approve)
     }
@@ -85,7 +85,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Retry refreshes the balance only while it is unavailable", arguments: Self.retryArguments)
     func retryRefreshesUnavailableBalance(balance: TokenBalanceType, state: SUT.ButtonState, refreshes: Int) async {
         let (sut, doubles) = makeSUT(balance: balance)
-        _ = await sut.$buttonState.values.first { $0 == state }
+        _ = await firstValue(of: sut.$buttonState) { $0 == state }
 
         sut.retryBalance()
         await doubles.balanceRefresher.waitForCalls(refreshes)
@@ -100,11 +100,11 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("The button asks to relink once the relink status changes and the purchase turns out locked")
     func relinkStatusLocksApprove() async {
         let (sut, doubles) = makeSUT()
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         doubles.interactor.isLocked = true
         doubles.relinkStatusProvider.isRelinkRequiredSubject.send(true)
-        _ = await sut.$buttonState.values.first { $0 == .relinkRequired }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .relinkRequired }
         sut.approve()
 
         #expect(sut.buttonState == .relinkRequired)
@@ -114,10 +114,10 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("A relink found right before paying locks the button without the generic error, even before the lock catches up")
     func relinkFoundBeforePayingLocksButton() async {
         let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.relinkRequired)])
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         sut.approve()
-        _ = await sut.$buttonState.values.first { $0 == .relinkRequired }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .relinkRequired }
 
         #expect(sut.errorMessage == nil)
         #expect(doubles.interactor.purchases.count == 1)
@@ -128,7 +128,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Approve does nothing while the button is not approvable", arguments: Self.notApprovableArguments)
     func approveIgnoredWhenNotApprovable(balance: TokenBalanceType, state: SUT.ButtonState) async {
         let (sut, doubles) = makeSUT(balance: balance)
-        _ = await sut.$buttonState.values.first { $0 == state }
+        _ = await firstValue(of: sut.$buttonState) { $0 == state }
 
         sut.approve()
 
@@ -139,7 +139,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Approve buys the shown pack and asks the router to reveal the won card")
     func approveAsksForReveal() async {
         let (sut, doubles) = makeSUT()
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         sut.approve()
         #expect(sut.buttonState == .generating)
@@ -160,7 +160,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("The router gets the preloaded media together with the prize")
     func routerGetsPreloadedMedia() async {
         let (sut, doubles) = makeSUT()
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         await approve(sut, in: doubles)
 
@@ -172,7 +172,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("A reveal handed over by the router is shown as the generated pack")
     func showsRevealFromRouter() async {
         let (sut, doubles) = makeSUT()
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
         let reveal = Self.makeRevealViewModel()
 
@@ -186,7 +186,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     func prefetchesExistingCardImages(backImageURL: URL?, expected: [URL]) async {
         let wonCard = Self.wonCard(backImageURL: backImageURL)
         let (sut, doubles) = makeSUT(results: [.success(.wonCard(wonCard))])
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         await approve(sut, in: doubles)
 
@@ -197,7 +197,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     func buttonWalksSteps() async {
         let (sut, doubles) = makeSUT(steps: [.generating, .confirming, .opening])
         let states = PublisherRecorder(sut.$buttonState.removeDuplicates().eraseToAnyPublisher())
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         await approve(sut, in: doubles)
         sut.show(reveal: Self.makeRevealViewModel())
@@ -208,7 +208,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Turbo mode is passed to the purchase", arguments: [false, true])
     func passesTurboMode(isTurboModeOn: Bool) async {
         let (sut, doubles) = makeSUT(isTurboModeOn: isTurboModeOn)
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         await approve(sut, in: doubles)
 
@@ -218,7 +218,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("A second tap during the purchase does not start another one")
     func secondTapIsIgnored() async {
         let (sut, doubles) = makeSUT()
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         sut.approve()
         sut.approve()
@@ -232,7 +232,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("The reveal media is preloaded for the theme on appear and again on approve", arguments: Self.colorSchemes)
     func preloadsRevealMedia(colorScheme: ColorScheme) async {
         let (sut, doubles) = makeSUT()
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         sut.preloadRevealAssets(for: colorScheme, isReduceMotionEnabled: false)
         await approve(sut, in: doubles)
@@ -243,7 +243,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Reduce Motion stops the reveal media from loading")
     func reduceMotionSkipsPreload() async {
         let (sut, doubles) = makeSUT()
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         sut.preloadRevealAssets(for: .dark, isReduceMotionEnabled: false)
         sut.preloadRevealAssets(for: .dark, isReduceMotionEnabled: true)
@@ -257,7 +257,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("An auto buyback shows the sold card and amount on the buyback complete sheet instead of the reveal", arguments: Self.soldCardArguments)
     func autoBuybackShowsSheet(soldCard: CollectiblesWonCard?, imageURL: URL?, cardName: String?) async {
         let (sut, doubles) = makeSUT(results: [.success(.autoSold(amount: Constants.buybackAmount, wonCard: soldCard))])
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         await approve(sut, in: doubles)
 
@@ -279,7 +279,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
             .success(.autoSold(amount: nil, wonCard: nil)),
         ]
         let (sut, doubles) = makeSUT(results: results)
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
         sut.openUnopenedPack()
@@ -305,7 +305,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Closing the buyback complete sheet returns to the machine")
     func closingBuybackCompleteReturnsToMachine() async {
         let (sut, doubles) = makeSUT(results: [.success(.autoSold(amount: nil, wonCard: nil))])
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
         sut.sheet = nil
@@ -321,7 +321,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     ])
     func closingFailureSheetStays(error: CollectiblesPackPurchaseError) async {
         let (sut, doubles) = makeSUT(results: [.failure(error)])
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
         sut.sheet = nil
@@ -334,7 +334,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Open again from the buyback complete sheet returns to the machine once the sheet is dismissed")
     func buybackCompleteOpensAgain() async {
         let (sut, doubles) = makeSUT(results: [.success(.autoSold(amount: nil, wonCard: nil))])
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
         sut.openAgain()
@@ -349,7 +349,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Explore packs from the buyback complete sheet leaves the flow once the sheet is dismissed")
     func buybackCompleteExplorePacksLeavesFlow() async {
         let (sut, doubles) = makeSUT(results: [.success(.autoSold(amount: nil, wonCard: nil))])
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
         sut.explorePacks()
@@ -366,7 +366,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Low inventory shows its sheet and leaves the order approvable")
     func lowInventoryShowsSheet() async {
         let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.lowInventory)])
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         await approve(sut, in: doubles)
 
@@ -378,7 +378,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("The low inventory buttons route once the sheet is dismissed", arguments: SheetButton.allCases)
     func lowInventoryRoutes(button: SheetButton) async {
         let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.lowInventory)])
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
         tap(button, on: sut)
@@ -396,7 +396,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("A second tap while the sheet is dismissing is ignored")
     func secondTapWhileDismissingIsIgnored() async {
         let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.lowInventory)])
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
         sut.explorePacks()
@@ -410,7 +410,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("An unopened pack shows its sheet and Open pack continues the same order", arguments: Self.unopenedErrors)
     func unopenedPackSheetRetries(error: CollectiblesPackPurchaseError) async {
         let (sut, doubles) = makeSUT(results: [.failure(error), .success(.wonCard(Self.wonCard))])
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
         #expect(sut.sheet == .packUnopened)
@@ -431,7 +431,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
             .failure(CollectiblesPackPurchaseError.packUnopened),
         ]
         let (sut, doubles) = makeSUT(results: results)
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
         sut.openUnopenedPack()
@@ -447,7 +447,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     func genericFailureShowsMessage(error: any Error) async {
         let (sut, doubles) = makeSUT(results: [.failure(error)])
         defer { sut.dismissError() }
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
 
         await approve(sut, in: doubles)
 
@@ -479,7 +479,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     @Test("Dismissing the error clears the message")
     func dismissErrorClearsMessage() async {
         let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.paymentTimedOut)])
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
         sut.dismissError()
@@ -493,14 +493,14 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
     func errorHidesAfterDisplayTime() async {
         let (sut, doubles) = makeSUT(results: [.failure(CollectiblesPackPurchaseError.paymentTimedOut)])
         let messages = PublisherRecorder(sut.$errorMessage.removeDuplicates().eraseToAnyPublisher())
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
         await doubles.delayProvider.waitForWaits(1)
         #expect(sut.errorMessage == Localization.commonSomethingWentWrong)
 
         doubles.delayProvider.releaseWaits()
-        _ = await sut.$errorMessage.values.first { $0 == nil }
+        _ = await firstValue(of: sut.$errorMessage) { $0 == nil }
 
         let expectedMessages: [String?] = [nil, Localization.commonSomethingWentWrong, nil]
         #expect(messages.values == expectedMessages)
@@ -514,7 +514,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         ]
         let (sut, doubles) = makeSUT(results: results)
         let messages = PublisherRecorder(sut.$errorMessage.removeDuplicates().eraseToAnyPublisher())
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
 
         await approve(sut, in: doubles)
@@ -525,7 +525,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
         #expect(sut.errorMessage == Localization.commonSomethingWentWrong)
 
         doubles.delayProvider.releaseWaits()
-        _ = await sut.$errorMessage.values.first { $0 == nil }
+        _ = await firstValue(of: sut.$errorMessage) { $0 == nil }
 
         let message = Localization.commonSomethingWentWrong
         let expectedMessages: [String?] = [nil, message, nil, message, nil]
@@ -539,7 +539,7 @@ final class CollectiblesConfirmOrderViewModelTests: LeakTrackingTestSuite {
             .success(.wonCard(Self.wonCard)),
         ]
         let (sut, doubles) = makeSUT(results: results)
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
         #expect(sut.errorMessage != nil)
 
@@ -748,6 +748,13 @@ private extension CollectiblesConfirmOrderViewModelTests {
         return (trackForMemoryLeaks(sut), doubles)
     }
 
+    func firstValue<Value>(of publisher: Published<Value>.Publisher, where predicate: (Value) -> Bool) async -> Value? {
+        await publisher
+            .buffer(size: 16, prefetch: .keepFull, whenFull: .dropOldest)
+            .values
+            .first(where: predicate)
+    }
+
     func approve(_ sut: SUT, in doubles: Doubles) async {
         let refreshes = doubles.balanceRefresher.callsCount
         sut.approve()
@@ -757,7 +764,7 @@ private extension CollectiblesConfirmOrderViewModelTests {
     func errorMessage(after error: CollectiblesPackPurchaseError) async -> String? {
         let (sut, doubles) = makeSUT(results: [.failure(error)])
         defer { sut.dismissError() }
-        _ = await sut.$buttonState.values.first { $0 == .approve }
+        _ = await firstValue(of: sut.$buttonState) { $0 == .approve }
         await approve(sut, in: doubles)
         return sut.errorMessage
     }

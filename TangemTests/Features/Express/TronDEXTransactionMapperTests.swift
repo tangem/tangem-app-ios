@@ -48,13 +48,25 @@ struct TronDEXTransactionMapperTests {
         #expect(call.callData.prefix(4) == Data([0xA9, 0x05, 0x9C, 0xBB]))
     }
 
+    @Test("keeps a binary Chainflip payload as the memo")
+    func map_swapKitChainflipTransaction_keepsBinaryMemo() throws {
+        let data = makeExpressTransactionData(
+            destinationAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+            txData: "0x" + TronDEXFixtures.swapKitChainflipRawTransactionHex
+        )
+
+        let call = try mapContractCall(data: data, expectedOwner: "TQ6fQ4heoDVBx2m1fcUgAZ5VjawxFT4kMr")
+
+        #expect(call.memo == TronDEXFixtures.swapKitChainflipMemo)
+    }
+
     @Test("falls back to extraDestinationId when the transaction has no embedded memo")
     func map_noEmbeddedMemo_fallsBackToExtraDestinationId() throws {
         let data = makeExpressTransactionData(extraDestinationId: "fallback-extra-id")
 
         let call = try mapContractCall(data: data, expectedOwner: ownerAddress)
 
-        #expect(call.memo == "fallback-extra-id")
+        #expect(call.memo == Data("fallback-extra-id".utf8))
     }
 
     @Test("lifts a plain coin transfer out of a TRX-coin provider transaction")
@@ -84,7 +96,7 @@ struct TronDEXTransactionMapperTests {
             return
         }
 
-        #expect(transfer.memo == "fallback-extra-id")
+        #expect(transfer.memo == Data("fallback-extra-id".utf8))
     }
 
     @Test("a transfer to a different address than the DTO destination is rejected")

@@ -29,7 +29,7 @@ struct TronDEXTransactionMapper {
         let parsed = try TronRawTransactionParser().parse(rawTransaction: rawTransaction)
         try TronDEXTransactionValidator.validate(parsed, against: data, expectedOwner: expectedOwner, blockchain: blockchain)
 
-        let fallbackMemo = data.extraDestinationId?.nilIfEmpty
+        let fallbackMemo = data.extraDestinationId?.nilIfEmpty.map { Data($0.utf8) }
 
         switch parsed {
         case .contractCall(let call):
@@ -63,7 +63,7 @@ struct TronDEXContractCall {
     let callValue: Decimal
     /// In sun; `nil` when the provider's transaction doesn't set one.
     let feeLimit: Int64?
-    let memo: String?
+    let memo: Data?
 }
 
 extension TronDEXContractCall {
@@ -83,5 +83,5 @@ struct TronDEXTransfer {
     let destinationAddress: String
     /// In coin units.
     let amount: Decimal
-    let memo: String?
+    let memo: Data?
 }
