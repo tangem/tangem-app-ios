@@ -329,7 +329,7 @@ struct CommonJointAccountPendingOperationsProviderTests {
         }
     }
 
-    @Test("Each operation is followed through the store to its end, and reported gone once the store drops it")
+    @Test("Each operation is followed through the store to its end, also once it has left what is in flight")
     func operationIsFollowedToItsEnd() async throws {
         let account = makeJointAccount()
         let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: [Self.record(operations: [Self.coinTransfer()])])
@@ -339,28 +339,10 @@ struct CommonJointAccountPendingOperationsProviderTests {
         let subscription = pendingOperation.makeHandle().pendingOperationPublisher.sink { statuses.append($0?.status) }
 
         repository.store(pendingOperations: [Self.record(operations: [Self.coinTransfer(status: .pending)])])
-        repository.store(pendingOperations: [Self.record(operations: [Self.coinTransfer(status: .executed)])])
+        repository.store(operations: [Self.coinTransfer(status: .executed)])
         repository.store(pendingOperations: [])
 
-        #expect(statuses == [.awaitingSignatures, .pending, .executed, nil])
-        withExtendedLifetime(subscription) {}
-    }
-
-    @Test("An operation of another account is not taken for this one, whatever its identifier")
-    func operationOfAnotherAccountIsNotFollowed() async throws {
-        let account = makeJointAccount()
-        let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: [Self.record(operations: [Self.coinTransfer()])])
-        let sut = Self.makeSUT(repository: repository, walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]).provider
-        let pendingOperation = try #require(try await sut.pendingOperationsPublisher.async().first)
-        var statuses: [JointAccountOperationStatus?] = []
-        let subscription = pendingOperation.makeHandle().pendingOperationPublisher.sink { statuses.append($0?.status) }
-
-        repository.store(pendingOperations: [
-            Self.record(operations: [Self.coinTransfer(status: .executed)], cryptoAccountId: String(repeating: "0", count: 64)),
-            Self.record(operations: [Self.coinTransfer()]),
-        ])
-
-        #expect(statuses == [.awaitingSignatures])
+        #expect(statuses == [.awaitingSignatures, .pending, .executed])
         withExtendedLifetime(subscription) {}
     }
 
@@ -454,7 +436,7 @@ private extension CommonJointAccountPendingOperationsProviderTests {
     static let safeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
 
     static func makeSUT(
-        records: [StoredJointAccountPendingOperations],
+        records: [JointAccountOperations],
         walletModels: [any WalletModel],
         members: [JointAccountMember] = [creator]
     ) -> (provider: CommonJointAccountPendingOperationsProvider, walletModelsManager: WalletModelsManagerTestsMock) {
@@ -513,8 +495,8 @@ private extension CommonJointAccountPendingOperationsProviderTests {
         )
     }
 
-    static func record(operations: [JointAccountOperation], cryptoAccountId: String = cryptoAccountId) -> StoredJointAccountPendingOperations {
-        StoredJointAccountPendingOperations(cryptoAccountId: cryptoAccountId, operations: operations)
+    static func record(operations: [JointAccountOperation], cryptoAccountId: String = cryptoAccountId) -> JointAccountOperations {
+        JointAccountOperations(cryptoAccountId: cryptoAccountId, operations: operations)
     }
 
     /// 0.001 of the coin to the recipient.
@@ -576,8 +558,8 @@ private extension CommonJointAccountPendingOperationsProviderTests {
             cancelReason: nil,
             initiator: initiator,
             signatures: [],
-            createdAt: nil,
-            threshold: nil
+            createdAt: Date(timeIntervalSince1970: 1_757_323_237),
+            threshold: 2
         )
     }
 

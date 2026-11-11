@@ -416,7 +416,7 @@ enum TransactionHistoryRecordsMapper {
 
     // MARK: Record to domain: Joint operations
 
-    private static func mapToJointOperationHistoryItem(_ record: JointOperationRecord) throws -> JointOperationHistoryItem {
+    static func mapToJointOperationHistoryItem(_ record: JointOperationRecord) throws -> JointOperationHistoryItem {
         guard record.data.removeHexPrefix().isValidHex else {
             throw "Malformed calldata of joint operation \(record.id)"
         }

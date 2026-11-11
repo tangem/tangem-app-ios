@@ -102,8 +102,8 @@ enum JointAccountCompositionFixture {
         )
     }
 
-    static func pendingOperationsRecord(operations: [JointAccountOperation]) -> StoredJointAccountPendingOperations {
-        StoredJointAccountPendingOperations(cryptoAccountId: caseFlippedCryptoAccountId, operations: operations)
+    static func pendingOperationsRecord(operations: [JointAccountOperation]) -> JointAccountOperations {
+        JointAccountOperations(cryptoAccountId: caseFlippedCryptoAccountId, operations: operations)
     }
 
     static func coinTransfer(
@@ -112,8 +112,8 @@ enum JointAccountCompositionFixture {
         finishedAt: Date? = nil,
         initiator: String = "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
         signatures: [JointAccountOperation.Signature] = [],
-        createdAt: Date? = nil,
-        threshold: Int? = nil
+        createdAt: Date = Date(timeIntervalSince1970: 1_757_323_237),
+        threshold: Int = 2
     ) -> JointAccountOperation {
         JointAccountOperation(
             id: id,

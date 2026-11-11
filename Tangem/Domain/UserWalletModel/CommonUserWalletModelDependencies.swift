@@ -223,11 +223,8 @@ private extension CommonUserWalletModelDependencies {
         let jointAccountsNetworkService = CommonJointAccountsNetworkService(userWalletId: userWalletId)
         let jointAccountsPersistentStorage = CommonJointAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
         let jointAccountPendingOperationsSynchronizer = CommonJointAccountPendingOperationsSynchronizer(
-            persistentStorage: CommonJointAccountsPendingOperationsPersistentStorage(storageIdentifier: userWalletId.stringValue),
-            historyEnricherFactory: TransactionHistoryJointAccountDataEnricherFactory.make(
-                persistentStorage: jointAccountsPersistentStorage,
-                isJointAccountsAvailable: isJointAccountsAvailable
-            )
+            persistentStorage: CommonJointAccountsPendingOperationsPersistentStorage(),
+            safeAddressResolver: CommonJointAccountSafeAddressResolver(persistentStorage: jointAccountsPersistentStorage)
         )
 
         let jointAccountPendingOperationsRepository = CommonJointAccountPendingOperationsRepository(

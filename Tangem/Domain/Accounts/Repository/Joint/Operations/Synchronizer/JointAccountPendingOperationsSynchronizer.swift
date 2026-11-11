@@ -10,9 +10,11 @@ import Foundation
 import Combine
 
 protocol JointAccountPendingOperationsSynchronizer {
-    var operations: [StoredJointAccountPendingOperations] { get }
+    var pendingOperations: [JointAccountOperations] { get }
 
-    var operationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> { get }
+    var pendingOperationsPublisher: AnyPublisher<[JointAccountOperations], Never> { get }
+
+    func operationPublisher(id: String) -> AnyPublisher<JointAccountOperation?, Never>
 
     var checkpoint: JointAccountPendingOperationsCheckpoint { get async }
 
@@ -24,5 +26,5 @@ protocol JointAccountPendingOperationsSynchronizer {
         requestedAt checkpoint: JointAccountPendingOperationsCheckpoint
     ) async throws
 
-    func apply(listing: [StoredJointAccountPendingOperations], requestedAt checkpoint: JointAccountPendingOperationsCheckpoint) async throws
+    func apply(listing: [JointAccountOperations], requestedAt checkpoint: JointAccountPendingOperationsCheckpoint) async throws
 }

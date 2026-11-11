@@ -14,11 +14,22 @@ import Combine
 protocol JointAccountsPendingOperationsPersistentStorage {
     var didUpdatePublisher: AnyPublisher<Void, Never> { get }
 
-    /// - Warning: May block the calling thread while the underlying storage is read from disk.
-    /// Avoid calling from the main thread directly.
-    func getList() -> [StoredJointAccountPendingOperations]
+    func inFlightOperations(safeAddresses: Set<String>) throws -> [JointOperationHistoryItem]
 
-    /// - Note: Every account's operations at once, the way the listing reports them: an account gone from the
-    /// listing, or one with nothing in flight any more, is gone from here too.
-    func replace(with records: [StoredJointAccountPendingOperations]) throws
+    func operation(id: String) throws -> JointOperationHistoryItem?
+
+    func update(
+        operationIds: Set<String>,
+        safeAddresses: Set<String>,
+        _ resolveChanges: ([JointOperationHistoryItem]) -> JointAccountsPendingOperationsChanges
+    ) throws
+}
+
+struct JointAccountsPendingOperationsChanges: Equatable {
+    let savedItems: [JointOperationHistoryItem]
+    let removedOperationIds: [String]
+
+    var isEmpty: Bool {
+        savedItems.isEmpty && removedOperationIds.isEmpty
+    }
 }

@@ -419,8 +419,8 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.TransactionH
                 cancelReason: status == .cancelled ? .initiator : nil,
                 initiator: JointOperationHistoryTestDataFactory.initiator,
                 signatures: [],
-                createdAt: nil,
-                threshold: nil
+                createdAt: createdAt,
+                threshold: 2
             ),
             cryptoAccountId: "crypto-account-1",
             safeAddress: safeAddress,

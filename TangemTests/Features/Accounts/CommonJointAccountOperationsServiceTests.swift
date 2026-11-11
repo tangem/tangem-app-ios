@@ -322,7 +322,7 @@ private extension CommonJointAccountOperationsServiceTests {
         let cryptoAccountId = account.id.rawValue.hexString
         let records = pendingOperations.isEmpty
             ? []
-            : [StoredJointAccountPendingOperations(cryptoAccountId: cryptoAccountId, operations: pendingOperations)]
+            : [JointAccountOperations(cryptoAccountId: cryptoAccountId, operations: pendingOperations)]
         let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: records, registeredOperation: registeredOperation)
 
         let signer = try TangemSignerDouble()
@@ -401,8 +401,8 @@ private extension CommonJointAccountOperationsServiceTests {
             cancelReason: nil,
             initiator: Constants.members[0],
             signatures: [],
-            createdAt: nil,
-            threshold: nil
+            createdAt: Date(timeIntervalSince1970: 1_757_323_237),
+            threshold: 2
         )
     }
 }

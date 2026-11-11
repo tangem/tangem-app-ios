@@ -41,7 +41,7 @@ final class JointAccountPendingOperationsRepositoryStub: JointAccountPendingOper
     }
 
     init(
-        pendingOperations: [StoredJointAccountPendingOperations] = [],
+        pendingOperations: [JointAccountOperations] = [],
         registeredOperation: JointAccountOperation? = nil,
         loadedOperationAnswer: Result<JointAccountOperation, Error>? = nil
     ) {
@@ -50,16 +50,24 @@ final class JointAccountPendingOperationsRepositoryStub: JointAccountPendingOper
         self.loadedOperationAnswer = loadedOperationAnswer
     }
 
-    func store(pendingOperations: [StoredJointAccountPendingOperations]) {
+    func store(pendingOperations: [JointAccountOperations]) {
         synchronizer.store(pendingOperations: pendingOperations)
     }
 
-    var operations: [StoredJointAccountPendingOperations] {
-        synchronizer.operations
+    func store(operations: [JointAccountOperation]) {
+        synchronizer.store(operations: operations)
     }
 
-    var operationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
-        synchronizer.operationsPublisher
+    var pendingOperations: [JointAccountOperations] {
+        synchronizer.pendingOperations
+    }
+
+    var pendingOperationsPublisher: AnyPublisher<[JointAccountOperations], Never> {
+        synchronizer.pendingOperationsPublisher
+    }
+
+    func operationPublisher(id: String) -> AnyPublisher<JointAccountOperation?, Never> {
+        synchronizer.operationPublisher(id: id)
     }
 
     func requestFrequentUpdates(operationId: String) -> AnyCancellable? {

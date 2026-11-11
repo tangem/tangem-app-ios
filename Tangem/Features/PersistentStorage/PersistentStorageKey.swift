@@ -17,9 +17,6 @@ enum PersistentStorageKey {
     case accounts(cid: String)
     /// Joint accounts are stored apart from `accounts(cid:)` – they come from their own endpoint
     case jointAccounts(cid: String)
-    /// The unfinished operations ride inside the accounts on the wire but are stored apart from `jointAccounts(cid:)`
-    /// – a co-signer answering or the relayer executing is no change to the account itself
-    case jointAccountPendingOperations(cid: String)
     case walletConnectSessions
     case pendingExpressTransactions
     case pendingOnrampTransactions
@@ -44,8 +41,6 @@ enum PersistentStorageKey {
             return "accounts_\(cid)"
         case .jointAccounts(let cid):
             return "joint_accounts_\(cid)"
-        case .jointAccountPendingOperations(let cid):
-            return "joint_account_pending_operations_\(cid)"
         case .walletConnectSessions:
             return "wallet_connect_sessions"
         case .pendingExpressTransactions:
@@ -88,10 +83,6 @@ enum PersistentStorageKey {
         case .jointAccounts:
             // Holds the names and addresses of the other members, but the blob is encrypted like every other
             // per-wallet cache, and the accounts list has to be readable while the device is locked
-            false
-        case .jointAccountPendingOperations:
-            // Holds the destinations and amounts the members are signing, nothing that spends; the blob is encrypted
-            // like every other per-wallet cache, and the accounts list has to be readable while the device is locked
             false
         case .onrampPreference:
             false

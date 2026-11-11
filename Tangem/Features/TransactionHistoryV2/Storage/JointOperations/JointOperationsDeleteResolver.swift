@@ -12,11 +12,7 @@ import TangemAppDatabase
 
 struct JointOperationsDeleteResolver {
     let operationIds: [String]
-}
 
-// MARK: - TransactionHistoryRecordsWriteResolver protocol conformance
-
-extension JointOperationsDeleteResolver: TransactionHistoryRecordsWriteResolver {
     func write(in database: Database) throws {
         try TransactionHistoryIndexRecord
             .filter(TransactionHistoryIndexRecord.Columns.entityType == TransactionHistoryIndexRecord.Values.EntityType.jointOperation)

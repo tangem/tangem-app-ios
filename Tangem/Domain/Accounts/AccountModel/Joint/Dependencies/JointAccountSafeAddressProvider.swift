@@ -32,7 +32,7 @@ extension JointAccountStatusProvider {
     }
 }
 
-private extension JointAccountStatus {
+extension JointAccountStatus {
     var activeSafeAddress: String? {
         switch self {
         case .active(let safeAddress): EVMAddressUtils.toChecksumAddress(safeAddress) ?? safeAddress

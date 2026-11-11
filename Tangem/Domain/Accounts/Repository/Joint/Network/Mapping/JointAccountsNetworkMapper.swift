@@ -118,7 +118,7 @@ extension JointAccountsNetworkMapper {
     }
 
     func mapToOperation(from dto: JointAccountsDTO.Response.Operation) throws -> JointAccountOperation {
-        try mapToOperation(from: dto, createdAt: parseDate(dto.createdAt), txHash: nil, finishedAt: nil, cancelReason: nil)
+        try mapToOperation(from: dto, createdAt: date(dto.createdAt, field: "createdAt"), txHash: nil, finishedAt: nil, cancelReason: nil)
     }
 
     func mapToSignature(from dto: JointAccountsDTO.Response.Operation.Vote) -> JointAccountOperation.Signature {
@@ -216,7 +216,7 @@ private extension JointAccountsNetworkMapper {
 
     func mapToOperation(
         from dto: JointAccountsDTO.Response.Operation,
-        createdAt: Date?,
+        createdAt: Date,
         txHash: String?,
         finishedAt: Date?,
         cancelReason: JointOperationCancelReason?
