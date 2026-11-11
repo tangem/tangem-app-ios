@@ -121,11 +121,47 @@ struct UTXOTransactionHistoryMapperTests {
         #expect(destination.address.string == walletAddress)
         #expect(destination.amount == expectedAmount)
     }
+
+    @Test("Every transaction of a response is checked against all the wallet's addresses")
+    func responseTransactionsAreCheckedAgainstAllWalletAddresses() throws {
+        let derivedAddress = "DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L"
+        let response = makeResponse(transactions: [
+            makeTransaction(vin: [makeVin(addresses: [walletAddress], isAddress: true)]),
+            makeTransaction(vin: [makeVin(addresses: [derivedAddress], isAddress: true)]),
+            makeTransaction(vin: [makeVin(addresses: [attackerAddress], isAddress: true)]),
+        ])
+
+        let records = try makeSUT(blockchain: .dogecoin).mapToTransactionRecords(
+            response,
+            walletAddress: [walletAddress, derivedAddress],
+            amountType: .coin
+        )
+
+        #expect(records.map(\.isOutgoing) == [true, true, false])
+    }
 }
 
 private extension UTXOTransactionHistoryMapperTests {
     func makeSUT(blockchain: Blockchain) -> UTXOTransactionHistoryMapper {
         UTXOTransactionHistoryMapper(blockchain: blockchain)
+    }
+
+    func makeResponse(
+        transactions: [BlockBookAddressResponse.Transaction]
+    ) -> BlockBookAddressResponse {
+        BlockBookAddressResponse(
+            page: 1,
+            totalPages: 1,
+            itemsOnPage: transactions.count,
+            address: walletAddress,
+            balance: "0",
+            unconfirmedBalance: nil,
+            unconfirmedTxs: nil,
+            txs: transactions.count,
+            nonTokenTxs: nil,
+            transactions: transactions,
+            tokens: nil
+        )
     }
 
     func makeTransaction(

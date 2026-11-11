@@ -2851,6 +2851,116 @@ struct TransactionHistoryExpressDataMergerTests {
         #expect(record(in: output, hash: "0xOrdinary")?.isEnriched == false)
     }
 
+    // MARK: - Sender ownership
+
+    @Test(
+        "Send heuristic: the pay-in must be sent from one of the wallet's addresses",
+        arguments: SenderOwnershipCase.allCases
+    )
+    func sendHeuristicRequiresOwnedSender(ownershipCase: SenderOwnershipCase) throws {
+        let token = ownershipCase.isEvm
+            ? ExpressMergeTestDataFactory.ethereumToken
+            : ExpressMergeTestDataFactory.bitcoinToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            walletAddresses: ownershipCase.walletAddresses,
+            feeTokenItem: token
+        )
+
+        let onChain = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xSend",
+            isOutgoing: true,
+            source: ownershipCase.source,
+            destinations: [("0xPayIn", 1)],
+            date: ExpressMergeTestDataFactory.baseDate,
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .finished,
+            fromAddress: nil,
+            payInAddress: "0xPayIn",
+            payInHash: nil,
+            payOutAddress: "0xPayOut",
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            fromAmount: 1,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            toAmount: 1,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(
+            bsdkTransactions: [onChain],
+            exchangeTransactions: [exchange],
+            onrampTransactions: []
+        )
+
+        let onChainRecord = try #require(record(in: output, hash: "0xSend"))
+        #expect(onChainRecord.isEnriched == ownershipCase.isSentByOwner)
+    }
+
+    @Test(
+        "Receive heuristic: the pay-out must not be sent from any of the wallet's addresses",
+        arguments: SenderOwnershipCase.allCases
+    )
+    func receiveHeuristicExcludesOwnedSender(ownershipCase: SenderOwnershipCase) throws {
+        let token = ownershipCase.isEvm
+            ? ExpressMergeTestDataFactory.ethereumToken
+            : ExpressMergeTestDataFactory.bitcoinToken
+        let merger = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: token,
+            walletAddresses: ownershipCase.walletAddresses,
+            feeTokenItem: token
+        )
+
+        let onChain = ExpressMergeTestDataFactory.bsdkTransaction(
+            hash: "0xReceive",
+            isOutgoing: false,
+            source: ownershipCase.source,
+            destinations: [("0xPayOut", 2)],
+            date: ExpressMergeTestDataFactory.baseDate.addingTimeInterval(3600),
+            index: 0,
+            nonce: nil,
+            status: .confirmed,
+            feeToken: token
+        )
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .finished,
+            fromAddress: nil,
+            payInAddress: "0xPayIn",
+            payInHash: nil,
+            payOutAddress: "0xPayOut",
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.unrelatedCurrency,
+            fromAmount: 1,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: token),
+            toAmount: 2,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let output = merger.merge(
+            bsdkTransactions: [onChain],
+            exchangeTransactions: [exchange],
+            onrampTransactions: []
+        )
+
+        let onChainRecord = try #require(record(in: output, hash: "0xReceive"))
+        #expect(onChainRecord.isEnriched == !ownershipCase.isSentByOwner)
+    }
+
     // MARK: - Helpers
 
     private func unmatchedExchange(
@@ -2884,5 +2994,117 @@ struct TransactionHistoryExpressDataMergerTests {
 
     private func record(in output: [TransactionRecord], index: Int) -> TransactionRecord? {
         output.first { $0.index == index }
+    }
+}
+
+// MARK: - Cases
+
+extension TransactionHistoryExpressDataMergerTests {
+    struct SenderOwnershipCase: Sendable, CustomTestStringConvertible {
+        let walletAddresses: [String]
+        let senders: [String]
+        let isEvm: Bool
+        let isSentByOwner: Bool
+
+        var source: TransactionRecord.SourceType {
+            .from(senders.map { TransactionRecord.Source(address: $0, amount: 0) })
+        }
+
+        var testDescription: String {
+            "\(isEvm ? "EVM" : "UTXO") wallet \(walletAddresses), senders \(senders)"
+        }
+
+        static let allCases: [SenderOwnershipCase] = [
+            SenderOwnershipCase(
+                walletAddresses: ["0xOwner"],
+                senders: ["0xOwner"],
+                isEvm: true,
+                isSentByOwner: true
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["0xOwner"],
+                senders: ["0xOWNER"],
+                isEvm: true,
+                isSentByOwner: true
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["0xOwner"],
+                senders: ["0xStranger"],
+                isEvm: true,
+                isSentByOwner: false
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["0xOwner"],
+                senders: ["0xStranger", "0xowner"],
+                isEvm: true,
+                isSentByOwner: true
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["0xOwner"],
+                senders: ["0xStranger", "0xOtherStranger"],
+                isEvm: true,
+                isSentByOwner: false
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["0xOwner", "0xOWNER"],
+                senders: ["0xowner"],
+                isEvm: true,
+                isSentByOwner: true
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["0xOwner", "0xYieldContract"],
+                senders: ["0xYIELDCONTRACT"],
+                isEvm: true,
+                isSentByOwner: true
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["0xOwner", "0xYieldContract"],
+                senders: ["0xStranger"],
+                isEvm: true,
+                isSentByOwner: false
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["0xOwner", "0xYieldContract"],
+                senders: ["0xStranger", "0xyieldcontract"],
+                isEvm: true,
+                isSentByOwner: true
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["0xOwner", "0xYieldContract"],
+                senders: ["0xStranger", "0xOtherStranger"],
+                isEvm: true,
+                isSentByOwner: false
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["bc1qOwner"],
+                senders: ["bc1qOwner"],
+                isEvm: false,
+                isSentByOwner: true
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["bc1qOwner"],
+                senders: ["bc1qowner"],
+                isEvm: false,
+                isSentByOwner: false
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["bc1qDefault", "bc1qDerived"],
+                senders: ["bc1qDerived"],
+                isEvm: false,
+                isSentByOwner: true
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["bc1qDefault", "bc1qDerived"],
+                senders: ["bc1qderived"],
+                isEvm: false,
+                isSentByOwner: false
+            ),
+            SenderOwnershipCase(
+                walletAddresses: ["bc1qDefault", "bc1qDerived"],
+                senders: ["bc1qStranger", "bc1qDerived"],
+                isEvm: false,
+                isSentByOwner: true
+            ),
+        ]
     }
 }

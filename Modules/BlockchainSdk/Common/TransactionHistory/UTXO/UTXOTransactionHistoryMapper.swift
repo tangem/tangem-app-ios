@@ -33,23 +33,27 @@ extension UTXOTransactionHistoryMapper: TransactionHistoryMapper {
             return []
         }
 
+        let walletAddressSet = walletAddress.toSet()
+
         return try transactions.compactMap { transaction -> TransactionRecord? in
-            try mapToTransactionRecord(transaction: transaction, walletAddress: walletAddress)
+            try mapToTransactionRecord(transaction: transaction, walletAddress: walletAddressSet)
         }
     }
 
-    func mapToTransactionRecord(transaction: BlockBookAddressResponse.Transaction, walletAddress: [String]) throws -> TransactionRecord {
+    func mapToTransactionRecord(
+        transaction: BlockBookAddressResponse.Transaction,
+        walletAddress: Set<String>
+    ) throws -> TransactionRecord {
         guard let feeSatoshi = Decimal(stringValue: transaction.fees) else {
             throw TransactionHistory.MapperError.notFound("Transaction.fees")
         }
 
-        let walletAddressSet = Set(walletAddress)
         let isOutgoing = transaction.compat.vin.contains { vin in
             guard let address = singleAddress(addresses: vin.addresses, isAddress: vin.isAddress) else {
                 return false
             }
 
-            return walletAddressSet.contains(address)
+            return walletAddress.contains(address)
         }
         let status: TransactionRecord.TransactionStatus = transaction.confirmations > 0 ? .confirmed : .unconfirmed
         let fee = feeSatoshi / decimalValue
