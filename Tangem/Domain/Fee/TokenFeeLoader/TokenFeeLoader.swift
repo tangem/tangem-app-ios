@@ -65,7 +65,7 @@ struct TronFeeRequestData: Hashable {
     /// TRX `call_value`); `nil` prices a plain transfer of `amount`.
     let callData: Data?
     /// Affects the fee: flat memo fee + extra bandwidth.
-    let memo: String?
+    let memo: Data?
     let otherNativeFee: Decimal?
 }
 
