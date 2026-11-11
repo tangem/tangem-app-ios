@@ -15,14 +15,16 @@ import TangemUI
 struct PolymarketEventsListView: View {
     @ObservedObject var viewModel: PolymarketEventsBlockViewModel
 
+    var isPlaceholder = false
+
     var body: some View {
         content
-            .polymarketStateTransition(contentState)
+            .polymarketStateTransition(ContentIdentity(feed: contentState == .loaded ? viewModel.feedKey : nil, state: contentState))
     }
 
     @ViewBuilder
     private var content: some View {
-        switch viewModel.loadingState {
+        switch displayedState {
         case .loading:
             VStack(spacing: Constants.cardSpacing) {
                 PolymarketEventsSkeletonView()
@@ -44,9 +46,18 @@ struct PolymarketEventsListView: View {
 // MARK: - Animation
 
 private extension PolymarketEventsListView {
+    struct ContentIdentity: Hashable {
+        let feed: PolymarketEventsBlockViewModel.FeedKey?
+        let state: PolymarketEventsBlockViewModel.LoadingState
+    }
+
+    var displayedState: PolymarketEventsBlockViewModel.LoadingState {
+        isPlaceholder ? .loading : viewModel.loadingState
+    }
+
     var contentState: PolymarketEventsBlockViewModel.LoadingState {
-        switch viewModel.loadingState {
-        case .loading, .error, .noResults: viewModel.loadingState
+        switch displayedState {
+        case .loading, .error, .noResults: displayedState
         case .loaded, .allDataLoaded, .paginationLoading, .paginationError: .loaded
         }
     }

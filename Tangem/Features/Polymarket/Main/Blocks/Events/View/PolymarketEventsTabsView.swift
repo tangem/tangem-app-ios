@@ -14,6 +14,7 @@ import TangemUI
 struct PolymarketEventsTabsView: View {
     @ObservedObject var viewModel: PolymarketEventsBlockViewModel
 
+    var isPlaceholder = false
     var animatesStateChanges = true
 
     var body: some View {
@@ -21,25 +22,30 @@ struct PolymarketEventsTabsView: View {
             VStack(spacing: Constants.rowSpacing) {
                 Group {
                     if animatesStateChanges {
-                        tabs.polymarketStateTransition(viewModel.categories.isEmpty)
+                        tabs.polymarketStateTransition(showsSkeleton)
                     } else {
                         tabs
                     }
                 }
 
-                subcategoryTabs
+                if !isPlaceholder {
+                    subcategoryTabs
+                }
             }
             .padding(.vertical, Constants.verticalPadding)
-            .animation(animatesStateChanges ? .polymarketStateChange : nil, value: viewModel.selectedCategoryID)
         }
+    }
+
+    private var showsSkeleton: Bool {
+        isPlaceholder || viewModel.categories.isEmpty
     }
 
     @ViewBuilder
     private var tabs: some View {
-        if viewModel.categories.isEmpty {
+        if showsSkeleton {
             PolymarketCategoriesSkeletonView()
         } else {
-            TabNavigation(data: viewModel.categoryTabs, selection: viewModel.selectedCategoryTab)
+            TabNavigation(data: viewModel.categoryTabs, selection: viewModel.selectedCategoryTab.animation(.polymarketStateChange))
                 .variant(.material)
                 .scrollable()
         }
@@ -51,7 +57,7 @@ struct PolymarketEventsTabsView: View {
 
         if !tabs.isEmpty {
             HStack(spacing: 0) {
-                TabNavigation(data: tabs, selection: viewModel.selectedSubcategoryTab)
+                TabNavigation(data: tabs, selection: viewModel.selectedSubcategoryTab.animation(.polymarketStateChange))
                     .variant(.material)
                     .scrollable()
                     .clipped()

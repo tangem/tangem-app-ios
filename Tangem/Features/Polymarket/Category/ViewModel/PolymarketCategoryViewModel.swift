@@ -70,7 +70,6 @@ private extension PolymarketCategoryViewModel {
 
         fastTradingSubscription = PolymarketFastTradingBannerMapper(includesForeignSigners: false)
             .mapToBannerPublisher(states: fastTrading.statePublisher, dismissals: fastTrading.bannerDismissalsPublisher)
-            .receiveOnMain()
             .sink { [weak self] banner in
                 self?.fastTradingBanner = banner
             }

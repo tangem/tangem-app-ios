@@ -56,12 +56,12 @@ struct PolymarketCategoryView: View {
                         onDismiss: { viewModel.handleViewAction(.dismissFastTradingBanner(fastTradingBanner)) }
                     )
                     .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
-                    .padding(.top, Constants.contentTopPadding)
+                    .padding(.top, Constants.bannerTopPadding)
                     .transition(.opacity)
                 }
 
                 PolymarketEventsListView(viewModel: viewModel.eventsViewModel)
-                    .padding(.top, Constants.contentTopPadding)
+                    .padding(.top, viewModel.fastTradingBanner == nil ? Constants.contentTopPadding : Constants.contentAfterBannerPadding)
             }
             .animation(PolymarketMainLayout.bannerAnimation, value: viewModel.fastTradingBanner)
         }
@@ -78,5 +78,7 @@ private extension PolymarketCategoryView {
     enum Constants {
         static let topBarTopPadding: CGFloat = 8
         static let contentTopPadding: CGFloat = 8
+        static let bannerTopPadding: CGFloat = 16
+        static let contentAfterBannerPadding: CGFloat = 24
     }
 }

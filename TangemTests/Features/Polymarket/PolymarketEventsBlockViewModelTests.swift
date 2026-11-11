@@ -176,6 +176,19 @@ struct PolymarketEventsBlockViewModelTests {
         #expect(context.provider.eventsRequests.count == 2)
     }
 
+    @Test("An event shown by two cards stays on screen when only one of them disappears")
+    func eventShownTwiceStaysVisibleAfterOneDisappearance() async throws {
+        let context = try await Self.makePollingContext(pages: [.init(category: 1, cursor: nil): Self.page(["a"])])
+
+        context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
+        context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: true))
+        context.sut.handleViewAction(.onEventVisibilityChange(id: "a", isVisible: false))
+        context.clock.advance(by: 21)
+        try await context.runVisibilityTick()
+
+        #expect(context.provider.eventsRequests.count == 2)
+    }
+
     @Test("A failed later page keeps the feed as it is")
     func failedLaterPageKeepsTheFeed() async throws {
         let context = try await Self.makePollingContext(pages: [

@@ -32,6 +32,10 @@ struct PolymarketMainView: View {
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
     }
 
+    private var isPlaceholder: Bool {
+        !viewModel.isContentRevealed
+    }
+
     // MARK: - Top bar
 
     private var topBar: some View {
@@ -41,7 +45,7 @@ struct PolymarketMainView: View {
                 .readGeometry(\.size.height, bindTo: $navBarHeight)
 
             if viewModel.isTabsPinned {
-                PolymarketEventsTabsView(viewModel: viewModel.eventsViewModel, animatesStateChanges: false)
+                PolymarketEventsTabsView(viewModel: viewModel.eventsViewModel, isPlaceholder: isPlaceholder, animatesStateChanges: false)
             }
         }
         .background {
@@ -86,38 +90,47 @@ struct PolymarketMainView: View {
 
     private var header: some View {
         VStack(spacing: 0) {
-            PolymarketBalanceBlockView(viewModel: viewModel.balanceViewModel)
+            PolymarketBalanceBlockView(viewModel: viewModel.balanceViewModel, isPlaceholder: isPlaceholder)
 
-            if viewModel.isRegionRestricted {
-                regionRestrictionBanner
-                    .padding(.top, Constants.bannerTopSpacing)
-                    .transition(.opacity)
+            if viewModel.isContentRevealed {
+                banners
             }
 
-            if !viewModel.fundingNotifications.isEmpty {
-                PolymarketOrderNotificationsView(notifications: viewModel.fundingNotifications)
-                    .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
-                    .padding(.top, Constants.bannerTopSpacing)
-                    .transition(.opacity)
-            }
-
-            if let fastTradingBanner = viewModel.fastTradingBanner {
-                PolymarketFastTradingBannerView(
-                    banner: fastTradingBanner,
-                    onAction: { viewModel.handleViewAction(.performFastTradingBannerAction(fastTradingBanner)) },
-                    onDismiss: { viewModel.handleViewAction(.dismissFastTradingBanner(fastTradingBanner)) }
-                )
-                .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
-                .padding(.top, Constants.bannerTopSpacing)
-                .transition(.opacity)
-            }
-
-            PolymarketPositionsBlockView(viewModel: viewModel.positionsViewModel)
+            PolymarketPositionsBlockView(viewModel: viewModel.positionsViewModel, isPlaceholder: isPlaceholder)
 
             exploreEventsTitle
                 .padding(.top, Constants.headerSpacing)
         }
         .padding(.top, Constants.headerTopPadding)
+    }
+
+    // MARK: - Banners
+
+    @ViewBuilder
+    private var banners: some View {
+        if viewModel.isRegionRestricted {
+            regionRestrictionBanner
+                .padding(.top, Constants.bannerTopSpacing)
+                .transition(.opacity)
+        }
+
+        if !viewModel.fundingNotifications.isEmpty {
+            PolymarketOrderNotificationsView(notifications: viewModel.fundingNotifications)
+                .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
+                .padding(.top, Constants.bannerTopSpacing)
+                .transition(.opacity)
+        }
+
+        if let fastTradingBanner = viewModel.fastTradingBanner {
+            PolymarketFastTradingBannerView(
+                banner: fastTradingBanner,
+                onAction: { viewModel.handleViewAction(.performFastTradingBannerAction(fastTradingBanner)) },
+                onDismiss: { viewModel.handleViewAction(.dismissFastTradingBanner(fastTradingBanner)) }
+            )
+            .padding(.horizontal, PolymarketMainLayout.horizontalPadding)
+            .padding(.top, Constants.bannerTopSpacing)
+            .transition(.opacity)
+        }
     }
 
     private var regionRestrictionBanner: some View {
@@ -163,17 +176,18 @@ struct PolymarketMainView: View {
 
     private var scrollContent: some View {
         ScrollView(showsIndicators: false) {
-            LazyVStack(spacing: Constants.contentSpacing) {
+            VStack(spacing: Constants.contentSpacing) {
                 header
                     .id(Constants.topAnchorID)
 
-                PolymarketEventsTabsView(viewModel: viewModel.eventsViewModel)
+                PolymarketEventsTabsView(viewModel: viewModel.eventsViewModel, isPlaceholder: isPlaceholder)
                     .readGeometry(inCoordinateSpace: .named(Constants.scrollSpace)) { viewModel.handleViewAction(.onTabsMove(minY: $0.frame.minY, navBarHeight: navBarHeight)) }
                     .opacity(viewModel.isTabsPinned ? 0 : 1)
                     .allowsHitTesting(!viewModel.isTabsPinned)
 
-                PolymarketEventsListView(viewModel: viewModel.eventsViewModel)
+                PolymarketEventsListView(viewModel: viewModel.eventsViewModel, isPlaceholder: isPlaceholder)
             }
+            .animation(PolymarketMainLayout.bannerAnimation, value: viewModel.isContentRevealed)
             .animation(PolymarketMainLayout.bannerAnimation, value: viewModel.isRegionRestricted)
             .animation(PolymarketMainLayout.bannerAnimation, value: viewModel.isAwaitingFunds)
             .animation(PolymarketMainLayout.bannerAnimation, value: viewModel.fastTradingBanner)

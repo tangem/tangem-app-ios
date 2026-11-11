@@ -12,7 +12,7 @@ import TangemPolymarket
 
 struct PolymarketSessionKeyFactory {
     static func isFastTradingAvailable() -> Bool {
-        FeatureProvider.isAvailable(.polymarketFastTrading)
+        FeatureProvider.isAvailable(.polymarketFastOrders)
     }
 
     static func isFastTradingPauseAvailable() -> Bool {

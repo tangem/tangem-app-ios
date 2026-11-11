@@ -93,7 +93,7 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
     private var cursor: String?
     private var hasNext = false
     private var cache: [FeedKey: CategoryState] = [:]
-    private var visibleEventIDs: Set<String> = []
+    private var eventAppearanceCounts: [String: Int] = [:]
     private var liveQuotesByAssetId: [String: PolymarketOutcomeQuote] = [:]
     private var liveGamesByGameId: [String: PolymarketLiveGame] = [:]
     private var refreshingPages: Set<PageKey> = []
@@ -371,6 +371,10 @@ private extension PolymarketEventsBlockViewModel {
 // MARK: - Polling
 
 private extension PolymarketEventsBlockViewModel {
+    var visibleEventIDs: Set<String> {
+        Set(eventAppearanceCounts.keys)
+    }
+
     @MainActor
     func pollVisiblePages() async {
         isPollingPaused = false
@@ -398,12 +402,13 @@ private extension PolymarketEventsBlockViewModel {
     @MainActor
     func updateVisibility(eventID: String, isVisible: Bool) {
         guard isVisible else {
-            visibleEventIDs.remove(eventID)
+            let remainingAppearances = eventAppearanceCounts[eventID, default: 0] - 1
+            eventAppearanceCounts[eventID] = remainingAppearances > 0 ? remainingAppearances : nil
             updateLiveQuotesTracking()
             return
         }
 
-        visibleEventIDs.insert(eventID)
+        eventAppearanceCounts[eventID, default: 0] += 1
         updateLiveQuotesTracking()
 
         guard visibilityTask == nil else {
@@ -834,10 +839,6 @@ private extension PolymarketEventsBlockViewModel {
         selectedSubcategoryID ?? selectedCategoryID
     }
 
-    var feedKey: FeedKey {
-        FeedKey(categoryID: feedCategoryID, filter: selectedFilter)
-    }
-
     func makeRequest(cursor: String?) -> PolymarketEventsRequest {
         PolymarketEventsRequest(category: feedCategoryID, filter: selectedFilter, limit: Constants.pageSize, cursor: cursor)
     }
@@ -885,9 +886,22 @@ private extension PolymarketEventsBlockViewModel {
     }
 }
 
+// MARK: - Feed identity
+
+extension PolymarketEventsBlockViewModel {
+    var feedKey: FeedKey {
+        FeedKey(categoryID: feedCategoryID, filter: selectedFilter)
+    }
+}
+
 // MARK: - Types
 
 extension PolymarketEventsBlockViewModel {
+    struct FeedKey: Hashable {
+        let categoryID: Int?
+        let filter: PolymarketCategoryFilter?
+    }
+
     enum Source {
         case explore(categoryOpener: PolymarketCategoryOpeningRoutable)
         case category(PolymarketCategory)
@@ -919,11 +933,6 @@ private extension PolymarketEventsBlockViewModel {
     enum Mode {
         case explore
         case category
-    }
-
-    struct FeedKey: Hashable {
-        let categoryID: Int?
-        let filter: PolymarketCategoryFilter?
     }
 
     enum Constants {

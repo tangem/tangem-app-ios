@@ -37,7 +37,7 @@ enum Feature: String, Hashable, CaseIterable {
     case dogecoinPsbtBdkFeeRateLimit
     case walletLinking
     case expressApiV2
-    case polymarketFastTrading
+    case polymarketFastOrders
     case polymarketFastTradingPause
     case allServices
     case intentSurvey
@@ -77,7 +77,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .dogecoinPsbtBdkFeeRateLimit: return "[REDACTED_INFO]_dogecoin_psbt_bdk_fee_rate_limit"
         case .walletLinking: return "[REDACTED_INFO]_wallet_linking"
         case .expressApiV2: return "TWI-1906_express_api_v2"
-        case .polymarketFastTrading: return "[REDACTED_INFO]_polymarket_fast_trading"
+        case .polymarketFastOrders: return "TWI-1881_polymarket_fast_orders"
         case .polymarketFastTradingPause: return "[REDACTED_INFO]_polymarket_fast_trading_pause"
         case .allServices: return "TWI-1720_all_services"
         case .intentSurvey: return "TWI-1899_intent_survey"
@@ -117,7 +117,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .dogecoinPsbtBdkFeeRateLimit: return .unspecified
         case .walletLinking: return .version("6.8")
         case .expressApiV2: return .version("6.8")
-        case .polymarketFastTrading: return .unspecified
+        case .polymarketFastOrders: return .unspecified
         case .polymarketFastTradingPause: return .unspecified
         case .allServices: return .unspecified
         case .intentSurvey: return .unspecified

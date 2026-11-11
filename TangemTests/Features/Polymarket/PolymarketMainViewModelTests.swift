@@ -51,11 +51,53 @@ struct PolymarketMainViewModelTests {
 
         #expect(fastTrading.dismissedBanners == [.reactivate])
     }
+
+    // MARK: - Content reveal
+
+    @Test("The main screen shows its content once fast trading has settled or is off, without waiting for the region", arguments: FastTradingSetup.allCases)
+    func revealsWithoutWaitingForTheRegion(_ setup: FastTradingSetup) async {
+        let (sut, _) = makeSUT(fastTrading: setup.makeProvider(), geoblockState: .unknown)
+
+        await sut.$isContentRevealed.firstValue { $0 }
+    }
+
+    @Test("The main screen keeps its content hidden while fast trading is loading and shows it after the timeout")
+    func revealsByTimeoutWhileFastTradingLoads() async throws {
+        let delays = PolymarketSteppedDelayProvider()
+        let (sut, _) = makeSUT(fastTrading: PolymarketFastTradingServiceSpy(state: .loading), geoblockState: .blocked, revealDelays: delays)
+        await sut.$isRegionRestricted.firstValue { $0 }
+
+        #expect(!sut.isContentRevealed)
+
+        try await delays.waitUntilParked(Delays.revealTimeout)
+        delays.resume(Delays.revealTimeout)
+
+        await sut.$isContentRevealed.firstValue { $0 }
+    }
 }
 
 // MARK: - Helpers
 
 private typealias Fixture = PolymarketSessionKeyFixtures
+
+extension PolymarketMainViewModelTests {
+    enum FastTradingSetup: CaseIterable, Sendable {
+        case settled
+        case off
+
+        @MainActor
+        func makeProvider() -> PolymarketFastTradingBannerProviding? {
+            switch self {
+            case .settled: PolymarketMainViewModelTests.showingForeignSigners()
+            case .off: nil
+            }
+        }
+    }
+}
+
+private enum Delays {
+    static let revealTimeout: TimeInterval = 1.5
+}
 
 private extension PolymarketMainViewModelTests {
     static func showingForeignSigners() -> PolymarketFastTradingServiceSpy {
@@ -68,7 +110,11 @@ private extension PolymarketMainViewModelTests {
         return PolymarketFastTradingServiceSpy(state: .loaded(Fixture.assess(keys: [], signers: [foreignSigner])))
     }
 
-    func makeSUT(fastTrading: PolymarketFastTradingBannerProviding) -> (sut: PolymarketMainViewModel, routable: MainRoutableSpy) {
+    func makeSUT(
+        fastTrading: PolymarketFastTradingBannerProviding?,
+        geoblockState: PolymarketGeoblockState = .allowed,
+        revealDelays: PolymarketSteppedDelayProvider = PolymarketSteppedDelayProvider()
+    ) -> (sut: PolymarketMainViewModel, routable: MainRoutableSpy) {
         let routable = MainRoutableSpy()
         let refreshCenter = PolymarketMainRefreshCenter()
         let fundsArrivalTracker = PolymarketFundsArrivalTracker(balancePublisher: .empty)
@@ -128,7 +174,7 @@ private extension PolymarketMainViewModelTests {
                 delayProvider: HoldingDelayProviderSpy(holdThreshold: 0),
                 reportOutdatedData: {}
             ),
-            geoblockStateProvider: PolymarketGeoblockStateProviderStub(),
+            geoblockStateProvider: PolymarketGeoblockStateProviderStub(state: geoblockState),
             fundsArrivalTracker: fundsArrivalTracker,
             withdrawTracker: PolymarketWithdrawTracker(
                 withdrawService: PolymarketWithdrawServiceSpy(),
@@ -138,6 +184,7 @@ private extension PolymarketMainViewModelTests {
             ),
             refreshCenter: refreshCenter,
             fastTrading: fastTrading,
+            revealDelayProvider: revealDelays,
             coordinator: routable
         )
 

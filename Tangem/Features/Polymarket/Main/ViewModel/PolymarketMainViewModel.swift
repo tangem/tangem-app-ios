@@ -13,6 +13,7 @@ import TangemPolymarket
 import TangemPolymarketUI
 
 final class PolymarketMainViewModel: ObservableObject {
+    @Published private(set) var isContentRevealed = false
     @Published private(set) var isTabsPinned = false
     @Published private(set) var isRegionRestricted = false
     @Published private(set) var isAwaitingFunds = false
@@ -38,10 +39,12 @@ final class PolymarketMainViewModel: ObservableObject {
     private let withdrawTracker: PolymarketWithdrawTracker
     private let refreshCenter: PolymarketMainRefreshCenter
     private let fastTrading: PolymarketFastTradingBannerProviding?
+    private let revealDelayProvider: PollDelayProvider
     private weak var coordinator: PolymarketMainRoutable?
 
     private var bag: Set<AnyCancellable> = []
     private var fastTradingSubscription: AnyCancellable?
+    private var revealTimeoutTask: Task<Void, Never>?
 
     @MainActor
     init(
@@ -54,6 +57,7 @@ final class PolymarketMainViewModel: ObservableObject {
         withdrawTracker: PolymarketWithdrawTracker,
         refreshCenter: PolymarketMainRefreshCenter,
         fastTrading: PolymarketFastTradingBannerProviding?,
+        revealDelayProvider: PollDelayProvider = TaskSleepPollDelayProvider(),
         coordinator: PolymarketMainRoutable
     ) {
         self.balanceViewModel = balanceViewModel
@@ -65,13 +69,20 @@ final class PolymarketMainViewModel: ObservableObject {
         self.withdrawTracker = withdrawTracker
         self.refreshCenter = refreshCenter
         self.fastTrading = fastTrading
+        self.revealDelayProvider = revealDelayProvider
         self.coordinator = coordinator
+        isContentRevealed = fastTrading == nil
 
         bindGeoblockState()
         bindFundsArrival()
         bindWithdrawal()
         bindSearch()
         bindFastTrading()
+        scheduleRevealTimeout()
+    }
+
+    deinit {
+        revealTimeoutTask?.cancel()
     }
 }
 
@@ -145,6 +156,8 @@ extension PolymarketMainViewModel {
 
 private extension PolymarketMainViewModel {
     func bindFundsArrival() {
+        isAwaitingFunds = fundsArrivalTracker.isAwaitingFunds
+
         fundsArrivalTracker
             .$isAwaitingFunds
             .receiveOnMain()
@@ -163,33 +176,52 @@ private extension PolymarketMainViewModel {
     func bindGeoblockState() {
         geoblockStateProvider
             .statePublisher
-            .map(\.isBlocked)
             .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, isRestricted in
-                viewModel.isRegionRestricted = isRestricted
-
-                if isRestricted {
-                    viewModel.coordinator?.openRegionWarning()
-                }
+            .sink { viewModel, state in
+                viewModel.apply(regionState: state)
             }
             .store(in: &bag)
+    }
+
+    func apply(regionState: PolymarketGeoblockState) {
+        if regionState.isBlocked != isRegionRestricted {
+            isRegionRestricted = regionState.isBlocked
+
+            if regionState.isBlocked {
+                coordinator?.openRegionWarning()
+            }
+        }
     }
 
     @MainActor
     func bindFastTrading() {
         guard let fastTrading else { return }
 
-        fastTradingSubscription = PolymarketFastTradingBannerMapper(includesForeignSigners: true)
-            .mapToBannerPublisher(states: fastTrading.statePublisher, dismissals: fastTrading.bannerDismissalsPublisher)
+        let mapper = PolymarketFastTradingBannerMapper(includesForeignSigners: true)
+
+        fastTradingSubscription = fastTrading.statePublisher
+            .combineLatest(fastTrading.bannerDismissalsPublisher)
+            .map { state, dismissals in
+                FastTradingUpdate(banner: mapper.mapToBanner(state: state, dismissals: dismissals), isSettled: state != .loading)
+            }
+            .removeDuplicates()
             .receiveOnMain()
             .withWeakCaptureOf(self)
-            .sink { viewModel, banner in
-                viewModel.fastTradingBanner = banner
+            .sink { viewModel, update in
+                viewModel.apply(update)
             }
 
         Task { await fastTrading.refresh() }
+    }
+
+    func apply(_ update: FastTradingUpdate) {
+        fastTradingBanner = update.banner
+
+        if update.isSettled {
+            revealContent()
+        }
     }
 
     @MainActor
@@ -216,5 +248,42 @@ private extension PolymarketMainViewModel {
         if pinned != isTabsPinned {
             isTabsPinned = pinned
         }
+    }
+}
+
+// MARK: - Content reveal
+
+private extension PolymarketMainViewModel {
+    func scheduleRevealTimeout() {
+        guard !isContentRevealed else { return }
+
+        revealTimeoutTask = Task { @MainActor [weak self, revealDelayProvider] in
+            try? await revealDelayProvider.wait(for: Constants.revealTimeout)
+
+            guard !Task.isCancelled else { return }
+
+            self?.revealContent()
+        }
+    }
+
+    func revealContent() {
+        guard !isContentRevealed else { return }
+
+        revealTimeoutTask?.cancel()
+        revealTimeoutTask = nil
+        isContentRevealed = true
+    }
+}
+
+// MARK: - Types
+
+private extension PolymarketMainViewModel {
+    struct FastTradingUpdate: Equatable {
+        let banner: PolymarketFastTradingBanner?
+        let isSettled: Bool
+    }
+
+    enum Constants {
+        static let revealTimeout: TimeInterval = 1.5
     }
 }

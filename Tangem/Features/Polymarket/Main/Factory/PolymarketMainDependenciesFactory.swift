@@ -51,7 +51,7 @@ struct PolymarketMainDependenciesFactory {
             activityHandler: PolymarketMainActivityHandler(fundsArrivalTracker: fundsArrivalTracker, refreshCenter: refreshCenter),
             sessionHealth: sessionHealth,
             fastTrading: fastTrading,
-            isSingleSheetOrderEnabled: isPhaseTwoAvailable,
+            isSingleSheetOrderEnabled: FeatureProvider.isAvailable(.polymarketFastOrders),
             isPhaseTwoAvailable: isPhaseTwoAvailable,
             isEventChartEnabled: isPhaseTwoAvailable && FeatureProvider.isAvailable(.polymarketEventCharts)
         )

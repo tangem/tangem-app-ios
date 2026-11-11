@@ -58,7 +58,7 @@ struct PolymarketSearchResultsView: View {
 
     private var skeleton: some View {
         ScrollView(showsIndicators: false) {
-            LazyVStack(spacing: Constants.contentSpacing) {
+            VStack(spacing: Constants.contentSpacing) {
                 resultsTitle
 
                 PolymarketEventsSkeletonView()
@@ -70,12 +70,14 @@ struct PolymarketSearchResultsView: View {
 
     private var results: some View {
         ScrollView(showsIndicators: false) {
-            LazyVStack(spacing: Constants.contentSpacing) {
+            VStack(spacing: Constants.contentSpacing) {
                 resultsTitle
 
-                eventCards
+                LazyVStack(spacing: Constants.contentSpacing) {
+                    eventCards
 
-                paginationFooter
+                    paginationFooter
+                }
             }
             .padding(.vertical, Constants.contentVerticalPadding)
         }
