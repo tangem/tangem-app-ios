@@ -13,6 +13,7 @@ enum TokenDetailsStakingState {
     case available(item: AvailableItem)
     case enable(item: EnableItem)
     case unavailable(item: UnavailableItem)
+    case earn(item: AvailableItem)
 }
 
 // MARK: - Items

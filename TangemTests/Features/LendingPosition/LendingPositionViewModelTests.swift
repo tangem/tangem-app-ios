@@ -108,16 +108,30 @@ final class LendingPositionViewModelTests: LeakTrackingTestSuite {
         #expect(sut.state.canWithdraw)
     }
 
-    @Test("Withdraw opens the withdrawal with the loaded position")
+    @Test("Withdraw opens the withdrawal with the loaded position and the amount available right now")
     func withdrawOpensWithPosition() async {
         let router = RouterSpy()
-        let sut = makeSUT(position: .success(2), router: router)
+        let sut = makeSUT(position: .success(2), available: .success(Decimal(15) / 10), router: router)
 
         sut.onAppear()
         await sut.positionTask?.value
         sut.handle(.withdraw)
 
         #expect(router.withdrawnPositions == [2])
+        #expect(router.withdrawnAvailable == [Decimal(15) / 10])
+    }
+
+    @Test("When the available amount couldn't be read, the withdrawal gets none and reads it itself")
+    func withdrawWithoutAvailable() async {
+        let router = RouterSpy()
+        let sut = makeSUT(position: .success(2), available: .failure(StubError()), router: router)
+
+        sut.onAppear()
+        await sut.positionTask?.value
+        sut.handle(.withdraw)
+
+        #expect(router.withdrawnPositions == [2])
+        #expect(router.withdrawnAvailable == [nil])
     }
 
     @Test("Without a current APY the calculator is off and the rate shows a dash")
@@ -287,14 +301,18 @@ private final class ApyHistoryProviderSpy: LendingApyHistoryProvider {
 }
 
 private final class RouterSpy: LendingPositionRoutable {
-    private let state = OSAllocatedUnfairLock(initialState: [Decimal]())
+    private let state = OSAllocatedUnfairLock(initialState: [(position: Decimal, available: Decimal?)]())
 
     var withdrawnPositions: [Decimal] {
-        state.withLock { $0 }
+        state.withLock { $0.map(\.position) }
     }
 
-    func openWithdraw(position: Decimal) {
-        state.withLock { $0.append(position) }
+    var withdrawnAvailable: [Decimal?] {
+        state.withLock { $0.map(\.available) }
+    }
+
+    func openWithdraw(position: Decimal, available: Decimal?) {
+        state.withLock { $0.append((position, available)) }
     }
 
     func openAddFunds() {}

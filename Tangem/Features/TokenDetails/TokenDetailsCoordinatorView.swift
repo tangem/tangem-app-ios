@@ -77,5 +77,8 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
                 StakingRegionUnavailableSheetView(viewModel: $0)
             }
             .addressBookContactManagementSheet($coordinator.contactManagementCoordinator)
+            .fullScreenCover(item: $coordinator.earnYieldPickerCoordinator, onDismiss: coordinator.earnYieldPickerDidDismiss) {
+                EarnYieldPickerCoordinatorView(coordinator: $0)
+            }
     }
 }

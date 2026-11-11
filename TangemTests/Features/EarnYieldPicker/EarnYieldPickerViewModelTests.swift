@@ -68,6 +68,26 @@ final class EarnYieldPickerViewModelTests: LeakTrackingTestSuite {
         #expect(coordinator.events == (hasFunds ? [.startEarning(.pooledStaking)] : [.addFunds]))
     }
 
+    @Test("The primary action does nothing while the previous tap is still loading")
+    func primaryActionWhileLoading() throws {
+        let (sut, coordinator) = try makeSUT(selectedProductID: .lendingOnAave)
+        sut.isPrimaryActionLoading = true
+
+        sut.onPrimaryActionTap()
+
+        #expect(coordinator.events.isEmpty)
+    }
+
+    @Test("The product stays the same while the primary action is loading")
+    func selectWhileLoading() throws {
+        let (sut, _) = try makeSUT(selectedProductID: .lendingOnAave)
+        sut.isPrimaryActionLoading = true
+
+        sut.select(Self.staking)
+
+        #expect(sut.selectedProduct.id == .lendingOnAave)
+    }
+
     @Test("Adding funds while the screen is open turns the primary action into starting to earn")
     func primaryActionFollowsBalance() async throws {
         let balance = MutableTokenBalanceProviderMock(balance: 0)

@@ -147,7 +147,8 @@ final class WalletModelTestsMock: WalletModel {
 
     // MARK: - StakingTokenBalanceProviderInput
 
-    var stakingManagerState: StakingManagerState { .notEnabled }
+    var stakingManagerStateMock: StakingManagerState = .notEnabled
+    var stakingManagerState: StakingManagerState { stakingManagerStateMock }
     var stakingManagerStatePublisher: AnyPublisher<StakingManagerState, Never> { .just(output: stakingManagerState) }
 
     // MARK: - ReceiveAddressTypesProvider

@@ -44,6 +44,8 @@ struct TokenDetailsStakingView: View {
             enableView(item: item)
         case .unavailable(let item):
             unavailableView(item: item)
+        case .earn(let item):
+            earnView(item: item)
         }
     }
 }
@@ -144,6 +146,30 @@ private extension TokenDetailsStakingView {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
+    }
+
+    func earnView(item: TokenDetailsStakingState.AvailableItem) -> some View {
+        MessageBanner(title: item.title, description: item.description)
+            .variant(.info)
+            .glowRing(.info)
+            .slotStart {
+                EarnIllustrationView(illustration: DesignSystem.Icons.accountYield)
+                    .shadow(
+                        color: DesignSystem.Color.bgAccentBlue.opacity(0.35),
+                        radius: iconShadowBlurRadius,
+                        x: .zero,
+                        y: iconShadowOffsetX
+                    )
+            }
+            .slotEnd {
+                TangemUI.Button(label: item.actionTitle, accessibilityLabel: nil, action: item.action)
+                    .styleType(.primary)
+                    .size(.x8)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+            .onTap(item.action)
+            .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
     }
 
     @ViewBuilder

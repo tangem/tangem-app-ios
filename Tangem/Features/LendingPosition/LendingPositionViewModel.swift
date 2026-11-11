@@ -27,6 +27,7 @@ final class LendingPositionViewModel: ObservableObject {
     private weak var router: LendingPositionRoutable?
 
     private var position: Decimal?
+    private var availableToWithdraw: Decimal?
     private(set) var positionTask: Task<Void, Never>?
     private(set) var chartTask: Task<Void, Never>?
 
@@ -84,7 +85,7 @@ final class LendingPositionViewModel: ObservableObject {
             loadChart()
         case .withdraw:
             guard state.canWithdraw, let position else { return }
-            router?.openWithdraw(position: position)
+            router?.openWithdraw(position: position, available: availableToWithdraw)
         case .addFunds:
             router?.openAddFunds()
         case .howItWorks:
@@ -127,11 +128,13 @@ private extension LendingPositionViewModel {
                 let position = try await liquidityProvider.nativePosition()
                 async let available = liquidityProvider.availableToWithdraw(nativePosition: position)
                 let fiat = await fiatConverter(position)
-                let availableValue = (try? await available) ?? position
+                let readAvailable = try? await available
+                let availableValue = readAvailable ?? position
                 let formatter = BalanceFormatter()
                 guard !Task.isCancelled else { return }
 
                 self?.position = position
+                self?.availableToWithdraw = readAvailable
                 self?.state.balance = StateModel.Balance(
                     fiat: formatter.formatFiatBalance(fiat, currencyCode: currencyCode),
                     crypto: formatter.formatCryptoBalance(position, currencyCode: tokenItem.currencySymbol)
@@ -143,6 +146,7 @@ private extension LendingPositionViewModel {
                 AppLogger.error(error: error)
                 let empty = BalanceFormatter.defaultEmptyBalanceString
                 self?.position = nil
+                self?.availableToWithdraw = nil
                 self?.state.balance = StateModel.Balance(fiat: empty, crypto: empty)
                 self?.state.availableBalance = empty
                 self?.state.canWithdraw = false

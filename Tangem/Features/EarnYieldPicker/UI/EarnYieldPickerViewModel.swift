@@ -16,6 +16,7 @@ final class EarnYieldPickerViewModel: ObservableObject {
     @Published private(set) var selectedProduct: EarnYieldPickerProduct
     @Published private(set) var calculator: EarnCalculatorViewModel
     @Published private(set) var primaryAction: PrimaryAction
+    @Published var isPrimaryActionLoading = false
 
     let products: [EarnYieldPickerProduct]
     let video: LoopingVideoBackgroundViewModel
@@ -71,7 +72,7 @@ final class EarnYieldPickerViewModel: ObservableObject {
     }
 
     func select(_ product: EarnYieldPickerProduct) {
-        guard product.id != selectedProduct.id else {
+        guard !isPrimaryActionLoading, product.id != selectedProduct.id else {
             return
         }
 
@@ -80,6 +81,10 @@ final class EarnYieldPickerViewModel: ObservableObject {
     }
 
     func onPrimaryActionTap() {
+        guard !isPrimaryActionLoading else {
+            return
+        }
+
         switch primaryAction {
         case .startEarning:
             coordinator?.openStartEarning(for: selectedProduct)

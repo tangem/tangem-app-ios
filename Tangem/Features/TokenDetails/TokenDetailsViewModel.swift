@@ -72,6 +72,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         }
     )
 
+    private lazy var earnStateProvider = makeEarnStateProvider()
+
     init(
         userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
@@ -267,6 +269,11 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             layout: .bottom(padding: 80),
             type: .temporary()
         )
+    }
+
+    override func onPullToRefresh() async {
+        earnStateProvider?.refresh()
+        await super.onPullToRefresh()
     }
 
     override func openMarketsTokenDetails() {
@@ -618,13 +625,22 @@ private extension TokenDetailsViewModel {
             }
         }
 
-        walletModel.stakingManagerStatePublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                AppLogger.info("Token details receive new StakingManager state: \(state)")
-                self?.updateStaking(state: state)
-            }
-            .store(in: &bag)
+        if let earnStateProvider {
+            earnStateProvider.statePublisher
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] state in
+                    self?.updateEarn(state: state)
+                }
+                .store(in: &bag)
+        } else {
+            walletModel.stakingManagerStatePublisher
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] state in
+                    AppLogger.info("Token details receive new StakingManager state: \(state)")
+                    self?.updateStaking(state: state)
+                }
+                .store(in: &bag)
+        }
 
         $miniChartData
             .receive(on: DispatchQueue.main)
@@ -681,6 +697,31 @@ private extension TokenDetailsViewModel {
 
     private func updateStaking(state: StakingManagerState) {
         updateRedesignStaking(state: state)
+    }
+
+    private func makeEarnStateProvider() -> TokenDetailsEarnStateProvider? {
+        guard LendingOnAave.isOffered(on: walletModel) else {
+            return nil
+        }
+
+        return TokenDetailsEarnStateProvider(
+            walletModel: walletModel,
+            userWalletInfo: userWalletInfo,
+            coordinator: coordinator,
+            addFundsOptions: { [weak self] in
+                self?.actionsViewModel?.addFundsOptions() ?? []
+            }
+        )
+    }
+
+    private func updateEarn(state: TokenDetailsEarnStateProvider.State) {
+        switch state {
+        case .earn(let earnState):
+            stakingState = earnState
+        case .staking(let state):
+            AppLogger.info("Token details receive new StakingManager state: \(state)")
+            updateStaking(state: state)
+        }
     }
 
     private func updateRedesignStaking(state: StakingManagerState) {
