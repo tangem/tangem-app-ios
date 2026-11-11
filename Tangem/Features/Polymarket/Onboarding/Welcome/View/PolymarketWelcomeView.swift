@@ -16,10 +16,12 @@ import TangemUIUtils
 struct PolymarketWelcomeView: View {
     @ObservedObject var viewModel: PolymarketWelcomeViewModel
 
+    @StateObject private var heroVideo = LoopingVideoBackgroundViewModel(provider: PolymarketWelcomeVideoProvider())
+
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 0) {
-                OnboardingHero(image: Assets.Polymarket.welcomeBackground, tint: .standard, scrollSpace: Constants.scrollSpace)
+                OnboardingHero(video: heroVideo, tint: .short, scrollSpace: Constants.scrollSpace)
 
                 title
 
