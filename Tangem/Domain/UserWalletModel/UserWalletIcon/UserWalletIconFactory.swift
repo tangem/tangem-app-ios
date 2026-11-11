@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import TangemAssets
+import TangemUI
 
 protocol UserWalletIconFactory {
     func icon(for walletInfo: WalletInfo) -> UserWalletIcon
@@ -20,7 +20,7 @@ extension CommonUserWalletIconFactory: UserWalletIconFactory {
         case .cardWallet(let cardInfo):
             .loadable(CardImageProvider(card: cardInfo.card))
         case .mobileWallet:
-            .content(.image(Assets.MobileWallet.mobileWalletInFrame.uiImage))
+            .content(.iconWithBackground(.mobileWallet))
         }
     }
 }

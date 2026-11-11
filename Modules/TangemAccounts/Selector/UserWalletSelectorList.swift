@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemFoundation
 import TangemUI
 import TangemUIUtils
@@ -44,7 +43,6 @@ struct UserWalletSelectorRow: View {
             .start { WalletIconView(content: item.icon, width: 40) }
             .subtitleAccessory { subtitle }
             .end { badge }
-            .overrideTextColors(RowOverrideTextColors(title: isLocked ? DesignSystem.Color.textSecondary : nil))
             .onTap(action: onTap)
             .disabled(isLocked)
     }

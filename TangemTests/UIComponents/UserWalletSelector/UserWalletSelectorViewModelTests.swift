@@ -51,7 +51,10 @@ final class UserWalletSelectorViewModelTests: LeakTrackingTestSuite {
         let mobileWallet = makeLockedUserWalletModel(idSeed: "mobileWallet")
         let (sut, _) = makeSUT(userWallets: [mobileWallet])
 
-        #expect(sut.items.first?.icon != nil)
+        guard case .iconWithBackground = sut.items.first?.icon else {
+            Issue.record("Expected the mobile wallet icon with background")
+            return
+        }
     }
 
     @Test("A card wallet row gets the card image once it loads")
