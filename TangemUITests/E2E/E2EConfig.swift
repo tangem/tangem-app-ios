@@ -13,7 +13,7 @@ import Foundation
 
 enum E2EConfig {
     static let testData = E2ETestData(
-        seedPhrase: "apology mask middle front stage rather oyster today scrap end close strong",
+        seedPhrase: "get it from qa-tools",
         walletId: "46255D252ED3808AF7F3F7797D2F2C0E87D8BB80896D0D0366A6EB6E4898CC4B",
         network: E2ENetwork(
             coinId: "polygon-ecosystem-token",
@@ -24,7 +24,15 @@ enum E2EConfig {
             accountAddresses: [
                 "0x3A0078b8407bC5d7C72FAd47F03eb9D315CA252e",
                 "0x6c9578665c02Cc3FF16639A7C636f756B085Ce49",
-            ]
+            ],
+            token: E2EToken(
+                coinId: "usd-coin",
+                searchQuery: "USDC",
+                tokenName: "USDC",
+                mainScreenToken: "USDC",
+                contractAddress: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+                sendAmount: "0.01"
+            )
         )
     )
 }

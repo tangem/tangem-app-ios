@@ -67,6 +67,10 @@ final class ManageTokensScreen: ScreenBase<ManageTokensScreenElement> {
             waitAndAssertTrue(toggle, "Network toggle \(networkName) should exist")
 
             if (toggle.value as? String) == "0" {
+                if app.keyboards.firstMatch.exists {
+                    searchField.typeText("\n")
+                }
+                scrollToElement(toggle)
                 toggle.waitAndTap()
                 tapSaveButton()
             }

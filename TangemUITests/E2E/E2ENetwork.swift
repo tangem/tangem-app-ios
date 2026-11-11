@@ -8,15 +8,23 @@
 
 import Foundation
 
+struct E2EToken {
+    let coinId: String
+    let searchQuery: String
+    let tokenName: String
+    let mainScreenToken: String
+    let contractAddress: String
+    let sendAmount: String
+}
+
 struct E2ENetwork {
     let coinId: String
     let searchQuery: String
     let tokenName: String
     let networkName: String
     let mainScreenToken: String
-    /// The wallet's per-account receive addresses for this network, ordered by account index (sender/recipient
-    /// for the Send E2E test).
     let accountAddresses: [String]
+    let token: E2EToken?
 }
 
 struct E2ETestData {
