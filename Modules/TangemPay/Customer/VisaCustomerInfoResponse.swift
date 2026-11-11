@@ -123,6 +123,7 @@ public extension VisaCustomerInfoResponse {
 
     enum PaymentAccountType: String, Codable {
         case collateralBankingAccount = "COLLATERAL_BANKING_ACCOUNT"
+        case collateralVirtualAccount = "COLLATERAL_VIRTUAL_ACCOUNT"
         case undefined = "UNDEFINED"
 
         public init(from decoder: Decoder) throws {
@@ -426,7 +427,7 @@ public extension VisaCustomerInfoResponse {
 
     /// First Virtual Account (`ACCOUNT`) product instance, regardless of status.
     var virtualAccountProductInstance: ProductInstance? {
-        productInstances.first { $0.productSpecificationDataType == .account }
+        productInstances.first { $0.paymentAccountType == .collateralVirtualAccount }
     }
 
     var collateralBankingAccountProductInstance: ProductInstance? {
