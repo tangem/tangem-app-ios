@@ -100,8 +100,7 @@ private extension MarketsTokenDetailsHeaderView {
             if let priceChangeState {
                 PriceChangeView(
                     state: priceChangeState,
-                    showSkeletonWhenLoading: true,
-                    useRedesignColors: true
+                    showSkeletonWhenLoading: true
                 )
                 .animation(.none, value: priceDate)
             }

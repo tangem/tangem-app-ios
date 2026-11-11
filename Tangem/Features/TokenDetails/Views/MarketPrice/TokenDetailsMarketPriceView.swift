@@ -65,8 +65,7 @@ struct TokenDetailsMarketPriceView: View {
                 PriceChangeView(
                     state: viewModel.priceChange,
                     showSkeletonWhenLoading: true,
-                    showIconForNeutral: true,
-                    useRedesignColors: true
+                    showIconForNeutral: true
                 )
                 .accessibilityIdentifier(TokenAccessibilityIdentifiers.marketPricePriceChange)
             }
