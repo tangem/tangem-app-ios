@@ -61,15 +61,18 @@ struct SendStepNavigationBarSettings: Hashable {
     static let empty = SendStepNavigationBarSettings()
 
     let title: String?
+    let subtitle: String?
     let leadingViewType: SendStepNavigationLeadingViewType?
     let trailingViewType: SendStepNavigationTrailingViewType?
 
     init(
         title: String? = nil,
+        subtitle: String? = nil,
         leadingViewType: SendStepNavigationLeadingViewType? = nil,
         trailingViewType: SendStepNavigationTrailingViewType? = nil
     ) {
         self.title = title
+        self.subtitle = subtitle
         self.leadingViewType = leadingViewType
         self.trailingViewType = trailingViewType
     }

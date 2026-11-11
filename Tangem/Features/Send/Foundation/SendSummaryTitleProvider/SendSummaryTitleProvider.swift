@@ -10,6 +10,11 @@ import TangemLocalization
 
 protocol SendSummaryTitleProvider {
     var title: String { get }
+    var subtitle: String? { get }
+}
+
+extension SendSummaryTitleProvider {
+    var subtitle: String? { nil }
 }
 
 // MARK: - Send
@@ -88,5 +93,18 @@ struct OnrampSendSummaryTitleProvider: SendSummaryTitleProvider {
 
     var title: String {
         "\(Localization.commonBuy) \(tokenItem.name)"
+    }
+
+    var subtitle: String? {
+        switch tokenItem {
+        case .blockchain:
+            Localization.commonMainNetwork
+        case .token:
+            if let standard = tokenItem.blockchain.tokenTypeName {
+                Localization.onrampBuyTitleSubtitleStandard(standard, tokenItem.networkName)
+            } else {
+                Localization.onrampBuyTitleSubtitleNetwork(tokenItem.networkName)
+            }
+        }
     }
 }
