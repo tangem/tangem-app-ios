@@ -456,7 +456,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Fast trading expires in %li day</string>
+        <string>Fast trading expires in 1 day</string>
         <key>other</key>
         <string>Fast trading expires in %li days</string>
       </dict>
