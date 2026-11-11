@@ -229,7 +229,7 @@ private extension AccountPickerViewModel {
         return AccountPickerAccountItem(
             id: id,
             name: account.name,
-            icon: AccountModelUtils.UI.iconViewData(accountModel: account),
+            icon: AccountModelUtils.UI.avatarAccount(accountModel: account),
             badge: isJoint ? Localization.commonJoint : nil,
             subtitle: details.map { "\($0.tokensCount) \(AppConstants.dotSign)" },
             balance: details?.balance ?? placeholderBalance,

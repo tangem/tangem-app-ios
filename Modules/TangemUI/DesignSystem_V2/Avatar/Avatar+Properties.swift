@@ -24,7 +24,7 @@ public extension Avatar {
         case transaction(TransactionKind, status: TransactionStatus)
         case user(User)
         case address(Image?)
-        case asset(Image, fill: Color? = nil, shape: Shape = .circle)
+        case asset(Image, shape: Shape = .circle)
         case account(Account, hasIndicator: Bool = false)
     }
 
@@ -79,7 +79,7 @@ public extension Avatar {
 extension Avatar.Content {
     var shape: Avatar.Shape {
         switch self {
-        case .icon(_, _, let shape), .asset(_, _, let shape): shape
+        case .icon(_, _, let shape), .asset(_, let shape): shape
         case .account: .roundedSquare
         case .transaction, .user, .address: .circle
         }
@@ -110,9 +110,9 @@ extension Avatar.Size {
     var metrics: Avatar.Metrics {
         switch self {
         case .size16: Avatar.Metrics(side: 16, glyph: 12, cornerRadius: 4, indicator: nil)
-        case .size40: Avatar.Metrics(side: 40, glyph: 20, cornerRadius: 12, indicator: Avatar.Indicator(overhang: 1))
-        case .size44: Avatar.Metrics(side: 44, glyph: 20, cornerRadius: 12, indicator: Avatar.Indicator(overhang: 1))
-        case .size72: Avatar.Metrics(side: 72, glyph: 28, cornerRadius: 20, indicator: Avatar.Indicator(overhang: 0))
+        case .size40: Avatar.Metrics(side: 40, glyph: 20, cornerRadius: 12, indicator: Avatar.Indicator(side: 12, gap: 1, overhang: 1))
+        case .size44: Avatar.Metrics(side: 44, glyph: 20, cornerRadius: 12, indicator: Avatar.Indicator(side: 12, gap: 1, overhang: 1))
+        case .size72: Avatar.Metrics(side: 72, glyph: 28, cornerRadius: 20, indicator: Avatar.Indicator(side: 12, gap: 1, overhang: 0))
         }
     }
 
@@ -276,8 +276,8 @@ extension Avatar {
     }
 
     struct Indicator {
-        var side: CGFloat = 12
-        var gap: CGFloat = 1
+        let side: CGFloat
+        let gap: CGFloat
         let overhang: CGFloat
 
         var cutOutDiameter: CGFloat {

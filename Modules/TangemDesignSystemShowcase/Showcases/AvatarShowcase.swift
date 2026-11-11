@@ -23,7 +23,6 @@ struct AvatarShowcase: View {
     @State private var fill: Fill = .palatinateBlue
     @State private var hasIdenticon = true
     @State private var asset: Asset = .flag
-    @State private var assetFill: Fill?
     @State private var shape: Avatar.Shape = .circle
     @State private var accountKind: AccountKind = .icon
     @State private var hasIndicator = false
@@ -52,7 +51,6 @@ struct AvatarShowcase: View {
                 controls.toggle("Identicon", $hasIdenticon)
             case .asset:
                 controls.picker("Image", $asset)
-                controls.picker("Fill", $assetFill)
                 controls.picker("Shape", $shape)
             case .account:
                 controls.picker("Kind", $accountKind)
@@ -69,7 +67,6 @@ struct AvatarShowcase: View {
             }
         } stage: {
             Avatar(content(for: kind), size: size)
-                .foregroundStyle(assetFill == nil ? DesignSystem.Color.iconPrimary : DesignSystem.Color.iconStaticDark)
                 .environment(\.isShimmerActive, isShimmer)
         } matrix: {
             DSShowcaseGroup("Variant × size") {
@@ -97,13 +94,6 @@ struct AvatarShowcase: View {
             DSShowcaseGroup("Shape · shimmer") {
                 shapeMatrix
                     .environment(\.isShimmerActive, true)
-            }
-
-            DSShowcaseGroup("Asset fill") {
-                DSShowcaseMatrix(rows: Fill.allCases) { fill in
-                    Avatar(.asset(Asset.crypto.image, fill: fill.color, shape: .roundedSquare), size: .size40)
-                        .foregroundStyle(DesignSystem.Color.iconStaticDark)
-                }
             }
 
             DSShowcaseGroup("Account") {
@@ -159,8 +149,6 @@ struct AvatarShowcase: View {
             HStack(spacing: 8) {
                 Avatar(.icon(Self.iconSample, shape: shape), size: size)
                 Avatar(.asset(Asset.flag.image, shape: shape), size: size)
-                Avatar(.asset(Asset.crypto.image, fill: Fill.palatinateBlue.color, shape: shape), size: size)
-                    .foregroundStyle(DesignSystem.Color.iconStaticDark)
             }
         }
     }
@@ -173,7 +161,7 @@ struct AvatarShowcase: View {
         case .transaction: .transaction(transactionKind, status: status)
         case .user: .user(isFallback ? .fallback : .initial(letter, fill: fill.color))
         case .address: .address(hasIdenticon ? Self.identicon : nil)
-        case .asset: .asset(asset.image, fill: assetFill?.color, shape: shape)
+        case .asset: .asset(asset.image, shape: shape)
         case .account: .account(accountKind.account(letter: letter, fill: fill.color), hasIndicator: hasIndicator)
         }
     }
@@ -202,7 +190,7 @@ struct AvatarShowcase: View {
     }
 
     private static var accountIcon: ImageType {
-        Assets.Accounts.airplane
+        DesignSystem.Icons.accountAirplane
     }
 
     fileprivate static let identicon: Image = {
@@ -286,14 +274,12 @@ private extension AvatarShowcase {
     enum Asset: CaseIterable, Hashable {
         case flag
         case identicon
-        case crypto
 
         @MainActor
         var image: Image {
             switch self {
             case .flag: AvatarShowcase.flag
             case .identicon: AvatarShowcase.identicon
-            case .crypto: DesignSystem.Icons.accountCrypto.image.renderingMode(.template)
             }
         }
     }

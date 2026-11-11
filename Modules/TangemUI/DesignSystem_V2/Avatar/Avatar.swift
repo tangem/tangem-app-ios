@@ -74,8 +74,8 @@ public struct Avatar: View {
             DesignSystem.Color.bgTransparentPrimary
         case .address(.some(let image)):
             image.resizable().scaledToFill()
-        case .asset(let image, let fill, _):
-            image.resizable().scaledToFill().background { fill }
+        case .asset(let image, _):
+            image.resizable().scaledToFill()
         }
     }
 
@@ -91,7 +91,7 @@ public struct Avatar: View {
         case .user(.fallback):
             tinted(size.fallbackGlyph, color: DesignSystem.Color.iconSecondary, side: metrics.glyph)
         case .account(.icon(let image, _), _):
-            tinted(image, color: DesignSystem.Color.paletteOpaqueBaseWhite80, side: metrics.side / 2)
+            tinted(image, color: Self.accountGlyphTint, side: metrics.side)
         case .account(.letter(let initial, _), _):
             letter(initial)
         case .account(.prediction, _):
@@ -99,9 +99,9 @@ public struct Avatar: View {
         case .account(.gacha, _):
             tinted(DesignSystem.Icons.accountGacha, color: DesignSystem.Color.iconStaticDark, side: metrics.side)
         case .account(.visa, _):
-            tinted(DesignSystem.Icons.accountVisa, color: DesignSystem.Color.paletteOpaqueBaseWhite80, side: metrics.side)
+            tinted(DesignSystem.Icons.accountVisa, color: Self.accountGlyphTint, side: metrics.side)
         case .account(.money, _):
-            tinted(DesignSystem.Icons.accountSafe, color: DesignSystem.Color.paletteOpaqueBaseWhite80, side: metrics.side)
+            tinted(DesignSystem.Icons.accountSafe, color: Self.accountGlyphTint, side: metrics.side)
         case .address, .asset:
             EmptyView()
         }
@@ -122,6 +122,8 @@ public struct Avatar: View {
             .frame(width: indicator.side, height: indicator.side)
             .clipShape(Circle())
     }
+
+    private static let accountGlyphTint = DesignSystem.Color.iconStaticDark.opacity(0.8)
 
     private func tinted(_ icon: ImageType, color: Color, side: CGFloat) -> some View {
         icon.image

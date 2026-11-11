@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import TangemAssets
 import TangemAccounts
+import TangemUI
 
 // [REDACTED_TODO_COMMENT]
 extension AccountModelUtils {
@@ -56,6 +57,29 @@ extension AccountModelUtils {
                 return Assets.Accounts.user
             case .wallet:
                 return Assets.Accounts.walletAccounts
+            }
+        }
+
+        static func avatarIconAsset(from name: AccountModel.CompositeIcon.Name) -> ImageType {
+            switch name {
+            case .airplaneMode: DesignSystem.Icons.accountAirplane
+            case .beach: DesignSystem.Icons.accountBeach
+            case .bookmark: DesignSystem.Icons.accountBookmark
+            case .clock: DesignSystem.Icons.accountClock
+            case .family: DesignSystem.Icons.accountFamily
+            case .favorite: DesignSystem.Icons.accountHeart
+            case .gift: DesignSystem.Icons.accountGift
+            case .home: DesignSystem.Icons.accountHome
+            case .letter: DesignSystem.Icons.accountLetter
+            case .money: DesignSystem.Icons.accountMoney
+            case .package: DesignSystem.Icons.accountPackage
+            case .safe: DesignSystem.Icons.accountSafe
+            case .shirt: DesignSystem.Icons.accountShirt
+            case .shoppingBasket: DesignSystem.Icons.accountShoppingBag
+            case .star: DesignSystem.Icons.accountStar
+            case .startUp: DesignSystem.Icons.accountRocket
+            case .user: DesignSystem.Icons.accountUser
+            case .wallet: DesignSystem.Icons.accountWallet
             }
         }
 
@@ -112,6 +136,23 @@ extension AccountModelUtils.UI {
 
     static func iconViewData(accountModel: any BaseAccountModel) -> AccountIconView.ViewData {
         iconViewData(icon: accountModel.icon.erased, accountName: accountModel.name)
+    }
+
+    static func avatarAccount(accountModel: any BaseAccountModel) -> Avatar.Account {
+        switch accountModel.icon.erased {
+        case .composite(let compositeIcon) where compositeIcon.name == .letter:
+            .letter(accountModel.name.prefix(1).uppercased(), fill: iconColor(from: compositeIcon.color))
+        case .composite(let compositeIcon):
+            .icon(avatarIconAsset(from: compositeIcon.name), fill: iconColor(from: compositeIcon.color))
+        case .standalone(.tangemPay):
+            .visa
+        case .standalone(.moneyAccount):
+            .money
+        case .standalone(.polymarket):
+            .prediction
+        case .standalone(.collectibles):
+            .gacha
+        }
     }
 }
 

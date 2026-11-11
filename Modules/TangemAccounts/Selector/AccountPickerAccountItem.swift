@@ -6,10 +6,12 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemUI
+
 public struct AccountPickerAccountItem: Identifiable {
     public let id: AnyHashable
     public let name: String
-    public let icon: AccountIconView.ViewData
+    public let icon: Avatar.Account
     public let badge: String?
     public let subtitle: String?
     public let balance: SelectorBalance?
@@ -19,7 +21,7 @@ public struct AccountPickerAccountItem: Identifiable {
     public init(
         id: AnyHashable,
         name: String,
-        icon: AccountIconView.ViewData,
+        icon: Avatar.Account,
         badge: String?,
         subtitle: String?,
         balance: SelectorBalance?,
