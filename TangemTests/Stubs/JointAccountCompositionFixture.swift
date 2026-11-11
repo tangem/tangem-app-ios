@@ -140,6 +140,45 @@ enum JointAccountCompositionFixture {
             threshold: threshold
         )
     }
+
+    static let coinOperationSafeTransaction = SafeTransaction(
+        to: strangerAddress,
+        value: 1_000_000_000_000_000,
+        data: Data(),
+        operation: 0,
+        safeTxGas: 0,
+        baseGas: JointOperationFeeConstants.baseGas,
+        gasPrice: 1_000_000_000,
+        gasToken: SafeGasToken.coinGasTokenRawValue,
+        refundReceiver: JointOperationFeeConstants.refundReceiver,
+        nonce: 0
+    )
+
+    static let coinOperationVote = try! JointOperationVoteFixture.approve(
+        over: coinOperationSafeTransaction,
+        chainId: 1,
+        safeAddress: Signed.safeAddress
+    )
+
+    static var coinOperationMember: JointAccountMember {
+        JointAccountMember(name: "Member", address: coinOperationVote.address, role: .creator, isMe: false, signature: nil)
+    }
+
+    static func validCoinTransfer(status: JointAccountOperationStatus = .awaitingSignatures) -> JointAccountOperation {
+        JointAccountOperation(
+            id: "coin",
+            chainId: 1,
+            safeTransaction: coinOperationSafeTransaction,
+            status: status,
+            txHash: nil,
+            finishedAt: nil,
+            cancelReason: nil,
+            initiator: coinOperationVote.address,
+            signatures: [coinOperationVote.signature],
+            createdAt: Date(timeIntervalSince1970: 1_757_323_237),
+            threshold: 2
+        )
+    }
 }
 
 // MARK: - Keys

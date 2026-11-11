@@ -122,7 +122,7 @@ extension JointAccountsNetworkMapper {
     }
 
     func mapToSignature(from dto: JointAccountsDTO.Response.Operation.Vote) -> JointAccountOperation.Signature {
-        JointAccountOperation.Signature(address: dto.address, state: mapSignatureState(from: dto.vote), at: dto.votedAt)
+        JointAccountOperation.Signature(address: dto.address, state: mapSignatureState(from: dto.vote), signature: dto.signature, at: dto.votedAt)
     }
 
     func mapToSafeTransaction(from dto: JointAccountsDTO.SafeTx) throws -> SafeTransaction {

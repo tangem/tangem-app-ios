@@ -23,6 +23,8 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
     let dismissAction: Action<Void>
     let popToRootAction: Action<PopToRootOptions>
 
+    let supportChatPresenter = SupportChatPresenter()
+
     // MARK: - Dependencies
 
     @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
@@ -859,7 +861,30 @@ extension MainCoordinator: JointAccountOperationDetailsRoutable {
             openAddContact(addressBookWallet: addressBookWallet, prefilledEntries: prefilledEntries)
         }
     }
+
+    func openSupportFromOperationDetails(userWalletId: UserWalletId) {
+        let chatInput = SupportChatInputModel(
+            logsComposer: LogsComposer(infoProvider: BaseDataCollector()),
+            userWalletId: userWalletId,
+            source: .settings
+        )
+
+        openSupportTypeSelection(
+            emailAction: { [weak self] in
+                self?.openMail(
+                    with: BaseDataCollector(),
+                    emailType: .appFeedback(subject: EmailConfig.default.subject),
+                    recipient: EmailConfig.default.recipient
+                )
+            },
+            chatInput: chatInput
+        )
+    }
 }
+
+// MARK: - SupportChatPresenting
+
+extension MainCoordinator: SupportChatPresenting {}
 
 // MARK: - AddressBookContactNavigating
 

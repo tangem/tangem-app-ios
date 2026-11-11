@@ -40,7 +40,7 @@ extension SafeGasToken {
     /// The network prices gas in the coin's smallest units; a token needs the same price in its own smallest units. It
     /// is rounded up because the refund is an integer per unit of gas, and a relayer paid in a coarse token must never
     /// come out short.
-    func gasPrice(fromCoinGasPrice coinGasPrice: BigUInt) -> BigUInt {
+    public func gasPrice(fromCoinGasPrice coinGasPrice: BigUInt) -> BigUInt {
         switch self {
         case .coin:
             return coinGasPrice

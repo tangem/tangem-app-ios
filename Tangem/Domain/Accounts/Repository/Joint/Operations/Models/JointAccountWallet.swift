@@ -30,6 +30,10 @@ struct JointAccountWallet {
         walletModel.safeWalletManagerOperationsService
     }
 
+    var ethereumNetworkProvider: (any EthereumNetworkProvider)? {
+        walletModel.ethereumNetworkProvider
+    }
+
     var account: (any JointAccountModel)? {
         walletModel.account as? any JointAccountModel
     }

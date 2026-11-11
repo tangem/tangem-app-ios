@@ -6,9 +6,12 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
+
 /// - Note: Closing is all the sheet asks of the outside: answering an operation and naming who has answered it stay
 ///   within the sheet, which swaps its own content the way the fee selector does.
 protocol JointAccountOperationDetailsRoutable: AnyObject {
     func closeOperationDetails()
     func openAddContactFromOperationDetails(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft])
+    func openSupportFromOperationDetails(userWalletId: UserWalletId)
 }

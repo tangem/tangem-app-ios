@@ -18,6 +18,7 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             if let viewModel = coordinator.tokenDetailsViewModel {
                 TokenDetailsView(viewModel: viewModel)
                     .navigationLinks(links)
+                    .supportChatPresentation(coordinator.supportChatPresenter)
             }
 
             sheets

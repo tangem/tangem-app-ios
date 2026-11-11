@@ -447,6 +447,7 @@ enum TransactionHistoryRecordsMapper {
                 JointAccountOperation.Signature(
                     address: signature.address,
                     state: JointAccountOperation.Signature.State(rawValue: signature.state) ?? .unknown,
+                    signature: nil,
                     at: signature.at
                 )
             },

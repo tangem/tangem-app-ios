@@ -11,6 +11,7 @@ import Combine
 import BlockchainSdk
 import UIKit
 import SwiftUI
+import TangemFoundation
 import TangemUI
 
 final class TokenDetailsCoordinator: CoordinatorObject {
@@ -20,8 +21,11 @@ final class TokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: any FloatingSheetPresentingStateProvider
+
+    let supportChatPresenter = SupportChatPresenter()
 
     // MARK: - Root view model
 
@@ -695,4 +699,31 @@ extension TokenDetailsCoordinator: JointAccountOperationDetailsRoutable {
             openAddContact(addressBookWallet: addressBookWallet, prefilledEntries: prefilledEntries)
         }
     }
+
+    func openSupportFromOperationDetails(userWalletId: UserWalletId) {
+        let chatInput = SupportChatInputModel(
+            logsComposer: LogsComposer(infoProvider: BaseDataCollector()),
+            userWalletId: userWalletId,
+            source: .settings
+        )
+
+        openSupportTypeSelection(
+            emailAction: { [weak self] in
+                let mailViewModel = MailViewModel(
+                    logsComposer: LogsComposer(infoProvider: BaseDataCollector()),
+                    recipient: EmailConfig.default.recipient,
+                    emailType: .appFeedback(subject: EmailConfig.default.subject)
+                )
+
+                Task { @MainActor in
+                    self?.mailPresenter.present(viewModel: mailViewModel)
+                }
+            },
+            chatInput: chatInput
+        )
+    }
 }
+
+// MARK: - SupportChatPresenting
+
+extension TokenDetailsCoordinator: SupportChatPresenting {}

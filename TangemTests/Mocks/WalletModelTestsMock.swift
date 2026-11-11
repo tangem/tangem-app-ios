@@ -241,7 +241,7 @@ final class WalletModelTestsMock: WalletModel {
     var tronTransactionDataBuilder: TronTransactionDataBuilder? { nil }
     var tronAccountActivationStateProvider: TronAccountActivationStateProvider? { tronAccountActivationStateProviderMock }
     var ethereumTransactionDataBuilder: EthereumTransactionDataBuilder? { nil }
-    var ethereumNetworkProvider: EthereumNetworkProvider? { nil }
+    var ethereumNetworkProvider: EthereumNetworkProvider? = nil
     var ethereumTransactionSigner: EthereumTransactionSigner? { nil }
     var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? { _safeWalletManagerOperationsService }
     var bitcoinTransactionFeeCalculator: BitcoinTransactionFeeCalculator? { nil }

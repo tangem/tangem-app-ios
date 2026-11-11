@@ -16,21 +16,24 @@ import TangemFoundation
 struct CommonJointAccountOperationsService {
     private let pendingOperationsRepository: JointAccountPendingOperationsRepository
     private let signerFactory: TangemSignerFactory
+    private let walletModelsManager: WalletModelsManager
     private let compositionVerifier: JointAccountCompositionVerifier
-    private let formVerifier: JointOperationFormVerifier
     private let blockaidGate: JointOperationBlockaidGate
+
+    private let verifier = JointOperationVerifier()
+    private let feeBoundsProvider = JointOperationFeeBoundsProvider()
 
     init(
         pendingOperationsRepository: JointAccountPendingOperationsRepository,
         signerFactory: TangemSignerFactory,
+        walletModelsManager: WalletModelsManager,
         compositionVerifier: JointAccountCompositionVerifier = JointAccountCompositionVerifier(),
-        formVerifier: JointOperationFormVerifier = JointOperationFormVerifier(),
         blockaidGate: JointOperationBlockaidGate = CommonJointOperationBlockaidGate()
     ) {
         self.pendingOperationsRepository = pendingOperationsRepository
         self.signerFactory = signerFactory
+        self.walletModelsManager = walletModelsManager
         self.compositionVerifier = compositionVerifier
-        self.formVerifier = formVerifier
         self.blockaidGate = blockaidGate
     }
 }
@@ -74,7 +77,7 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
     @discardableResult
     func signOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws -> JointAccountOperation {
         let account = try await activeAccount(of: wallet)
-        try formVerifier.verify(safeTransaction: operation.safeTransaction, safeAddress: account.safeAddress)
+        try await verifyOperation(operation, in: wallet, account: account)
 
         let safeOperationsService = try safeOperationsService(of: wallet)
 
@@ -211,6 +214,27 @@ private extension CommonJointAccountOperationsService {
             safeAddress: account.safeAddress,
             memberAddresses: account.memberAddresses,
             signersCount: account.signersCount
+        )
+    }
+
+    func verifyOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet, account: ActiveAccount) async throws {
+        guard let ethereumNetworkProvider = wallet.ethereumNetworkProvider else {
+            throw JointOperationError.unsupportedNetwork
+        }
+
+        let networkGasPrice = try await ethereumNetworkProvider.getGasPrice().async()
+        let feeBounds = try await feeBoundsProvider.signingBounds(
+            operation: operation,
+            blockchain: wallet.tokenItem.blockchain,
+            walletModels: walletModelsManager.walletModels,
+            networkGasPrice: networkGasPrice
+        )
+
+        try verifier.verify(
+            operation: operation,
+            safeAddress: account.safeAddress,
+            memberAddresses: account.memberAddresses,
+            feeBounds: feeBounds
         )
     }
 

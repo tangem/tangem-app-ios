@@ -25,6 +25,7 @@ struct MainCoordinatorView: CoordinatorView {
                 if let mainViewModel = coordinator.mainViewModel {
                     MainView(viewModel: mainViewModel)
                         .navigationLinks(links)
+                        .supportChatPresentation(coordinator.supportChatPresenter)
                         .onDidAppear { [weak coordinator] in
                             coordinator?.showMarketsTooltip()
                         }

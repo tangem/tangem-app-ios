@@ -45,6 +45,7 @@ final class JointAccountOperationDetailsViewModel: ObservableObject, FloatingShe
     private let transactionViewModelBuilder = JointAccountOperationTransactionViewModelBuilder()
     private let signingActionButtonType: SigningActionButtonViewType
     private let copyHelper = JointAccountCopyHelper()
+
     private weak var coordinator: JointAccountOperationDetailsRoutable?
     private var frequentUpdatesSubscription: AnyCancellable?
 
@@ -228,8 +229,18 @@ private extension JointAccountOperationDetailsViewModel {
         } catch {
             JointAccountsLogger.error("Failed to sign a joint account operation", error: error)
             analyticsLogger.logSigningFailed(error: error)
-            alertPresenter.present(alert: JointAccountOperationSigningErrorAlert(error: error).alertBinder)
+            presentSigningError(error)
         }
+    }
+
+    func presentSigningError(_ error: Error) {
+        alertPresenter.present(alert: JointAccountOperationSigningErrorAlert(error: error, onSupport: { [weak self] in
+            self?.openSupport()
+        }).alertBinder)
+    }
+
+    func openSupport() {
+        coordinator?.openSupportFromOperationDetails(userWalletId: addressBookWallet.wallet.id)
     }
 }
 
@@ -279,7 +290,11 @@ private extension JointAccountOperationDetailsViewModel {
         } catch {
             JointAccountsLogger.error("Failed to reject a joint account operation", error: error)
             analyticsLogger.logRejectionFailed(error: error, isInitiator: isInitiator)
-            alertPresenter.present(alert: JointAccountOperationSigningErrorAlert(error: error).alertBinder)
+            alertPresenter.present(alert: AlertBuilder.makeAlertWithDefaultPrimaryButton(
+                title: Localization.commonSomethingWentWrong,
+                message: Localization.accountGenericErrorDialogMessage,
+                buttonText: Localization.commonOk
+            ))
             return
         }
 
