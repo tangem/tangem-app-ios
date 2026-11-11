@@ -15,7 +15,7 @@ enum ValidationErrorEvent: Hashable {
     // Amount/Fee notifications
     case invalidNumber
     case insufficientBalance
-    case insufficientBalanceForFee(configuration: SendingRestrictions.NotEnoughFeeConfiguration)
+    case insufficientBalanceForFee(configuration: NotEnoughFeeConfiguration)
 
     // Blockchain specific notifications
     case dustRestriction(minimumAmountFormatted: String, minimumChangeFormatted: String)

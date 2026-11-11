@@ -29,26 +29,25 @@ class VisaWalletModel {
     lazy var fiatAvailableBalanceProvider = makeFiatAvailableBalanceProvider()
     lazy var fiatTotalTokenBalanceProvider = makeFiatTotalTokenBalanceProvider()
 
+    let pendingTransactionsProvider: PendingTransactionsProvider = EmptyPendingTransactionsProvider()
+
     var demoBalance: Decimal?
     let tokenItem: TokenItem
     private let stateSubject = CurrentValueSubject<WalletModelState, Never>(.created)
     private lazy var rateSubject = CurrentValueSubject<WalletModelRate, Never>(.loading(cached: quotesRepository.quote(for: tokenItem)))
     private let transactionDependency = VisaDummyTransactionDependencies(isTestnet: FeatureStorage.instance.visaAPIType.isTestnet)
     private let tokenBalancesRepository: TokenBalancesRepository
-    private let transactionSendAvailabilityProvider: TransactionSendAvailabilityProvider
 
     init(
         userWalletId: UserWalletId,
         tokenItem: TokenItem,
-        tokenBalancesRepository: TokenBalancesRepository,
-        transactionSendAvailabilityProvider: TransactionSendAvailabilityProvider
+        tokenBalancesRepository: TokenBalancesRepository
     ) {
         self.userWalletId = userWalletId
         self.tokenItem = tokenItem
         id = .init(tokenItem: tokenItem)
 
         self.tokenBalancesRepository = tokenBalancesRepository
-        self.transactionSendAvailabilityProvider = transactionSendAvailabilityProvider
     }
 }
 
@@ -188,20 +187,8 @@ extension VisaWalletModel: WalletModelTransactionHistoryProvider {
         false
     }
 
-    var hasPendingTransactions: Bool {
-        false
-    }
-
-    var hasAnyPendingTransactions: Bool {
-        false
-    }
-
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> {
         .just(output: .notSupported)
-    }
-
-    var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {
-        .just(output: [])
     }
 }
 
@@ -276,10 +263,6 @@ extension VisaWalletModel: WalletModel {
 
     var isDemo: Bool {
         false
-    }
-
-    var sendingRestrictions: SendingRestrictions? {
-        transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {

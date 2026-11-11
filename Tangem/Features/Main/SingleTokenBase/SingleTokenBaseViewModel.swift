@@ -416,25 +416,19 @@ extension SingleTokenBaseViewModel {
             }
             .store(in: &bag)
 
-        walletModel
-            .pendingTransactionPublisher
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .map { owner, transactions in
-                // Only if the transaction history isn't supported
-                guard !owner.walletModel.isSupportedTransactionHistory else {
-                    return []
+        // Only if the transaction history isn't supported
+        if !walletModel.isSupportedTransactionHistory {
+            walletModel
+                .pendingTransactionsProvider
+                .pendingTransactionsPublisher
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .map { owner, transactions in
+                    transactions.map(owner.pendingTransactionRecordMapper.mapToTransactionViewModel)
                 }
-
-                return transactions.map { transaction in
-                    owner.pendingTransactionRecordMapper.mapToTransactionViewModel(transaction)
-                }
-            }
-            .withWeakCaptureOf(self)
-            .sink { owner, viewModels in
-                owner.pendingTransactionViews = viewModels
-            }
-            .store(in: &bag)
+                .assign(to: \.pendingTransactionViews, on: self, ownership: .weak)
+                .store(in: &bag)
+        }
 
         // [REDACTED_TODO_COMMENT]
         walletModel.transactionHistoryPublisher

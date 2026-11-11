@@ -36,7 +36,6 @@ final class WalletModelTestsMock: WalletModel {
     var tronGaslessTransactionsBuilderMock: (any TronGaslessTransactionsBuilder)?
     var solanaGaslessTransactionBuilderMock: (any SolanaGaslessTransactionBuilder)?
     var isCustomMock = false
-    var sendingRestrictionsMock: SendingRestrictions?
     private let _updateAfterSendingTransactionCalls = OSAllocatedUnfairLock(initialState: [Bool]())
     var updateAfterSendingTransactionSilentFlags: [Bool] { _updateAfterSendingTransactionCalls.withLock { $0 } }
     var updateAfterSendingTransactionCallCount: Int { updateAfterSendingTransactionSilentFlags.count }
@@ -113,6 +112,8 @@ final class WalletModelTestsMock: WalletModel {
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
         _fiatBalanceProvider
     }
+
+    var pendingTransactionsProvider: PendingTransactionsProvider { EmptyPendingTransactionsProvider() }
 
     // MARK: - AvailableTokenBalanceProviderInput
 
@@ -204,7 +205,6 @@ final class WalletModelTestsMock: WalletModel {
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
     var isDemo: Bool { false }
     var demoBalance: Decimal? { get { nil } set {} }
-    var sendingRestrictions: SendingRestrictions? { sendingRestrictionsMock }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { .empty }
     var stakingManager: StakingManager? { stakingManagerMock }
     var stakeKitTransactionSender: StakeKitTransactionSender? { nil }
@@ -250,10 +250,7 @@ final class WalletModelTestsMock: WalletModel {
     var scaledUIAmountProvider: ScaledUIAmountProvider? { nil }
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { nil }
     var isSupportedTransactionHistory: Bool { false }
-    var hasPendingTransactions: Bool { false }
-    var hasAnyPendingTransactions: Bool { false }
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> { .empty }
-    var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> { .empty }
     var hasRent: Bool { false }
     var existentialDepositWarning: String? { nil }
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { nil }

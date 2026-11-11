@@ -92,17 +92,6 @@ extension CommonWalletModel {
         let derivationPath = walletManager.wallet.publicKey.derivationPath
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
         let tokenItem = token.map { TokenItem.token($0, blockchainNetwork) } ?? TokenItem.blockchain(blockchainNetwork)
-        let mobileWalletInfo = MobileWalletInfo(
-            hasMnemonicBackup: false,
-            hasICloudBackup: false,
-            hasSocialLogin: false,
-            accessCodeStatus: .none,
-            keys: []
-        )
-
-        let config = UserWalletConfigFactory().makeConfig(mobileWalletInfo: mobileWalletInfo)
-        let hwLimitationsUtil = HardwareLimitationsUtil(config: config)
-        let sendAvailabilityProvider = TransactionSendAvailabilityProvider(hardwareLimitationsUtil: hwLimitationsUtil)
 
         return CommonWalletModel(
             userWalletId: .init(with: Data()),
@@ -111,10 +100,10 @@ extension CommonWalletModel {
             stakingManager: StakingManagerMock(),
             isYieldModuleSupported: true,
             featureManager: WalletModelFeaturesManagerMock(),
+            pendingTransactionsProvider: CommonPendingTransactionsProvider(walletProvider: walletManager, tokenItem: tokenItem),
             transactionHistoryUpdater: TransactionHistoryUpdater(),
             transactionHistoryService: transactionHistoryService,
             receiveAddressService: DummyReceiveAddressService(addressInfos: []),
-            sendAvailabilityProvider: sendAvailabilityProvider,
             tokenBalancesRepository: TokenBalancesRepositoryMock(),
             isCustom: false
         )

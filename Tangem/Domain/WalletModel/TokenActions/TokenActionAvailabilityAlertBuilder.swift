@@ -45,7 +45,7 @@ struct TokenActionAvailabilityAlertBuilder {
 
     func alert(for status: TokenActionAvailabilityProvider.SendActionAvailabilityStatus) -> AlertBinder? {
         switch status {
-        case .available:
+        case .available, .zeroFeeCurrencyBalance:
             return nil
         case .hasPendingTransaction(let blockchainDisplayName):
             return .init(

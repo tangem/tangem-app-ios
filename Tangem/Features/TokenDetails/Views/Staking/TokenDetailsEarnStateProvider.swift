@@ -78,7 +78,7 @@ final class TokenDetailsEarnStateProvider {
             currentApy: lendingApy.value.value,
             liquidityProvider: liquidityProvider,
             entryLoader: LendingDepositEntryLoader(reader: lendingModuleReader),
-            pendingTransactions: walletModel.pendingTransactionPublisher
+            pendingTransactions: walletModel.pendingTransactionsProvider.pendingTransactionsPublisher
         )
 
         coordinator?.openLendingPosition(options: options)

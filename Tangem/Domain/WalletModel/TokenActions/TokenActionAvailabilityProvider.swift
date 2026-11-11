@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemLocalization
+import TangemUI
 import enum BlockchainSdk.Blockchain
 import TangemMacro
 
@@ -19,6 +19,7 @@ struct TokenActionAvailabilityProvider {
     private let sellCryptoUtility: SellCryptoUtility
 
     private var userWalletConfig: UserWalletConfig { userWalletInfo.config }
+    private var hardwareLimitationsUtil: HardwareLimitationsUtil { HardwareLimitationsUtil(config: userWalletConfig) }
 
     init(
         userWalletInfo: UserWalletInfo,
@@ -215,7 +216,7 @@ extension TokenActionAvailabilityProvider {
             return .missingAssetRequirement
         }
 
-        switch walletModel.sendingRestrictions {
+        switch sendAvailability {
         case .cantSignLongTransactions:
             return .cantSignLongTransactions
         case .blockchainUnreachable:
@@ -224,13 +225,13 @@ extension TokenActionAvailabilityProvider {
             return .blockchainLoading
         case .hasOnlyCachedBalance:
             return .hasOnlyCachedBalance
-        case .hasPendingTransaction,
-             .hasPendingWithdrawOrder,
+        case .available,
+             .hasPendingTransaction,
              .oldCard,
              .zeroFeeCurrencyBalance,
              .noAccount,
              .zeroWalletBalance,
-             .none:
+             .yieldModuleApproveNeeded:
             break
         }
 
@@ -294,14 +295,24 @@ extension TokenActionAvailabilityProvider {
         case hasOnlyCachedBalance
         case yieldModuleApproveNeeded
         case noAccount
+        case zeroFeeCurrencyBalance(configuration: NotEnoughFeeConfiguration)
     }
 
     var isSendAvailable: Bool {
-        if case .available = sendAvailability {
+        switch sendAvailability {
+        case .available, .zeroFeeCurrencyBalance:
             return true
+        case .zeroWalletBalance,
+             .cantSignLongTransactions,
+             .hasPendingTransaction,
+             .blockchainUnreachable,
+             .blockchainLoading,
+             .oldCard,
+             .hasOnlyCachedBalance,
+             .yieldModuleApproveNeeded,
+             .noAccount:
+            return false
         }
-
-        return false
     }
 
     var sendAvailability: SendActionAvailabilityStatus {
@@ -309,27 +320,70 @@ extension TokenActionAvailabilityProvider {
             return .yieldModuleApproveNeeded
         }
 
-        switch walletModel.sendingRestrictions {
+        switch hardwareLimitationsUtil.getSendLimitations(walletModel.tokenItem) {
         case .oldCard:
             return .oldCard
-        case .cantSignLongTransactions:
+        case .longHashes, .oldDevice:
             return .cantSignLongTransactions
-        case .hasPendingWithdrawOrder:
-            return .hasPendingTransaction(blockchainDisplayName: Localization.tangempayTitle)
-        case .hasPendingTransaction(let blockchain):
-            return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
-        case .blockchainUnreachable:
-            return .blockchainUnreachable
-        case .blockchainLoading:
+        case .none:
+            break
+        }
+
+        switch walletModel.availableBalanceProvider.balanceType {
+        case .loading(.none):
             return .blockchainLoading
-        case .hasOnlyCachedBalance:
-            return .hasOnlyCachedBalance
-        case .zeroWalletBalance:
-            return .zeroWalletBalance
-        case .none, .zeroFeeCurrencyBalance:
-            return .available
-        case .noAccount:
+        case .empty(.noAccount):
             return .noAccount
+        case .empty, .failure(.none):
+            return .blockchainUnreachable
+        case .loading(.some), .failure(.some):
+            return .hasOnlyCachedBalance
+        case .loaded(let value) where value == .zero:
+            return .zeroWalletBalance
+        case .loaded:
+            break
+        }
+
+        if walletModel.pendingTransactionsProvider.hasAnyBlockingPendingTransactions {
+            return .hasPendingTransaction(blockchainDisplayName: walletModel.tokenItem.blockchain.displayName)
+        }
+
+        if !walletModel.hasFeeCurrency(), let configuration = makeNotEnoughFeeConfiguration() {
+            return .zeroFeeCurrencyBalance(configuration: configuration)
+        }
+
+        return .available
+    }
+
+    private func makeNotEnoughFeeConfiguration() -> NotEnoughFeeConfiguration? {
+        do {
+            let feeWalletModelFinderResult = try WalletModelFinder.findWalletModel(tokenItem: walletModel.feeTokenItem)
+            let availabilityProvider = TokenActionAvailabilityProvider(
+                userWalletInfo: feeWalletModelFinderResult.userWalletModel.userWalletInfo,
+                walletModel: feeWalletModelFinderResult.walletModel
+            )
+
+            let tokenIconInfo = TokenIconInfoBuilder().build(
+                for: walletModel.feeTokenItem.amountType,
+                in: walletModel.feeTokenItem.blockchain,
+                isCustom: walletModel.isCustom
+            )
+
+            return NotEnoughFeeConfiguration(
+                amountCurrencySymbol: walletModel.tokenItem.currencySymbol,
+                amountCurrencyBlockchainName: walletModel.tokenItem.blockchain.displayName,
+                transactionAmountTypeName: walletModel.tokenItem.name,
+                feeAmountTypeName: walletModel.feeTokenItem.name,
+                feeAmountTypeCurrencySymbol: walletModel.feeTokenItem.currencySymbol,
+                feeTokenIconInfo: tokenIconInfo,
+                networkName: walletModel.tokenItem.networkName,
+                currencyButtonTitle: walletModel.tokenItem.blockchain.feeDisplayName,
+                isFeeCurrencyPurchaseAllowed: availabilityProvider.isBuyAvailable,
+                feeCurrencyBalance: walletModel.getFeeCurrencyBalance()
+            )
+        } catch {
+            AppLogger.error(error: "FeeWalletModel didn't found")
+            return nil
         }
     }
 }
@@ -379,15 +433,13 @@ extension TokenActionAvailabilityProvider {
             return .unavailable(tokenName: walletModel.tokenItem.name)
         }
 
-        switch walletModel.sendingRestrictions {
+        switch sendAvailability {
         case .oldCard:
             return .oldCard
         case .cantSignLongTransactions:
             return .cantSignLongTransactions
-        case .hasPendingWithdrawOrder:
-            return .hasPendingTransaction(blockchainDisplayName: Localization.tangempayTitle)
-        case .hasPendingTransaction(let blockchain):
-            return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
+        case .hasPendingTransaction(let blockchainDisplayName):
+            return .hasPendingTransaction(blockchainDisplayName: blockchainDisplayName)
         case .blockchainUnreachable:
             return .blockchainUnreachable
         case .blockchainLoading:
@@ -396,13 +448,13 @@ extension TokenActionAvailabilityProvider {
             return .hasOnlyCachedBalance
         case .zeroWalletBalance:
             return .zeroWalletBalance
-        case .none, .zeroFeeCurrencyBalance:
-            break
+        case .yieldModuleApproveNeeded:
+            return .yieldModuleApproveNeeded
         case .noAccount:
             return .noAccount
+        case .available, .zeroFeeCurrencyBalance:
+            return .available
         }
-
-        return .available
     }
 }
 
@@ -501,8 +553,8 @@ extension TokenActionAvailabilityProvider {
     }
 
     var dynamicAddressesAvailability: DynamicAddressesActionAvailabilityStatus {
-        if case .hasPendingTransaction(let blockchain) = walletModel.sendingRestrictions {
-            return .hasPendingTransaction(blockchainDisplayName: blockchain.displayName)
+        if walletModel.pendingTransactionsProvider.hasAnyBlockingPendingTransactions {
+            return .hasPendingTransaction(blockchainDisplayName: walletModel.tokenItem.blockchain.displayName)
         }
 
         return .available

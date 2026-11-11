@@ -10,10 +10,6 @@ import Foundation
 import Combine
 
 struct JointAccountPendingOperationsProviderMock: JointAccountPendingOperationsProvider {
-    func hasPendingOperations(chainId: Int) -> Bool {
-        false
-    }
-
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
         Just([]).eraseToAnyPublisher()
     }

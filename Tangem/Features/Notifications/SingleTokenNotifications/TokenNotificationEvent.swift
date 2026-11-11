@@ -316,8 +316,6 @@ extension TokenNotificationEvent: NotificationEvent {
 // MARK: - Auxiliary types
 
 extension TokenNotificationEvent {
-    typealias NotEnoughFeeConfiguration = SendingRestrictions.NotEnoughFeeConfiguration
-
     enum UnfulfilledRequirementsConfiguration: Hashable {
         /// `formattedValue` is a formatted string for the value denominated in HBARs.
         struct HederaTokenAssociationFee: Hashable {

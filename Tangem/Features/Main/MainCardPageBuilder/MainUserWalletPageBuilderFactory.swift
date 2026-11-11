@@ -193,7 +193,7 @@ struct CommonMainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory 
         }
 
         let singleWalletNotificationManager = SingleTokenNotificationManager(
-            userWalletId: model.userWalletId,
+            userWalletInfo: model.userWalletInfo,
             walletModel: dependencies.walletModel,
             walletModelsManager: dependencies.walletModelsManager,
             signingActionButtonType: SigningActionButtonViewTypeBuilder().build(config: model.config)

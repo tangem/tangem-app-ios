@@ -328,7 +328,7 @@ private extension TokenDetailsView {
         .first ?? CommonWalletModel.mockETH
 
     let notifManager = SingleTokenNotificationManager(
-        userWalletId: userWalletModel.userWalletId,
+        userWalletInfo: userWalletModel.userWalletInfo,
         walletModel: walletModel,
         walletModelsManager: cryptoAccountModel.walletModelsManager,
         signingActionButtonType: .requiredNFCInteraction

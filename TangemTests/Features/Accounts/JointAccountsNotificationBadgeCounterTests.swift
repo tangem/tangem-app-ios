@@ -181,10 +181,6 @@ private final class PendingOperationsProviderStub: JointAccountPendingOperations
         operationsSubject.eraseToAnyPublisher()
     }
 
-    func hasPendingOperations(chainId: Int) -> Bool {
-        false
-    }
-
     func requestFrequentUpdates(operationId: String) -> AnyCancellable? {
         nil
     }

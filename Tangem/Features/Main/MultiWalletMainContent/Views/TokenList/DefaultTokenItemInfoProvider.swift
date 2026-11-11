@@ -67,7 +67,8 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
 
     var hasPendingTransactions: AnyPublisher<Bool, Never> {
         walletModel
-            .pendingTransactionPublisher
+            .pendingTransactionsProvider
+            .pendingTransactionsPublisher
             .map { !$0.isEmpty }
             .eraseToAnyPublisher()
     }

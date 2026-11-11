@@ -91,9 +91,6 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
             blockchainDerivationPath: blockchainNetwork.derivationPath,
             targetAccountDerivationPath: targetAccountDerivationPath
         )
-        let sendAvailabilityProvider = TransactionSendAvailabilityProvider(
-            hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)
-        )
         let tokenBalancesRepository = CommonTokenBalancesRepository(userWalletId: userWalletId)
 
         if types.contains(.coin) {
@@ -123,10 +120,10 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                 ),
                 isYieldModuleSupported: isEarnSupported,
                 featureManager: featureManager,
+                pendingTransactionsProvider: CommonPendingTransactionsProvider(walletProvider: walletManager, tokenItem: tokenItem),
                 transactionHistoryUpdater: transactionHistoryUpdater,
                 transactionHistoryService: transactionHistoryService,
                 receiveAddressService: receiveAddressService,
-                sendAvailabilityProvider: sendAvailabilityProvider,
                 tokenBalancesRepository: tokenBalancesRepository,
                 isCustom: isMainCoinCustom
             )
@@ -164,10 +161,10 @@ extension CommonWalletModelsFactory: WalletModelsFactory {
                     ),
                     isYieldModuleSupported: isTokenYieldModuleSupported,
                     featureManager: featureManager,
+                    pendingTransactionsProvider: CommonPendingTransactionsProvider(walletProvider: walletManager, tokenItem: tokenItem),
                     transactionHistoryUpdater: transactionHistoryUpdater,
                     transactionHistoryService: transactionHistoryService,
                     receiveAddressService: receiveAddressService,
-                    sendAvailabilityProvider: sendAvailabilityProvider,
                     tokenBalancesRepository: tokenBalancesRepository,
                     isCustom: isTokenCustom
                 )

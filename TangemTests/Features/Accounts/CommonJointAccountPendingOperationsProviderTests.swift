@@ -206,47 +206,6 @@ struct CommonJointAccountPendingOperationsProviderTests {
         withExtendedLifetime(subscription) {}
     }
 
-    // MARK: - Networks in use
-
-    @Test("An operation in flight holds its network and no other", arguments: [JointAccountOperationStatus.awaitingSignatures, .pending])
-    func operationInFlightHoldsItsNetwork(status: JointAccountOperationStatus) throws {
-        let sut = Self.makeSUT(records: [Self.record(operations: [Self.coinTransfer(status: status)])], walletModels: []).provider
-
-        #expect(try sut.hasPendingOperations(chainId: #require(Self.coin.blockchain.chainId)))
-        #expect(try !sut.hasPendingOperations(chainId: #require(Blockchain.polygon(testnet: false).chainId)))
-    }
-
-    @Test(
-        "An operation that is over holds no network, though the store keeps it",
-        arguments: [JointAccountOperationStatus.executed, .failed, .cancelled, .unknown]
-    )
-    func operationThatIsOverHoldsNoNetwork(status: JointAccountOperationStatus) throws {
-        let sut = Self.makeSUT(records: [Self.record(operations: [Self.coinTransfer(status: status)])], walletModels: []).provider
-
-        #expect(try !sut.hasPendingOperations(chainId: #require(Self.coin.blockchain.chainId)))
-    }
-
-    @Test("An operation in a token this device has not added holds the network all the same")
-    func operationInAMissingTokenHoldsTheNetwork() throws {
-        let account = makeJointAccount()
-        let sut = try Self.makeSUT(
-            records: [Self.record(operations: [Self.tokenTransfer()])],
-            walletModels: [Self.makeWalletModel(tokenItem: Self.coin, account: account)]
-        ).provider
-
-        #expect(try sut.hasPendingOperations(chainId: #require(Self.coin.blockchain.chainId)))
-    }
-
-    @Test("An operation of another account holds none of this account's networks")
-    func operationOfAnotherAccountHoldsNoNetwork() throws {
-        let sut = Self.makeSUT(
-            records: [Self.record(operations: [Self.coinTransfer()], cryptoAccountId: String(repeating: "0", count: 64))],
-            walletModels: []
-        ).provider
-
-        #expect(try !sut.hasPendingOperations(chainId: #require(Self.coin.blockchain.chainId)))
-    }
-
     // MARK: - Initiator
 
     @Test("An operation this wallet made is its own")

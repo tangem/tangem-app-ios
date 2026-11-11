@@ -23,14 +23,12 @@ final class NFTSendWalletModelProxy {
     private let asset: NFTAsset
     private let mainTokenWalletModel: any WalletModel
     private let tokenBalanceProvider: TokenBalanceProvider
-    private let transactionSendAvailabilityProvider: TransactionSendAvailabilityProvider
 
     init(
         asset: NFTAsset,
         tokenItem: TokenItem,
         mainTokenWalletModel: any WalletModel,
-        tokenBalanceProvider: TokenBalanceProvider,
-        transactionSendAvailabilityProvider: TransactionSendAvailabilityProvider
+        tokenBalanceProvider: TokenBalanceProvider
     ) {
         assert(mainTokenWalletModel.isMainToken, "This proxy object is designed to work only with the main token wallet model")
 
@@ -38,7 +36,6 @@ final class NFTSendWalletModelProxy {
         self.tokenItem = tokenItem
         self.mainTokenWalletModel = mainTokenWalletModel
         self.tokenBalanceProvider = tokenBalanceProvider
-        self.transactionSendAvailabilityProvider = transactionSendAvailabilityProvider
     }
 }
 
@@ -117,10 +114,6 @@ extension NFTSendWalletModelProxy: WalletModel {
         set {}
     }
 
-    var sendingRestrictions: SendingRestrictions? {
-        transactionSendAvailabilityProvider.sendingRestrictions(walletModel: self)
-    }
-
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> {
         // No additional features for NFT
         .just(output: [])
@@ -190,6 +183,10 @@ extension NFTSendWalletModelProxy: WalletModel {
 
     func updateAfterSendingTransaction(silent: Bool) {
         mainTokenWalletModel.updateAfterSendingTransaction(silent: silent)
+    }
+
+    var pendingTransactionsProvider: PendingTransactionsProvider {
+        mainTokenWalletModel.pendingTransactionsProvider
     }
 
     var feeTokenItemBalanceProvider: any TokenBalanceProvider {
@@ -314,20 +311,8 @@ extension NFTSendWalletModelProxy: WalletModel {
         mainTokenWalletModel.isSupportedTransactionHistory
     }
 
-    var hasPendingTransactions: Bool {
-        mainTokenWalletModel.hasPendingTransactions
-    }
-
-    var hasAnyPendingTransactions: Bool {
-        mainTokenWalletModel.hasAnyPendingTransactions
-    }
-
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> {
         mainTokenWalletModel.transactionHistoryPublisher
-    }
-
-    var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {
-        mainTokenWalletModel.pendingTransactionPublisher
     }
 
     var hasRent: Bool {

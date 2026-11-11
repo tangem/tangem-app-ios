@@ -216,11 +216,6 @@ final class CommonJointAccountPendingOperationsProvider {
 // MARK: - JointAccountPendingOperationsProvider protocol conformance
 
 extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperationsProvider {
-    func hasPendingOperations(chainId: Int) -> Bool {
-        let operations = pendingOperationsRepository.pendingOperations.first(by: cryptoAccountId)?.operations ?? []
-        return operations.contains { $0.chainId == chainId && $0.status.isInFlight }
-    }
-
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
         sharedPendingOperationsPublisher
     }

@@ -56,7 +56,7 @@ struct NotEnoughFeeNoticeBalanceParamTests {
             .mapToInsufficientBalanceForFeeEvent(feeCurrencyBalance: feeCurrencyBalance)
     }
 
-    private func makeConfiguration(feeCurrencyBalance: Decimal) throws -> SendingRestrictions.NotEnoughFeeConfiguration {
+    private func makeConfiguration(feeCurrencyBalance: Decimal) throws -> NotEnoughFeeConfiguration {
         guard case .insufficientBalanceForFee(let configuration) = makeInsufficientFeeEvent(feeCurrencyBalance: feeCurrencyBalance) else {
             throw TestError.unexpectedEvent
         }

@@ -64,7 +64,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let notificationManager = SingleTokenNotificationManager(
-            userWalletId: options.userWalletInfo.id,
+            userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
             walletModelsManager: options.walletModelsManager,
             signingActionButtonType: SigningActionButtonViewTypeBuilder().build(userWalletInfo: options.userWalletInfo)

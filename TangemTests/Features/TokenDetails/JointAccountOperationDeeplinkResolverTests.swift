@@ -208,10 +208,6 @@ private final class PendingOperationsProviderSpy: JointAccountPendingOperationsP
         calls.withLock(\.historyBuiltIds)
     }
 
-    func hasPendingOperations(chainId: Int) -> Bool {
-        false
-    }
-
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
         Just(listedOperations).eraseToAnyPublisher()
     }
