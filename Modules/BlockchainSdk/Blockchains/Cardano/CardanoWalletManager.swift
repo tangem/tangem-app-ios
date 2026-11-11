@@ -33,9 +33,14 @@ class CardanoWalletManager: BaseWalletManager, WalletManager, MultiAddressesWall
         wallet.add(coinValue: balance)
         transactionBuilder.update(outputs: response.unspentOutputs)
 
-        for (token, value) in response.tokenBalances {
-            let balance = Decimal(value) / token.decimalValue
-            wallet.add(tokenValue: balance, for: token)
+        for (token, tokenBalance) in response.tokenBalances {
+            switch tokenBalance {
+            case .success(let value):
+                let balance = Decimal(value) / token.decimalValue
+                wallet.add(tokenValue: balance, for: token)
+            case .failure:
+                wallet.clearAmount(for: token)
+            }
         }
 
         wallet.removePendingTransaction { hash in

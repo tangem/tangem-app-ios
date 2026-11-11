@@ -53,7 +53,7 @@ class AdaliteNetworkProvider: CardanoNetworkProvider {
                 }
 
                 let txHashes = responses.flatMap { $0.transactions }
-                return cardanoResponseMapper.mapToCardanoAddressResponse(
+                return try cardanoResponseMapper.mapToCardanoAddressResponse(
                     tokens: tokens,
                     unspentOutputs: unspents,
                     recentTransactionsHashes: txHashes
