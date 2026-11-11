@@ -1558,6 +1558,7 @@
 "onramp_recommended_title" = "Recommandé";
 "onramp_redirecting_to_provider_subtitle" = "Vous pourrez finaliser votre transaction sur le fournisseur tiers, %@";
 "onramp_redirecting_to_provider_title" = "Redirection vers %@...";
+"onramp_region_restriction_description_v2" = "Buy not supported in your region %1$@ based on your IP";
 "onramp_region_restriction_description" = "Buy and swap not supported in your region %1$@ based on your IP";
 "onramp_region_restriction_title" = "Regional restrictions apply";
 "onramp_residency_bottomsheet_country_not_supported" = "Nos services ne sont pas disponibles dans ce pays";
