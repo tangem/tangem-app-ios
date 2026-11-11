@@ -10,6 +10,8 @@ import Combine
 import Foundation
 import TangemAccounts
 import TangemAssets
+import TangemExpress
+import TangemFoundation
 import TangemLocalization
 import TangemUI
 
@@ -21,8 +23,10 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
     let isRestrictedForCountry: Bool
 
     var showsBackButton: Bool { onBack != nil }
+    var showsRestrictionBanner: Bool { isRestrictedForCountry || restrictedRegionName != nil }
 
     @Published private(set) var tokenInfoViewData: AddFundsTokenInfoView.ViewData
+    @Published private(set) var restrictedRegionName: String?
 
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
     @Injected(\.cryptoAccountsGlobalStateProvider) private static var cryptoAccountsGlobalStateProvider: CryptoAccountsGlobalStateProvider
@@ -31,10 +35,12 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
     private let userWalletModel: any UserWalletModel
 
     private let onBack: (() -> Void)?
+    private let onrampCountryProvider: OnrampCountryByIPProviderFactory.Provider?
 
     private weak var coordinator: AddFundsRoutable?
 
     private var bag = Set<AnyCancellable>()
+    private var countryCheckTask: Task<Void, Never>?
 
     init(input: Input, coordinator: AddFundsRoutable) {
         mode = input.mode
@@ -43,6 +49,9 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
         userWalletModel = input.userWalletModel
         isRestrictedForCountry = input.isRestrictedForCountry
         onBack = input.onBack
+        onrampCountryProvider = input.onrampCountryProvider ?? OnrampCountryByIPProviderFactory.make(
+            userWalletInfo: input.userWalletModel.userWalletInfo
+        )
         self.coordinator = coordinator
 
         title = Localization.commonGetToken
@@ -58,6 +67,11 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
         )
 
         bind()
+        checkCountryByIP()
+    }
+
+    deinit {
+        countryCheckTask?.cancel()
     }
 
     func userDidTap(_ option: AddFundsOptionView.Option) {
@@ -117,7 +131,7 @@ final class AddFundsViewModel: ObservableObject, FloatingSheetContentViewModel {
         switch option {
         // `.exchange` is the config feature that gates buy/sell (onramp/offramp) — there is no separate
         // buy feature. Not to be confused with the `.exchange` token action, which is swap.
-        case .buy: userWalletModel.config.isFeatureVisible(.exchange) && !isRestrictedForCountry
+        case .buy: userWalletModel.config.isFeatureVisible(.exchange) && !isRestrictedForCountry && restrictedRegionName == nil
         case .swap: userWalletModel.config.isFeatureVisible(.swapping) && !isRestrictedForCountry
         case .receive: true
         }
@@ -173,6 +187,22 @@ private extension AddFundsViewModel {
         .store(in: &bag)
     }
 
+    func checkCountryByIP() {
+        guard let onrampCountryProvider else {
+            return
+        }
+
+        countryCheckTask = Task { [weak self] in
+            guard let country = try? await onrampCountryProvider(), !country.onrampAvailable else {
+                return
+            }
+
+            await runOnMain {
+                self?.restrictedRegionName = BuyAndSwapRestrictionBannerViewModel.regionName(of: country.identity)
+            }
+        }
+    }
+
     static func makeBadge(
         walletModel: any WalletModel,
         userWalletModel: any UserWalletModel
@@ -209,6 +239,7 @@ extension AddFundsViewModel {
         let userWalletModel: any UserWalletModel
         let isRestrictedForCountry: Bool
         let onBack: (() -> Void)?
+        let onrampCountryProvider: OnrampCountryByIPProviderFactory.Provider?
 
         init(
             mode: Mode,
@@ -216,7 +247,8 @@ extension AddFundsViewModel {
             walletModel: any WalletModel,
             userWalletModel: any UserWalletModel,
             isRestrictedForCountry: Bool = false,
-            onBack: (() -> Void)? = nil
+            onBack: (() -> Void)? = nil,
+            onrampCountryProvider: OnrampCountryByIPProviderFactory.Provider? = nil
         ) {
             self.mode = mode
             self.primaryAction = primaryAction
@@ -224,6 +256,7 @@ extension AddFundsViewModel {
             self.userWalletModel = userWalletModel
             self.isRestrictedForCountry = isRestrictedForCountry
             self.onBack = onBack
+            self.onrampCountryProvider = onrampCountryProvider
         }
     }
 

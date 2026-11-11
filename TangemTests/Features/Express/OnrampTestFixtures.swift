@@ -58,10 +58,14 @@ final class StubOnrampProviderManager: OnrampProviderManager {
 }
 
 actor OnrampManagerStub: OnrampManager {
-    private let ipCountry: OnrampCountry?
+    private var ipCountry: OnrampCountry?
 
     init(ipCountry: OnrampCountry? = nil) {
         self.ipCountry = ipCountry
+    }
+
+    func setIPCountry(_ country: OnrampCountry?) {
+        ipCountry = country
     }
 
     func initialSetupCountry() async throws -> OnrampCountry {

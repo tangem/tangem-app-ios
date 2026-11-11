@@ -46,6 +46,7 @@ enum OnrampSummaryStepBuilder {
         let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
         let fiatPresetService: FiatPresetService
         let isCountryUnsupportedPublisher: AnyPublisher<Bool, Never>
+        let restrictedRegionPublisher: AnyPublisher<OnrampCountry?, Never>
     }
 
     typealias ReturnValue = OnrampSummaryStep
@@ -76,7 +77,8 @@ enum OnrampSummaryStepBuilder {
             analyticsLogger: dependencies.analyticsLogger,
             buyActionBuilder: dependencies.buyActionBuilder,
             fiatPresetService: dependencies.fiatPresetService,
-            isCountryUnsupportedPublisher: dependencies.isCountryUnsupportedPublisher
+            isCountryUnsupportedPublisher: dependencies.isCountryUnsupportedPublisher,
+            restrictedRegionPublisher: dependencies.restrictedRegionPublisher
         )
 
         let step = OnrampSummaryStep(tokenItem: types.tokenItem, viewModel: viewModel, interactor: interactor)

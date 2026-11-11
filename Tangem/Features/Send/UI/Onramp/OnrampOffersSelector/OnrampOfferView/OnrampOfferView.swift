@@ -30,7 +30,7 @@ struct OnrampOfferView: View {
                         .fill(cardBackground)
                 )
                 .if(viewModel.isNativePayment) { card in
-                    card.glowRing(size: .card(cornerRadius: Self.cornerRadius), isVisible: viewModel.isAvailable)
+                    card.glowRing(size: .card(cornerRadius: Self.cornerRadius), isVisible: isBuyButtonEnabled)
                 }
                 .zIndex(1)
 
@@ -209,17 +209,21 @@ struct OnrampOfferView: View {
             TangemUI.Button(label: Localization.commonBuy, accessibilityLabel: nil, action: action)
                 .size(.x10)
                 .styleType(.primary)
-                .enabled(viewModel.isAvailable)
+                .enabled(isBuyButtonEnabled)
                 .fixedSize()
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerBuyButton(name: viewModel.provider.name))
         case .nativeApplePay(let onTap):
             PKPaymentButtonRepresentable(action: onTap)
                 .frame(width: 66, height: 40)
                 .clipShape(Capsule())
-                .disabled(!viewModel.isAvailable)
-                .opacity(viewModel.isAvailable ? 1 : 0.4)
+                .disabled(!isBuyButtonEnabled)
+                .opacity(isBuyButtonEnabled ? 1 : 0.4)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerNativeApplePayButton(name: viewModel.provider.name))
         }
+    }
+
+    private var isBuyButtonEnabled: Bool {
+        viewModel.isAvailable && viewModel.isBuyEnabled
     }
 
     private var timeView: some View {

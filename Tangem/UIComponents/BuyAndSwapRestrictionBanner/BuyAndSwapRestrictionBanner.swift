@@ -13,6 +13,8 @@ import TangemUI
 import TangemUIUtils
 
 struct BuyAndSwapRestrictionBanner: View {
+    var regionName: String?
+
     @StateObject private var viewModel = BuyAndSwapRestrictionBannerViewModel()
 
     @ScaledMetric private var iconSize: CGFloat = 20
@@ -20,12 +22,18 @@ struct BuyAndSwapRestrictionBanner: View {
     var body: some View {
         MessageBanner(
             title: Localization.buySwapRegionRestrictionTitle,
-            description: viewModel.description
+            description: regionName.map(Localization.buySwapRegionRestrictionDescriptionRegion) ?? viewModel.description
         )
         .variant(.warning)
         .glowRing(.warning)
         .slotEnd { infoIcon }
-        .task(viewModel.resolveRegion)
+        .task {
+            guard regionName == nil else {
+                return
+            }
+
+            await viewModel.resolveRegion()
+        }
     }
 
     private var infoIcon: some View {
@@ -41,6 +49,9 @@ struct BuyAndSwapRestrictionBanner: View {
 // MARK: - Previews
 
 #Preview {
-    BuyAndSwapRestrictionBanner()
-        .padding(.horizontal, 16)
+    VStack(spacing: 8) {
+        BuyAndSwapRestrictionBanner()
+        BuyAndSwapRestrictionBanner(regionName: "Armenia")
+    }
+    .padding(.horizontal, 16)
 }

@@ -27,6 +27,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
     @Published private(set) var callToActionMarketingBanners: [CallToActionMarketingBanner] = []
     @Published private(set) var notificationButtonIsLoading = false
+    @Published private(set) var restrictedRegionName: String?
 
     weak var router: OnrampSummaryRoutable?
 
@@ -39,6 +40,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
     private let fiatPresetService: FiatPresetService
     private let isCountryUnsupportedPublisher: AnyPublisher<Bool, Never>
+    private let restrictedRegionPublisher: AnyPublisher<OnrampCountry?, Never>
 
     private lazy var onrampOfferViewModelBuilder = OnrampSuggestedOfferViewModelBuilder(tokenItem: tokenItem)
 
@@ -52,7 +54,8 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         analyticsLogger: SendOnrampOffersAnalyticsLogger,
         buyActionBuilder: OnrampOfferViewModelBuyActionBuilder,
         fiatPresetService: FiatPresetService,
-        isCountryUnsupportedPublisher: AnyPublisher<Bool, Never>
+        isCountryUnsupportedPublisher: AnyPublisher<Bool, Never>,
+        restrictedRegionPublisher: AnyPublisher<OnrampCountry?, Never>
     ) {
         self.onrampAmountViewModel = onrampAmountViewModel
         self.tokenItem = tokenItem
@@ -64,6 +67,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
         self.buyActionBuilder = buyActionBuilder
         self.fiatPresetService = fiatPresetService
         self.isCountryUnsupportedPublisher = isCountryUnsupportedPublisher
+        self.restrictedRegionPublisher = restrictedRegionPublisher
 
         bind()
     }
@@ -107,15 +111,26 @@ private extension OnrampSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$notificationButtonIsLoading)
 
-        Publishers.CombineLatest3(
+        restrictedRegionPublisher
+            .map { $0.map { BuyAndSwapRestrictionBannerViewModel.regionName(of: $0.identity) } }
+            .receiveOnMain()
+            .assign(to: &$restrictedRegionName)
+
+        Publishers.CombineLatest4(
             interactor.suggestedOffersPublisher,
             linkedBannersPublisher,
-            isCountryUnsupportedPublisher
+            isCountryUnsupportedPublisher,
+            restrictedRegionPublisher.map { $0 == nil }
         )
         .withWeakCaptureOf(self)
         .map { viewModel, values in
-            let (offers, banners, isCountryUnsupported) = values
-            return viewModel.mapToViewState(offers: offers, linkedBanners: banners, isCountryUnsupported: isCountryUnsupported)
+            let (offers, banners, isCountryUnsupported, isBuyEnabled) = values
+            return viewModel.mapToViewState(
+                offers: offers,
+                linkedBanners: banners,
+                isCountryUnsupported: isCountryUnsupported,
+                isBuyEnabled: isBuyEnabled
+            )
         }
         .receiveOnMain()
         .assign(to: &$viewState)
@@ -124,7 +139,8 @@ private extension OnrampSummaryViewModel {
     func mapToViewState(
         offers: LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>,
         linkedBanners: [MarketingBanner],
-        isCountryUnsupported: Bool
+        isCountryUnsupported: Bool,
+        isBuyEnabled: Bool
     ) -> ViewState {
         switch offers {
         case .loading:
@@ -140,13 +156,21 @@ private extension OnrampSummaryViewModel {
 
         case .success(let offers):
             return .suggestedOffers(.init(
-                recent: offers.recent.map { mapToRecentOnrampOfferViewModel(provider: $0, linkedBanners: linkedBanners) },
-                recommended: offers.recommended.map { mapToRecommendedOffer(suggestedOfferType: $0, linkedBanners: linkedBanners) },
+                recent: offers.recent.map {
+                    mapToRecentOnrampOfferViewModel(provider: $0, linkedBanners: linkedBanners, isBuyEnabled: isBuyEnabled)
+                },
+                recommended: offers.recommended.map {
+                    mapToRecommendedOffer(suggestedOfferType: $0, linkedBanners: linkedBanners, isBuyEnabled: isBuyEnabled)
+                },
             ))
         }
     }
 
-    func mapToRecentOnrampOfferViewModel(provider: OnrampProvider, linkedBanners: [MarketingBanner]) -> OnrampOfferViewModel {
+    func mapToRecentOnrampOfferViewModel(
+        provider: OnrampProvider,
+        linkedBanners: [MarketingBanner],
+        isBuyEnabled: Bool
+    ) -> OnrampOfferViewModel {
         let title = onrampOfferViewModelBuilder.mapToRecentOnrampOfferViewModelTitle(provider: provider)
         let buyAction = buyActionBuilder.make(
             provider: provider,
@@ -166,7 +190,8 @@ private extension OnrampSummaryViewModel {
             provider: provider,
             buyAction: buyAction,
             legalNotice: legalNotice,
-            linkedBanner: linkedBanner(for: provider, in: linkedBanners)
+            linkedBanner: linkedBanner(for: provider, in: linkedBanners),
+            isBuyEnabled: isBuyEnabled
         )
     }
 
@@ -178,7 +203,11 @@ private extension OnrampSummaryViewModel {
         )
     }
 
-    func mapToRecommendedOffer(suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem, linkedBanners: [MarketingBanner]) -> OnrampOfferViewModel {
+    func mapToRecommendedOffer(
+        suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem,
+        linkedBanners: [MarketingBanner],
+        isBuyEnabled: Bool
+    ) -> OnrampOfferViewModel {
         let provider = suggestedOfferType.provider
         let title = onrampOfferViewModelBuilder.mapToRecommendedOnrampOfferViewModelTitle(suggestedOfferType: suggestedOfferType)
 
@@ -207,7 +236,8 @@ private extension OnrampSummaryViewModel {
             buyAction: buyAction,
             infoAction: infoAction,
             legalNotice: legalNotice,
-            linkedBanner: linkedBanner(for: provider, in: linkedBanners)
+            linkedBanner: linkedBanner(for: provider, in: linkedBanners),
+            isBuyEnabled: isBuyEnabled
         )
     }
 

@@ -56,12 +56,14 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable {
     @Published private var providersList: ProvidersList = []
     @Published private var selectedProviderItem: ProviderItem?
     @Published private var linkedBanners: [MarketingBanner] = []
+    @Published private var isBuyEnabled = true
 
     private let tokenItem: TokenItem
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
     private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
     private let standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never>
     private let linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>
+    private let restrictedRegionPublisher: AnyPublisher<OnrampCountry?, Never>
 
     private lazy var onrampOfferViewModelBuilder = OnrampAllOfferViewModelBuilder(tokenItem: tokenItem)
     private lazy var onrampProvidersItemViewModelBuilder = OnrampProviderItemViewModelBuilder(tokenItem: tokenItem)
@@ -79,6 +81,7 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable {
         buyActionBuilder: OnrampOfferViewModelBuyActionBuilder,
         standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never>,
         linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>,
+        restrictedRegionPublisher: AnyPublisher<OnrampCountry?, Never>,
         input: OnrampProvidersInput,
         output: OnrampSummaryOutput,
         router: OnrampOffersSelectorRoutable,
@@ -88,6 +91,7 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable {
         self.buyActionBuilder = buyActionBuilder
         self.standaloneBannersPublisher = standaloneBannersPublisher
         self.linkedBannersPublisher = linkedBannersPublisher
+        self.restrictedRegionPublisher = restrictedRegionPublisher
         self.input = input
         self.output = output
         self.router = router
@@ -143,6 +147,11 @@ private extension OnrampOffersSelectorViewModel {
 
         linkedBannersPublisher
             .assign(to: &$linkedBanners)
+
+        restrictedRegionPublisher
+            .map { $0 == nil }
+            .receiveOnMain()
+            .assign(to: &$isBuyEnabled)
     }
 
     /// The notice is counted once per flow, the way the other notice events are.
@@ -198,7 +207,8 @@ private extension OnrampOffersSelectorViewModel {
             return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
                 provider: provider,
                 buyAction: buyAction,
-                linkedBanner: linkedBanner(for: provider)
+                linkedBanner: linkedBanner(for: provider),
+                isBuyEnabled: isBuyEnabled
             )
         }
 

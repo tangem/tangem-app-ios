@@ -21,6 +21,10 @@ struct OnrampSummaryView: View {
         GroupedScrollView(contentType: .plain(spacing: 8)) {
             OnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
 
+            if let restrictedRegionName = viewModel.restrictedRegionName {
+                BuyAndSwapRestrictionBanner(regionName: restrictedRegionName)
+            }
+
             marketingBanner
 
             CallToActionMarketingBannersView(banners: viewModel.callToActionMarketingBanners) { action in

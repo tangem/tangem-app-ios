@@ -16,19 +16,68 @@ import TangemFoundation
 
 @Suite("OnrampModel with the country detected by IP", .timeLimit(.minutes(1)))
 struct OnrampModelCountryByIPTests {
-    @Test("An unsupported IP country shows the not-supported notice instead of the residence popup")
-    func unsupportedIPCountryShowsNotice() async {
+    @Test("An IP country without onramp restricts the region and keeps loading offers instead of showing the notice")
+    func unavailableIPCountryRestrictsRegion() async {
         let (sut, router, _) = makeSUT(ipCountry: .unsupported, listedCountries: [.unsupported, .supported])
+
+        let restricted = await sut.restrictedRegionPublisher.values.first { $0 != nil }
+        _ = await sut.onrampProvidersPublisher.values.first { $0 != nil }
+        let unsupported = await sut.unsupportedCountryPublisher.values.first { _ in true }
+
+        #expect(restricted == .unsupported)
+        #expect(unsupported == .some(nil))
+        #expect(router.bottomSheetCount == 0)
+    }
+
+    @Test("An IP country without onramp that the countries list doesn't know still shows the not-supported notice")
+    func unlistedUnavailableIPCountryShowsNotice() async {
+        let (sut, _, _) = makeSUT(ipCountry: .unsupported, listedCountries: [.supported])
 
         let unsupported = await sut.unsupportedCountryPublisher.values.first { $0 != nil }
 
+        #expect(unsupported == .unsupported)
+    }
+
+    @Test("A supported IP country leaves the region unrestricted")
+    func availableIPCountryIsNotRestricted() async {
+        let (sut, _, _) = makeSUT(ipCountry: .supported, listedCountries: [.supported])
+
+        _ = await sut.onrampProvidersPublisher.values.first { $0 != nil }
+        let restricted = await sut.restrictedRegionPublisher.values.first { _ in true }
+
+        #expect(restricted == .some(nil))
+    }
+
+    @Test("Picking another country by hand keeps the region restriction")
+    func manualPickKeepsRestriction() async {
+        let (sut, _, repository) = makeSUT(ipCountry: .unsupported, listedCountries: [.unsupported, .otherUnsupported])
+        await waitForCountryByIP(in: sut)
+
+        repository.selectCountry(.otherUnsupported)
+
+        let unsupported = await sut.unsupportedCountryPublisher.values.first { $0 != nil }
+        let restricted = await sut.restrictedRegionPublisher.values.first { _ in true }
+        #expect(unsupported == .otherUnsupported)
+        #expect(restricted == .unsupported)
+    }
+
+    @Test("An unsupported country picked by hand shows the not-supported notice")
+    func manuallyPickedUnsupportedCountryShowsNotice() async {
+        let (sut, router, repository) = makeSUT(ipCountry: .supported, listedCountries: [.supported, .unsupported])
+        await waitForCountryByIP(in: sut)
+
+        repository.selectCountry(.unsupported)
+
+        let unsupported = await sut.unsupportedCountryPublisher.values.first { $0 != nil }
         #expect(unsupported == .unsupported)
         #expect(router.bottomSheetCount == 0)
     }
 
     @Test("Picking a supported country clears the not-supported notice")
     func pickingSupportedCountryClearsNotice() async {
-        let (sut, _, repository) = makeSUT(ipCountry: .unsupported, listedCountries: [.unsupported, .supported])
+        let (sut, _, repository) = makeSUT(ipCountry: .supported, listedCountries: [.supported, .unsupported])
+        await waitForCountryByIP(in: sut)
+        repository.selectCountry(.unsupported)
         _ = await sut.unsupportedCountryPublisher.values.first { $0 != nil }
 
         repository.selectCountry(.supported)
@@ -39,8 +88,10 @@ struct OnrampModelCountryByIPTests {
 
     @Test("A failed countries request after a country change replaces the not-supported notice with the error")
     func failedCountriesRequestClearsNotice() async {
-        let dataRepository = OnrampDataRepositoryStub(countries: [.unsupported, .supported])
-        let (sut, _, repository) = makeSUT(ipCountry: .unsupported, dataRepository: dataRepository)
+        let dataRepository = OnrampDataRepositoryStub(countries: [.supported, .unsupported])
+        let (sut, _, repository) = makeSUT(ipCountry: .supported, dataRepository: dataRepository)
+        await waitForCountryByIP(in: sut)
+        repository.selectCountry(.unsupported)
         _ = await sut.unsupportedCountryPublisher.values.first { $0 != nil }
 
         await dataRepository.failCountries()
@@ -72,6 +123,34 @@ struct OnrampModelCountryByIPTests {
         #expect(sut.amount == nil)
     }
 
+    @Test("A hand-picked country after a failed IP check repeats the check instead of lifting the restriction")
+    func failedIPCheckIsRepeatedForHandPickedCountry() async {
+        let manager = OnrampManagerStub(ipCountry: nil)
+        let (sut, _, repository) = makeSUT(
+            manager: manager,
+            dataRepository: OnrampDataRepositoryStub(countries: [.unsupported, .supported])
+        )
+        _ = await sut.errorPublisher.values.first { $0 != nil }
+
+        await manager.setIPCountry(.unsupported)
+        repository.selectCountry(.supported)
+
+        let restricted = await sut.restrictedRegionPublisher.values.first { $0 != nil }
+        #expect(restricted == .unsupported)
+    }
+
+    @Test("The IP country matches its countries-list entry by code even when the names differ")
+    func ipCountryMatchesListedCountryByCode() async {
+        let (sut, _, _) = makeSUT(ipCountry: .unsupported, listedCountries: [.unsupportedListedUnderAnotherName, .supported])
+
+        _ = await sut.onrampProvidersPublisher.values.first { $0 != nil }
+        let restricted = await sut.restrictedRegionPublisher.values.first { $0 != nil }
+        let unsupported = await sut.unsupportedCountryPublisher.values.first { _ in true }
+
+        #expect(restricted == .unsupported)
+        #expect(unsupported == .some(nil))
+    }
+
     @Test("An IP country missing from the countries list is treated as not supported")
     func unlistedIPCountryShowsNotice() async {
         let (sut, router, _) = makeSUT(ipCountry: .supported, listedCountries: [])
@@ -86,6 +165,10 @@ struct OnrampModelCountryByIPTests {
 // MARK: - Helpers
 
 private extension OnrampModelCountryByIPTests {
+    func waitForCountryByIP(in sut: OnrampModel) async {
+        _ = await sut.onrampProvidersPublisher.values.first { $0 != nil }
+    }
+
     func makeSUT(
         ipCountry: OnrampCountry,
         listedCountries: [OnrampCountry]
@@ -99,6 +182,20 @@ private extension OnrampModelCountryByIPTests {
         fiatCurrencyCode: String? = nil,
         amount: Decimal? = nil
     ) -> (sut: OnrampModel, router: OnrampModelRoutableSpy, repository: OnrampRepository) {
+        makeSUT(
+            manager: OnrampManagerStub(ipCountry: ipCountry),
+            dataRepository: dataRepository,
+            fiatCurrencyCode: fiatCurrencyCode,
+            amount: amount
+        )
+    }
+
+    func makeSUT(
+        manager: OnrampManagerStub,
+        dataRepository: OnrampDataRepositoryStub,
+        fiatCurrencyCode: String? = nil,
+        amount: Decimal? = nil
+    ) -> (sut: OnrampModel, router: OnrampModelRoutableSpy, repository: OnrampRepository) {
         let repository = CountryByIPOnrampRepository(userCurrencyStore: OnrampUserCurrencyStore(storage: OnrampStorageStub()))
         let router = OnrampModelRoutableSpy()
 
@@ -106,7 +203,7 @@ private extension OnrampModelCountryByIPTests {
             userWalletId: "test-wallet",
             tokenItem: .blockchain(BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)),
             defaultAddressString: "0xtest",
-            onrampManager: OnrampManagerStub(ipCountry: ipCountry),
+            onrampManager: manager,
             onrampDataRepository: dataRepository,
             onrampRepository: repository,
             analyticsLogger: AnalyticsLoggerStub(),
@@ -129,6 +226,18 @@ private extension OnrampFiatCurrency {
 private extension OnrampCountry {
     static let unsupported = OnrampCountry(
         identity: .init(name: "Restricted", code: "XX", image: nil),
+        currency: OnrampFiatCurrency(identity: .init(name: "US Dollar", code: "USD", image: nil), precision: 2),
+        onrampAvailable: false
+    )
+
+    static let unsupportedListedUnderAnotherName = OnrampCountry(
+        identity: .init(name: "Restricted region", code: "XX", image: nil),
+        currency: OnrampFiatCurrency(identity: .init(name: "US Dollar", code: "USD", image: nil), precision: 2),
+        onrampAvailable: false
+    )
+
+    static let otherUnsupported = OnrampCountry(
+        identity: .init(name: "Also restricted", code: "YY", image: nil),
         currency: OnrampFiatCurrency(identity: .init(name: "US Dollar", code: "USD", image: nil), precision: 2),
         onrampAvailable: false
     )

@@ -21,6 +21,7 @@ class OnrampModel {
     private let _selectedOnrampProvider: CurrentValueSubject<LoadingResult<OnrampProvider, Never>?, Never> = .init(.none)
     private let _isLoading: CurrentValueSubject<Bool, Never> = .init(false)
     private let _unsupportedCountry: CurrentValueSubject<OnrampCountry?, Never> = .init(nil)
+    private let _ipCountry: CurrentValueSubject<OnrampCountry?, Never> = .init(nil)
     private let _transactionTime = PassthroughSubject<Date, Never>()
     private let _expressTransactionId = PassthroughSubject<String, Never>()
 
@@ -310,8 +311,12 @@ private extension OnrampModel {
 
     func checkCountryAvailability(country: OnrampCountry, currency: OnrampFiatCurrency) async -> Bool {
         do {
+            if isCountryByIPEnabled {
+                try await resolveIPCountryIfNeeded()
+            }
+
             let countries = try await onrampDataRepository.countries()
-            let listedCountry = countries.first(where: { $0.identity == country.identity })
+            let listedCountry = countries.first(where: { $0.identity.code == country.identity.code })
 
             if isCountryByIPEnabled {
                 try Task.checkCancellation()
@@ -357,7 +362,9 @@ private extension OnrampModel {
     func applyAvailability(of country: OnrampCountry, isListed: Bool, currency: OnrampFiatCurrency) -> Bool {
         _currency.send(.success(currency))
 
-        guard isListed, country.onrampAvailable else {
+        let isRestrictedRegion = restrictedRegion?.identity.code == country.identity.code
+
+        guard isListed, isRestrictedRegion || country.onrampAvailable else {
             _onrampProviders.send(.none)
             _selectedOnrampProvider.send(.none)
             _unsupportedCountry.send(country)
@@ -379,10 +386,13 @@ private extension OnrampModel {
     func detectCountryByIP() async {
         do {
             let country = try await onrampManager.initialSetupCountry()
+            _ipCountry.send(country)
+
             let predefinedCurrency = await predefinedFiatCurrency()
 
             await runOnMain {
-                guard onrampRepository.preferenceCountry == nil else {
+                if let pickedCountry = onrampRepository.preferenceCountry {
+                    recheckAvailabilityIfRestricted(pickedCountry: pickedCountry)
                     return
                 }
 
@@ -398,6 +408,36 @@ private extension OnrampModel {
             }
         } catch {
             _currency.send(.failure(error))
+        }
+    }
+
+    var restrictedRegion: OnrampCountry? {
+        _ipCountry.value.flatMap(Self.restrictedRegion(ipCountry:))
+    }
+
+    static func restrictedRegion(ipCountry: OnrampCountry) -> OnrampCountry? {
+        ipCountry.onrampAvailable ? nil : ipCountry
+    }
+
+    func resolveIPCountryIfNeeded() async throws {
+        guard _ipCountry.value == nil else {
+            return
+        }
+
+        let country = try await onrampManager.initialSetupCountry()
+        _ipCountry.send(country)
+    }
+
+    func recheckAvailabilityIfRestricted(pickedCountry: OnrampCountry) {
+        guard
+            restrictedRegion?.identity.code == pickedCountry.identity.code,
+            let currency = onrampRepository.preferenceCurrency
+        else {
+            return
+        }
+
+        mainTask {
+            await $0.updateProvidersThroughCountryAvailabilityChecking(country: pickedCountry, currency: currency)
         }
     }
 
@@ -879,6 +919,17 @@ extension OnrampModel: SendBaseOutput {
     func performAction() async throws -> TransactionDispatcherResult {
         assertionFailure("OnrampModel doesn't support the send transaction action")
         throw TransactionDispatcherResult.Error.actionNotSupported
+    }
+}
+
+// MARK: - Region restriction
+
+extension OnrampModel {
+    var restrictedRegionPublisher: AnyPublisher<OnrampCountry?, Never> {
+        _ipCountry
+            .map { $0.flatMap(Self.restrictedRegion(ipCountry:)) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 }
 

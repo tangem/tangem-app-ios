@@ -85,6 +85,7 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             buyActionBuilder: buyActionBuilder,
             standaloneBannersPublisher: marketingBannerManager.standaloneBannersPublisher,
             linkedBannersPublisher: marketingBannerManager.linkedBannersPublisher,
+            restrictedRegionPublisher: onrampModel.restrictedRegionPublisher,
             input: onrampModel,
             output: onrampModel,
             router: router
@@ -198,7 +199,8 @@ extension OnrampFlowFactory: OnrampSummaryStepBuildable {
             analyticsLogger: analyticsLogger,
             buyActionBuilder: buyActionBuilder,
             fiatPresetService: FiatPresetService(onrampRepository: dependencies.repository),
-            isCountryUnsupportedPublisher: onrampModel.unsupportedCountryPublisher.map { $0 != nil }.eraseToAnyPublisher()
+            isCountryUnsupportedPublisher: onrampModel.unsupportedCountryPublisher.map { $0 != nil }.eraseToAnyPublisher(),
+            restrictedRegionPublisher: onrampModel.restrictedRegionPublisher
         )
     }
 }
