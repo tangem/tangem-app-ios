@@ -98,6 +98,22 @@ final class LendingWithdrawModel {
         }
     }
 
+    func supportTransaction(for transaction: BSDKTransaction) -> BSDKTransaction {
+        guard let withdrawnAmount = _amount.value?.crypto else {
+            return transaction
+        }
+
+        return BSDKTransaction(
+            amount: Amount(with: token.tokenItem.blockchain, type: transaction.amount.type, value: withdrawnAmount),
+            fee: transaction.fee,
+            sourceAddress: transaction.sourceAddress,
+            destinationAddress: transaction.destinationAddress,
+            changeAddress: transaction.changeAddress,
+            contractAddress: transaction.contractAddress,
+            params: transaction.params
+        )
+    }
+
     func withdraw() async throws -> TransactionDispatcherResult {
         _isWithdrawing.send(true)
         defer { _isWithdrawing.send(false) }

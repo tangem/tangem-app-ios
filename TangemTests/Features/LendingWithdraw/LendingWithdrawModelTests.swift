@@ -155,6 +155,26 @@ final class LendingWithdrawModelTests: LeakTrackingTestSuite {
         #expect(recorder.dispatchedTransactions.isEmpty)
     }
 
+    @Test("The support mail transaction shows the amount being withdrawn, not the zero value sent to the module")
+    func supportTransactionCarriesWithdrawnAmount() {
+        let (model, _, _) = makeModel()
+        model.sourceAmountDidChanged(amount: amount("0.5"))
+        let sent = Transaction(
+            amount: Amount(with: Self.blockchain, type: .coin, value: 0),
+            fee: Fee(Amount(with: Self.blockchain, type: .coin, value: Decimal(1) / 1000)),
+            sourceAddress: "source",
+            destinationAddress: Self.module,
+            changeAddress: "source",
+            params: EthereumTransactionParams(data: Data([0x01]))
+        )
+
+        let mailed = model.supportTransaction(for: sent)
+
+        #expect(mailed.amount.value == Decimal(5) / 10)
+        #expect(mailed.destinationAddress == Self.module)
+        #expect((mailed.params as? EthereumTransactionParams)?.data == Data([0x01]))
+    }
+
     @Test("The liquidity read is asked for the position being withdrawn")
     func liquidityIsReadForThePosition() async {
         let liquidity = LendingLiquidityProviderStub(result: .success(Decimal(15) / 10))

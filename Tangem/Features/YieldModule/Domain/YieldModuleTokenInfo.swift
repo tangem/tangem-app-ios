@@ -9,8 +9,11 @@
 import Foundation
 
 struct YieldModuleTokenInfo {
-    let isActive: Bool
     let apy: Decimal
-    let maxFeeNative: Decimal
-    let maxFeeUSD: Decimal
+}
+
+extension YieldModuleTokenInfo {
+    init(dto: YieldModuleDTO.Response.PositionInfo) {
+        self.init(apy: dto.apy / 100)
+    }
 }

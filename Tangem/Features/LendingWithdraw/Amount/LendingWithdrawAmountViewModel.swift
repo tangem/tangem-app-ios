@@ -193,13 +193,19 @@ private extension LendingWithdrawAmountViewModel {
         model.updateFees()
 
         feeRefresh?.cancel()
-        feeRefresh = Task { @MainActor [weak self, feeUpdate = model.feeUpdateTask] in
-            await feeUpdate?.value
+        feeRefresh = Task { @MainActor [weak self] in
+            var awaited: Task<Void, Never>?
 
-            guard let self,
-                  !Task.isCancelled,
-                  model.feeUpdateTask == feeUpdate,
-                  model.sourceAmount.value?.crypto == amount else {
+            while let latest = self?.model.feeUpdateTask, latest != awaited {
+                await latest.value
+                awaited = latest
+
+                guard !Task.isCancelled else {
+                    return
+                }
+            }
+
+            guard let self, !Task.isCancelled, model.sourceAmount.value?.crypto == amount else {
                 return
             }
 

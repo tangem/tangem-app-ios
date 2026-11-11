@@ -168,7 +168,7 @@ private extension LendingWithdrawConfirmViewModel {
         }
 
         do {
-            let supportData = try mailDataBuilder.makeSupportData(transaction: transaction, error: error)
+            let supportData = try mailDataBuilder.makeSupportData(transaction: model.supportTransaction(for: transaction), error: error)
             router?.openMail(with: supportData.emailDataCollector, recipient: supportData.recipient)
         } catch {
             alert = error.alertBinder

@@ -73,6 +73,29 @@ final class LendingWithdrawAmountViewModelTests: LeakTrackingTestSuite {
         #expect(enabled != nil)
     }
 
+    @Test("A fee request replaced by a retry while Withdraw waits for it still turns Withdraw back on")
+    func replacedFeeRequestStillEnablesWithdraw() async {
+        let (model, token, manager) = makeModel()
+        let sut = makeAmount(model: model, token: token)
+        sut.handle(.share(50))
+        _ = await sut.$state.values.first { $0.isSubmitEnabled }
+
+        let firstRequest = TestGate()
+        let firstRequestStarted = TestGate()
+        manager.updateFeesGate = firstRequest
+        manager.updateFeesStarted = firstRequestStarted
+        sut.handle(.share(100))
+        await firstRequestStarted.wait()
+
+        manager.updateFeesGate = nil
+        manager.updateFeesStarted = nil
+        sut.handle(.retryFee)
+        firstRequest.open()
+
+        let enabled = await sut.$state.values.first { $0.isSubmitEnabled }
+        #expect(enabled != nil)
+    }
+
     @Test("An amount entered before the Aave liquidity loads turns Withdraw off once the liquidity is below it")
     func liquidityBelowEnteredAmount() async {
         let (model, token, _) = makeModel(liquidity: .success(Decimal(15) / 10))

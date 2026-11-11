@@ -376,6 +376,18 @@ extension CommonWalletModel: WalletModel {
         _yieldModuleManager
     }
 
+    var lendingModuleReader: (any LendingModuleReader)? {
+        guard isYieldModuleSupported,
+              case .blockchain(let network) = tokenItem,
+              network.blockchain == LendingOnAave.blockchain,
+              let yieldSupplyService = walletManager.yieldSupplyService,
+              yieldSupplyService.isSupported() else {
+            return nil
+        }
+
+        return YieldSupplyLendingModuleReader(service: yieldSupplyService)
+    }
+
     var stakeKitTransactionSender: StakeKitTransactionSender? {
         walletManager as? StakeKitTransactionSender
     }

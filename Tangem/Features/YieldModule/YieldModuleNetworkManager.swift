@@ -120,12 +120,7 @@ extension CommonYieldModuleNetworkManager: YieldModuleNetworkManager {
             chainId: chainId
         )
 
-        return YieldModuleTokenInfo(
-            isActive: position.isActive,
-            apy: position.apy,
-            maxFeeNative: position.maxFeeNative,
-            maxFeeUSD: position.maxFeeUSD
-        )
+        return YieldModuleTokenInfo(dto: position)
     }
 
     func fetchChartData(tokenContractAddress: String, chainId: Int) async throws -> YieldChartData {

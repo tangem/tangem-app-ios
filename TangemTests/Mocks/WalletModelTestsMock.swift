@@ -209,6 +209,7 @@ final class WalletModelTestsMock: WalletModel {
     var p2pTransactionSender: (any P2PTransactionSender)? { nil }
     var account: (any CryptoAccountModel)? { _account }
     var yieldModuleManager: YieldModuleManager? { yieldModuleManagerMock }
+    var lendingModuleReader: (any LendingModuleReader)? { nil }
     var feeTokenItemBalanceProvider: TokenBalanceProvider { TokenBalanceProviderTestsMock(balance: 0) }
     var availableBalanceProvider: TokenBalanceProvider {
         availableBalanceProviderMock ?? TokenBalanceProviderTestsMock(balance: 0)
