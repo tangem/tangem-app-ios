@@ -42,7 +42,7 @@ final class LendingDepositCoordinator: CoordinatorObject {
         let token = options.token
         let analyticsLogger = LendingAnalyticsLogger(
             transactionType: .deposit,
-            isWithUpgrade: options.upgradeImplementation != nil,
+            isWithUpgrade: options.request.isWithUpgrade,
             usdPrice: { [quotesRepository] in quotesRepository.quote(for: token.tokenItem)?.priceUsd }
         )
         let transferModel = TransferModel(
@@ -53,10 +53,11 @@ final class LendingDepositCoordinator: CoordinatorObject {
             analyticsLogger: analyticsLogger,
             sendAlertBuilder: CommonSendAlertBuilder(),
             predefinedValues: TransferModel.PredefinedValues(
-                destination: SendDestination(value: .plain(options.yieldModule), source: .textField),
+                destination: SendDestination(value: .plain(options.request.yieldModule), source: .textField),
                 contractCallData: YieldLendingTransactionProvider.depositCallData(
-                    upgradeImplementation: options.upgradeImplementation
-                )
+                    upgradeImplementation: options.request.upgradeImplementation
+                ),
+                preparation: options.request.preparation
             )
         )
 
@@ -82,8 +83,7 @@ final class LendingDepositCoordinator: CoordinatorObject {
 extension LendingDepositCoordinator {
     struct Options {
         let token: SendTransferableToken
-        let yieldModule: String
-        let upgradeImplementation: String?
+        let request: LendingDepositRequest
         let currentApy: Decimal
         let performanceFee: Decimal
         let source: LendingAnalyticsLogger.Source

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import Combine
 import Testing
 import TangemTestKit
 @testable import BlockchainSdk
@@ -21,7 +20,6 @@ final class YieldLendingTransactionProviderTests: LeakTrackingTestSuite {
     private static let owner = "0x3333333333333333333333333333333333333333"
     private static let wrappedNative = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
     private static let upgradeImplementation = "0xaaF16358336a5e292b1D70057f99c3f2e8241C63"
-    private static let fee = Fee(Amount(with: blockchain, type: .coin, value: Decimal(string: "0.0004")!))
 
     @Test("A deposit calls the module's native entry, with no approval")
     func deposit() {
@@ -74,97 +72,57 @@ final class YieldLendingTransactionProviderTests: LeakTrackingTestSuite {
     }
 
     @Test("A user without a module deploys one for WETH through the factory, with no approval and no processor fee")
-    func deploy() async throws {
-        let transaction = try await makeSUT().deployTransaction(
-            owner: Self.owner,
-            wrappedNative: Self.wrappedNative,
-            fee: Self.fee
-        )
+    func deploy() {
+        let call = Self.preparationCall(.deployModule)
 
-        #expect(transaction.amount.value == 0)
-        #expect(transaction.destinationAddress == Self.factory)
-        #expect(transaction.contractAddress == Self.factory)
-        #expect(Self.callData(of: transaction) == "cbeda14c" + Self.word(Self.owner) + Self.word(Self.wrappedNative) + Self.word("0"))
+        #expect(call.destination == Self.factory)
+        #expect(call.data.hex() == "cbeda14c" + Self.word(Self.owner) + Self.word(Self.wrappedNative) + Self.word("0"))
     }
 
     @Test("WETH that was never set up is initialised on the module, with no approval and no processor fee")
-    func initToken() async throws {
-        let transaction = try await makeSUT().initTokenTransaction(
-            wrappedNative: Self.wrappedNative,
-            yieldModule: Self.yieldModule,
-            upgradeImplementation: nil,
-            fee: Self.fee
-        )
+    func initToken() {
+        let call = Self.preparationCall(.initializeToken(upgradeImplementation: nil))
 
-        #expect(transaction.amount.value == 0)
-        #expect(transaction.destinationAddress == Self.yieldModule)
-        #expect(transaction.contractAddress == Self.yieldModule)
-        #expect(Self.callData(of: transaction) == "ebd4b81c" + Self.word(Self.wrappedNative) + Self.word("0"))
+        #expect(call.destination == Self.yieldModule)
+        #expect(call.data.hex() == "ebd4b81c" + Self.word(Self.wrappedNative) + Self.word("0"))
     }
 
     @Test("Initialising WETH on a module that needs an upgrade carries the initialisation inside the upgrade")
-    func initTokenWithUpgrade() async throws {
-        let transaction = try await makeSUT().initTokenTransaction(
-            wrappedNative: Self.wrappedNative,
-            yieldModule: Self.yieldModule,
-            upgradeImplementation: Self.upgradeImplementation,
-            fee: Self.fee
-        )
+    func initTokenWithUpgrade() {
+        let call = Self.preparationCall(.initializeToken(upgradeImplementation: Self.upgradeImplementation))
 
-        #expect(transaction.amount.value == 0)
-        #expect(transaction.destinationAddress == Self.yieldModule)
-        #expect(transaction.contractAddress == Self.yieldModule)
-        #expect(Self.callData(of: transaction) == Self.upgradeCall(wrapping: "ebd4b81c" + Self.word(Self.wrappedNative) + Self.word("0")))
+        #expect(call.destination == Self.yieldModule)
+        #expect(call.data.hex() == Self.upgradeCall(wrapping: "ebd4b81c" + Self.word(Self.wrappedNative) + Self.word("0")))
     }
 
     @Test("WETH left inactive by a full withdrawal is reactivated on the module, with no approval and no processor fee")
-    func reactivateToken() async throws {
-        let transaction = try await makeSUT().reactivateTokenTransaction(
-            wrappedNative: Self.wrappedNative,
-            yieldModule: Self.yieldModule,
-            upgradeImplementation: nil,
-            fee: Self.fee
-        )
+    func reactivateToken() {
+        let call = Self.preparationCall(.reactivateToken(upgradeImplementation: nil))
 
-        #expect(transaction.amount.value == 0)
-        #expect(transaction.destinationAddress == Self.yieldModule)
-        #expect(transaction.contractAddress == Self.yieldModule)
-        #expect(Self.callData(of: transaction) == "c478e956" + Self.word(Self.wrappedNative) + Self.word("0"))
+        #expect(call.destination == Self.yieldModule)
+        #expect(call.data.hex() == "c478e956" + Self.word(Self.wrappedNative) + Self.word("0"))
     }
 
     @Test("Reactivating WETH on a module that needs an upgrade carries the reactivation inside the upgrade")
-    func reactivateTokenWithUpgrade() async throws {
-        let transaction = try await makeSUT().reactivateTokenTransaction(
-            wrappedNative: Self.wrappedNative,
-            yieldModule: Self.yieldModule,
-            upgradeImplementation: Self.upgradeImplementation,
-            fee: Self.fee
-        )
+    func reactivateTokenWithUpgrade() {
+        let call = Self.preparationCall(.reactivateToken(upgradeImplementation: Self.upgradeImplementation))
 
-        #expect(transaction.amount.value == 0)
-        #expect(transaction.destinationAddress == Self.yieldModule)
-        #expect(transaction.contractAddress == Self.yieldModule)
-        #expect(Self.callData(of: transaction) == Self.upgradeCall(wrapping: "c478e956" + Self.word(Self.wrappedNative) + Self.word("0")))
+        #expect(call.destination == Self.yieldModule)
+        #expect(call.data.hex() == Self.upgradeCall(wrapping: "c478e956" + Self.word(Self.wrappedNative) + Self.word("0")))
     }
 }
 
 // MARK: - Fixtures
 
 private extension YieldLendingTransactionProviderTests {
-    func makeSUT() -> YieldLendingTransactionProvider {
-        let transactionCreator = trackForMemoryLeaks(TransactionCreatorStub(blockchain: Self.blockchain))
-
-        return trackForMemoryLeaks(
-            YieldLendingTransactionProvider(
-                blockchain: Self.blockchain,
-                factoryContractAddress: Self.factory,
-                transactionCreator: transactionCreator
-            )
+    static func preparationCall(_ preparation: LendingDepositPreparation) -> (destination: String, data: Data) {
+        YieldLendingTransactionProvider.preparationCall(
+            preparation,
+            owner: owner,
+            yieldModule: yieldModule,
+            wrappedNative: wrappedNative,
+            factory: factory
         )
-    }
-
-    static func callData(of transaction: Transaction) -> String? {
-        (transaction.params as? EthereumTransactionParams)?.data?.hex()
     }
 
     static func word(_ value: String) -> String {
@@ -176,24 +134,4 @@ private extension YieldLendingTransactionProviderTests {
         let padding = String(repeating: "0", count: (64 - call.count % 64) % 64)
         return "4f1ef286" + word(upgradeImplementation) + word("40") + word(String(call.count / 2, radix: 16)) + call + padding
     }
-}
-
-private final class TransactionCreatorStub: TransactionCreator {
-    var wallet: Wallet
-
-    init(blockchain: Blockchain) {
-        wallet = Wallet(
-            blockchain: blockchain,
-            publicKey: .init(seedKey: Data(), derivationType: .none),
-            addressesProvider: EmptyAddressesProvider()
-        )
-    }
-
-    var walletPublisher: AnyPublisher<Wallet, Never> {
-        Just(wallet).eraseToAnyPublisher()
-    }
-
-    func validate(amount: Amount, fee: Fee) throws {}
-
-    func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {}
 }

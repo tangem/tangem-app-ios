@@ -233,9 +233,11 @@ private struct ReaderStub: LendingModuleReader {
     let positions: PositionStub
 
     func yieldModule() async throws -> String? { nil }
+    func predictedYieldModule() async throws -> String { "" }
     func upgradeStatus(yieldModule: String) async throws -> YieldModuleUpgradeStatus { .upgradeUnavailable(version: nil) }
     func tokenStatus(wrappedNative: String) async throws -> YieldSupplyStatus { throw RateError() }
     func liquidityProvider() -> YieldModuleLendingLiquidityProvider? { positions }
+    func factoryAddress() throws -> String { "" }
 }
 
 private final class PositionStub: YieldModuleLendingLiquidityProvider, Sendable {

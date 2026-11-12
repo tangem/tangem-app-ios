@@ -203,7 +203,7 @@ private extension LendingWithdrawModel {
         let pending = try await pendingTransactions.async()
 
         guard !pending.contains(where: { !$0.isIncoming && $0.destination.caseInsensitiveEquals(to: yieldModule) }) else {
-            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: PendingModuleTransactionError().toUniversalError())
+            throw TransactionDispatcherResult.Error.loadTransactionInfo(error: LendingTransactionError.previousTransactionPending.toUniversalError())
         }
     }
 
@@ -243,17 +243,6 @@ private extension LendingWithdrawModel {
     struct FeeRequest {
         let callData: Data
         let task: Task<Void, Never>
-    }
-}
-
-// MARK: - PendingModuleTransactionError
-
-extension LendingWithdrawModel {
-    struct PendingModuleTransactionError: LocalizedError {
-        // [REDACTED_TODO_COMMENT]
-        var errorDescription: String? {
-            "Your previous Aave transaction is still processing. Try again once it is confirmed."
-        }
     }
 }
 

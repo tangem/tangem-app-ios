@@ -150,8 +150,8 @@ extension LendingPositionCoordinator: LendingPositionRoutable {
                 return
             }
 
-            switch (entry, currentApy) {
-            case (.deposit(let yieldModule, let upgradeImplementation), .some(let currentApy)):
+            switch (options.entryLoader.depositRequest(for: entry), currentApy) {
+            case (.some(let request), .some(let currentApy)):
                 let coordinator = LendingDepositCoordinator(
                     dismissAction: { [weak self] output in
                         self?.handleDepositOutput(output)
@@ -161,23 +161,19 @@ extension LendingPositionCoordinator: LendingPositionRoutable {
 
                 coordinator.start(with: LendingDepositCoordinator.Options(
                     token: options.token,
-                    yieldModule: yieldModule,
-                    upgradeImplementation: upgradeImplementation,
+                    request: request,
                     currentApy: currentApy,
                     performanceFee: LendingOnAave.performanceFee,
                     source: .infoScreen
                 ))
 
                 depositCoordinator = coordinator
-            case (.deposit, .none), (.blocked(.failedToLoad), _):
+            case (.none, _) where entry == .blocked(.unsupportedModule):
+                alert = LendingDepositEntryAlertBuilder.updateRequiredAlert()
+            case (.none, _), (.some, .none):
                 alert = LendingDepositEntryAlertBuilder.readFailedAlert { [weak self] in
                     self?.openAddFunds()
                 }
-            case (.blocked(.unsupportedModule), _):
-                alert = LendingDepositEntryAlertBuilder.updateRequiredAlert()
-            case (.blocked, _):
-                // [REDACTED_TODO_COMMENT]
-                break
             }
         }
     }

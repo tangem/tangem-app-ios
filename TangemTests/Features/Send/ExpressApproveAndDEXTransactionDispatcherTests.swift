@@ -327,23 +327,6 @@ private final class TransactionCreatorStub: TransactionCreator {
     func validate(amount: Amount, fee: Fee, destination: DestinationType) async throws {}
 }
 
-private final class MultipleTransactionsSenderSpy: MultipleTransactionsSender {
-    private(set) var sendCalls: [[Transaction]] = []
-    private let result: Result<[TransactionSendResult], SendTxError>
-
-    init(result: Result<[TransactionSendResult], SendTxError>) {
-        self.result = result
-    }
-
-    func send(
-        _ transactions: [Transaction],
-        signer: TransactionSigner
-    ) -> AnyPublisher<[TransactionSendResult], SendTxError> {
-        sendCalls.append(transactions)
-        return result.publisher.eraseToAnyPublisher()
-    }
-}
-
 private final class GaslessSenderSpy: GaslessMultipleTransactionSending {
     private(set) var sendCalls: [[BSDKTransaction]] = []
     private let result: [TransactionDispatcherResult]

@@ -138,7 +138,14 @@ private extension EarnYieldPickerCoordinator {
     @MainActor
     func handle(_ entry: LendingDepositEntry, product: EarnYieldPickerProduct, options: Options) {
         switch entry {
-        case .deposit(let yieldModule, let upgradeImplementation):
+        case .deposit:
+            guard let request = options.lendingEntryLoader.depositRequest(for: entry) else {
+                alert = LendingDepositEntryAlertBuilder.readFailedAlert { [weak self] in
+                    self?.openLendingDeposit(product: product)
+                }
+                return
+            }
+
             let coordinator = LendingDepositCoordinator(
                 dismissAction: { [weak self] output in
                     self?.handleDepositOutput(output)
@@ -148,23 +155,19 @@ private extension EarnYieldPickerCoordinator {
 
             coordinator.start(with: LendingDepositCoordinator.Options(
                 token: options.lendingToken,
-                yieldModule: yieldModule,
-                upgradeImplementation: upgradeImplementation,
+                request: request,
                 currentApy: product.apy,
                 performanceFee: product.performanceFee,
                 source: .yieldPicker
             ))
 
             lendingDepositCoordinator = coordinator
-        case .blocked(.failedToLoad):
-            alert = LendingDepositEntryAlertBuilder.readFailedAlert { [weak self] in
-                self?.openLendingDeposit(product: product)
-            }
         case .blocked(.unsupportedModule):
             alert = LendingDepositEntryAlertBuilder.updateRequiredAlert()
         case .blocked:
-            // [REDACTED_TODO_COMMENT]
-            break
+            alert = LendingDepositEntryAlertBuilder.readFailedAlert { [weak self] in
+                self?.openLendingDeposit(product: product)
+            }
         }
     }
 

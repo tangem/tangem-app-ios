@@ -11,55 +11,25 @@ import BigInt
 import BlockchainSdk
 import TangemFoundation
 
-final class YieldLendingTransactionProvider {
-    private let blockchain: Blockchain
-    private let factoryContractAddress: String
-    private let transactionCreator: TransactionCreator
-
-    init(blockchain: Blockchain, factoryContractAddress: String, transactionCreator: TransactionCreator) {
-        self.blockchain = blockchain
-        self.factoryContractAddress = factoryContractAddress
-        self.transactionCreator = transactionCreator
-    }
-
-    func deployTransaction(owner: String, wrappedNative: String, fee: Fee) async throws -> Transaction {
-        let method = DeployYieldModuleMethod(
-            walletAddress: owner,
-            tokenContractAddress: wrappedNative,
-            maxNetworkFee: Self.maxNetworkFee
-        )
-
-        return try await transaction(value: .zero, contractAddress: factoryContractAddress, data: method.data, fee: fee)
-    }
-
-    func initTokenTransaction(
-        wrappedNative: String,
+enum YieldLendingTransactionProvider {
+    static func preparationCall(
+        _ preparation: LendingDepositPreparation,
+        owner: String,
         yieldModule: String,
-        upgradeImplementation: String?,
-        fee: Fee
-    ) async throws -> Transaction {
-        try await moduleTransaction(
-            value: .zero,
-            yieldModule: yieldModule,
-            method: InitYieldTokenMethod(tokenContractAddress: wrappedNative, maxNetworkFee: Self.maxNetworkFee),
-            upgradeImplementation: upgradeImplementation,
-            fee: fee
-        )
-    }
-
-    func reactivateTokenTransaction(
         wrappedNative: String,
-        yieldModule: String,
-        upgradeImplementation: String?,
-        fee: Fee
-    ) async throws -> Transaction {
-        try await moduleTransaction(
-            value: .zero,
-            yieldModule: yieldModule,
-            method: ReactivateTokenMethod(tokenContractAddress: wrappedNative, maxNetworkFee: Self.maxNetworkFee),
-            upgradeImplementation: upgradeImplementation,
-            fee: fee
-        )
+        factory: String
+    ) -> (destination: String, data: Data) {
+        switch preparation {
+        case .deployModule:
+            let method = DeployYieldModuleMethod(walletAddress: owner, tokenContractAddress: wrappedNative, maxNetworkFee: maxNetworkFee)
+            return (factory, method.data)
+        case .initializeToken(let upgradeImplementation):
+            let method = InitYieldTokenMethod(tokenContractAddress: wrappedNative, maxNetworkFee: maxNetworkFee)
+            return (yieldModule, moduleCallData(method: method, upgradeImplementation: upgradeImplementation))
+        case .reactivateToken(let upgradeImplementation):
+            let method = ReactivateTokenMethod(tokenContractAddress: wrappedNative, maxNetworkFee: maxNetworkFee)
+            return (yieldModule, moduleCallData(method: method, upgradeImplementation: upgradeImplementation))
+        }
     }
 
     static func depositCallData(upgradeImplementation: String?) -> Data {
@@ -99,31 +69,10 @@ final class YieldLendingTransactionProvider {
         }
     }
 
-    private func moduleTransaction(
-        value: Decimal,
-        yieldModule: String,
-        method: SmartContractMethod,
-        upgradeImplementation: String?,
-        fee: Fee
-    ) async throws -> Transaction {
-        let data = Self.moduleCallData(method: method, upgradeImplementation: upgradeImplementation)
-        return try await transaction(value: value, contractAddress: yieldModule, data: data, fee: fee)
-    }
-
     private static func moduleCallData(method: SmartContractMethod, upgradeImplementation: String?) -> Data {
         upgradeImplementation.map {
             UpgradeToAndCallMethod(newImplementation: $0, callData: method.data).data
         } ?? method.data
-    }
-
-    private func transaction(value: Decimal, contractAddress: String, data: Data, fee: Fee) async throws -> Transaction {
-        try await transactionCreator.createTransaction(
-            amount: Amount(with: blockchain, type: .coin, value: value),
-            fee: fee,
-            destinationAddress: contractAddress,
-            contractAddress: contractAddress,
-            params: EthereumTransactionParams(data: data)
-        )
     }
 }
 

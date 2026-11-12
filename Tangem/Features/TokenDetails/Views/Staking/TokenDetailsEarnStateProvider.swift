@@ -77,7 +77,7 @@ final class TokenDetailsEarnStateProvider {
             token: CommonSendTransferableTokenFactory(userWalletInfo: userWalletInfo, walletModel: walletModel).makeTransferableToken(),
             currentApy: lendingApy.value.value,
             liquidityProvider: liquidityProvider,
-            entryLoader: LendingDepositEntryLoader(reader: lendingModuleReader),
+            entryLoader: makeLendingEntryLoader(reader: lendingModuleReader),
             pendingTransactions: walletModel.pendingTransactionsProvider.pendingTransactionsPublisher
         )
 
@@ -338,6 +338,17 @@ private extension TokenDetailsEarnStateProvider {
 // MARK: - Earn yield picker
 
 private extension TokenDetailsEarnStateProvider {
+    func makeLendingEntryLoader(reader: LendingModuleReader) -> LendingDepositEntryLoader {
+        LendingDepositEntryLoader(
+            reader: reader,
+            preparationFactory: LendingDepositPreparationFactory(
+                walletModel: walletModel,
+                signerFactory: userWalletInfo.signerFactory,
+                reader: reader
+            )
+        )
+    }
+
     func openEarnYieldPicker(products: [EarnYieldPickerProduct], selectedProductID: EarnYieldPickerProduct.ID) {
         guard let lendingModuleReader = walletModel.lendingModuleReader else {
             return
@@ -349,7 +360,7 @@ private extension TokenDetailsEarnStateProvider {
             balanceProvider: walletModel.availableBalanceProvider,
             currencyCode: AppSettings.shared.selectedCurrencyCode,
             lendingToken: CommonSendTransferableTokenFactory(userWalletInfo: userWalletInfo, walletModel: walletModel).makeTransferableToken(),
-            lendingEntryLoader: LendingDepositEntryLoader(reader: lendingModuleReader),
+            lendingEntryLoader: makeLendingEntryLoader(reader: lendingModuleReader),
             addFundsOptions: addFundsOptions
         )
 
