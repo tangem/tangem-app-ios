@@ -24,7 +24,7 @@ enum MobileSocialLoginProviderFactory {
 
     static func makeProvider() -> SocialAuthProvider {
         CommonSocialAuthProvider(
-            baseURL: AppEnvironment.current.backendAuthenticationBaseUrl,
+            baseURL: AppEnvironment.current.backendAuthenticationAPIType.baseURL,
             networkConfiguration: .ephemeralConfiguration,
             requestInterceptor: Interceptor(
                 adapter: BackendAuthenticationAssembly.requestAdapter,

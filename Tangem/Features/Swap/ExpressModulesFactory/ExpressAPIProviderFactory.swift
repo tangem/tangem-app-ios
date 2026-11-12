@@ -24,13 +24,7 @@ struct ExpressAPIProviderFactory {
 
     func makeExpressAPIProvider(userId: String, refcode: Refcode?) -> ExpressAPIProvider {
         let factory = TangemExpressFactory()
-        let expressAPIType: ExpressAPIType = {
-            if AppEnvironment.current.isProduction {
-                return .production
-            }
-
-            return FeatureStorage.instance.apiExpress
-        }()
+        let expressAPIType = AppEnvironment.current.expressAPIType
 
         let apiKey = apiKey(expressAPIType: expressAPIType)
         let exchangeDataDecoder = exchangeDataDecoder(expressAPIType: expressAPIType)

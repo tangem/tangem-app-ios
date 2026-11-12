@@ -37,7 +37,7 @@ enum MCPModuleFactory {
 
         let configuration = MCPAssembly.Configuration(
             floatingSheetRegistry: FloatingSheetRegistry.default,
-            baseURL: AppEnvironment.current.backendAuthenticationBaseUrl,
+            baseURL: AppEnvironment.current.backendAuthenticationAPIType.baseURL,
             requestAdapter: BackendAuthenticationAssembly.requestAdapter,
             requestRetrier: BackendAuthenticationAssembly.requestRetrier,
             authorizationAnalyticsReporter: CommonMCPAuthorizationAnalyticsReporter(),

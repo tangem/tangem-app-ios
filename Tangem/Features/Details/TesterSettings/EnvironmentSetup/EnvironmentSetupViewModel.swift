@@ -14,6 +14,7 @@ import TangemPay
 import TangemStaking
 import TangemFirebaseDynamicShim
 import TangemAccessibilityIdentifiers
+import TangemBackendAuthenticationDebugSupport
 import struct TangemUIUtils.AlertBinder
 
 final class EnvironmentSetupViewModel: ObservableObject {
@@ -101,11 +102,24 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
         pickerViewModels = [
             DefaultPickerRowViewModel(
+                title: "Backend Authentication API type",
+                options: BackendAuthenticationAPIType.allCases.map { $0.rawValue },
+                selection: BindingValue<String>(
+                    root: featureStorage,
+                    default: FeatureStorage.Defaults.backendAuthenticationAPIType.rawValue,
+                    get: { $0.backendAuthenticationAPIType.rawValue },
+                    set: { [weak self] storage, rawValue in
+                        self?.updateBackendAuthenticationAPIType(rawValue: rawValue, in: storage)
+                    }
+                ),
+                pickerStyle: .menu
+            ),
+            DefaultPickerRowViewModel(
                 title: "Tangem API type",
                 options: TangemAPIType.allCases.map { $0.rawValue },
                 selection: BindingValue<String>(
                     root: featureStorage,
-                    default: TangemAPIType.prod.rawValue,
+                    default: FeatureStorage.Defaults.tangemAPIType.rawValue,
                     get: { $0.tangemAPIType.rawValue },
                     set: { $0.tangemAPIType = TangemAPIType(rawValue: $1) ?? .prod }
                 ),
@@ -117,7 +131,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 displayTitles: ExpressAPIType.allCases.map { $0.title },
                 selection: BindingValue<String>(
                     root: featureStorage,
-                    default: ExpressAPIType.production.rawValue,
+                    default: FeatureStorage.Defaults.expressAPIType.rawValue,
                     get: { $0.apiExpress.rawValue },
                     set: { $0.apiExpress = ExpressAPIType(rawValue: $1) ?? .production }
                 ),
@@ -283,13 +297,30 @@ final class EnvironmentSetupViewModel: ObservableObject {
         self.alert = AlertBinder(alert: alert)
     }
 
-    func showExitAlert() {
+    func showExitAlert(reason: String? = nil) {
         let alert = Alert(
             title: Text("Are you sure you want to exit the app?"),
+            message: reason.map { Text($0) },
             primaryButton: .destructive(Text("Exit"), action: { exit(1) }),
             secondaryButton: .cancel()
         )
         self.alert = AlertBinder(alert: alert)
+    }
+
+    private func updateBackendAuthenticationAPIType(rawValue: String, in storage: FeatureStorage) {
+        guard
+            let apiType = BackendAuthenticationAPIType(rawValue: rawValue),
+            apiType != storage.backendAuthenticationAPIType
+        else {
+            return
+        }
+
+        storage.backendAuthenticationAPIType = apiType
+
+        Task { @MainActor [weak self] in
+            await BackendAuthenticationDebugAssembly.resetAll()
+            self?.showExitAlert(reason: "Restart is required to apply the changes.")
+        }
     }
 
     private func filterFeatureStateViewModels(searchText: String) -> [FeatureStateRowViewModel] {

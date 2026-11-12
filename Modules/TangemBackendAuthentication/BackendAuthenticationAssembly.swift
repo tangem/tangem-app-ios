@@ -306,6 +306,9 @@ extension BackendAuthenticationAssembly {
             deviceKeyManager: deviceKeyManager,
             deviceRegistrationStatusRepository: deviceRegistrationStatusRepository,
             sessionTokensRepository: sessionTokensRepository,
+            storageCleaner: storageCleaner,
+            appAttestationStatusRepository: appAttestationStatusRepository,
+            userWalletRegistrationStatusRepository: userWalletRegistrationStatusRepository,
             renewSessionTokensUseCase: renewSessionTokensUseCase
         )
     }

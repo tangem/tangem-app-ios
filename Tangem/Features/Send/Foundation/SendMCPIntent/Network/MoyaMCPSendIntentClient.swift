@@ -25,7 +25,7 @@ struct MoyaMCPSendIntentClient {
                 retrier: BackendAuthenticationAssembly.requestRetrier
             )
         ),
-        baseURL: URL = AppEnvironment.current.backendAuthenticationBaseUrl
+        baseURL: URL = AppEnvironment.current.backendAuthenticationAPIType.baseURL
     ) {
         self.provider = provider
         self.baseURL = baseURL

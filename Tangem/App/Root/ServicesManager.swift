@@ -178,6 +178,7 @@ final class CommonServicesManager {
     /// `configureForUITests` wipes wallet data, which would destroy the wallet the deeplink is supposed to open.
     private func persistEnvironmentForSystemLaunch() {
         let storage = FeatureStorage.instance
+        storage.backendAuthenticationAPIType = storage.backendAuthenticationAPIType
         storage.tangemAPIType = storage.tangemAPIType
         storage.visaAPIType = storage.visaAPIType
         storage.stakeKitAPIType = storage.stakeKitAPIType
