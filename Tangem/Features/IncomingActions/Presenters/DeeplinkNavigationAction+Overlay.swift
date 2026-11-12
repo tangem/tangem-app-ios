@@ -27,6 +27,7 @@ extension DeeplinkNavigationAction {
         case .promo(let deeplink): deeplink
         case .onboardVisa(let deeplink): deeplink
         case .payApp(let deeplink): deeplink
+        case .onboardVirtualAccount(let deeplink): deeplink
         case .jointAccountInvite(let deeplink): deeplink
         case .jointAccount(let deeplink): deeplink
         case .token(let deeplink): deeplink

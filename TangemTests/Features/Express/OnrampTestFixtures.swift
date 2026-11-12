@@ -38,6 +38,18 @@ enum OnrampTestFixtures {
 
         return OnrampProvider(provider: provider, paymentMethod: paymentMethod, manager: manager)
     }
+
+    static func makeProvidersList(_ providers: [OnrampProvider]) -> ProvidersList {
+        let grouped = Dictionary(grouping: providers, by: { $0.paymentMethod.id })
+        let items = grouped.map { _, providers in
+            ProviderItem(paymentMethod: providers[0].paymentMethod, providers: providers)
+        }
+        items.forEach { $0.sort() }
+        let list: ProvidersList = items
+        list.updateAttractiveTypes()
+        list.updateProcessingTimeTypes(preferredProviderId: nil)
+        return list
+    }
 }
 
 final class StubOnrampProviderManager: OnrampProviderManager {

@@ -14,7 +14,9 @@ protocol OnrampSummaryInteractor: AnyObject {
     var currencyPublisher: AnyPublisher<OnrampFiatCurrency?, Never> { get }
     var bottomInfoPublisher: AnyPublisher<LoadingResult<Decimal, OnrampSummaryInteractorBottomInfoError>?, Never> { get }
 
-    var suggestedOffersPublisher: AnyPublisher<LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>, Never> { get }
+    func suggestedOffersPublisher(
+        replacedSlots: Set<MarketingBanner.RecommendedSlot>
+    ) -> AnyPublisher<LoadingResult<OnrampSummarySuggestedOffers, Never>, Never>
     var isLoadingPublisher: AnyPublisher<Bool, Never> { get }
 
     func userDidChangeFiat(amount: Decimal?)
@@ -107,7 +109,9 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
             .eraseToAnyPublisher()
     }
 
-    var suggestedOffersPublisher: AnyPublisher<LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>, Never> {
+    func suggestedOffersPublisher(
+        replacedSlots: Set<MarketingBanner.RecommendedSlot>
+    ) -> AnyPublisher<LoadingResult<OnrampSummarySuggestedOffers, Never>, Never> {
         guard let providersInput else {
             assertionFailure("OnrampProvidersInput not found")
             return .empty
@@ -122,7 +126,8 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
             CommonOnrampSummaryInteractor.mapToSuggestedOffers(
                 selectedProvider: args.0,
                 providers: args.1,
-                recentOnrampTransaction: interactor.recentFinder?.recentOnrampTransaction
+                recentOnrampTransaction: interactor.recentFinder?.recentOnrampTransaction,
+                replacedSlots: replacedSlots
             )
         }
         .eraseToAnyPublisher()
@@ -160,6 +165,82 @@ extension CommonOnrampSummaryInteractor: OnrampSummaryInteractor {
 // MARK: - Mapping
 
 extension CommonOnrampSummaryInteractor {
+    static func mapToSuggestedOffers(
+        selectedProvider: LoadingResult<OnrampProvider, Never>?,
+        providers: LoadingResult<ProvidersList, Error>?,
+        recentOnrampTransaction: RecentOnrampTransactionParameters?,
+        replacedSlots: Set<MarketingBanner.RecommendedSlot>
+    ) -> LoadingResult<OnrampSummarySuggestedOffers, Never> {
+        let offers = mapToSuggestedOffers(
+            selectedProvider: selectedProvider,
+            providers: providers,
+            recentOnrampTransaction: recentOnrampTransaction
+        )
+
+        return offers.mapValue { offers in
+            guard !offers.isEmpty else {
+                return OnrampSummarySuggestedOffers(recent: nil, recommended: [], hasMoreOffers: false)
+            }
+
+            let recommended = offers.recommended.isEmpty
+                ? []
+                : placing(replacedSlots: replacedSlots, in: offers.recommended)
+            let allOffersCount = providers?.value?.flatMap { $0.selectableProviders() }.count ?? 0
+
+            return OnrampSummarySuggestedOffers(
+                recent: offers.recent,
+                recommended: recommended,
+                hasMoreOffers: allOffersCount > shownOffersCount(recent: offers.recent, recommended: recommended)
+            )
+        }
+    }
+
+    private static func shownOffersCount(recent: OnrampProvider?, recommended: [OnrampSummaryRecommendedEntry]) -> Int {
+        let recommendedOffersCount = recommended.filter(\.isOffer).count
+
+        return (recent == nil ? 0 : 1) + recommendedOffersCount
+    }
+
+    static func placing(
+        replacedSlots: Set<MarketingBanner.RecommendedSlot>,
+        in recommended: [OnrampSummaryInteractorSuggestedOfferItem]
+    ) -> [OnrampSummaryRecommendedEntry] {
+        var entries = recommended.map(OnrampSummaryRecommendedEntry.offer)
+
+        for slot in MarketingBanner.RecommendedSlot.allCases where replacedSlots.contains(slot) {
+            let slotIndex = entries.firstIndex { entry in
+                if case .offer(let item) = entry {
+                    return item.displayedSlot == slot
+                }
+
+                return false
+            }
+
+            if let slotIndex {
+                entries[slotIndex] = .replacedSlot(slot)
+            } else {
+                entries.insert(.replacedSlot(slot), at: naturalIndex(of: slot, in: entries))
+            }
+        }
+
+        return entries
+    }
+
+    private static func naturalIndex(of slot: MarketingBanner.RecommendedSlot, in entries: [OnrampSummaryRecommendedEntry]) -> Int {
+        switch slot {
+        case .greatRate:
+            entries.firstIndex { entry in
+                guard case .offer(let item) = entry else {
+                    return false
+                }
+
+                return item.displayedSlot == .fastest || item.isPlain
+            } ?? entries.endIndex
+        case .fastest:
+            entries.endIndex
+        }
+    }
+
     static func mapToSuggestedOffers(
         selectedProvider: LoadingResult<OnrampProvider, Never>?,
         providers: LoadingResult<ProvidersList, Error>?,

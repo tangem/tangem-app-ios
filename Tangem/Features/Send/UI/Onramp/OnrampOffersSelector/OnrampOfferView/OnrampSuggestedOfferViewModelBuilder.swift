@@ -31,22 +31,10 @@ struct OnrampSuggestedOfferViewModelBuilder {
     func mapToRecommendedOnrampOfferViewModelTitle(
         suggestedOfferType: OnrampSummaryInteractorSuggestedOfferItem
     ) -> OnrampOfferViewModel.Title {
-        guard !suggestedOfferType.provider.isRestricted else {
-            return .text(Localization.onrampTitleYouGet)
-        }
-
-        switch suggestedOfferType {
-        case .great: return .great
-        case .fastest: return .fastest
-        case .nativeApplePay(let provider): return mapToNativeApplePayTitle(provider: provider)
-        case .recent, .plain: return .text(Localization.onrampTitleYouGet)
-        }
-    }
-
-    private func mapToNativeApplePayTitle(provider: OnrampProvider) -> OnrampOfferViewModel.Title {
-        switch provider.globalAttractiveType {
-        case .best, .great: .great
-        case .loss, .none: .fastest
+        switch suggestedOfferType.displayedSlot {
+        case .greatRate: .great
+        case .fastest: .fastest
+        case .none: .text(Localization.onrampTitleYouGet)
         }
     }
 

@@ -39,7 +39,8 @@ enum MarketingCampaignsFixtures {
         etaLabel: String? = nil,
         partnerLabel: String? = nil,
         buttonText: String? = nil,
-        glow: Bool? = nil
+        glow: Bool? = nil,
+        replacesSlot: String? = nil
     ) -> MarketingCampaignsDTO.Campaign {
         MarketingCampaignsDTO.Campaign(
             id: id,
@@ -63,7 +64,8 @@ enum MarketingCampaignsFixtures {
                 etaLabel: etaLabel,
                 partnerLabel: partnerLabel,
                 buttonText: buttonText,
-                glow: glow
+                glow: glow,
+                replacesSlot: replacesSlot
             )
         )
     }

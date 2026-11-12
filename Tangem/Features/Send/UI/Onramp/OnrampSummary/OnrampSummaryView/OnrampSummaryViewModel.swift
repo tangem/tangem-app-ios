@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import CombineExt
 import TangemMacro
 import TangemExpress
 import TangemLocalization
@@ -25,7 +26,8 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     @Published private(set) var viewState: ViewState = .idle
     @Published private(set) var notificationInputs: [NotificationViewInput] = []
     @Published private(set) var standaloneMarketingBanners: [StandaloneMarketingBannerViewModel]?
-    @Published private(set) var callToActionMarketingBanners: [CallToActionMarketingBanner] = []
+    @Published private(set) var topCallToActionBanners: [CallToActionMarketingBanner] = []
+
     @Published private(set) var notificationButtonIsLoading = false
     @Published private(set) var restrictedRegionName: String?
 
@@ -43,6 +45,8 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     private let restrictedRegionPublisher: AnyPublisher<OnrampCountry?, Never>
 
     private lazy var onrampOfferViewModelBuilder = OnrampSuggestedOfferViewModelBuilder(tokenItem: tokenItem)
+    private var bannerIdsOffTop: Set<Int> = []
+    private var bag = Set<AnyCancellable>()
 
     init(
         onrampAmountViewModel: OnrampAmountViewModel,
@@ -103,8 +107,14 @@ private extension OnrampSummaryViewModel {
             .map { $0.nilIfEmpty }
             .assign(to: &$standaloneMarketingBanners)
 
-        marketingBannerManager.callToActionBannersPublisher
-            .assign(to: &$callToActionMarketingBanners)
+        let offersWithLayout = marketingBannerManager.callToActionBannersPublisher
+            .map(CallToActionLayout.init(banners:))
+            .removeDuplicates()
+            .flatMapLatest { [interactor] layout in
+                interactor
+                    .suggestedOffersPublisher(replacedSlots: Set(layout.bannersBySlot.keys))
+                    .map { (offers: $0, layout: layout) }
+            }
 
         interactor
             .isLoadingPublisher
@@ -116,29 +126,42 @@ private extension OnrampSummaryViewModel {
             .receiveOnMain()
             .assign(to: &$restrictedRegionName)
 
-        Publishers.CombineLatest4(
-            interactor.suggestedOffersPublisher,
+        Publishers.CombineLatest3(
+            offersWithLayout,
             linkedBannersPublisher,
-            isCountryUnsupportedPublisher,
-            restrictedRegionPublisher.map { $0 == nil }
+            Publishers.CombineLatest(isCountryUnsupportedPublisher, restrictedRegionPublisher.map { $0 == nil })
         )
         .withWeakCaptureOf(self)
         .map { viewModel, values in
-            let (offers, banners, isCountryUnsupported, isBuyEnabled) = values
-            return viewModel.mapToViewState(
+            let ((offers, layout), banners, (isCountryUnsupported, isBuyEnabled)) = values
+            let viewState = viewModel.mapToViewState(
                 offers: offers,
                 linkedBanners: banners,
+                slotBanners: layout.bannersBySlot,
                 isCountryUnsupported: isCountryUnsupported,
                 isBuyEnabled: isBuyEnabled
             )
+
+            return (viewState, layout)
         }
         .receiveOnMain()
-        .assign(to: &$viewState)
+        .withWeakCaptureOf(self)
+        .sink { viewModel, values in
+            viewModel.apply(viewState: values.0, layout: values.1)
+        }
+        .store(in: &bag)
+    }
+
+    func apply(viewState: ViewState, layout: CallToActionLayout) {
+        bannerIdsOffTop = Self.bannerIdsOffTop(for: viewState, keptWhileLoading: bannerIdsOffTop)
+        topCallToActionBanners = layout.all.filter { !bannerIdsOffTop.contains($0.id) }
+        self.viewState = viewState
     }
 
     func mapToViewState(
-        offers: LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>,
+        offers: LoadingResult<OnrampSummarySuggestedOffers, Never>,
         linkedBanners: [MarketingBanner],
+        slotBanners: [MarketingBanner.RecommendedSlot: CallToActionMarketingBanner],
         isCountryUnsupported: Bool,
         isBuyEnabled: Bool
     ) -> ViewState {
@@ -146,7 +169,7 @@ private extension OnrampSummaryViewModel {
         case .loading:
             return .loading
 
-        case .success(let offers) where offers.isEmpty:
+        case .success(let offers) where offers.recent == nil && offers.recommended.isEmpty:
             let isEmptyTextField = onrampAmountViewModel.decimalNumberTextFieldViewModel.value ?? 0 <= 0
             if isEmptyTextField, !isCountryUnsupported, let presets = fiatPresetService.presets() {
                 return .presets(presets)
@@ -159,9 +182,15 @@ private extension OnrampSummaryViewModel {
                 recent: offers.recent.map {
                     mapToRecentOnrampOfferViewModel(provider: $0, linkedBanners: linkedBanners, isBuyEnabled: isBuyEnabled)
                 },
-                recommended: offers.recommended.map {
-                    mapToRecommendedOffer(suggestedOfferType: $0, linkedBanners: linkedBanners, isBuyEnabled: isBuyEnabled)
+                recommended: offers.recommended.compactMap { entry -> RecommendedItem? in
+                    switch entry {
+                    case .offer(let item):
+                        return .offer(mapToRecommendedOffer(suggestedOfferType: item, linkedBanners: linkedBanners, isBuyEnabled: isBuyEnabled))
+                    case .replacedSlot(let slot):
+                        return slotBanners[slot].map(RecommendedItem.banner)
+                    }
                 },
+                hasMoreOffers: offers.hasMoreOffers
             ))
         }
     }
@@ -262,6 +291,58 @@ extension OnrampSummaryViewModel {
 
     struct SuggestedOffers: Hashable {
         let recent: OnrampOfferViewModel?
-        let recommended: [OnrampOfferViewModel]
+        let recommended: [RecommendedItem]
+        let hasMoreOffers: Bool
+    }
+
+    enum RecommendedItem: Hashable, Identifiable {
+        case offer(OnrampOfferViewModel)
+        case banner(CallToActionMarketingBanner)
+
+        var id: String {
+            switch self {
+            case .offer(let viewModel): "offer-\(viewModel.id)"
+            case .banner(let banner): "banner-\(banner.id)"
+            }
+        }
+    }
+}
+
+// MARK: - Call-to-action layout
+
+extension OnrampSummaryViewModel {
+    static func bannerIdsOffTop(for viewState: ViewState, keptWhileLoading: Set<Int>) -> Set<Int> {
+        switch viewState {
+        case .loading:
+            return keptWhileLoading
+        case .idle, .presets:
+            return []
+        case .suggestedOffers(let offers):
+            return Set(offers.recommended.compactMap { item in
+                if case .banner(let banner) = item {
+                    return banner.id
+                }
+
+                return nil
+            })
+        }
+    }
+
+    struct CallToActionLayout: Equatable {
+        let all: [CallToActionMarketingBanner]
+        let bannersBySlot: [MarketingBanner.RecommendedSlot: CallToActionMarketingBanner]
+
+        init(banners: [CallToActionMarketingBanner]) {
+            var bannersBySlot: [MarketingBanner.RecommendedSlot: CallToActionMarketingBanner] = [:]
+
+            for banner in banners {
+                if let slot = banner.replacedSlot, bannersBySlot[slot] == nil {
+                    bannersBySlot[slot] = banner
+                }
+            }
+
+            all = banners
+            self.bannersBySlot = bannersBySlot
+        }
     }
 }

@@ -31,6 +31,7 @@ enum DeeplinkNavigationAction: Equatable {
     case campaigns(CampaignsDeeplink)
     case onboardVisa(OnboardVisaDeeplink)
     case payApp(PayAppDeeplink)
+    case onboardVirtualAccount(OnboardVirtualAccountDeeplink)
     case jointAccountInvite(JointAccountInviteDeeplink)
     case jointAccount(JointAccountDeeplink)
     case payCustomCard(PayCustomCardDeeplink)
@@ -109,6 +110,7 @@ extension DeeplinkNavigationAction {
         CampaignsDeeplink.host: CampaignsDeeplink.self,
         OnboardVisaDeeplink.host: OnboardVisaDeeplink.self,
         PayAppDeeplink.host: PayAppDeeplink.self,
+        OnboardVirtualAccountDeeplink.host: OnboardVirtualAccountDeeplink.self,
         JointAccountInviteDeeplink.host: JointAccountInviteDeeplink.self,
         JointAccountDeeplink.host: JointAccountDeeplink.self,
         SupportDeeplink.host: SupportDeeplink.self,

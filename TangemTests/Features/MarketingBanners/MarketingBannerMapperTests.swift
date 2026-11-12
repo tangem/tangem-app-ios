@@ -109,6 +109,31 @@ struct MarketingBannerMapperTests {
         #expect(banner == nil)
     }
 
+    @Test(
+        "Pseudo-provider placement reads the Recommended slot it replaces and ignores unknown values",
+        arguments: [
+            ("best", MarketingBanner.RecommendedSlot?.some (.greatRate)),
+            ("fastest", .some (.fastest)),
+            ("cheapest", nil),
+            (nil, nil),
+        ] as [(String?, MarketingBanner.RecommendedSlot?)]
+    )
+    func pseudoProviderReadsReplacedSlot(replacesSlot: String?, expected: MarketingBanner.RecommendedSlot?) throws {
+        let banner = try #require(MarketingBannerMapper.makeBanner(from: Fixtures.makeCampaign(
+            uiType: .pseudoProvider,
+            text: "USD account",
+            deeplink: URL(string: "tangem://support"),
+            buttonText: "Activate",
+            replacesSlot: replacesSlot
+        )))
+
+        guard case .pseudoProvider(let content) = banner.placement else {
+            Issue.record("Expected pseudoProvider placement")
+            return
+        }
+        #expect(content.replacedSlot == expected)
+    }
+
     @Test("Pseudo-provider placement carries its labels, button and glow")
     func pseudoProviderPlacementCarriesFields() throws {
         let banner = try #require(MarketingBannerMapper.makeBanner(from: Fixtures.makeCampaign(

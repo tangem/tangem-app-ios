@@ -27,7 +27,7 @@ struct OnrampSummaryView: View {
 
             marketingBanner
 
-            CallToActionMarketingBannersView(banners: viewModel.callToActionMarketingBanners) { action in
+            CallToActionMarketingBannersView(banners: viewModel.topCallToActionBanners) { action in
                 keyboardActive = false
                 viewModel.userDidTapCallToActionBanner(action: action)
             }
@@ -94,15 +94,25 @@ struct OnrampSummaryView: View {
 
         if !offers.recommended.isEmpty {
             OnrampOffersSectionView(title: Localization.onrampRecommendedTitle) {
-                ForEach(offers.recommended) { offer in
-                    OnrampOfferView(viewModel: offer)
+                ForEach(offers.recommended) { item in
+                    switch item {
+                    case .offer(let offer):
+                        OnrampOfferView(viewModel: offer)
+                    case .banner(let banner):
+                        CallToActionMarketingBannersView(banners: [banner]) { action in
+                            keyboardActive = false
+                            viewModel.userDidTapCallToActionBanner(action: action)
+                        }
+                    }
                 }
             }
         }
 
-        OnrampAllOffersButton {
-            keyboardActive = false
-            viewModel.userDidTapAllOffersButton()
+        if offers.hasMoreOffers {
+            OnrampAllOffersButton {
+                keyboardActive = false
+                viewModel.userDidTapAllOffersButton()
+            }
         }
     }
 

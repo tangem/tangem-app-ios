@@ -337,6 +337,26 @@ struct DeeplinkNavigationActionTests {
         #expect(action(urlString) == nil)
     }
 
+    // MARK: - Onboard virtual account
+
+    @Test("A Money account onboarding link is attributed to itself")
+    func onboardVirtualAccount() {
+        let urlString = "tangem://onboard-virtual-account?entry=ff1&id=VRTACC01"
+
+        #expect(action(urlString) == .onboardVirtualAccount(OnboardVirtualAccountDeeplink(deeplinkString: urlString)))
+    }
+
+    @Test(
+        "A Money account onboarding link missing either side is turned away",
+        arguments: [
+            "tangem://onboard-virtual-account?entry=ff1",
+            "tangem://onboard-virtual-account?id=VRTACC01",
+        ]
+    )
+    func onboardVirtualAccountWithIncompleteParams(urlString: String) {
+        #expect(action(urlString) == nil)
+    }
+
     // MARK: - News
 
     @Test(

@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
+import CombineExt
 import TangemExpress
 
 protocol OnrampFlowBaseDependenciesFactory {
@@ -102,6 +104,24 @@ extension OnrampFlowBaseDependenciesFactory {
     }
 
     func makeOnrampMarketingBannerManager() -> OnrampMarketingBannerManager {
-        OnrampMarketingBannerManager(userWalletId: userWalletInfo.id)
+        OnrampMarketingBannerManager(
+            userWalletId: userWalletInfo.id,
+            moneyAccountStatePublisher: makeMoneyAccountStatePublisher()
+        )
+    }
+
+    private func makeMoneyAccountStatePublisher() -> AnyPublisher<TangemPayMoneyAccountState?, Never> {
+        let userWalletModel = InjectedValues[\.userWalletRepository].models.first { $0.userWalletId == userWalletInfo.id }
+
+        guard let userWalletModel else {
+            return Just(nil).eraseToAnyPublisher()
+        }
+
+        return AccountModelsAggregator(.tangemPay)
+            .modelPublisher(from: userWalletModel.accountModelsManager)
+            .flatMapLatest { accountModel -> AnyPublisher<TangemPayMoneyAccountState?, Never> in
+                accountModel?.moneyAccountStatePublisher ?? Just(nil).eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
     }
 }
