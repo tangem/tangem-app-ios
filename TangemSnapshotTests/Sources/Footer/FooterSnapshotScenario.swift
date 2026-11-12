@@ -18,6 +18,7 @@ enum FooterSnapshotScenario: String, SnapshotScenario {
     case search
     case signingButton
     case fade
+    case fadeReduceTransparency
 
     var canvases: [SnapshotCanvas] {
         switch self {
@@ -26,8 +27,12 @@ enum FooterSnapshotScenario: String, SnapshotScenario {
         case .toolbar: [.fixed(width: 402, height: 240)]
         case .search: [.fixed(width: 402, height: 72)]
         case .signingButton: [.fixed(width: 402, height: 152)]
-        case .fade: [.fixed(width: 402, height: 240)]
+        case .fade, .fadeReduceTransparency: [.fixed(width: 402, height: 240)]
         }
+    }
+
+    var reduceTransparency: Bool {
+        self == .fadeReduceTransparency
     }
 
     @MainActor
@@ -62,7 +67,7 @@ enum FooterSnapshotScenario: String, SnapshotScenario {
                 Footer(.signingButton(SigningActionButtonView(type: .requiredNFCInteraction, title: "Sign", isLoading: false, isDisabled: false, action: {}))),
                 Footer(.signingButton(SigningActionButtonView(type: .holdToConfirm, title: "Hold to sign", isLoading: false, isDisabled: false, action: {}))),
             ])
-        case .fade:
+        case .fade, .fadeReduceTransparency:
             stripedContent
                 .overlay(alignment: .bottom) {
                     Footer(.buttons(primary: button("Continue"))).showFade()
