@@ -220,6 +220,32 @@ struct DEXProviderFlowHelperFallbackTests {
         #expect(permission.fee == revokeTotal)
     }
 
+    // MARK: - Fee currency balance (checkRestriction)
+
+    @Test("A zero fee currency balance restricts the swap unless the fee is sponsored", arguments: [false, true])
+    func checkRestriction_zeroFeeCurrencyBalance(isFeeSponsored: Bool) async {
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(
+                combinedResult: .failure(StubError.notImplemented),
+                approveFee: zeroFee(),
+                isFeeSponsored: isFeeSponsored,
+                feeCurrencyBalance: 0
+            ),
+            analyticsLogger: AnalyticsLoggerSpy()
+        )
+
+        let result = await sut.checkRestriction(sourceAmount: 1, request: makeRequest(), quote: makeQuote())
+
+        switch result {
+        case .terminalState(.some(.restriction(.feeCurrencyHasZeroBalance, _))):
+            #expect(!isFeeSponsored)
+        case .terminalState(.none):
+            #expect(isFeeSponsored)
+        default:
+            Issue.record("Unexpected result \(result)")
+        }
+    }
+
     // MARK: - Allowance amount (processAfterQuote)
 
     @Test("The allowance check gets the amount being sent and the selected approve policy", arguments: AllowanceCheckCase.allCases)
@@ -729,10 +755,12 @@ final class AnalyticsLoggerSpy: AnalyticsLogger {
 
 final class FeeProviderStub: ExpressFeeProvider {
     let supportsGasBasedFeeEstimate: Bool
+    let isFeeSponsored: Bool
 
     private let combinedResult: Result<ApproveWithSwapFee, Error>
     private let approveFee: BSDKFee
     private let revokeAndApproveFee: RevokeAndApproveFee
+    private let balance: Decimal
 
     init(
         combinedResult: Result<ApproveWithSwapFee, Error>,
@@ -741,16 +769,20 @@ final class FeeProviderStub: ExpressFeeProvider {
             unit: Fee(Amount(with: .ethereum(testnet: false), value: 0)),
             total: Fee(Amount(with: .ethereum(testnet: false), value: 0))
         ),
-        supportsGasBasedFeeEstimate: Bool = true
+        supportsGasBasedFeeEstimate: Bool = true,
+        isFeeSponsored: Bool = false,
+        feeCurrencyBalance: Decimal = 1000
     ) {
         self.combinedResult = combinedResult
         self.approveFee = approveFee
         self.revokeAndApproveFee = revokeAndApproveFee
         self.supportsGasBasedFeeEstimate = supportsGasBasedFeeEstimate
+        self.isFeeSponsored = isFeeSponsored
+        balance = feeCurrencyBalance
     }
 
     func feeCurrency() -> ExpressWalletCurrency { makeCurrency() }
-    func feeCurrencyBalance() throws -> Decimal { 1000 }
+    func feeCurrencyBalance() throws -> Decimal { balance }
     func estimatedFee(amount: Decimal) async throws -> BSDKFee { throw StubError.notImplemented }
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee { throw StubError.notImplemented }
     func transactionFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee { approveFee }

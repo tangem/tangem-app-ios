@@ -102,7 +102,7 @@ extension DEXProviderFlowHelper {
             }
 
             // Check fee currency balance at least more then zero
-            guard try expressFeeProvider.feeCurrencyHasPositiveBalance() else {
+            guard try expressFeeProvider.isFeeSponsored || expressFeeProvider.feeCurrencyHasPositiveBalance() else {
                 let isFeeCurrency = expressFeeProvider.isFeeCurrency(source: pair.source.currency)
                 return .terminalState(.restriction(.feeCurrencyHasZeroBalance(isFeeCurrency: isFeeCurrency), quote: quote))
             }
