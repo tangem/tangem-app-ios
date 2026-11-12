@@ -9,4 +9,5 @@
 @MainActor
 protocol AddWalletSheetDelegate: AnyObject {
     func didSelect(option: AddWalletSheetOption)
+    func didClose()
 }

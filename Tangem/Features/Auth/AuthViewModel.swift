@@ -336,7 +336,7 @@ private extension AuthViewModel {
 
 // MARK: - Card scanning
 
-private extension AuthViewModel {
+extension AuthViewModel {
     func scanCard() {
         logScanCardTapAnalytics()
 
@@ -405,7 +405,9 @@ private extension AuthViewModel {
             }
         }
     }
+}
 
+private extension AuthViewModel {
     func scanCardTryAgain() {
         logScanCardTryAgainAnalytics()
         scanCard()

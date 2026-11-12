@@ -17,6 +17,7 @@ struct AllServicesCoordinatorView: CoordinatorView {
                 if let viewModel = coordinator.rootViewModel {
                     AllServicesView(viewModel: viewModel)
                         .navigationLinks(links)
+                        .addWalletPresentation(coordinator.addWalletCoordinator)
                 }
 
                 sheets
@@ -26,9 +27,6 @@ struct AllServicesCoordinatorView: CoordinatorView {
 
     private var links: some View {
         NavHolder()
-            .navigation(item: $coordinator.addWalletSelectorCoordinator) {
-                AddWalletSelectorCoordinatorView(coordinator: $0)
-            }
             .navigation(item: $coordinator.referralCoordinator) {
                 ReferralCoordinatorView(coordinator: $0)
             }
@@ -36,6 +34,14 @@ struct AllServicesCoordinatorView: CoordinatorView {
 
     private var sheets: some View {
         NavHolder()
+            .sheet(item: $coordinator.modalOnboardingCoordinator) {
+                OnboardingCoordinatorView(coordinator: $0)
+                    .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
+                    .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                        coordinator.modalOnboardingCoordinatorKeeper = value
+                    })
+                    .softTopScrollEdgeEffect()
+            }
             .fullScreenCover(item: $coordinator.accountFormViewModel, onDismiss: coordinator.accountFormDidDismiss) { viewModel in
                 NavigationStack {
                     AccountFormView(viewModel: viewModel)

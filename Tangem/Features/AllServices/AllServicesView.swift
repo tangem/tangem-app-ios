@@ -34,6 +34,8 @@ struct AllServicesView: View {
         .topNavigation(leading: .none, actions: navigationActions, close: .enabled(viewModel.close)) {
             barTitle
         }
+        .allowsHitTesting(!viewModel.isScanning)
+        .confirmationDialog(viewModel: $viewModel.scanTroubleshootingDialog)
     }
 }
 

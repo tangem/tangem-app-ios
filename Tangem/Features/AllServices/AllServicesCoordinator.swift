@@ -15,6 +15,7 @@ final class AllServicesCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.safariManager) private var safariManager: SafariManager
 
     // MARK: - Root view model
@@ -23,7 +24,8 @@ final class AllServicesCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
+    @Published var addWalletCoordinator: AddWalletCoordinator?
+    @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var jointAccountManagementCoordinator: JointAccountManagementCoordinator?
     @Published var referralCoordinator: ReferralCoordinator?
 
@@ -37,6 +39,10 @@ final class AllServicesCoordinator: CoordinatorObject {
     private weak var accountCreationWalletSubject: CurrentValueSubject<UserWalletModel, Never>?
     private var accountFormCompletion: (() -> Void)?
     private var walletSelectorCompletion: (@MainActor () -> Void)?
+
+    // MARK: - Helpers
+
+    @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     required init(
         dismissAction: @escaping Action<DismissOptions?>,
@@ -52,6 +58,7 @@ final class AllServicesCoordinator: CoordinatorObject {
             referralEntryProvider: ReferralServiceEntryProvider(),
             coordinator: self
         )
+        addWalletCoordinator = makeAddWalletCoordinator()
     }
 
     func accountFormDidDismiss() {
@@ -72,16 +79,34 @@ final class AllServicesCoordinator: CoordinatorObject {
 
 extension AllServicesCoordinator: AllServicesRoutable {
     func openAddWallet() {
-        let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
-            switch options {
-            case .main:
+        addWalletCoordinator?.start(with: .init())
+    }
+
+    func openOnboardingModal(with input: OnboardingInput) {
+        let dismissAction: Action<OnboardingCoordinator.OutputOptions> = { [weak self] result in
+            self?.modalOnboardingCoordinator = nil
+
+            if result.isSuccessful {
                 self?.dismiss(with: nil)
             }
         }
 
-        let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
-        coordinator.start(with: .init(source: .allServices))
-        addWalletSelectorCoordinator = coordinator
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
+        coordinator.start(with: .input(input))
+        modalOnboardingCoordinator = coordinator
+    }
+
+    func openMail(with dataCollector: EmailDataCollector, recipient: String) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: .failedToScanCard)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+
+    func openScanCardManual() {
+        safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
     }
 
     func openShop() {
@@ -244,6 +269,31 @@ private extension AllServicesCoordinator {
 
 private struct FixedUserWalletsProvider: UserWalletSelectorUserWalletsProvider {
     let userWalletModels: [any UserWalletModel]
+}
+
+// MARK: - Add wallet
+
+private extension AllServicesCoordinator {
+    func makeAddWalletCoordinator() -> AddWalletCoordinator {
+        let dismissAction: Action<AddWalletCoordinator.OutputOptions> = { [weak self] options in
+            self?.handleAddWalletDismiss(with: options)
+        }
+
+        return AddWalletCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+    }
+
+    func handleAddWalletDismiss(with options: AddWalletCoordinator.OutputOptions) {
+        Task { @MainActor [weak self] in
+            switch options {
+            case .main:
+                self?.dismiss(with: nil)
+            case .hardwareWallet:
+                self?.rootViewModel?.scanCard()
+            case .dismiss:
+                break
+            }
+        }
+    }
 }
 
 // MARK: - Options

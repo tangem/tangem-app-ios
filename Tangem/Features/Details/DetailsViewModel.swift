@@ -483,7 +483,11 @@ private extension DetailsViewModel {
     func openAddWalletTypeSelector() {
         coordinator?.openAddWalletTypeSelector(output: self)
     }
+}
 
+// MARK: - Card scanning
+
+extension DetailsViewModel {
     func scanNewUserWallet() {
         isScanning = true
 

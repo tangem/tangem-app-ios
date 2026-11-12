@@ -17,6 +17,7 @@ extension Analytics {
         case introduction
         case sign
         case upgrade
+        case allServices
 
         var parameterValue: Analytics.ParameterValue {
             switch self {
@@ -38,6 +39,8 @@ extension Analytics {
                 return .sign
             case .upgrade:
                 return .upgrade
+            case .allServices:
+                return .allServices
             }
         }
     }

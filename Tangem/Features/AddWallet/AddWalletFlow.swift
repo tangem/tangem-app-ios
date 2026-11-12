@@ -69,6 +69,10 @@ extension AddWalletFlow: AddWalletSheetDelegate {
         case .importWallet: selectImportWallet()
         }
     }
+
+    func didClose() {
+        closeSheet()
+    }
 }
 
 // MARK: - MobileImportWalletRoutable
@@ -80,9 +84,7 @@ extension AddWalletFlow: MobileImportWalletRoutable {
     }
 
     func closeImportWallet() {
-        logSheetDismissed(reason: .welcomeDismissCloseButton)
-        dismissSheet()
-        delegate?.didFinish()
+        closeSheet()
     }
 
     func openOnboarding(options: OnboardingCoordinator.Options) {
@@ -302,6 +304,14 @@ private extension AddWalletFlow {
 
         sheetViewModel = nil
         delegate?.dismissSheet()
+    }
+
+    func closeSheet() {
+        guard isSheetPresented else { return }
+
+        logSheetDismissed(reason: .welcomeDismissCloseButton)
+        dismissSheet()
+        delegate?.didFinish()
     }
 
     func logSheetDismissed(reason: Analytics.ParameterValue) {

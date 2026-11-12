@@ -36,6 +36,10 @@ extension AddWalletSheetViewModel {
         delegate?.didSelect(option: option)
     }
 
+    func onCloseTap() {
+        delegate?.didClose()
+    }
+
     func setLoading(_ option: AddWalletSheetOption?) {
         loadingOption = option
     }

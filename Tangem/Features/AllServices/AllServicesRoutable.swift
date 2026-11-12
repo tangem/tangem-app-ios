@@ -7,6 +7,9 @@
 
 protocol AllServicesRoutable: AnyObject {
     func openAddWallet()
+    func openOnboardingModal(with input: OnboardingInput)
+    func openMail(with dataCollector: EmailDataCollector, recipient: String)
+    func openScanCardManual()
     func openShop()
     func openCryptoAccountForm()
     func openJointAccountCreation()

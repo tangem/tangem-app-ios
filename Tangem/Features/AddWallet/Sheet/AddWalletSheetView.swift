@@ -68,9 +68,13 @@ extension AddWalletSheetView {
     static func navigation(for viewModel: AddWalletSheetViewModel) -> ModalNavigation {
         switch viewModel.state {
         case .options:
-            .title(viewModel.title, isCloseEnabled: !viewModel.isLoading)
+            ModalNavigation
+                .title(viewModel.title, isCloseEnabled: !viewModel.isLoading)
+                .onCloseButtonTap(viewModel.onCloseTap)
         case .importWallet(let importViewModel):
-            .title("", leading: .custom(.back(action: importViewModel.onBackTap)))
+            ModalNavigation
+                .title("", leading: .custom(.back(action: importViewModel.onBackTap)))
+                .onCloseButtonTap(viewModel.onCloseTap)
         }
     }
 }
