@@ -45,6 +45,7 @@ enum Feature: String, Hashable, CaseIterable {
     case lendingOnAave
     case polymarketEventCharts
     case nativeNPSSurvey
+    case shtorkaProductDebt
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
@@ -85,6 +86,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .lendingOnAave: return "TWI-1676_lending_on_aave"
         case .polymarketEventCharts: return "TWI-1912_polymarket_event_charts"
         case .nativeNPSSurvey: return "TWI-1898_native_nps_survey"
+        case .shtorkaProductDebt: return "TWI-1910_shtorka_product_debt"
         }
     }
 
@@ -125,6 +127,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .lendingOnAave: return .unspecified
         case .polymarketEventCharts: return .unspecified
         case .nativeNPSSurvey: return .unspecified
+        case .shtorkaProductDebt: return .unspecified
         }
     }
 }
