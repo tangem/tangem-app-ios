@@ -37,7 +37,7 @@ extension ReceiveNotificationEvent: NotificationEvent {
     var title: NotificationView.Title? {
         switch self {
         case .irreversibleLossNotification(let assetSymbol, let networkName):
-            return .string(Localization.receiveBottomSheetWarningTitle(assetSymbol, networkName))
+            return .string(Localization.receiveBottomSheetWarningTitle(assetSymbol, networkName.droppingNetworkSuffix))
         case .unsupportedTokenWarning(let title, _, _):
             return .string(title)
         }
@@ -77,7 +77,7 @@ extension ReceiveNotificationEvent: NotificationEvent {
     var redesignedBannerContent: RedesignedBannerContent? {
         switch self {
         case .irreversibleLossNotification(let assetSymbol, let networkName):
-            var title = AttributedString(Localization.receiveBottomSheetWarningTitle(assetSymbol, networkName))
+            var title = AttributedString(Localization.receiveBottomSheetWarningTitle(assetSymbol, networkName.droppingNetworkSuffix))
             title.font = .system(size: 14, weight: .medium)
 
             return RedesignedBannerContent(

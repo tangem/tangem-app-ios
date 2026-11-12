@@ -384,7 +384,7 @@ extension TokenDetailsViewModel {
         let message = Localization.tokenDetailsUnableHideAlertMessage(
             tokenName,
             currencySymbol,
-            blockchain.displayName
+            blockchain.displayName.droppingNetworkSuffix
         )
 
         alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(

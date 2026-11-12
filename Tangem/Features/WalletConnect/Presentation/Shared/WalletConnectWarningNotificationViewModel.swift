@@ -91,7 +91,7 @@ extension WalletConnectWarningNotificationViewModel {
             severity: .attention,
             iconAsset: Assets.WalletConnect.yellowWarningCircle,
             title: Localization.wcMissingRequiredNetworkTitle,
-            body: Localization.wcMissingRequiredNetworkDescription(blockchainNames.joined(separator: ", "))
+            body: Localization.wcMissingRequiredNetworkDescription(blockchainNames.map(\.droppingNetworkSuffix).joined(separator: ", "))
         )
     }
 }

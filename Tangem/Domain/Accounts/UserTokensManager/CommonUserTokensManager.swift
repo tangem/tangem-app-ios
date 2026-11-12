@@ -599,14 +599,14 @@ extension CommonUserTokensManager {
         var errorDescription: String? {
             switch self {
             case .failedSupportedLongHashesTokens(let blockchainDisplayName):
-                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
+                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName.droppingNetworkSuffix)
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
             case .failedToDeleteNetworkHasTokens(let tokenItem):
                 return Localization.tokenDetailsUnableHideAlertMessage(
                     tokenItem.name,
                     tokenItem.currencySymbol,
-                    tokenItem.blockchain.displayName
+                    tokenItem.blockchain.displayName.droppingNetworkSuffix
                 )
             case .addressNotFound,
                  .derivationNotSupported,

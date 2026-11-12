@@ -173,7 +173,7 @@ private extension ManageTokensAdapter {
                 displayAlertAndUpdateSelection(
                     for: tokenItem,
                     title: Localization.commonAttention,
-                    message: Localization.alertManageTokensUnsupportedMessage(tokenItem.blockchain.displayName)
+                    message: Localization.alertManageTokensUnsupportedMessage(tokenItem.blockchain.displayName.droppingNetworkSuffix)
                 )
 
                 return

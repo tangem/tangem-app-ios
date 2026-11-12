@@ -42,7 +42,7 @@ final class TangemPayReceiveSheetViewModel: ObservableObject, FloatingSheetConte
         address = input.depositAddress
 
         let symbols = input.tokens.map(\.symbol).joined(separator: " \(Localization.commonOr) ")
-        heading = Localization.receiveBottomSheetWarningMessageCompact(symbols, input.networkTitle)
+        heading = Localization.receiveBottomSheetWarningMessageCompact(symbols, input.networkTitle.droppingNetworkSuffix)
         notificationInputs = [
             NotificationViewInput(
                 style: .plain,

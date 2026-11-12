@@ -49,6 +49,7 @@ public struct TopNavigationTitleContent: View {
             }
         }
         .animation(appearanceAnimation, value: subtitle != nil)
+        .dynamicTypeSize(...TopNavigationChromeMetrics.maxDynamicTypeSize)
     }
 
     private var appearanceAnimation: Animation? {

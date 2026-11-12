@@ -28,7 +28,7 @@ struct HideTokenAlertBuilder {
         let message = Localization.tokenDetailsUnableHideAlertMessage(
             tokenItem.name,
             tokenItem.currencySymbol,
-            tokenItem.blockchain.displayName
+            tokenItem.blockchain.displayName.droppingNetworkSuffix
         )
 
         return AlertBinder(

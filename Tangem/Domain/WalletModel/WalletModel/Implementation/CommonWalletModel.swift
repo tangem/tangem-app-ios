@@ -351,7 +351,7 @@ extension CommonWalletModel: WalletModel {
             currencyName = wallet.blockchain.displayName
         }
 
-        return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
+        return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName.droppingNetworkSuffix)
     }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {

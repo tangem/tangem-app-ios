@@ -78,7 +78,7 @@ final class PromoCampaignViewModel: ObservableObject {
     }
 
     var selectedTokenNetworkName: String {
-        selectedToken.map { Localization.walletNetworkGroupTitle($0.tokenItem.networkName) } ?? ""
+        selectedToken.map { Localization.walletNetworkGroupTitle($0.tokenItem.networkName.droppingNetworkSuffix) } ?? ""
     }
 
     var selectedAccountViewData: SelectedAccountViewData? {

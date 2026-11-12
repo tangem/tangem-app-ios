@@ -467,7 +467,7 @@ enum TransactionDetailsFactory {
         let banner = TransactionDetailsStatusBannerViewData(
             kind: .refundInfo,
             title: Localization.expressExchangeNotificationRefundedInTitle(symbol),
-            subtitle: Localization.expressExchangeNotificationRefundedInText(symbol, target.tokenItem.networkName)
+            subtitle: Localization.expressExchangeNotificationRefundedInText(symbol, target.tokenItem.networkName.droppingNetworkSuffix)
         )
         // "Go to token" adds the refund token to the portfolio if needed, then opens it.
         let action = TransactionDetailsActionButtonViewData(

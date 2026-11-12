@@ -108,7 +108,7 @@ extension ValidationErrorEvent {
         case .insufficientBalanceForFee(let configuration):
             return Localization.warningSendBlockedFundsForFeeMessage(
                 configuration.transactionAmountTypeName,
-                configuration.networkName,
+                configuration.networkName.droppingNetworkSuffix,
                 configuration.transactionAmountTypeName,
                 configuration.feeAmountTypeName,
                 configuration.feeAmountTypeCurrencySymbol

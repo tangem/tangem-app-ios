@@ -33,6 +33,22 @@ struct OnrampSendSummaryTitleProviderTests {
 
         #expect(sut.subtitle == Localization.onrampBuyTitleSubtitleNetwork("Solana"))
     }
+
+    @Test(
+        "A network whose name already ends in Network isn't followed by the word again",
+        arguments: [
+            (Blockchain.xdc(testnet: false), "XDC"),
+            (.areon(testnet: false), "Areon"),
+            (.quai(testnet: false), "Quai"),
+        ]
+    )
+    func networkWordIsNotRepeated(blockchain: Blockchain, networkName: String) {
+        let sut = makeSUT(tokenItem: makeToken(on: blockchain))
+
+        let expected = blockchain.tokenTypeName.map { Localization.onrampBuyTitleSubtitleStandard($0, networkName) }
+            ?? Localization.onrampBuyTitleSubtitleNetwork(networkName)
+        #expect(sut.subtitle == expected)
+    }
 }
 
 // MARK: - Helpers

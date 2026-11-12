@@ -101,9 +101,9 @@ struct OnrampSendSummaryTitleProvider: SendSummaryTitleProvider {
             Localization.commonMainNetwork
         case .token:
             if let standard = tokenItem.blockchain.tokenTypeName {
-                Localization.onrampBuyTitleSubtitleStandard(standard, tokenItem.networkName)
+                Localization.onrampBuyTitleSubtitleStandard(standard, tokenItem.networkName.droppingNetworkSuffix)
             } else {
-                Localization.onrampBuyTitleSubtitleNetwork(tokenItem.networkName)
+                Localization.onrampBuyTitleSubtitleNetwork(tokenItem.networkName.droppingNetworkSuffix)
             }
         }
     }

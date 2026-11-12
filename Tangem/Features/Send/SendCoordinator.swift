@@ -328,7 +328,7 @@ extension SendCoordinator: SendDestinationRoutable {
             self?.qrScanViewCoordinator = nil
         }
 
-        let text = Localization.sendQrcodeScanInfo(networkName)
+        let text = Localization.sendQrcodeScanInfo(networkName.droppingNetworkSuffix)
         let options = QRScanViewCoordinator.Options(code: codeBinding, text: text)
         qrScanViewCoordinator.start(with: options)
 

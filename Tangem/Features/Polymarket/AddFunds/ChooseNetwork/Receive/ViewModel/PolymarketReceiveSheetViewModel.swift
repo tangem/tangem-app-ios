@@ -51,8 +51,8 @@ final class PolymarketReceiveSheetViewModel: ObservableObject, FloatingSheetCont
         )
 
         let symbols = input.tokens.map(\.currencySymbol).joined(separator: " \(Localization.commonOr) ")
-        heading = Localization.receiveBottomSheetWarningMessageCompact(symbols, input.networkTitle)
-        warningTitle = Localization.receiveBottomSheetWarningTitle(symbols, input.networkTitle)
+        heading = Localization.receiveBottomSheetWarningMessageCompact(symbols, input.networkTitle.droppingNetworkSuffix)
+        warningTitle = Localization.receiveBottomSheetWarningTitle(symbols, input.networkTitle.droppingNetworkSuffix)
 
         warningDescription = Localization.receiveBottomSheetWarningMessageDescription
         limitsDescription = Localization.predictionAddFundsNotificationLimitsDescription(input.minimumDepositFormatted)
