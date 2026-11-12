@@ -22,7 +22,10 @@ struct JointOperationVerifier {
     ) throws {
         try formVerifier.verify(safeTransaction: operation.safeTransaction, safeAddress: safeAddress)
         try verifyFee(operation.safeTransaction, bounds: feeBounds)
-        try verifyVotes(operation: operation, safeAddress: safeAddress, memberAddresses: memberAddresses)
+
+        if operation.status.isInFlight {
+            try verifyVotes(operation: operation, safeAddress: safeAddress, memberAddresses: memberAddresses)
+        }
     }
 
     private func verifyFee(_ safeTransaction: SafeTransaction, bounds: FeeBounds) throws {

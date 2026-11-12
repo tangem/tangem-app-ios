@@ -54,6 +54,24 @@ struct JointOperationVerifierTests {
         }
     }
 
+    @Test("An operation in flight is rejected when an approval comes without its signature", arguments: [JointAccountOperationStatus.awaitingSignatures, .pending])
+    func inFlightApprovalWithoutSignatureIsRejected(status: JointAccountOperationStatus) {
+        let approval = JointAccountOperation.Signature(address: Constants.member, state: .signed, at: Constants.at)
+        let operation = makeOperation(safeTransaction: makeSafeTransaction(), initiator: Constants.member, signatures: [approval], status: status)
+
+        expectVerification(.voteMismatch) {
+            try verifier.verify(operation: operation, safeAddress: Constants.safeAddress, memberAddresses: [Constants.member], feeBounds: makeBounds())
+        }
+    }
+
+    @Test("A finished operation passes with approvals the endpoint no longer gives signatures for", arguments: [JointAccountOperationStatus.executed, .failed, .cancelled, .unknown])
+    func finishedOperationPassesWithoutApprovalSignatures(status: JointAccountOperationStatus) throws {
+        let approval = JointAccountOperation.Signature(address: Constants.member, state: .signed, at: Constants.at)
+        let operation = makeOperation(safeTransaction: makeSafeTransaction(), initiator: Constants.member, signatures: [approval], status: status)
+
+        try verifier.verify(operation: operation, safeAddress: Constants.safeAddress, memberAddresses: [Constants.member], feeBounds: makeBounds())
+    }
+
     @Test("An operation whose initiator has not approved is rejected")
     func missingInitiatorVoteIsRejected() throws {
         let safeTransaction = makeSafeTransaction()
@@ -144,12 +162,17 @@ private extension JointOperationVerifierTests {
         )
     }
 
-    func makeOperation(safeTransaction: SafeTransaction, initiator: String, signatures: [JointAccountOperation.Signature]) -> JointAccountOperation {
+    func makeOperation(
+        safeTransaction: SafeTransaction,
+        initiator: String,
+        signatures: [JointAccountOperation.Signature],
+        status: JointAccountOperationStatus = .awaitingSignatures
+    ) -> JointAccountOperation {
         JointAccountOperation(
             id: "op",
             chainId: Constants.chainId,
             safeTransaction: safeTransaction,
-            status: .awaitingSignatures,
+            status: status,
             txHash: nil,
             finishedAt: nil,
             cancelReason: nil,
@@ -180,6 +203,7 @@ private extension JointOperationVerifierTests {
         static let safeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
         static let recipient = "0x2222222222222222222222222222222222222222"
         static let stranger = "0x1111111111111111111111111111111111111111"
+        static let member = "0x3333333333333333333333333333333333333333"
         static let at = "2026-09-02T10:15:00Z"
         static let forgedSignature = "0x1111111111111111111111111111111111111111111111111111111111111111222222222222222222222222222222222222222222222222222222222222222222221b"
     }

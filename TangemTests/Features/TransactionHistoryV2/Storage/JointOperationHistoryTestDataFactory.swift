@@ -24,9 +24,16 @@ enum JointOperationHistoryTestDataFactory {
     static func coinItem(
         id: String = "operation-1",
         status: JointAccountOperationStatus = .executed,
-        chainId: Int = baseChainId
+        chainId: Int = baseChainId,
+        initiatorApprovalSignature: String? = nil
     ) -> JointOperationHistoryItem {
-        item(id: id, status: status, chainId: chainId, safeTransaction: coinSafeTransaction())
+        item(
+            id: id,
+            status: status,
+            chainId: chainId,
+            safeTransaction: coinSafeTransaction(),
+            initiatorApprovalSignature: initiatorApprovalSignature
+        )
     }
 
     static func tokenItem(id: String = "operation-1", status: JointAccountOperationStatus = .executed) throws -> JointOperationHistoryItem {
@@ -55,7 +62,8 @@ enum JointOperationHistoryTestDataFactory {
         id: String,
         status: JointAccountOperationStatus,
         chainId: Int,
-        safeTransaction: SafeTransaction
+        safeTransaction: SafeTransaction,
+        initiatorApprovalSignature: String? = nil
     ) -> JointOperationHistoryItem {
         let isFinished = !status.isInFlight
 
@@ -69,7 +77,12 @@ enum JointOperationHistoryTestDataFactory {
             cancelReason: status == .cancelled ? .threshold : nil,
             initiator: initiator,
             signatures: [
-                JointAccountOperation.Signature(address: initiator, state: .signed, at: "2026-09-08T09:20:37.000Z"),
+                JointAccountOperation.Signature(
+                    address: initiator,
+                    state: .signed,
+                    signature: initiatorApprovalSignature,
+                    at: "2026-09-08T09:20:37.000Z"
+                ),
                 JointAccountOperation.Signature(address: recipient, state: .declined, at: "2026-09-08T09:23:51.000Z"),
             ],
             createdAt: createdAt,

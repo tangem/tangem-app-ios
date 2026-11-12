@@ -88,11 +88,13 @@ public extension JointOperationRecord {
     struct Signature: Codable, Equatable {
         public let address: String
         public let state: String
+        public let signature: String?
         public let at: String
 
-        public init(address: String, state: String, at: String) {
+        public init(address: String, state: String, signature: String?, at: String) {
             self.address = address
             self.state = state
+            self.signature = signature
             self.at = at
         }
     }

@@ -99,6 +99,22 @@ struct CommonJointAccountsPendingOperationsPersistentStorageTests {
         #expect(read == [local])
     }
 
+    @Test("An operation in flight is read back with the signatures of its approvals, whichever sync wrote it")
+    func approvalSignaturesAreReadBack() async throws {
+        let synced = Factory.coinItem(id: "synced", status: .awaitingSignatures, initiatorApprovalSignature: Self.approvalSignature)
+        let local = Factory.coinItem(id: "local", status: .pending, initiatorApprovalSignature: Self.approvalSignature)
+
+        let read = try await withInjectedInMemoryAppDatabase {
+            try await Self.saveFromHistorySync([synced])
+            let sut = CommonJointAccountsPendingOperationsPersistentStorage()
+            try sut.update(operationIds: ["local"], safeAddresses: [Factory.safeAddress]) { _ in Self.changes(saved: [local]) }
+
+            return try sut.inFlightOperations(safeAddresses: [Factory.safeAddress])
+        }
+
+        #expect(Set(read) == [synced, local])
+    }
+
     @Test("The last write wins over whatever is stored, a finished operation included", arguments: [JointAccountOperationStatus.executed, .failed, .cancelled])
     func lastWriteWins(finishedStatus: JointAccountOperationStatus) async throws {
         let finished = Factory.coinItem(id: "joint", status: finishedStatus)
@@ -182,6 +198,7 @@ private extension CommonJointAccountsPendingOperationsPersistentStorageTests {
     typealias Factory = JointOperationHistoryTestDataFactory
 
     static let otherSafeAddress = "0x2b5ad5c4795c026514f8317c7a215e218dccd6cf"
+    static let approvalSignature = "0x1111111111111111111111111111111111111111111111111111111111111111222222222222222222222222222222222222222222222222222222222222222222221b"
 
     static func item(_ item: JointOperationHistoryItem, safeAddress: String) -> JointOperationHistoryItem {
         JointOperationHistoryItem(

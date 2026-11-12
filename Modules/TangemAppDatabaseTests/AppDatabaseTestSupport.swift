@@ -353,8 +353,8 @@ enum AppDatabaseFixtures {
             txHash: "0xtxhash",
             cancelReason: "threshold",
             signatures: [
-                JointOperationRecord.Signature(address: "0xinitiator", state: "signed", at: "2026-09-08T09:20:37.000Z"),
-                JointOperationRecord.Signature(address: "0xcosigner", state: "declined", at: "2026-09-08T09:23:51.000Z"),
+                JointOperationRecord.Signature(address: "0xinitiator", state: "signed", signature: "0xsignature", at: "2026-09-08T09:20:37.000Z"),
+                JointOperationRecord.Signature(address: "0xcosigner", state: "declined", signature: nil, at: "2026-09-08T09:23:51.000Z"),
             ],
             createdAt: Date(timeIntervalSince1970: 1_752_000_000.125),
             finishedAt: Date(timeIntervalSince1970: 1_752_003_600.5)

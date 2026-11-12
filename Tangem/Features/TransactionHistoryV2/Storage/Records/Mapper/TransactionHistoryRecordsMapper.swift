@@ -183,7 +183,12 @@ enum TransactionHistoryRecordsMapper {
             txHash: operation.txHash,
             cancelReason: operation.cancelReason?.rawValue,
             signatures: operation.signatures.map { signature in
-                JointOperationRecord.Signature(address: signature.address, state: signature.state.rawValue, at: signature.at)
+                JointOperationRecord.Signature(
+                    address: signature.address,
+                    state: signature.state.rawValue,
+                    signature: signature.signature,
+                    at: signature.at
+                )
             },
             createdAt: item.createdAt,
             finishedAt: operation.finishedAt
@@ -447,7 +452,7 @@ enum TransactionHistoryRecordsMapper {
                 JointAccountOperation.Signature(
                     address: signature.address,
                     state: JointAccountOperation.Signature.State(rawValue: signature.state) ?? .unknown,
-                    signature: nil,
+                    signature: signature.signature,
                     at: signature.at
                 )
             },
