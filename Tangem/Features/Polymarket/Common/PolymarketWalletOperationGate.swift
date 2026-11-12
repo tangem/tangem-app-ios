@@ -13,42 +13,60 @@ import TangemPolymarket
 final class PolymarketWalletOperationGate: Sendable {
     static let shared = PolymarketWalletOperationGate()
 
-    private let busyWallets = OSAllocatedUnfairLock<Set<UserWalletId>>(initialState: [])
+    private let holders = OSAllocatedUnfairLock<[UserWalletId: Holder]>(initialState: [:])
 
     func exclusively<T>(
         _ userWalletId: UserWalletId,
-        orThrow busyError: @autoclosure () -> Error,
+        as holder: Holder,
+        orThrow busyError: (_ currentHolder: Holder) -> Error,
         _ operation: () async throws -> T
     ) async throws -> T {
-        let isAcquired = busyWallets.withLock { $0.insert(userWalletId).inserted }
+        let currentHolder = holders.withLock { holders -> Holder? in
+            guard let currentHolder = holders[userWalletId] else {
+                holders[userWalletId] = holder
+                return nil
+            }
 
-        guard isAcquired else {
-            throw busyError()
+            return currentHolder
         }
 
-        defer { busyWallets.withLock { _ = $0.remove(userWalletId) } }
+        if let currentHolder {
+            throw busyError(currentHolder)
+        }
+
+        defer { holders.withLock { _ = $0.removeValue(forKey: userWalletId) } }
 
         return try await operation()
     }
 
     func isBusy(_ userWalletId: UserWalletId) -> Bool {
-        busyWallets.withLock { $0.contains(userWalletId) }
+        holders.withLock { $0[userWalletId] != nil }
+    }
+}
+
+extension PolymarketWalletOperationGate {
+    enum Holder {
+        case fastTradingChange
+        case transaction
     }
 }
 
 struct PolymarketWalletOperationSlot {
     let userWalletId: UserWalletId
+    let holder: PolymarketWalletOperationGate.Holder
     let gate: PolymarketWalletOperationGate
     let interruptedAuthorizations: PolymarketInterruptedAuthorizationStore
     let serverClock: PolymarketServerClock
 
     init(
         userWalletId: UserWalletId,
+        holder: PolymarketWalletOperationGate.Holder = .transaction,
         gate: PolymarketWalletOperationGate = .shared,
         interruptedAuthorizations: PolymarketInterruptedAuthorizationStore = CommonPolymarketInterruptedAuthorizationStore(),
         serverClock: PolymarketServerClock = InjectedValues[\.polymarketServerClock]
     ) {
         self.userWalletId = userWalletId
+        self.holder = holder
         self.gate = gate
         self.interruptedAuthorizations = interruptedAuthorizations
         self.serverClock = serverClock
@@ -56,12 +74,12 @@ struct PolymarketWalletOperationSlot {
 
     func exclusively<T>(
         orThrow busyError: Error,
-        whileKeptAuthorizationPends pendingError: Error,
+        whileFastTradingChangePends pendingError: Error,
         _ operation: () async throws -> T
     ) async throws -> T {
         try rejectWhileTheNextNonceIsHeld(orThrow: pendingError)
 
-        return try await gate.exclusively(userWalletId, orThrow: busyError) {
+        return try await gate.exclusively(userWalletId, as: holder, orThrow: { $0 == .fastTradingChange ? pendingError : busyError }) {
             try rejectWhileTheNextNonceIsHeld(orThrow: pendingError)
 
             return try await operation()
@@ -83,7 +101,7 @@ private extension PolymarketWalletOperationSlot {
 
     func holdsTheNextNonce() -> Bool {
         do {
-            return try interruptedAuthorizations.load(for: userWalletId)?.holdsWalletNonce(at: serverClock.now) ?? false
+            return try interruptedAuthorizations.load(for: userWalletId)?.isExecutable(at: serverClock.now) ?? false
         } catch {
             PolymarketLogger.error("Failed to read an interrupted fast trading authorization", error: error)
             return false

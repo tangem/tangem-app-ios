@@ -19,6 +19,8 @@ protocol PolymarketSessionKeySigningAvailability: AnyObject {
     var isAvailablePublisher: AnyPublisher<Bool, Never> { get }
 
     func refresh() async
+
+    func checkReadiness() async -> PolymarketOrderSigningRoute
 }
 
 final class CommonPolymarketSessionKeySigningAvailability {
@@ -60,6 +62,10 @@ extension CommonPolymarketSessionKeySigningAvailability: PolymarketSessionKeySig
 
     func refresh() async {
         await service.refresh()
+    }
+
+    func checkReadiness() async -> PolymarketOrderSigningRoute {
+        await signingRouter.route()
     }
 }
 

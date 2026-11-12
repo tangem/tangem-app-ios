@@ -34,6 +34,7 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
 
     @Published var redeem: PolymarketRedeemViewModel?
     @Published var fastTradingActivation: PolymarketFastTradingActivationViewModel?
+    @Published var isFastTradingActivationFailurePresented = false
     let orderPresenter = PolymarketOrderPresenter()
 
     private var orderPresenterSubscription: AnyCancellable?
@@ -74,6 +75,9 @@ final class PolymarketCoordinator: CoordinatorObject, SendFeeCurrencyNavigating 
     private var dispatchedBalance: Decimal?
     private var fastTrading: PolymarketFastTradingContext?
     private var fastTradingFailuresSubscription: AnyCancellable?
+    private var fastTradingRevocationsSubscription: AnyCancellable?
+    private var hasPendingFastTradingActivationFailure = false
+    private var reactivatesFastTradingOnFailureDismiss = false
 
     // MARK: - Init
 
@@ -121,6 +125,7 @@ private extension PolymarketCoordinator {
     func openEntry(for userWalletModel: any UserWalletModel) {
         fastTrading = fastTradingRegistry.context(for: userWalletModel)
         subscribeToFastTradingFailures(fastTrading?.service)
+        subscribeToFastTradingRevocations(fastTrading?.service)
 
         let state = AccountModelsAggregator(.polymarket).model(from: userWalletModel.accountModelsManager)?.state
 
@@ -137,9 +142,53 @@ private extension PolymarketCoordinator {
         fastTradingFailuresSubscription = failures?
             .failurePublisher
             .receiveOnMain()
-            .sink { failure in
-                PolymarketFastTradingToast.showFailure(failure)
+            .withWeakCaptureOf(self)
+            .sink { coordinator, failure in
+                coordinator.handleFastTradingFailure(failure)
             }
+    }
+
+    @MainActor
+    func subscribeToFastTradingRevocations(_ revocations: PolymarketFastTradingRevocationReporting?) {
+        fastTradingRevocationsSubscription = revocations?
+            .revocationPublisher
+            .receiveOnMain()
+            .sink { revocation in
+                PolymarketFastTradingToast.showRevocation(revocation)
+            }
+    }
+
+    @MainActor
+    func handleFastTradingFailure(_ failure: PolymarketFastTradingFailure) {
+        guard failure == .onboardingActivationFailed else {
+            PolymarketFastTradingToast.showFailure(failure)
+            return
+        }
+
+        hasPendingFastTradingActivationFailure = true
+        presentPendingFastTradingActivationFailure()
+    }
+
+    @MainActor
+    func presentPendingFastTradingActivationFailure() {
+        guard hasPendingFastTradingActivationFailure, viewState?.mainViewModel != nil else { return }
+
+        hasPendingFastTradingActivationFailure = false
+
+        guard !isFastTradingActiveOrActivating else { return }
+
+        isFastTradingActivationFailurePresented = true
+    }
+
+    @MainActor
+    var isFastTradingActiveOrActivating: Bool {
+        guard case .loaded(let assessment)? = fastTrading?.service.state else { return false }
+
+        if case .enabling = assessment.status {
+            return true
+        }
+
+        return assessment.activeOrPausedLocalKey != nil || assessment.isOperationInFlight
     }
 
     func makeWelcomeViewModel(for userWalletModel: any UserWalletModel) -> PolymarketWelcomeViewModel {
@@ -158,6 +207,10 @@ extension PolymarketCoordinator {
 // MARK: - PolymarketWelcomeRoutable protocol conformance
 
 extension PolymarketCoordinator: PolymarketWelcomeRoutable {
+    func onboardingDidStart() {
+        hasPendingFastTradingActivationFailure = false
+    }
+
     func onboardingDidFinish(isNewAccount: Bool) {
         Task { @MainActor [self] in
             guard let userWalletModel = options?.userWalletModel else { return }
@@ -209,6 +262,31 @@ private extension PolymarketCoordinator {
             ),
             fundingFlow: PolymarketFundingFlow(dependencies: dependencies)
         )
+
+        presentPendingFastTradingActivationFailure()
+    }
+}
+
+// MARK: - Fast trading activation failure
+
+extension PolymarketCoordinator {
+    @MainActor
+    func closeFastTradingActivationFailure() {
+        isFastTradingActivationFailurePresented = false
+    }
+
+    @MainActor
+    func activateFastTradingAfterFailure() {
+        reactivatesFastTradingOnFailureDismiss = true
+        isFastTradingActivationFailurePresented = false
+    }
+
+    @MainActor
+    func fastTradingActivationFailureDidDismiss() {
+        guard reactivatesFastTradingOnFailureDismiss else { return }
+
+        reactivatesFastTradingOnFailureDismiss = false
+        openFastTradingActivation()
     }
 }
 
@@ -233,6 +311,9 @@ private extension PolymarketCoordinator {
         destination = nil
         redeem = nil
         fastTradingActivation = nil
+        isFastTradingActivationFailurePresented = false
+        hasPendingFastTradingActivationFailure = false
+        reactivatesFastTradingOnFailureDismiss = false
         sheet = nil
         orderPresenter.dismiss()
 

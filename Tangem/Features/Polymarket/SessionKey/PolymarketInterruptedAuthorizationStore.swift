@@ -17,34 +17,14 @@ struct PolymarketInterruptedAuthorization: Codable, Sendable {
     var batch: PolymarketRelayedBatch
     var grant: PolymarketSessionKeyGrant
     var deviceId: String
-    var keepsPaused: Bool
     var purpose: Purpose
-    var isExecuted = false
-
-    var executed: PolymarketInterruptedAuthorization {
-        var copy = self
-        copy.isExecuted = true
-        return copy
-    }
 
     func isExecutable(at date: Date) -> Bool {
         Self.runs(until: batch.deadline, at: date)
     }
 
-    func holdsWalletNonce(at date: Date) -> Bool {
-        !isExecuted && isExecutable(at: date)
-    }
-
-    func keepsPaused(sessionKeyAddress: String) -> Bool {
-        keepsPaused && isFor(sessionKeyAddress: sessionKeyAddress)
-    }
-
-    func isFor(sessionKeyAddress: String) -> Bool {
-        grant.sessionKeyAddress.caseInsensitiveCompare(sessionKeyAddress) == .orderedSame
-    }
-
     func isOf(_ grant: PolymarketSessionKeyGrant) -> Bool {
-        isFor(sessionKeyAddress: grant.sessionKeyAddress) && self.grant.call == grant.call
+        self.grant.sessionKeyAddress.caseInsensitiveCompare(grant.sessionKeyAddress) == .orderedSame && self.grant.call == grant.call
     }
 
     func isRevocationExecutable(at date: Date) -> Bool {

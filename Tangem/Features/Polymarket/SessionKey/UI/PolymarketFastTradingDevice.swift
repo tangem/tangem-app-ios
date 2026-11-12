@@ -17,7 +17,8 @@ struct PolymarketFastTradingDevice: Identifiable, Equatable {
     let name: String
     let owner: Owner
     let state: State
-    let expiresInDays: Int?
+    let expiresSoon: Bool
+    let isListedOnExchange: Bool
 
     var id: String {
         switch source {
@@ -32,12 +33,13 @@ struct PolymarketFastTradingDevice: Identifiable, Equatable {
         owner != .otherDevice
     }
 
-    init(source: Source, name: String, owner: Owner, state: State, expiresInDays: Int? = nil) {
+    init(source: Source, name: String, owner: Owner, state: State, expiresSoon: Bool = false, isListedOnExchange: Bool = false) {
         self.source = source
         self.name = name
         self.owner = owner
         self.state = state
-        self.expiresInDays = expiresInDays
+        self.expiresSoon = expiresSoon
+        self.isListedOnExchange = isListedOnExchange
     }
 
     init?(sessionKey: PolymarketSessionKey, owner: Owner, assessment: PolymarketFastTradingAssessment) {
@@ -50,9 +52,8 @@ struct PolymarketFastTradingDevice: Identifiable, Equatable {
             name: sessionKey.deviceName ?? PolymarketFastTradingStrings.unknownDevice,
             owner: owner,
             state: state,
-            expiresInDays: state.showsExpiry && PolymarketFastTradingAssessment.isRenewDue(sessionKey, now: assessment.now)
-                ? PolymarketFastTradingAssessment.daysUntilExpiry(of: sessionKey, now: assessment.now)
-                : nil
+            expiresSoon: state.showsExpiry && PolymarketFastTradingAssessment.isRenewDue(sessionKey, now: assessment.now),
+            isListedOnExchange: assessment.isListedOnExchange(sessionKey)
         )
     }
 
@@ -245,41 +246,49 @@ extension PolymarketFastTradingDevice {
     var trailing: Trailing {
         switch owner {
         case .thisDevice(let authorization):
-            Self.thisDeviceTrailing(state: state, authorization: authorization)
+            Self.thisDeviceTrailing(state: state, authorization: authorization, isListedOnExchange: isListedOnExchange)
         case .otherDevice:
-            Self.otherDeviceTrailing(state: state)
+            Self.otherDeviceTrailing(state: state, isListedOnExchange: isListedOnExchange)
         }
     }
 
-    private static func thisDeviceTrailing(state: State, authorization: PolymarketFastTradingAuthorization?) -> Trailing {
+    private static func thisDeviceTrailing(
+        state: State,
+        authorization: PolymarketFastTradingAuthorization?,
+        isListedOnExchange: Bool
+    ) -> Trailing {
         let offered = authorization.map(Action.init(authorization:))
         let extend: [Action] = offered == .extend ? [.extend] : []
         let activation = offered == .extend ? nil : offered
 
         switch state {
-        case .activating, .extending, .revoking:
+        case .activating, .extending, .revoking, .activationFailed:
             return .hidden
-        case .activationFailed, .expired:
+        case .expired:
             return activation.map(Trailing.button) ?? .hidden
         case .active:
             return .menu(extend + [.pause, .revoke])
         case .paused:
             return .menu(extend + [.resume, .revoke])
         case .outOfSync, .error:
+            guard isListedOnExchange else {
+                return activation.map(Trailing.button) ?? .hidden
+            }
+
             return activation.map { .menu([$0, .revoke]) } ?? .button(.revoke)
         }
     }
 
-    private static func otherDeviceTrailing(state: State) -> Trailing {
+    private static func otherDeviceTrailing(state: State, isListedOnExchange: Bool) -> Trailing {
         switch state {
-        case .activating, .extending, .revoking, .activationFailed:
+        case .activating, .extending, .revoking:
             .hidden
         case .active:
             .menu([.pause, .revoke])
         case .paused:
             .menu([.resume, .revoke])
-        case .expired, .outOfSync, .error:
-            .button(.revoke)
+        case .activationFailed, .expired, .outOfSync, .error:
+            isListedOnExchange ? .button(.revoke) : .hidden
         }
     }
 }
@@ -308,7 +317,7 @@ extension PolymarketFastTradingDevice {
     }
 
     var expiryBadge: String? {
-        expiresInDays.map(PolymarketFastTradingStrings.expiresIn(days:))
+        expiresSoon ? PolymarketFastTradingStrings.expiresSoon : nil
     }
 
     var subtitle: String {

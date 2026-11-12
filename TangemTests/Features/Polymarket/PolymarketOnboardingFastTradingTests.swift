@@ -60,7 +60,7 @@ struct PolymarketOnboardingFastTradingTests {
 
         #expect(sut.makeAuthorization(depositWalletAddress: Self.depositWalletAddress, approvalsNonce: "7", followsApprovals: false) == nil)
         #expect(keyStore.generatedKeys == 0)
-        #expect(try await reports.next() == .notEnabled)
+        #expect(try await reports.next() == .onboardingActivationFailed)
     }
 
     @Test("An authorization signed after the approvals takes the nonce right after theirs")
@@ -77,7 +77,7 @@ struct PolymarketOnboardingFastTradingTests {
         let (sut, _, reports) = makeSUT()
 
         #expect(sut.makeAuthorization(depositWalletAddress: Self.depositWalletAddress, approvalsNonce: "next", followsApprovals: true) == nil)
-        #expect(try await reports.next() == .notEnabled)
+        #expect(try await reports.next() == .onboardingActivationFailed)
     }
 
     @Test("The signed authorization goes out once with the key and expiry it was prepared for")
@@ -102,6 +102,33 @@ struct PolymarketOnboardingFastTradingTests {
         #expect(call.grant == expectedGrant)
     }
 
+    @Test("A signed authorization that doesn't go through is reported as a failed activation")
+    func failedSubmissionIsReported() async throws {
+        let (sut, _, reports) = makeSUT(authorizeError: PolymarketSessionKeyError.refused(statusCode: 409, reason: .limitReached, detail: nil))
+        let unsigned = try #require(sut.makeAuthorization(depositWalletAddress: Self.depositWalletAddress, approvalsNonce: "7", followsApprovals: false))
+
+        await sut.submit(unsigned.signed(by: "0xowner", signature: "0xsigned"))?.value
+
+        #expect(reports.recorded == [.onboardingActivationFailed])
+    }
+
+    @Test(
+        "A signed authorization that was cancelled or whose outcome is unknown is not reported",
+        arguments: [
+            PolymarketSessionKeyError.cancelled,
+            PolymarketSessionKeyManagerError.unsettled(PolymarketSessionKeyFixtures.key(status: .pending)),
+            CancellationError(),
+        ] as [any Error]
+    )
+    func unfinishedSubmissionIsNotReported(error: any Error) async throws {
+        let (sut, _, reports) = makeSUT(authorizeError: error)
+        let unsigned = try #require(sut.makeAuthorization(depositWalletAddress: Self.depositWalletAddress, approvalsNonce: "7", followsApprovals: false))
+
+        await sut.submit(unsigned.signed(by: "0xowner", signature: "0xsigned"))?.value
+
+        #expect(reports.recorded.isEmpty)
+    }
+
     @Test("Nothing goes out for an authorization that was never prepared")
     func unpreparedSubmitIsIgnored() async throws {
         let (sut, authorize, _) = makeSUT()
@@ -123,7 +150,8 @@ private extension PolymarketOnboardingFastTradingTests {
     static let depositWalletAddress = "0xdef0000000000000000000000000000000000002"
 
     func makeSUT(
-        keyStore: PolymarketSessionKeyStoreSpy = PolymarketSessionKeyStoreSpy(heldAddress: Fixture.localAddress)
+        keyStore: PolymarketSessionKeyStoreSpy = PolymarketSessionKeyStoreSpy(heldAddress: Fixture.localAddress),
+        authorizeError: (any Error)? = nil
     ) -> (sut: CommonPolymarketOnboardingFastTrading, authorize: AuthorizeSpy, reports: TestSignal<PolymarketFastTradingFailure>) {
         let authorize = AuthorizeSpy()
         let reports = TestSignal<PolymarketFastTradingFailure>()
@@ -135,6 +163,10 @@ private extension PolymarketOnboardingFastTradingTests {
             ),
             authorize: { batch, grant in
                 authorize.record(.init(batch: batch, grant: grant))
+
+                if let authorizeError {
+                    throw authorizeError
+                }
             },
             report: { failure in
                 reports.send(failure)

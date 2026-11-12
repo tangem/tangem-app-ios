@@ -144,7 +144,7 @@ private extension PolymarketOrderSummaryViewModel {
 
     func handle(_ outcome: PolymarketOrderSubmission.Outcome) {
         switch outcome {
-        case .cancelled, .signingChanged, .sessionKeyUnverified:
+        case .cancelled, .signingChanged:
             resume()
         case .failed(let returningToMain):
             reportFailure(returningToMain: returningToMain)

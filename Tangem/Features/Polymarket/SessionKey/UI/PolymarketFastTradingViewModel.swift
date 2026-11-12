@@ -73,6 +73,10 @@ extension PolymarketFastTradingViewModel {
         return .menu(actions.filter { $0 != .pause })
     }
 
+    func signsAtOnce(_ action: PolymarketFastTradingDevice.Action) -> Bool {
+        action == .revoke && signingButtonType == .requiredNFCInteraction
+    }
+
     var foreignSigners: [ForeignSigner] {
         let foreign = (assessment?.foreignSigners ?? []).map { ForeignSigner($0, isBeingRevoked: false) }
         let beingRevoked = (assessment?.signersBeingRevoked ?? []).map { ForeignSigner($0, isBeingRevoked: true) }
@@ -107,9 +111,11 @@ extension PolymarketFastTradingViewModel {
         case .device(let action, let device):
             perform(action, on: device)
         case .revokeForeignSigner(let signer):
-            revocation = Revocation(address: signer.address, title: signer.title, kind: .foreignSigner)
+            requestRevocation(Revocation(address: signer.address, title: signer.title, kind: .foreignSigner))
         case .confirmRevocation:
-            revoke()
+            if let revocation {
+                revoke(revocation)
+            }
         }
     }
 
@@ -153,17 +159,22 @@ private extension PolymarketFastTradingViewModel {
         case .revoke:
             guard case .sessionKey(let address) = device.source else { return }
 
-            revocation = Revocation(address: address, title: device.name, kind: .device)
+            requestRevocation(Revocation(address: address, title: device.name, kind: .device))
         }
     }
 
-    func revoke() {
-        guard let revocation else { return }
+    func requestRevocation(_ revocation: Revocation) {
+        if signsAtOnce(.revoke) {
+            revoke(revocation)
+        } else {
+            self.revocation = revocation
+        }
+    }
 
+    func revoke(_ revocation: Revocation) {
         run(.revoke) { [service, weak self] in
             try await service.revoke(sessionKeyAddress: revocation.address)
             self?.revocation = nil
-            PolymarketFastTradingToast.showInfoBelowNavigationBar(PolymarketFastTradingStrings.revocationInProgress)
         }
     }
 
@@ -178,7 +189,7 @@ private extension PolymarketFastTradingViewModel {
             } catch {
                 if let failure = PolymarketFastTradingFailure(error: error) {
                     PolymarketLogger.error(error: "Fast trading \(action) failed: \(PolymarketFastTradingFailure.logDescription(of: error))")
-                    self?.alert = failure.alert
+                    self?.handle(failure, of: action)
                 } else {
                     PolymarketLogger.info("Fast trading \(action) was cancelled")
                 }
@@ -187,6 +198,15 @@ private extension PolymarketFastTradingViewModel {
             self?.isProcessing = false
         }
     }
+
+    func handle(_ failure: PolymarketFastTradingFailure, of action: PolymarketFastTradingDevice.Action) {
+        guard action == .revoke else {
+            alert = failure.alert
+            return
+        }
+
+        revocation = nil
+    }
 }
 
 // MARK: - Types
@@ -194,7 +214,7 @@ private extension PolymarketFastTradingViewModel {
 extension PolymarketFastTradingViewModel {
     enum ThisDeviceSection: Equatable {
         case device(PolymarketFastTradingDevice)
-        case activationOffer(PolymarketFastTradingAuthorization)
+        case activationOffer
         case notice(String)
         case loading
         case failed
@@ -212,12 +232,14 @@ extension PolymarketFastTradingViewModel {
         }
 
         private init(assessment: PolymarketFastTradingAssessment, thisDeviceName: String) {
+            let thisDevice = PolymarketFastTradingDevice.devices(from: assessment, thisDeviceName: thisDeviceName).first(where: \.isThisDevice)
+
             if assessment.isExchangeUnreadable, !assessment.isOperationInFlight {
                 self = .exchangeUnreadable
-            } else if let device = PolymarketFastTradingDevice.devices(from: assessment, thisDeviceName: thisDeviceName).first(where: \.isThisDevice) {
-                self = .device(device)
-            } else if let authorization = PolymarketFastTradingAuthorization(assessment: assessment) {
-                self = .activationOffer(authorization)
+            } else if let thisDevice, !assessment.isLocalActivationFailed {
+                self = .device(thisDevice)
+            } else if PolymarketFastTradingAuthorization(assessment: assessment) != nil {
+                self = .activationOffer
             } else if let notice = PolymarketFastTradingAuthorization.pendingChangeNotice(for: assessment) {
                 self = .notice(notice)
             } else {

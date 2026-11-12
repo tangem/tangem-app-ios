@@ -74,6 +74,7 @@ extension CommonPolymarketOnboardingFastTrading: PolymarketOnboardingFastTrading
         guard let grant else { return nil }
 
         let authorize = authorize
+        let report = report
 
         return Task {
             do {
@@ -82,6 +83,10 @@ extension CommonPolymarketOnboardingFastTrading: PolymarketOnboardingFastTrading
                 PolymarketLogger.error(
                     error: "The fast trading authorization signed during onboarding did not go through: \(PolymarketFastTradingFailure.logDescription(of: error))"
                 )
+
+                guard PolymarketFastTradingFailure(error: error) != nil else { return }
+
+                await report(.onboardingActivationFailed)
             }
         }
     }
@@ -90,7 +95,7 @@ extension CommonPolymarketOnboardingFastTrading: PolymarketOnboardingFastTrading
         let report = report
 
         Task {
-            await report(.notEnabled)
+            await report(.onboardingActivationFailed)
         }
     }
 }

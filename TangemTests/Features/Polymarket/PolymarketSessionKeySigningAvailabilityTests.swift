@@ -33,10 +33,13 @@ struct PolymarketSessionKeySigningAvailabilityTests {
     }
 
     @Test(
-        "A key the exchange lists without a trading scope or an expiry does not sign orders",
+        "A key the exchange lists with other terms than exactly the CLOB scope and the key's expiry does not sign orders",
         arguments: [
             PolymarketSessionSigner(address: Fixture.localAddress, scopes: ["CLOB"], validUntil: nil),
             PolymarketSessionSigner(address: Fixture.localAddress, scopes: [], validUntil: Fixture.validUntil),
+            PolymarketSessionSigner(address: Fixture.localAddress, scopes: ["ALL"], validUntil: Fixture.validUntil),
+            PolymarketSessionSigner(address: Fixture.localAddress, scopes: ["CLOB", "ALL"], validUntil: Fixture.validUntil),
+            PolymarketSessionSigner(address: Fixture.localAddress, scopes: ["CLOB"], validUntil: Fixture.validUntil.addingTimeInterval(1)),
         ]
     )
     func unusableSignerIsUnavailable(_ signer: PolymarketSessionSigner) {
@@ -45,21 +48,14 @@ struct PolymarketSessionKeySigningAvailabilityTests {
         #expect(!Self.isAvailable(Fixture.assess(keys: [key], signers: [signer])))
     }
 
-    @Test(
-        "A usable key stops signing orders the expiry margin before the key or its signer on the exchange runs out, whichever comes first",
-        arguments: [
-            (key: Fixture.validUntil, signer: Fixture.validUntil.addingTimeInterval(-PolymarketSessionKey.validityTolerance)),
-            (key: Fixture.validUntil.addingTimeInterval(-PolymarketSessionKey.validityTolerance), signer: Fixture.validUntil),
-        ]
-    )
-    func availabilityEndsAtTheExpiryMargin(_ validUntil: (key: Date, signer: Date)) {
-        let key = Fixture.key(.local, validUntil: validUntil.key)
-        let signer = PolymarketSessionSigner(address: key.address, scopes: key.scopes, validUntil: validUntil.signer)
-        let state = PolymarketFastTradingState.loaded(Fixture.assess(keys: [key], signers: [signer]))
+    @Test("A usable key stops signing orders the expiry margin before it runs out")
+    func availabilityEndsAtTheExpiryMargin() {
+        let key = Fixture.key(.local)
+        let state = PolymarketFastTradingState.loaded(Fixture.assess(keys: [key], signers: [.matching(key)]))
 
         let availableUntil = CommonPolymarketSessionKeySigningAvailability.availableUntil(in: state, at: Fixture.now, isRefused: { _ in false })
 
-        #expect(availableUntil == Fixture.validUntil.addingTimeInterval(-PolymarketSessionKey.validityTolerance - PolymarketSessionKey.signingExpiryMargin))
+        #expect(availableUntil == Fixture.validUntil.addingTimeInterval(-PolymarketSessionKey.signingExpiryMargin))
     }
 
     @Test("A key about to expire does not sign orders")

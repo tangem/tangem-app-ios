@@ -51,7 +51,7 @@ struct PolymarketOrderSubmissionTests {
             #expect(choice.method == .sessionKey)
         case .refusedByThePlacement:
             #expect(choice.method == .ownerKey)
-            #expect(choice.decide(tapped: .sessionKey) == .routeChanged)
+            #expect(await choice.decide(tapped: .sessionKey) == .routeChanged)
         }
     }
 
@@ -305,7 +305,7 @@ private struct PlacementServiceStub: PolymarketOrderPlacementService {
         quote: PolymarketOrderQuote,
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
-        signing: PolymarketOrderSigningMethod
+        signing: PolymarketOrderSigningRoute
     ) async throws -> PolymarketOrderPlacement {
         try result.get()
     }

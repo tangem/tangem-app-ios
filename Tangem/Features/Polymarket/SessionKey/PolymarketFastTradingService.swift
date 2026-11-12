@@ -47,8 +47,20 @@ protocol PolymarketFastTradingFailureReporting: AnyObject {
 }
 
 @MainActor
-protocol PolymarketFastTradingServicing: PolymarketFastTradingBannerProviding, PolymarketFastTradingOperating, PolymarketFastTradingFailureReporting {
+protocol PolymarketFastTradingRevocationReporting: AnyObject {
+    var revocationPublisher: AnyPublisher<PolymarketFastTradingRevocation, Never> { get }
+}
+
+@MainActor
+protocol PolymarketFastTradingServicing: PolymarketFastTradingBannerProviding, PolymarketFastTradingOperating, PolymarketFastTradingFailureReporting,
+    PolymarketFastTradingRevocationReporting {
     func cancelWork()
+}
+
+enum PolymarketFastTradingRevocation: Equatable {
+    case submitted
+    case succeeded
+    case failed
 }
 
 @MainActor
@@ -67,7 +79,8 @@ final class CommonPolymarketFastTradingService {
 
     private let stateSubject = CurrentValueSubject<PolymarketFastTradingState, Never>(.loading)
     private let dismissalDatesSubject: CurrentValueSubject<PolymarketFastTradingBanner.DismissalDates, Never>
-    private let failureSubject = PassthroughSubject<PolymarketFastTradingFailure, Never>()
+    private let failures = HeldEvents<PolymarketFastTradingFailure>()
+    private let revocations = HeldEvents<PolymarketFastTradingRevocation>()
     private var refusalsSubscription: AnyCancellable?
     private var settlingTask: Task<Void, Error>?
     private var resumeRetryTask: Task<Void, Error>?
@@ -79,9 +92,8 @@ final class CommonPolymarketFastTradingService {
     private var settlingKeyMisses: [String: Int] = [:]
     private var readGeneration = 0
     private var publishedGeneration = 0
-    private var failureSubscriptions = 0
-    private var undeliveredFailure: PolymarketFastTradingFailure?
     private var revokingSince: [String: Date] = [:]
+    private var revocationsInFlight: [String: RevocationEvidence] = [:]
 
     init(
         userWalletId: UserWalletId,
@@ -136,11 +148,14 @@ extension CommonPolymarketFastTradingService: PolymarketFastTradingServicing {
 
     var failurePublisher: AnyPublisher<PolymarketFastTradingFailure, Never> {
         Deferred { [weak self] () -> AnyPublisher<PolymarketFastTradingFailure, Never> in
-            guard let self else {
-                return .empty
-            }
+            self?.failures.publisher() ?? .empty
+        }
+        .eraseToAnyPublisher()
+    }
 
-            return failuresIncludingUndelivered()
+    var revocationPublisher: AnyPublisher<PolymarketFastTradingRevocation, Never> {
+        Deferred { [weak self] () -> AnyPublisher<PolymarketFastTradingRevocation, Never> in
+            self?.revocations.publisher() ?? .empty
         }
         .eraseToAnyPublisher()
     }
@@ -188,20 +203,35 @@ extension CommonPolymarketFastTradingService: PolymarketFastTradingServicing {
     }
 
     func authorize(presigned batch: PolymarketRelayedBatch, grant: PolymarketSessionKeyGrant) async throws {
-        do {
-            try await perform(.activation) {
-                try await self.manager.authorize(presigned: batch, grant: grant)
-            }
-        } catch {
-            report(error)
-            throw error
+        try await perform(.activation) {
+            try await self.manager.authorize(presigned: batch, grant: grant)
         }
 
         forgetBannerDismissals()
     }
 
     func revoke(sessionKeyAddress: String) async throws {
-        try await perform(.revocation) { try await self.manager.revoke(sessionKeyAddress: sessionKeyAddress) }
+        let address = sessionKeyAddress.lowercased()
+        let hasLiveRecord = lastSnapshot?.sessionKeys.contains { $0.address == address && $0.isOurs } ?? false
+
+        do {
+            try await perform(.revocation) { try await self.manager.revoke(sessionKeyAddress: sessionKeyAddress) }
+        } catch {
+            switch PolymarketFastTradingFailure(error: error) {
+            case .busy:
+                failures.send(.busy)
+            case .some:
+                revocations.send(.failed)
+            case nil:
+                break
+            }
+
+            throw error
+        }
+
+        revocations.send(.submitted)
+        revocationsInFlight[address] = hasLiveRecord ? .records : .signers
+        reportSettledRevocations()
     }
 
     func setEnabled(_ isEnabled: Bool, sessionKeyAddress: String) async throws {
@@ -216,7 +246,7 @@ extension CommonPolymarketFastTradingService: PolymarketFastTradingServicing {
     }
 
     func reportFailure(_ failure: PolymarketFastTradingFailure) {
-        deliver(failure)
+        failures.send(failure)
     }
 }
 
@@ -259,7 +289,7 @@ private extension CommonPolymarketFastTradingService {
                     forgetBannerDismissals()
                 } catch {
                     if !handoff.resumeIfNeeded(with: .failure(error)) {
-                        report(error)
+                        await reportAuthorizationFailureUnlessKeptForResend(error, of: operation)
                     }
                 }
 
@@ -297,22 +327,24 @@ private extension CommonPolymarketFastTradingService {
     }
 
     func resume(_ interrupted: PolymarketInterruptedAuthorization) async {
+        noteRevoking(by: interrupted)
+
         do {
             try await finish(interrupted)
         } catch PolymarketSessionKeyManagerError.operationInProgress {
             PolymarketLogger.warning("The wallet is busy with another operation, the interrupted fast trading authorization waits for a retry")
-            scheduleResumeRetry(of: interrupted.batch)
+            scheduleResumeRetry(of: interrupted, after: PolymarketSessionKeyManagerError.operationInProgress)
             return
         } catch where PolymarketInterruptedAuthorization.isResumable(after: error) {
             PolymarketLogger.warning("An interrupted fast trading authorization could not be completed yet, it stays kept")
-            scheduleResumeRetry(of: interrupted.batch)
+            scheduleResumeRetry(of: interrupted, after: error)
             return
         } catch {
             return
         }
 
         if await manager.resumableInterruptedAuthorization()?.batch == interrupted.batch {
-            scheduleResumeRetry(of: interrupted.batch)
+            scheduleResumeRetry(of: interrupted, after: nil)
         }
     }
 
@@ -324,8 +356,9 @@ private extension CommonPolymarketFastTradingService {
             forgetBannerDismissals()
         } catch PolymarketSessionKeyManagerError.noInterruptedAuthorization {
             PolymarketLogger.warning("There is no interrupted fast trading authorization left to send")
+            reportAuthorizationFailure(PolymarketSessionKeyManagerError.noInterruptedAuthorization, of: interrupted.operation)
         } catch where Self.endsTheResume(error) {
-            report(error)
+            reportAuthorizationFailure(error, of: interrupted.operation)
             stopResuming(interrupted.batch)
             throw error
         }
@@ -337,13 +370,20 @@ private extension CommonPolymarketFastTradingService {
         resumeAttempts = ResumeAttempts(batch: batch, count: Constants.resumeAttemptLimit, isDue: false)
     }
 
-    func scheduleResumeRetry(of batch: PolymarketRelayedBatch) {
+    func scheduleResumeRetry(of interrupted: PolymarketInterruptedAuthorization, after failure: Error?) {
+        let batch = interrupted.batch
+
         guard resumeRetryTask == nil, let attempts = resumeAttempts, attempts.batch == batch else {
             return
         }
 
         guard attempts.count < Constants.resumeAttemptLimit else {
             PolymarketLogger.warning("An interrupted fast trading authorization ran out of resume attempts, it stays kept until it runs out")
+
+            if let failure {
+                reportAuthorizationFailure(failure, of: interrupted.operation)
+            }
+
             return
         }
 
@@ -436,8 +476,7 @@ private extension CommonPolymarketFastTradingService {
             now: snapshot.now,
             operations: snapshot.operations,
             isLocalKeyRefused: isRefused(snapshot.localKeyAddress),
-            revokingSince: revokingSince,
-            keptPausedKeyAddress: snapshot.keptPausedKeyAddress
+            revokingSince: revokingSince
         )
     }
 
@@ -450,34 +489,103 @@ private extension CommonPolymarketFastTradingService {
         dismissalDatesSubject.send(bannerDismissals.dismissalDates(userWalletId: userWalletId))
     }
 
-    func report(_ error: Error) {
+    func reportAuthorizationFailureUnlessKeptForResend(_ error: Error, of operation: PolymarketFastTradingOperation) async {
+        guard let kept = await manager.resumableInterruptedAuthorization() else {
+            reportAuthorizationFailure(error, of: operation)
+            return
+        }
+
+        noteRevoking(by: kept)
+        PolymarketLogger.warning("A signed fast trading operation did not go through yet, it is kept for a resend: \(PolymarketFastTradingFailure.logDescription(of: error))")
+    }
+
+    func reportAuthorizationFailure(_ error: Error, of operation: PolymarketFastTradingOperation) {
         PolymarketLogger.error(error: "A signed fast trading operation did not go through: \(PolymarketFastTradingFailure.logDescription(of: error))")
 
-        guard let failure = PolymarketFastTradingFailure(error: error) else {
+        guard let failure = PolymarketFastTradingFailure(error: error, authorizing: operation) else {
             return
         }
 
-        deliver(failure)
+        if operation == .activation {
+            forgetBannerDismissals()
+        }
+
+        failures.send(failure)
     }
 
-    func deliver(_ failure: PolymarketFastTradingFailure) {
-        guard failureSubscriptions > 0 else {
-            undeliveredFailure = failure
+    func reportSettledRevocations() {
+        guard let snapshot = lastSnapshot else { return }
+
+        for (address, evidence) in revocationsInFlight {
+            guard let outcome = Self.revocationOutcome(of: address, by: evidence, in: snapshot) else { continue }
+
+            revocationsInFlight[address] = nil
+            revocations.send(outcome)
+        }
+    }
+
+    static func revocationOutcome(
+        of address: String,
+        by evidence: RevocationEvidence,
+        in snapshot: PolymarketFastTradingSnapshot
+    ) -> PolymarketFastTradingRevocation? {
+        let record = snapshot.sessionKeys.revocationRecord(of: address, at: snapshot.now)
+
+        if record?.status.isSettling == true {
+            return nil
+        }
+
+        if evidence == .records, let record {
+            return record.status == .revoked ? .succeeded : .failed
+        }
+
+        guard let signers = snapshot.signers else {
+            return nil
+        }
+
+        guard signers.contains(where: { $0.address == address }) else {
+            return .succeeded
+        }
+
+        if record != nil, PolymarketFastTradingAssessment.isBeingRevoked(address, in: snapshot) {
+            return nil
+        }
+
+        return .failed
+    }
+
+    enum RevocationEvidence {
+        case records
+        case signers
+    }
+}
+
+// MARK: - Held events
+
+@MainActor
+private final class HeldEvents<Event> {
+    private let subject = PassthroughSubject<Event, Never>()
+    private var subscriptions = 0
+    private var undelivered: Event?
+
+    func send(_ event: Event) {
+        guard subscriptions > 0 else {
+            undelivered = event
             return
         }
 
-        failureSubject.send(failure)
+        subject.send(event)
     }
 
-    func failuresIncludingUndelivered() -> AnyPublisher<PolymarketFastTradingFailure, Never> {
-        let undelivered = undeliveredFailure
-        undeliveredFailure = nil
+    func publisher() -> AnyPublisher<Event, Never> {
+        let undelivered = undelivered
+        self.undelivered = nil
 
-        return failureSubject
+        return subject
             .prepend(undelivered.map { [$0] } ?? [])
             .handleEvents(
-                receiveSubscription: { [weak self] _ in self?.failureSubscriptions += 1 },
-                receiveCancel: { [weak self] in self?.failureSubscriptions -= 1 }
+                receiveSubscription: { [weak self] _ in self?.subscriptions += 1 },
+                receiveCancel: { [weak self] in self?.subscriptions -= 1 }
             )
             .eraseToAnyPublisher()
     }
@@ -501,15 +609,13 @@ private extension CommonPolymarketFastTradingService {
         let signers = try await signers()
         let localKeyAddress = try keyStore.heldAddress(for: userWalletId)
         let deviceId = try deviceIdProvider.deviceId()
-        let keptPausedKeyAddress = await manager.keptPausedKeyAddress()
 
         return PolymarketFastTradingSnapshot(
             sessionKeys: sessionKeys,
             localKeyAddress: localKeyAddress,
             deviceId: deviceId,
             signers: signers,
-            now: now(),
-            keptPausedKeyAddress: keptPausedKeyAddress
+            now: now()
         )
     }
 
@@ -559,8 +665,7 @@ private extension CommonPolymarketFastTradingService {
             now: read.now,
             operations: operations,
             isLocalKeyRefused: isRefused(read.localKeyAddress),
-            revokingSince: revokingSince,
-            keptPausedKeyAddress: read.keptPausedKeyAddress
+            revokingSince: revokingSince
         )
 
         lastSnapshot = snapshot
@@ -568,6 +673,7 @@ private extension CommonPolymarketFastTradingService {
 
         let assessment = PolymarketFastTradingAssessment(snapshot: snapshot)
         stateSubject.send(.loaded(assessment))
+        reportSettledRevocations()
 
         return assessment
     }
@@ -582,6 +688,16 @@ private extension CommonPolymarketFastTradingService {
         for address in revoking where revokingSince[address] == nil {
             revokingSince[address] = date
         }
+    }
+
+    func noteRevoking(by interrupted: PolymarketInterruptedAuthorization) {
+        let address = interrupted.revokedAddress.lowercased()
+
+        guard interrupted.isExecutable(at: now()), revokingSince[address] == nil else {
+            return
+        }
+
+        revokingSince[address] = now()
     }
 
     func bridgingVanishedSettlingKeys(_ sessionKeys: [PolymarketSessionKey], countsMisses: Bool) -> [PolymarketSessionKey] {
@@ -665,28 +781,13 @@ private extension CommonPolymarketFastTradingService {
 
 // MARK: - Authorization
 
-private extension PolymarketFastTradingAuthorization {
-    var operation: PolymarketFastTradingOperation {
-        switch self {
-        case .enable, .reenable, .repair, .replace:
-            .activation
-        case .renew:
-            .renewal
-        }
-    }
-}
-
 private extension PolymarketInterruptedAuthorization {
     var operation: PolymarketFastTradingOperation {
-        guard !isExecuted else {
-            return .toggle
-        }
-
         switch purpose {
         case .activation:
-            return .activation
+            .activation
         case .renewal:
-            return .renewal
+            .renewal
         }
     }
 }

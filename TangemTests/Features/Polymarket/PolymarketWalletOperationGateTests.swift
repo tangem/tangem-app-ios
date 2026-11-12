@@ -21,9 +21,9 @@ struct PolymarketWalletOperationGateTests {
     func secondOperationOfTheWalletIsRefused() async throws {
         let gate = PolymarketWalletOperationGate()
 
-        _ = try await gate.exclusively(Self.wallet, orThrow: Busy.first) {
+        _ = try await gate.exclusively(Self.wallet, as: .transaction, orThrow: { _ in Busy.first }) {
             await #expect(throws: Busy.second) {
-                try await gate.exclusively(Self.wallet, orThrow: Busy.second) {}
+                try await gate.exclusively(Self.wallet, as: .transaction, orThrow: { _ in Busy.second }) {}
             }
         }
     }
@@ -32,11 +32,11 @@ struct PolymarketWalletOperationGateTests {
     func otherWalletAndLaterOperationsPass() async throws {
         let gate = PolymarketWalletOperationGate()
 
-        try await gate.exclusively(Self.wallet, orThrow: Busy.first) {
-            try await gate.exclusively(Self.otherWallet, orThrow: Busy.second) {}
+        try await gate.exclusively(Self.wallet, as: .transaction, orThrow: { _ in Busy.first }) {
+            try await gate.exclusively(Self.otherWallet, as: .transaction, orThrow: { _ in Busy.second }) {}
         }
 
-        try await gate.exclusively(Self.wallet, orThrow: Busy.second) {}
+        try await gate.exclusively(Self.wallet, as: .transaction, orThrow: { _ in Busy.second }) {}
     }
 
     @Test("A failed operation frees the wallet")
@@ -44,10 +44,10 @@ struct PolymarketWalletOperationGateTests {
         let gate = PolymarketWalletOperationGate()
 
         await #expect(throws: Busy.first) {
-            try await gate.exclusively(Self.wallet, orThrow: Busy.second) { throw Busy.first }
+            try await gate.exclusively(Self.wallet, as: .transaction, orThrow: { _ in Busy.second }) { throw Busy.first }
         }
 
-        try await gate.exclusively(Self.wallet, orThrow: Busy.second) {}
+        try await gate.exclusively(Self.wallet, as: .transaction, orThrow: { _ in Busy.second }) {}
     }
 
     @Test("A withdrawal or a claim is refused with its own error while a signed fast trading authorization kept for a resume still holds the next nonce")
@@ -56,7 +56,7 @@ struct PolymarketWalletOperationGateTests {
         var isRun = false
 
         await #expect(throws: Busy.pending) {
-            try await slot.exclusively(orThrow: Busy.first, whileKeptAuthorizationPends: Busy.pending) { isRun = true }
+            try await slot.exclusively(orThrow: Busy.first, whileFastTradingChangePends: Busy.pending) { isRun = true }
         }
 
         #expect(!isRun)
@@ -68,7 +68,7 @@ struct PolymarketWalletOperationGateTests {
         let entered = TestGate()
         let release = TestGate()
         let resend = Task {
-            try await slot.gate.exclusively(Self.wallet, orThrow: Busy.second) {
+            try await slot.gate.exclusively(Self.wallet, as: .fastTradingChange, orThrow: { _ in Busy.second }) {
                 entered.open()
                 await release.wait()
             }
@@ -77,11 +77,33 @@ struct PolymarketWalletOperationGateTests {
         await entered.wait()
 
         await #expect(throws: Busy.pending) {
-            try await slot.exclusively(orThrow: Busy.first, whileKeptAuthorizationPends: Busy.pending) {}
+            try await slot.exclusively(orThrow: Busy.first, whileFastTradingChangePends: Busy.pending) {}
         }
 
         release.open()
         try await resend.value
+    }
+
+    @Test("A withdrawal or a claim is refused with the pending error while a fast trading change holds the wallet")
+    func slotRefusesWithThePendingErrorWhileAFastTradingChangeHoldsTheWallet() async throws {
+        let (slot, _) = try Self.slot(keepingAuthorizationUntil: Self.start, at: Self.start)
+
+        _ = try await slot.gate.exclusively(Self.wallet, as: .fastTradingChange, orThrow: { _ in Busy.second }) {
+            await #expect(throws: Busy.pending) {
+                try await slot.exclusively(orThrow: Busy.first, whileFastTradingChangePends: Busy.pending) {}
+            }
+        }
+    }
+
+    @Test("A withdrawal or a claim is refused as already in progress while another withdrawal or claim holds the wallet")
+    func slotRefusesWithTheBusyErrorWhileAnotherTransactionHoldsTheWallet() async throws {
+        let (slot, _) = try Self.slot(keepingAuthorizationUntil: Self.start, at: Self.start)
+
+        _ = try await slot.exclusively(orThrow: Busy.second, whileFastTradingChangePends: Busy.pending) {
+            await #expect(throws: Busy.first) {
+                try await slot.exclusively(orThrow: Busy.first, whileFastTradingChangePends: Busy.pending) {}
+            }
+        }
     }
 
     @Test("A withdrawal or a claim goes once the kept authorization can no longer run")
@@ -89,7 +111,7 @@ struct PolymarketWalletOperationGateTests {
         let (slot, _) = try Self.slot(keepingAuthorizationUntil: Self.start, at: Self.start)
         var isRun = false
 
-        try await slot.exclusively(orThrow: Busy.first, whileKeptAuthorizationPends: Busy.pending) { isRun = true }
+        try await slot.exclusively(orThrow: Busy.first, whileFastTradingChangePends: Busy.pending) { isRun = true }
 
         #expect(isRun)
     }
@@ -100,17 +122,7 @@ struct PolymarketWalletOperationGateTests {
         var isRun = false
 
         storage.readError = KeychainFailure()
-        try await slot.exclusively(orThrow: Busy.first, whileKeptAuthorizationPends: Busy.pending) { isRun = true }
-
-        #expect(isRun)
-    }
-
-    @Test("A withdrawal or a claim goes once the kept authorization went through and only the pause of its key is left")
-    func slotPassesAnExecutedKeptAuthorization() async throws {
-        let (slot, _) = try Self.slot(keepingAuthorizationUntil: Self.start + 1, at: Self.start, isExecuted: true)
-        var isRun = false
-
-        try await slot.exclusively(orThrow: Busy.first, whileKeptAuthorizationPends: Busy.pending) { isRun = true }
+        try await slot.exclusively(orThrow: Busy.first, whileFastTradingChangePends: Busy.pending) { isRun = true }
 
         #expect(isRun)
     }
@@ -123,8 +135,7 @@ private extension PolymarketWalletOperationGateTests {
 
     static func slot(
         keepingAuthorizationUntil deadline: TimeInterval,
-        at now: TimeInterval,
-        isExecuted: Bool = false
+        at now: TimeInterval
     ) throws -> (slot: PolymarketWalletOperationSlot, storage: PolymarketSecureStorageSpy) {
         let storage = PolymarketSecureStorageSpy()
         let store = CommonPolymarketInterruptedAuthorizationStore(secureStorage: storage)
@@ -145,9 +156,7 @@ private extension PolymarketWalletOperationGateTests {
                 batch: batch,
                 grant: PolymarketSessionKeyGrant(sessionKeyAddress: call.target, validUntil: Date(timeIntervalSince1970: deadline), call: call),
                 deviceId: PolymarketSessionKeyFixtures.deviceId,
-                keepsPaused: isExecuted,
-                purpose: .renewal,
-                isExecuted: isExecuted
+                purpose: .renewal
             ),
             for: wallet
         )

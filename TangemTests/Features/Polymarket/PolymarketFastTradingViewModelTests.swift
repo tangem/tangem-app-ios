@@ -9,6 +9,7 @@
 import Foundation
 import Testing
 import TangemPolymarket
+import TangemUI
 @testable import Tangem
 
 @Suite("Polymarket fast trading settings: what the This device section shows")
@@ -53,7 +54,24 @@ struct PolymarketFastTradingThisDeviceSectionTests {
         )
     )
     func activationOffer(_ keys: [PolymarketSessionKey], _ authorization: PolymarketFastTradingAuthorization) {
-        #expect(Fixture.section(keys, signers: keys.map(PolymarketSessionSigner.matching)) == .activationOffer(authorization))
+        let signers = keys.map(PolymarketSessionSigner.matching)
+
+        #expect(Fixture.section(keys, signers: signers) == .activationOffer)
+        #expect(PolymarketFastTradingAuthorization(assessment: Fixture.assess(keys: keys, signers: signers)) == authorization)
+    }
+
+    @Test(
+        "This device's key that failed to activate shows the activation card with the authorization the assessment chooses",
+        arguments: zip(
+            [[PolymarketSessionSigner](), [.matching(Fixture.key(.local, status: .failed))]],
+            [PolymarketFastTradingAuthorization.reenable, .repair]
+        )
+    )
+    func failedKeyShowsTheActivationCard(_ signers: [PolymarketSessionSigner], _ authorization: PolymarketFastTradingAuthorization) {
+        let keys = [Fixture.key(.local, status: .failed)]
+
+        #expect(Fixture.section(keys, signers: signers) == .activationOffer)
+        #expect(PolymarketFastTradingAuthorization(assessment: Fixture.assess(keys: keys, signers: signers)) == authorization)
     }
 
     @Test(
@@ -77,9 +95,87 @@ struct PolymarketFastTradingThisDeviceSectionTests {
     }
 }
 
+@MainActor
+@Suite("Polymarket fast trading settings: revoking a device or an unknown signer")
+struct PolymarketFastTradingRevocationTests {
+    @Test("A card wallet revokes a device without a confirmation")
+    func cardWalletRevokesAtOnce() async {
+        let (sut, service) = Self.makeSUT(signingButtonType: .requiredNFCInteraction)
+
+        sut.handleViewAction(.device(.revoke, Self.otherDevice))
+        await sut.$isProcessing.firstValue { !$0 }
+
+        #expect(sut.revocation == nil)
+        #expect(service.revoked == [Fixture.Owner.otherDevice.address])
+    }
+
+    @Test("A wallet without a card confirms the revocation of a device before it signs")
+    func walletWithoutCardConfirmsRevocation() {
+        let (sut, service) = Self.makeSUT(signingButtonType: .holdToConfirm)
+
+        sut.handleViewAction(.device(.revoke, Self.otherDevice))
+
+        #expect(sut.revocation == .init(address: Fixture.Owner.otherDevice.address, title: Fixture.deviceName, kind: .device))
+        #expect(service.revoked.isEmpty)
+    }
+
+    @Test("A card wallet revokes an unknown signer without a confirmation, as it revokes a device")
+    func cardWalletRevokesAnUnknownSignerAtOnce() async throws {
+        let (sut, service) = Self.makeSUT(signingButtonType: .requiredNFCInteraction)
+        let signer = try #require(sut.foreignSigners.first)
+
+        sut.handleViewAction(.revokeForeignSigner(signer))
+        await sut.$isProcessing.firstValue { !$0 }
+
+        #expect(sut.revocation == nil)
+        #expect(service.revoked == [Self.unknownSigner.address])
+    }
+
+    @Test("A wallet without a card confirms the revocation of an unknown signer before it signs")
+    func walletWithoutCardConfirmsTheRevocationOfAnUnknownSigner() throws {
+        let (sut, service) = Self.makeSUT(signingButtonType: .holdToConfirm)
+        let signer = try #require(sut.foreignSigners.first)
+
+        sut.handleViewAction(.revokeForeignSigner(signer))
+
+        #expect(sut.revocation == .init(address: Self.unknownSigner.address, title: signer.title, kind: .foreignSigner))
+        #expect(service.revoked.isEmpty)
+    }
+}
+
 // MARK: - Helpers
 
 private typealias Fixture = PolymarketSessionKeyFixtures
+
+private extension PolymarketFastTradingRevocationTests {
+    static let otherDevice = PolymarketFastTradingDevice(
+        source: .sessionKey(address: Fixture.Owner.otherDevice.address),
+        name: Fixture.deviceName,
+        owner: .otherDevice,
+        state: .active(until: Fixture.validUntil),
+        isListedOnExchange: true
+    )
+
+    static let unknownSigner = PolymarketSessionSigner(
+        address: "0xf0e1000000000000000000000000000000000009",
+        scopes: ["CLOB"],
+        validUntil: Fixture.validUntil
+    )
+
+    static func makeSUT(signingButtonType: SigningActionButtonViewType) -> (sut: PolymarketFastTradingViewModel, service: PolymarketFastTradingServiceSpy) {
+        let keys = [Fixture.key(.otherDevice)]
+        let signers = keys.map(PolymarketSessionSigner.matching) + [unknownSigner]
+        let service = PolymarketFastTradingServiceSpy(state: .loaded(Fixture.assess(keys: keys, signers: signers)))
+        let sut = PolymarketFastTradingViewModel(
+            service: service,
+            signingButtonType: signingButtonType,
+            thisDeviceName: Fixture.thisDeviceName,
+            onClose: {}
+        )
+
+        return (sut, service)
+    }
+}
 
 private extension PolymarketSessionKeyFixtures {
     static func section(

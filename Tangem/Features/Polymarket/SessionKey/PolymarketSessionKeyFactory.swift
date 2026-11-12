@@ -26,7 +26,7 @@ struct PolymarketSessionKeyFactory {
     }
 
     func makeOwnerKeySigningRouter(for userWalletModel: any UserWalletModel) -> PolymarketOrderSigningRouting {
-        makeRouter(for: userWalletModel, isEligible: false, interruptedAuthorizations: CommonPolymarketInterruptedAuthorizationStore())
+        makeRouter(for: userWalletModel, isEligible: false)
     }
 
     func makeOrderDigestSigner(for userWalletModel: any UserWalletModel) -> PolymarketOrderDigestSigning {
@@ -66,7 +66,7 @@ struct PolymarketSessionKeyFactory {
     @MainActor
     func makeFastTradingContext(for userWalletModel: any UserWalletModel) -> PolymarketFastTradingContext {
         let interruptedAuthorizations = CommonPolymarketInterruptedAuthorizationStore()
-        let signingRouter = makeRouter(for: userWalletModel, isEligible: true, interruptedAuthorizations: interruptedAuthorizations)
+        let signingRouter = makeRouter(for: userWalletModel, isEligible: true)
 
         let service = CommonPolymarketFastTradingService(
             userWalletId: userWalletModel.userWalletId,
@@ -110,11 +110,7 @@ struct PolymarketSessionKeyFactory {
 // MARK: - Private implementation
 
 private extension PolymarketSessionKeyFactory {
-    func makeRouter(
-        for userWalletModel: any UserWalletModel,
-        isEligible: Bool,
-        interruptedAuthorizations: PolymarketInterruptedAuthorizationStore
-    ) -> CommonPolymarketOrderSigningRouter {
+    func makeRouter(for userWalletModel: any UserWalletModel, isEligible: Bool) -> CommonPolymarketOrderSigningRouter {
         let userWalletId = userWalletModel.userWalletId
         let keyStore = makeKeyStore()
 
@@ -130,8 +126,7 @@ private extension PolymarketSessionKeyFactory {
             clobService: services.makeOwnerCLOBService(userWalletId: userWalletId),
             sessionKeyService: services.makeSessionKeyService(walletId: userWalletId.stringValue),
             credentialsRepository: CommonPolymarketCredentialsRepository(),
-            ownerAddressProvider: CommonPolymarketOwnerAddressProvider(keysRepository: userWalletModel.keysRepository),
-            interruptedAuthorizations: interruptedAuthorizations
+            ownerAddressProvider: CommonPolymarketOwnerAddressProvider(keysRepository: userWalletModel.keysRepository)
         )
     }
 }

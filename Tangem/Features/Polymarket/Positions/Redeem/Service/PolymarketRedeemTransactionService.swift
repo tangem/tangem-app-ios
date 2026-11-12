@@ -69,7 +69,7 @@ private extension PolymarketRedeemTransactionService {
             return try await prepareAndSubmitClaim(request)
         }
 
-        return try await operationSlot.exclusively(orThrow: Error.claimInProgress, whileKeptAuthorizationPends: Error.fastTradingChangePending) {
+        return try await operationSlot.exclusively(orThrow: Error.claimInProgress, whileFastTradingChangePends: Error.fastTradingChangePending) {
             try await prepareAndSubmitClaim(request)
         }
     }

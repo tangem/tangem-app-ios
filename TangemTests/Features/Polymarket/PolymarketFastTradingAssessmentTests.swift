@@ -72,19 +72,25 @@ struct PolymarketFastTradingStatusTests {
         #expect(Fixture.assess(keys: [key], signers: []).status == .reenable(key))
     }
 
-    @Test("An active local key the exchange lists with other terms is repaired by renewal")
-    func localKeyOutOfSyncWithTheExchangeIsRenewed() {
+    @Test("An active local key the exchange lists with other terms is not repaired: its signer is unknown and signs nothing")
+    func localKeyReRegisteredOnTheExchangeIsNotRepaired() {
         let key = Fixture.key(.local)
         let signer = PolymarketSessionSigner(address: key.address, scopes: key.scopes, validUntil: key.validUntil?.addingTimeInterval(Fixture.day))
 
-        #expect(Fixture.assess(keys: [key], signers: [signer]).status == .repairByRenewal(key))
+        let assessment = Fixture.assess(keys: [key], signers: [signer])
+
+        #expect(assessment.status == .active(key))
+        #expect(assessment.foreignSigners == [signer])
+        #expect(!assessment.isUsableOnExchange(key, at: Fixture.now))
+        #expect(PolymarketFastTradingAuthorization(assessment: assessment) == nil)
     }
 
-    @Test("A failed local key the exchange lists anyway is repaired by renewal")
-    func failedLocalKeyOnTheExchangeIsRenewed() {
+    @Test("A failed local key the exchange lists anyway is repaired by renewal, whatever terms it is listed with", arguments: [["CLOB"], ["ALL"]])
+    func failedLocalKeyOnTheExchangeIsRenewed(_ scopes: [String]) {
         let key = Fixture.key(.local, status: .failed)
+        let signer = PolymarketSessionSigner(address: key.address, scopes: scopes, validUntil: key.validUntil)
 
-        #expect(Fixture.assess(keys: [key], signers: [.matching(key)]).status == .repairByRenewal(key))
+        #expect(Fixture.assess(keys: [key], signers: [signer]).status == .repairByRenewal(key))
     }
 
     @Test("A failed local key the exchange does not list is enabled again")
@@ -284,14 +290,13 @@ struct PolymarketFastTradingStatusTests {
         "A previous key of this device is replaced even when the local key needs enabling again or a repair",
         arguments: [
             Fixture.key(.local, validUntil: Fixture.now.addingTimeInterval(-1)),
-            Fixture.key(.local, validUntil: Fixture.validUntil),
+            Fixture.key(.local, status: .failed),
         ]
     )
     func previousKeyIsReplacedBeforeTheLocalKeyIsFixed(_ local: PolymarketSessionKey) {
         let previous = Fixture.key(.previous)
-        let outOfSync = PolymarketSessionSigner(address: local.address, scopes: [], validUntil: local.validUntil)
 
-        let status = Fixture.assess(keys: [local, previous], signers: [outOfSync, .matching(previous)]).status
+        let status = Fixture.assess(keys: [local, previous], signers: [.matching(local), .matching(previous)]).status
 
         #expect(status == .replace(previous: previous, revokesPrevious: true))
     }
@@ -349,42 +354,20 @@ struct PolymarketFastTradingStatusTests {
         #expect(assessment.foreignSigners.isEmpty)
     }
 
-    @Test(
-        "Renewal is due once the backend's renewal date has passed",
-        arguments: zip([Fixture.now, Fixture.now.addingTimeInterval(60)], [true, false])
-    )
-    func renewalIsDueAfterTheRenewalDate(_ renewAfter: Date, _ isDue: Bool) {
-        let key = Fixture.key(.local, renewAfter: renewAfter)
-
-        #expect(Fixture.assess(keys: [key], signers: [.matching(key)]).isRenewDue == isDue)
-    }
-
-    @Test(
-        "Renewal is due in the last 30 days of the key even without a renewal date",
-        arguments: zip([30 * Fixture.day, 31 * Fixture.day], [true, false])
-    )
+    @Test("Renewal is due in the last 30 days of the key", arguments: zip([30 * Fixture.day, 30 * Fixture.day + 1], [true, false]))
     func renewalIsDueInTheLastThirtyDays(_ validity: TimeInterval, _ isDue: Bool) {
         let key = Fixture.key(.local, validUntil: Fixture.now.addingTimeInterval(validity))
 
         #expect(Fixture.assess(keys: [key], signers: [.matching(key)]).isRenewDue == isDue)
     }
 
-    @Test("A paused key is due for renewal as an active one is", arguments: [
-        Fixture.key(.local, isEnabled: false, renewAfter: Fixture.now.addingTimeInterval(-1)),
-        Fixture.key(.local, isEnabled: false, validUntil: Fixture.now.addingTimeInterval(12 * Fixture.day)),
-    ])
-    func pausedKeyIsDueForRenewal(_ key: PolymarketSessionKey) {
+    @Test("A paused key is due for renewal as an active one is")
+    func pausedKeyIsDueForRenewal() {
+        let key = Fixture.key(.local, isEnabled: false, validUntil: Fixture.now.addingTimeInterval(12 * Fixture.day))
         let assessment = Fixture.assess(keys: [key], signers: [.matching(key)])
 
         #expect(assessment.status == .paused(key))
         #expect(assessment.isRenewDue)
-    }
-
-    @Test("The backend's renewal date decides over the last 30 days of the key")
-    func renewalDateDecidesOverTheLastThirtyDays() {
-        let key = Fixture.key(.local, validUntil: Fixture.now.addingTimeInterval(20 * Fixture.day), renewAfter: Fixture.now.addingTimeInterval(17 * Fixture.day))
-
-        #expect(!Fixture.assess(keys: [key], signers: [.matching(key)]).isRenewDue)
     }
 
     @Test(
@@ -461,49 +444,80 @@ struct PolymarketFastTradingReconciliationTests {
         #expect(Fixture.assess(keys: [key], signers: [.matching(key)]).foreignSigners.isEmpty)
     }
 
-    @Test("An active key the exchange lists with any trading scope is in sync", arguments: [["ALL"], ["clob"]])
-    func tradingScopeKeepsTheKeyInSync(_ scopes: [String]) {
+    @Test(
+        "The local key the exchange still lists after the backend recorded it revoked or expired is foreign",
+        arguments: [PolymarketSessionKey.Status.revoked, .expired]
+    )
+    func endedLocalKeyStillOnTheExchangeIsForeign(_ status: PolymarketSessionKey.Status) {
+        let key = Fixture.key(.local, status: status)
+
+        #expect(Fixture.assess(keys: [key], signers: [.matching(key)]).foreignSigners.map(\.address) == [key.address])
+    }
+
+    @Test(
+        "The local key the exchange lists without a record of ours is foreign unless this device is authorizing it",
+        arguments: zip([[], [PolymarketFastTradingOperation.activation], [.revocation]], [true, false, true])
+    )
+    func unrecordedLocalKeyIsForeignOutsideItsAuthorization(_ operations: [PolymarketFastTradingOperation], _ isForeign: Bool) {
+        let signer = PolymarketSessionSigner.matching(Fixture.key(.local))
+
+        #expect(Fixture.assess(keys: [], signers: [signer], operations: operations).hasForeignSigners == isForeign)
+    }
+
+    @Test(
+        "The local key the exchange still lists with its old terms after the backend recorded it revoked is ours while this device authorizes it again",
+        arguments: [PolymarketFastTradingOperation.renewal, .activation]
+    )
+    func revokedLocalKeyIsOursWhileReauthorized(_ operation: PolymarketFastTradingOperation) {
+        let key = Fixture.key(.local, status: .revoked)
+        let assessment = Fixture.assess(keys: [key], signers: [.matching(key)], operations: [operation])
+
+        #expect(assessment.foreignSigners.isEmpty)
+        #expect(assessment.signersBeingRevoked.isEmpty)
+    }
+
+    @Test("An active key the exchange lists with exactly the CLOB scope, in any letter case, and the key's validity is ours")
+    func exactTermsKeepTheSignerOurs() {
         let key = Fixture.key(.otherDevice)
-        let signer = PolymarketSessionSigner(address: key.address, scopes: scopes, validUntil: key.validUntil)
+        let signer = PolymarketSessionSigner(address: key.address, scopes: ["clob"], validUntil: key.validUntil)
 
         let assessment = Fixture.assess(keys: [key], signers: [signer])
 
-        #expect(assessment.mismatchedOnExchange.isEmpty)
+        #expect(assessment.reRegisteredOnExchange.isEmpty)
         #expect(assessment.foreignSigners.isEmpty)
     }
 
     @Test(
-        "An active key the exchange lists without a trading scope or with another validity is out of sync, not foreign",
-        arguments: [([String](), TimeInterval.zero), (["CLOB"], Fixture.day)]
+        "An active key the exchange lists with another scope or a validity off by even a second was registered again behind our back: its signer is unknown, the key isn't out of sync",
+        arguments: [
+            (["ALL"], TimeInterval.zero),
+            (["CLOB", "ALL"], .zero),
+            ([], .zero),
+            (["CLOB"], 1),
+            (["CLOB"], Fixture.day),
+        ]
     )
-    func otherTermsAreOutOfSync(_ scopes: [String], _ validityShift: TimeInterval) {
+    func otherTermsAreReRegistered(_ scopes: [String], _ validityShift: TimeInterval) {
         let key = Fixture.key(.otherDevice)
         let signer = PolymarketSessionSigner(address: key.address, scopes: scopes, validUntil: key.validUntil?.addingTimeInterval(validityShift))
 
         let assessment = Fixture.assess(keys: [key], signers: [signer])
 
-        #expect(assessment.mismatchedOnExchange == [key.address])
-        #expect(assessment.foreignSigners.isEmpty)
+        #expect(assessment.reRegisteredOnExchange == [key.address])
+        #expect(assessment.foreignSigners == [signer])
+        #expect(!assessment.isOutOfSyncWithExchange(key))
     }
 
-    @Test("An active key the exchange lists with a validity off by under a minute is in sync")
-    func validityWithinToleranceIsInSync() {
-        let key = Fixture.key(.otherDevice)
-        let signer = PolymarketSessionSigner(address: key.address, scopes: key.scopes, validUntil: Fixture.validUntil.addingTimeInterval(30))
-
-        #expect(Fixture.assess(keys: [key], signers: [signer]).mismatchedOnExchange.isEmpty)
-    }
-
-    @Test("A local key the exchange lists without a validity can't sign, so it is out of sync and repaired")
-    func signerWithoutValidityIsRepaired() {
+    @Test("A local key the exchange lists without a validity can't sign and its signer is unknown, without a repair")
+    func signerWithoutValidityIsUnknown() {
         let key = Fixture.key(.local)
         let signer = PolymarketSessionSigner(address: key.address, scopes: key.scopes, validUntil: nil)
 
         let assessment = Fixture.assess(keys: [key], signers: [signer])
 
         #expect(!assessment.isUsableOnExchange(key, at: Fixture.now))
-        #expect(assessment.mismatchedOnExchange == [key.address])
-        #expect(assessment.status == .repairByRenewal(key))
+        #expect(assessment.reRegisteredOnExchange == [key.address])
+        #expect(assessment.status == .active(key))
     }
 
     @Test("An active key without an authorization date is checked against the exchange once it is past the grace period")
@@ -523,7 +537,7 @@ struct PolymarketFastTradingReconciliationTests {
 
         let assessment = Fixture.assess(keys: [key], signers: [signer])
 
-        #expect(assessment.mismatchedOnExchange.isEmpty)
+        #expect(assessment.reRegisteredOnExchange.isEmpty)
         #expect(assessment.foreignSigners.isEmpty)
     }
 
@@ -576,7 +590,7 @@ struct PolymarketFastTradingReconciliationTests {
 
         #expect(assessment.foreignSigners.isEmpty)
         #expect(assessment.missingOnExchange.isEmpty)
-        #expect(assessment.mismatchedOnExchange.isEmpty)
+        #expect(assessment.reRegisteredOnExchange.isEmpty)
         #expect(assessment.status == .active(key))
     }
 }
@@ -585,7 +599,7 @@ struct PolymarketFastTradingReconciliationTests {
 struct PolymarketFastTradingBannerTests {
     @Test("Foreign signers outrank every other banner and can't be dismissed")
     func foreignSignersComeFirst() {
-        let key = Fixture.key(.local, renewAfter: Fixture.now.addingTimeInterval(-1))
+        let key = Fixture.key(.local, validUntil: Fixture.now.addingTimeInterval(12 * Fixture.day))
         let state = PolymarketFastTradingState.loaded(Fixture.assess(keys: [key], signers: [.matching(key), .unrecorded]))
 
         #expect(PolymarketFastTradingBanner(state: state, includingForeignSigners: true, isDismissed: { _ in true }) == .foreignSigners)
@@ -642,6 +656,19 @@ struct PolymarketFastTradingBannerTests {
     }
 
     @Test(
+        "A device whose key failed to activate is asked to activate, not to reactivate",
+        arguments: [
+            [Fixture.key(.local, status: .failed)],
+            [Fixture.key(.local, status: .pending, authorizedAt: nil, createdAt: Fixture.now.addingTimeInterval(-Fixture.batchExecutionWindow))],
+        ]
+    )
+    func failedActivationAsksToActivate(_ keys: [PolymarketSessionKey]) {
+        let state = PolymarketFastTradingState.loaded(Fixture.assess(keys: keys))
+
+        #expect(PolymarketFastTradingBanner(state: state, includingForeignSigners: true, isDismissed: { _ in false }) == .activate)
+    }
+
+    @Test(
         "A closed banner hides only its own kind",
         arguments: PolymarketFastTradingBanner.DismissibleKind.allCases, PolymarketFastTradingBanner.DismissibleKind.allCases
     )
@@ -652,23 +679,24 @@ struct PolymarketFastTradingBannerTests {
     }
 
     @Test(
-        "A closed activation banner stays hidden for 30 days and comes back after",
-        arguments: zip([nil, 29 * Fixture.day, 30 * Fixture.day] as [TimeInterval?], [false, true, false])
+        "A closed activation or extension banner stays hidden for 30 days and comes back after",
+        arguments: [PolymarketFastTradingBanner.DismissibleKind.activate, .extend],
+        Array(zip([nil, 29 * Fixture.day, 30 * Fixture.day] as [TimeInterval?], [false, true, false]))
     )
-    func dismissalLastsThirtyDays(_ closedAgo: TimeInterval?, _ isHidden: Bool) {
-        let dismissedAt = closedAgo.map { Fixture.now.addingTimeInterval(-$0) }
+    func dismissalLastsThirtyDays(_ kind: PolymarketFastTradingBanner.DismissibleKind, _ closed: (ago: TimeInterval?, isHidden: Bool)) {
+        let dismissedAt = closed.ago.map { Fixture.now.addingTimeInterval(-$0) }
 
-        #expect(PolymarketFastTradingBanner.DismissibleKind.activate.isDismissed(dismissedAt: dismissedAt, now: Fixture.now) == isHidden)
+        #expect(kind.isDismissed(dismissedAt: dismissedAt, now: Fixture.now) == closed.isHidden)
     }
 
     @Test(
-        "A closed extension banner comes back the next day",
+        "A closed reactivation banner comes back the next day",
         arguments: zip([23 * Fixture.hour, Fixture.day], [true, false])
     )
-    func extensionDismissalLastsADay(_ closedAgo: TimeInterval, _ isHidden: Bool) {
+    func reactivationDismissalLastsADay(_ closedAgo: TimeInterval, _ isHidden: Bool) {
         let dismissedAt = Fixture.now.addingTimeInterval(-closedAgo)
 
-        #expect(PolymarketFastTradingBanner.DismissibleKind.extend.isDismissed(dismissedAt: dismissedAt, now: Fixture.now) == isHidden)
+        #expect(PolymarketFastTradingBanner.DismissibleKind.reactivate.isDismissed(dismissedAt: dismissedAt, now: Fixture.now) == isHidden)
     }
 
     @Test("Nothing is shown while the state is unknown", arguments: [PolymarketFastTradingState.loading, .failed])
@@ -713,7 +741,7 @@ struct PolymarketFastTradingAuthorizationTests {
 
     @Test("A key due for renewal is extended")
     func renewDueRenews() {
-        let key = Fixture.key(.local, renewAfter: Fixture.now.addingTimeInterval(-1))
+        let key = Fixture.key(.local, validUntil: Fixture.now.addingTimeInterval(12 * Fixture.day))
 
         #expect(PolymarketFastTradingAuthorization(assessment: Fixture.assess(keys: [key], signers: [.matching(key)])) == .renew)
     }
@@ -870,17 +898,8 @@ struct PolymarketFastTradingOfferGatingTests {
 
         #expect(assessment.status == .offerEnable)
         #expect(devices.map(\.isThisDevice) == [false])
-        #expect(Self.activationOffer(in: assessment) == .enable)
-    }
-
-    private static func activationOffer(in assessment: PolymarketFastTradingAssessment) -> PolymarketFastTradingAuthorization? {
-        let section = PolymarketFastTradingViewModel.ThisDeviceSection(state: .loaded(assessment), thisDeviceName: Fixture.deviceName)
-
-        guard case .activationOffer(let authorization) = section else {
-            return nil
-        }
-
-        return authorization
+        #expect(PolymarketFastTradingViewModel.ThisDeviceSection(state: .loaded(assessment), thisDeviceName: Fixture.deviceName) == .activationOffer)
+        #expect(PolymarketFastTradingAuthorization(assessment: assessment) == .enable)
     }
 }
 
@@ -906,7 +925,6 @@ private extension PolymarketSessionKey {
             status: status,
             scopes: scopes,
             validUntil: validUntil,
-            renewAfter: renewAfter,
             authorizedAt: authorizedAt,
             createdAt: createdAt
         )
@@ -921,7 +939,6 @@ private extension PolymarketSessionKey {
             status: status,
             scopes: scopes.map { $0.lowercased() },
             validUntil: validUntil,
-            renewAfter: renewAfter,
             authorizedAt: authorizedAt,
             createdAt: createdAt
         )

@@ -27,6 +27,10 @@ final class PolymarketFastTradingPreviewService: PolymarketFastTradingServicing 
         Empty().eraseToAnyPublisher()
     }
 
+    var revocationPublisher: AnyPublisher<PolymarketFastTradingRevocation, Never> {
+        Empty().eraseToAnyPublisher()
+    }
+
     init(sessionKeys: [PolymarketSessionKey], localKeyAddress: String? = nil, signers: [PolymarketSessionSigner]? = nil) {
         state = .loaded(PolymarketFastTradingAssessment(snapshot: PolymarketFastTradingSnapshot(
             sessionKeys: sessionKeys,
@@ -73,7 +77,6 @@ extension PolymarketFastTradingPreviewService {
             status: status,
             scopes: [],
             validUntil: validUntil,
-            renewAfter: nil,
             authorizedAt: Date().addingTimeInterval(-24 * 60 * 60),
             createdAt: Date()
         )

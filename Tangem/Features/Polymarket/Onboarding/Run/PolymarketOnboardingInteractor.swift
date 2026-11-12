@@ -417,7 +417,7 @@ private extension CommonPolymarketOnboardingInteractor {
 
         return try await operationSlot.exclusively(
             orThrow: PolymarketOnboardingError.unknown,
-            whileKeptAuthorizationPends: PolymarketOnboardingError.unknown,
+            whileFastTradingChangePends: PolymarketOnboardingError.unknown,
             operation
         )
     }

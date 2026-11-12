@@ -115,7 +115,7 @@ private extension PolymarketWithdrawTransactionService {
             return try await prepareAndSubmitWithdraw(amount: amount, to: recipientAddress)
         }
 
-        return try await operationSlot.exclusively(orThrow: Error.withdrawInProgress, whileKeptAuthorizationPends: Error.fastTradingChangePending) {
+        return try await operationSlot.exclusively(orThrow: Error.withdrawInProgress, whileFastTradingChangePends: Error.fastTradingChangePending) {
             try await prepareAndSubmitWithdraw(amount: amount, to: recipientAddress)
         }
     }

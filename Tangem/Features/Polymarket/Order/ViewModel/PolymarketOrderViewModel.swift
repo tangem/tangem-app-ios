@@ -379,7 +379,7 @@ private extension PolymarketOrderViewModel {
 
     func handle(_ outcome: PolymarketOrderSubmission.Outcome) {
         switch outcome {
-        case .cancelled, .signingChanged, .sessionKeyUnverified:
+        case .cancelled, .signingChanged:
             isPlacing = false
             model.handleViewAction(.releaseQuote)
         case .failed(let returningToMain):

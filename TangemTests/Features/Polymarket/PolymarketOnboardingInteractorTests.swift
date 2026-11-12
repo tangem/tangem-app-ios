@@ -790,7 +790,6 @@ private extension PolymarketInterruptedAuthorization {
             batch: batch,
             grant: PolymarketSessionKeyGrant(sessionKeyAddress: PolymarketSessionKeyFixtures.localAddress, validUntil: deadline, call: call),
             deviceId: PolymarketSessionKeyFixtures.deviceId,
-            keepsPaused: false,
             purpose: .activation
         )
     }

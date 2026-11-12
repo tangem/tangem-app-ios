@@ -147,11 +147,13 @@ struct PolymarketOrderPlacementServiceTests {
 
 @Suite("Polymarket order placement with a session key")
 struct PolymarketSessionKeyPlacementTests {
-    @Test("An order routed to the session key is placed by the session key's placer for the owner's deposit wallet under the key's address and credentials")
+    @Test(
+        "An order routed to the session key is placed by the session key's placer for the owner's deposit wallet under the key's address and credentials, without checking the key again"
+    )
     func sessionKeyPlacesTheOrder() async throws {
-        let (sut, ownerPlacer, sessionPlacer, _) = makeSUT(route: .sessionKey(Self.session))
+        let (sut, ownerPlacer, sessionPlacer, router) = makeSUT()
 
-        _ = try await sut.place(signing: .sessionKey)
+        _ = try await sut.place(signing: .sessionKey(Self.session))
 
         let options = try #require(sessionPlacer.placed.first)
         let ownerDepositWalletAddress = try PolymarketDepositWalletDeriver.derive(ownerAddress: PolymarketOwnerAddressProviderStub.ownerAddress)
@@ -160,11 +162,12 @@ struct PolymarketSessionKeyPlacementTests {
         #expect(options.depositWalletAddress == ownerDepositWalletAddress)
         #expect(options.credentials == Self.session.credentials)
         #expect(ownerPlacer.placed.isEmpty)
+        #expect(await router.routes == 0)
     }
 
     @Test("An order signed with the owner key is placed under the owner's address and credentials")
     func ownerKeyPlacesTheOrder() async throws {
-        let (sut, ownerPlacer, sessionPlacer, _) = makeSUT(route: .sessionKey(Self.session))
+        let (sut, ownerPlacer, sessionPlacer, _) = makeSUT()
 
         _ = try await sut.place(signing: .ownerKey)
 
@@ -173,31 +176,6 @@ struct PolymarketSessionKeyPlacementTests {
         #expect(options.signingKeyAddress == PolymarketOwnerAddressProviderStub.ownerAddress)
         #expect(options.credentials == PolymarketCredentialsRepositoryStub.credentials)
         #expect(sessionPlacer.placed.isEmpty)
-    }
-
-    @Test("An order meant for the session key the router no longer allows waits for the owner's signature")
-    func unroutedSessionKeyIsNotPlaced() async {
-        let (sut, ownerPlacer, sessionPlacer, _) = makeSUT(route: .ownerKey)
-
-        await #expect(throws: PolymarketOrderPlacementSetupError.sessionKeyUnavailable) {
-            try await sut.place(signing: .sessionKey)
-        }
-
-        #expect(ownerPlacer.placed.isEmpty)
-        #expect(sessionPlacer.placed.isEmpty)
-    }
-
-    @Test("An order whose session key could not be checked is not placed and keeps the session key")
-    func unverifiedSessionKeyIsNotPlaced() async {
-        let (sut, ownerPlacer, sessionPlacer, router) = makeSUT(route: .unverified)
-
-        await #expect(throws: PolymarketOrderPlacementSetupError.sessionKeyUnverified) {
-            try await sut.place(signing: .sessionKey)
-        }
-
-        #expect(ownerPlacer.placed.isEmpty)
-        #expect(sessionPlacer.placed.isEmpty)
-        #expect(await router.refusedAddresses.isEmpty)
     }
 
     @Test(
@@ -211,10 +189,10 @@ struct PolymarketSessionKeyPlacementTests {
         ]
     )
     func refusedSessionKeyWaitsForTheOwner(_ refusal: PolymarketOrderPlacementError) async {
-        let (sut, ownerPlacer, _, router) = makeSUT(route: .sessionKey(Self.session), sessionPlacement: .failure(refusal))
+        let (sut, ownerPlacer, _, router) = makeSUT(sessionPlacement: .failure(refusal))
 
         await #expect(throws: PolymarketOrderPlacementSetupError.sessionKeyUnavailable) {
-            try await sut.place(signing: .sessionKey)
+            try await sut.place(signing: .sessionKey(Self.session))
         }
 
         #expect(ownerPlacer.placed.isEmpty)
@@ -233,10 +211,10 @@ struct PolymarketSessionKeyPlacementTests {
         ]
     )
     func unrelatedFailureNeitherBlamesNorRetries(_ failure: PolymarketOrderPlacementError) async {
-        let (sut, ownerPlacer, _, router) = makeSUT(route: .sessionKey(Self.session), sessionPlacement: .failure(failure))
+        let (sut, ownerPlacer, _, router) = makeSUT(sessionPlacement: .failure(failure))
 
         await #expect(throws: PolymarketOrderPlacementError.self) {
-            try await sut.place(signing: .sessionKey)
+            try await sut.place(signing: .sessionKey(Self.session))
         }
 
         #expect(ownerPlacer.placed.isEmpty)
@@ -247,13 +225,12 @@ struct PolymarketSessionKeyPlacementTests {
     func refusedReadOfDelayedOrderKeepsTheKey() async {
         let unauthorized = PolymarketProblemDetail(status: 401, detail: "Unauthorized/Invalid api key")
         let (sut, ownerPlacer, _, router) = makeSUT(
-            route: .sessionKey(Self.session),
             sessionPlacement: .success(Self.delayedPlacement),
             sessionRecords: [.failure(PolymarketAPIError.http(statusCode: 401, problemDetail: unauthorized))]
         )
 
         await #expect(throws: PolymarketOrderPlacementError.self) {
-            try await sut.place(signing: .sessionKey)
+            try await sut.place(signing: .sessionKey(Self.session))
         }
 
         #expect(ownerPlacer.placed.isEmpty)
@@ -285,7 +262,7 @@ private extension PolymarketOrderPlacementServiceTests {
             placer: placer,
             sessionKeyPlacement: CommonPolymarketOrderPlacementService.SessionKeyPlacement(
                 placer: OrderPlacerSpy(),
-                router: RouterSpy(route: .ownerKey)
+                router: RouterSpy()
             ),
             delayProvider: delays
         )
@@ -317,13 +294,12 @@ private extension PolymarketSessionKeyPlacementTests {
     )
 
     func makeSUT(
-        route: PolymarketOrderSigningRoute,
         sessionPlacement: Result<PolymarketOrderPlacement, PolymarketOrderPlacementError> = .success(Self.matchedPlacement),
         sessionRecords: [Result<PolymarketOrderRecord, Error>] = []
     ) -> (sut: CommonPolymarketOrderPlacementService, ownerPlacer: OrderPlacerSpy, sessionPlacer: OrderPlacerSpy, router: RouterSpy) {
         let ownerPlacer = OrderPlacerSpy(placement: .success(Self.matchedPlacement))
         let sessionPlacer = OrderPlacerSpy(placement: sessionPlacement, records: sessionRecords)
-        let router = RouterSpy(route: route)
+        let router = RouterSpy()
 
         let sut = CommonPolymarketOrderPlacementService(
             userWalletId: UserWalletId(value: Data([0x01, 0x02, 0x03])),
@@ -342,7 +318,7 @@ private extension PolymarketSessionKeyPlacementTests {
 }
 
 private extension CommonPolymarketOrderPlacementService {
-    func place(signing: PolymarketOrderSigningMethod) async throws -> PolymarketOrderPlacement {
+    func place(signing: PolymarketOrderSigningRoute) async throws -> PolymarketOrderPlacement {
         try await place(quote: .stub(status: .full), market: .fixture, outcome: .fixture, signing: signing)
     }
 }
@@ -414,15 +390,11 @@ private final class OrderPlacerSpy: PolymarketOrderPlacing {
 
 private actor RouterSpy: PolymarketOrderSigningRouting {
     private(set) var refusedAddresses: [String] = []
-
-    private let fixedRoute: PolymarketOrderSigningRoute
-
-    init(route: PolymarketOrderSigningRoute) {
-        fixedRoute = route
-    }
+    private(set) var routes = 0
 
     func route() -> PolymarketOrderSigningRoute {
-        refusedAddresses.isEmpty ? fixedRoute : .ownerKey
+        routes += 1
+        return .ownerKey
     }
 
     nonisolated var refusalsPublisher: AnyPublisher<Void, Never> {

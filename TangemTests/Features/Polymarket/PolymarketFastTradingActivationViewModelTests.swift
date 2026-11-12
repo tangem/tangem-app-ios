@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 import Testing
+import TangemLocalization
 import TangemPolymarket
 @testable import Tangem
 
@@ -35,7 +36,7 @@ struct PolymarketFastTradingActivationViewModelTests {
 
         #expect(outcome.closes.recorded.count == 1)
         #expect(outcome.toasts.recorded == [PolymarketFastTradingStrings.activationInProgress])
-        #expect(sut.alert == nil)
+        #expect(outcome.failures.recorded.isEmpty)
     }
 
     @Test("A second tap while the card operation runs doesn't start another one")
@@ -52,34 +53,51 @@ struct PolymarketFastTradingActivationViewModelTests {
         #expect(service.authorizations == [.enable])
     }
 
-    @Test("A cancelled card scan keeps the screen open without an alert")
+    @Test("A cancelled card scan keeps the screen open without a failure")
     func cancelledScanKeepsTheScreen() async {
         let (sut, _, outcome) = makeSUT(state: Self.enableOffer, failure: PolymarketSigningError.cancelled)
 
         sut.handleViewAction(.authorize)
         await sut.$isProcessing.firstValue { !$0 }
 
-        #expect(sut.alert == nil)
+        #expect(outcome.failures.recorded.isEmpty)
         #expect(outcome.closes.recorded.isEmpty)
         #expect(outcome.toasts.recorded.isEmpty)
     }
 
-    @Test("A failed operation shows an alert and keeps the screen open")
-    func failureShowsAnAlert() async {
-        let (sut, _, outcome) = makeSUT(state: Self.enableOffer, failure: PolymarketSessionKeyManagerError.operationInProgress)
+    @Test(
+        "A failure before the card signs shows its toast and keeps the screen open: a wallet busy with another change says so, anything else fails the activation",
+        arguments: zip(
+            [URLError(.notConnectedToInternet) as Error, PolymarketSessionKeyManagerError.operationInProgress],
+            [PolymarketFastTradingFailure.activationFailed, .busy]
+        )
+    )
+    func failureBeforeSigningShowsItsToast(_ error: Error, _ shown: PolymarketFastTradingFailure) async {
+        let (sut, _, outcome) = makeSUT(state: Self.enableOffer, failure: error)
 
         sut.handleViewAction(.authorize)
         await sut.$isProcessing.firstValue { !$0 }
 
-        #expect(sut.alert != nil)
+        #expect(outcome.failures.recorded == [shown])
         #expect(outcome.closes.recorded.isEmpty)
         #expect(outcome.toasts.recorded.isEmpty)
+    }
+
+    @Test(
+        "A key that never activated is offered as an activation, not a reactivation",
+        arguments: [[PolymarketSessionSigner](), [.matching(Fixture.key(.local, status: .failed))]]
+    )
+    func failedKeyIsActivated(_ signers: [PolymarketSessionSigner]) {
+        let (sut, _, _) = makeSUT(state: .loaded(Fixture.assess(keys: [Fixture.key(.local, status: .failed)], signers: signers)))
+
+        #expect(sut.authorization != nil)
+        #expect(sut.buttonTitle == Localization.commonActivate)
     }
 
     @Test("A state published while the card operation runs leaves the offer as it was")
     func stateDuringOperationIsIgnored() async throws {
         let hold = TestGate()
-        let renewing = Fixture.key(.local, renewAfter: Fixture.now.addingTimeInterval(-1))
+        let renewing = Fixture.key(.local, validUntil: Fixture.now.addingTimeInterval(12 * Fixture.day))
         let (sut, service, outcome) = makeSUT(state: .loaded(Fixture.assess(keys: [renewing], signers: [.matching(renewing)])), hold: hold)
 
         sut.handleViewAction(.authorize)
@@ -103,6 +121,7 @@ private extension PolymarketFastTradingActivationViewModelTests {
     struct Outcome {
         let closes = TestSignal<Void>()
         let toasts = TestSignal<String>()
+        let failures = TestSignal<PolymarketFastTradingFailure>()
     }
 
     func makeSUT(
@@ -116,6 +135,7 @@ private extension PolymarketFastTradingActivationViewModelTests {
             service: service,
             signingButtonType: .requiredNFCInteraction,
             showProgress: { outcome.toasts.send($0) },
+            showFailure: { outcome.failures.send($0) },
             onClose: { outcome.closes.send() }
         )
 

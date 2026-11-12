@@ -17,7 +17,6 @@ extension PolymarketDTO {
         let status: String
         let scopes: [String]?
         let validUntil: Int?
-        let renewAfter: Int?
         let authorizedAt: Int?
         let createdAt: Int?
     }

@@ -67,7 +67,7 @@ struct PolymarketOrderSingleSheetTests {
 
         try await context.routable.resultOpened.next()
 
-        #expect(context.placementService.signings == [.sessionKey])
+        #expect(context.placementService.signings == [.sessionKey(PolymarketSessionKeySigningAvailabilityStub.session)])
     }
 
     @Test("A session key lost between showing the button and the tap leaves the order for a card signature")
@@ -93,14 +93,14 @@ struct PolymarketOrderSingleSheetTests {
         #expect(context.placementService.signings == [.ownerKey])
     }
 
-    @Test("A session key that could not be checked keeps the session key button and asks to try again without a support alert")
-    func unverifiedSessionKeyKeepsTheButton() async throws {
-        let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true)
+    @Test("A session key the entry check could not confirm turns the tap to the card without placing the order or a support alert")
+    func unconfirmedSessionKeyFallsBackToTheCard() async throws {
+        let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true, readiness: .ownerKey)
         let notices = TestSignal<String>()
         let choice = PolymarketOrderSigningChoice(availability: availability, showNotice: { notices.send($0) })
         let context = try await makeContext(
             isSingleSheet: true,
-            placement: .failure(PolymarketOrderPlacementSetupError.sessionKeyUnverified),
+            placement: .success(.stub(makingAmount: 100, takingAmount: 138)),
             signingChoice: choice
         )
         _ = await context.sut.$isNextEnabled.firstValue { $0 }
@@ -109,10 +109,10 @@ struct PolymarketOrderSingleSheetTests {
 
         await context.sut.$isPlacing.firstValue(where: { !$0 })
 
-        #expect(context.placementService.signings == [.sessionKey])
+        #expect(context.placementService.placements == 0)
         #expect(context.sut.alert == nil)
-        #expect(choice.method == .sessionKey)
-        #expect(notices.recorded == [PolymarketFastTradingStrings.sessionKeyUnverifiedNotice])
+        #expect(choice.method == .ownerKey)
+        #expect(notices.recorded == [PolymarketFastTradingStrings.sessionKeyUnavailableNotice])
     }
 
     @Test("A session key the exchange turns down switches the order to a card signature without placing it")
@@ -483,7 +483,7 @@ private final class PlacementServiceStub: PolymarketOrderPlacementService {
 
     private struct State {
         var placements = 0
-        var signings: [PolymarketOrderSigningMethod] = []
+        var signings: [PolymarketOrderSigningRoute] = []
         var pending: CheckedContinuation<PolymarketOrderPlacement, Error>?
     }
 
@@ -498,7 +498,7 @@ private final class PlacementServiceStub: PolymarketOrderPlacementService {
         state.withLock { $0.placements }
     }
 
-    var signings: [PolymarketOrderSigningMethod] {
+    var signings: [PolymarketOrderSigningRoute] {
         state.withLock { $0.signings }
     }
 
@@ -515,7 +515,7 @@ private final class PlacementServiceStub: PolymarketOrderPlacementService {
         quote: PolymarketOrderQuote,
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
-        signing: PolymarketOrderSigningMethod
+        signing: PolymarketOrderSigningRoute
     ) async throws -> PolymarketOrderPlacement {
         state.withLock { state in
             state.placements += 1

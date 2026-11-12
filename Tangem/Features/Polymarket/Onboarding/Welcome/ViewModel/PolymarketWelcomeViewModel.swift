@@ -22,7 +22,6 @@ final class PolymarketWelcomeViewModel: ObservableObject {
         didSet { fastTrading?.isEnabled = isFastTradingEnabled }
     }
 
-    @Published var isFastTradingFAQPresented = false
     @Published var alert: AlertBinder?
 
     let copy: PolymarketWelcomeCopy
@@ -68,8 +67,6 @@ extension PolymarketWelcomeViewModel {
             onCloseTap()
         case .openLegalTerms(let url):
             onLegalTermsTap(url: url)
-        case .openFastTradingFAQ:
-            isFastTradingFAQPresented = true
         }
     }
 
@@ -77,7 +74,6 @@ extension PolymarketWelcomeViewModel {
         case startOnboarding
         case close
         case openLegalTerms(URL)
-        case openFastTradingFAQ
     }
 }
 
@@ -87,6 +83,7 @@ private extension PolymarketWelcomeViewModel {
     func onStartTap() {
         guard !isRunning else { return }
 
+        coordinator?.onboardingDidStart()
         runState = .deriving
 
         runTask(in: self) { @MainActor viewModel in

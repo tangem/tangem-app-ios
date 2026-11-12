@@ -14,7 +14,6 @@ import TangemPolymarket
 enum PolymarketOrderSigningRoute: Hashable {
     case ownerKey
     case sessionKey(PolymarketSessionCredentials)
-    case unverified
 }
 
 struct PolymarketSessionKeyConfirmation: Equatable, Sendable {
@@ -56,12 +55,11 @@ actor CommonPolymarketOrderSigningRouter {
     private let sessionKeyService: PolymarketSessionKeyService
     private let credentialsRepository: PolymarketCredentialsRepository
     private let ownerAddressProvider: PolymarketOwnerAddressProviding
-    private let interruptedAuthorizations: PolymarketInterruptedAuthorizationStore
     private let now: @Sendable () -> Date
 
     private nonisolated(unsafe) let refusals = PassthroughSubject<Void, Never>()
     private let refusalsByAddress = OSAllocatedUnfairLock<[String: PolymarketOrderSigningRefusal]>(initialState: [:])
-    private var readinessChecks: [String: ReadinessCheck] = [:]
+    private var confirmations: [String: PolymarketSessionKeyConfirmation] = [:]
     private var generation = 0
 
     init(
@@ -73,7 +71,6 @@ actor CommonPolymarketOrderSigningRouter {
         sessionKeyService: PolymarketSessionKeyService,
         credentialsRepository: PolymarketCredentialsRepository,
         ownerAddressProvider: PolymarketOwnerAddressProviding,
-        interruptedAuthorizations: PolymarketInterruptedAuthorizationStore,
         now: @escaping @Sendable () -> Date = { InjectedValues[\.polymarketServerClock].now }
     ) {
         self.userWalletId = userWalletId
@@ -84,7 +81,6 @@ actor CommonPolymarketOrderSigningRouter {
         self.sessionKeyService = sessionKeyService
         self.credentialsRepository = credentialsRepository
         self.ownerAddressProvider = ownerAddressProvider
-        self.interruptedAuthorizations = interruptedAuthorizations
         self.now = now
     }
 }
@@ -104,26 +100,21 @@ extension CommonPolymarketOrderSigningRouter: PolymarketOrderSigningRouting {
         do {
             heldAddress = try keyStore.heldAddress(for: userWalletId)
         } catch {
-            PolymarketLogger.error("Failed to read the session key address, the order is not placed", error: error)
-            return .unverified
-        }
-
-        guard
-            let sessionKeyAddress = heldAddress,
-            !isRefused(sessionKeyAddress: sessionKeyAddress),
-            !isKeptPaused(sessionKeyAddress: sessionKeyAddress)
-        else {
+            PolymarketLogger.error("Failed to read the session key address, signing with the owner key", error: error)
             return .ownerKey
         }
 
-        switch await readiness(sessionKeyAddress: sessionKeyAddress, generation: routedGeneration) {
-        case .ready:
-            break
-        case .notReady:
+        guard let sessionKeyAddress = heldAddress, !isRefused(sessionKeyAddress: sessionKeyAddress) else {
             return .ownerKey
-        case .unverified:
-            return .unverified
         }
+
+        let confirmation = await confirmation(sessionKeyAddress: sessionKeyAddress)
+
+        guard let confirmation, generation == routedGeneration else {
+            return .ownerKey
+        }
+
+        confirmations[sessionKeyAddress] = confirmation
 
         do {
             let session = try await sessionCredentialsProvider.credentials()
@@ -145,17 +136,9 @@ extension CommonPolymarketOrderSigningRouter: PolymarketOrderSigningRouting {
             }
 
             return .ownerKey
-        } catch where Self.leavesTheKeyNotReady(error) {
-            PolymarketLogger.error("Failed to obtain the session key credentials, signing with the owner key", error: error)
-
-            if generation == routedGeneration {
-                readinessChecks[sessionKeyAddress] = .notReady(checkedAt: now())
-            }
-
-            return .ownerKey
         } catch {
-            PolymarketLogger.error("Failed to obtain the session key credentials, the order is not placed", error: error)
-            return .unverified
+            PolymarketLogger.error("Failed to obtain the session key credentials, signing with the owner key", error: error)
+            return .ownerKey
         }
     }
 
@@ -167,7 +150,7 @@ extension CommonPolymarketOrderSigningRouter: PolymarketOrderSigningRouting {
         generation += 1
 
         let refusedAt = now()
-        let routedOn = readinessChecks[sessionKeyAddress]?.confirmation
+        let routedOn = confirmations[sessionKeyAddress]
 
         refusalsByAddress.withLock { stored in
             stored[sessionKeyAddress] = PolymarketOrderSigningRefusal(
@@ -176,21 +159,21 @@ extension CommonPolymarketOrderSigningRouter: PolymarketOrderSigningRouting {
             )
         }
 
-        readinessChecks[sessionKeyAddress] = nil
+        confirmations[sessionKeyAddress] = nil
         sessionCredentialsProvider.reset()
         refusals.send()
     }
 
     func invalidate(sessionKeyAddress: String) {
         generation += 1
-        readinessChecks.removeAll()
+        confirmations.removeAll()
         refusalsByAddress.withLock { _ = $0.removeValue(forKey: sessionKeyAddress) }
         sessionCredentialsProvider.reset()
     }
 
     func forgetReadiness() {
         generation += 1
-        readinessChecks.removeAll()
+        confirmations.removeAll()
     }
 
     nonisolated func refusal(of sessionKeyAddress: String) -> PolymarketOrderSigningRefusal? {
@@ -201,55 +184,18 @@ extension CommonPolymarketOrderSigningRouter: PolymarketOrderSigningRouting {
 // MARK: - Readiness
 
 private extension CommonPolymarketOrderSigningRouter {
-    enum Readiness {
-        case ready
-        case notReady
-        case unverified
-    }
-
-    enum UsableWindow {
-        case until(Date, PolymarketSessionKeyConfirmation)
-        case unusable
-        case unverified
-    }
-
-    func readiness(sessionKeyAddress: String, generation checkedGeneration: Int) async -> Readiness {
-        if let check = readinessChecks[sessionKeyAddress], now() < check.expiresAt {
-            return check.isReady ? .ready : .notReady
-        }
-
-        let window = await usableWindow(sessionKeyAddress: sessionKeyAddress)
-
-        guard generation == checkedGeneration else {
-            return .notReady
-        }
-
-        let checkedAt = now()
-
-        switch window {
-        case .until(let usableUntil, let confirmation):
-            readinessChecks[sessionKeyAddress] = .ready(until: usableUntil, checkedAt: checkedAt, confirmation: confirmation)
-            return .ready
-        case .unusable:
-            readinessChecks[sessionKeyAddress] = .notReady(checkedAt: checkedAt)
-            return .notReady
-        case .unverified:
-            return .unverified
-        }
-    }
-
-    func usableWindow(sessionKeyAddress: String) async -> UsableWindow {
+    func confirmation(sessionKeyAddress: String) async -> PolymarketSessionKeyConfirmation? {
         let storedCredentials: PolymarketL2Credentials?
 
         do {
             storedCredentials = try credentialsRepository.readCredentials(userWalletId: userWalletId)
         } catch {
-            PolymarketLogger.error("Failed to read the owner credentials, the order is not placed", error: error)
-            return .unverified
+            PolymarketLogger.error("Failed to read the owner credentials, signing with the owner key", error: error)
+            return nil
         }
 
         guard let ownerAddress = ownerAddressProvider.getOwnerAddress(), let ownerCredentials = storedCredentials else {
-            return .unusable
+            return nil
         }
 
         let signers: [PolymarketSessionSigner]
@@ -258,15 +204,15 @@ private extension CommonPolymarketOrderSigningRouter {
             signers = try await clobService.sessionSigners(credentials: ownerCredentials, ownerAddress: ownerAddress)
         } catch {
             PolymarketLogger.error("Failed to read the session signers", error: error)
-            return Self.isRetryable(error) ? .unverified : .unusable
+            return nil
         }
 
         let signer = signers.first { signer in
             signer.address == sessionKeyAddress && signer.isUsable(at: now())
         }
 
-        guard let signer, let signerValidUntil = signer.validUntil else {
-            return .unusable
+        guard let signer else {
+            return nil
         }
 
         let record: PolymarketSessionKey?
@@ -275,77 +221,18 @@ private extension CommonPolymarketOrderSigningRouter {
             record = try await backendRecord(sessionKeyAddress: sessionKeyAddress)
         } catch {
             PolymarketLogger.warning("Failed to read the session keys of the wallet")
-            return Self.isRetryable(error) ? .unverified : .unusable
+            return nil
         }
 
-        guard let record, record.isUsable(at: now()), let recordValidUntil = record.validUntil else {
-            return .unusable
+        guard let record, record.isUsable(at: now()), signer.hasTerms(of: record) else {
+            return nil
         }
 
-        return .until(
-            min(signerValidUntil, recordValidUntil).addingTimeInterval(-PolymarketSessionKey.signingExpiryMargin),
-            PolymarketSessionKeyConfirmation(record: record, signer: signer)
-        )
+        return PolymarketSessionKeyConfirmation(record: record, signer: signer)
     }
 
     func backendRecord(sessionKeyAddress: String) async throws -> PolymarketSessionKey? {
         try await sessionKeyService.sessionKeys().decisiveRecord(of: sessionKeyAddress)
-    }
-
-    func isKeptPaused(sessionKeyAddress: String) -> Bool {
-        do {
-            return try interruptedAuthorizations.load(for: userWalletId)?.keepsPaused(sessionKeyAddress: sessionKeyAddress) ?? false
-        } catch {
-            PolymarketLogger.error("Failed to read whether the session key is kept paused, signing with the owner key", error: error)
-            return true
-        }
-    }
-
-    static func leavesTheKeyNotReady(_ error: Error) -> Bool {
-        switch error {
-        case is CommonPolymarketSessionKeyStore.KeyError:
-            true
-        case is PolymarketAPIError, is PolymarketSessionKeyError:
-            !isRetryable(error)
-        default:
-            false
-        }
-    }
-
-    static func isRetryable(_ error: Error) -> Bool {
-        switch error {
-        case let error as PolymarketAPIError:
-            error.isRetryable
-        case PolymarketSessionKeyError.other(let error):
-            error.isRetryable
-        case PolymarketSessionKeyError.cancelled, is CancellationError:
-            true
-        default:
-            false
-        }
-    }
-
-    struct ReadinessCheck {
-        let isReady: Bool
-        let expiresAt: Date
-        let confirmation: PolymarketSessionKeyConfirmation?
-
-        static func ready(until usableUntil: Date, checkedAt: Date, confirmation: PolymarketSessionKeyConfirmation) -> ReadinessCheck {
-            ReadinessCheck(
-                isReady: true,
-                expiresAt: min(checkedAt.addingTimeInterval(Constants.confirmationLifetime), usableUntil),
-                confirmation: confirmation
-            )
-        }
-
-        static func notReady(checkedAt: Date) -> ReadinessCheck {
-            ReadinessCheck(isReady: false, expiresAt: checkedAt.addingTimeInterval(Constants.notReadyLifetime), confirmation: nil)
-        }
-    }
-
-    enum Constants {
-        static let confirmationLifetime: TimeInterval = 5 * 60
-        static let notReadyLifetime: TimeInterval = 60
     }
 }
 

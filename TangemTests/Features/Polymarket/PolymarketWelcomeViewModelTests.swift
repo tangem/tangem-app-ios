@@ -54,6 +54,7 @@ private struct OnboardingInteractorStub: PolymarketOnboardingInteractor {
 }
 
 private final class WelcomeRoutableStub: PolymarketWelcomeRoutable {
+    func onboardingDidStart() {}
     func onboardingDidFinish(isNewAccount: Bool) {}
     func openRegionWarning() {}
     func openLegalTerms(url: URL) {}

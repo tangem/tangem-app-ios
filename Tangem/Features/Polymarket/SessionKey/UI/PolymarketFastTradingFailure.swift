@@ -17,7 +17,9 @@ enum PolymarketFastTradingFailure: Equatable {
     case busy
     case limitReached
     case notReady
-    case notEnabled
+    case onboardingActivationFailed
+    case activationFailed
+    case extensionFailed
     case generic
 
     init?(error: Error) {
@@ -40,6 +42,19 @@ enum PolymarketFastTradingFailure: Equatable {
             self = .notReady
         default:
             self = .generic
+        }
+    }
+
+    init?(error: Error, authorizing operation: PolymarketFastTradingOperation) {
+        guard let failure = Self(error: error) else {
+            return nil
+        }
+
+        switch failure {
+        case .limitReached, .notReady:
+            self = failure
+        default:
+            self = operation == .renewal ? .extensionFailed : .activationFailed
         }
     }
 
@@ -69,8 +84,12 @@ enum PolymarketFastTradingFailure: Equatable {
             PolymarketFastTradingStrings.limitReached
         case .notReady:
             PolymarketFastTradingStrings.notReady
-        case .notEnabled:
-            PolymarketFastTradingStrings.notEnabledAfterOnboarding
+        case .onboardingActivationFailed:
+            PolymarketFastTradingStrings.activationFailedDescription
+        case .activationFailed:
+            PolymarketFastTradingStrings.activationFailed
+        case .extensionFailed:
+            PolymarketFastTradingStrings.extensionFailed
         case .generic:
             Localization.commonUnknownError
         }

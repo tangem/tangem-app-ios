@@ -111,7 +111,7 @@ struct PolymarketOrderPreviewPlacementService: PolymarketOrderPlacementService {
         quote: PolymarketOrderQuote,
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
-        signing: PolymarketOrderSigningMethod
+        signing: PolymarketOrderSigningRoute
     ) async throws -> PolymarketOrderPlacement {
         throw CancellationError()
     }

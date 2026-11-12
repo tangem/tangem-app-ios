@@ -14,7 +14,7 @@ import TangemPolymarket
 
 @Suite("Polymarket kept fast trading authorization")
 struct PolymarketInterruptedAuthorizationStoreTests {
-    @Test("A kept authorization reads back from the keychain with the batches, grant and intent it was saved with")
+    @Test("A kept authorization reads back from the keychain with the batches, grant and purpose it was saved with")
     func keptAuthorizationReadsBack() throws {
         let sut = CommonPolymarketInterruptedAuthorizationStore(secureStorage: PolymarketSecureStorageSpy())
 
@@ -24,9 +24,7 @@ struct PolymarketInterruptedAuthorizationStoreTests {
         #expect(loaded.revocation == Self.authorization.revocation)
         #expect(loaded.batch == Self.authorization.batch)
         #expect(loaded.isOf(Self.authorization.grant))
-        #expect(loaded.keepsPaused)
         #expect(loaded.purpose == .renewal)
-        #expect(loaded.isExecuted)
     }
 }
 
@@ -48,9 +46,7 @@ private extension PolymarketInterruptedAuthorizationStoreTests {
                 call: call
             ),
             deviceId: PolymarketSessionKeyFixtures.deviceId,
-            keepsPaused: true,
-            purpose: .renewal,
-            isExecuted: true
+            purpose: .renewal
         )
     }()
 

@@ -68,8 +68,8 @@ struct PolymarketFastTradingView: View {
             switch viewModel.thisDevice {
             case .device(let device):
                 deviceRow(device)
-            case .activationOffer(let authorization):
-                activationCard(authorization)
+            case .activationOffer:
+                activationCard
             case .notice(let notice):
                 MessageBanner(title: notice)
             case .loading:
@@ -101,13 +101,13 @@ struct PolymarketFastTradingView: View {
         .buttonStyle(.plain)
     }
 
-    private func activationCard(_ authorization: PolymarketFastTradingAuthorization) -> some View {
+    private var activationCard: some View {
         MessageBanner(
             title: PolymarketFastTradingStrings.activationBannerTitle,
             description: PolymarketFastTradingStrings.activationBannerDescription
         )
         .glowRing(.magic)
-        .primaryButton(MessageBannerButton(title: authorization.title, action: { viewModel.handleViewAction(.openActivation) }))
+        .primaryButton(MessageBannerButton(title: Localization.commonActivate, action: { viewModel.handleViewAction(.openActivation) }))
     }
 
     // MARK: - Other devices
@@ -146,7 +146,7 @@ struct PolymarketFastTradingView: View {
         case .hidden:
             EmptyView()
         case .button(let action):
-            actionButton(title: action.title) {
+            actionButton(title: action.title, icon: viewModel.signsAtOnce(action) ? DesignSystem.Icons.LogoTangem.regular20 : nil) {
                 viewModel.handleViewAction(.device(action, device))
             }
         case .menu(let actions):
@@ -215,7 +215,7 @@ struct PolymarketFastTradingView: View {
                 .lineOrder(.secondaryFirst)
                 .start { PolymarketFastTradingDeviceAvatar(icon: .glyph(DesignSystem.Icons.Warning.regular20, .warning)) }
                 .end {
-                    actionButton(title: PolymarketFastTradingStrings.revoke) {
+                    actionButton(title: PolymarketFastTradingStrings.revoke, icon: viewModel.signsAtOnce(.revoke) ? DesignSystem.Icons.LogoTangem.regular20 : nil) {
                         viewModel.handleViewAction(.revokeForeignSigner(signer))
                     }
                 }
@@ -239,7 +239,6 @@ struct PolymarketFastTradingView: View {
                 action: { viewModel.handleViewAction(.confirmRevocation) }
             )))
         }
-        .bindAlert($viewModel.alert)
     }
 
     // MARK: - Helpers
@@ -251,8 +250,9 @@ struct PolymarketFastTradingView: View {
             .accessibilityAddTraits(.isHeader)
     }
 
-    private func actionButton(title: String, action: @escaping () -> Void) -> some View {
+    private func actionButton(title: String, icon: ImageType? = nil, action: @escaping () -> Void) -> some View {
         TangemUI.Button(label: title, accessibilityLabel: nil, action: action)
+            .iconEnd(icon)
             .styleType(.primary)
             .size(.x9)
             .disabled(viewModel.isProcessing)

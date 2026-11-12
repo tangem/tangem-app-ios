@@ -17,15 +17,16 @@ import TangemUIUtils
 @MainActor
 final class PolymarketFastTradingActivationViewModel: ObservableObject, Identifiable {
     @Published private(set) var authorization: PolymarketFastTradingAuthorization?
+    @Published private(set) var buttonTitle: String
     @Published private(set) var pendingChangeNotice: String?
     @Published private(set) var isProcessing = false
     @Published var isFAQPresented = false
-    @Published var alert: AlertBinder?
 
     let signingButtonType: SigningActionButtonViewType
 
     private let service: PolymarketFastTradingOperating
     private let showProgress: @MainActor (String) -> Void
+    private let showFailure: @MainActor (PolymarketFastTradingFailure) -> Void
     private let onClose: () -> Void
 
     private var stateSubscription: AnyCancellable?
@@ -34,24 +35,23 @@ final class PolymarketFastTradingActivationViewModel: ObservableObject, Identifi
         service: PolymarketFastTradingOperating,
         signingButtonType: SigningActionButtonViewType,
         showProgress: @escaping @MainActor (String) -> Void = PolymarketFastTradingToast.showInfo,
+        showFailure: @escaping @MainActor (PolymarketFastTradingFailure) -> Void = PolymarketFastTradingToast.showFailure,
         onClose: @escaping () -> Void
     ) {
         self.service = service
         self.signingButtonType = signingButtonType
         self.showProgress = showProgress
+        self.showFailure = showFailure
         self.onClose = onClose
 
         authorization = Self.authorization(for: service.state)
+        buttonTitle = Self.buttonTitle(for: service.state)
         pendingChangeNotice = Self.pendingChangeNotice(for: service.state)
 
         stateSubscription = service.statePublisher
             .sink { [weak self] state in
                 self?.apply(state)
             }
-    }
-
-    var buttonTitle: String {
-        authorization?.title ?? Localization.commonActivate
     }
 
     var isButtonDisabled: Bool {
@@ -92,6 +92,18 @@ private extension PolymarketFastTradingActivationViewModel {
         return PolymarketFastTradingAuthorization(assessment: assessment)
     }
 
+    static func buttonTitle(for state: PolymarketFastTradingState) -> String {
+        guard
+            case .loaded(let assessment) = state,
+            let authorization = PolymarketFastTradingAuthorization(assessment: assessment),
+            !assessment.isLocalActivationFailed
+        else {
+            return Localization.commonActivate
+        }
+
+        return authorization.title
+    }
+
     static func pendingChangeNotice(for state: PolymarketFastTradingState) -> String? {
         guard case .loaded(let assessment) = state else { return nil }
 
@@ -102,10 +114,15 @@ private extension PolymarketFastTradingActivationViewModel {
         guard !isProcessing else { return }
 
         let authorization = Self.authorization(for: state)
+        let buttonTitle = Self.buttonTitle(for: state)
         let pendingChangeNotice = Self.pendingChangeNotice(for: state)
 
         if self.authorization != authorization {
             self.authorization = authorization
+        }
+
+        if self.buttonTitle != buttonTitle {
+            self.buttonTitle = buttonTitle
         }
 
         if self.pendingChangeNotice != pendingChangeNotice {
@@ -118,7 +135,7 @@ private extension PolymarketFastTradingActivationViewModel {
 
         isProcessing = true
 
-        Task { [weak self, service, showProgress] in
+        Task { [weak self, service, showProgress, showFailure] in
             defer { self?.isProcessing = false }
 
             do {
@@ -126,13 +143,13 @@ private extension PolymarketFastTradingActivationViewModel {
                 showProgress(authorization.progressMessage)
                 self?.onClose()
             } catch {
-                guard let failure = PolymarketFastTradingFailure(error: error) else {
+                guard let failure = PolymarketFastTradingFailure(error: error, authorizing: authorization.operation) else {
                     PolymarketLogger.info("Fast trading authorization was cancelled")
                     return
                 }
 
                 PolymarketLogger.error(error: "Fast trading authorization failed: \(PolymarketFastTradingFailure.logDescription(of: error))")
-                self?.alert = failure.alert
+                showFailure(PolymarketFastTradingFailure(error: error) == .busy ? .busy : failure)
             }
         }
     }

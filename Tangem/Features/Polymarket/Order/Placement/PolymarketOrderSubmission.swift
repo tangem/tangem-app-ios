@@ -48,9 +48,9 @@ final class PolymarketOrderSubmission {
         signing tapped: PolymarketOrderSigningMethod,
         marketRow: @escaping () -> PolymarketOrderMarketRow.Model
     ) async -> Outcome {
-        let signing: PolymarketOrderSigningMethod
+        let signing: PolymarketOrderSigningRoute
 
-        switch decision(tapped: tapped) {
+        switch await decision(tapped: tapped) {
         case .sign(let method):
             signing = method
         case .routeChanged:
@@ -85,10 +85,6 @@ final class PolymarketOrderSubmission {
         } catch PolymarketOrderPlacementSetupError.sessionKeyUnavailable {
             signingChoice?.declineSessionKey()
             return .signingChanged
-        } catch PolymarketOrderPlacementSetupError.sessionKeyUnverified {
-            PolymarketLogger.warning("The session key could not be checked, the order is not placed")
-            signingChoice?.reportUnverified()
-            return .sessionKeyUnverified
         } catch is CancellationError {
             return .cancelled
         } catch {
@@ -115,7 +111,6 @@ extension PolymarketOrderSubmission {
     enum Outcome {
         case cancelled
         case signingChanged
-        case sessionKeyUnverified
         case failed(returningToMain: Bool)
         case finished(PolymarketOrderResultViewModel.State, PolymarketOrderResultViewModel.Content)
     }
@@ -158,8 +153,8 @@ extension PolymarketOrderSubmission {
 // MARK: - Signing
 
 private extension PolymarketOrderSubmission {
-    func decision(tapped: PolymarketOrderSigningMethod) -> PolymarketOrderSigningChoice.Decision {
-        signingChoice?.decide(tapped: tapped) ?? .sign(.ownerKey)
+    func decision(tapped: PolymarketOrderSigningMethod) async -> PolymarketOrderSigningChoice.Decision {
+        await signingChoice?.decide(tapped: tapped) ?? .sign(.ownerKey)
     }
 }
 

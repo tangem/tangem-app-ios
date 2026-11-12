@@ -15,14 +15,30 @@ import TangemSdk
 
 @MainActor
 final class PolymarketSessionKeySigningAvailabilityStub: PolymarketSessionKeySigningAvailability {
+    nonisolated static let session = PolymarketSessionCredentials(
+        sessionKeyAddress: PolymarketSessionKeyFixtures.localAddress,
+        credentials: PolymarketL2Credentials(apiKey: "session", secret: "c2VjcmV0", passphrase: "phrase")
+    )
+
     private(set) var isAvailable: Bool
+    private(set) var readinessChecks = 0
     let availableUntil: Date?
 
-    private let subject: CurrentValueSubject<Bool, Never>
+    var readiness: PolymarketOrderSigningRoute
 
-    init(isAvailable: Bool, availableUntil: Date? = nil) {
+    private let subject: CurrentValueSubject<Bool, Never>
+    private let readinessGate: TestGate?
+
+    init(
+        isAvailable: Bool,
+        availableUntil: Date? = nil,
+        readiness: PolymarketOrderSigningRoute? = nil,
+        readinessGate: TestGate? = nil
+    ) {
         self.isAvailable = isAvailable
         self.availableUntil = availableUntil
+        self.readiness = readiness ?? (isAvailable ? .sessionKey(Self.session) : .ownerKey)
+        self.readinessGate = readinessGate
         subject = CurrentValueSubject(isAvailable)
     }
 
@@ -40,6 +56,12 @@ final class PolymarketSessionKeySigningAvailabilityStub: PolymarketSessionKeySig
     }
 
     func refresh() async {}
+
+    func checkReadiness() async -> PolymarketOrderSigningRoute {
+        readinessChecks += 1
+        await readinessGate?.wait()
+        return readiness
+    }
 }
 
 enum PolymarketSessionKeyFixtures {
@@ -86,7 +108,6 @@ enum PolymarketSessionKeyFixtures {
         status: PolymarketSessionKey.Status = .active,
         isEnabled: Bool = true,
         validUntil: Date? = PolymarketSessionKeyFixtures.validUntil,
-        renewAfter: Date? = nil,
         authorizedAt: Date? = now.addingTimeInterval(-day),
         createdAt: Date? = nil
     ) -> PolymarketSessionKey {
@@ -98,7 +119,6 @@ enum PolymarketSessionKeyFixtures {
             status: status,
             scopes: ["CLOB"],
             validUntil: validUntil,
-            renewAfter: renewAfter,
             authorizedAt: authorizedAt,
             createdAt: createdAt ?? (status == .pending ? now.addingTimeInterval(-hour / 60) : authorizedAt)
         )
@@ -211,6 +231,7 @@ final class PolymarketFastTradingServiceSpy: PolymarketFastTradingServicing {
     let refreshes = TestSignal<Void>()
 
     private(set) var dismissedBanners: [PolymarketFastTradingBanner] = []
+    private(set) var revoked: [String] = []
     private(set) var isWorkCancelled = false
 
     private let stateSubject: CurrentValueSubject<PolymarketFastTradingState, Never>
@@ -235,6 +256,10 @@ final class PolymarketFastTradingServiceSpy: PolymarketFastTradingServicing {
         .empty
     }
 
+    var revocationPublisher: AnyPublisher<PolymarketFastTradingRevocation, Never> {
+        .empty
+    }
+
     func refresh() async {
         refreshes.send()
     }
@@ -251,7 +276,9 @@ final class PolymarketFastTradingServiceSpy: PolymarketFastTradingServicing {
 
     func authorize(presigned batch: PolymarketRelayedBatch, grant: PolymarketSessionKeyGrant) async throws {}
 
-    func revoke(sessionKeyAddress: String) async throws {}
+    func revoke(sessionKeyAddress: String) async throws {
+        revoked.append(sessionKeyAddress)
+    }
 
     func setEnabled(_ isEnabled: Bool, sessionKeyAddress: String) async throws {}
 

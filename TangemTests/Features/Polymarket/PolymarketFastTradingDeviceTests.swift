@@ -48,25 +48,33 @@ struct PolymarketFastTradingDeviceStateTests {
 @Suite("Polymarket fast trading: what a device row offers")
 struct PolymarketFastTradingDeviceTrailingTests {
     @Test(
-        "This device repairs its own key when a reactivation is offered, another device can only be paused or revoked",
+        "This device repairs its own key when a reactivation is offered, another device can be paused while live, and either revokes only while live or listed on the exchange",
         arguments: [
-            (PolymarketFastTradingDevice.State.activating, PolymarketFastTradingDevice.Trailing.hidden, PolymarketFastTradingDevice.Trailing.hidden),
-            (.revoking, .hidden, .hidden),
-            (.activationFailed, .button(.reactivate), .hidden),
-            (.active(until: Fixture.validUntil), .menu([.pause, .revoke]), .menu([.pause, .revoke])),
-            (.paused(until: Fixture.validUntil), .menu([.resume, .revoke]), .menu([.resume, .revoke])),
-            (.expired(at: Fixture.validUntil), .button(.reactivate), .button(.revoke)),
-            (.outOfSync, .menu([.reactivate, .revoke]), .button(.revoke)),
-            (.error, .menu([.reactivate, .revoke]), .button(.revoke)),
+            (PolymarketFastTradingDevice.State.activating, true, PolymarketFastTradingDevice.Trailing.hidden, PolymarketFastTradingDevice.Trailing.hidden),
+            (.revoking, true, .hidden, .hidden),
+            (.activationFailed, true, .hidden, .button(.revoke)),
+            (.activationFailed, false, .hidden, .hidden),
+            (.active(until: Fixture.validUntil), false, .menu([.pause, .revoke]), .menu([.pause, .revoke])),
+            (.paused(until: Fixture.validUntil), false, .menu([.resume, .revoke]), .menu([.resume, .revoke])),
+            (.expired(at: Fixture.validUntil), true, .button(.reactivate), .button(.revoke)),
+            (.expired(at: Fixture.validUntil), false, .button(.reactivate), .hidden),
+            (.outOfSync, true, .menu([.reactivate, .revoke]), .button(.revoke)),
+            (.outOfSync, false, .button(.reactivate), .hidden),
+            (.error, true, .menu([.reactivate, .revoke]), .button(.revoke)),
+            (.error, false, .button(.reactivate), .hidden),
         ]
     )
     func trailing(
         _ state: PolymarketFastTradingDevice.State,
+        _ isListedOnExchange: Bool,
         _ thisDevice: PolymarketFastTradingDevice.Trailing,
         _ otherDevice: PolymarketFastTradingDevice.Trailing
     ) {
-        #expect(Fixture.row(Fixture.key(), owner: .thisDevice(authorization: .reenable), state: state).trailing == thisDevice)
-        #expect(Fixture.row(Fixture.key(), owner: .otherDevice, state: state).trailing == otherDevice)
+        let thisDeviceRow = Fixture.row(Fixture.key(), owner: .thisDevice(authorization: .reenable), state: state, isListedOnExchange: isListedOnExchange)
+        let otherDeviceRow = Fixture.row(Fixture.key(), owner: .otherDevice, state: state, isListedOnExchange: isListedOnExchange)
+
+        #expect(thisDeviceRow.trailing == thisDevice)
+        #expect(otherDeviceRow.trailing == otherDevice)
     }
 
     @Test(
@@ -95,7 +103,7 @@ struct PolymarketFastTradingDeviceTrailingTests {
         )
     )
     func thisDeviceNamesItsActivation(_ authorization: PolymarketFastTradingAuthorization, _ action: PolymarketFastTradingDevice.Action) {
-        let row = Fixture.row(Fixture.key(), owner: .thisDevice(authorization: authorization), state: .activationFailed)
+        let row = Fixture.row(Fixture.key(), owner: .thisDevice(authorization: authorization), state: .expired(at: Fixture.validUntil))
 
         #expect(row.trailing == .button(action))
         #expect(action.title == authorization.title)
@@ -103,7 +111,7 @@ struct PolymarketFastTradingDeviceTrailingTests {
 
     @Test("A paused key due for renewal offers the extension in its menu")
     func pausedKeyOffersExtension() {
-        let devices = Fixture.devices([Fixture.key(.local, isEnabled: false, renewAfter: Fixture.now.addingTimeInterval(-1))])
+        let devices = Fixture.devices([Fixture.key(.local, isEnabled: false, validUntil: Fixture.now.addingTimeInterval(12 * Fixture.day))])
 
         #expect(devices.map { $0.offers(.extend) } == [true])
     }
@@ -143,7 +151,7 @@ struct PolymarketFastTradingDeviceListTests {
     }
 
     @Test(
-        "This device's pending key shows as activating and is read again while the backend holds it pending, then fails with a reactivation",
+        "This device's pending key shows as activating and is read again while the backend holds it pending, then its activation fails",
         arguments: zip(
             [Fixture.batchExecutionWindow - 1, Fixture.batchExecutionWindow],
             [
@@ -154,7 +162,7 @@ struct PolymarketFastTradingDeviceListTests {
     )
     func pendingLocalKeyActivatesWhileTheBackendHoldsIt(
         _ pendingFor: TimeInterval,
-        _ expected: (state: PolymarketFastTradingDevice.State, offersReactivation: Bool, isReadAgain: Bool)
+        _ expected: (state: PolymarketFastTradingDevice.State, isActivationFailed: Bool, isReadAgain: Bool)
     ) {
         let pending = Fixture.key(.local, status: .pending, authorizedAt: nil, createdAt: Fixture.now.addingTimeInterval(-pendingFor))
         let assessment = Fixture.assess(keys: [pending], signers: nil)
@@ -162,22 +170,36 @@ struct PolymarketFastTradingDeviceListTests {
         let devices = PolymarketFastTradingDevice.devices(from: assessment, thisDeviceName: Fixture.thisDeviceName)
 
         #expect(devices.map(\.state) == [expected.state])
-        #expect(devices.map { $0.offers(.reactivate) } == [expected.offersReactivation])
+        #expect(assessment.isLocalActivationFailed == expected.isActivationFailed)
         #expect(assessment.needsFollowUpReads == expected.isReadAgain)
     }
 
-    @Test("Another device's key still revoking after the backend stopped holding it shows an error and can be revoked again")
-    func stuckRevocationOfAnotherDeviceCanBeRevokedAgain() {
+    @Test(
+        "Another device's key still revoking after the backend stopped holding it shows an error and can be revoked again while the exchange lists it",
+        arguments: zip([[PolymarketSessionSigner.matching(Fixture.key(.otherDevice, status: .revoking))], []], [true, false])
+    )
+    func stuckRevocationOfAnotherDeviceCanBeRevokedAgain(_ signers: [PolymarketSessionSigner], _ isRevocable: Bool) {
         let revoking = Fixture.key(.otherDevice, status: .revoking)
         let assessment = Fixture.assess(
             keys: [revoking],
+            signers: signers,
             revokingSince: [revoking.address: Fixture.now.addingTimeInterval(-Fixture.batchExecutionWindow)]
         )
 
         let devices = PolymarketFastTradingDevice.devices(from: assessment, thisDeviceName: Fixture.thisDeviceName)
 
         #expect(devices.map(\.state) == [.error])
-        #expect(devices.map { $0.offers(.revoke) } == [true])
+        #expect(devices.map { $0.offers(.revoke) } == [isRevocable])
+    }
+
+    @Test(
+        "Another device's expired key can be revoked only while the exchange lists it",
+        arguments: zip([[PolymarketSessionSigner.matching(Fixture.key(.otherDevice, status: .expired))], [], nil] as [[PolymarketSessionSigner]?], [true, false, false])
+    )
+    func expiredKeyOfAnotherDeviceIsRevocableWhileListed(_ signers: [PolymarketSessionSigner]?, _ isRevocable: Bool) {
+        let devices = Fixture.devices([Fixture.key(.otherDevice, status: .expired)], signers: signers)
+
+        #expect(devices.map { $0.offers(.revoke) } == [isRevocable])
     }
 
     @Test(
@@ -211,58 +233,35 @@ struct PolymarketFastTradingDeviceListTests {
         #expect(devices == [Fixture.row(active, owner: .thisDevice(authorization: nil), state: .active(until: Fixture.validUntil))])
     }
 
-    @Test("A key the exchange no longer lists or lists with other terms needs a reconnect", arguments: [
-        [PolymarketSessionSigner](),
-        [PolymarketSessionSigner(address: Fixture.Owner.otherDevice.address, scopes: ["CLOB"], validUntil: Fixture.validUntil.addingTimeInterval(Fixture.day))],
-    ])
-    func keyOutOfSyncWithTheExchangeNeedsReconnect(_ signers: [PolymarketSessionSigner]) {
+    @Test(
+        "A key the exchange no longer lists needs a reconnect, one it lists with other terms stays active next to an unknown signer",
+        arguments: zip(
+            [
+                [PolymarketSessionSigner](),
+                [PolymarketSessionSigner(address: Fixture.Owner.otherDevice.address, scopes: ["CLOB"], validUntil: Fixture.validUntil.addingTimeInterval(Fixture.day))],
+            ],
+            [PolymarketFastTradingDevice.State.outOfSync, .active(until: Fixture.validUntil)]
+        )
+    )
+    func keyMissingOnTheExchangeNeedsReconnect(_ signers: [PolymarketSessionSigner], _ state: PolymarketFastTradingDevice.State) {
         let devices = Fixture.devices([Fixture.key(.otherDevice)], signers: signers)
 
-        #expect(devices.map(\.state) == [.outOfSync])
+        #expect(devices.map(\.state) == [state])
     }
 
-    @Test("Within 30 days of expiry every device shows how many days are left, only this one offers to extend")
-    func expiryWithinThirtyDays() {
-        let validUntil = Fixture.now.addingTimeInterval(12 * Fixture.day)
+    @Test(
+        "Every device expires soon from 30 days before its expiry on, and only this one offers to extend",
+        arguments: zip([30 * Fixture.day, 30 * Fixture.day + 1], [true, false])
+    )
+    func expiresSoonInTheLastThirtyDays(_ validity: TimeInterval, _ expiresSoon: Bool) {
+        let validUntil = Fixture.now.addingTimeInterval(validity)
         let local = Fixture.key(.local, validUntil: validUntil)
         let other = Fixture.key(.otherDevice, validUntil: validUntil)
 
         let devices = Fixture.devices([local, other])
 
-        #expect(devices.map(\.expiresInDays) == [12, 12])
-        #expect(devices.map { $0.offers(.extend) } == [true, false])
-    }
-
-    @Test("A key further than 30 days from expiry shows no expiry and offers no extension")
-    func noExpiryBeyondThirtyDays() {
-        let devices = Fixture.devices([Fixture.key(.local, validUntil: Fixture.now.addingTimeInterval(31 * Fixture.day))])
-
-        #expect(devices.map(\.expiresInDays) == [nil])
-        #expect(devices.map { $0.offers(.extend) } == [false])
-    }
-
-    @Test("The backend's renewal date offers the extension before the last 30 days")
-    func renewAfterOffersExtension() {
-        let devices = Fixture.devices([Fixture.key(.local, renewAfter: Fixture.now.addingTimeInterval(-1))])
-
-        #expect(devices.map { $0.offers(.extend) } == [true])
-    }
-
-    @Test(
-        "Every device shows the days left from the backend's renewal date on, whether or not the key is in its last 30 days",
-        arguments: zip(
-            [(120 * Fixture.day, Fixture.now.addingTimeInterval(-1)), (12 * Fixture.day, Fixture.now.addingTimeInterval(1))],
-            [120, nil] as [Int?]
-        )
-    )
-    func expiryBadgeFollowsTheRenewalDate(_ key: (validity: TimeInterval, renewAfter: Date), _ daysLeft: Int?) {
-        let validUntil = Fixture.now.addingTimeInterval(key.validity)
-        let local = Fixture.key(.local, validUntil: validUntil, renewAfter: key.renewAfter)
-        let other = Fixture.key(.otherDevice, validUntil: validUntil, renewAfter: key.renewAfter)
-
-        let devices = Fixture.devices([local, other])
-
-        #expect(devices.map(\.expiresInDays) == [daysLeft, daysLeft])
+        #expect(devices.map(\.expiresSoon) == [expiresSoon, expiresSoon])
+        #expect(devices.map { $0.offers(.extend) } == [expiresSoon, false])
     }
 
     @Test("While this app activates the key, this device shows as activating before the backend lists it")
@@ -303,9 +302,16 @@ private extension PolymarketSessionKeyFixtures {
     static func row(
         _ key: PolymarketSessionKey,
         owner: PolymarketFastTradingDevice.Owner,
-        state: PolymarketFastTradingDevice.State
+        state: PolymarketFastTradingDevice.State,
+        isListedOnExchange: Bool = false
     ) -> PolymarketFastTradingDevice {
-        PolymarketFastTradingDevice(source: .sessionKey(address: key.address), name: deviceName, owner: owner, state: state)
+        PolymarketFastTradingDevice(
+            source: .sessionKey(address: key.address),
+            name: deviceName,
+            owner: owner,
+            state: state,
+            isListedOnExchange: isListedOnExchange
+        )
     }
 
     static func devices(

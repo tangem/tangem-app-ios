@@ -19,7 +19,9 @@ final class PolymarketOrderSigningChoice: ObservableObject {
     private let delayProvider: PollDelayProvider
     private let now: () -> Date
     private let showNotice: @MainActor (String) -> Void
+    private var readinessCheck: Task<PolymarketOrderSigningRoute, Never>?
     private var isSessionKeyDeclined = false
+    private var isNotReady = false
     private var expiryTask: Task<Void, Never>?
     private var bag: Set<AnyCancellable> = []
 
@@ -38,7 +40,7 @@ final class PolymarketOrderSigningChoice: ObservableObject {
 
         availability.isAvailablePublisher
             .sink { [weak self] isAvailable in
-                self?.apply(isAvailable: isAvailable)
+                self?.update(isAvailable: isAvailable)
             }
             .store(in: &bag)
 
@@ -46,15 +48,24 @@ final class PolymarketOrderSigningChoice: ObservableObject {
     }
 
     deinit {
+        readinessCheck?.cancel()
         expiryTask?.cancel()
     }
 
-    func decide(tapped: PolymarketOrderSigningMethod) -> Decision {
+    func decide(tapped: PolymarketOrderSigningMethod) async -> Decision {
         switch tapped {
         case .ownerKey:
-            .sign(.ownerKey)
+            return .sign(.ownerKey)
         case .sessionKey:
-            allowsSessionKey(isAvailable: availability.isAvailable) ? .sign(.sessionKey) : .routeChanged
+            guard
+                let route = await latestReadiness(),
+                allowsSessionKey(isAvailable: availability.isAvailable),
+                case .sessionKey = route
+            else {
+                return .routeChanged
+            }
+
+            return .sign(route)
         }
     }
 
@@ -70,17 +81,13 @@ final class PolymarketOrderSigningChoice: ObservableObject {
 
         Task { [availability] in await availability.refresh() }
     }
-
-    func reportUnverified() {
-        showNotice(PolymarketFastTradingStrings.sessionKeyUnverifiedNotice)
-    }
 }
 
 // MARK: - Decision
 
 extension PolymarketOrderSigningChoice {
     enum Decision: Equatable {
-        case sign(PolymarketOrderSigningMethod)
+        case sign(PolymarketOrderSigningRoute)
         case routeChanged
     }
 }
@@ -89,7 +96,50 @@ extension PolymarketOrderSigningChoice {
 
 private extension PolymarketOrderSigningChoice {
     func allowsSessionKey(isAvailable: Bool) -> Bool {
-        isAvailable && !isSessionKeyDeclined
+        isAvailable && !isSessionKeyDeclined && !isNotReady
+    }
+
+    func update(isAvailable: Bool) {
+        if isAvailable {
+            checkReadiness()
+        }
+
+        apply(isAvailable: isAvailable)
+    }
+
+    func checkReadiness() {
+        let check = Task { [availability] in await availability.checkReadiness() }
+        readinessCheck = check
+
+        Task { [weak self] in
+            let route = await check.value
+
+            guard let self, check == readinessCheck else { return }
+
+            apply(readiness: route)
+        }
+    }
+
+    func latestReadiness() async -> PolymarketOrderSigningRoute? {
+        while let check = readinessCheck {
+            let route = await check.value
+
+            if check == readinessCheck {
+                apply(readiness: route)
+                return route
+            }
+        }
+
+        return nil
+    }
+
+    func apply(readiness route: PolymarketOrderSigningRoute) {
+        let isNotReady = route == .ownerKey
+
+        guard isNotReady != self.isNotReady else { return }
+
+        self.isNotReady = isNotReady
+        apply(isAvailable: availability.isAvailable)
     }
 
     func apply(isAvailable: Bool) {

@@ -45,7 +45,6 @@ struct PolymarketSessionKeyMappingTests {
                 status: .active,
                 scopes: ["CLOB"],
                 validUntil: Date(timeIntervalSince1970: 1_804_982_400),
-                renewAfter: Date(timeIntervalSince1970: 1_804_723_200),
                 authorizedAt: Date(timeIntervalSince1970: 1_789_430_400),
                 createdAt: Date(timeIntervalSince1970: 1_789_430_280)
             ),
@@ -71,7 +70,6 @@ struct PolymarketSessionKeyMappingTests {
         #expect(key.deviceId == nil)
         #expect(key.deviceName == nil)
         #expect(key.validUntil == nil)
-        #expect(key.renewAfter == nil)
         #expect(key.authorizedAt == nil)
         #expect(key.createdAt == nil)
     }

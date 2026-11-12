@@ -55,6 +55,13 @@ enum PolymarketFastTradingAuthorization: Equatable {
         case .renew: PolymarketFastTradingStrings.extensionInProgress
         }
     }
+
+    var operation: PolymarketFastTradingOperation {
+        switch self {
+        case .enable, .reenable, .repair, .replace: .activation
+        case .renew: .renewal
+        }
+    }
 }
 
 // MARK: - Pending change

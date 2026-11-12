@@ -40,6 +40,7 @@ enum PolymarketFastTradingStrings {
     static let statusExpired = "Expired"
     static let statusOutOfSync = "Reconnect needed"
     static let statusRevoking = "Revoking"
+    static let expiresSoon = "Expires soon"
 
     static let activationBannerTitle = "Activate fast trading for your device"
     static let activationBannerDescription = "It's secured and you can use fast bets without tapping your card. It lasts up to 180 days."
@@ -48,10 +49,13 @@ enum PolymarketFastTradingStrings {
     static let reactivationBannerDescription = "Reactivate it once to keep placing fast bets without confirming each of them."
 
     static let activationInProgress = "Activation in progress"
+    static let activationFailed = "Activation failed. Please retry"
     static let extensionInProgress = "Extension in progress"
+    static let extensionFailed = "Extension failed. Please retry"
     static let revocationInProgress = "Revoking fast trading"
+    static let revocationSucceeded = "Successfully revoked. Activate it any time"
+    static let revocationFailed = "Revocation failed. Please retry"
     static let sessionKeyUnavailableNotice = "Fast trading is unavailable for this order. Confirm it the usual way."
-    static let sessionKeyUnverifiedNotice = "Couldn't check fast trading. Try again."
 
     static let infoTitle = "Trade Predictions without tapping your Tangem card or ring every time"
     static let durationCaption = "How long it lasts"
@@ -101,7 +105,9 @@ enum PolymarketFastTradingStrings {
     static let walletOperationWaitsForChange = "A fast trading change is still finishing on this wallet. Try again in a few minutes."
     static let limitReached = "Too many devices use fast trading. Revoke the ones you don't use."
     static let notReady = "Finish setting up predictions first."
-    static let notEnabledAfterOnboarding = "Fast trading wasn't turned on. Activate it from the banner on the main screen."
+    static let activationFailedTitle = "Fast Trading activation failed"
+    static let activationFailedDescription = "Your account has been created but your Session Key creation failed. Please retry activating it manually."
+    static let activateSessionKey = "Activate session key"
 
     static func until(_ date: String) -> String {
         "Until \(date)"
@@ -115,16 +121,12 @@ enum PolymarketFastTradingStrings {
         "At \(date)"
     }
 
-    static func expiresIn(days: Int) -> String {
-        days == 1 ? "Expires in 1 day" : "Expires in \(days) days"
-    }
-
     static func extensionBannerTitle(daysLeft: Int) -> String {
         daysLeft == 1 ? "Fast trading expires in 1 day" : "Fast trading expires in \(daysLeft) days"
     }
 
     static func revocationDescription(_ title: String) -> String {
-        "Orders signed on \(title) stop working once the revocation goes through. You can activate fast trading on it again later."
+        "Orders signed on \(title) stop working right away. You can activate fast trading on it again later."
     }
 
     static func foreignSignerRevocationDescription(_ title: String) -> String {

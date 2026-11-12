@@ -40,12 +40,6 @@ struct PolymarketWelcomeView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) { footer }
         .disabled(viewModel.isRunning)
         .alert(item: $viewModel.alert) { $0.alert }
-        .modal(
-            isPresented: $viewModel.isFastTradingFAQPresented,
-            size: .full,
-            navigation: .title(PolymarketFastTradingStrings.title),
-            content: { PolymarketFastTradingFAQView() }
-        )
     }
 
     @ViewBuilder
@@ -81,19 +75,15 @@ struct PolymarketWelcomeView: View {
 
     private var fastTradingCard: some View {
         VStack(alignment: .leading, spacing: Constants.fastTradingCardSpacing) {
-            SwiftUI.Button(action: { viewModel.handleViewAction(.openFastTradingFAQ) }) {
-                HStack(spacing: Constants.fastTradingCaptionSpacing) {
-                    Text(PolymarketFastTradingStrings.title)
-                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            HStack(spacing: Constants.fastTradingCaptionSpacing) {
+                Text(PolymarketFastTradingStrings.title)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-                    DesignSystem.Icons.Info.regular16.image
-                        .renderingMode(.template)
-                        .foregroundStyle(DesignSystem.Color.iconSecondary)
-                }
-                .expandingHitArea(by: Constants.fastTradingInfoHitAreaInset)
+                DesignSystem.Icons.Info.regular16.image
+                    .renderingMode(.template)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                    .accessibilityHidden(true)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(PolymarketFastTradingStrings.whatIsFastTrading)
 
             Toggle(isOn: $viewModel.isFastTradingEnabled) {
                 Text(PolymarketFastTradingStrings.onboardingToggleTitle)
@@ -217,7 +207,6 @@ private extension PolymarketWelcomeView {
         static let fastTradingCardVerticalPadding: CGFloat = 16
         static let fastTradingCardSpacing: CGFloat = 8
         static let fastTradingCaptionSpacing: CGFloat = 2
-        static let fastTradingInfoHitAreaInset: CGFloat = 14
         static let fastTradingCardPadding: CGFloat = 16
         static let fastTradingCardCornerRadius: CGFloat = 24
 

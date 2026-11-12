@@ -231,7 +231,7 @@ struct PolymarketFastTradingServiceTests {
         #expect(manager.authorizations == [call])
     }
 
-    @Test("A failure after the card has signed is reported to the screens instead of the closed activation")
+    @Test("A failure after the card has signed is reported to the screens as a failed activation instead of the closed activation")
     func failureAfterSigningIsReported() async throws {
         let (sut, _, _) = makeSUT(lists: [[]], enable: .signsThenFails)
         let failures = TestSignal<PolymarketFastTradingFailure>()
@@ -240,7 +240,7 @@ struct PolymarketFastTradingServiceTests {
         await sut.refresh()
         try await sut.authorize(.enable)
 
-        #expect(try await failures.next() == .generic)
+        #expect(try await failures.next() == .activationFailed)
 
         subscription.cancel()
     }
@@ -264,8 +264,8 @@ struct PolymarketFastTradingServiceTests {
         subscription.cancel()
     }
 
-    @Test("A failure of the authorization signed during onboarding is reported to the screens")
-    func presignedAuthorizationFailureIsReported() async throws {
+    @Test("A failure of the authorization signed during onboarding is left to onboarding to report")
+    func presignedAuthorizationFailureIsNotReported() async throws {
         let (sut, _, _) = makeSUT(lists: [[]])
         let failures = TestSignal<PolymarketFastTradingFailure>()
         let subscription = sut.failurePublisher.sink { failures.send($0) }
@@ -289,7 +289,9 @@ struct PolymarketFastTradingServiceTests {
             try await sut.authorize(presigned: batch, grant: grant)
         }
 
-        #expect(try await failures.next() == .generic)
+        sut.reportFailure(.busy)
+
+        #expect(try await failures.next() == .busy)
 
         subscription.cancel()
     }
@@ -304,6 +306,134 @@ struct PolymarketFastTradingServiceTests {
         try await sut.revoke(sessionKeyAddress: revoking.address)
 
         #expect(sut.status == .waitingForSettlement(revoking))
+    }
+
+    @Test(
+        "A device revocation this app sent is reported when sent and once more when it settles",
+        arguments: zip([Fixture.key(.otherDevice, status: .revoked), Fixture.key(.otherDevice)], [PolymarketFastTradingRevocation.succeeded, .failed])
+    )
+    func revocationReportsHowItSettled(_ settled: PolymarketSessionKey, _ outcome: PolymarketFastTradingRevocation) async throws {
+        let revoking = Fixture.key(.otherDevice, status: .revoking)
+        let (sut, _, _) = makeSUT(lists: [[Fixture.key(.otherDevice)], [revoking], [settled]], revoked: revoking)
+        let revocations = TestSignal<PolymarketFastTradingRevocation>()
+        let subscription = sut.revocationPublisher.sink { revocations.send($0) }
+
+        await sut.refresh()
+        try await sut.revoke(sessionKeyAddress: revoking.address)
+
+        #expect(revocations.recorded == [.submitted])
+
+        await sut.refresh()
+        await sut.refresh()
+
+        #expect(revocations.recorded == [.submitted, outcome])
+
+        subscription.cancel()
+    }
+
+    @Test(
+        "A revocation settles by all records of the address, or by the exchange's list when the address had no live record of ours",
+        arguments: [
+            (
+                [
+                    [Fixture.key(.otherDevice), Fixture.key(.otherDevice, status: .expired)],
+                    [Fixture.key(.otherDevice, status: .expired), Fixture.key(.otherDevice, status: .revoking)],
+                    [Fixture.key(.otherDevice, status: .expired), Fixture.key(.otherDevice, status: .revoked)],
+                ],
+                [PolymarketSessionSigner](),
+                PolymarketFastTradingRevocation.succeeded
+            ),
+            (
+                [[], [Fixture.key(.otherDevice, status: .revoking)], []],
+                [PolymarketSessionSigner.matching(Fixture.key(.otherDevice))],
+                .failed
+            ),
+            (
+                [[], [Fixture.key(.otherDevice, status: .revoking)], [Fixture.key(.otherDevice, status: .revoked)]],
+                [],
+                .succeeded
+            ),
+        ]
+    )
+    func revocationSettlesByEveryRecordOrTheExchange(
+        _ lists: [[PolymarketSessionKey]],
+        _ signers: [PolymarketSessionSigner],
+        _ outcome: PolymarketFastTradingRevocation
+    ) async throws {
+        let revoking = Fixture.key(.otherDevice, status: .revoking)
+        let (sut, _, _) = makeSUT(lists: lists, exchangeSigners: signers, revoked: revoking)
+        let revocations = TestSignal<PolymarketFastTradingRevocation>()
+        let subscription = sut.revocationPublisher.sink { revocations.send($0) }
+
+        await sut.refresh()
+        try await sut.revoke(sessionKeyAddress: revoking.address)
+
+        for _ in 0 ... PolymarketSessionKey.settlingMissTolerance {
+            await sut.refresh()
+        }
+
+        #expect(revocations.recorded == [.submitted, outcome])
+
+        subscription.cancel()
+    }
+
+    @Test("A revocation of a signer with no live record of ours that the exchange still lists stays undecided while it shows as being revoked, then fails")
+    func unknownSignerStillListedFailsOnlyOnceItStopsBeingRevoked() async throws {
+        let revoked = Fixture.key(.otherDevice, status: .revoked)
+        let clock = OSAllocatedUnfairLock(initialState: Fixture.now)
+        let (sut, _, _) = makeSUT(
+            lists: [[revoked], [Fixture.key(.otherDevice, status: .revoking)], [revoked]],
+            exchangeSigners: [.matching(Fixture.key(.otherDevice))],
+            revoked: Fixture.key(.otherDevice, status: .revoking),
+            now: { clock.withLock { $0 } }
+        )
+        let revocations = TestSignal<PolymarketFastTradingRevocation>()
+        let subscription = sut.revocationPublisher.sink { revocations.send($0) }
+
+        await sut.refresh()
+        try await sut.revoke(sessionKeyAddress: revoked.address)
+        await sut.refresh()
+
+        #expect(revocations.recorded == [.submitted])
+        #expect(sut.assessment?.signersBeingRevoked.map(\.address) == [revoked.address])
+
+        clock.withLock { $0 = Fixture.now.addingTimeInterval(PolymarketSessionKey.backendHoldWindow) }
+        await sut.refresh()
+
+        #expect(revocations.recorded == [.submitted, .failed])
+        #expect(sut.assessment?.foreignSigners.map(\.address) == [revoked.address])
+
+        subscription.cancel()
+    }
+
+    @Test(
+        "A revocation that fails says the wallet is busy when another change holds it, and reports a failed revocation otherwise",
+        arguments: [
+            (PolymarketSessionKeyManagerError.operationInProgress as Error, [PolymarketFastTradingFailure.busy], [PolymarketFastTradingRevocation]()),
+            (URLError(.notConnectedToInternet) as Error, [], [.failed]),
+        ]
+    )
+    func failedRevocationReportsItsCause(
+        _ error: Error,
+        _ failures: [PolymarketFastTradingFailure],
+        _ revocations: [PolymarketFastTradingRevocation]
+    ) async {
+        let other = Fixture.key(.otherDevice)
+        let (sut, _, _) = makeSUT(lists: [[other]], revokeFailure: error)
+        let reportedFailures = TestSignal<PolymarketFastTradingFailure>()
+        let reportedRevocations = TestSignal<PolymarketFastTradingRevocation>()
+        let failureSubscription = sut.failurePublisher.sink { reportedFailures.send($0) }
+        let revocationSubscription = sut.revocationPublisher.sink { reportedRevocations.send($0) }
+
+        await #expect(throws: (any Error).self) {
+            try await sut.revoke(sessionKeyAddress: other.address)
+        }
+
+        #expect(reportedFailures.recorded == failures)
+        #expect(reportedRevocations.recorded == revocations)
+
+        failureSubscription.cancel()
+        revocationSubscription.cancel()
     }
 
     @Test("An activation whose follow-up read fails shows the new key instead of offering to activate again")
@@ -335,7 +465,7 @@ struct PolymarketFastTradingServiceTests {
         let failures = TestSignal<PolymarketFastTradingFailure>()
         let first = sut.failurePublisher.sink { failures.send($0) }
 
-        #expect(try await failures.next() == .generic)
+        #expect(try await failures.next() == .activationFailed)
 
         first.cancel()
 
@@ -778,6 +908,42 @@ struct PolymarketFastTradingServiceTests {
     }
 
     @Test(
+        "This device's key revoked for a re-authorization kept for a resend shows as being revoked, not as an unknown signer, whether signed now or before a restart",
+        arguments: [false, true]
+    )
+    func keptReauthorizationShowsItsRevokedKeyAsBeingRevoked(_ isKeptBeforeRestart: Bool) async throws {
+        let revoked = Fixture.key(.local, status: .revoked)
+        let kept = Interruption(resumedKey: Fixture.key(.local), revokedAddress: revoked.address, failures: [Self.relayerBusy], deadline: Self.executableDeadline)
+        let (sut, manager, _) = makeSUT(
+            lists: [[revoked]],
+            enable: .signsThenKeepsForResend(kept, failure: Self.relayerBusy),
+            heldAddresses: [.success(Fixture.localAddress)],
+            exchangeSigners: [.matching(revoked)],
+            interrupted: isKeptBeforeRestart ? kept : nil
+        )
+        let foreignSigners = TestSignal<[String]>()
+        let subscription = sut.statePublisher.sink { state in
+            if case .loaded(let assessment) = state {
+                foreignSigners.send(assessment.foreignSigners.map(\.address))
+            }
+        }
+
+        await sut.refresh()
+
+        if !isKeptBeforeRestart {
+            try await sut.authorize(.enable)
+        }
+
+        try await manager.resumed.next()
+        await sut.settled()
+
+        #expect(foreignSigners.recorded.dropFirst().allSatisfy { $0.isEmpty })
+        #expect(sut.assessment?.signersBeingRevoked.map(\.address) == [revoked.address])
+
+        subscription.cancel()
+    }
+
+    @Test(
         "An interrupted authorization that could not be completed yet is tried again after a short wait, each time a little later",
         arguments: [
             PolymarketSessionKeyManagerError.unsettled(Fixture.key(.local)) as Error,
@@ -812,19 +978,42 @@ struct PolymarketFastTradingServiceTests {
         }
     }
 
-    @Test("A key kept paused after its renewal shows as paused while the backend still lists it switched on")
-    func keptPauseShowsThePausedKey() async {
-        let own = Fixture.key(.local)
-        let (sut, _, _) = makeSUT(
-            lists: [[own]],
-            heldAddresses: [.success(Fixture.localAddress)],
-            exchangeSigners: [.matching(own)],
-            keptPausedAddress: Fixture.localAddress
-        )
+    @Test("A signed authorization the relayer refused as busy is kept for a resend and fails only once its resends run out")
+    func keptAuthorizationFailsOnlyOnceItsResendsRunOut() async throws {
+        let delays = PolymarketSteppedDelayProvider()
+        let kept = Interruption(resumedKey: Fixture.key(.local), failures: Array(repeating: Self.relayerBusy, count: 3))
+        let (sut, manager, _) = makeSUT(lists: [[]], enable: .signsThenKeepsForResend(kept, failure: Self.relayerBusy), pollDelayProvider: delays)
+        let failures = TestSignal<PolymarketFastTradingFailure>()
+        let subscription = sut.failurePublisher.sink { failures.send($0) }
 
         await sut.refresh()
+        try await sut.authorize(.enable)
 
-        #expect(sut.status == .paused(Fixture.key(.local, isEnabled: false)))
+        for wait in [Self.resumeRetryDelay, 2 * Self.resumeRetryDelay] {
+            try await delays.nextWait(of: wait)
+            #expect(failures.recorded.isEmpty)
+            delays.resume(wait)
+        }
+
+        #expect(try await failures.next() == .activationFailed)
+        #expect(manager.resumed.recorded.count == 3)
+
+        subscription.cancel()
+    }
+
+    @Test("A signed authorization kept for a resend fails once the resend finds it dropped")
+    func keptAuthorizationFailsOnceDropped() async throws {
+        let kept = Interruption(resumedKey: Fixture.key(.local), failures: [PolymarketSessionKeyManagerError.noInterruptedAuthorization])
+        let (sut, _, _) = makeSUT(lists: [[]], enable: .signsThenKeepsForResend(kept, failure: Self.relayerBusy))
+        let failures = TestSignal<PolymarketFastTradingFailure>()
+        let subscription = sut.failurePublisher.sink { failures.send($0) }
+
+        await sut.refresh()
+        try await sut.authorize(.enable)
+
+        #expect(try await failures.next() == .activationFailed)
+
+        subscription.cancel()
     }
 
     @Test("An authorization in flight keeps its service until it ends, so its failure still reaches the screens")
@@ -834,7 +1023,7 @@ struct PolymarketFastTradingServiceTests {
 
         manager.failPendingEnable()
 
-        #expect(try await failures.next() == .generic)
+        #expect(try await failures.next() == .activationFailed)
 
         subscription.cancel()
     }
@@ -906,6 +1095,8 @@ private extension PolymarketFastTradingServiceTests {
     static let fastSettlingPhase: TimeInterval = 2 * 60
     static let fastSettlingWaits = Array(repeating: settlingInterval, count: Int(fastSettlingPhase / settlingInterval))
     static let resumeRetryDelay: TimeInterval = 10
+    static let relayerBusy = PolymarketSessionKeyError.refused(statusCode: 422, reason: .relayerRejected, detail: "wallet has in-flight action")
+    static let executableDeadline = String(Int(Fixture.now.timeIntervalSince1970) + PolymarketSessionKeyAuthorizationBatch.followUpDeadlineOffset)
 
     func makeSUT(
         lists: [[PolymarketSessionKey]],
@@ -915,8 +1106,8 @@ private extension PolymarketFastTradingServiceTests {
         exchangeSigners: [PolymarketSessionSigner]? = nil,
         exchangeSignersFailure: Error? = nil,
         revoked: PolymarketSessionKey? = nil,
+        revokeFailure: Error? = nil,
         interrupted: SessionKeyManagerSpy.Interruption? = nil,
-        keptPausedAddress: String? = nil,
         pollDelayProvider: PollDelayProvider = HoldingDelayProviderSpy(holdThreshold: 0),
         signingRouter: PolymarketOrderSigningRouterSpy = PolymarketOrderSigningRouterSpy(),
         operationGate: PolymarketWalletOperationGate? = nil,
@@ -928,8 +1119,8 @@ private extension PolymarketFastTradingServiceTests {
             heldReads: heldReads,
             enable: enable,
             revoked: revoked,
+            revokeFailure: revokeFailure,
             interrupted: interrupted,
-            keptPausedAddress: keptPausedAddress,
             operationGate: operationGate,
             keptAuthorizations: keptAuthorizations
         )
@@ -1013,6 +1204,7 @@ private final class SessionKeyManagerSpy: PolymarketSessionKeyManaging {
     enum EnableBehaviour {
         case signsThenWaits
         case signsThenFails
+        case signsThenKeepsForResend(Interruption, failure: Error)
         case signsThenSucceeds(PolymarketSessionKey)
         case failsBeforeSigning
     }
@@ -1053,7 +1245,6 @@ private final class SessionKeyManagerSpy: PolymarketSessionKeyManaging {
                     call: call
                 ),
                 deviceId: Fixture.deviceId,
-                keepsPaused: false,
                 purpose: purpose
             )
         }
@@ -1080,7 +1271,7 @@ private final class SessionKeyManagerSpy: PolymarketSessionKeyManaging {
     private let enableBehaviour: EnableBehaviour
     private let heldReads: [Int: PolymarketHeldCall]
     private let revoked: PolymarketSessionKey?
-    private let keptPausedAddress: String?
+    private let revokeFailure: Error?
     private let operationGate: PolymarketWalletOperationGate?
     private let keptAuthorizations: PolymarketInterruptedAuthorizationStore?
     private let state: OSAllocatedUnfairLock<State>
@@ -1090,15 +1281,15 @@ private final class SessionKeyManagerSpy: PolymarketSessionKeyManaging {
         heldReads: [Int: PolymarketHeldCall],
         enable: EnableBehaviour,
         revoked: PolymarketSessionKey?,
+        revokeFailure: Error?,
         interrupted: Interruption?,
-        keptPausedAddress: String?,
         operationGate: PolymarketWalletOperationGate?,
         keptAuthorizations: PolymarketInterruptedAuthorizationStore?
     ) {
         enableBehaviour = enable
         self.heldReads = heldReads
         self.revoked = revoked
-        self.keptPausedAddress = keptPausedAddress
+        self.revokeFailure = revokeFailure
         self.operationGate = operationGate
         self.keptAuthorizations = keptAuthorizations
         state = OSAllocatedUnfairLock(initialState: State(lists: lists, interrupted: interrupted))
@@ -1156,6 +1347,10 @@ private final class SessionKeyManagerSpy: PolymarketSessionKeyManaging {
         case .signsThenFails:
             onSigned()
             throw StubError()
+        case .signsThenKeepsForResend(let interruption, let failure):
+            onSigned()
+            interrupt(interruption)
+            throw failure
         case .signsThenSucceeds(let sessionKey):
             onSigned()
 
@@ -1200,7 +1395,7 @@ private final class SessionKeyManagerSpy: PolymarketSessionKeyManaging {
 
     func revoke(sessionKeyAddress: String) async throws -> PolymarketSessionKey {
         guard let revoked else {
-            throw StubError()
+            throw revokeFailure ?? StubError()
         }
 
         return revoked
@@ -1229,7 +1424,8 @@ private final class SessionKeyManagerSpy: PolymarketSessionKeyManaging {
 
         return try await operationGate.exclusively(
             PolymarketFastTradingServiceTests.userWalletId,
-            orThrow: PolymarketSessionKeyManagerError.operationInProgress
+            as: .fastTradingChange,
+            orThrow: { _ in PolymarketSessionKeyManagerError.operationInProgress }
         ) {
             try await resumeTheKeptAuthorization()
         }
@@ -1262,10 +1458,6 @@ private final class SessionKeyManagerSpy: PolymarketSessionKeyManaging {
         resumed.send()
 
         return try outcome.get()
-    }
-
-    func keptPausedKeyAddress() async -> String? {
-        keptPausedAddress
     }
 }
 

@@ -43,7 +43,7 @@ enum PolymarketFastTradingBanner: Equatable {
         case .enable, .replace:
             banner = .activate
         case .reenable, .repair:
-            banner = .reactivate
+            banner = assessment.isLocalActivationFailed ? .activate : .reactivate
         }
 
         if let kind = banner.dismissibleKind, isDismissed(kind) {
@@ -79,9 +79,9 @@ extension PolymarketFastTradingBanner {
 
         var dismissalPeriod: TimeInterval {
             switch self {
-            case .activate:
+            case .activate, .extend:
                 30 * 24 * 60 * 60
-            case .reactivate, .extend:
+            case .reactivate:
                 24 * 60 * 60
             }
         }

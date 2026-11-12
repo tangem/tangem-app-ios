@@ -33,7 +33,6 @@ struct PolymarketFastTradingActivationView: View {
         }
         .footer { activationFooter }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .bindAlert($viewModel.alert)
         .modal(
             isPresented: $viewModel.isFAQPresented,
             size: .full,

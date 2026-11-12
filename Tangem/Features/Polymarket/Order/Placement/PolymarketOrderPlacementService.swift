@@ -15,7 +15,7 @@ protocol PolymarketOrderPlacementService {
         quote: PolymarketOrderQuote,
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
-        signing: PolymarketOrderSigningMethod
+        signing: PolymarketOrderSigningRoute
     ) async throws -> PolymarketOrderPlacement
 }
 
@@ -28,7 +28,6 @@ enum PolymarketOrderPlacementSetupError: Error {
     case ownerAddressUnavailable
     case credentialsUnavailable
     case sessionKeyUnavailable
-    case sessionKeyUnverified
 }
 
 struct CommonPolymarketOrderPlacementService {
@@ -72,7 +71,7 @@ extension CommonPolymarketOrderPlacementService: PolymarketOrderPlacementService
         quote: PolymarketOrderQuote,
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
-        signing: PolymarketOrderSigningMethod
+        signing: PolymarketOrderSigningRoute
     ) async throws -> PolymarketOrderPlacement {
         guard let ownerAddress = ownerAddressProvider.getOwnerAddress() else {
             throw PolymarketOrderPlacementSetupError.ownerAddressUnavailable
@@ -81,8 +80,9 @@ extension CommonPolymarketOrderPlacementService: PolymarketOrderPlacementService
         let depositWalletAddress = try PolymarketDepositWalletDeriver.derive(ownerAddress: ownerAddress)
 
         switch signing {
-        case .sessionKey:
+        case .sessionKey(let session):
             return try await placeWithSessionKey(
+                session,
                 quote: quote,
                 market: market,
                 outcome: outcome,
@@ -109,22 +109,12 @@ extension CommonPolymarketOrderPlacementService: PolymarketOrderPlacementService
 
 private extension CommonPolymarketOrderPlacementService {
     func placeWithSessionKey(
+        _ session: PolymarketSessionCredentials,
         quote: PolymarketOrderQuote,
         market: PolymarketMarket,
         outcome: PolymarketOutcome,
         depositWalletAddress: String
     ) async throws -> PolymarketOrderPlacement {
-        let session: PolymarketSessionCredentials
-
-        switch await sessionKeyPlacement.router.route() {
-        case .sessionKey(let routed):
-            session = routed
-        case .ownerKey:
-            throw PolymarketOrderPlacementSetupError.sessionKeyUnavailable
-        case .unverified:
-            throw PolymarketOrderPlacementSetupError.sessionKeyUnverified
-        }
-
         do {
             return try await place(
                 with: sessionKeyPlacement.placer,
@@ -251,6 +241,7 @@ private extension PolymarketOrderPlacementError {
         switch self {
         case .unauthorized:
             return true
+        // [REDACTED_TODO_COMMENT]
         case .rejected(let message):
             guard let message else { return false }
 
