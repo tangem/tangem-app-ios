@@ -15,6 +15,7 @@ public actor CommonOnrampManager {
     private let analyticsLogger: ExpressAnalyticsLogger
     private let sorter: ProviderItemSorter
     private let preferredValues: PreferredValues
+    private let countryByIPProvider: (() async throws -> OnrampCountry)?
 
     public init(
         apiProvider: ExpressAPIProvider,
@@ -22,7 +23,8 @@ public actor CommonOnrampManager {
         dataRepository: OnrampDataRepository,
         analyticsLogger: ExpressAnalyticsLogger,
         sorter: ProviderItemSorter,
-        preferredValues: PreferredValues
+        preferredValues: PreferredValues,
+        countryByIPProvider: (() async throws -> OnrampCountry)? = nil
     ) {
         self.apiProvider = apiProvider
         self.onrampRepository = onrampRepository
@@ -30,6 +32,7 @@ public actor CommonOnrampManager {
         self.analyticsLogger = analyticsLogger
         self.sorter = sorter
         self.preferredValues = preferredValues
+        self.countryByIPProvider = countryByIPProvider
     }
 }
 
@@ -37,8 +40,11 @@ public actor CommonOnrampManager {
 
 extension CommonOnrampManager: OnrampManager {
     public func initialSetupCountry() async throws -> OnrampCountry {
-        let country = try await apiProvider.onrampCountryByIP()
-        return country
+        if let countryByIPProvider {
+            return try await countryByIPProvider()
+        }
+
+        return try await apiProvider.onrampCountryByIP()
     }
 
     public func setupProviders(request item: OnrampPairRequestItem) async throws -> ProvidersList {

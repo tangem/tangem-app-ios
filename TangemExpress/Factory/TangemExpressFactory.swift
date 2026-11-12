@@ -47,6 +47,7 @@ public struct TangemExpressFactory {
         analyticsLogger: ExpressAnalyticsLogger,
         providerItemSorter: ProviderItemSorter,
         preferredValues: PreferredValues,
+        countryByIPProvider: (() async throws -> OnrampCountry)? = nil
     ) -> OnrampManager {
         CommonOnrampManager(
             apiProvider: expressAPIProvider,
@@ -54,7 +55,8 @@ public struct TangemExpressFactory {
             dataRepository: dataRepository,
             analyticsLogger: analyticsLogger,
             sorter: providerItemSorter,
-            preferredValues: preferredValues
+            preferredValues: preferredValues,
+            countryByIPProvider: countryByIPProvider
         )
     }
 

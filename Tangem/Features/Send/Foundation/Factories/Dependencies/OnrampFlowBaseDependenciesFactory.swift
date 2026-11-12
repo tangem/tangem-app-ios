@@ -55,7 +55,8 @@ extension OnrampFlowBaseDependenciesFactory {
             dataRepository: dataRepository,
             analyticsLogger: analyticsLogger,
             providerItemSorter: ProviderItemSorterByOnrampProviderExpectedAmount(),
-            preferredValues: preferredValues
+            preferredValues: preferredValues,
+            countryByIPProvider: isCountryByIPEnabled ? OnrampCountryByIPProviderFactory.make(expressAPIProvider: apiProvider) : nil
         )
 
         return (

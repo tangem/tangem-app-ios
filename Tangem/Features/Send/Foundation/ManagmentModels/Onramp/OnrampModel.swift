@@ -386,6 +386,11 @@ private extension OnrampModel {
     func detectCountryByIP() async {
         do {
             let country = try await onrampManager.initialSetupCountry()
+
+            guard !Task.isCancelled else {
+                return
+            }
+
             _ipCountry.send(country)
 
             let predefinedCurrency = await predefinedFiatCurrency()

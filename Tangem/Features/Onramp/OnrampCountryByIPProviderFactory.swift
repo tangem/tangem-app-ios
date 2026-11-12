@@ -22,6 +22,12 @@ enum OnrampCountryByIPProviderFactory {
             mcpIntentID: nil
         ).expressAPIProvider
 
-        return { try await expressAPIProvider.onrampCountryByIP() }
+        return make(expressAPIProvider: expressAPIProvider)
+    }
+
+    static func make(expressAPIProvider: ExpressAPIProvider) -> Provider {
+        let service = InjectedValues[\.onrampCountryByIPService]
+
+        return { try await service.country(fetch: expressAPIProvider.onrampCountryByIP) }
     }
 }
