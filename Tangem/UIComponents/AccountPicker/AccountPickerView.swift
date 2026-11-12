@@ -28,7 +28,12 @@ struct AccountPickerView: View {
         case .userWallets(let items):
             UserWalletSelectorList(items: items, isBalanceMasked: viewModel.isBalanceMasked, onTap: viewModel.select)
         case .accounts(let sections):
-            AccountPickerList(sections: sections, isBalanceMasked: viewModel.isBalanceMasked, onTap: viewModel.select)
+            AccountPickerList(
+                sections: sections,
+                isBalanceMasked: viewModel.isBalanceMasked,
+                showsSelectionCheckmarks: viewModel.showsSelectionCheckmarks,
+                onTap: viewModel.select
+            )
         }
     }
 }

@@ -32,10 +32,17 @@ final class TokensManagementFlowFactory {
     }
 
     @MainActor
-    func makeAccountSelectorViewModel(
-        onSelect: @escaping (AccountSelectorCellModel) -> Void
-    ) -> AccountSelectorViewModel {
-        AccountSelectorViewModel(userWalletModel: userWalletModel, onSelect: onSelect)
+    func makeAccountPickerViewModel(onSelect: @escaping (any CryptoAccountModel) -> Void) -> AccountPickerViewModel {
+        AccountPickerViewModel(
+            userWalletsProvider: .cryptoJointAccounts(in: .userWallet(userWalletModel)),
+            onSelect: { selection in
+                guard let account = selection.account as? any CryptoAccountModel else {
+                    return
+                }
+
+                onSelect(account)
+            }
+        )
     }
 
     func makeManageTokensViewModel(

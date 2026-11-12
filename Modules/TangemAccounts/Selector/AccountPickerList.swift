@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -14,11 +15,18 @@ import TangemUIUtils
 public struct AccountPickerList: View {
     private let sections: [AccountPickerUserWalletSection]
     private let isBalanceMasked: Bool
+    private let showsSelectionCheckmarks: Bool
     private let onTap: (AccountPickerAccountItem) -> Void
 
-    public init(sections: [AccountPickerUserWalletSection], isBalanceMasked: Bool, onTap: @escaping (AccountPickerAccountItem) -> Void) {
+    public init(
+        sections: [AccountPickerUserWalletSection],
+        isBalanceMasked: Bool,
+        showsSelectionCheckmarks: Bool,
+        onTap: @escaping (AccountPickerAccountItem) -> Void
+    ) {
         self.sections = sections
         self.isBalanceMasked = isBalanceMasked
+        self.showsSelectionCheckmarks = showsSelectionCheckmarks
         self.onTap = onTap
     }
 
@@ -31,7 +39,11 @@ public struct AccountPickerList: View {
                     }
 
                     ForEach(section.accounts) { account in
-                        AccountPickerAccountRow(item: account, isBalanceMasked: isBalanceMasked) {
+                        AccountPickerAccountRow(
+                            item: account,
+                            isBalanceMasked: isBalanceMasked,
+                            showsSelectionCheckmark: showsSelectionCheckmarks
+                        ) {
                             onTap(account)
                         }
                     }
@@ -63,6 +75,7 @@ struct AccountPickerSectionHeader: View {
 struct AccountPickerAccountRow: View {
     let item: AccountPickerAccountItem
     let isBalanceMasked: Bool
+    let showsSelectionCheckmark: Bool
     let onTap: () -> Void
 
     var body: some View {
@@ -74,11 +87,13 @@ struct AccountPickerAccountRow: View {
 
         if item.availability.isAvailable {
             row.onTap(action: onTap)
+                .accessibilityIdentifier(AccountsAccessibilityIdentifiers.walletSettingsAccountRow(accountName: item.name))
         } else {
             SwiftUI.Button(action: onTap) {
                 row.disabled(true)
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier(AccountsAccessibilityIdentifiers.walletSettingsAccountRow(accountName: item.name))
         }
     }
 
@@ -109,7 +124,7 @@ struct AccountPickerAccountRow: View {
     private var end: some View {
         if let label = item.availability.unavailableReason?.badge {
             SelectorUnavailableBadge(label: label)
-        } else {
+        } else if showsSelectionCheckmark {
             Checkmark.Label(isChecked: item.isSelected)
         }
     }
@@ -158,6 +173,7 @@ struct AccountPickerAccountRow: View {
                 AccountPickerUserWalletSection(id: "2", header: AccountPickerUserWalletSection.Header(name: "My wallet 2", thumbnail: nil), accounts: [accounts[0]]),
             ],
             isBalanceMasked: false,
+            showsSelectionCheckmarks: true,
             onTap: { _ in }
         )
         .padding(16)

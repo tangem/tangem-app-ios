@@ -43,10 +43,10 @@ extension TokensManagementFlowCoordinator {
     func openAddTokens() {
         logger.logButtonAddTokens()
         Task { @MainActor [self] in
-            let accountSelector = factory.makeAccountSelectorViewModel { [weak self] cellModel in
-                self?.didSelectAccount(cellModel.cryptoAccountModel)
+            let accountPicker = factory.makeAccountPickerViewModel { [weak self] account in
+                self?.didSelectAccount(account)
             }
-            state = .chooseAccount(accountSelector)
+            state = .chooseAccount(accountPicker)
         }
     }
 
@@ -209,7 +209,7 @@ extension TokensManagementFlowCoordinator {
     @CaseFlagable
     enum ViewState {
         case chooser
-        case chooseAccount(AccountSelectorViewModel)
+        case chooseAccount(AccountPickerViewModel)
         case organize(OrganizeTokensViewModel)
         case manage(ManageTokensViewModel)
         case addCustomToken(AddCustomTokenViewModel)
@@ -217,10 +217,11 @@ extension TokensManagementFlowCoordinator {
         case derivationSelector(AddCustomTokenDerivationPathSelectorViewModel)
         case derivationPathWriter(AddCustomTokenDerivationPathWriterViewModel)
 
+        @MainActor
         var title: String {
             switch self {
             case .chooser: return Localization.mainAddAndManageTokens
-            case .chooseAccount: return Localization.commonChooseAccount
+            case .chooseAccount(let accountPicker): return accountPicker.title
             case .organize: return Localization.organizeTokensTitle
             case .manage: return Localization.addTokensTitle
             case .addCustomToken: return Localization.addCustomTokenTitle
