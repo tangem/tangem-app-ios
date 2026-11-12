@@ -101,9 +101,9 @@ private extension CommonNotificationBadgeService {
 
     func apply(count: Int) {
         NotificationBadgeLogger.info("Applying app icon badge count \(count)")
-        runTask(in: self) { service in
+        runTask { [applier] in
             do {
-                try await service.applier.apply(count: count)
+                try await applier.apply(count: count)
             } catch {
                 NotificationBadgeLogger.error("Failed to apply the app icon badge count", error: error)
             }

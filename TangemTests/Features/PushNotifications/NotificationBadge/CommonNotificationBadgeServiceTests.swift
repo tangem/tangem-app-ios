@@ -160,6 +160,7 @@ private extension CommonNotificationBadgeServiceTests {
 
             await MainActor.run { service.initialize() }
             await operation(applier, notificationCenter)
+            await MainActor.run {}
             withExtendedLifetime(service) {}
         }
     }
