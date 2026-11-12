@@ -27,7 +27,6 @@ final class DetailsCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var connectionsCoordinator: ConnectionsCoordinator?
-    @Published var walletConnectCoordinator: WalletConnectCoordinator?
     @Published var userWalletSettingsCoordinator: UserWalletSettingsCoordinator?
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
@@ -84,19 +83,6 @@ extension DetailsCoordinator: DetailsRoutable {
             )
             coordinator.start(with: options)
             connectionsCoordinator = coordinator
-        }
-    }
-
-    func openWalletConnect(with disabledLocalizedReason: String?) {
-        Task {
-            let coordinator = WalletConnectCoordinator()
-
-            let options = WalletConnectCoordinator.Options(
-                disabledLocalizedReason: disabledLocalizedReason,
-                prefetchedConnectedDApps: await connectedDAppRepository.prefetchedDApps
-            )
-            coordinator.start(with: options)
-            walletConnectCoordinator = coordinator
         }
     }
 

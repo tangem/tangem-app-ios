@@ -20,7 +20,6 @@ import TangemUIUtils
 @MainActor
 enum WalletConnectModuleFactory {
     @Injected(\.wcService) private static var walletConnectService: any WCService
-    @Injected(\.dAppSessionsExtender) private static var dAppsSessionExtender: WalletConnectDAppSessionsExtender
     @Injected(\.userWalletRepository) private static var userWalletRepository: any UserWalletRepository
     @Injected(\.connectedDAppRepository) private static var connectedDAppRepository: any WalletConnectConnectedDAppRepository
     @Injected(\.dAppVerificationService) private static var dAppVerificationService: any WalletConnectDAppVerificationService
@@ -50,39 +49,6 @@ enum WalletConnectModuleFactory {
         formatter.locale = Locale(identifier: "en_US")
         return formatter
     }()
-
-    static func makeWalletConnectViewModel(
-        coordinator: some WalletConnectRoutable,
-        prefetchedConnectedDApps: [WalletConnectConnectedDApp]?
-    ) -> WalletConnectViewModel {
-        let establishDAppConnectionUseCase = WalletConnectEstablishDAppConnectionUseCase(
-            userWalletRepository: userWalletRepository,
-            cameraAccessProvider: cameraAccessProvider,
-            openSystemSettingsAction: openSystemSettingsAction
-        )
-
-        let disconnectDAppUseCase = WalletConnectDisconnectDAppUseCase(
-            disconnectDAppService: disconnectDAppService,
-            connectedDAppRepository: connectedDAppRepository
-        )
-
-        let interactor = WalletConnectInteractor(
-            extendConnectedDApps: WalletConnectExtendConnectedDAppsUseCase(sessionsExtender: dAppsSessionExtender),
-            getConnectedDApps: WalletConnectGetConnectedDAppsUseCase(repository: connectedDAppRepository),
-            establishDAppConnection: establishDAppConnectionUseCase,
-            disconnectDApp: disconnectDAppUseCase
-        )
-
-        return WalletConnectViewModel(
-            interactor: interactor,
-            userWalletRepository: userWalletRepository,
-            cryptoAccountsGlobalStateProvider: Self.cryptoAccountsGlobalStateProvider,
-            analyticsLogger: CommonWalletConnectAnalyticsLogger(),
-            logger: WCLogger,
-            coordinator: coordinator,
-            prefetchedConnectedDApps: prefetchedConnectedDApps
-        )
-    }
 
     static func makeDAppConnectionViewModel(
         forURI uri: WalletConnectRequestURI,

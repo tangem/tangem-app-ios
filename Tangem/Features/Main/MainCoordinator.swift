@@ -127,7 +127,7 @@ final class MainCoordinator: CoordinatorObject, FeeCurrencyNavigating {
             mainUserWalletPageBuilderFactory: CommonMainUserWalletPageBuilderFactory(coordinator: self),
             pushNotificationsAvailabilityProvider: pushNotificationsAvailabilityProvider,
             promoSheetProvider: MainScreenPromoSheetProvider(
-                managers: [YieldModePromoSheetManager.make(routable: self)].compactMap { $0 },
+                managers: [YieldModePromoSheetManager.make(routable: self)],
                 host: self
             )
         )

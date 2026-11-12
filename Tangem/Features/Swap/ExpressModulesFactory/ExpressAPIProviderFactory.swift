@@ -37,7 +37,7 @@ struct ExpressAPIProviderFactory {
         )
 
         let featureFlags = ExpressFeatureFlags(
-            isAPIV2Enabled: FeatureProvider.isAvailable(.expressApiV2)
+            isAPIV2Enabled: true
         )
 
         return factory.makeExpressAPIProvider(
@@ -46,7 +46,7 @@ struct ExpressAPIProviderFactory {
             expressAPIType: expressAPIType,
             exchangeDataDecoder: exchangeDataDecoder,
             featureFlags: featureFlags,
-            requestInterceptor: featureFlags.isAPIV2Enabled ? authenticationInterceptor : nil
+            requestInterceptor: authenticationInterceptor
         )
     }
 }

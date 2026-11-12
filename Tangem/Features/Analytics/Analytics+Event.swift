@@ -221,7 +221,6 @@ extension Analytics {
         case settingsButtonChat = "[Settings] Button - Chat"
         case settingsButtonManageTokens = "[Settings] Button - Manage Tokens"
         case settingsColdWalletAdded = "[Settings] Cold Wallet Added"
-        case buttonWalletConnect = "[Settings] Button - Wallet Connect"
         case buttonConnections = "[Settings] Button - Connections"
         case buttonStartWalletConnectSession = "[Settings] Button - Start Wallet Connect Session"
         case buttonStopWalletConnectSession = "[Settings] Button - Stop Wallet Connect Session"
@@ -329,9 +328,6 @@ extension Analytics {
         case connectionsDisconnectAllButtonTapped = "[Connections] Button - Disconnect All"
 
         // MARK: - Wallet Connect
-
-        case walletConnectScreenOpened = "[Wallet Connect] WC Screen Opened"
-        case walletConnectDisconnectAllButtonTapped = "[Wallet Connect] Button - Disconnect All"
 
         case walletConnectDAppDetailsDisconnectButtonTapped = "[Wallet Connect] Button - Disconnect"
 

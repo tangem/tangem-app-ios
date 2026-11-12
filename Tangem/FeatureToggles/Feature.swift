@@ -25,18 +25,13 @@ enum Feature: String, Hashable, CaseIterable {
     case totalTokenBalanceV2
     case mobileSocialLogin
     case jointAccountsGaslessTokenFee
-    case mcp
     case tangemPayAppleWalletProvisioning
     case tronGaslessDEX
-    case marketingActivityBinding
-    case yieldModePromo
     case tangemPayMoneyAccount
     case tangemPayCustomerSummary
     case solanaGasless
     case promoPage
     case dogecoinPsbtBdkFeeRateLimit
-    case walletLinking
-    case expressApiV2
     case polymarketFastOrders
     case polymarketFastTradingPause
     case allServices
@@ -66,18 +61,13 @@ enum Feature: String, Hashable, CaseIterable {
         case .totalTokenBalanceV2: return "[REDACTED_INFO]_total_token_balance_v2"
         case .mobileSocialLogin: return "[REDACTED_INFO]_mobile_social_login"
         case .jointAccountsGaslessTokenFee: return "[REDACTED_INFO]_joint_accounts_gasless_token_fee"
-        case .mcp: return "TWI-1721_mcp"
         case .tangemPayAppleWalletProvisioning: return "TWI-1062_apple_wallet_push_provisioning"
         case .tronGaslessDEX: return "TWI-1850_tron_gasless_dex"
-        case .marketingActivityBinding: return "TWI-1732_marketing_activity_binding"
-        case .yieldModePromo: return "TWI-1762_yield_mode_promo"
         case .tangemPayMoneyAccount: return "TWI-1525_money_account"
         case .tangemPayCustomerSummary: return "[REDACTED_INFO]_tangem_pay_customer_summary"
         case .solanaGasless: return "TWI-1258_solana_gasless"
         case .promoPage: return "[REDACTED_INFO]_promo_page"
         case .dogecoinPsbtBdkFeeRateLimit: return "[REDACTED_INFO]_dogecoin_psbt_bdk_fee_rate_limit"
-        case .walletLinking: return "[REDACTED_INFO]_wallet_linking"
-        case .expressApiV2: return "TWI-1906_express_api_v2"
         case .polymarketFastOrders: return "TWI-1881_polymarket_fast_orders"
         case .polymarketFastTradingPause: return "[REDACTED_INFO]_polymarket_fast_trading_pause"
         case .allServices: return "TWI-1720_all_services"
@@ -107,18 +97,13 @@ enum Feature: String, Hashable, CaseIterable {
         case .totalTokenBalanceV2: return .unspecified
         case .mobileSocialLogin: return .unspecified
         case .jointAccountsGaslessTokenFee: return .unspecified
-        case .mcp: return .version("6.8")
         case .tangemPayAppleWalletProvisioning: return .unspecified
         case .tronGaslessDEX: return .version("6.9")
-        case .marketingActivityBinding: return .version("6.8")
-        case .yieldModePromo: return .version("6.8")
         case .tangemPayMoneyAccount: return .unspecified
         case .tangemPayCustomerSummary: return .unspecified
         case .solanaGasless: return .version("6.9")
         case .promoPage: return .version("6.9")
         case .dogecoinPsbtBdkFeeRateLimit: return .unspecified
-        case .walletLinking: return .version("6.8")
-        case .expressApiV2: return .version("6.8")
         case .polymarketFastOrders: return .unspecified
         case .polymarketFastTradingPause: return .unspecified
         case .allServices: return .unspecified

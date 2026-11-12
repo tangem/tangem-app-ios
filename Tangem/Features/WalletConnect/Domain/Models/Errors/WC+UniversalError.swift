@@ -14,7 +14,7 @@ import TangemFoundation
 // `004` - CommonBlockaidAPIService.BlockaidAPIServiceError
 // `005` - DAppPersistenceError
 // `006` - WebSocketError
-// `007` - WalletConnectEstablishDAppConnectionUseCase.FeatureDisabledError
+// `007` - removed. Previously - WalletConnectEstablishDAppConnectionUseCase.FeatureDisabledError
 // `009` - WalletConnectTransactionRequestProcessingError
 // `010` - WalletConnectSignError
 // `011` - WalletConnectURIParsingError
@@ -93,12 +93,6 @@ extension WebSocketError: UniversalError {
         case .peerDisconnected:
             107006001
         }
-    }
-}
-
-extension WalletConnectEstablishDAppConnectionUseCase.FeatureDisabledError: UniversalError {
-    var errorCode: Int {
-        107007000
     }
 }
 

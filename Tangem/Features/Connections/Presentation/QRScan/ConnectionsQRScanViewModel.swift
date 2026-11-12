@@ -124,7 +124,7 @@ extension ConnectionsQRScanViewModel {
         from rawValue: String,
         source: ConnectionsQRScanResult.Source
     ) throws -> ConnectionsQRScanResult {
-        if FeatureProvider.isAvailable(.mcp), let userCode = MainQRMCPConnectionRequestUserCodeParser.parse(rawValue) {
+        if let userCode = MainQRMCPConnectionRequestUserCodeParser.parse(rawValue) {
             return .mcpConnectionRequest(userCode: userCode, source: source)
         }
 

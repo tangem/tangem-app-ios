@@ -24,7 +24,7 @@ struct MainQRCodeContentParser {
             return .walletConnect(walletConnectURI)
         }
 
-        if FeatureProvider.isAvailable(.mcp), let userCode = MainQRMCPConnectionRequestUserCodeParser.parse(value) {
+        if let userCode = MainQRMCPConnectionRequestUserCodeParser.parse(value) {
             return .mcpConnectionRequest(userCode: userCode)
         }
 

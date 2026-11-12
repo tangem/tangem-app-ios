@@ -177,12 +177,8 @@ extension YieldModePromoSheetManager: MainScreenPromoSheetManager {
 // MARK: - Factory
 
 extension YieldModePromoSheetManager {
-    static func make(routable: YieldModePromoSheetRoutable) -> YieldModePromoSheetManager? {
-        guard FeatureProvider.isAvailable(.yieldModePromo) else {
-            return nil
-        }
-
-        return YieldModePromoSheetManager(
+    static func make(routable: YieldModePromoSheetRoutable) -> YieldModePromoSheetManager {
+        YieldModePromoSheetManager(
             catalogProvider: CommonYieldModePromoCatalogProvider(),
             makePositionsProvider: {
                 InjectedValues[\.userWalletRepository].selectedModel.map(CommonYieldModePromoPositionsProvider.init)

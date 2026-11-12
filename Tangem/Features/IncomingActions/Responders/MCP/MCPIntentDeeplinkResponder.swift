@@ -17,7 +17,6 @@ final class MCPIntentDeeplinkResponder: IncomingActionResponder {
 
     func didReceiveIncomingAction(_ action: IncomingAction) -> Bool {
         guard
-            FeatureProvider.isAvailable(.mcp),
             case .navigation(.mcpIntent(let intentDeeplink)) = action,
             userWalletRepository.selectedModel != nil
         else {
