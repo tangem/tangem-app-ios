@@ -97,7 +97,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .exchangeOnlyWithinSingleAddress: return .unspecified
         case .walletConnectBitcoin: return .unspecified
         case .usdtRevokeGaslessFee: return .unspecified
-        case .mobileWalletMultiCreation: return .unspecified
+        case .mobileWalletMultiCreation: return .version("6.9")
         case .priceAlertsSubscription: return .unspecified
         case .backup4cards: return .unspecified
         case .polymarketPhaseTwo: return .unspecified
@@ -109,13 +109,13 @@ enum Feature: String, Hashable, CaseIterable {
         case .jointAccountsGaslessTokenFee: return .unspecified
         case .mcp: return .version("6.8")
         case .tangemPayAppleWalletProvisioning: return .unspecified
-        case .tronGaslessDEX: return .unspecified
+        case .tronGaslessDEX: return .version("6.9")
         case .marketingActivityBinding: return .version("6.8")
         case .yieldModePromo: return .version("6.8")
         case .tangemPayMoneyAccount: return .unspecified
         case .tangemPayCustomerSummary: return .unspecified
-        case .solanaGasless: return .unspecified
-        case .promoPage: return .unspecified
+        case .solanaGasless: return .version("6.9")
+        case .promoPage: return .version("6.9")
         case .dogecoinPsbtBdkFeeRateLimit: return .unspecified
         case .walletLinking: return .version("6.8")
         case .expressApiV2: return .version("6.8")
