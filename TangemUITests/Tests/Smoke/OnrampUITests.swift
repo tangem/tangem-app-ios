@@ -19,7 +19,7 @@ final class OnrampUITests: BaseTestCase {
         let expectedCurrency = "€"
         let expectedTitle = "Buy \(token)"
 
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         try CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -64,7 +64,7 @@ final class OnrampUITests: BaseTestCase {
         let newCurrency = "USD"
         let newCurrencySymbol = "$"
 
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         try CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -87,7 +87,7 @@ final class OnrampUITests: BaseTestCase {
         setAllureId(2563)
         let countryToSelect = "United States of America"
 
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         try CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
