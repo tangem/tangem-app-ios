@@ -62,7 +62,9 @@ class FakeWalletManager: WalletManager {
         let walletModelsFactory = walletModelsFactoryProvider
             .makeWalletModelsFactory(
                 blockchainSettingsUpdater: FakeBlockchainSettingsUpdater(),
-                userTokensManager: UserTokensManagerMock()
+                userTokensManager: UserTokensManagerMock(),
+                isSafe: false,
+                isEarnSupported: true
             )
 
         walletModels = walletModelsFactory.makeWalletModels(

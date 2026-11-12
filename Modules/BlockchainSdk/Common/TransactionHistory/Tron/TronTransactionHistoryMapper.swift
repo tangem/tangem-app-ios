@@ -12,7 +12,7 @@ import TangemFoundation
 final class TronTransactionHistoryMapper {
     private let blockchain: Blockchain
     private let addressComparator = AddressComparator()
-    private var transactionIndicesCounter: [String: Int] = [:]
+    private let transactionIndicesCounter = OSAllocatedUnfairLock(initialState: [String: Int]())
 
     init(blockchain: Blockchain) {
         self.blockchain = blockchain
@@ -234,8 +234,12 @@ final class TronTransactionHistoryMapper {
         let tokenTransfers = tokenTransfers(transaction, tokens: tokens)
 
         return transactionInfos.map { transactionInfo in
-            let index = transactionIndicesCounter[hash, default: 0]
-            transactionIndicesCounter[hash] = index + 1
+            let index = transactionIndicesCounter { counter in
+                let index = counter[hash, default: 0]
+                counter[hash] = index + 1
+
+                return index
+            }
 
             let destination: TransactionRecord.Destination = {
                 switch type {
@@ -572,7 +576,7 @@ extension TronTransactionHistoryMapper: TransactionHistoryMapper {
     }
 
     func reset() {
-        transactionIndicesCounter.removeAll()
+        transactionIndicesCounter { $0.removeAll() }
     }
 }
 
