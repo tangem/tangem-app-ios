@@ -19,8 +19,8 @@ struct WalletModelsFactoryProvider {
     func makeWalletModelsFactory(
         blockchainSettingsUpdater: BlockchainSettingsUpdater,
         userTokensManager: UserTokensManager,
-        isSafe: Bool = false,
-        isEarnSupported: Bool = true
+        isSafe: Bool,
+        isEarnSupported: Bool
     ) -> any WalletModelsFactory {
         let dynamicAddressesManagerProvider = DynamicAddressesManagerProvider(
             keysRepository: keysRepository,

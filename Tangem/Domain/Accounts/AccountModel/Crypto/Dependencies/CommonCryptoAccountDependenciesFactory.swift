@@ -72,7 +72,9 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let blockchainSettingsUpdater = CommonBlockchainSettingsUpdater(userTokensRepository: userTokensRepository)
         let walletModelsFactory = walletModelsFactoryProvider.makeWalletModelsFactory(
             blockchainSettingsUpdater: blockchainSettingsUpdater,
-            userTokensManager: userTokensManager
+            userTokensManager: userTokensManager,
+            isSafe: false,
+            isEarnSupported: true
         )
         let wrappedWalletModelsFactory = WalletModelsFactoryWrapper(innerFactory: walletModelsFactory)
 

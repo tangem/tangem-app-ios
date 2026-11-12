@@ -15,11 +15,7 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
     private let configuration: SolanaTransactionHistoryTarget.Configuration
     private let networkProvider: TangemProvider<SolanaTransactionHistoryTarget>
     private let mapper: SolanaTransactionHistoryMapper
-
-    private var paginationToken: String?
-    private var hasReachedEnd = false
-    private var tokenAccountAddress: String?
-    private var tokenAccountAddressMint: String?
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     init(
         configuration: SolanaTransactionHistoryTarget.Configuration,
@@ -32,26 +28,25 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
     }
 
     var canFetchHistory: Bool {
-        !hasReachedEnd
+        state { !$0.hasReachedEnd }
     }
 
     var description: String {
-        objectDescription(
+        let snapshot = state { $0 }
+
+        return objectDescription(
             self,
             userInfo: [
                 "configuration": configuration,
-                "paginationToken": paginationToken ?? "-",
-                "hasReachedEnd": hasReachedEnd,
-                "tokenAccountAddress": tokenAccountAddress ?? "-",
+                "paginationToken": snapshot.paginationToken ?? "-",
+                "hasReachedEnd": snapshot.hasReachedEnd,
+                "tokenAccountAddress": snapshot.tokenAccountAddress ?? "-",
             ]
         )
     }
 
     func reset() {
-        paginationToken = nil
-        hasReachedEnd = false
-        tokenAccountAddress = nil
-        tokenAccountAddressMint = nil
+        state { $0 = State() }
         mapper.reset()
     }
 
@@ -63,9 +58,12 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
         // Solana does not support fee resource type for transaction history.
         // All fees are paid in SOL.
         if case .feeResource = request.amountType {
-            hasReachedEnd = true
+            state { $0.hasReachedEnd = true }
+
             return .justWithError(output: .init(records: []))
         }
+
+        let resetToken = state { $0.resetToken }
 
         return resolveQueryAddress(walletAddress: address, amountType: request.amountType)
             .withWeakCaptureOf(self)
@@ -90,8 +88,14 @@ final class SolanaTransactionHistoryProvider: TransactionHistoryProvider {
                 // As Solana has different balance changes calculations that doesn't include fee/gas.
                 // We need to show all of them.
 
-                provider.paginationToken = fetchedTransactions.paginationToken
-                provider.hasReachedEnd = fetchedTransactions.paginationToken == nil
+                provider.state { state in
+                    guard state.resetToken == resetToken else {
+                        return
+                    }
+
+                    state.paginationToken = fetchedTransactions.paginationToken
+                    state.hasReachedEnd = fetchedTransactions.paginationToken == nil
+                }
 
                 return .init(records: records)
             }
@@ -105,7 +109,11 @@ private extension SolanaTransactionHistoryProvider {
             return .justWithError(output: walletAddress)
         }
 
-        if tokenAccountAddressMint == token.contractAddress, let tokenAccountAddress {
+        let tokenAccountAddress = state { state in
+            state.tokenAccountAddressMint == token.contractAddress ? state.tokenAccountAddress : nil
+        }
+
+        if let tokenAccountAddress {
             return .justWithError(output: tokenAccountAddress)
         }
 
@@ -127,8 +135,11 @@ private extension SolanaTransactionHistoryProvider {
                     mint: token.contractAddress,
                     ownerAccountId: walletAddress
                 )
-                self?.tokenAccountAddress = tokenAccountAddress
-                self?.tokenAccountAddressMint = token.contractAddress
+                self?.state { state in
+                    state.tokenAccountAddress = tokenAccountAddress
+                    state.tokenAccountAddressMint = token.contractAddress
+                }
+
                 return tokenAccountAddress
             }
             .eraseToAnyPublisher()
@@ -143,7 +154,7 @@ private extension SolanaTransactionHistoryProvider {
             request: .getTransactionsForAddress(
                 address: address,
                 limit: limit,
-                paginationToken: paginationToken
+                paginationToken: state { $0.paginationToken }
             )
         )
 
@@ -164,5 +175,14 @@ private extension SolanaTransactionHistoryProvider {
     struct FetchedTransactions {
         let details: [SolanaTransactionHistoryDTO.TransactionDetails]
         let paginationToken: String?
+    }
+
+    struct State {
+        /// Changes with every reset, so a response to a request made before the reset can't update the new state.
+        let resetToken = UUID()
+        var paginationToken: String?
+        var hasReachedEnd = false
+        var tokenAccountAddress: String?
+        var tokenAccountAddressMint: String?
     }
 }
