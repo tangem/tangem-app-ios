@@ -62,7 +62,7 @@ struct SafariHelper {
     }
 
     func dismissOnboardingIfNeeded() {
-        let continueButton = safari.buttons["Continue"]
+        let continueButton = safari.buttons["Continue"].firstMatch
         if continueButton.exists, continueButton.isEnabled {
             continueButton.tap()
         }
