@@ -148,6 +148,29 @@ final class UserWalletSettingsViewModel: ObservableObject {
         }
     }
 
+    func showPausedJointAccountAlert() {
+        alert = AlertBuilder.makePausedJointAccountAlert { [weak self] in
+            self?.openPausedJointAccountSupport()
+        }
+    }
+
+    private func openPausedJointAccountSupport() {
+        let dataCollector = DetailsFeedbackDataCollector(
+            data: [
+                .init(
+                    userWalletEmailData: userWalletModel.emailData,
+                    walletModels: AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+                ),
+            ]
+        )
+
+        coordinator?.openMail(
+            with: dataCollector,
+            emailType: .appFeedback(subject: EmailConfig.default.subject),
+            recipient: EmailConfig.default.recipient
+        )
+    }
+
     func mobileUpgradeTap() {
         runTask(in: self) { viewModel in
             await viewModel.openMobileUpgrade()

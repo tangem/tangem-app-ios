@@ -13,6 +13,7 @@ import CombineExt
 import TangemLocalization
 import TangemFoundation
 import TangemAccounts
+import TangemMacro
 
 final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - Published State
@@ -217,28 +218,45 @@ final class UserSettingsAccountsViewModel: ObservableObject {
     // MARK: - Utilities
 
     private func updateAccountRows(from accounts: [any BaseAccountModel]) {
-        let currentIds = Set(accounts.map { $0.id.toAnyHashable() })
-        cachedAccountRows = cachedAccountRows.filter { currentIds.contains($0.key) }
+        let resolver = AccountRowResolver(viewModel: self)
 
-        accountRows = accounts.map { account in
-            let id = account.id.toAnyHashable()
+        accountRows = accounts.map { $0.resolve(using: resolver) }
+        cachedAccountRows = accountRows.keyedFirst(by: \.id)
+    }
 
-            if let cached = cachedAccountRows[id] {
-                return cached
-            }
-
-            let hasDetails = !(account is any CollectiblesAccountModel)
+    private func makeRegularAccountRow(account: any BaseAccountModel, hasDetails: Bool) -> AccountRow {
+        makeAccountRow(account: account, reusing: \.isRegular) {
             let viewModel = AccountRowButtonViewModel(
                 accountModel: account,
                 availability: hasDetails ? .available : .unavailable()
             ) { [weak self] in
                 self?.onTapAccount(account: account)
             }
-            let accountRow = AccountRow(viewModel: viewModel, accountModel: account, hasDetails: hasDetails)
-            cachedAccountRows[id] = accountRow
 
-            return accountRow
+            return .regular(viewModel, hasDetails: hasDetails)
         }
+    }
+
+    private func makePausedAccountRow(jointAccount: any JointAccountModel) -> AccountRow {
+        makeAccountRow(account: jointAccount, reusing: \.isPaused) {
+            let viewModel = PausedJointAccountItemViewModel(jointAccount: jointAccount) { [weak self] in
+                self?.coordinator?.showPausedJointAccountAlert()
+            }
+
+            return .paused(viewModel)
+        }
+    }
+
+    private func makeAccountRow(
+        account: any BaseAccountModel,
+        reusing isReusable: (AccountRow.Content) -> Bool,
+        makeContent: () -> AccountRow.Content
+    ) -> AccountRow {
+        if let cached = cachedAccountRows[account.id.toAnyHashable()], isReusable(cached.content) {
+            return cached
+        }
+
+        return AccountRow(content: makeContent(), accountModel: account)
     }
 
     private static func extractPersistentIdentifier(
@@ -262,19 +280,57 @@ extension UserSettingsAccountsViewModel {
 
     /// An opaque wrapper to prevent an exposure of the `BaseAccountModel` associated with the row.
     struct AccountRow: Identifiable {
-        var id: AccountRowButtonViewModel.ID { viewModel.id }
-        let viewModel: AccountRowButtonViewModel
-        let hasDetails: Bool
+        let id: AnyHashable
+        let content: Content
         fileprivate let accountModel: any BaseAccountModel
 
         fileprivate init(
-            viewModel: AccountRowButtonViewModel,
-            accountModel: any BaseAccountModel,
-            hasDetails: Bool
+            content: Content,
+            accountModel: any BaseAccountModel
         ) {
-            self.viewModel = viewModel
+            id = accountModel.id.toAnyHashable()
+            self.content = content
             self.accountModel = accountModel
-            self.hasDetails = hasDetails
+        }
+    }
+}
+
+extension UserSettingsAccountsViewModel.AccountRow {
+    @CaseFlagable
+    enum Content {
+        case regular(AccountRowButtonViewModel, hasDetails: Bool)
+        case paused(PausedJointAccountItemViewModel)
+    }
+}
+
+// MARK: - AccountRowResolver
+
+private extension UserSettingsAccountsViewModel {
+    struct AccountRowResolver: AccountModelResolving {
+        let viewModel: UserSettingsAccountsViewModel
+
+        func resolve(accountModel: any StandardCryptoAccountModel) -> AccountRow {
+            viewModel.makeRegularAccountRow(account: accountModel, hasDetails: true)
+        }
+
+        func resolve(accountModel: any JointAccountModel) -> AccountRow {
+            if accountModel.jointAccountStatusProvider.status.isUntrusted {
+                return viewModel.makePausedAccountRow(jointAccount: accountModel)
+            }
+
+            return viewModel.makeRegularAccountRow(account: accountModel, hasDetails: true)
+        }
+
+        func resolve(accountModel: any TangemPayAccountModel) -> AccountRow {
+            viewModel.makeRegularAccountRow(account: accountModel, hasDetails: true)
+        }
+
+        func resolve(accountModel: any PolymarketAccountModel) -> AccountRow {
+            viewModel.makeRegularAccountRow(account: accountModel, hasDetails: true)
+        }
+
+        func resolve(accountModel: any CollectiblesAccountModel) -> AccountRow {
+            viewModel.makeRegularAccountRow(account: accountModel, hasDetails: false)
         }
     }
 }

@@ -553,14 +553,9 @@ final class MultiWalletMainContentViewModel: ObservableObject {
     }
 
     private func showPausedJointAccountAlert() {
-        error = AlertBuilder.makeAlert(
-            title: Localization.jointAccountCompromisedTitle,
-            message: Localization.jointAccountCompromisedMessage,
-            primaryButton: .default(Text(Localization.commonContactSupport)) { [weak self] in
-                self?.openPausedJointAccountSupport()
-            },
-            secondaryButton: .cancel()
-        )
+        error = AlertBuilder.makePausedJointAccountAlert { [weak self] in
+            self?.openPausedJointAccountSupport()
+        }
     }
 
     private func openPausedJointAccountSupport() {

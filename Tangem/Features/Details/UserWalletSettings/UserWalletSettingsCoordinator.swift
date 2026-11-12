@@ -22,6 +22,7 @@ final class UserWalletSettingsCoordinator: CoordinatorObject {
 
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
     // MARK: - Root view model
 
@@ -161,6 +162,15 @@ extension UserWalletSettingsCoordinator: UserWalletSettingsRoutable {
             analyticsSourceRawValue: Analytics.ParameterValue.walletSettings.rawValue
         ) { [weak self] _ in
             self?.manageTokensCoordinator = nil
+        }
+    }
+
+    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
+        let logsComposer = LogsComposer(infoProvider: dataCollector)
+        let mailViewModel = MailViewModel(logsComposer: logsComposer, recipient: recipient, emailType: emailType)
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
         }
     }
 
@@ -414,6 +424,10 @@ extension UserWalletSettingsCoordinator: UserSettingsAccountsRoutable {
 
     func handleAccountsLimitReached() {
         rootViewModel?.handleAccountsLimitReached()
+    }
+
+    func showPausedJointAccountAlert() {
+        rootViewModel?.showPausedJointAccountAlert()
     }
 
     func handleAccountsRedistribution(sourceAccountName: String, targetAccountName: String) {

@@ -29,5 +29,7 @@ protocol UserSettingsAccountsRoutable: AnyObject {
 
     func handleAccountsLimitReached()
 
+    func showPausedJointAccountAlert()
+
     func handleAccountsRedistribution(sourceAccountName: String, targetAccountName: String)
 }
