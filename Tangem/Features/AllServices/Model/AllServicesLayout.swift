@@ -6,11 +6,24 @@
 //
 
 struct AllServicesLayout {
-    let actions: [AllServicesItemID]
+    let sections: [Section]
+}
+
+// MARK: - Section
+
+extension AllServicesLayout {
+    struct Section {
+        let id: AllServicesSectionID
+        let items: [AllServicesItemID]
+    }
 }
 
 // MARK: - Standard
 
 extension AllServicesLayout {
-    static let standard = AllServicesLayout(actions: [.addWallet])
+    static let standard = AllServicesLayout(
+        sections: [
+            Section(id: .account, items: [.cryptoAccount, .jointAccount]),
+        ]
+    )
 }

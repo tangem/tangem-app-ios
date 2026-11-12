@@ -7,5 +7,9 @@
 
 protocol AllServicesRoutable: AnyObject {
     func openAddWallet()
+    func openShop()
+    func openCryptoAccountForm()
+    func openJointAccountCreation()
+    func openReferral(wallets: [UserWalletModel])
     func closeAllServices()
 }

@@ -18,6 +18,12 @@ struct AllServicesItem: Identifiable, Equatable {
 
 extension AllServicesItem {
     enum Icon: Equatable {
-        case glyph(ImageType)
+        case illustration(type: ImageType, style: IllustrationStyle)
+    }
+
+    enum IllustrationStyle: Equatable {
+        case brand
+        // [REDACTED_TODO_COMMENT]
+        case brandFullTint
     }
 }

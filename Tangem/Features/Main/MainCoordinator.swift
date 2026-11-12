@@ -245,8 +245,17 @@ extension MainCoordinator: MainRoutable {
     func openAllServices() {
         guard allServicesCoordinator == nil else { return }
 
-        let dismissAction: Action<Void> = { [weak self] _ in
-            self?.allServicesCoordinator = nil
+        let dismissAction: Action<AllServicesCoordinator.DismissOptions?> = { [weak self] options in
+            guard let self, allServicesCoordinator != nil else { return }
+
+            allServicesCoordinator = nil
+
+            guard let options else { return }
+
+            Task { @MainActor [weak self] in
+                try? await ContinuousClock().sleep(for: .seconds(Constants.allServicesHandoffDelay))
+                self?.proceedAllServicesDismissOption(options)
+            }
         }
 
         let coordinator = AllServicesCoordinator(
@@ -1164,6 +1173,7 @@ extension MainCoordinator {
         static let tangemPayPlanActivationNavigationDelay: TimeInterval = 0.6
         static let tangemPayCampaignPresentationDelay: TimeInterval = 0.35
         static let qrScanDeeplinkHandoffDelay: TimeInterval = 0.35
+        static let allServicesHandoffDelay: TimeInterval = 0.35
         static let tangemPayRegionReselectionPresentationDelay: TimeInterval = 0.5
     }
 }
@@ -1347,6 +1357,17 @@ extension MainCoordinator: FeedHostRoutable {
             openTangemPaySelectPlan(tariffPlanSelector: tariffPlanSelector, userWalletModel: userWalletModel)
         case .verified(let interactor, let userWalletModel):
             openTangemPayVerified(interactor: interactor, userWalletModel: userWalletModel)
+        }
+    }
+}
+
+// MARK: - All Services
+
+private extension MainCoordinator {
+    func proceedAllServicesDismissOption(_ option: AllServicesCoordinator.DismissOptions) {
+        switch option {
+        case .openManageTokens(let account, let userWalletModel):
+            openManageTokens(for: account, in: userWalletModel)
         }
     }
 }

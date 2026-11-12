@@ -13,9 +13,13 @@ struct AllServicesCoordinatorView: CoordinatorView {
 
     var body: some View {
         NavigationStack {
-            if let viewModel = coordinator.rootViewModel {
-                AllServicesView(viewModel: viewModel)
-                    .navigationLinks(links)
+            ZStack {
+                if let viewModel = coordinator.rootViewModel {
+                    AllServicesView(viewModel: viewModel)
+                        .navigationLinks(links)
+                }
+
+                sheets
             }
         }
     }
@@ -25,5 +29,23 @@ struct AllServicesCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.addWalletSelectorCoordinator) {
                 AddWalletSelectorCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.referralCoordinator) {
+                ReferralCoordinatorView(coordinator: $0)
+            }
+    }
+
+    private var sheets: some View {
+        NavHolder()
+            .fullScreenCover(item: $coordinator.accountFormViewModel, onDismiss: coordinator.accountFormDidDismiss) { viewModel in
+                NavigationStack {
+                    AccountFormView(viewModel: viewModel)
+                }
+                .softTopScrollEdgeEffect()
+            }
+            .fullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
+                JointAccountManagementCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
+            }
+            .userWalletSelectorModal(item: $coordinator.walletSelectorViewModel, onDismiss: coordinator.walletSelectorDidDismiss)
     }
 }
