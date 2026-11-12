@@ -34,6 +34,7 @@ final class JointAccountJoinCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var memberDetailsViewModel: JointAccountMemberDetailsViewModel?
+    @Published var aboutSignaturesViewModel: JointAccountAboutSignaturesViewModel?
     @Published var walletSelectorViewModel: AccountSelectorViewModel?
 
     // MARK: - Dependencies
@@ -145,6 +146,10 @@ extension JointAccountJoinCoordinator: JointAccountJoinRoutable {
         )
     }
 
+    func openAboutSignatures(policy: JointAccountPolicy) {
+        aboutSignaturesViewModel = JointAccountAboutSignaturesViewModel(policy: policy, coordinator: self)
+    }
+
     func openWalletSelection(accountSelectorViewModel: AccountSelectorViewModel) {
         walletSelectorViewModel = accountSelectorViewModel
     }
@@ -199,5 +204,13 @@ extension JointAccountJoinCoordinator: JointAccountJoinMemberNameRoutable {
 extension JointAccountJoinCoordinator: JointAccountMemberDetailsRoutable {
     func closeMemberDetails() {
         memberDetailsViewModel = nil
+    }
+}
+
+// MARK: - JointAccountAboutSignaturesRoutable
+
+extension JointAccountJoinCoordinator: JointAccountAboutSignaturesRoutable {
+    func closeAboutSignatures() {
+        aboutSignaturesViewModel = nil
     }
 }

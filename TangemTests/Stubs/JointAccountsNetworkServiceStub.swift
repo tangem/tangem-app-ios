@@ -76,9 +76,11 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
         fetchedOperationAnswers: [Result<JointOperationFetchResult, Error>] = [],
         issuedInviteAnswer: Result<JointAccountIssuedInvite, Error>? = nil,
         historyPages: [JointOperationsHistoryPage] = [],
-        historyDeltaPages: [JointOperationsHistoryPage] = []
+        historyDeltaPages: [JointOperationsHistoryPage] = [],
+        invitePreview: JointAccountInvitePreview? = nil
     ) {
         state.withLock {
+            $0.invitePreview = invitePreview
             $0.historyPages = historyPages
             $0.historyDeltaPages = historyDeltaPages
             $0.issuedInviteAnswer = issuedInviteAnswer
@@ -144,7 +146,11 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
     }
 
     func getInvitePreview(inviteId: String) async throws -> JointAccountInvitePreview {
-        throw "Not called by these tests"
+        guard let invitePreview = state.withLock(\.invitePreview) else {
+            throw "The test handed no invite preview for the endpoint to return"
+        }
+
+        return invitePreview
     }
 
     func joinJointAccount(blob: JointAccountJoinBlob) async throws -> RemoteJointAccount {
@@ -252,5 +258,6 @@ private extension JointAccountsNetworkServiceStub {
         var historyDeltaPages: [JointOperationsHistoryPage] = []
         var requestedHistoryCursors: [String?] = []
         var requestedHistoryDeltaCursors: [String?] = []
+        var invitePreview: JointAccountInvitePreview?
     }
 }
