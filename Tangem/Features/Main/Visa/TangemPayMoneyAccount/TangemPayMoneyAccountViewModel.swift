@@ -159,9 +159,9 @@ private extension TangemPayMoneyAccountViewModel {
 private extension TangemPayMoneyAccountViewModel {
     func refreshState() async {
         async let accountStateUpdate: Void = moneyAccount.refreshState()
-        async let onChainDataUpdate: Void = updateOnChainData()
+        async let transactionHistoryUpdate: Void = moneyAccount.updateTransactionHistory()
 
-        _ = await (accountStateUpdate, onChainDataUpdate)
+        _ = await (accountStateUpdate, transactionHistoryUpdate)
     }
 
     func updateOnChainData() async {

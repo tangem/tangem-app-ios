@@ -16,6 +16,7 @@ protocol TangemPayAccountModel: BaseAccountModel where Icon == AccountModel.Stan
 
     var moneyAccountState: TangemPayMoneyAccountState? { get }
     var moneyAccountStatePublisher: AnyPublisher<TangemPayMoneyAccountState?, Never> { get }
+    var moneyAccountPublisher: AnyPublisher<(any TangemPayMoneyAccountModel)?, Never> { get }
 
     /// Last successfully loaded `TangemPayAccount`. Retained across transient error states
     /// (`.unavailable`, `.syncNeeded`) so the UI can keep navigating to the Payment Account

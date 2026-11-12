@@ -44,6 +44,10 @@ final class TangemPayMoneyAccountModelAdapter: TangemPayAccountModel {
         .just(output: nil)
     }
 
+    var moneyAccountPublisher: AnyPublisher<(any TangemPayMoneyAccountModel)?, Never> {
+        .just(output: nil)
+    }
+
     var lastKnownTangemPayAccount: TangemPayAccount? {
         nil
     }

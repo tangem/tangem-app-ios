@@ -49,3 +49,18 @@ protocol TangemPayMoneyAccountModel: AnyObject, WalletModelTransactionHistoryAdd
         completion: @escaping (TangemPayAuthorizationError?) -> Void
     )
 }
+
+// MARK: - Activation
+
+extension TangemPayMoneyAccountModel {
+    var isOpen: Bool {
+        activation.status == .completed
+    }
+
+    var isOpenPublisher: AnyPublisher<Bool, Never> {
+        activationPublisher
+            .map { $0.status == .completed }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+}
