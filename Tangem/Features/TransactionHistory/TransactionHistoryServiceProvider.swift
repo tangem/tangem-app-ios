@@ -7,17 +7,24 @@
 //
 
 import BlockchainSdk
+import TangemFoundation
 
 struct TransactionHistoryServiceProvider {
-    var isSafe = false
+    let isSafe: Bool
 
     func makeTransactionHistoryService(tokenItem: TokenItem, walletManager: any WalletManager) -> TransactionHistoryService? {
+        let factory = TransactionHistoryFactoryProvider().factory
+
         if tokenItem.blockchain.isDynamicAddressesSupported {
             return WalletTransactionHistoryService(
                 tokenItem: tokenItem,
                 walletProvider: walletManager,
-                transactionHistoryProviderFactory: TransactionHistoryFactoryProvider().factory
+                transactionHistoryProviderFactory: factory
             )
+        }
+
+        guard let provider = factory.makeProvider(for: tokenItem.blockchain, isToken: tokenItem.isToken, isSafe: isSafe) else {
+            return nil
         }
 
         var addresses = walletManager.wallet.addresses.map { $0.value }
@@ -25,38 +32,23 @@ struct TransactionHistoryServiceProvider {
         if tokenItem.blockchain.isEvm {
             let converter = EthereumAddressConverterFactory().makeConverter(for: tokenItem.blockchainNetwork.blockchain)
             let convertedAddresses = addresses.map { (try? converter.convertToETHAddress($0)) ?? $0 }
-            addresses = Array(Set(convertedAddresses))
+            addresses = convertedAddresses.unique()
         }
 
-        if let address = addresses.singleElement {
-            let factory = TransactionHistoryFactoryProvider().factory
-
-            guard let provider = factory.makeProvider(for: tokenItem.blockchain, isToken: tokenItem.isToken, isSafe: isSafe) else {
-                return nil
-            }
-
-            return CommonTransactionHistoryService(
-                tokenItem: tokenItem,
-                address: address,
-                transactionHistoryProvider: provider
+        guard let address = addresses.singleElement else {
+            #if INTERNAL || DEBUG
+            preconditionFailure(
+                "\(tokenItem.blockchain.displayName) has a transaction history provider and \(addresses.count) addresses, but doesn't support dynamic addresses"
             )
-        }
-
-        let multiAddressProviders: [String: BlockchainSdk.TransactionHistoryProvider] = addresses.reduce(into: [:]) { result, address in
-            let factory = TransactionHistoryFactoryProvider().factory
-            if let provider = factory.makeProvider(for: tokenItem.blockchain, isToken: tokenItem.isToken, isSafe: isSafe) {
-                result[address] = provider
-            }
-        }
-
-        guard !multiAddressProviders.isEmpty else {
+            #else
             return nil
+            #endif
         }
 
-        return MultipleAddressTransactionHistoryService(
+        return CommonTransactionHistoryService(
             tokenItem: tokenItem,
-            addresses: addresses,
-            transactionHistoryProviders: multiAddressProviders.compactMapValues { $0 }
+            address: address,
+            transactionHistoryProvider: provider
         )
     }
 }

@@ -24,7 +24,7 @@ final class AlgorandTransactionHistoryProvider<Mapper> where
     private let network: TangemProvider<AlgorandIndexProviderTarget>
     private let mapper: Mapper
 
-    private var page: TransactionHistoryLinkedPage?
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     // MARK: - Init
 
@@ -43,26 +43,30 @@ final class AlgorandTransactionHistoryProvider<Mapper> where
 
 extension AlgorandTransactionHistoryProvider: TransactionHistoryProvider {
     var canFetchHistory: Bool {
-        page == nil || (page?.next != nil)
+        state { state in
+            state.page == nil || (state.page?.next != nil)
+        }
     }
 
     var description: String {
         return objectDescription(
             self,
             userInfo: [
-                "nextToken": page?.next ?? "-",
+                "nextToken": state { $0.page?.next } ?? "-",
             ]
         )
     }
 
     func reset() {
-        page = nil
+        state { $0 = State() }
     }
 
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
         guard case .address(let address) = request.key else {
             return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
         }
+
+        let (resetToken, page) = state { ($0.resetToken, $0.page) }
 
         let target = AlgorandIndexProviderTarget(
             node: node,
@@ -89,7 +93,13 @@ extension AlgorandTransactionHistoryProvider: TransactionHistoryProvider {
                     )
                 }
 
-                provider.page = .init(next: response.nextToken)
+                provider.state { state in
+                    guard state.resetToken == resetToken else {
+                        return
+                    }
+
+                    state.page = .init(next: response.nextToken)
+                }
 
                 return .init(records: records)
             }
@@ -97,5 +107,15 @@ extension AlgorandTransactionHistoryProvider: TransactionHistoryProvider {
                 return BlockchainSdkError.failedToParseNetworkResponse()
             }
             .eraseToAnyPublisher()
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension AlgorandTransactionHistoryProvider {
+    struct State {
+        /// Changes with every reset, so a response to a request made before the reset can't update the new state.
+        let resetToken = UUID()
+        var page: TransactionHistoryLinkedPage?
     }
 }

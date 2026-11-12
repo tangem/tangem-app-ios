@@ -17,9 +17,7 @@ final class TronTransactionHistoryProvider<Mapper> where
     Mapper.WalletAddress == String {
     private let blockBookProvider: BlockBookUTXOProvider
     private let mapper: Mapper
-
-    private var page: TransactionHistoryIndexPage?
-    private var totalPageCount: Int = 0
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     init(
         blockBookProvider: BlockBookUTXOProvider,
@@ -34,17 +32,21 @@ final class TronTransactionHistoryProvider<Mapper> where
 
 extension TronTransactionHistoryProvider: TransactionHistoryProvider {
     var description: String {
+        let snapshot = state { $0 }
+
         return objectDescription(
             self,
             userInfo: [
-                "pageNumber": page?.number ?? "nil",
-                "totalPageCount": totalPageCount,
+                "pageNumber": snapshot.page?.number ?? "nil",
+                "totalPageCount": snapshot.totalPageCount,
             ]
         )
     }
 
     var canFetchHistory: Bool {
-        page == nil || (page?.number ?? Constants.initialPageNumber) < totalPageCount
+        state { state in
+            state.page == nil || (state.page?.number ?? Constants.initialPageNumber) < state.totalPageCount
+        }
     }
 
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
@@ -52,8 +54,9 @@ extension TronTransactionHistoryProvider: TransactionHistoryProvider {
             return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
         }
 
+        let (resetToken, page) = state { ($0.resetToken, $0.page) }
         let requestedPageNumber: Int
-        if let page = page {
+        if let page {
             requestedPageNumber = page.number + 1
         } else {
             requestedPageNumber = Constants.initialPageNumber
@@ -126,8 +129,14 @@ extension TronTransactionHistoryProvider: TransactionHistoryProvider {
                 )
             }
 
-            historyProvider.page = TransactionHistoryIndexPage(number: response.page ?? Constants.initialPageNumber)
-            historyProvider.totalPageCount = totalPageCount
+            historyProvider.state { state in
+                guard state.resetToken == resetToken else {
+                    return
+                }
+
+                state.page = TransactionHistoryIndexPage(number: response.page ?? Constants.initialPageNumber)
+                state.totalPageCount = totalPageCount
+            }
 
             return TransactionHistory.Response(records: records)
         }
@@ -135,9 +144,19 @@ extension TronTransactionHistoryProvider: TransactionHistoryProvider {
     }
 
     func reset() {
-        page = nil
-        totalPageCount = 0
+        state { $0 = State() }
         mapper.reset()
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension TronTransactionHistoryProvider {
+    struct State {
+        /// Changes with every reset, so a response to a request made before the reset can't update the new state.
+        let resetToken = UUID()
+        var page: TransactionHistoryIndexPage?
+        var totalPageCount = 0
     }
 }
 
