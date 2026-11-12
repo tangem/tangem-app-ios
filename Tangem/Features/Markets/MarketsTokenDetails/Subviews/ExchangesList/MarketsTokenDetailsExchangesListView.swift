@@ -135,7 +135,7 @@ struct MarketsTokenDetailsExchangesListView: View {
             redesignedScrollContent
 
         case .failure:
-            TangemUnableToLoadDataView(
+            UnableToLoadDataView(
                 isButtonBusy: false,
                 retryButtonAction: viewModel.reloadExchangesList
             )

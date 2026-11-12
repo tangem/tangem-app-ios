@@ -68,7 +68,7 @@ private extension CryptoSearchView {
                 .accessibilityIdentifier(MarketsAccessibilityIdentifiers.marketsSearchNoResultsLabel)
 
         case .failed:
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.onRetry)
+            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.onRetry)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Constants.errorVerticalInset)
         }

@@ -70,7 +70,7 @@ struct MarketsTokenDetailsContentView: View {
                 contentBlocks
 
             case .failedToLoadDetails:
-                TangemUnableToLoadDataView(
+                UnableToLoadDataView(
                     isButtonBusy: viewModel.isLoading,
                     retryButtonAction: viewModel.loadDetailedInfo
                 )

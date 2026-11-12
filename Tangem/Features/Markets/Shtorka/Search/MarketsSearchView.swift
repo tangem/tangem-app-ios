@@ -251,7 +251,7 @@ struct MarketsSearchView: View {
 
     @ViewBuilder
     private var errorStateView: some View {
-        TangemUnableToLoadDataView(
+        UnableToLoadDataView(
             isButtonBusy: false,
             retryButtonAction: viewModel.tokenListViewModel.onTryLoadList
         )

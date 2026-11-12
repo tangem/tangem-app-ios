@@ -44,7 +44,8 @@ struct SwapMarketsTokensView: View {
         VStack(alignment: .leading, spacing: 0) {
             sectionHeader(isSearching: false, count: 0)
 
-            MarketsListErrorView(tryLoadAgain: viewModel.onRetry)
+            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.onRetry)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .cornerRadiusContinuous(Constants.cornerRadius)
         }
     }

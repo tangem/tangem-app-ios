@@ -57,7 +57,7 @@ struct RelatedTokensSectionView: View {
     }
 
     private var redesignErrorView: some View {
-        TangemUnableToLoadDataView(
+        UnableToLoadDataView(
             isButtonBusy: false,
             retryButtonAction: { viewModel.retry() }
         )

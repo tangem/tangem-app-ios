@@ -117,7 +117,7 @@ struct PolymarketSearchResultsView: View {
         case .paginationLoading:
             paginationLoader
         case .paginationError:
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.handleViewAction(.retryNextPage) })
+            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.handleViewAction(.retryNextPage) })
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Constants.paginationVerticalPadding)
         case .prompt, .loading, .noResults, .error, .allDataLoaded:

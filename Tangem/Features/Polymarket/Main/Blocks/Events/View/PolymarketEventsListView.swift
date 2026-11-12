@@ -97,7 +97,7 @@ private extension PolymarketEventsListView {
         case .paginationLoading:
             paginationLoader
         case .paginationError:
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.handleViewAction(.retryNextPage) })
+            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.handleViewAction(.retryNextPage) })
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Constants.paginationVerticalPadding)
         case .loading, .error, .noResults, .allDataLoaded:

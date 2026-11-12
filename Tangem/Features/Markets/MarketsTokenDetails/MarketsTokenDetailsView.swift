@@ -312,7 +312,7 @@ struct MarketsTokenDetailsView: View {
 
     @ViewBuilder
     private var chartLoadFailedOverlay: some View {
-        TangemUnableToLoadDataView(
+        UnableToLoadDataView(
             isButtonBusy: viewModel.isLoading,
             retryButtonAction: viewModel.loadDetailedInfo
         )

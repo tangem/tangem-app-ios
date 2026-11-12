@@ -71,7 +71,7 @@ struct PulseMarketWidgetView: View {
             }
 
         case .failure:
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.tryLoadAgain)
+            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.tryLoadAgain)
                 .infinityFrame(axis: .horizontal, alignment: .center)
                 .padding(.vertical, 132)
         }

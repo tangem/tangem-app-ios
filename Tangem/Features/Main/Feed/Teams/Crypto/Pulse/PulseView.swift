@@ -43,7 +43,7 @@ struct PulseView: View {
     private var tokensContent: some View {
         switch viewModel.contentState {
         case .failure:
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.onRetry)
+            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.onRetry)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Constants.errorVerticalPadding)
 

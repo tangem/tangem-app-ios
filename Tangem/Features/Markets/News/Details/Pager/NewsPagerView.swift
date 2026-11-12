@@ -274,7 +274,7 @@ private struct NewsPageContentView: View {
     }
 
     private var errorView: some View {
-        TangemUnableToLoadDataView(
+        UnableToLoadDataView(
             isButtonBusy: false,
             retryButtonAction: { viewModel.handleViewAction(.retry) }
         )
