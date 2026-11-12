@@ -208,7 +208,7 @@ final class PolymarketSessionKeyStoreSpy: PolymarketSessionKeyStore, Sendable {
 
 @MainActor
 final class PolymarketFastTradingServiceSpy: PolymarketFastTradingServicing {
-    let refreshes = PolymarketTestSignal<Void>()
+    let refreshes = TestSignal<Void>()
 
     private(set) var dismissedBanners: [PolymarketFastTradingBanner] = []
     private(set) var isWorkCancelled = false

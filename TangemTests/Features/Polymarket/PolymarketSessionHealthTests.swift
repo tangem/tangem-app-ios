@@ -193,7 +193,7 @@ struct PolymarketSessionHealthTests {
 private final class Fixture {
     let walletService: PolymarketWalletStatusServiceStub
     let unauthorizedEvents: AsyncStream<Void>.Continuation
-    let reconnects = PolymarketTestSignal<Void>()
+    let reconnects = TestSignal<Void>()
     let sut: PolymarketSessionHealth
 
     var resets: Int { resetFlags.withLock { $0.count } }

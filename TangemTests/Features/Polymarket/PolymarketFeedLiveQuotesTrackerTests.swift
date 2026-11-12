@@ -180,7 +180,7 @@ struct PolymarketFeedLiveQuotesTrackerTests {
             statusChanges: { statuses.makeStream() },
             delayProvider: delay
         )
-        let updates = PolymarketTestSignal<RecordedUpdate>()
+        let updates = TestSignal<RecordedUpdate>()
         updates.record(sut.updates, transform: { RecordedUpdate($0) })
 
         statuses.push(.connected)
@@ -210,7 +210,7 @@ private extension PolymarketFeedLiveQuotesTrackerTests {
         let source = PolymarketLiveQuotesSourceSpy()
         let delay = PolymarketSteppedDelayProvider()
         let sut = source.makeTracker(delayProvider: delay)
-        let updates = PolymarketTestSignal<RecordedUpdate>()
+        let updates = TestSignal<RecordedUpdate>()
         updates.record(sut.updates, transform: { RecordedUpdate($0) })
 
         return Environment(sut: sut, source: source, delay: delay, updates: updates)
@@ -221,7 +221,7 @@ private extension PolymarketFeedLiveQuotesTrackerTests {
         let sut: PolymarketFeedLiveQuotesTracker
         let source: PolymarketLiveQuotesSourceSpy
         let delay: PolymarketSteppedDelayProvider
-        let updates: PolymarketTestSignal<RecordedUpdate>
+        let updates: TestSignal<RecordedUpdate>
 
         func connect() async throws {
             source.statuses.push(.connected)
@@ -243,7 +243,7 @@ private extension PolymarketFeedLiveQuotesTrackerTests {
 // MARK: - Doubles
 
 private final class BufferedQuotesSourceSpy: Sendable {
-    let requests = PolymarketTestSignal<AsyncStream<PolymarketOutcomeQuote>.Continuation>()
+    let requests = TestSignal<AsyncStream<PolymarketOutcomeQuote>.Continuation>()
 
     func makeStream() -> AsyncStream<PolymarketOutcomeQuote> {
         let (stream, continuation) = AsyncStream.makeStream(of: PolymarketOutcomeQuote.self)

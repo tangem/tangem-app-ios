@@ -19,9 +19,10 @@ final class CollectiblesWelcomeViewModelTests: LeakTrackingTestSuite {
     func reconnectionClosesScreen() async {
         let routable = WelcomeRoutableSpy()
         let sut = makeSUT(routable: routable, purpose: .reconnection)
+        var eventsIterator = routable.eventStream.makeAsyncIterator()
 
         sut.onActionTap()
-        await waitUntil { routable.events.isNotEmpty }
+        _ = await eventsIterator.next()
 
         #expect(routable.events == [.closeReconnection])
     }

@@ -185,7 +185,7 @@ private extension PolymarketBalanceBlockViewModelTests {
 // MARK: - Doubles
 
 private final class BalanceProviderSpy: PolymarketBalanceProvider {
-    let refreshes = PolymarketTestSignal<PolymarketBalanceRefreshScope>()
+    let refreshes = TestSignal<PolymarketBalanceRefreshScope>()
 
     var balancePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
         Just(.loaded("$10.00")).eraseToAnyPublisher()
@@ -223,7 +223,7 @@ private final class BalanceBlockRoutableSpy: PolymarketBalanceBlockRoutable {
 }
 
 private final class ConfigurationServiceStub: PolymarketConfigurationService {
-    let calls = PolymarketTestSignal<Void>()
+    let calls = TestSignal<Void>()
 
     private let fails: Bool
 

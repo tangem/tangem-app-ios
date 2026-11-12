@@ -101,8 +101,8 @@ private extension PolymarketFastTradingActivationViewModelTests {
     static let enableOffer = PolymarketFastTradingState.loaded(Fixture.assess(keys: []))
 
     struct Outcome {
-        let closes = PolymarketTestSignal<Void>()
-        let toasts = PolymarketTestSignal<String>()
+        let closes = TestSignal<Void>()
+        let toasts = TestSignal<String>()
     }
 
     func makeSUT(
@@ -127,7 +127,7 @@ private extension PolymarketFastTradingActivationViewModelTests {
 
 @MainActor
 private final class FastTradingServiceSpy: PolymarketFastTradingOperating {
-    let entered = PolymarketTestSignal<Void>()
+    let entered = TestSignal<Void>()
     private(set) var authorizations: [PolymarketFastTradingAuthorization] = []
 
     private let stateSubject: CurrentValueSubject<PolymarketFastTradingState, Never>

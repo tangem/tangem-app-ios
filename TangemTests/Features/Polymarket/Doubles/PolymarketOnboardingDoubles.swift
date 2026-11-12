@@ -636,9 +636,9 @@ final class PolymarketCardSignerStub: TangemSigner {
 final class PolymarketAPIProviderStub: PolymarketAPIProvider {
     private(set) var searchRequests: [PolymarketSearchRequest] = []
     private(set) var quoteRequests: [PolymarketOrderQuoteRequest] = []
-    let searchRequested = PolymarketTestSignal<PolymarketSearchRequest>()
-    let quoteRequested = PolymarketTestSignal<PolymarketOrderQuoteRequest>()
-    let heldQuoteEntered = PolymarketTestSignal<Void>()
+    let searchRequested = TestSignal<PolymarketSearchRequest>()
+    let quoteRequested = TestSignal<PolymarketOrderQuoteRequest>()
+    let heldQuoteEntered = TestSignal<Void>()
 
     var queuedQuoteResults: [Result<PolymarketOrderQuote, Error>] = []
     var holdsQuotes = false
@@ -647,7 +647,7 @@ final class PolymarketAPIProviderStub: PolymarketAPIProvider {
     var queuedCategoryResults: [Result<[PolymarketCategory], Error>] = []
     var heldEventCategories: Set<Int> = []
     let heldEvents = PolymarketTestGate()
-    let eventsRequested = PolymarketTestSignal<PolymarketEventsRequest>()
+    let eventsRequested = TestSignal<PolymarketEventsRequest>()
     var eventPages: [EventsPageKey: PolymarketEventsPage] = [:]
     var eventErrors: [EventsPageKey: Error] = [:]
     private(set) var eventsRequests: [PolymarketEventsRequest] = []

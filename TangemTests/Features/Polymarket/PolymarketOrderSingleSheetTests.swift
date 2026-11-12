@@ -96,7 +96,7 @@ struct PolymarketOrderSingleSheetTests {
     @Test("A session key that could not be checked keeps the session key button and asks to try again without a support alert")
     func unverifiedSessionKeyKeepsTheButton() async throws {
         let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true)
-        let notices = PolymarketTestSignal<String>()
+        let notices = TestSignal<String>()
         let choice = PolymarketOrderSigningChoice(availability: availability, showNotice: { notices.send($0) })
         let context = try await makeContext(
             isSingleSheet: true,
@@ -479,7 +479,7 @@ private extension PolymarketOrderSingleSheetTests {
 // MARK: - Doubles
 
 private final class PlacementServiceStub: PolymarketOrderPlacementService {
-    let entered = PolymarketTestSignal<Void>()
+    let entered = TestSignal<Void>()
 
     private struct State {
         var placements = 0
@@ -535,7 +535,7 @@ private final class PlacementServiceStub: PolymarketOrderPlacementService {
 
 @MainActor
 private final class OrderRoutableSpy: PolymarketOrderRoutable {
-    let resultOpened = PolymarketTestSignal<Void>()
+    let resultOpened = TestSignal<Void>()
 
     private(set) var summaryOpenings = 0
     private(set) var feeBreakdownOpenings = 0

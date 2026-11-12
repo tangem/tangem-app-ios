@@ -44,7 +44,7 @@ struct PolymarketOnboardingInteractorTests {
 
     @Test("A fast trading authorization kept on the wallet's next nonce stops the run before it reads the nonce for its approvals")
     func keptAuthorizationStopsTheRunBeforeTheNonceIsRead() async throws {
-        let events = PolymarketTestSignal<String>()
+        let events = TestSignal<String>()
         let store = CommonPolymarketInterruptedAuthorizationStore(secureStorage: PolymarketSecureStorageSpy())
         try store.save(.holdingTheNonce(until: PolymarketSessionKeyFixtures.now.addingTimeInterval(60)), for: Self.userWalletId)
         let slot = PolymarketWalletOperationSlot(
@@ -760,9 +760,9 @@ private extension PolymarketOnboardingInteractorTests {
 }
 
 private final class NonceReadSpy: PolymarketRelayerService {
-    private let events: PolymarketTestSignal<String>
+    private let events: TestSignal<String>
 
-    init(events: PolymarketTestSignal<String>) {
+    init(events: TestSignal<String>) {
         self.events = events
     }
 

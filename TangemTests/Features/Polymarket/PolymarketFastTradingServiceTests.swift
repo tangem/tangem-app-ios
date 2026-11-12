@@ -234,7 +234,7 @@ struct PolymarketFastTradingServiceTests {
     @Test("A failure after the card has signed is reported to the screens instead of the closed activation")
     func failureAfterSigningIsReported() async throws {
         let (sut, _, _) = makeSUT(lists: [[]], enable: .signsThenFails)
-        let failures = PolymarketTestSignal<PolymarketFastTradingFailure>()
+        let failures = TestSignal<PolymarketFastTradingFailure>()
         let subscription = sut.failurePublisher.sink { failures.send($0) }
 
         await sut.refresh()
@@ -248,7 +248,7 @@ struct PolymarketFastTradingServiceTests {
     @Test("A failure before the card signs reaches the activation screen instead of the other screens")
     func failureBeforeSigningIsThrown() async {
         let (sut, _, _) = makeSUT(lists: [[]], enable: .failsBeforeSigning)
-        let failures = PolymarketTestSignal<PolymarketFastTradingFailure>()
+        let failures = TestSignal<PolymarketFastTradingFailure>()
         let subscription = sut.failurePublisher.sink { failures.send($0) }
 
         await sut.refresh()
@@ -267,7 +267,7 @@ struct PolymarketFastTradingServiceTests {
     @Test("A failure of the authorization signed during onboarding is reported to the screens")
     func presignedAuthorizationFailureIsReported() async throws {
         let (sut, _, _) = makeSUT(lists: [[]])
-        let failures = PolymarketTestSignal<PolymarketFastTradingFailure>()
+        let failures = TestSignal<PolymarketFastTradingFailure>()
         let subscription = sut.failurePublisher.sink { failures.send($0) }
         let grant = try PolymarketSessionKeyCalls.authorize(
             sessionKeyAddress: Fixture.localAddress,
@@ -332,14 +332,14 @@ struct PolymarketFastTradingServiceTests {
         try await sut.authorize(.enable)
         await sut.settled()
 
-        let failures = PolymarketTestSignal<PolymarketFastTradingFailure>()
+        let failures = TestSignal<PolymarketFastTradingFailure>()
         let first = sut.failurePublisher.sink { failures.send($0) }
 
         #expect(try await failures.next() == .generic)
 
         first.cancel()
 
-        let later = PolymarketTestSignal<PolymarketFastTradingFailure>()
+        let later = TestSignal<PolymarketFastTradingFailure>()
         let second = sut.failurePublisher.sink { later.send($0) }
 
         #expect(later.recorded.isEmpty)
@@ -380,7 +380,7 @@ struct PolymarketFastTradingServiceTests {
     @Test("Closing a banner stores when it was closed for this wallet and hides it from the screens showing it")
     func closingTheBannerHidesIt() async throws {
         let (sut, _, dismissals) = makeSUT(lists: [[]])
-        let banners = PolymarketTestSignal<PolymarketFastTradingBanner?>()
+        let banners = TestSignal<PolymarketFastTradingBanner?>()
         let subscription = sut.bannerPublisher().sink { banners.send($0) }
 
         await sut.refresh()
@@ -640,7 +640,7 @@ struct PolymarketFastTradingServiceTests {
             exchangeSigners: [.matching(own)],
             interrupted: Interruption(resumedKey: own, revokedAddress: Fixture.localAddress, purpose: purpose)
         )
-        let published = PolymarketTestSignal<[PolymarketFastTradingOperation]>()
+        let published = TestSignal<[PolymarketFastTradingOperation]>()
         let subscription = sut.statePublisher.sink { state in
             if case .loaded(let assessment) = state {
                 published.send(assessment.operations)
@@ -703,7 +703,7 @@ struct PolymarketFastTradingServiceTests {
     @Test("A repair shows as an activation in flight, as its progress message says, not as an extension")
     func repairShowsAsActivation() async throws {
         let (sut, _, _) = makeSUT(lists: [[]])
-        let published = PolymarketTestSignal<[PolymarketFastTradingOperation]>()
+        let published = TestSignal<[PolymarketFastTradingOperation]>()
         let subscription = sut.statePublisher.sink { state in
             if case .loaded(let assessment) = state {
                 published.send(assessment.operations)
@@ -829,7 +829,7 @@ struct PolymarketFastTradingServiceTests {
 
     @Test("An authorization in flight keeps its service until it ends, so its failure still reaches the screens")
     func inFlightAuthorizationOutlivesItsService() async throws {
-        let failures = PolymarketTestSignal<PolymarketFastTradingFailure>()
+        let failures = TestSignal<PolymarketFastTradingFailure>()
         let (manager, subscription) = try await authorizeThenDropTheService(reportingTo: failures)
 
         manager.failPendingEnable()
@@ -956,7 +956,7 @@ private extension PolymarketFastTradingServiceTests {
     }
 
     func authorizeThenDropTheService(
-        reportingTo failures: PolymarketTestSignal<PolymarketFastTradingFailure>
+        reportingTo failures: TestSignal<PolymarketFastTradingFailure>
     ) async throws -> (manager: SessionKeyManagerSpy, subscription: AnyCancellable) {
         let (sut, manager, _) = makeSUT(lists: [[]], enable: .signsThenWaits)
         let subscription = sut.failurePublisher.sink { failures.send($0) }
@@ -1059,12 +1059,12 @@ private final class SessionKeyManagerSpy: PolymarketSessionKeyManaging {
         }
     }
 
-    let enableSuspended = PolymarketTestSignal<Void>()
-    let enableEnds = PolymarketTestSignal<Bool>()
-    let resumeEnds = PolymarketTestSignal<Bool>()
-    let resumed = PolymarketTestSignal<Void>()
-    let resumeChecks = PolymarketTestSignal<Void>()
-    let startedReads = PolymarketTestSignal<Void>()
+    let enableSuspended = TestSignal<Void>()
+    let enableEnds = TestSignal<Bool>()
+    let resumeEnds = TestSignal<Bool>()
+    let resumed = TestSignal<Void>()
+    let resumeChecks = TestSignal<Void>()
+    let startedReads = TestSignal<Void>()
 
     private struct State {
         var lists: [[PolymarketSessionKey]]

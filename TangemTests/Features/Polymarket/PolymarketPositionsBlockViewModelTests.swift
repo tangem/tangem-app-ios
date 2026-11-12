@@ -471,7 +471,7 @@ private enum TestError: Error {
 private final class ContentLog {
     private(set) var contents: [PolymarketPositionsBlockViewModel.Content] = []
 
-    private let changes = PolymarketTestSignal<Void>()
+    private let changes = TestSignal<Void>()
     private var subscription: AnyCancellable?
 
     init(_ sut: PolymarketPositionsBlockViewModel) {

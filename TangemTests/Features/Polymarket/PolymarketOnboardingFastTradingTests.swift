@@ -124,9 +124,9 @@ private extension PolymarketOnboardingFastTradingTests {
 
     func makeSUT(
         keyStore: PolymarketSessionKeyStoreSpy = PolymarketSessionKeyStoreSpy(heldAddress: Fixture.localAddress)
-    ) -> (sut: CommonPolymarketOnboardingFastTrading, authorize: AuthorizeSpy, reports: PolymarketTestSignal<PolymarketFastTradingFailure>) {
+    ) -> (sut: CommonPolymarketOnboardingFastTrading, authorize: AuthorizeSpy, reports: TestSignal<PolymarketFastTradingFailure>) {
         let authorize = AuthorizeSpy()
-        let reports = PolymarketTestSignal<PolymarketFastTradingFailure>()
+        let reports = TestSignal<PolymarketFastTradingFailure>()
         let sut = CommonPolymarketOnboardingFastTrading(
             authorizations: PolymarketSessionKeyAuthorizations(
                 userWalletId: UserWalletId(value: Data(repeating: 0x04, count: 32)),
@@ -153,7 +153,7 @@ private final class AuthorizeSpy: Sendable {
         let grant: PolymarketSessionKeyGrant
     }
 
-    let submitted = PolymarketTestSignal<Call>()
+    let submitted = TestSignal<Call>()
 
     func record(_ call: Call) {
         submitted.send(call)

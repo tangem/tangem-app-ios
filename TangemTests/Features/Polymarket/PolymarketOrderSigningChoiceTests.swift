@@ -49,7 +49,7 @@ struct PolymarketOrderSigningChoiceTests {
     @Test("Deciding a tap the session key can no longer sign neither switches the button nor shows a notice")
     func decidingChangesNothing() {
         let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true)
-        let notices = PolymarketTestSignal<String>()
+        let notices = TestSignal<String>()
         let sut = PolymarketOrderSigningChoice(availability: availability, showNotice: { notices.send($0) })
 
         availability.runOut()
@@ -62,7 +62,7 @@ struct PolymarketOrderSigningChoiceTests {
     @Test("A tap the session key could no longer sign turns the button to the card with a notice, and the button returns to the session key once it is usable again")
     func routeChangeReturnsToTheSessionKey() {
         let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true)
-        let notices = PolymarketTestSignal<String>()
+        let notices = TestSignal<String>()
         let sut = PolymarketOrderSigningChoice(availability: availability, showNotice: { notices.send($0) })
 
         availability.runOut()
@@ -114,7 +114,7 @@ struct PolymarketOrderSigningChoiceTests {
     @Test("Declining the session key tells the user why")
     func decliningTellsWhy() {
         let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true)
-        let notices = PolymarketTestSignal<String>()
+        let notices = TestSignal<String>()
         let sut = PolymarketOrderSigningChoice(availability: availability, showNotice: { notices.send($0) })
 
         sut.declineSessionKey()

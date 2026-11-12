@@ -75,17 +75,17 @@ final class CollectiblesPackRevealViewModelTests: LeakTrackingTestSuite {
     }
 
     @Test("The background pauses the offer check and the foreground resumes it")
-    func backgroundPausesOfferCheck() async {
-        let notificationCenter = NotificationCenter()
+    func backgroundPausesOfferCheck() async throws {
+        let notificationCenter = NotificationCenterSpy()
         let (sut, doubles) = makeSUT(notificationCenter: notificationCenter)
 
-        await keepPosting(.didEnterBackground, on: notificationCenter) { !sut.shouldCheckOffer }
+        try await deliver(.didEnterBackground, on: notificationCenter, to: sut)
         await sut.checkOffer()
 
         #expect(sut.sellBackState == .checking)
         #expect(doubles.offerProvider.loadedAddresses.isEmpty)
 
-        await keepPosting(.willEnterForeground, on: notificationCenter) { sut.shouldCheckOffer }
+        try await deliver(.willEnterForeground, on: notificationCenter, to: sut)
         await sut.checkOffer()
 
         #expect(sut.sellBackState == .available(Constants.offer))
@@ -94,14 +94,14 @@ final class CollectiblesPackRevealViewModelTests: LeakTrackingTestSuite {
     // MARK: - Sell back
 
     @Test("Sell back hands the card and its offer to the sale and returns to the machine once sold")
-    func sellBackSellsTheCard() async {
+    func sellBackSellsTheCard() async throws {
         let (sut, doubles) = makeSUT()
         await sut.checkOffer()
 
         sut.sellBack()
 
         #expect(sut.sellBackState == .selling(Constants.offer))
-        await waitUntil { doubles.balanceRefresher.callsCount == 1 }
+        try await doubles.balanceRefresher.waitForCalls(1)
         #expect(doubles.interactor.sales == [Sale(nftAddress: Constants.nftAddress, offer: Constants.offer)])
         #expect(doubles.routable.returnsCount == 1)
     }
@@ -111,10 +111,10 @@ final class CollectiblesPackRevealViewModelTests: LeakTrackingTestSuite {
         .notConfirmed,
         .accountNotReady,
     ])
-    func failedSaleRechecksOffer(error: CollectiblesBuybackSaleError) async {
+    func failedSaleRechecksOffer(error: CollectiblesBuybackSaleError) async throws {
         let (sut, doubles) = makeSUT(saleResults: [.failure(error)])
 
-        await sellBack(sut, in: doubles)
+        try await sellBack(sut, in: doubles)
 
         #expect(sut.sellBackState == .checking)
         #expect(doubles.routable.returnsCount == 0)
@@ -126,35 +126,34 @@ final class CollectiblesPackRevealViewModelTests: LeakTrackingTestSuite {
     }
 
     @Test("A cancelled sale keeps the offer on the button")
-    func cancelledSaleKeepsOffer() async {
+    func cancelledSaleKeepsOffer() async throws {
         let (sut, doubles) = makeSUT(saleResults: [.failure(CancellationError())])
 
-        await sellBack(sut, in: doubles)
+        try await sellBack(sut, in: doubles)
 
         #expect(sut.sellBackState == .available(Constants.offer))
         #expect(doubles.routable.returnsCount == 0)
     }
 
     @Test("Sell back does nothing before an offer is on screen")
-    func sellBackNeedsOffer() async {
+    func sellBackNeedsOffer() {
         let (sut, doubles) = makeSUT()
 
         sut.sellBack()
-        await Task.yield()
 
         #expect(sut.sellBackState == .checking)
         #expect(doubles.interactor.sales.isEmpty)
     }
 
     @Test("A second tap while the sale runs is ignored")
-    func secondTapIsIgnored() async {
+    func secondTapIsIgnored() async throws {
         let (sut, doubles) = makeSUT()
         await sut.checkOffer()
 
         sut.sellBack()
         sut.sellBack()
 
-        await waitUntil { doubles.balanceRefresher.callsCount == 1 }
+        try await doubles.balanceRefresher.waitForCalls(1)
         #expect(doubles.interactor.sales.count == 1)
     }
 
@@ -256,35 +255,20 @@ private extension CollectiblesPackRevealViewModelTests {
         return (trackForMemoryLeaks(sut), doubles)
     }
 
-    func sellBack(_ sut: SUT, in doubles: Doubles) async {
+    func sellBack(_ sut: SUT, in doubles: Doubles) async throws {
         await sut.checkOffer()
         sut.sellBack()
-        await waitUntil { doubles.balanceRefresher.callsCount == 1 }
+        try await doubles.balanceRefresher.waitForCalls(1)
     }
 
-    func keepPosting(
+    func deliver(
         _ event: NotificationCenter.AppEvent,
-        on notificationCenter: NotificationCenter,
-        until condition: @escaping @MainActor () -> Bool
-    ) async {
-        await waitUntil {
-            notificationCenter.post(event)
-            return condition()
-        }
-    }
-}
-
-private extension NotificationCenter {
-    enum AppEvent {
-        case didEnterBackground
-        case willEnterForeground
-    }
-
-    func post(_ event: AppEvent) {
-        switch event {
-        case .didEnterBackground: post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-        case .willEnterForeground: post(name: UIApplication.willEnterForegroundNotification, object: nil)
-        }
+        on notificationCenter: NotificationCenterSpy,
+        to sut: SUT
+    ) async throws {
+        try await notificationCenter.observation(of: event)
+        notificationCenter.post(event)
+        await sut.objectWillChange.firstValue { _ in true }
     }
 }
 
@@ -328,15 +312,6 @@ private final class RevealRoutableSpy: CollectiblesPackRevealRoutable {
 
     func returnToMachine() {
         returnsCount += 1
-    }
-}
-
-@MainActor
-private final class BalanceRefreshSpy {
-    private(set) var callsCount = 0
-
-    func refresh() {
-        callsCount += 1
     }
 }
 
