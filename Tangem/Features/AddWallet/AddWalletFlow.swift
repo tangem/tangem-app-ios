@@ -205,7 +205,7 @@ private extension AddWalletFlow {
             return
         }
 
-        let importViewModel = MobileImportWalletViewModel(mode: .embedded, coordinator: self)
+        let importViewModel = MobileImportWalletViewModel(mode: .embedded, source: .addNewWallet, coordinator: self)
         sheetViewModel?.showImportWallet(importViewModel)
     }
 

@@ -419,7 +419,12 @@ private extension WelcomeCoordinator {
 
         let openICloudBackup: ([MobileWalletBackup]) -> Void = { [weak self] backups in
             self?.dismissSheet { coordinator in
-                let input = MobileOnboardingInput(flow: .iCloudBackupImport(backups: backups, source: .importWallet))
+                let flow = MobileOnboardingFlow.iCloudBackupImport(
+                    backups: backups,
+                    source: .importWallet,
+                    analyticsSource: .importWallet
+                )
+                let input = MobileOnboardingInput(flow: flow)
                 coordinator.presentImportOnboarding(options: .mobileInput(input))
             }
         }

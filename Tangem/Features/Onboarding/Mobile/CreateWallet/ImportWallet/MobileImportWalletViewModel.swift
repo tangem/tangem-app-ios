@@ -30,12 +30,14 @@ final class MobileImportWalletViewModel: ObservableObject, FloatingSheetContentV
     }
 
     private let mode: Mode
+    private let source: MobileImportWalletSource
     private let backupManager: MobileWalletBackupManager
 
     private weak var coordinator: MobileImportWalletRoutable?
 
-    init(mode: Mode, coordinator: MobileImportWalletRoutable) {
+    init(mode: Mode, source: MobileImportWalletSource, coordinator: MobileImportWalletRoutable) {
         self.mode = mode
+        self.source = source
         self.coordinator = coordinator
         backupManager = CommonMobileWalletBackupManager(destination: .iCloud)
 
@@ -144,7 +146,11 @@ private extension MobileImportWalletViewModel {
     }
 
     func openICloudBackupImportFlow(_ backups: [MobileWalletBackup]) {
-        let flow = MobileOnboardingFlow.iCloudBackupImport(backups: backups, source: .importWallet)
+        let flow = MobileOnboardingFlow.iCloudBackupImport(
+            backups: backups,
+            source: .importWallet,
+            analyticsSource: source
+        )
         let input = MobileOnboardingInput(flow: flow)
         let options = OnboardingCoordinator.Options.mobileInput(input)
         runTask(in: self) { viewModel in

@@ -17,16 +17,30 @@ struct MobileWalletCreationAnalyticsLogger {
     func logWalletRestored(source: Analytics.ParameterValue) {
         logWalletCreatedSuccessfully(creationType: .walletCreationTypeSeedImport, source: source)
     }
+
+    func logWalletRestored(source: Analytics.ParameterValue, seedLength: Int, isPassphraseEmpty: Bool) {
+        logWalletCreatedSuccessfully(
+            creationType: .walletCreationTypeSeedImport,
+            source: source,
+            seedLength: "\(seedLength)",
+            passphrase: isPassphraseEmpty ? .empty : .full
+        )
+    }
 }
 
 // MARK: - Private methods
 
 private extension MobileWalletCreationAnalyticsLogger {
-    func logWalletCreatedSuccessfully(creationType: Analytics.ParameterValue, source: Analytics.ParameterValue) {
+    func logWalletCreatedSuccessfully(
+        creationType: Analytics.ParameterValue,
+        source: Analytics.ParameterValue,
+        seedLength: String = Constants.seedPhraseLength,
+        passphrase: Analytics.ParameterValue = .empty
+    ) {
         var params: [Analytics.ParameterKey: String] = [
             .creationType: creationType.rawValue,
-            .seedLength: Constants.seedPhraseLength,
-            .passphrase: Analytics.ParameterValue.empty.rawValue,
+            .seedLength: seedLength,
+            .passphrase: passphrase.rawValue,
             .source: source.rawValue,
         ]
 
