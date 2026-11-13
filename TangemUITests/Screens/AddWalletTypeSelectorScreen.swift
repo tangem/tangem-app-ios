@@ -7,16 +7,18 @@
 //
 
 import XCTest
-import TangemAccessibilityIdentifiers
 
 final class AddWalletTypeSelectorScreen: ScreenBase<AddWalletTypeSelectorScreenElement> {
-    private lazy var hardwareWalletButton = button(.hardwareWalletButton)
-    private lazy var mobileWalletButton = button(.mobileWalletButton)
+    private var hardwareWalletRows: XCUIElementQuery {
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "label BEGINSWITH %@", Localization.introductionCreateWalletHardwareTitle)
+        )
+    }
 
     @discardableResult
     func waitForScreen() -> Self {
         XCTContext.runActivity(named: "Wait for Add Wallet type selector") { _ in
-            waitAndAssertTrue(hardwareWalletButton, "Hardware wallet row should be displayed")
+            waitAndAssertTrue(hardwareWalletRows.firstMatch, "Hardware wallet row should be displayed")
             return self
         }
     }
@@ -24,23 +26,23 @@ final class AddWalletTypeSelectorScreen: ScreenBase<AddWalletTypeSelectorScreenE
     @discardableResult
     func tapHardwareWallet() -> DetailsScreen {
         XCTContext.runActivity(named: "Tap Hardware wallet") { _ in
-            waitAndAssertTrue(hardwareWalletButton, "Hardware wallet row should be displayed")
-            hardwareWalletButton.waitAndTap()
+            waitAndAssertTrue(hardwareWalletRows.firstMatch, "Hardware wallet row should be displayed")
+
+            guard let row = hardwareWalletRows.firstHittableElement() else {
+                XCTFail("Hardware wallet row should be hittable")
+                return DetailsScreen(app)
+            }
+
+            row.tap()
             return DetailsScreen(app)
         }
     }
 }
 
 enum AddWalletTypeSelectorScreenElement: String, UIElement {
-    case hardwareWalletButton
-    case mobileWalletButton
+    case hardwareWalletRow
 
     var accessibilityIdentifier: String {
-        switch self {
-        case .hardwareWalletButton:
-            return DetailsAccessibilityIdentifiers.addWalletTypeHardwareButton
-        case .mobileWalletButton:
-            return DetailsAccessibilityIdentifiers.addWalletTypeMobileButton
-        }
+        rawValue
     }
 }

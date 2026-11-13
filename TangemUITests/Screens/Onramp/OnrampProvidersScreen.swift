@@ -99,10 +99,14 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
     @discardableResult
     func tapAnyBuyButtonAndValidateWebView() -> Self {
         XCTContext.runActivity(named: "Tap Buy on any offer and validate webview opens") { _ in
-            let buyButton = app.buttons.matching(NSPredicate(format: "label == 'Buy'"))
-                .firstMatch
-            waitAndAssertTrue(buyButton, "Buy button should exist before tapping")
-            XCTAssertTrue(buyButton.isHittable, "Buy button should be hittable before tapping")
+            let buyButtons = app.buttons.matching(NSPredicate(format: "label == 'Buy'"))
+            waitAndAssertTrue(buyButtons.firstMatch, "Buy button should exist before tapping")
+
+            guard let buyButton = buyButtons.firstHittableElement() else {
+                XCTFail("Buy button of an offer in the All offers modal should be hittable")
+                return
+            }
+
             buyButton.tap()
 
             // Validate that a web view (SFSafariViewController or WKWebView) appears
