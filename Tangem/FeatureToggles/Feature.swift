@@ -101,7 +101,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tronGaslessDEX: return .version("6.9")
         case .tangemPayMoneyAccount: return .unspecified
         case .tangemPayCustomerSummary: return .unspecified
-        case .solanaGasless: return .version("6.9")
+        case .solanaGasless: return .unspecified
         case .promoPage: return .version("6.9")
         case .dogecoinPsbtBdkFeeRateLimit: return .unspecified
         case .polymarketFastOrders: return .unspecified
