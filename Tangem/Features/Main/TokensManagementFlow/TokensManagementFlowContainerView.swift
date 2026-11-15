@@ -20,7 +20,6 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
     private let mainContent: MainContent
     private let topPadding: CGFloat
     private let bottomPadding: CGFloat
-    private let isRedesign: Bool
 
     // MARK: - Init
 
@@ -29,7 +28,6 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
         hidesHeader: Bool = false,
         topPadding: CGFloat = 16,
         bottomPadding: CGFloat = 16,
-        isRedesign: Bool = false,
         @ViewBuilder headerContent: () -> HeaderContent,
         @ViewBuilder mainContent: () -> MainContent
     ) {
@@ -39,10 +37,9 @@ struct TokensManagementFlowContainerView<HeaderContent: View, MainContent: View>
         self.mainContent = mainContent()
         self.topPadding = topPadding
         self.bottomPadding = bottomPadding
-        self.isRedesign = isRedesign
     }
 
-    // MARK: - Redesign-aware styling
+    // MARK: - Styling
 
     private var sheetBackgroundColor: Color {
         DesignSystem.Color.bgPrimary

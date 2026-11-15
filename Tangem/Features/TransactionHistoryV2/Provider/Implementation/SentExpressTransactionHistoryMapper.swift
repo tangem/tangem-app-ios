@@ -18,7 +18,7 @@ enum SentExpressTransactionHistoryMapper {
             txId: expressTransactionData.expressTransactionId,
             providerId: transaction.provider.id,
             status: .created,
-            rateType: nil, // [REDACTED_TODO_COMMENT]
+            rateType: transaction.rateType,
             externalTx: mapToExternalTxInfo(
                 id: expressTransactionData.externalTxId,
                 url: expressTransactionData.externalTxURL

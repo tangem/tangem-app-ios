@@ -15,13 +15,15 @@ enum JointAccountKeyPath {
 
     /// `m/44'/60'/888888'/0/{index}`.
     /// - Warning: A part of the contract with the backend, which syncs the token list between the members by this path.
-    static func derivationPath(forAccountAtIndex index: Int) -> DerivationPath {
-        DerivationPath(nodes: [
+    static func derivationPath(forAccountAtIndex index: Int) throws -> DerivationPath {
+        let accountIndex = try AccountDerivationIndex.nodeIndex(index)
+
+        return DerivationPath(nodes: [
             .hardened(Constants.purposeNodeValue),
             .hardened(Constants.evmCoinTypeNodeValue),
             .hardened(Constants.jointAccountNodeValue),
             .nonHardened(0),
-            .nonHardened(UInt32(index)),
+            .nonHardened(accountIndex),
         ])
     }
 }

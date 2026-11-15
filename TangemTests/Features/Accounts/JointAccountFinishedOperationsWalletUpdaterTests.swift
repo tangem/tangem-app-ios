@@ -20,7 +20,7 @@ struct JointAccountFinishedOperationsWalletUpdaterTests {
         arguments: [[], [JointAccountCompositionFixture.coinTransfer(status: .executed)]]
     )
     func walletsInTheNetworkAreUpdated(remainingOperations: [JointAccountOperation]) {
-        let (repository, walletModels, updater) = makeSUT()
+        let (repository, walletModels, _, updater) = makeSUT()
 
         repository.store(pendingOperations: [JointAccountCompositionFixture.pendingOperationsRecord(operations: remainingOperations)])
 
@@ -32,7 +32,7 @@ struct JointAccountFinishedOperationsWalletUpdaterTests {
 
     @Test("Nothing is updated while the operation is still in flight")
     func nothingIsUpdatedWhileInFlight() {
-        let (repository, walletModels, updater) = makeSUT()
+        let (repository, walletModels, _, updater) = makeSUT()
 
         repository.store(pendingOperations: [
             JointAccountCompositionFixture.pendingOperationsRecord(operations: [JointAccountCompositionFixture.coinTransfer(status: .pending)]),
@@ -40,6 +40,22 @@ struct JointAccountFinishedOperationsWalletUpdaterTests {
 
         #expect(walletModels.coin.updateAfterSendingTransactionCallCount == 0)
         #expect(walletModels.token.updateAfterSendingTransactionCallCount == 0)
+        withExtendedLifetime(updater) {}
+    }
+
+    @Test("The history delta is synced once the operation is done", .timeLimit(.minutes(1)))
+    func historyDeltaIsSyncedOncePerEvent() async {
+        let (repository, walletModels, historyDeltaSyncing, updater) = makeSUT()
+
+        repository.store(pendingOperations: [JointAccountCompositionFixture.pendingOperationsRecord(operations: [])])
+
+        for await _ in historyDeltaSyncing.syncDeltaCalls {
+            break
+        }
+
+        #expect(walletModels.coin.updateAfterSendingTransactionCallCount == 1)
+        #expect(walletModels.token.updateAfterSendingTransactionCallCount == 1)
+        #expect(historyDeltaSyncing.syncDeltaCallsCount == 1)
         withExtendedLifetime(updater) {}
     }
 }
@@ -51,7 +67,12 @@ private extension JointAccountFinishedOperationsWalletUpdaterTests {
 
     static let ethereum = BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)
 
-    func makeSUT() -> (JointAccountPendingOperationsRepositoryStub, WalletModels, JointAccountFinishedOperationsWalletUpdater) {
+    func makeSUT() -> (
+        JointAccountPendingOperationsRepositoryStub,
+        WalletModels,
+        JointOperationsHistoryDeltaSyncingStub,
+        JointAccountFinishedOperationsWalletUpdater
+    ) {
         let account = makeJointAccount()
         let walletModels: WalletModels = (
             coin: makeWalletModel(tokenItem: .blockchain(Self.ethereum), account: account),
@@ -73,17 +94,20 @@ private extension JointAccountFinishedOperationsWalletUpdaterTests {
             JointAccountCompositionFixture.pendingOperationsRecord(operations: [JointAccountCompositionFixture.coinTransfer()]),
         ])
 
+        let historyDeltaSyncing = JointOperationsHistoryDeltaSyncingStub()
         let updater = JointAccountFinishedOperationsWalletUpdater(
             pendingOperationsProvider: CommonJointAccountPendingOperationsProvider(
                 userWalletId: JointAccountCompositionFixture.userWalletId,
                 derivationIdentity: JointAccountCompositionFixture.derivationIdentity,
                 pendingOperationsRepository: repository,
-                walletModelsManager: walletModelsManager
+                walletModelsManager: walletModelsManager,
+                membersService: JointAccountMembersServiceMock()
             ),
-            walletModelsManager: walletModelsManager
+            walletModelsManager: walletModelsManager,
+            historyDeltaSyncing: historyDeltaSyncing
         )
 
-        return (repository, walletModels, updater)
+        return (repository, walletModels, historyDeltaSyncing, updater)
     }
 
     func makeWalletModel(tokenItem: TokenItem, account: any CryptoAccountModel) -> WalletModelTestsMock {
@@ -100,10 +124,16 @@ private extension JointAccountFinishedOperationsWalletUpdaterTests {
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
             derivationIdentity: JointAccountCompositionFixture.derivationIdentity,
             accountPolicy: JointAccountPolicy(membersCount: 2, signersCount: 2),
-            accountStatus: .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
+            statusProvider: JointAccountStatusProviderStub(status: .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")),
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(),
+            finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
+                pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+                walletModelsManager: WalletModelsManagerMock(),
+                historyDeltaSyncing: JointOperationsHistoryDeltaSyncingStub()
+            ),
+            userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate
         )
     }

@@ -20,7 +20,7 @@ struct SendTokenHeaderBuilder {
         case (_, .unstake):
             return .action(name: Localization.stakingStakedAmount)
 
-        case (.wallet(_, hasOnlyOneWallet: true), .send):
+        case (.wallet(_, hasOnlyOneWallet: true), .send), (.wallet(_, hasOnlyOneWallet: true), .createOperation):
             return .action(name: Localization.sendFromTitle)
 
         case (.wallet(_, hasOnlyOneWallet: true), .swap) where isSource:

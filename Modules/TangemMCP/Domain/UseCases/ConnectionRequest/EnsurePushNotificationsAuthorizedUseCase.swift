@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+typealias EnsurePushNotificationsAuthorized = @Sendable () async -> Bool
+
 struct EnsurePushNotificationsAuthorizedUseCase: Sendable {
     let provider: any MCPPushNotificationsPermissionProvider
 

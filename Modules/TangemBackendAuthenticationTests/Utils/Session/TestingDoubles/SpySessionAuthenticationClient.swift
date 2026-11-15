@@ -37,14 +37,8 @@ final class SpySessionAuthenticationClient: SessionAuthenticationClient {
         return try requestCipheredNonceResult.get()
     }
 
-    func authenticate(
-        devicePublicKey: DevicePublicKey,
-        decryptedNonce: String,
-        metadata: DeviceMetadata,
-        signature: DeviceSignature,
-        attestationToken: Data?
-    ) throws(SessionAuthenticationClientError) -> SessionTokens {
-        state.withLock { $0.receivedMessages.append(.authenticate(attestationToken)) }
+    func authenticate(request: SessionAuthenticationRequest) throws(SessionAuthenticationClientError) -> SessionTokens {
+        state.withLock { $0.receivedMessages.append(.authenticate(request)) }
         return try authenticateResult.get()
     }
 
@@ -72,7 +66,7 @@ extension SessionAuthenticationClient where Self == SpySessionAuthenticationClie
 extension SpySessionAuthenticationClient {
     enum Message: Equatable {
         case requestCipheredNonce
-        case authenticate(Data?)
+        case authenticate(SessionAuthenticationRequest)
         case refresh
     }
 

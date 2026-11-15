@@ -19,8 +19,8 @@ struct WalletModelsFactoryProvider {
     func makeWalletModelsFactory(
         blockchainSettingsUpdater: BlockchainSettingsUpdater,
         userTokensManager: UserTokensManager,
-        isSafe: Bool = false,
-        isEarnSupported: Bool = true
+        isSafe: Bool,
+        isEarnSupported: Bool
     ) -> any WalletModelsFactory {
         let dynamicAddressesManagerProvider = DynamicAddressesManagerProvider(
             keysRepository: keysRepository,
@@ -29,11 +29,28 @@ struct WalletModelsFactoryProvider {
             userTokensManager: userTokensManager
         )
 
+        return makeWalletModelsFactory(
+            dynamicAddressesManagerProvider: dynamicAddressesManagerProvider,
+            isSafe: isSafe,
+            isEarnSupported: isEarnSupported
+        )
+    }
+
+    func makeStandaloneWalletModelsFactory() -> any WalletModelsFactory {
+        makeWalletModelsFactory(dynamicAddressesManagerProvider: nil, isSafe: false, isEarnSupported: false)
+    }
+
+    private func makeWalletModelsFactory(
+        dynamicAddressesManagerProvider: DynamicAddressesManagerProvider?,
+        isSafe: Bool,
+        isEarnSupported: Bool
+    ) -> any WalletModelsFactory {
         let featuresManagerFactory = WalletModelFeaturesManagerFactory(
             userWalletId: userWalletId,
             userWalletConfig: userWalletConfig,
             dynamicAddressesManagerProvider: dynamicAddressesManagerProvider,
-            transactionHistoryProviderResolver: transactionHistoryProviderResolver
+            transactionHistoryProviderResolver: transactionHistoryProviderResolver,
+            isSafe: isSafe
         )
 
         let transactionHistoryServiceProvider = TransactionHistoryServiceProvider(isSafe: isSafe)

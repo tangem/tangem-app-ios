@@ -19,6 +19,7 @@ extension AuthenticateDTO.Request {
         let devicePublicKey: String
         let nonce: String
         let attestationToken: String?
+        let appAttestKeyId: String?
         let metadata: DeviceMetadataDTO.Request
     }
 }

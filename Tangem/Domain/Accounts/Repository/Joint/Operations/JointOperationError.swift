@@ -9,7 +9,9 @@
 import Foundation
 import TangemFoundation
 import TangemLocalization
+import TangemMacro
 
+@RawCaseName
 enum JointOperationError: UniversalError, Equatable {
     case accountUnavailable
     case walletUnavailable

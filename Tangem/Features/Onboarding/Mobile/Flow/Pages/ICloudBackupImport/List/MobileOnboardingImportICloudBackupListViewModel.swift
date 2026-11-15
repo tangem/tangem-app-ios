@@ -19,7 +19,15 @@ final class MobileOnboardingImportICloudBackupListViewModel: ObservableObject {
         makeItems()
     }
 
+    let hint = Localization.hwCloudBackupRestoreAllAddedHint(MobileBackupConstants.iCloudServiceName)
+
+    var isHintVisible: Bool {
+        backups.allSatisfy(backupImportUtil.isAdded)
+    }
+
     private static let dateFormatter = DateFormatter(dateFormat: "MMMM d yyyy, h:mm a")
+
+    private let backupImportUtil = MobileBackupImportUtil()
 
     private let backups: [MobileWalletBackup]
     private weak var delegate: MobileOnboardingImportICloudBackupListDelegate?
@@ -63,15 +71,22 @@ private extension MobileOnboardingImportICloudBackupListViewModel {
             Self.dateFormatter.string(from: $0)
         } ?? .empty
 
-        let action: () -> Void = { [weak self] in
-            self?.onBackupTap(backup)
-        }
-
         return Item(
             title: backup.metadata.walletName,
             description: description,
-            action: action
+            state: makeItemState(backup: backup)
         )
+    }
+
+    func makeItemState(backup: MobileWalletBackup) -> Item.State {
+        if backupImportUtil.isAdded(backup) {
+            return .added(badgeTitle: Localization.commonAdded)
+        }
+
+        let action: () -> Void = { [weak self] in
+            self?.onBackupTap(backup)
+        }
+        return .available(action: action)
     }
 
     func onBackupTap(_ backup: MobileWalletBackup) {
@@ -112,6 +127,11 @@ extension MobileOnboardingImportICloudBackupListViewModel {
     struct Item {
         let title: String
         let description: String
-        let action: () -> Void
+        let state: State
+
+        enum State {
+            case available(action: () -> Void)
+            case added(badgeTitle: String)
+        }
     }
 }

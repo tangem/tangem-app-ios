@@ -8,20 +8,21 @@
 
 import Combine
 import Foundation
+import struct SwiftUI.Alert
+import struct SwiftUI.Text
 import class UIKit.UIApplication
 import class UIKit.UIImage
-import class Alamofire.Interceptor
+import class Kingfisher.ImageCache
 import enum TangemBackendAuthentication.BackendAuthenticationAssembly
 import TangemFoundation
 import TangemLocalization
 import TangemMCP
-import struct TangemNetworkUtils.TimeoutIntervalPlugin
-import class TangemNetworkUtils.TangemProvider
 import class TangemUI.FloatingSheetRegistry
 import TangemUIUtils
 
 enum MCPModuleFactory {
     @Injected(\.floatingSheetPresenter) private static var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.alertPresenter) private static var alertPresenter: any AlertPresenter
     @Injected(\.pushNotificationsPermission) private static var pushNotificationsPermission: any PushNotificationsPermissionService
     @Injected(\.userWalletRepository) private static var userWalletRepository: any UserWalletRepository
 
@@ -29,31 +30,19 @@ enum MCPModuleFactory {
     private static let blockchainImageAssetProvider = NetworkImageProvider()
     private static let tokenIconURLBuilder = IconURLBuilder()
 
+    static let kingfisherImageCache = ImageCache(name: "com.tangem.mcp.icons")
+
     static func configure() {
         guard FeatureProvider.isAvailable(.mcp) else { return }
-
-        let connectionProvider = TangemProvider<MCPConnectionTarget>(
-            configuration: .ephemeralConfiguration,
-            requestInterceptor: Alamofire.Interceptor(
-                adapter: BackendAuthenticationAssembly.requestAdapter,
-                retrier: BackendAuthenticationAssembly.requestRetrier
-            )
-        )
-
-        let agentProvider = TangemProvider<MCPAgentTarget>(
-            configuration: .ephemeralConfiguration,
-            additionalPlugins: [TimeoutIntervalPlugin()],
-            requestInterceptor: Alamofire.Interceptor(
-                adapter: BackendAuthenticationAssembly.requestAdapter,
-                retrier: BackendAuthenticationAssembly.requestRetrier
-            )
-        )
 
         let configuration = MCPAssembly.Configuration(
             floatingSheetRegistry: FloatingSheetRegistry.default,
             baseURL: AppEnvironment.current.backendAuthenticationBaseUrl,
-            connectionProvider: connectionProvider,
-            agentProvider: agentProvider,
+            requestAdapter: BackendAuthenticationAssembly.requestAdapter,
+            requestRetrier: BackendAuthenticationAssembly.requestRetrier,
+            authorizationAnalyticsReporter: CommonMCPAuthorizationAnalyticsReporter(),
+            sessionsAnalyticsReporter: CommonMCPSessionsAnalyticsReporter(),
+            kingfisherImageCache: kingfisherImageCache,
             logger: MCPLogger
         )
 
@@ -61,7 +50,11 @@ enum MCPModuleFactory {
     }
 
     @MainActor
-    static func makeConnectionRequestViewModel(userCode: String) -> MCPConnectionRequestViewModel? {
+    static func makeConnectionRequestViewModel(
+        userCode: String,
+        preselectedUserWalletID: UserWalletId? = nil,
+        connectionAcceptedAction: @escaping (UserWalletId) -> Void = { _ in }
+    ) -> MCPConnectionRequestViewModel? {
         guard FeatureProvider.isAvailable(.mcp) else {
             return nil
         }
@@ -72,21 +65,45 @@ enum MCPModuleFactory {
             return nil
         }
 
-        let selectedUserWalletID = userWalletRepository.selectedModel?.userWalletId
+        let selectedUserWalletID = preselectedUserWalletID ?? userWalletRepository.selectedModel?.userWalletId
         let selectedUserWallet = userWallets.first { $0.id == selectedUserWalletID } ?? userWallets[0]
+
+        CommonMCPAuthorizationAnalyticsReporter().reportConnectionReceived()
 
         let pushNotificationsPermissionProvider = CommonMCPPushNotificationsPermissionProvider(
             service: Self.pushNotificationsPermission
         )
 
-        return MCPAssembly.makeConnectionRequestViewModel(
+        return MCPAssembly.ViewModels.makeConnectionRequest(
             userCode: userCode,
             userWallets: userWallets,
             selectedUserWallet: selectedUserWallet,
             pushNotificationsPermissionProvider: pushNotificationsPermissionProvider,
+            retrieveUserWalletRegistrationStatus: { userWalletID in
+                await BackendAuthenticationAssembly.retrieveUserWalletRegistrationStatus(id: userWalletID)
+            },
             fetchUserWalletImage: Self.makeFetchUserWalletImage(),
             updateUserWalletBalance: Self.makeUpdateUserWalletBalance(),
             openSystemSettingsAction: UIApplication.openSystemSettings,
+            unregisteredUserWalletSelectedAction: { [weak alertPresenter] in
+                let alert = Alert(
+                    title: Text(Localization.mcpConnectionRequestWalletNeedsSyncTitle),
+                    message: Text(Localization.mcpConnectionRequestWalletNeedsSyncDescription),
+                    dismissButton: .default(Text(Localization.commonGotIt))
+                )
+
+                alertPresenter?.present(alert: AlertBinder(alert: alert))
+            },
+            connectionFailedAction: { [weak floatingSheetPresenter, weak alertPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+                let alert = Alert(
+                    title: Text(Localization.commonSomethingWentWrong),
+                    message: Text(Localization.commonTryAgainLater)
+                )
+
+                alertPresenter?.present(alert: AlertBinder(alert: alert))
+            },
+            connectionAcceptedAction: connectionAcceptedAction,
             closeAction: { [weak floatingSheetPresenter] in
                 floatingSheetPresenter?.removeActiveSheet()
             }
@@ -94,45 +111,41 @@ enum MCPModuleFactory {
     }
 
     @MainActor
-    static func makeSwapIntentViewModel(
-        agent: MCPAgent,
-        fromAmount: MCPSwapAmount,
-        toToken: MCPToken,
-        proceedAction: @escaping () -> Void
-    ) -> MCPSwapIntentViewModel {
-        MCPAssembly.makeSwapIntentViewModel(
-            agent: agent,
-            fromAmount: fromAmount,
-            toToken: toToken,
-            closeAction: { [weak floatingSheetPresenter] in
-                floatingSheetPresenter?.removeActiveSheet()
-            },
-            proceedAction: { [weak floatingSheetPresenter] in
-                floatingSheetPresenter?.removeActiveSheet()
-                proceedAction()
-            }
-        )
-    }
+    static func makeSessionDetailsViewModel(
+        session: MCPSession,
+        sessionRevokedAction: @escaping () -> Void
+    ) -> MCPSessionDetailsViewModel? {
+        guard let userWalletModel = userWalletRepository.models.first(where: { $0.userWalletId == session.userWalletID }) else {
+            return nil
+        }
 
-    @MainActor
-    static func makeSwapIntentViewModel(
-        agent: MCPAgent,
-        fromToken: MCPToken,
-        toAmount: MCPSwapAmount,
-        proceedAction: @escaping () -> Void
-    ) -> MCPSwapIntentViewModel {
-        MCPAssembly.makeSwapIntentViewModel(
-            agent: agent,
-            fromToken: fromToken,
-            toAmount: toAmount,
+        weak var futureViewModel: MCPSessionDetailsViewModel?
+
+        let viewModel = MCPAssembly.ViewModels.makeSessionDetails(
+            session: session,
+            userWallet: MCPUserWallet(from: userWalletModel),
             closeAction: { [weak floatingSheetPresenter] in
-                floatingSheetPresenter?.removeActiveSheet()
+                guard let futureViewModel else { return }
+                floatingSheetPresenter?.removeSheet(withId: futureViewModel.id)
             },
-            proceedAction: { [weak floatingSheetPresenter] in
-                floatingSheetPresenter?.removeActiveSheet()
-                proceedAction()
+            sessionRevokedAction: { [weak floatingSheetPresenter] in
+                if let futureViewModel {
+                    floatingSheetPresenter?.removeSheet(withId: futureViewModel.id)
+                }
+                sessionRevokedAction()
+            },
+            sessionRevokeFailedAction: { [weak alertPresenter] in
+                let alert = Alert(
+                    title: Text(Localization.commonSomethingWentWrong),
+                    message: Text(Localization.commonTryAgainLater)
+                )
+
+                alertPresenter?.present(alert: AlertBinder(alert: alert))
             }
         )
+
+        futureViewModel = viewModel
+        return viewModel
     }
 
     static func makeMCPToken(from walletModel: some WalletModel) -> MCPToken {
@@ -145,7 +158,7 @@ enum MCPModuleFactory {
         switch tokenItem.amountType {
         case .coin, .reserve, .feeResource:
             displayName = blockchain.coinDisplayName
-            kind = .nativeCoin
+            kind = .nativeCoin(iconURL: Self.tokenIconURLBuilder.tokenIconURL(id: blockchain.coinId, size: .large))
 
         case .token(let token):
             displayName = token.name
@@ -167,6 +180,102 @@ enum MCPModuleFactory {
 
     static func makeFormattedAmount(_ amount: Decimal, symbol: String) -> String {
         balanceFormatter.formatCryptoBalance(amount, currencyCode: symbol)
+    }
+}
+
+// MARK: - Swap intent
+
+extension MCPModuleFactory {
+    @MainActor
+    static func makeSwapIntentViewModel(
+        initialLoadingResult: MCPIntentLoadingResult<MCPSwapIntentProposalState>,
+        sheetAppearedAction: @escaping () -> Void,
+        retryAction: @escaping () async -> MCPIntentLoadingResult<MCPSwapIntentProposalState>
+    ) -> MCPSwapIntentViewModel {
+        weak var futureViewModel: MCPSwapIntentViewModel?
+
+        let viewModel = MCPAssembly.ViewModels.makeSwapIntent(
+            initialLoadingResult: initialLoadingResult,
+            sheetAppearedAction: sheetAppearedAction,
+            closeAction: { [weak floatingSheetPresenter] in
+                guard let futureViewModel else { return }
+                floatingSheetPresenter?.removeSheet(withId: futureViewModel.id)
+            },
+            retryAction: retryAction
+        )
+
+        futureViewModel = viewModel
+        return viewModel
+    }
+
+    @MainActor
+    static func makeSwapIntentProposal(
+        state: MCPSwapIntentProposalState,
+        proceedAction: @escaping () -> Void
+    ) -> MCPIntentLoadingResult<MCPSwapIntentProposalState> {
+        MCPIntentLoadingResult.proposal(
+            state,
+            proceedAction: { [weak floatingSheetPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+                proceedAction()
+            }
+        )
+    }
+}
+
+// MARK: - Send intent
+
+extension MCPModuleFactory {
+    @MainActor
+    static func makeSendIntentViewModel(
+        initialLoadingResult: MCPIntentLoadingResult<MCPSendIntentProposalState>,
+        sheetAppearedAction: @escaping () -> Void,
+        closeAction: @escaping () -> Void,
+        retryAction: @escaping () async -> MCPIntentLoadingResult<MCPSendIntentProposalState>
+    ) -> MCPSendIntentViewModel {
+        weak var futureViewModel: MCPSendIntentViewModel?
+
+        let viewModel = MCPAssembly.ViewModels.makeSendIntent(
+            initialLoadingResult: initialLoadingResult,
+            sheetAppearedAction: sheetAppearedAction,
+            closeAction: { [weak floatingSheetPresenter] in
+                if let futureViewModel {
+                    floatingSheetPresenter?.removeSheet(withId: futureViewModel.id)
+                }
+                closeAction()
+            },
+            retryAction: retryAction
+        )
+
+        futureViewModel = viewModel
+        return viewModel
+    }
+
+    @MainActor
+    static func makeSendIntentProposal(
+        agent: MCPAgent,
+        amount: Decimal,
+        walletModel: some WalletModel,
+        proceedAction: @escaping () -> Void
+    ) -> MCPIntentLoadingResult<MCPSendIntentProposalState> {
+        let state = MCPSendIntentProposalState(
+            agent: agent,
+            amount: makeFormattedSendAmount(amount, tokenItem: walletModel.tokenItem),
+            token: makeMCPToken(from: walletModel)
+        )
+
+        return MCPIntentLoadingResult.proposal(
+            state,
+            proceedAction: { [weak floatingSheetPresenter] in
+                floatingSheetPresenter?.removeActiveSheet()
+                proceedAction()
+            }
+        )
+    }
+
+    static func makeFormattedSendAmount(_ amount: Decimal, tokenItem: TokenItem) -> String {
+        SendCryptoValueFormatter(decimals: tokenItem.decimalCount, currencySymbol: tokenItem.currencySymbol, trimFractions: false)
+            .string(from: amount)
     }
 }
 
@@ -234,7 +343,7 @@ private extension MCPUserWallet {
             id: userWalletModel.userWalletId,
             thumbnail: userWalletModel.config.walletThumbnailType,
             name: userWalletModel.name,
-            numberOfCards: userWalletModel.config.cardsCount,
+            isMobileWallet: userWalletModel.config.productType == .mobileWallet,
             isLocked: userWalletModel.isUserWalletLocked
         )
     }

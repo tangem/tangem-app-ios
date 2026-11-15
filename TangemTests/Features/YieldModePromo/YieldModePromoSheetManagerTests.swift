@@ -108,6 +108,68 @@ struct YieldModePromoSheetManagerTests {
         #expect(await terminalState(of: sut) == .unavailable(.noEligibleContent))
     }
 
+    @Test("The shown and skipped events go through the analytics logger")
+    func logsShownAndSkipped() async {
+        let analytics = AnalyticsLoggerSpy()
+        let routable = RoutableSpy()
+        let sut = makeSUT(analytics: analytics, routable: routable)
+
+        _ = await terminalState(of: sut)
+        _ = await presentedData(of: sut, variant: "user_max_apy", routable: routable)
+        sut.logShown()
+        sut.logSkipped(.surfaceBusy)
+
+        #expect(analytics.openedData.map(\.tokensCount) == [12])
+        #expect(analytics.skipReasons == [.surfaceBusy])
+    }
+
+    @Test("The user_max_apy arm presents and logs the user's best rate")
+    func userMaxApyArm() async {
+        let expected = YieldModePromoSheetData(apy: Decimal(string: "0.05")!, tokensCount: 12, tokenSymbol: "USDT", blockchainName: "Ethereum")
+
+        #expect(await presentedAndLoggedData(variant: "user_max_apy") == [expected, expected])
+    }
+
+    @Test("The global_max_apy arm presents and logs the top Earn offer")
+    func globalMaxApyArm() async {
+        let earnLoader = EarnOffersLoaderSpy(result: .success(makeEarnResponse(total: 12, topNetworkId: "polygon-pos")))
+        let expected = YieldModePromoSheetData(apy: Decimal(string: "0.092")!, tokensCount: 12, tokenSymbol: "DAI", blockchainName: "Polygon")
+
+        #expect(await presentedAndLoggedData(variant: "global_max_apy", earnLoader: earnLoader) == [expected, expected])
+    }
+
+    @Test("Control or no assignment presents nothing and logs neither Opened nor Skipped", arguments: ["control", nil] as [String?])
+    func presentsNothingOutsideShowingArms(variant: String?) async {
+        let analytics = AnalyticsLoggerSpy()
+        let routable = RoutableSpy()
+        let sut = makeSUT(analytics: analytics, routable: routable)
+        #expect(await terminalState(of: sut) == .ready)
+
+        let isPresented = await MainActor.run { sut.presentSheet(experimentVariant: variant) != nil }
+        sut.logShown()
+
+        #expect(!isPresented)
+        #expect(routable.presentedViewModel == nil)
+        #expect(analytics.openedData.isEmpty)
+        #expect(analytics.skipReasons.isEmpty)
+    }
+
+    @Test("A sheet the coordinator refuses to present is skipped as a busy surface and logs no Opened")
+    func refusedPresentationIsSkippedAsBusySurface() async {
+        let analytics = AnalyticsLoggerSpy()
+        let routable = RoutableSpy(isPresentationAllowed: false)
+        let sut = makeSUT(analytics: analytics, routable: routable)
+        #expect(await terminalState(of: sut) == .ready)
+
+        let isPresented = await MainActor.run { sut.presentSheet(experimentVariant: "user_max_apy") != nil }
+        sut.logShown()
+
+        #expect(!isPresented)
+        #expect(routable.presentedViewModel == nil)
+        #expect(analytics.skipReasons == [.surfaceBusy])
+        #expect(analytics.openedData.isEmpty)
+    }
+
     @Test("The promo runs under its own experiment")
     func declaresExperiment() {
         let sut = makeSUT()
@@ -144,6 +206,7 @@ private extension YieldModePromoSheetManagerTests {
         positionsPublisher: AnyPublisher<[YieldModePromoPosition], Never>? = nil,
         hasSelectedWallet: Bool = true,
         earnLoader: EarnOffersLoaderSpy? = nil,
+        analytics: AnalyticsLoggerSpy = AnalyticsLoggerSpy(),
         routable: YieldModePromoSheetRoutable? = nil
     ) -> YieldModePromoSheetManager {
         let catalog = catalogPublisher ?? Just(makeCatalog(loadState)).eraseToAnyPublisher()
@@ -153,7 +216,7 @@ private extension YieldModePromoSheetManagerTests {
             catalogProvider: CatalogProviderStub(catalogPublisher: catalog),
             makePositionsProvider: { hasSelectedWallet ? PositionsProviderStub(positionsPublisher: positions) : nil },
             earnOffersLoader: earnLoader ?? EarnOffersLoaderSpy(result: .success(makeEarnResponse(total: 12))),
-            analyticsLogger: AnalyticsLoggerStub(),
+            analyticsLogger: analytics,
             routable: routable
         )
     }
@@ -176,6 +239,18 @@ private extension YieldModePromoSheetManagerTests {
         await MainActor.run {
             sut.presentSheet(experimentVariant: variant) == nil ? nil : routable.presentedViewModel?.data
         }
+    }
+
+    func presentedAndLoggedData(variant: String, earnLoader: EarnOffersLoaderSpy? = nil) async -> [YieldModePromoSheetData?] {
+        let analytics = AnalyticsLoggerSpy()
+        let routable = RoutableSpy()
+        let sut = makeSUT(earnLoader: earnLoader, analytics: analytics, routable: routable)
+        _ = await terminalState(of: sut)
+
+        let presented = await presentedData(of: sut, variant: variant, routable: routable)
+        sut.logShown()
+
+        return [presented, analytics.openedData.first]
     }
 
     func makeCatalog(_ loadState: YieldModuleMarketsLoadState) -> YieldModePromoCatalog {
@@ -207,12 +282,12 @@ private extension YieldModePromoSheetManagerTests {
         )
     }
 
-    func makeEarnResponse(total: Int) -> EarnDTO.List.Response {
+    func makeEarnResponse(total: Int, topNetworkId: String = "ethereum") -> EarnDTO.List.Response {
         let items = total > 0
             ? [
                 EarnDTO.List.Item(
                     apy: "0.092",
-                    networkId: "ethereum",
+                    networkId: topNetworkId,
                     rewardType: "apy",
                     type: "yield",
                     token: EarnDTO.List.Token(id: "dai", symbol: "DAI", name: "Dai", address: "0xdai", decimalCount: 18)
@@ -254,17 +329,45 @@ private final class EarnOffersLoaderSpy: YieldModePromoEarnOffersLoader {
     }
 }
 
-private struct AnalyticsLoggerStub: YieldModePromoAnalyticsLogger {
+private final class AnalyticsLoggerSpy: YieldModePromoAnalyticsLogger {
+    private let state = OSAllocatedUnfairLock(initialState: (openedData: [YieldModePromoSheetData](), skipReasons: [MainScreenPromoSheetSkipReason]()))
+
+    var openedData: [YieldModePromoSheetData] {
+        state.withLock { $0.openedData }
+    }
+
+    var skipReasons: [MainScreenPromoSheetSkipReason] {
+        state.withLock { $0.skipReasons }
+    }
+
+    func logOpened(data: YieldModePromoSheetData) {
+        state.withLock { $0.openedData.append(data) }
+    }
+
+    func logSkipped(reason: MainScreenPromoSheetSkipReason) {
+        state.withLock { $0.skipReasons.append(reason) }
+    }
+
     func logClosed(data: YieldModePromoSheetData, method: YieldModePromoCloseMethod) {}
 
     func logTryYieldMode(data: YieldModePromoSheetData) {}
 }
 
 private final class RoutableSpy: YieldModePromoSheetRoutable {
+    private let isPresentationAllowed: Bool
     private(set) var presentedViewModel: YieldModePromoSheetViewModel?
 
-    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) {
+    init(isPresentationAllowed: Bool = true) {
+        self.isPresentationAllowed = isPresentationAllowed
+    }
+
+    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) -> Bool {
+        guard isPresentationAllowed else {
+            return false
+        }
+
         presentedViewModel = viewModel
+        return true
     }
 
     func dismissYieldModePromo() {}

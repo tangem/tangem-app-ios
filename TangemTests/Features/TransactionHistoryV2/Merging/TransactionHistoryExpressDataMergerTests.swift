@@ -2369,6 +2369,50 @@ struct TransactionHistoryExpressDataMergerTests {
         #expect(try #require(output.first).isEnriched)
     }
 
+    @Test("Exchange: a swap sent by the yield contract is outgoing on the source token and incoming on the destination one")
+    func syntheticSwapSentByYieldContractFollowsCurrentToken() throws {
+        let sourceToken = ExpressMergeTestDataFactory.ethereumUSDTToken
+        let destinationToken = ExpressMergeTestDataFactory.ethereumToken
+        // A swap out of Yield is sent by the yield contract, which the wallet model reports among its own addresses
+        let yieldContractAddress = "0xYieldContract"
+        let walletAddresses = [ExpressMergeTestDataFactory.ownerAddress, yieldContractAddress]
+
+        let exchange = ExpressMergeTestDataFactory.exchangeTransaction(
+            txId: "exchange-tx",
+            status: .finished,
+            fromAddress: yieldContractAddress,
+            payInAddress: yieldContractAddress,
+            payInHash: "0xSwap",
+            payOutAddress: ExpressMergeTestDataFactory.ownerAddress,
+            payOutHash: nil,
+            fromCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: sourceToken),
+            fromAmount: 1,
+            fromActualAmount: nil,
+            toCurrency: ExpressMergeTestDataFactory.matchingCurrency(for: destinationToken),
+            toAmount: 2,
+            toActualAmount: nil,
+            refund: nil,
+            createdAt: ExpressMergeTestDataFactory.baseDate,
+            updatedAt: ExpressMergeTestDataFactory.baseDate
+        )
+
+        let onSourceToken = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: sourceToken,
+            walletAddresses: walletAddresses,
+            feeTokenItem: destinationToken
+        ).merge(bsdkTransactions: [], exchangeTransactions: [exchange], onrampTransactions: [])
+        let onDestinationToken = ExpressMergeTestDataFactory.makeMerger(
+            currentToken: destinationToken,
+            walletAddresses: walletAddresses,
+            feeTokenItem: destinationToken
+        ).merge(bsdkTransactions: [], exchangeTransactions: [exchange], onrampTransactions: [])
+
+        #expect(onSourceToken.count == 1)
+        #expect(try #require(onSourceToken.first).isOutgoing)
+        #expect(onDestinationToken.count == 1)
+        #expect(try #require(onDestinationToken.first).isOutgoing == false)
+    }
+
     // MARK: - Leg claiming
 
     @Test("Exchange: a fee transfer sharing the pay-in transaction is not claimed as the swap leg")

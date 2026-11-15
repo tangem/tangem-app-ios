@@ -6,6 +6,8 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+typealias RejectMCPConnection = @Sendable (_ request: MCPConnectionRequest) async throws(MCPConnectionClientError) -> Void
+
 struct RejectMCPConnectionUseCase: Sendable {
     let client: any MCPConnectionClient
 

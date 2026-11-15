@@ -25,7 +25,7 @@ struct TangemPayOrderCardTypeView: View {
             .topNavigation(
                 title: Localization.tangempayOrderTypeTitle,
                 leading: .none,
-                onClose: viewModel.close
+                close: .enabled(viewModel.close)
             )
     }
 

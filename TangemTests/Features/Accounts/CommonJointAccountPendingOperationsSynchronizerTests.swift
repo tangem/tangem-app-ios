@@ -151,6 +151,109 @@ struct CommonJointAccountPendingOperationsSynchronizerTests {
     }
 }
 
+// MARK: - History
+
+extension CommonJointAccountPendingOperationsSynchronizerTests {
+    @Test("Only the operation a local write changed reaches the history, once the storage holds it")
+    func changedOperationReachesHistoryAfterTheWrite() async throws {
+        let untouched = JointAccountCompositionFixture.coinTransfer(id: "untouched")
+        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record(Self.operation, untouched)])
+        let enricher = HistoryEnricherStub(storage: storage)
+        let sut = Self.makeSUT(storage: storage, enricher: enricher)
+        let signed = JointAccountCompositionFixture.coinTransfer(status: .pending)
+
+        try await sut.apply(.localOperation(signed, cryptoAccountId: Self.accountId))
+
+        #expect(enricher.enrichments == [HistoryEnricherStub.Enrichment(
+            operations: [signed],
+            cryptoAccountId: Self.accountId,
+            storedAtTheTime: [Self.record(signed, untouched)]
+        )])
+    }
+
+    @Test("A write that changes nothing reaches no history")
+    func unchangedWriteReachesNoHistory() async throws {
+        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record])
+        let enricher = HistoryEnricherStub(storage: storage)
+        let sut = Self.makeSUT(storage: storage, enricher: enricher)
+
+        try await sut.apply(.localOperation(Self.operation, cryptoAccountId: Self.accountId))
+
+        #expect(enricher.enrichments.isEmpty)
+    }
+
+    @Test("An operation the poller found finished reaches the history stamped with the time it was learnt of")
+    func operationFinishedByReadAnewReachesHistory() async throws {
+        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record])
+        let enricher = HistoryEnricherStub(storage: storage)
+        let sut = Self.makeSUT(storage: storage, enricher: enricher, dateProvider: FixedDateProvider(now: Self.now))
+        let checkpoint = await sut.checkpoint
+
+        try await sut.apply(
+            refreshedOperation: JointAccountCompositionFixture.coinTransfer(status: .executed),
+            forCryptoAccountId: Self.accountId,
+            requestedAt: checkpoint
+        )
+
+        let stamped = JointAccountCompositionFixture.coinTransfer(status: .executed, finishedAt: Self.now)
+        #expect(enricher.enrichments.map(\.operations) == [[stamped]])
+        #expect(enricher.enrichments.map(\.storedAtTheTime) == [[Self.record(stamped)]])
+    }
+
+    @Test("An operation the listing brings in reaches the history, and one already stored does not")
+    func listedOperationReachesHistory() async throws {
+        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record])
+        let enricher = HistoryEnricherStub(storage: storage)
+        let sut = Self.makeSUT(storage: storage, enricher: enricher)
+        let listed = JointAccountCompositionFixture.coinTransfer(id: "listed")
+        let checkpoint = await sut.checkpoint
+
+        try await sut.apply(listing: [Self.record(Self.operation, listed)], requestedAt: checkpoint)
+
+        #expect(enricher.enrichments.map(\.operations) == [[listed]])
+        #expect(enricher.removedOperationIds.isEmpty)
+    }
+
+    @Test("A removed operation leaves the history")
+    func removedOperationLeavesHistory() async throws {
+        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record])
+        let enricher = HistoryEnricherStub(storage: storage)
+        let sut = Self.makeSUT(storage: storage, enricher: enricher)
+
+        try await sut.apply(.operationRemoved(id: Self.operation.id, cryptoAccountId: Self.accountId))
+
+        #expect(enricher.removedOperationIds == [[Self.operation.id]])
+        #expect(enricher.enrichments.isEmpty)
+    }
+
+    @Test("An operation that expires stays in the history")
+    func expiredOperationStaysInHistory() async throws {
+        let dayOld = JointAccountCompositionFixture.coinTransfer(status: .executed, finishedAt: Self.now.addingTimeInterval(-24 * 60 * 60))
+        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record(dayOld)])
+        let enricher = HistoryEnricherStub(storage: storage)
+        let sut = Self.makeSUT(storage: storage, enricher: enricher, dateProvider: FixedDateProvider(now: Self.now))
+        let checkpoint = await sut.checkpoint
+
+        try await sut.apply(listing: [], requestedAt: checkpoint)
+
+        #expect(storage.records.isEmpty)
+        #expect(enricher.removedOperationIds.isEmpty)
+        #expect(enricher.enrichments.isEmpty)
+    }
+
+    @Test("An operation the listing no longer reports stays in the history")
+    func operationMissingFromListingStaysInHistory() async throws {
+        let storage = JointAccountsPendingOperationsPersistentStorageStub(records: [Self.record])
+        let enricher = HistoryEnricherStub(storage: storage)
+        let sut = Self.makeSUT(storage: storage, enricher: enricher)
+        let checkpoint = await sut.checkpoint
+
+        try await sut.apply(listing: [Self.record(JointAccountCompositionFixture.coinTransfer(id: "other"))], requestedAt: checkpoint)
+
+        #expect(enricher.removedOperationIds.isEmpty)
+    }
+}
+
 // MARK: - Helpers
 
 private extension CommonJointAccountPendingOperationsSynchronizerTests {
@@ -159,17 +262,53 @@ private extension CommonJointAccountPendingOperationsSynchronizerTests {
     static let record = StoredJointAccountPendingOperations(cryptoAccountId: accountId, operations: [operation])
     static let now = Date(timeIntervalSince1970: 1_767_225_600)
 
-    static func record(_ operation: JointAccountOperation) -> StoredJointAccountPendingOperations {
-        StoredJointAccountPendingOperations(cryptoAccountId: accountId, operations: [operation])
+    static func record(_ operations: JointAccountOperation...) -> StoredJointAccountPendingOperations {
+        StoredJointAccountPendingOperations(cryptoAccountId: accountId, operations: operations)
     }
 
     static func makeSUT(
         storage: JointAccountsPendingOperationsPersistentStorage,
+        enricher: TransactionHistoryJointAccountDataEnriching? = nil,
         dateProvider: DateProvider = SystemDateProvider()
     ) -> CommonJointAccountPendingOperationsSynchronizer {
         CommonJointAccountPendingOperationsSynchronizer(
             persistentStorage: storage,
+            historyEnricherFactory: { enricher },
             merger: JointAccountPendingOperationsMerger(dateProvider: dateProvider)
         )
+    }
+}
+
+// MARK: - Stubs
+
+private final class HistoryEnricherStub: TransactionHistoryJointAccountDataEnriching {
+    struct Enrichment: Equatable {
+        let operations: [JointAccountOperation]
+        let cryptoAccountId: String
+        let storedAtTheTime: [StoredJointAccountPendingOperations]
+    }
+
+    private let storedRecords: @Sendable () -> [StoredJointAccountPendingOperations]
+    private let state = OSAllocatedUnfairLock(initialState: (enrichments: [Enrichment](), removedOperationIds: [[String]]()))
+
+    var enrichments: [Enrichment] {
+        state.withLock { $0.enrichments }
+    }
+
+    var removedOperationIds: [[String]] {
+        state.withLock { $0.removedOperationIds }
+    }
+
+    init(storage: JointAccountsPendingOperationsPersistentStorageStub) {
+        storedRecords = storage.recordsReader
+    }
+
+    func enrich(with operations: [JointAccountOperation], cryptoAccountId: String) async {
+        let enrichment = Enrichment(operations: operations, cryptoAccountId: cryptoAccountId, storedAtTheTime: storedRecords())
+        state.withLock { $0.enrichments.append(enrichment) }
+    }
+
+    func removeOperations(withIds operationIds: [String]) async {
+        state.withLock { $0.removedOperationIds.append(operationIds) }
     }
 }

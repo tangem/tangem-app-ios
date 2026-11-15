@@ -63,7 +63,7 @@ struct TronFeeRequestData: Hashable {
     /// TRX `call_value`); `nil` prices a plain transfer of `amount`.
     let callData: Data?
     /// Affects the fee: flat memo fee + extra bandwidth.
-    let memo: String?
+    let memo: Data?
     let otherNativeFee: Decimal?
 }
 
@@ -88,6 +88,7 @@ enum TokenFeeLoaderError: LocalizedError {
     case invalidGaslessTronCompensationAmount(String)
     case feeTokenIdNotFound
     case missingFeeRecipientAddress
+    case missingSolanaFeePayer
     case notEnoughFeeBalance
     case noLatestImplementationForUpgrade
     case yieldModuleVersionUnsupported
@@ -105,6 +106,7 @@ enum TokenFeeLoaderError: LocalizedError {
         case .invalidGaslessTronCompensationAmount(let amount): "Invalid compensation amount in Tron gasless quote: \(amount)"
         case .feeTokenIdNotFound: "Fee token id not found"
         case .missingFeeRecipientAddress: "Missing fee recipient address"
+        case .missingSolanaFeePayer: "Missing Solana gasless fee payer"
         case .notEnoughFeeBalance: "Not enough fee balance"
         case .noLatestImplementationForUpgrade: "No latest implementation for upgrade"
         case .yieldModuleVersionUnsupported: "Yield module version does not support yield-paid fee"

@@ -49,8 +49,7 @@ struct NFTNetworkServiceFactory {
         case .solana:
             return MoralisSolanaNetworkService(
                 networkConfiguration: TangemProviderConfiguration.ephemeralConfiguration,
-                headers: moralisNeworkHeaders,
-                isCoreAssetsLoadingEnabled: FeatureProvider.isAvailable(.solanaPNFTAndMetaplexCore)
+                headers: moralisNeworkHeaders
             )
         }
     }

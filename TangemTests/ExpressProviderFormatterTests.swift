@@ -105,7 +105,7 @@ struct ExpressProviderFormatterBadgeTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
+            featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
         )
 
         let available = ExpressAvailableProvider(
@@ -214,33 +214,6 @@ struct ExpressAvailableProviderBestDEXTests {
         #expect(!ineligibleDEX.isBestDEX)
     }
 
-    // MARK: - sortedByAttractivelyPreferringBestDEX
-
-    @Test("Moves the best DEX to the front, keeping the rest by attractiveness")
-    func movesBestDEXToFront() {
-        let cexHigh = makeProvider(id: "cex-high", type: .cex, expectAmount: 100)
-        let dex = makeProvider(id: "dex", type: .dex, expectAmount: 90)
-        let cexLow = makeProvider(id: "cex-low", type: .cex, expectAmount: 80)
-        let providers = [cexHigh, dex, cexLow]
-        providers.updateIsBestFlagPreferringDEX()
-
-        let sorted = providers.sortedByAttractivelyPreferringBestDEX()
-
-        #expect(sorted.map(\.provider.id) == ["dex", "cex-high", "cex-low"])
-    }
-
-    @Test("Without a best DEX, ordering matches sortedByAttractively")
-    func matchesAttractiveWhenNoBestDEX() {
-        let cexHigh = makeProvider(id: "cex-high", type: .cex, expectAmount: 100)
-        let cexLow = makeProvider(id: "cex-low", type: .cex, expectAmount: 80)
-        let providers = [cexLow, cexHigh]
-
-        let preferring = providers.sortedByAttractivelyPreferringBestDEX().map(\.provider.id)
-        let attractively = providers.sortedByAttractively().map(\.provider.id)
-
-        #expect(preferring == attractively)
-    }
-
     // MARK: - sortedByAttractively
 
     @Test("Keeps the best DEX at its rate position")
@@ -337,7 +310,7 @@ struct ExpressAvailableProviderBestDEXTests {
             expressFeeProvider: StubExpressFeeProvider(),
             expressAPIProvider: StubExpressAPIProvider(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
+            featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
         )
 
         return ExpressAvailableProvider(context: context, manager: StubExpressProviderManager(state: state))

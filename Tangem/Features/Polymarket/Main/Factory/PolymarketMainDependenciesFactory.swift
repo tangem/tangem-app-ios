@@ -124,6 +124,15 @@ struct PolymarketMainDependencies {
         )
     }
 
+    @MainActor
+    func makeCategoryEventsViewModel(
+        category: PolymarketCategory,
+        refreshCenter: PolymarketMainRefreshCenter,
+        routable: PolymarketEventOpeningRoutable
+    ) -> PolymarketEventsBlockViewModel {
+        makeEventsBlockViewModel(source: .category(category), refreshCenter: refreshCenter, routable: routable)
+    }
+
     func makeOrderIntent(for request: PolymarketOrderRequest) -> PolymarketOrderIntent {
         switch request {
         case .buy:
@@ -176,14 +185,25 @@ private extension PolymarketMainDependencies {
     }
 
     @MainActor
-    func makeEventsBlockViewModel(routable: PolymarketEventOpeningRoutable) -> PolymarketEventsBlockViewModel {
+    func makeEventsBlockViewModel(routable: PolymarketMainScreenRoutable) -> PolymarketEventsBlockViewModel {
+        makeEventsBlockViewModel(source: .explore(categoryOpener: routable), refreshCenter: refreshCenter, routable: routable)
+    }
+
+    @MainActor
+    func makeEventsBlockViewModel(
+        source: PolymarketEventsBlockViewModel.Source,
+        refreshCenter: PolymarketMainRefreshCenter,
+        routable: PolymarketEventOpeningRoutable
+    ) -> PolymarketEventsBlockViewModel {
         PolymarketEventsBlockViewModel(
+            source: source,
             apiProvider: apiProvider,
             refreshCenter: refreshCenter,
             activityHandler: activityHandler,
             liveQuotesTracker: makeFeedLiveQuotesTracker(),
             liveGamesTracker: makeFeedLiveGamesTracker(),
             usesPhaseTwoCards: isPhaseTwoAvailable,
+            showsSubcategories: isPhaseTwoAvailable,
             isRegionRestricted: isRegionRestricted,
             routable: routable
         )

@@ -78,8 +78,13 @@ extension CommonSocialAuthProvider: SocialAuthProvider {
         }
     }
 
-    public func encryptRecoveryKey(_ recoveryKey: Data) async throws -> String {
-        let publicKey = try await service.recoveryPublicKey()
+    public func encryptRecoveryKey(_ recoveryKey: Data) async throws -> EncryptedRecoveryKey {
+        let response = try await service.recoveryPublicKey()
+        let publicKey = try RecoveryPublicKeyMapper.map(response)
+
+        if publicKey.keyId == nil {
+            SocialAuthLogger.warning("The recovery public key has no kid; kmsKeyId will be omitted from the registration request")
+        }
 
         return try RecoveryKeyEncryptor().encrypt(
             recoveryKey: recoveryKey,

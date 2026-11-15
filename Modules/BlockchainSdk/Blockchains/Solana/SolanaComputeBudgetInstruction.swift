@@ -42,7 +42,7 @@ enum SolanaComputeBudgetInstruction {
         return data[1...].reversed().reduce(0) { $0 << 8 | UInt32($1) }
     }
 
-    private static func littleEndianBytes<Value: FixedWidthInteger>(_ value: Value) -> Data {
+    static func littleEndianBytes<Value: FixedWidthInteger>(_ value: Value) -> Data {
         withUnsafeBytes(of: value.littleEndian) { Data($0) }
     }
 

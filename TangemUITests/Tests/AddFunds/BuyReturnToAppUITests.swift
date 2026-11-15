@@ -78,7 +78,7 @@ final class BuyReturnToAppUITests: BaseTestCase {
 
     private func completePurchaseAndReturn(from onrampScreen: OnrampScreen) -> OnrampFinishScreen {
         onrampScreen
-            .enterAmount(Constants.amount)
+            .enterAmount(Constants.amount, retryIfOffersMissing: true)
             .waitForProvidersToLoad()
             .tapBuyButton(provider: Constants.provider)
 

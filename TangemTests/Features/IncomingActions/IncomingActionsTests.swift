@@ -109,4 +109,14 @@ class IncomingActionsTests: XCTestCase {
 
         XCTAssertEqual(helper.buildURL(scheme: .withoutRedirectUniversalLink).absoluteString, "tangem://token?network_id=ethereum&token_id=ethereum&user_wallet_id=7AFC37E5D8BB0C5F29C0D5FD7835A63CC6A87DA00DD8B72BBBDA5C8CF4AACA0E&type=onramp_status_update&derivation_path=m/44'/0'/0'/0/0&transaction_id=9244b376")
     }
+
+    func testDescriptionDropsSensitivePayload() {
+        let walletId = "4f1c9a8e7d6b5a4f3e2d1c0b9a8f7e6d"
+        let navigation = IncomingAction.navigation(.sell(SellDeeplink(userWalletId: walletId)))
+        let redirect = IncomingAction.dismissSafari(URL(string: "tangem://redirect_sell?request_id=abc&depositWalletAddress=0x1")!)
+
+        XCTAssertEqual(navigation.description, "navigation(sell)")
+        XCTAssertFalse(navigation.description.contains(walletId))
+        XCTAssertEqual(redirect.description, "dismissSafari(tangem://redirect_sell)")
+    }
 }

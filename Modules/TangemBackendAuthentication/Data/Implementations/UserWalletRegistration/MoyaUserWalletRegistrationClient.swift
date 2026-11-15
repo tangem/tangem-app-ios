@@ -69,6 +69,10 @@ struct MoyaUserWalletRegistrationClient: UserWalletRegistrationClient {
                 throw UserWalletRegistrationClientError.alreadyRegistered
             }
 
+            if problemDetailsError.isAppAttestRejected {
+                throw UserWalletRegistrationClientError.appAttestRejected
+            }
+
             throw UserWalletRegistrationClientError.registerFailed(underlying: problemDetailsError)
         }
 

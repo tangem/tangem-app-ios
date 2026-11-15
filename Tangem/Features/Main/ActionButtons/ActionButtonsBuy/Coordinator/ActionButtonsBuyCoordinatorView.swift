@@ -39,20 +39,8 @@ struct ActionButtonsBuyCoordinatorView: View {
                 SendCoordinatorView(coordinator: sendCoordinator)
                     .transition(SendTransitions.transition)
             }
-
-            sheets
         }
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
         .animation(SendTransitions.animation, value: coordinator.viewState)
-    }
-
-    private var sheets: some View {
-        NavHolder()
-            .bottomSheet(
-                item: $coordinator.addToPortfolioBottomSheetInfo,
-                backgroundColor: DesignSystem.Color.bgPrimary
-            ) {
-                HotCryptoAddToPortfolioBottomSheetView(viewModel: $0)
-            }
     }
 }

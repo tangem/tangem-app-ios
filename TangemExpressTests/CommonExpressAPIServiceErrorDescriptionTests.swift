@@ -11,26 +11,19 @@ import Testing
 
 @Suite("CommonExpressAPIService — the backend description of an Express error")
 struct CommonExpressAPIServiceErrorDescriptionTests {
-    @Test("With the toggle on, the backend description is dropped")
+    @Test("The backend description is dropped")
     func descriptionDroppedWithToggle() async {
-        let error = await requestError(isHideRejectedSwapProvidersEnabled: true)
+        let error = await requestError()
 
         #expect(error?.code == 2264)
         #expect(error?.errorDescription == "Error. Code: 2264")
-    }
-
-    @Test("With the toggle off, the backend description is kept")
-    func descriptionKeptWithoutToggle() async {
-        let error = await requestError(isHideRejectedSwapProvidersEnabled: false)
-
-        #expect(error?.errorDescription == "Core: address is banned by AML. Code: 2264")
     }
 }
 
 // MARK: - Helpers
 
 private extension CommonExpressAPIServiceErrorDescriptionTests {
-    func requestError(isHideRejectedSwapProvidersEnabled: Bool) async -> ExpressAPIError? {
+    func requestError() async -> ExpressAPIError? {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.protocolClasses = [ExpressErrorURLProtocol.self]
 
@@ -40,9 +33,9 @@ private extension CommonExpressAPIServiceErrorDescriptionTests {
             expressAPIType: .production,
             exchangeDataDecoder: StubExchangeDataDecoder(),
             featureFlags: ExpressFeatureFlags(
-                isSwapBestRateDefaultProviderEnabled: false,
-                isHideRejectedSwapProvidersEnabled: isHideRejectedSwapProvidersEnabled
-            )
+                isAPIV2Enabled: false
+            ),
+            requestInterceptor: nil
         )
 
         do {

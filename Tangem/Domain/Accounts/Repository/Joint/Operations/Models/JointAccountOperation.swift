@@ -22,6 +22,8 @@ struct JointAccountOperation: Hashable, Identifiable, Codable {
     let initiator: String
     /// Only the members who have answered — the rest are the account's members not listed here.
     let signatures: [Signature]
+    let createdAt: Date?
+    let threshold: Int?
 }
 
 extension JointAccountOperation {
@@ -35,7 +37,9 @@ extension JointAccountOperation {
             finishedAt: finishedAt,
             cancelReason: cancelReason,
             initiator: initiator,
-            signatures: signatures
+            signatures: signatures,
+            createdAt: createdAt,
+            threshold: threshold
         )
     }
 }

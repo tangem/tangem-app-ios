@@ -40,6 +40,7 @@ struct JointAccountOnboardingView: View {
         .translucentNavigationBar()
         .safeAreaInset(edge: .bottom) { footer }
         .ignoresSafeArea(.keyboard)
+        .onFirstAppear(perform: viewModel.onFirstAppear)
     }
 
     private var previewImage: some View {
@@ -130,6 +131,7 @@ private extension JointAccountOnboardingView {
     JointAccountOnboardingView(
         viewModel: JointAccountOnboardingViewModel(
             creationHelper: JointAccountCreationHelper(userWalletModel: FakeUserWalletModel.wallet3Cards),
+            source: .addAccount,
             coordinator: nil
         )
     )

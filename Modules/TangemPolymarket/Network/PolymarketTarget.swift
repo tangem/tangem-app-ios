@@ -82,6 +82,9 @@ struct PolymarketTarget: Moya.TargetType {
             if let category = request.category {
                 parameters["category"] = category
             }
+            if let filter = request.filter {
+                parameters["filter"] = filter.rawValue
+            }
             if let sort = request.sort {
                 parameters["sort"] = sort.rawValue
             }

@@ -117,7 +117,6 @@ struct MainQRCodeContentParserTests {
 
     @Test(
         "Links that open a screen or a page of ours are deeplinks",
-        .enabled(if: FeatureProvider.isAvailable(.qrScanDeeplinks)),
         arguments: [
             "tangem://markets",
             "tangem://promo?promo_code=TEST123",
@@ -126,18 +125,6 @@ struct MainQRCodeContentParserTests {
     )
     func screenAndPageLinksAreDeeplinks(_ input: String) {
         #expect(isDeeplink(parser.parse(input)))
-    }
-
-    @Test(
-        "Links of ours are not deeplinks while the feature is closed",
-        .enabled(if: !FeatureProvider.isAvailable(.qrScanDeeplinks)),
-        arguments: [
-            "tangem://markets",
-            "https://tangem.com/foo",
-        ]
-    )
-    func linksAreNotDeeplinksWhileClosed(_ input: String) {
-        #expect(!isDeeplink(parser.parse(input)))
     }
 
     @Test(

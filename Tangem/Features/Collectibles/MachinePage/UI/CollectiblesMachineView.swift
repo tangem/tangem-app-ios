@@ -273,7 +273,7 @@ private struct PreviewMachineProvider: CollectiblesMachineProvider {
                 routable: nil,
                 prizePoolProvider: PreviewPrizePoolProvider(),
                 relinkStatusProvider: nil,
-                hasUnfinishedPurchase: { false },
+                isPurchaseLocked: { false },
                 provider: PreviewMachineProvider()
             ),
             onClose: {}

@@ -181,11 +181,11 @@ struct TransactionDetailsAddContactHelperTests {
 
     // MARK: - Test arguments
 
-    private static var plainTransferTypes: [TransactionViewModel.TransactionType] {
+    private static func assertAllCasesListed(_ transactionType: TransactionViewModel.TransactionType) {
         // Did you get a compilation error here? If so, add your new transaction type either to
         // `plainTransferTypes` or to `nonPlainTransferTypes`, depending on whether the add-contact
         // action should be offered for it
-        switch TransactionViewModel.TransactionType.transfer {
+        switch transactionType {
         case .transfer: break
         case .gaslessTransfer: break
         case .tangemPay(.transfer): break
@@ -217,6 +217,10 @@ struct TransactionDetailsAddContactHelperTests {
         case .operation: break
         case .unknownOperation: break
         }
+    }
+
+    private static var plainTransferTypes: [TransactionViewModel.TransactionType] {
+        assertAllCasesListed(.transfer)
 
         return [
             .transfer,
@@ -257,17 +261,21 @@ struct TransactionDetailsAddContactHelperTests {
         ]
     }
 
-    private static var machineAndUnresolvableInteractionAddresses: [TransactionViewModel.InteractionAddressType] {
+    private static func assertAllCasesListed(_ addressType: TransactionViewModel.InteractionAddressType) {
         // Did you get a compilation error here? If so, add your new interaction address type to
         // `machineAndUnresolvableInteractionAddresses` if it carries no usable counterparty address,
         // otherwise cover it by the tests above the way `.user` and `.multiple` are covered
-        switch TransactionViewModel.InteractionAddressType.user("") {
+        switch addressType {
         case .contract: break
         case .staking: break
         case .custom: break
         case .multiple: break
         case .user: break
         }
+    }
+
+    private static var machineAndUnresolvableInteractionAddresses: [TransactionViewModel.InteractionAddressType] {
+        assertAllCasesListed(.user(""))
 
         return [
             .contract("0xContract"),

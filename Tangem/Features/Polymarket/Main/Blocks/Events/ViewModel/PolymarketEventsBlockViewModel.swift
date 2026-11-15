@@ -20,6 +20,8 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
 
     @Published private(set) var eventCards: [PolymarketFeedCard] = []
     @Published private(set) var selectedCategoryID: Int?
+    @Published private(set) var selectedSubcategoryID: Int?
+    @Published private(set) var selectedFilter: PolymarketCategoryFilter?
     @Published private(set) var loadingState: LoadingState = .loading
 
     private(set) var categoryTabs: [PolymarketCategoryTab] = []
@@ -32,18 +34,57 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
         )
     }
 
+    @MainActor
+    var selectedSubcategoryTab: Binding<PolymarketCategoryTab> {
+        Binding(
+            get: { self.subcategoryTabs.first { $0.id == self.feedCategoryID } ?? PolymarketCategoryTab(id: 0, title: "") },
+            set: { self.select(subcategoryID: $0.id == self.selectedCategoryID ? nil : $0.id) }
+        )
+    }
+
+    var subcategoryTabs: [PolymarketCategoryTab] {
+        guard showsSubcategories, let parent = selectedCategory, !parent.subcategories.isEmpty else {
+            return []
+        }
+
+        let allTab = PolymarketCategoryTab(id: parent.id, title: Localization.commonAll)
+
+        return [allTab] + parent.subcategories.map { PolymarketCategoryTab(id: $0.id, title: $0.label) }
+    }
+
+    @MainActor
+    var selectedFilterTab: Binding<PolymarketFilterTab> {
+        Binding(
+            get: { self.filterTabs.first { $0.id == self.selectedFilter } ?? PolymarketFilterTab(id: .games, title: "") },
+            set: { self.select(filter: $0.id) }
+        )
+    }
+
+    var filterTabs: [PolymarketFilterTab] {
+        guard case .category = mode, let category = selectedFeedCategory else {
+            return []
+        }
+
+        let tabs = category.filters.compactMap(PolymarketFilterTab.init(filter:))
+
+        return tabs.count >= Constants.minimumFilterTabs ? tabs : []
+    }
+
     var showsTabs: Bool {
         !categories.isEmpty || loadingState == .loading
     }
 
+    private let mode: Mode
     private let apiProvider: PolymarketAPIProvider
     private let refreshCenter: PolymarketMainRefreshCenter
     private let activityHandler: PolymarketMainActivityHandler
     private let liveQuotesTracker: PolymarketFeedLiveQuotesTracker
     private let liveGamesTracker: PolymarketFeedLiveGamesTracker
     private let usesPhaseTwoCards: Bool
+    private let showsSubcategories: Bool
     private let isRegionRestricted: () -> Bool
     private weak var routable: PolymarketEventOpeningRoutable?
+    private weak var categoryOpener: PolymarketCategoryOpeningRoutable?
     private let now: () -> Date
     private let delayProvider: PollDelayProvider
     private let reportOutdatedData: () -> Void
@@ -51,7 +92,7 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
     private var feed = PolymarketFeedPages()
     private var cursor: String?
     private var hasNext = false
-    private var cache: [Int?: CategoryState] = [:]
+    private var cache: [FeedKey: CategoryState] = [:]
     private var visibleEventIDs: Set<String> = []
     private var liveQuotesByAssetId: [String: PolymarketOutcomeQuote] = [:]
     private var liveGamesByGameId: [String: PolymarketLiveGame] = [:]
@@ -68,12 +109,14 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
     private let poller: PolymarketForegroundPoller
 
     init(
+        source: Source,
         apiProvider: PolymarketAPIProvider,
         refreshCenter: PolymarketMainRefreshCenter,
         activityHandler: PolymarketMainActivityHandler,
         liveQuotesTracker: PolymarketFeedLiveQuotesTracker,
         liveGamesTracker: PolymarketFeedLiveGamesTracker,
         usesPhaseTwoCards: Bool,
+        showsSubcategories: Bool,
         isRegionRestricted: @escaping () -> Bool,
         routable: PolymarketEventOpeningRoutable,
         appStateObserver: AppStateObserving = AppStateObserver(),
@@ -87,6 +130,7 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
         self.liveQuotesTracker = liveQuotesTracker
         self.liveGamesTracker = liveGamesTracker
         self.usesPhaseTwoCards = usesPhaseTwoCards
+        self.showsSubcategories = showsSubcategories
         self.isRegionRestricted = isRegionRestricted
         self.routable = routable
         self.now = now
@@ -97,6 +141,17 @@ final class PolymarketEventsBlockViewModel: ObservableObject {
             appStateObserver: appStateObserver,
             delayProvider: delayProvider
         )
+
+        switch source {
+        case .explore(let categoryOpener):
+            mode = .explore
+            self.categoryOpener = categoryOpener
+        case .category(let category):
+            mode = .category
+            categories = [category]
+            selectedCategoryID = category.id
+            selectedFilter = filterTabs.first?.id
+        }
 
         refreshCenter.register { [weak self] scope in
             await self?.refresh(scope: scope)
@@ -126,6 +181,8 @@ extension PolymarketEventsBlockViewModel {
             loadMore()
         case .onEventVisibilityChange(let id, let isVisible):
             updateVisibility(eventID: id, isVisible: isVisible)
+        case .seeAllTapped:
+            openSelectedCategory()
         }
     }
 
@@ -135,6 +192,7 @@ extension PolymarketEventsBlockViewModel {
         case loadNextPage
         case retryNextPage
         case onEventVisibilityChange(id: String, isVisible: Bool)
+        case seeAllTapped
     }
 }
 
@@ -151,41 +209,85 @@ extension PolymarketEventsBlockViewModel {
 
 private extension PolymarketEventsBlockViewModel {
     func load() {
-        loadingTask?.cancel()
-
         cache = [:]
-        resetEvents()
-        loadingState = .loading
 
-        loadingTask = runTask(in: self) { @MainActor viewModel in
-            await viewModel.loadCategories()
+        switch mode {
+        case .explore:
+            loadingTask?.cancel()
+            resetEvents()
+            loadingState = .loading
+
+            loadingTask = runTask(in: self) { @MainActor viewModel in
+                await viewModel.loadCategories()
+            }
+        case .category:
+            fetchEvents()
         }
     }
 
     func retry() {
-        guard !categories.isEmpty else {
-            runTask(in: self) { @MainActor viewModel in
-                await viewModel.refreshCenter.refresh(.accountFunds)
-            }
-            load()
+        guard case .explore = mode, categories.isEmpty else {
+            fetchEvents()
             return
         }
 
-        fetchEvents()
+        runTask(in: self) { @MainActor viewModel in
+            await viewModel.refreshCenter.refresh(.accountFunds)
+        }
+        load()
     }
 
     @MainActor
     func select(categoryID: Int?) {
         guard selectedCategoryID != categoryID else { return }
 
-        loadingTask?.cancel()
-        cache[selectedCategoryID] = snapshot()
-        selectedCategoryID = categoryID
+        switchFeed {
+            selectedCategoryID = categoryID
+            selectedSubcategoryID = nil
+            selectedFilter = filterTabs.first?.id
+        }
+    }
 
-        if let cached = cache[categoryID], !cached.feed.isEmpty {
+    @MainActor
+    func select(subcategoryID: Int?) {
+        guard selectedSubcategoryID != subcategoryID else { return }
+
+        switchFeed {
+            selectedSubcategoryID = subcategoryID
+            selectedFilter = filterTabs.first?.id
+        }
+    }
+
+    @MainActor
+    func select(filter: PolymarketCategoryFilter) {
+        guard selectedFilter != filter else { return }
+
+        switchFeed {
+            selectedFilter = filter
+        }
+    }
+
+    @MainActor
+    func switchFeed(_ changeSelection: () -> Void) {
+        loadingTask?.cancel()
+
+        if keepsVisitedFeeds {
+            cache[feedKey] = snapshot()
+        }
+
+        changeSelection()
+
+        if keepsVisitedFeeds, let cached = cache[feedKey], !cached.feed.isEmpty {
             restore(cached)
         } else {
             fetchEvents()
+        }
+    }
+
+    var keepsVisitedFeeds: Bool {
+        switch mode {
+        case .explore: true
+        case .category: false
         }
     }
 
@@ -201,9 +303,16 @@ private extension PolymarketEventsBlockViewModel {
         routable?.openEventDetails(
             eventID: eventID,
             placeholder: feed.events.first { $0.id == eventID }.map(PolymarketEventPlaceholder.init(event:)),
-            category: selectedCategory,
+            category: selectedFeedCategory,
             onOrderPlaced: { [weak activityHandler] indexing in activityHandler?.orderPlaced(awaiting: indexing) }
         )
+    }
+
+    @MainActor
+    func openSelectedCategory() {
+        guard let selectedCategory, !selectedCategory.subcategories.isEmpty else { return }
+
+        categoryOpener?.openCategory(selectedCategory)
     }
 
     func selectOutcome(eventID: String, marketID: String, assetId: String) {
@@ -248,7 +357,7 @@ private extension PolymarketEventsBlockViewModel {
         loadingTask?.cancel()
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
-            if viewModel.categories.isEmpty {
+            if case .explore = viewModel.mode, viewModel.categories.isEmpty {
                 await viewModel.loadCategories()
             } else {
                 await viewModel.reloadSelectedCategory()
@@ -352,13 +461,11 @@ private extension PolymarketEventsBlockViewModel {
 
         defer { refreshingPages.remove(key) }
 
-        let categoryID = selectedCategoryID
+        let request = makeRequest(cursor: page.requestCursor)
         feed.markAttempt(pageID: pageID, at: now())
 
         do {
-            let refreshed = try await apiProvider.events(
-                request: PolymarketEventsRequest(category: categoryID, limit: Constants.pageSize, cursor: page.requestCursor)
-            )
+            let refreshed = try await apiProvider.events(request: request)
             try Task.checkCancellation()
 
             guard key.generation == feed.generation, feed.merge(refreshed.events, into: pageID, at: now()) > 0 else {
@@ -603,9 +710,7 @@ extension PolymarketEventsBlockViewModel {
 // MARK: - Loading
 
 private extension PolymarketEventsBlockViewModel {
-    func events(category: Int?, cursor: String?) async throws -> PolymarketEventsPage {
-        let request = PolymarketEventsRequest(category: category, limit: Constants.pageSize, cursor: cursor)
-
+    func events(request: PolymarketEventsRequest) async throws -> PolymarketEventsPage {
         do {
             return try await apiProvider.events(request: request)
         } catch {
@@ -630,8 +735,9 @@ private extension PolymarketEventsBlockViewModel {
 
             self.categories = categories
             selectedCategoryID = firstCategoryID
+            selectedSubcategoryID = nil
 
-            let page = try await events(category: firstCategoryID, cursor: nil)
+            let page = try await events(request: makeRequest(cursor: nil))
             try Task.checkCancellation()
 
             apply(page: page, requestCursor: nil)
@@ -642,13 +748,13 @@ private extension PolymarketEventsBlockViewModel {
 
     @MainActor
     func reloadSelectedCategory() async {
-        let categoryID = selectedCategoryID
+        let key = feedKey
 
         do {
-            let page = try await events(category: categoryID, cursor: nil)
+            let page = try await events(request: makeRequest(cursor: nil))
             try Task.checkCancellation()
 
-            cache[categoryID] = nil
+            cache[key] = nil
             resetEvents()
             apply(page: page, requestCursor: nil)
         } catch {
@@ -665,12 +771,12 @@ private extension PolymarketEventsBlockViewModel {
 
         loadingState = feed.isEmpty ? .loading : .paginationLoading
 
-        let categoryID = selectedCategoryID
         let requestCursor = more ? cursor : nil
+        let request = makeRequest(cursor: requestCursor)
 
         loadingTask = runTask(in: self) { @MainActor viewModel in
             do {
-                let page = try await viewModel.events(category: categoryID, cursor: requestCursor)
+                let page = try await viewModel.events(request: request)
                 try Task.checkCancellation()
 
                 viewModel.apply(page: page, requestCursor: requestCursor, emptyPages: emptyPages)
@@ -714,6 +820,26 @@ private extension PolymarketEventsBlockViewModel {
 
     var selectedCategory: PolymarketCategory? {
         categories.first { $0.id == selectedCategoryID }
+    }
+
+    var selectedFeedCategory: PolymarketCategory? {
+        guard let selectedSubcategoryID else {
+            return selectedCategory
+        }
+
+        return selectedCategory?.subcategories.first { $0.id == selectedSubcategoryID }
+    }
+
+    var feedCategoryID: Int? {
+        selectedSubcategoryID ?? selectedCategoryID
+    }
+
+    var feedKey: FeedKey {
+        FeedKey(categoryID: feedCategoryID, filter: selectedFilter)
+    }
+
+    func makeRequest(cursor: String?) -> PolymarketEventsRequest {
+        PolymarketEventsRequest(category: feedCategoryID, filter: selectedFilter, limit: Constants.pageSize, cursor: cursor)
     }
 
     func makeCard(for event: PolymarketEvent) -> PolymarketFeedCard {
@@ -762,6 +888,11 @@ private extension PolymarketEventsBlockViewModel {
 // MARK: - Types
 
 extension PolymarketEventsBlockViewModel {
+    enum Source {
+        case explore(categoryOpener: PolymarketCategoryOpeningRoutable)
+        case category(PolymarketCategory)
+    }
+
     enum LoadingState: Equatable {
         case loading
         case error
@@ -785,8 +916,19 @@ private extension PolymarketEventsBlockViewModel {
         let pageID: Int
     }
 
+    enum Mode {
+        case explore
+        case category
+    }
+
+    struct FeedKey: Hashable {
+        let categoryID: Int?
+        let filter: PolymarketCategoryFilter?
+    }
+
     enum Constants {
         static let pageSize = 20
+        static let minimumFilterTabs = 2
         static let silentRetryDelay: TimeInterval = 2
         static let maxEmptyPages = 3
         static let pollInterval: TimeInterval = 20

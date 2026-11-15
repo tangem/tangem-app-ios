@@ -55,6 +55,14 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
         state.withLock(\.issuedInviteRequests)
     }
 
+    var requestedHistoryCursors: [String?] {
+        state.withLock(\.requestedHistoryCursors)
+    }
+
+    var requestedHistoryDeltaCursors: [String?] {
+        state.withLock(\.requestedHistoryDeltaCursors)
+    }
+
     var operationCallsCount: Int {
         state.withLock { $0.createdRequests.count + $0.signedOperations.count + $0.rejectedOperationIds.count + $0.fetchedOperations.count }
     }
@@ -66,9 +74,13 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
         suspendedFirstAnswer: JointAccountsRemoteState? = nil,
         operationAnswer: JointAccountOperation? = nil,
         fetchedOperationAnswers: [Result<JointOperationFetchResult, Error>] = [],
-        issuedInviteAnswer: Result<JointAccountIssuedInvite, Error>? = nil
+        issuedInviteAnswer: Result<JointAccountIssuedInvite, Error>? = nil,
+        historyPages: [JointOperationsHistoryPage] = [],
+        historyDeltaPages: [JointOperationsHistoryPage] = []
     ) {
         state.withLock {
+            $0.historyPages = historyPages
+            $0.historyDeltaPages = historyDeltaPages
             $0.issuedInviteAnswer = issuedInviteAnswer
             $0.jointAccounts = jointAccounts
             $0.answersUnchanged = answersUnchanged
@@ -139,10 +151,6 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
         throw "Not called by these tests"
     }
 
-    func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
-        throw "Not called by these tests"
-    }
-
     func confirmJointAccount(blob: JointAccountConfirmationBlob) async throws -> RemoteJointAccount {
         throw "Not called by these tests"
     }
@@ -166,11 +174,29 @@ final class JointAccountsNetworkServiceStub: JointAccountsNetworkService {
     }
 
     func getOperationsHistory(afterCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage {
-        throw "Not called by these tests"
+        let page = state.withLock { state -> JointOperationsHistoryPage? in
+            state.requestedHistoryCursors.append(afterCursor)
+            return state.historyPages.isEmpty ? nil : state.historyPages.removeFirst()
+        }
+
+        guard let page else {
+            throw "The test handed no more history pages"
+        }
+
+        return page
     }
 
     func getOperationsHistoryDelta(beforeCursor: String?, limit: Int) async throws -> JointOperationsHistoryPage {
-        throw "Not called by these tests"
+        let page = state.withLock { state -> JointOperationsHistoryPage? in
+            state.requestedHistoryDeltaCursors.append(beforeCursor)
+            return state.historyDeltaPages.isEmpty ? nil : state.historyDeltaPages.removeFirst()
+        }
+
+        guard let page else {
+            throw "The test handed no more history delta pages"
+        }
+
+        return page
     }
 
     func getOperation(id: String, knownETag: String?) async throws -> JointOperationFetchResult {
@@ -222,5 +248,9 @@ private extension JointAccountsNetworkServiceStub {
         var signedOperations: [(id: String, safeTransaction: SafeTransaction, signature: Data)] = []
         var rejectedOperationIds: [String] = []
         var firstRequestContinuation: CheckedContinuation<Void, Never>?
+        var historyPages: [JointOperationsHistoryPage] = []
+        var historyDeltaPages: [JointOperationsHistoryPage] = []
+        var requestedHistoryCursors: [String?] = []
+        var requestedHistoryDeltaCursors: [String?] = []
     }
 }

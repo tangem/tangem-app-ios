@@ -42,6 +42,7 @@ public struct SensitiveText: View, Setupable {
         switch textType {
         case .string(let string):
             return Text(visibilityState.isHidden ? maskedBalanceString : string)
+                .monospacedDigit()
         case .attributed(let string):
             return Text(visibilityState.isHidden ? string.masked(with: maskedBalanceString) : string)
                 .monospacedDigit()

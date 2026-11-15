@@ -7,5 +7,6 @@
 //
 
 enum MCPConnectionRequestUserWalletSelectorAction {
-    case selectionChanged(MCPConnectionRequestUserWalletSelectorRowState)
+    case rowTapped(MCPConnectionRequestUserWalletSelectorRowState)
+    case selectionUpdated(MCPUserWallet.ID)
 }

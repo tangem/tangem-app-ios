@@ -28,7 +28,7 @@ extension JointAccountMobileWalletDerivationInteractor: JointAccountDerivationIn
         derivationIndex: Int,
         payloadBuilder: Builder
     ) async throws -> JointAccountDerivationInteractorResult<Builder.Payload> {
-        let derivationPath = JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIndex)
+        let derivationPath = try JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIndex)
         let seedKey = try keysRepository.masterKeyPublicKey(curve: JointAccountKeyPath.blockchain.curve)
         let context = try await unlock()
 

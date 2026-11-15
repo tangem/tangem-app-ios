@@ -15,6 +15,7 @@ final class WalletModelTransactionHistoryFeatureManager {
 
     private let providerResolver: TransactionHistoryProviderResolver
     private let tokenItem: TokenItem
+    private let isSafe: Bool
     private let transactionHistoryProviderSubject = CurrentValueSubject<(any TransactionHistoryProviding)?, Never>(nil)
     private var transactionHistoryProviderSubscription: AnyCancellable?
 
@@ -22,12 +23,18 @@ final class WalletModelTransactionHistoryFeatureManager {
         expressAvailabilityProvider.canSwap(tokenItem: tokenItem) || expressAvailabilityProvider.canOnramp(tokenItem: tokenItem)
     }
 
+    private var isTransactionHistorySupported: Bool {
+        isExpressSupported || (isSafe && providerResolver.isJointAccountsAvailable)
+    }
+
     init(
         providerResolver: TransactionHistoryProviderResolver,
-        tokenItem: TokenItem
+        tokenItem: TokenItem,
+        isSafe: Bool
     ) {
         self.providerResolver = providerResolver
         self.tokenItem = tokenItem
+        self.isSafe = isSafe
 
         bind()
     }
@@ -36,11 +43,11 @@ final class WalletModelTransactionHistoryFeatureManager {
         transactionHistoryProviderSubscription = expressAvailabilityProvider
             .availabilityDidChangePublisher
             .withWeakCaptureOf(self)
-            .map(\.0.isExpressSupported)
+            .map(\.0.isTransactionHistorySupported)
             .removeDuplicates()
             .withWeakCaptureOf(self)
-            .asyncMap { manager, isExpressSupported in
-                isExpressSupported ? await manager.providerResolver.provider() : nil
+            .asyncMap { manager, isTransactionHistorySupported in
+                isTransactionHistorySupported ? await manager.providerResolver.provider() : nil
             }
             .withWeakCaptureOf(self)
             .sink { manager, provider in

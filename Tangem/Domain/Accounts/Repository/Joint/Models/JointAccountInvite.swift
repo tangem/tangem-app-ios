@@ -9,9 +9,9 @@
 import Foundation
 
 /// An invite the way it is handed on: by the link that carries it.
-/// - Warning: The link is the invite, and the invite is the account's only access secret — see
-/// `StoredJointAccountInvite`.
+/// - Warning: The link is the invite, and the invite is the account's only access secret.
 struct JointAccountInvite: Equatable {
     let id: String
     let url: URL
+    let expiresAt: Date
 }

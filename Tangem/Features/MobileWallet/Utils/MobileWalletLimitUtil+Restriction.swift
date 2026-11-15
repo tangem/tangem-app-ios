@@ -45,7 +45,7 @@ extension MobileWalletLimitUtil {
 
         private var analyticsType: Analytics.ParameterValue {
             switch self {
-            case .mobileWalletsLimitReached(.create): .create
+            case .mobileWalletsLimitReached(.create): .createWallet
             case .mobileWalletsLimitReached(.import): .import
             case .mobileWalletsLimitReached(.socialLogin), .socialWalletAlreadyAdded: .socialLogin
             }

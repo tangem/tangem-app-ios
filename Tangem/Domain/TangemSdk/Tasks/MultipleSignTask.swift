@@ -11,13 +11,18 @@ import BlockchainSdk
 import TangemFoundation
 
 final class MultipleSignTask: CardSessionRunnable {
-    private let dataToSign: [SignData]
+    private let dataProvider: () async throws -> [SignData]
     private let seedKey: Data
     private let pairKey: Data?
-    private let userWalletRegistrar = CardUserWalletRegistrar(analyticsReporter: CommonBackendAuthenticationAnalyticsReporter())
+    private let userWalletRegistrar = CardUserWalletRegistrar(analyticsReporter: CommonBackendAuthenticationNonceAnalyticsReporter())
+    private var dataToSign: [SignData] = []
 
-    public init(dataToSign: [SignData], seedKey: Data, pairKey: Data?) {
-        self.dataToSign = dataToSign
+    public convenience init(dataToSign: [SignData], seedKey: Data, pairKey: Data?) {
+        self.init(dataProvider: { dataToSign }, seedKey: seedKey, pairKey: pairKey)
+    }
+
+    public init(dataProvider: @escaping () async throws -> [SignData], seedKey: Data, pairKey: Data?) {
+        self.dataProvider = dataProvider
         self.seedKey = seedKey
         self.pairKey = pairKey
     }
@@ -27,9 +32,28 @@ final class MultipleSignTask: CardSessionRunnable {
     }
 
     public func prepare(_ session: CardSession, completion: @escaping CompletionResult<Void>) {
-        // Obtaining the nonce before the NFC session opens, so the NFC session remains responsive
-        userWalletRegistrar.obtainNonce {
-            completion(.success(()))
+        Task { @MainActor [self] in
+            // Obtaining the nonce before the NFC session opens, so the NFC session remains responsive
+            async let nonceObtained: Void = withCheckedContinuation { continuation in
+                userWalletRegistrar.obtainNonce { continuation.resume() }
+            }
+
+            let result: Result<[SignData], Error>
+            do {
+                result = .success(try await dataProvider())
+            } catch {
+                result = .failure(error)
+            }
+
+            await nonceObtained
+
+            switch result {
+            case .success(let data):
+                dataToSign = data
+                completion(.success(()))
+            case .failure(let error):
+                completion(.failure(error.toTangemSdkError()))
+            }
         }
     }
 

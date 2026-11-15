@@ -65,7 +65,7 @@ private extension CommonTronTokenFeeLoaderTests {
             amount: BSDKAmount(with: .tron(testnet: false), type: .coin, value: 50),
             destination: "TKJMd8JF5hevd2TQeSKvJzwQKgpRQVHpr6",
             callData: Data([0xAB, 0xCD]),
-            memo: "=:ETH.ETH:0xd7ABce6612079A05e431752cb85Bf7010E40FdF5",
+            memo: Data("=:ETH.ETH:0xd7ABce6612079A05e431752cb85Bf7010E40FdF5".utf8),
             otherNativeFee: otherNativeFee
         )
     }
@@ -82,7 +82,7 @@ private final class TronTransactionFeeProviderSpy: TronTransactionFeeProvider {
         let amount: BSDKAmount
         let destination: String
         let callData: Data?
-        let memo: String?
+        let memo: Data?
     }
 
     private(set) var receivedRequests: [ReceivedRequest] = []
@@ -92,7 +92,7 @@ private final class TronTransactionFeeProviderSpy: TronTransactionFeeProvider {
         self.fees = fees
     }
 
-    func getFee(amount: Amount, destination: String, callData: Data?, memo: String?) async throws -> [Fee] {
+    func getFee(amount: Amount, destination: String, callData: Data?, memo: Data?) async throws -> [Fee] {
         receivedRequests.append(ReceivedRequest(amount: amount, destination: destination, callData: callData, memo: memo))
         return fees
     }

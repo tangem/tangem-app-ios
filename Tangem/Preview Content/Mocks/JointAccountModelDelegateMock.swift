@@ -12,17 +12,17 @@ import TangemFoundation
 /// - Warning: Held weakly by the model it is handed to, so whoever builds a model with one of these keeps it alive
 /// for as long as the model is used.
 final class JointAccountModelDelegateMock: JointAccountModelDelegate {
-    /// The configs the activation was asked for with, in the order they arrived.
-    var activationConfigs: [JointAccountActivationConfig] {
-        state.withLockUnchecked { $0.activationConfigs }
+    /// The configs the confirmation was asked for with, in the order they arrived.
+    var confirmationConfigs: [JointAccountConfirmationConfig] {
+        state.withLockUnchecked { $0.confirmationConfigs }
     }
 
     /// `uncheckedState` because the error to fail with is an `AccountEditError`, which carries a plain `any Error`.
     private let state = OSAllocatedUnfairLock(uncheckedState: State())
 
-    /// Makes every activation from here on fail the way the wallet would report it.
-    func failActivation(with error: AccountEditError) {
-        state.withLockUnchecked { $0.activationError = error }
+    /// Makes every confirmation from here on fail the way the wallet would report it.
+    func failConfirmation(with error: AccountEditError) {
+        state.withLockUnchecked { $0.confirmationError = error }
     }
 
     func commonCryptoAccountModel(
@@ -32,15 +32,17 @@ final class JointAccountModelDelegateMock: JointAccountModelDelegate {
 
     func commonCryptoAccountModelWantsToArchive(_ model: CommonCryptoAccountModel) async throws(AccountArchivationError) {}
 
-    func activateJointAccount(with config: JointAccountActivationConfig) async throws(AccountEditError) {
+    func confirmJointAccount(with config: JointAccountConfirmationConfig) async throws(AccountEditError) -> JointAccountStatus {
         let error = state.withLockUnchecked { state in
-            state.activationConfigs.append(config)
-            return state.activationError
+            state.confirmationConfigs.append(config)
+            return state.confirmationError
         }
 
         if let error {
             throw error
         }
+
+        return .confirming(safeAddress: config.safeAddress)
     }
 }
 
@@ -48,7 +50,7 @@ final class JointAccountModelDelegateMock: JointAccountModelDelegate {
 
 private extension JointAccountModelDelegateMock {
     struct State {
-        var activationConfigs: [JointAccountActivationConfig] = []
-        var activationError: AccountEditError?
+        var confirmationConfigs: [JointAccountConfirmationConfig] = []
+        var confirmationError: AccountEditError?
     }
 }

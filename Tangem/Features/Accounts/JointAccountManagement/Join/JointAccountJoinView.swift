@@ -60,7 +60,7 @@ struct JointAccountJoinView: View {
                 .padding(.horizontal, Constants.contentHorizontalPadding)
             }
         }
-        .topNavigation(leading: .none, onClose: viewModel.onCloseTap)
+        .topNavigation(leading: .none, close: .enabled(viewModel.onCloseTap))
     }
 
     private func glow(_ content: JointAccountJoinViewModel.Content) -> some View {
@@ -221,10 +221,6 @@ private struct JointAccountsNetworkServicePreviewStub: JointAccountsNetworkServi
     }
 
     func joinJointAccount(blob: JointAccountJoinBlob) async throws -> RemoteJointAccount {
-        throw CancellationError()
-    }
-
-    func activateJointAccount(blob: JointAccountActivationBlob) async throws -> RemoteJointAccount {
         throw CancellationError()
     }
 

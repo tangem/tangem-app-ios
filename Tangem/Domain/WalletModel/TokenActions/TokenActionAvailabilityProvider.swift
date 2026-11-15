@@ -28,7 +28,8 @@ struct TokenActionAvailabilityProvider {
         self.walletModel = walletModel
         sellCryptoUtility = SellCryptoUtility(
             tokenItem: walletModel.tokenItem,
-            address: walletModel.defaultAddressString
+            address: walletModel.defaultAddressString,
+            userWalletId: userWalletInfo.id
         )
     }
 
@@ -336,6 +337,7 @@ extension TokenActionAvailabilityProvider {
 // MARK: - Sell
 
 extension TokenActionAvailabilityProvider {
+    @CaseFlagable
     enum SellActionAvailabilityStatus {
         case available
         case jointAccountsComingSoon

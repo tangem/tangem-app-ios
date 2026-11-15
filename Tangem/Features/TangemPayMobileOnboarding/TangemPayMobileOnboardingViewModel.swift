@@ -45,6 +45,13 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
             alert = mobileWalletFeatureProvider.makeRestrictionAlert()
             return
         }
+
+        if FeatureProvider.isAvailable(.mobileWalletMultiCreation),
+           let restriction = MobileWalletLimitUtil().restriction(for: .create) {
+            alert = restriction.makeAlert()
+            return
+        }
+
         guard !isCreating else { return }
 
         TangemPayMobileOnboardingService().markOnboardingShown()
@@ -53,42 +60,13 @@ final class TangemPayMobileOnboardingViewModel: ObservableObject {
 
         runTask(in: self) { viewModel in
             do {
-                let initializer = MobileWalletInitializer()
-                let walletInfo = try await initializer.initializeWallet(
-                    parameters: WalletInitializerParameters(
-                        mnemonic: nil,
-                        passphrase: nil,
-                        isImported: false,
-                        hasMnemonicBackup: false,
-                        hasICloudBackup: false,
-                        hasSocialLogin: false
-                    )
-                )
-
-                Task.detached {
-                    let userWalletConfig = MobileUserWalletConfig(mobileWalletInfo: walletInfo)
-                    if let userWalletId = UserWalletId(config: userWalletConfig) {
-                        let walletCreationHelper = WalletCreationHelper(
-                            userWalletId: userWalletId,
-                            userWalletName: nil,
-                            userWalletConfig: userWalletConfig
-                        )
-                        try? await walletCreationHelper.createWallet()
-                    }
-                }
-
-                guard let newUserWalletModel = CommonUserWalletModelFactory().makeModel(
-                    walletInfo: .mobileWallet(walletInfo),
-                    keys: .mobileWallet(keys: walletInfo.keys),
-                ) else {
-                    throw UserWalletRepositoryError.cantUnlockWallet
-                }
+                let creationUtil = MobileCreationUtil()
+                let newUserWalletModel = try await creationUtil.makeCreatedModel()
 
                 AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: newUserWalletModel.userWalletId)
                 viewModel.logWalletCreatedAnalytics()
 
-                BackendAuthenticationRegistrar.registerNewUnprotectedMobileWallet(newUserWalletModel)
-                try viewModel.userWalletRepository.add(userWalletModel: newUserWalletModel)
+                try creationUtil.store(newUserWalletModel)
 
                 await runOnMain { viewModel.pushNotificationsInteractor.suppressAfterLoginRequestsInCurrentSession() }
 

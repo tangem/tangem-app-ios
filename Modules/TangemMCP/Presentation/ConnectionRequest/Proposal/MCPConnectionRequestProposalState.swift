@@ -8,11 +8,11 @@
 
 import struct Foundation.URL
 import struct TangemFoundation.UserWalletId
+import enum TangemLocalization.Localization
 import enum TangemUI.ThumbnailWalletViewType
 
-// [REDACTED_TODO_COMMENT]
 struct MCPConnectionRequestProposalState: Equatable {
-    let navigationTitle = "New connection"
+    let navigationTitle = Localization.wcNewConnection
 
     var agentSummary: AgentSummary
     let agentPermissions = AgentPermissions()
@@ -42,18 +42,18 @@ extension MCPConnectionRequestProposalState {
 extension MCPConnectionRequestProposalState {
     struct AgentPermissions: Equatable {
         let grantedSection = Section(
-            header: "This agent will be able to",
+            header: Localization.mcpConnectionRequestAgentCan,
             role: .grant,
             permissions: [
-                "View balances and activity",
-                "Request approval for transactions",
+                Localization.mcpConnectionRequestCanViewBalance,
+                Localization.wcConnectionReqeustRequestApproval,
             ]
         )
 
         let restrictedSection = Section(
-            header: "Will not be able to",
+            header: Localization.wcConnectionReqeustWillNot,
             role: .restrict,
-            permissions: ["Sign transactions without your notice"]
+            permissions: [Localization.wcConnectionReqeustCantSign]
         )
     }
 }
@@ -73,7 +73,7 @@ extension MCPConnectionRequestProposalState.AgentPermissions {
 
 extension MCPConnectionRequestProposalState {
     struct UserWalletSelector: Equatable {
-        let label = "Wallet"
+        let label = Localization.commonWallet
         let isSelectionAllowed: Bool
         var isEnabled: Bool
         var selection: MCPUserWallet
@@ -82,9 +82,9 @@ extension MCPConnectionRequestProposalState {
 
 extension MCPConnectionRequestProposalState {
     struct PushNotificationsPermissionBanner: Equatable {
-        let title = "Allow notifications"
-        let description = "You’ll get a notification to approve each transaction. Without notifications, the agent can’t connect."
-        let buttonTitle = "Open Settings"
+        let title = Localization.pushNotificationSettingsBannerTitle
+        let description = Localization.mcpConnectionRequestNotificationsDescription
+        let buttonTitle = Localization.commonOpenSettingsButtonTitle
     }
 }
 
@@ -93,8 +93,8 @@ extension MCPConnectionRequestProposalState {
         let title: String
         var state: ButtonState
 
-        static let decline = Button(title: "Decline", state: .disabled)
-        static let connect = Button(title: "Connect", state: .disabled)
+        static let decline = Button(title: Localization.commonDecline, state: .disabled)
+        static let connect = Button(title: Localization.wcCommonConnect, state: .disabled)
     }
 
     enum ButtonState: Equatable {

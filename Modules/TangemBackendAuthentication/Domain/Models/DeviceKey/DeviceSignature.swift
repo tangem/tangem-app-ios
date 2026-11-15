@@ -18,6 +18,8 @@ package import struct Foundation.Data
 ///
 /// The resulting signature is provided in one of two encodings, depending on which request it's part of.
 /// - SeeAlso: ``DevicePublicKey`` for how the underlying key is generated and protected.
+///
+/// A `package` access level due to its use in the `TangemSocialAuthentication` module.
 package struct DeviceSignature: Equatable, Sendable {
     /// The signature as ASN.1 (Abstract Syntax Notation One) DER (Distinguished Encoding Rules)
     /// encoded bytes: a `SEQUENCE` of two `INTEGER`s, `r` and `s`.
@@ -27,6 +29,8 @@ package struct DeviceSignature: Equatable, Sendable {
     ///   | ---                 | ---                               |
     ///   | device registration | `POST /mobile/register`           |
     ///   | authentication      | `POST /mobile/authenticate`       |
+    ///
+    /// A `package` access level due to its use in the `TangemSocialAuthentication` module.
     package let derRepresentation: Data
 
     /// The signature as raw `r ‖ s` bytes, no ASN.1 wrapping.

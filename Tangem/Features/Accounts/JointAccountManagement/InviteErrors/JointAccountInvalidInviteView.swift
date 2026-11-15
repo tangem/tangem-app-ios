@@ -29,7 +29,7 @@ struct JointAccountInvalidInviteView: View {
             )
             .infinityFrame()
         }
-        .topNavigation(leading: .none, onClose: onCloseTap)
+        .topNavigation(leading: .none, close: .enabled(onCloseTap))
         .safeAreaInset(edge: .bottom) { footer }
     }
 

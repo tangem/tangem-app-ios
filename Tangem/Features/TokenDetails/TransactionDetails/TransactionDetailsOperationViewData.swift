@@ -52,12 +52,12 @@ enum TransactionOperationStatusMapper {
     }
 
     static func viewStatus(for record: TransactionRecord) -> TransactionViewModel.Status {
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             return viewStatus(for: stage(for: info.transaction.status))
-        case .onramp(let info):
+        case .express(.onramp(let info)):
             return viewStatus(for: stage(for: info.transaction.status))
-        case nil:
+        case .jointOperation, nil:
             switch record.status {
             case .confirmed:
                 return .confirmed

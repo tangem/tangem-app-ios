@@ -15,7 +15,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
         let expectedTitle = "Buy \(token)"
 
         setAllureId(82)
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -35,7 +35,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
 
     func testLongTapCopyAddress_CopiesAndShowsToast() {
         setAllureId(84)
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -49,7 +49,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
 
     func testLongTapContextMenu_UIValidation() {
         setAllureId(79)
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -61,7 +61,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
 
     func testLongTapReceive_NavigatesThroughReceiveFlow() {
         setAllureId(86)
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -81,7 +81,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
 
     func testLongTapSend_NavigatesToSendScreen() {
         setAllureId(83)
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -96,7 +96,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
 
     func testLongTapExchange_NavigatesToSwapScreen() {
         setAllureId(87)
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -114,7 +114,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
         let token = "Ethereum"
 
         setAllureId(85)
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -130,7 +130,7 @@ final class MainLongTapActionButtonsUITests: BaseTestCase {
         let token = "Bitcoin"
 
         setAllureId(77)
-        launchApp(tangemApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock)
 
         let contextMenu = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)

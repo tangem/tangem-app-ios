@@ -244,8 +244,7 @@ extension CommonYieldModuleManager: YieldModuleManager, YieldModuleManagerUpdate
     }
 
     func newImplementationAddress(moduleAddress: String) async -> String? {
-        guard FeatureProvider.isAvailable(.yieldModuleOwnerActionUpgrade),
-              let versionResolver = yieldSupplyService.makeVersionResolver() else {
+        guard let versionResolver = yieldSupplyService.makeVersionResolver() else {
             return nil
         }
 
@@ -600,7 +599,7 @@ private extension CommonYieldModuleManager {
                 let (moduleManager, (previous, current)) = result
                 guard let previous,
                       // avoid redundant calculations if module isn't deployed
-                      let storedYieldContract = await moduleManager.yieldSupplyService.storedYieldContract() else {
+                      let storedYieldContract = moduleManager.yieldSupplyService.storedYieldContract() else {
                     return
                 }
 

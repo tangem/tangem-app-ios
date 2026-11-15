@@ -17,25 +17,31 @@ struct CollectiblesPurchaseTracker {
     private let statusProvider: any CollectiblesPurchaseStatusProvider
     private let opener: any CollectiblesPackOpener
     private let delayProvider: any PollDelayProvider
+    private let dateProvider: any DateProvider
 
     // MARK: - Init
 
     init(
         statusProvider: any CollectiblesPurchaseStatusProvider,
         opener: any CollectiblesPackOpener,
-        delayProvider: any PollDelayProvider
+        delayProvider: any PollDelayProvider,
+        dateProvider: any DateProvider
     ) {
         self.statusProvider = statusProvider
         self.opener = opener
         self.delayProvider = delayProvider
+        self.dateProvider = dateProvider
     }
 
     // MARK: - Methods
 
-    func awaitPayment(txID: String) async throws -> Payment {
+    func awaitPayment(txID: String, createdAt: Date?, isTurboModeOn: Bool) async throws -> Payment {
+        let checksLimit = paymentChecksLimit(createdAt: createdAt)
         let polling = PollingSequence(
             interval: Constants.retryInterval,
-            request: { [statusProvider] in try await statusProvider.load(txID: txID) },
+            request: { [statusProvider] in
+                try await statusProvider.load(txID: txID, includesAutoBuyback: isTurboModeOn)
+            },
             delayProvider: delayProvider
         )
 
@@ -60,7 +66,7 @@ struct CollectiblesPurchaseTracker {
                 CollectiblesLogger.error("Collectibles purchase \(txID) status check failed", error: error)
             }
 
-            if checksCount >= Constants.paymentChecksCount {
+            if checksCount >= checksLimit {
                 throw CollectiblesPackPurchaseError.paymentTimedOut
             }
         }
@@ -68,29 +74,49 @@ struct CollectiblesPurchaseTracker {
         throw CancellationError()
     }
 
-    func open(txID: String) async throws -> CollectiblesWonCard? {
+    func open(txID: String, isTurboModeOn: Bool) async throws -> CollectiblesWonCard? {
         try await retrying(
             attempts: Constants.openAttemptsCount,
             exhausted: .openFailed,
             failureMessage: "Collectibles pack \(txID) failed to open"
         ) {
-            let transaction = try await opener.open(txID: txID)
+            let transaction = try await opener.open(txID: txID, includesAutoBuyback: isTurboModeOn)
             try Self.throwIfClosed(transaction)
 
             return Self.outcome(of: transaction.status) == .opened ? .done(transaction.wonCard) : .retry
         }
     }
 
-    func awaitWonCard(txID: String) async throws -> CollectiblesWonCard {
+    func awaitWonCard(txID: String, isTurboModeOn: Bool) async throws -> CollectiblesWonCard {
         try await retrying(
             attempts: Constants.prizeDeliveryChecksCount,
             exhausted: .prizeNotDelivered,
             failureMessage: "Collectibles pack \(txID) prize delivery check failed"
         ) {
-            let transaction = try await statusProvider.load(txID: txID)
+            let transaction = try await statusProvider.load(txID: txID, includesAutoBuyback: isTurboModeOn)
             try Self.throwIfClosed(transaction)
 
             return transaction.wonCard.map { .done($0) } ?? .retry
+        }
+    }
+
+    func checkPurchaseIsClosed(txID: String) async throws -> Bool {
+        let transaction: CollectiblesPurchaseTransaction
+
+        do {
+            transaction = try await statusProvider.load(txID: txID, includesAutoBuyback: false)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            CollectiblesLogger.error("Collectibles purchase \(txID) status check failed", error: error)
+            return false
+        }
+
+        switch Self.outcome(of: transaction.status) {
+        case .failed, .autoSold:
+            return true
+        case .pending, .paid, .opened, .halted:
+            return false
         }
     }
 }
@@ -105,6 +131,7 @@ extension CollectiblesPurchaseTracker {
 
     struct AutoSold: Error {
         let amount: Decimal?
+        let wonCard: CollectiblesWonCard?
     }
 }
 
@@ -142,6 +169,17 @@ private extension CollectiblesPurchaseTracker {
         }
     }
 
+    func paymentChecksLimit(createdAt: Date?) -> Int {
+        guard let createdAt else {
+            return Constants.paymentChecksCount
+        }
+
+        let timeLeft = Constants.paymentTimeout - dateProvider.now.timeIntervalSince(createdAt)
+        let checksLeft = Int((timeLeft / Constants.retryInterval).rounded(.up))
+
+        return min(Constants.paymentChecksCount, max(1, checksLeft))
+    }
+
     static func throwIfClosed(_ transaction: CollectiblesPurchaseTransaction) throws {
         switch outcome(of: transaction.status) {
         case .halted:
@@ -149,7 +187,7 @@ private extension CollectiblesPurchaseTracker {
         case .failed:
             throw CollectiblesPackPurchaseError.paymentFailed(transaction.status)
         case .autoSold:
-            throw AutoSold(amount: transaction.buybackAmount)
+            throw AutoSold(amount: transaction.buybackAmount, wonCard: transaction.wonCard)
         case .pending, .paid, .opened:
             break
         }
@@ -174,6 +212,8 @@ private extension CollectiblesPurchaseTracker {
                 throw error
             } catch let sold as AutoSold {
                 throw sold
+            } catch let error as CollectiblesPackOpeningError {
+                throw error
             } catch is CancellationError {
                 throw CancellationError()
             } catch {
@@ -191,6 +231,7 @@ private extension CollectiblesPurchaseTracker {
     enum Constants {
         static let retryInterval: TimeInterval = 2
         static let paymentChecksCount = 50
+        static let paymentTimeout = TimeInterval(paymentChecksCount) * retryInterval
         static let openAttemptsCount = 5
         static let prizeDeliveryChecksCount = 15
     }

@@ -19,7 +19,7 @@ struct RegisterMobileUserWalletUseCaseTests {
         let expectedNonce = UserWalletRegistrationNonce.fake
         let expectedRequest = UserWalletRegistrationRequest.fake
         let expectedSigner = SpyUserWalletRegistrationSigner()
-        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+        let analyticsReporter = SpyBackendAuthenticationNonceAnalyticsReporter()
 
         let sut = makeSUT(
             obtainNonce: Self.obtainNonceMock(expectedID: expectedID, returnedNonce: expectedNonce),
@@ -33,9 +33,33 @@ struct RegisterMobileUserWalletUseCaseTests {
             analyticsReporter: analyticsReporter
         )
 
-        try await sut(id: expectedID, recoveryEnrollment: nil, signer: expectedSigner)
+        let result = try await sut(id: expectedID, recoveryEnrollment: nil, signer: expectedSigner)
 
+        #expect(result == .registered)
         #expect(analyticsReporter.receivedMessages.isEmpty)
+    }
+
+    @Test
+    func registerMobileUserWalletReturnsAlreadyRegisteredWhenBackendKnowsTheWallet() async throws {
+        let expectedID = UserWalletId.uniqueFake()
+        let expectedNonce = UserWalletRegistrationNonce.fake
+        let expectedRequest = UserWalletRegistrationRequest.fake
+        let expectedSigner = SpyUserWalletRegistrationSigner()
+
+        let sut = makeSUT(
+            obtainNonce: Self.obtainNonceMock(expectedID: expectedID, returnedNonce: expectedNonce),
+            attestUserWallet: Self.attestUserWalletMock(
+                expectedID: expectedID,
+                expectedNonce: expectedNonce,
+                expectedSigner: expectedSigner,
+                returnedRequest: expectedRequest
+            ),
+            submitRegistration: Self.submitRegistrationMock(expectedRequest: expectedRequest, returnedResult: .alreadyRegistered)
+        )
+
+        let result = try await sut(id: expectedID, recoveryEnrollment: nil, signer: expectedSigner)
+
+        #expect(result == .alreadyRegistered)
     }
 
     @Test
@@ -48,7 +72,9 @@ struct RegisterMobileUserWalletUseCaseTests {
             submitRegistration: Self.neverCalledSubmitRegistrationMock()
         )
 
-        try await sut(id: anyUserWalletID, recoveryEnrollment: nil, signer: .successStub)
+        let result = try await sut(id: anyUserWalletID, recoveryEnrollment: nil, signer: .successStub)
+
+        #expect(result == .alreadyRegistered)
     }
 
     @Test
@@ -68,7 +94,9 @@ struct RegisterMobileUserWalletUseCaseTests {
             submitRegistration: Self.neverCalledSubmitRegistrationMock()
         )
 
-        try await sut(id: anyUserWalletID, recoveryEnrollment: nil, signer: anySigner)
+        let result = try await sut(id: anyUserWalletID, recoveryEnrollment: nil, signer: anySigner)
+
+        #expect(result == .alreadyRegistered)
     }
 
     @Test
@@ -95,7 +123,7 @@ struct RegisterMobileUserWalletUseCaseTests {
 
     @Test
     func registerMobileUserWalletReportsMobileUserWalletNonceTimeoutWhenObtainNonceTimesOut() async throws {
-        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+        let analyticsReporter = SpyBackendAuthenticationNonceAnalyticsReporter()
 
         let sut = makeSUT(
             obtainNonce: { _ throws(ObtainUserWalletRegistrationNonceError) in
@@ -148,7 +176,7 @@ struct RegisterMobileUserWalletUseCaseTests {
         let expectedRequest = UserWalletRegistrationRequest.fake
         let expectedUnderlyingError = AnyTestError()
         let expectedSigner = SpyUserWalletRegistrationSigner()
-        let analyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+        let analyticsReporter = SpyBackendAuthenticationNonceAnalyticsReporter()
 
         let sut = makeSUT(
             obtainNonce: Self.obtainNonceMock(expectedID: expectedID, returnedNonce: expectedNonce),
@@ -185,7 +213,7 @@ extension RegisterMobileUserWalletUseCaseTests {
         obtainNonce: @escaping ObtainUserWalletRegistrationNonce,
         attestUserWallet: @escaping AttestUserWallet,
         submitRegistration: @escaping SubmitUserWalletRegistration,
-        analyticsReporter: some BackendAuthenticationAnalyticsReporter = SpyBackendAuthenticationAnalyticsReporter()
+        analyticsReporter: some BackendAuthenticationNonceAnalyticsReporter = SpyBackendAuthenticationNonceAnalyticsReporter()
     ) -> RegisterMobileUserWalletUseCase {
         RegisterMobileUserWalletUseCase(
             obtainNonce: obtainNonce,
@@ -241,13 +269,15 @@ extension RegisterMobileUserWalletUseCaseTests {
 
     private static func submitRegistrationMock(
         expectedRequest: UserWalletRegistrationRequest,
+        returnedResult: UserWalletRegistrationResult = .registered,
         sourceLocation: SourceLocation = #_sourceLocation
     ) -> SubmitUserWalletRegistration {
         { actualRequest in
             #expect(actualRequest == expectedRequest, sourceLocation: sourceLocation)
 
-            await confirmation(expectedCount: 1, sourceLocation: sourceLocation) { confirmation in
+            return await confirmation(expectedCount: 1, sourceLocation: sourceLocation) { confirmation in
                 confirmation.confirm()
+                return returnedResult
             }
         }
     }
@@ -256,8 +286,9 @@ extension RegisterMobileUserWalletUseCaseTests {
         sourceLocation: SourceLocation = #_sourceLocation
     ) -> SubmitUserWalletRegistration {
         { _ in
-            await confirmation(expectedCount: 0, sourceLocation: sourceLocation) { confirmation in
+            return await confirmation(expectedCount: 0, sourceLocation: sourceLocation) { confirmation in
                 confirmation.confirm()
+                return .registered
             }
         }
     }

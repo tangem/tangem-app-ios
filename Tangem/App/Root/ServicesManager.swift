@@ -39,7 +39,6 @@ final class CommonServicesManager {
     @Injected(\.sellService) private var sellService: SellService
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.apiListProvider) private var apiListProvider: APIListProvider
-    @Injected(\.hotCryptoService) private var hotCryptoService: HotCryptoService
     @Injected(\.geoEligibilityService) private var geoEligibilityService: GeoEligibilityService
     @Injected(\.userWalletPushNotificationsService) private var userWalletPushNotificationsService: UserWalletPushNotificationsService
     @Injected(\.pushNotificationsInteractor) private var pushNotificationsInteractor: PushNotificationsInteractor
@@ -66,6 +65,7 @@ final class CommonServicesManager {
     private let storiesPrefetchManager: StoriesPrefetchManager
     private let pushNotificationEventsLogger: PushNotificationsEventsLogger
     private let mobileAccessCodeCleaner: MobileAccessCodeCleaner
+    private let mcpSessionsCleaner: MCPSessionsCleaner
     private let customerIOWrapper: CustomerIOWrapper
 
     private var _initialized: Bool = false
@@ -76,6 +76,7 @@ final class CommonServicesManager {
         storiesPrefetchManager = StoriesPrefetchManager()
         pushNotificationEventsLogger = PushNotificationsEventsLogger()
         mobileAccessCodeCleaner = MobileAccessCodeCleaner()
+        mcpSessionsCleaner = MCPSessionsCleaner()
         customerIOWrapper = CustomerIOWrapper()
     }
 
@@ -241,7 +242,6 @@ extension CommonServicesManager: ServicesManager {
         userWalletPushNotificationsService.initialize()
         pushNotificationsInteractor.initialize()
         stakingPendingHashesSender?.sendHashesIfNeeded()
-        hotCryptoService.loadHotCrypto(AppSettings.shared.selectedCurrencyCode)
         storiesPrefetchManager.prefetch(for: .appStart)
         geoEligibilityService.initialize()
         // The OTel resource carries the country, and it is fixed once the pipeline starts
@@ -261,6 +261,7 @@ extension CommonServicesManager: ServicesManager {
         forceUpdateService.refreshCache()
         appDatabase.initialize()
         MCPModuleFactory.configure()
+        mcpSessionsCleaner.initialize()
     }
 
     /// Some services should be initialized later, in SceneDelegate to bypass locked keychain during preheating

@@ -16,7 +16,7 @@ final class CommonFiatRateProvider {
 
     private var appCurrencyCodeCancellable: AnyCancellable?
     private var quotesCancellable: AnyCancellable?
-    private let rateUpdateCancellable = OSAllocatedUnfairLock<AnyCancellable?>(initialState: nil)
+    private let rateUpdateCancellable = ThreadSafeCancellableSlot()
 
     private lazy var rateSubject: CurrentValueSubject<WalletModelRate, Never> = .init(
         .loading(cached: quotesRepository.quote(for: tokenItem))
@@ -48,12 +48,13 @@ extension CommonFiatRateProvider: FiatRateProvider {
 
         rateSubject.send(.loading(cached: rateSubject.value.quote))
 
-        let cancellable = quotesRepository
+        let requestToken = rateUpdateCancellable.begin()
+
+        quotesRepository
             .loadQuotes(currencyIds: [currencyId])
             .withWeakCaptureOf(self)
             .sink { $0.updateWalletModelRate(quotes: $1) }
-
-        rateUpdateCancellable.withLock { $0 = cancellable }
+            .store(in: rateUpdateCancellable, for: requestToken)
     }
 }
 

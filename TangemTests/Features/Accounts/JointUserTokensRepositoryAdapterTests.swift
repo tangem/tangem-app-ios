@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import Testing
 import TangemFoundation
+import BlockchainSdk
 @testable import Tangem
 
 // MARK: - Tests
@@ -30,6 +31,24 @@ struct JointUserTokensRepositoryAdapterTests {
 
         #expect(emitted.count == 2)
         #expect(emitted.last == Self.storedCryptoAccount)
+        withExtendedLifetime(subscription) {}
+    }
+
+    @Test("The tokens leave the stream while there is no address and come back with it, and the account itself keeps them")
+    func tokensFollowTheAddress() {
+        let safeAddressProvider = JointAccountSafeAddressProviderStub()
+        let sut = Self.makeSUT(
+            cryptoAccount: Self.storedCryptoAccount.withTokens([Self.token]),
+            safeAddressProvider: safeAddressProvider
+        )
+        var emittedTokens: [[StoredCryptoAccount.Token]] = []
+        let subscription = sut.cryptoAccountPublisher.sink { emittedTokens.append($0.tokens) }
+
+        safeAddressProvider.send(Self.safeAddress)
+        safeAddressProvider.send(nil)
+
+        #expect(emittedTokens == [[], [Self.token], []])
+        #expect(sut.cryptoAccount.tokens == [Self.token])
         withExtendedLifetime(subscription) {}
     }
 
@@ -62,12 +81,26 @@ private extension JointUserTokensRepositoryAdapterTests {
         sorting: .manual
     )
 
+    static let token = StoredCryptoAccount.Token(
+        id: "ethereum",
+        name: "Ethereum",
+        symbol: "ETH",
+        decimalCount: 18,
+        blockchainNetwork: .known(blockchainNetwork: .init(
+            blockchain: .ethereum(testnet: false),
+            derivationPath: nil,
+            settings: nil
+        )),
+        contractAddress: nil
+    )
+
     static func makeSUT(
+        cryptoAccount: StoredCryptoAccount = storedCryptoAccount,
         jointAccountsRepository: JointAccountsRepository = JointAccountsRepositoryStub(),
         safeAddressProvider: JointAccountSafeAddressProvider = JointAccountSafeAddressProviderStub()
     ) -> JointUserTokensRepositoryAdapter {
         JointUserTokensRepositoryAdapter(
-            innerAdapter: UserTokensRepositoryStub(cryptoAccount: storedCryptoAccount),
+            innerAdapter: UserTokensRepositoryStub(cryptoAccount: cryptoAccount),
             jointAccountsRepository: jointAccountsRepository,
             safeAddressProvider: safeAddressProvider
         )

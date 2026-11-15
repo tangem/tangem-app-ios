@@ -27,17 +27,6 @@ struct CEXProviderFlowHelperExchangeDataErrorTests {
         }
     }
 
-    @Test("With the toggle off, an exchange-data failure is passed on as it is")
-    func exchangeDataFailureIsNotWrappedWithoutToggle() async {
-        let apiProvider = ExpressAPIProviderStub()
-        apiProvider.exchangeDataError = ExpressAPIError(code: 2264, value: nil)
-        let sut = makeSUT(apiProvider: apiProvider, rateType: .fixed, isHideRejectedSwapProvidersEnabled: false)
-
-        await #expect(throws: ExpressAPIError.self) {
-            _ = try await sut.sendData(currentState: .idle, request: makeRequest(amountType: .to(5), rateType: .fixed))
-        }
-    }
-
     @Test("A request cancelled while in flight is not an exchange-data error")
     func cancelledRequestIsNotWrapped() async {
         let apiProvider = ExpressAPIProviderStub()
@@ -67,8 +56,7 @@ struct CEXProviderFlowHelperExchangeDataErrorTests {
 private extension CEXProviderFlowHelperExchangeDataErrorTests {
     func makeSUT(
         apiProvider: ExpressAPIProviderStub,
-        rateType: ExpressProviderRateType,
-        isHideRejectedSwapProvidersEnabled: Bool = true
+        rateType: ExpressProviderRateType
     ) -> CEXProviderFlowHelper {
         CEXProviderFlowHelper(context: ExpressProviderFlowContext(
             provider: ExpressProvider(
@@ -97,8 +85,7 @@ private extension CEXProviderFlowHelperExchangeDataErrorTests {
             expressAPIProvider: apiProvider,
             mapper: ExpressManagerMapper(),
             featureFlags: ExpressFeatureFlags(
-                isSwapBestRateDefaultProviderEnabled: false,
-                isHideRejectedSwapProvidersEnabled: isHideRejectedSwapProvidersEnabled
+                isAPIV2Enabled: false
             )
         ))
     }

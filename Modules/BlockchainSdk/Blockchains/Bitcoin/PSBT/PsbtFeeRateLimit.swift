@@ -8,17 +8,23 @@
 import Foundation
 
 /// The fee-rate cap applied when extracting a transaction from a PSBT.
-public enum PsbtFeeRateLimit {
+public enum PsbtFeeRateLimit: Equatable {
     /// BDK's built-in `AbsurdFeeRate` cap (~25k sat/vB); no fallback on top of it.
     case bdkDefault
+    // [REDACTED_TODO_COMMENT]
     /// A chain-specific cap (satoshi per virtual byte) for chains whose normal network fees
     /// exceed BDK's built-in one. When the PSBT fee rate is within this limit, extraction falls
     /// back to a path that bypasses BDK's cap; above it the fee is treated as a drain attempt
     /// and rejected.
     case chainOverride(satPerVByte: UInt64)
+    /// A chain-specific cap (satoshi per virtual byte) that BDK enforces itself via
+    /// `extractTxWithFeeRateLimit(maxFeeRate:)` instead of its built-in one; above it the PSBT is rejected.
+    case bdkChainLimit(satPerVByte: UInt64)
 
-    public init(blockchain: Blockchain) {
+    public init(blockchain: Blockchain, usesBdkDogecoinFeeRateLimit: Bool) {
         switch blockchain {
+        case .dogecoin where usesBdkDogecoinFeeRateLimit:
+            self = .bdkChainLimit(satPerVByte: Constants.dogecoinMaxFeeRate)
         case .dogecoin:
             self = .chainOverride(satPerVByte: Constants.dogecoinMaxFeeRate)
         default:

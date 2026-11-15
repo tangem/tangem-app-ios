@@ -25,7 +25,7 @@ extension PayAppDeeplink {
     init(link: DeeplinkURL) throws {
         try link.query.requireAll(Shared.id)
 
-        deeplinkString = link.absoluteString
+        deeplinkString = MarketingActivityUid.linkWithoutUid(link.absoluteString)
     }
 }
 

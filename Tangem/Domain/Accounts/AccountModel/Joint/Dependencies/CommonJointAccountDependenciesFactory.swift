@@ -16,6 +16,7 @@ import BlockchainSdk
 /// the kinds apart.
 struct CommonJointAccountDependenciesFactory {
     let userWalletId: UserWalletId
+    let configProvider: UserWalletConfigProvider
     /// A single instance per user wallet
     let derivationManager: DerivationManager?
     let keysRepository: KeysRepository
@@ -45,10 +46,18 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
 
         let derivationPathBuilder = JointAccountDerivationPathBuilder(derivationIndex: derivationIdentity.derivationIndex)
 
-        let safeAddressProvider = JointAccountsRepositorySafeAddressProvider(
+        let userRoleService = CommonJointAccountUserRoleService(
+            userWalletId: userWalletId,
+            derivationIdentity: derivationIdentity,
+            keysProvider: keysRepository,
+            jointAccountsRepository: jointAccountsRepository
+        )
+
+        let statusProvider = CommonJointAccountStatusProvider(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: jointAccountsRepository,
+            userRoleService: userRoleService
         )
 
         let userTokensRepository = JointUserTokensRepositoryAdapter(
@@ -57,16 +66,18 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
                 derivationIdentity: derivationIdentity
             ),
             jointAccountsRepository: jointAccountsRepository,
-            safeAddressProvider: safeAddressProvider
+            safeAddressProvider: statusProvider
         )
 
         let walletFactory = JointWalletFactory(
             defaultWalletFactory: defaultWalletFactory,
-            safeAddressProvider: safeAddressProvider
+            safeAddressProvider: statusProvider,
+            userRoleService: userRoleService
         )
 
         let userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,
+            configProvider: configProvider,
             userTokensRepository: userTokensRepository,
             derivationPathBuilder: derivationPathBuilder,
             existingCurves: existingCurves,
@@ -111,11 +122,6 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
         userTokensManager.derivationManager = accountSpecificDerivationManager
         userTokensManager.walletModelsManager = walletModelsManager
 
-        let userRoleService = CommonJointAccountUserRoleService(
-            derivationIdentity: derivationIdentity,
-            keysProvider: keysRepository
-        )
-
         let membersService = CommonJointAccountMembersService(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
@@ -127,12 +133,14 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             pendingOperationsRepository: jointAccountPendingOperationsRepository,
-            walletModelsManager: walletModelsManager
+            walletModelsManager: walletModelsManager,
+            membersService: membersService
         )
 
         let finishedOperationsWalletUpdater = JointAccountFinishedOperationsWalletUpdater(
             pendingOperationsProvider: pendingOperationsProvider,
-            walletModelsManager: walletModelsManager
+            walletModelsManager: walletModelsManager,
+            historyDeltaSyncing: walletModelsFactoryProvider.transactionHistoryProviderResolver
         )
 
         let operationsService = CommonJointAccountOperationsService(
@@ -148,7 +156,9 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             operationsService: operationsService,
             pendingOperationsProvider: pendingOperationsProvider,
             finishedOperationsWalletUpdater: finishedOperationsWalletUpdater,
-            membersService: membersService
+            membersService: membersService,
+            userRoleService: userRoleService,
+            statusProvider: statusProvider
         )
     }
 }

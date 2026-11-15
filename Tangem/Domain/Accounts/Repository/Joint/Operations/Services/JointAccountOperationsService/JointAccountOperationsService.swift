@@ -15,6 +15,7 @@ import BlockchainSdk
 protocol JointAccountOperationsService {
     /// - Returns: The operation as the backend registered it, with this member's signature already counted.
     func createOperation(transaction: BSDKTransaction, in wallet: JointAccountWallet) async throws -> JointAccountOperation
-    func signOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws
+    @discardableResult
+    func signOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws -> JointAccountOperation
     func rejectOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws
 }

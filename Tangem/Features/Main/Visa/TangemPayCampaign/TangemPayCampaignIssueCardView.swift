@@ -43,7 +43,7 @@ struct TangemPayCampaignIssueCardView: View {
         .topNavigation(
             title: Localization.tangempayCampaignIssueCardTitle,
             leading: .none,
-            onClose: viewModel.close
+            close: .enabled(viewModel.close)
         )
     }
 

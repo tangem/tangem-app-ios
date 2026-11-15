@@ -27,14 +27,9 @@ extension CollectiblesAccountModelsRegistry {
         init(
             vaultStatePublisher: AnyPublisher<CollectiblesState, Never>,
             isInAccountListPublisher: AnyPublisher<Bool, Never>,
-            canAddToAccountList: Bool,
             addToAccountList: @escaping (CryptoAccountPersistentConfig) -> Void
         ) {
             self.addToAccountList = addToAccountList
-
-            guard canAddToAccountList else {
-                return
-            }
 
             bind(vaultStatePublisher: vaultStatePublisher, isInAccountListPublisher: isInAccountListPublisher)
         }

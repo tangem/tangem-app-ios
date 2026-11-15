@@ -11,7 +11,7 @@ import TangemSdk
 import TangemFoundation
 
 extension BitcoinWalletManager: BitcoinPsbtSwapSender {
-    func send(psbtBase64: String, destination: String, signer: TransactionSigner) async throws -> TransactionSendResult {
+    func send(psbtBase64: String, destination: String, usesBdkDogecoinFeeRateLimit: Bool, signer: TransactionSigner) async throws -> TransactionSendResult {
         let owners: [Data: DerivationPublicKey] = wallet.addresses.reduce(into: [:]) { result, address in
             guard let lockingScript = (address as? LockingScriptAddress)?.lockingScript,
                   case .publicKey(let key)? = lockingScript.spendable else {
@@ -23,7 +23,7 @@ extension BitcoinWalletManager: BitcoinPsbtSwapSender {
 
         let ownerScriptPubKeys = Set(owners.keys)
 
-        let feeRateLimit = PsbtFeeRateLimit(blockchain: wallet.blockchain)
+        let feeRateLimit = PsbtFeeRateLimit(blockchain: wallet.blockchain, usesBdkDogecoinFeeRateLimit: usesBdkDogecoinFeeRateLimit)
         let ownedInputs = try BitcoinPsbtSigningBuilder.ownedInputs(
             psbtBase64: psbtBase64,
             ownerScriptPubKeys: ownerScriptPubKeys,
@@ -74,14 +74,20 @@ extension BitcoinWalletManager: BitcoinPsbtSwapSender {
             psbtBase64: psbtBase64,
             ownerScriptPubKeys: ownerScriptPubKeys,
             destination: destination,
+            feeRateLimit: feeRateLimit,
             hash: result.hash
         )
 
         return result
     }
 
-    private func addPendingTransaction(psbtBase64: String, ownerScriptPubKeys: Set<Data>, destination: String, hash: String) {
-        let feeRateLimit = PsbtFeeRateLimit(blockchain: wallet.blockchain)
+    private func addPendingTransaction(
+        psbtBase64: String,
+        ownerScriptPubKeys: Set<Data>,
+        destination: String,
+        feeRateLimit: PsbtFeeRateLimit,
+        hash: String
+    ) {
         guard let sentAmount = try? BitcoinPsbtSigningBuilder.sentAmount(
             psbtBase64: psbtBase64,
             ownerScriptPubKeys: ownerScriptPubKeys,

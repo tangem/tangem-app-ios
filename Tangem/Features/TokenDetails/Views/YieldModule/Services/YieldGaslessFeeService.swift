@@ -65,7 +65,7 @@ final class YieldGaslessFeeService {
     }
 
     func userDidSelectFeeToken(tokenFeeProvider: any TokenFeeProvider) {
-        tokenFeeProvidersManager.updateSelectedFeeProvider(feeTokenItem: tokenFeeProvider.feeTokenItem)
+        tokenFeeProvidersManager.updateSelectedFeeProvider(feeProviderID: tokenFeeProvider.id)
         tokenFeeProvidersManager.updateFees()
     }
 

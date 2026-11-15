@@ -43,9 +43,7 @@ enum TangemPayDepositOwnersPublisherFactory {
                             return .just(output: [])
                         }
 
-                        return account.balancesProvider.totalTokenBalanceProvider.balanceTypePublisher
-                            .map { _ in account.networks }
-                            .eraseToAnyPublisher()
+                        return account.networksPublisher.eraseToAnyPublisher()
                     }
                     .eraseToAnyPublisher()
             }

@@ -27,6 +27,7 @@ actor CommonAccountModelsManager {
 
     private nonisolated let userWalletId: UserWalletId
     private let areHDWalletsSupported: Bool
+    private nonisolated let isJointAccountsAvailable: Bool
 
     // Manual synchronization is used for reads/writes, hence it is safe to mark this group of properties as `nonisolated(unsafe)`.
     private nonisolated(unsafe) var unsafeAccountModelsPublisher: AnyPublisher<[AccountModel], Never>?
@@ -49,7 +50,8 @@ actor CommonAccountModelsManager {
         cryptoAccountModelsRegistry: CryptoAccountModelsRegistry,
         jointAccountModelsRegistry: JointAccountModelsRegistry,
         collectiblesAccountModelsRegistry: CollectiblesAccountModelsRegistry,
-        areHDWalletsSupported: Bool
+        areHDWalletsSupported: Bool,
+        isJointAccountsAvailable: Bool
     ) {
         self.userWalletId = userWalletId
         self.cryptoAccountsRepository = cryptoAccountsRepository
@@ -62,6 +64,7 @@ actor CommonAccountModelsManager {
         self.jointAccountModelsRegistry = jointAccountModelsRegistry
         self.collectiblesAccountModelsRegistry = collectiblesAccountModelsRegistry
         self.areHDWalletsSupported = areHDWalletsSupported
+        self.isJointAccountsAvailable = isJointAccountsAvailable
 
         // Synchronization for `cryptoAccountsGlobalStateProvider` is guaranteed by the initialization of Swift static variables,
         // so it is safe to mark `cryptoAccountsGlobalStateProvider` as `nonisolated`.
@@ -168,6 +171,10 @@ actor CommonAccountModelsManager {
     /// - Note: A joint account is kept apart from the wallet's own accounts, and the entry it shares with the account
     /// list does not change when it does, so its own storage is what has to bring the list round again.
     private nonisolated func makeJointAccountModelsPublisher() -> AnyPublisher<[AccountModel], Never> {
+        guard isJointAccountsAvailable else {
+            return Just([]).eraseToAnyPublisher()
+        }
+
         return makeStoredCryptoAccountsPublisher(ofType: .joint)
             .combineLatest(jointAccountsRepository.jointAccountsPublisher)
             .withWeakCaptureOf(self)
@@ -333,6 +340,13 @@ extension CommonAccountModelsManager: AccountModelsManager {
         }
 
         let remoteState = try await validatedRemoteState(forNewAccountNamed: name, accountType: .crypto)
+
+        do {
+            _ = try AccountDerivationIndex.nodeIndex(remoteState.nextCryptoDerivationIndex)
+        } catch {
+            AccountsLogger.error("The next derivation index of a new crypto account is out of range", error: error)
+            throw .unknownError(error)
+        }
 
         let newAccountIdentity = CryptoAccountDerivationIdentity(
             derivationIndex: remoteState.nextCryptoDerivationIndex,
@@ -546,7 +560,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
         let stateAfterAuthorization = tangemPayManager.state
 
         switch stateAfterAuthorization {
-        case .kycRequired, .residencyRequired, .regionUnavailable, .planSelectNeeded:
+        case .kycRequired, .residencyRequired, .regionUnavailable, .planSelectNeeded, .verified:
             do {
                 try await tangemPayManager.placeCampaignCardIssueOrder(campaignKey: campaignKey)
             } catch {
@@ -556,7 +570,7 @@ extension CommonAccountModelsManager: AccountModelsManager {
             tangemPayManager.completeResidency(.eligible)
         case .tangemPayAccount, .cardDeactivated, .failedToIssueCard:
             throw .accountAlreadyExists
-        case .kycDeclined, .unavailable, .syncNeeded, .syncInProgress, .loading, .none:
+        case .kycDeclined, .unavailable, .syncNeeded, .syncInProgress, .loading, .cardNotOpened, .none:
             AccountsLogger.error(
                 "No campaign order to place for \(userWalletId), state \(String(describing: stateAfterAuthorization))",
                 error: TangemPayCampaignOfferError.unexpectedState
@@ -604,16 +618,13 @@ extension CommonAccountModelsManager: CommonCryptoAccountModelDelegate {
 // MARK: - JointAccountModelDelegate protocol conformance
 
 extension CommonAccountModelsManager: JointAccountModelDelegate {
-    func activateJointAccount(with config: JointAccountActivationConfig) async throws(AccountEditError) {
+    func confirmJointAccount(with config: JointAccountConfirmationConfig) async throws(AccountEditError) -> JointAccountStatus {
         do {
-            try await jointAccountsRepository.activateJointAccount(withConfig: config)
+            return try await jointAccountsRepository.confirmJointAccount(withConfig: config)
         } catch {
-            AccountsLogger.error("Failed to activate a joint account of user wallet \(userWalletId)", error: error)
+            AccountsLogger.error("Failed to confirm a joint account of user wallet \(userWalletId.stringValue.masked())", error: error)
             throw .unknownError(error)
         }
-
-        // The account has an address now, and the wallet models built for it are the ones holding the old one
-        await refreshCryptoAccounts()
     }
 }
 

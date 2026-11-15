@@ -7,7 +7,7 @@
 //
 
 protocol YieldModePromoSheetRoutable: AnyObject {
-    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel)
+    func presentYieldModePromo(_ viewModel: YieldModePromoSheetViewModel) -> Bool
     func dismissYieldModePromo()
     func openYieldModeEarn()
 }

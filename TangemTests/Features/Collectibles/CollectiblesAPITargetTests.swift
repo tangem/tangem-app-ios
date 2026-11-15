@@ -67,7 +67,21 @@ final class CollectiblesAPITargetTests {
         #expect(parameters.count == 4)
     }
 
-    @Test("generate-purchase-tx: Turbo mode is sent as a nested object")
+    @Test("The pack purchase is requested from purchase-data")
+    func purchaseDataPath() {
+        let request = CollectiblesDTO.GeneratePurchaseTxRequest(
+            fromAddress: "from",
+            machineID: "pokemon_50",
+            toAddress: "to",
+            turboMode: nil
+        )
+
+        let target = makeTarget(.generatePurchaseTx(request, userWalletID: "wallet-1"))
+
+        #expect(target.path == "api/v1/collectible/purchase-data")
+    }
+
+    @Test("purchase-data: Turbo mode is sent as a nested object")
     func generatePurchaseTurboMode() throws {
         let request = CollectiblesDTO.GeneratePurchaseTxRequest(
             fromAddress: "from",
@@ -93,7 +107,7 @@ final class CollectiblesAPITargetTests {
         #expect(on?.buybackAddress == "buyback")
     }
 
-    @Test("generate-purchase-tx: no Turbo mode leaves the key out")
+    @Test("purchase-data: no Turbo mode leaves the key out")
     func generatePurchaseWithoutTurboMode() throws {
         let request = CollectiblesDTO.GeneratePurchaseTxRequest(
             fromAddress: "from",

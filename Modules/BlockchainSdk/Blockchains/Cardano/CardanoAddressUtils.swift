@@ -17,4 +17,12 @@ enum CardanoAddressUtils {
     static func isShelleyAddress(_ address: String) -> Bool {
         address.starts(with: bech32Prefix)
     }
+
+    static func isValidShelleyAddress(_ address: String) -> Bool {
+        guard isShelleyAddress(address), let decoded = try? Bech32().decodeLong(address) else {
+            return false
+        }
+
+        return decoded.hrp == bech32Hrp
+    }
 }

@@ -102,6 +102,15 @@ struct PolymarketWithdrawTrackerTests {
 
     // MARK: - Resuming after a relaunch
 
+    @Test("A stored withdrawal is on screen from the moment the tracker is created, before it resumes", arguments: StoredWithdrawal.allCases)
+    func showsAStoredWithdrawalOnCreation(stored: StoredWithdrawal) {
+        let expected = visibleState(of: stored)
+        let env = makeEnv(storedEntry: entry(of: stored))
+
+        #expect(env.sut.state == expected)
+        #expect(env.states == [expected])
+    }
+
     @Test("A stored withdrawal still in flight is shown and polled again")
     func resumesAStoredWithdrawal() async throws {
         let env = makeEnv(recordAnswers: [.success(confirmed())])
@@ -257,6 +266,16 @@ struct PolymarketWithdrawTrackerTests {
     }
 }
 
+// MARK: - Arguments
+
+extension PolymarketWithdrawTrackerTests {
+    enum StoredWithdrawal: CaseIterable {
+        case inFlight
+        case recentOutcome
+        case staleOutcome
+    }
+}
+
 // MARK: - Fixtures
 
 private extension PolymarketWithdrawTrackerTests {
@@ -339,10 +358,18 @@ private extension PolymarketWithdrawTrackerTests {
         }
     }
 
-    func makeEnv(recordAnswers: [PolymarketWithdrawServiceSpy.Answer] = []) -> Env {
+    func makeEnv(
+        recordAnswers: [PolymarketWithdrawServiceSpy.Answer] = [],
+        storedEntry: PolymarketWithdrawRecordStore.Entry? = nil
+    ) -> Env {
         let service = PolymarketWithdrawServiceSpy(recordAnswers: recordAnswers)
         let storage = InMemoryPersistentStorage()
         let store = PolymarketWithdrawRecordStore(userWalletId: UserWalletId(value: Data([0x01])), storage: storage)
+
+        if let storedEntry {
+            store.save(storedEntry)
+        }
+
         let delays = PolymarketSteppedDelayProvider()
         let clock = ClockStub(now: now)
         let serverClock = PolymarketServerClock(deviceNow: { clock.now })
@@ -359,6 +386,28 @@ private extension PolymarketWithdrawTrackerTests {
 
     func deadline() -> Date {
         now.addingTimeInterval(deadlineOffset)
+    }
+
+    func entry(of stored: StoredWithdrawal) -> PolymarketWithdrawRecordStore.Entry {
+        switch stored {
+        case .inFlight:
+            .init(record: inProgress(), deadline: deadline(), settledAt: nil)
+        case .recentOutcome:
+            .init(record: confirmed(), deadline: deadline(), settledAt: now.addingTimeInterval(-30))
+        case .staleOutcome:
+            .init(record: failed(), deadline: deadline(), settledAt: now.addingTimeInterval(-outcomeNoticeLifetime - 1))
+        }
+    }
+
+    func visibleState(of stored: StoredWithdrawal) -> PolymarketWithdrawState? {
+        switch stored {
+        case .inFlight:
+            .inProgress
+        case .recentOutcome:
+            .confirmed
+        case .staleOutcome:
+            nil
+        }
     }
 
     func inProgress(transactionId: String = "tx-1") -> PolymarketWithdrawRecord {

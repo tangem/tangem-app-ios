@@ -42,15 +42,7 @@ struct TransactionHistoryMapper {
     }
 
     private let balanceFormatter = BalanceFormatter()
-    private static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = .autoupdatingCurrent
-        formatter.dateStyle = .short
-        formatter.doesRelativeDateFormatting = true
-        return formatter
-    }()
-
-    private static let longDateFormatter: DateFormatter = {
+    private static let dayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = .autoupdatingCurrent
         formatter.dateStyle = .long
@@ -97,7 +89,6 @@ struct TransactionHistoryMapper {
         self.stakingNetwork = stakingNetwork
     }
 
-    // [REDACTED_INFO]: when the redesign toggle is removed, drop the `DayFormatStyle`.
     func mapTransactionListItem(
         from records: [TransactionRecord],
         groupingStyle: GroupingStyle,
@@ -118,17 +109,12 @@ struct TransactionHistoryMapper {
         let mapRow = { makeTransactionViewModel(from: $0, subtitleOwnerResolver: subtitleOwnerResolver) }
 
         switch groupingStyle {
-        case .day(let format):
+        case .day:
             let grouped = Dictionary(grouping: prepared, by: { Calendar.current.startOfDay(for: $0.record.date ?? Date()) })
-
-            let dateFormatter = switch format {
-            case .short: Self.dateFormatter
-            case .long: Self.longDateFormatter
-            }
 
             return grouped.sorted(by: { $0.key > $1.key }).map { key, value in
                 TransactionListItem(
-                    header: dateFormatter.string(from: key),
+                    header: Self.dayFormatter.string(from: key),
                     items: value.map(mapRow)
                 )
             }
@@ -148,7 +134,7 @@ struct TransactionHistoryMapper {
 
             return grouped.sorted(by: { $0.key.sortDate > $1.key.sortDate }).map { key, value in
                 let header: String = switch key {
-                case .day(let date): Self.longDateFormatter.string(from: date)
+                case .day(let date): Self.dayFormatter.string(from: date)
                 case .month(let date): Self.monthFormatter.string(from: date)
                 }
                 return TransactionListItem(header: header, items: value.map(mapRow))
@@ -158,16 +144,9 @@ struct TransactionHistoryMapper {
 
     enum GroupingStyle {
         /// All records grouped by day.
-        /// - `.short`: legacy date format (e.g. "6/15/26")
-        /// - `.long`: redesign date format (e.g. "June 15, 2026")
-        case day(DayFormatStyle)
+        case day
         /// Current-month records grouped by day; older records collapsed into month buckets.
         case dayThenMonth
-    }
-
-    enum DayFormatStyle {
-        case short
-        case long
     }
 
     private enum GroupingKey: Hashable {
@@ -196,12 +175,12 @@ struct TransactionHistoryMapper {
         from record: TransactionRecord,
         resolver: SubtitleOwnerResolver?
     ) -> TransactionDisplayModel.ExpressSubtitle? {
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             return swapSubtitle(info: info, isOutgoing: record.isOutgoing, resolver: resolver)
-        case .onramp(let info):
+        case .express(.onramp(let info)):
             return onrampSubtitle(info: info)
-        case nil:
+        case .jointOperation, nil:
             return nil
         }
     }
@@ -301,19 +280,15 @@ struct TransactionHistoryMapper {
             return nil
         }
 
-        if case .unresolved = counterpartyOwner {
-            return nil
-        }
-
         let currentOwner = currentLegAddress.flatMap { resolver.resolve(address: $0, blockchain: resolver.blockchain) }
         return counterpartyOwner == currentOwner ? nil : counterpartyOwner
     }
 
     private func expressWarning(from record: TransactionRecord) -> TransactionViewModel.Warning? {
-        switch record.expressExtraInfo {
-        case .exchange(let info):
+        switch record.historyExtraInfo {
+        case .express(.exchange(let info)):
             return warning(for: info.transaction.status)
-        case .onramp, nil:
+        case .express(.onramp), .jointOperation, nil:
             return nil
         }
     }
@@ -614,12 +589,12 @@ private extension TransactionHistoryMapper {
     }
 
     func transactionType(from record: TransactionRecord) -> TransactionViewModel.TransactionType {
-        switch record.expressExtraInfo {
-        case .exchange:
+        switch record.historyExtraInfo {
+        case .express(.exchange):
             return .swap
-        case .onramp:
+        case .express(.onramp):
             return .onramp
-        case nil:
+        case .jointOperation, nil:
             break
         }
 
@@ -902,8 +877,11 @@ private extension TransactionHistoryMapper {
         let record = prepared.record
         let amount = prepared.amount
 
-        if case .onramp(let info) = record.expressExtraInfo {
+        switch record.historyExtraInfo {
+        case .express(.onramp(let info)):
             return onrampAmount(for: record, info: info, amount: amount)
+        case .express(.exchange), .jointOperation, nil:
+            break
         }
 
         switch prepared.transactionType {

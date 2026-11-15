@@ -68,8 +68,11 @@ class CommonWalletModel {
                 featuresPublisher: featureManager.featuresPublisher,
                 walletModelId: id,
                 walletPublisher: walletManager.walletPublisher,
+                yieldContractAddressPublisher: makeYieldContractAddressPublisher(),
                 tokenItem: tokenItem,
-                feeTokenItem: feeTokenItem
+                feeTokenItem: feeTokenItem,
+                transactionHistoryFetcher: _transactionHistoryService,
+                isJointAccountsAvailable: FeatureProvider.isAvailable(.jointAccounts)
             )
             .share(replay: 1)
             .eraseToAnyPublisher()
@@ -740,6 +743,10 @@ extension CommonWalletModel: WalletModelDependenciesProvider {
         walletManager as? TronGaslessTransactionsBuilder
     }
 
+    var solanaGaslessTransactionBuilder: (any SolanaGaslessTransactionBuilder)? {
+        walletManager as? SolanaGaslessTransactionBuilder
+    }
+
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? {
         walletManager as? PendingTransactionRecordAdding
     }
@@ -757,8 +764,20 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         _transactionHistoryPublisher.value
     }
 
+    /// Swaps out of Yield are sent by the yield contract, so the history treats it as an own address of the wallet.
+    private func makeYieldContractAddressPublisher() -> AnyPublisher<String?, Never> {
+        guard tokenItem.isToken, let yieldSupplyService = walletManager.yieldSupplyService else {
+            return .just(output: nil)
+        }
+
+        return walletManager
+            .walletPublisher
+            .map { _ in yieldSupplyService.storedYieldContract() }
+            .eraseToAnyPublisher()
+    }
+
     var hasPendingTransactions: Bool {
-        if jointAccountOperationsInFlight.contains(where: { $0.tokenItem == tokenItem }) {
+        if hasJointAccountOperationsInFlight {
             return true
         }
 
@@ -772,7 +791,7 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
     }
 
     var hasAnyPendingTransactions: Bool {
-        if jointAccountOperationsInFlight.contains(where: { $0.tokenItem.blockchainNetwork == blockchainNetwork }) {
+        if hasJointAccountOperationsInFlight {
             return true
         }
 
@@ -785,12 +804,12 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         return wallet.hasPendingTx
     }
 
-    private var jointAccountOperationsInFlight: [JointAccountPendingOperation] {
-        guard let jointAccount = account as? any JointAccountModel else {
-            return []
+    private var hasJointAccountOperationsInFlight: Bool {
+        guard let jointAccount = account as? any JointAccountModel, let chainId = tokenItem.blockchain.chainId else {
+            return false
         }
 
-        return jointAccount.jointAccountPendingOperationsProvider.pendingOperations.filter { $0.operation.status.isInFlight }
+        return jointAccount.jointAccountPendingOperationsProvider.hasPendingOperations(chainId: chainId)
     }
 
     var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {

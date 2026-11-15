@@ -26,6 +26,8 @@ enum TangemPayLocalState {
     case cardDeactivated(TangemPayAccount)
 
     case planSelectNeeded(tariffPlanSelector: any TangemPayTariffPlanSelector)
+    case verified(any TangemPayUnifiedOnboardingInteractor)
+    case cardNotOpened
 }
 
 enum TangemPayCachedLocalState: Codable {
@@ -75,8 +77,25 @@ extension TangemPayLocalState {
         }
     }
 
+    var isKYCIncomplete: Bool {
+        switch self {
+        case .kycRequired, .residencyRequired, .regionUnavailable, .kycDeclined:
+            return true
+        case .loading, .syncNeeded, .syncInProgress, .unavailable, .failedToIssueCard, .tangemPayAccount,
+             .cardDeactivated, .planSelectNeeded, .verified, .cardNotOpened:
+            return false
+        }
+    }
+
     var isFailedToIssueCard: Bool {
         if case .failedToIssueCard = self {
+            return true
+        }
+        return false
+    }
+
+    var isCardRowHidden: Bool {
+        if case .cardNotOpened = self {
             return true
         }
         return false
@@ -88,7 +107,7 @@ extension TangemPayLocalState {
             return true
         case .loading, .syncInProgress, .kycRequired, .residencyRequired, .regionUnavailable,
              .kycDeclined, .failedToIssueCard, .tangemPayAccount, .cardDeactivated,
-             .planSelectNeeded:
+             .planSelectNeeded, .verified, .cardNotOpened:
             return false
         }
     }
@@ -99,7 +118,7 @@ extension TangemPayLocalState {
             return true
         case .syncNeeded, .unavailable, .kycRequired, .residencyRequired, .regionUnavailable,
              .kycDeclined, .failedToIssueCard, .tangemPayAccount, .cardDeactivated,
-             .planSelectNeeded:
+             .planSelectNeeded, .verified, .cardNotOpened:
             return false
         }
     }
@@ -124,7 +143,7 @@ extension TangemPayLocalState {
         switch self {
         case .kycRequired:
             .kycRequired
-        case .residencyRequired, .regionUnavailable:
+        case .residencyRequired, .regionUnavailable, .verified:
             .actionRequired
         case .kycDeclined:
             .kycDeclined
@@ -134,7 +153,7 @@ extension TangemPayLocalState {
             account.cardsSummary.map(TangemPayCachedLocalState.tangemPayAccount)
         case .cardDeactivated(let account):
             account.cardsSummary.map(TangemPayCachedLocalState.cardDeactivated)
-        case .loading, .syncNeeded, .syncInProgress, .unavailable, .planSelectNeeded:
+        case .loading, .syncNeeded, .syncInProgress, .unavailable, .planSelectNeeded, .cardNotOpened:
             nil
         }
     }

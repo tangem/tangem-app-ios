@@ -30,18 +30,18 @@ public final class CollectiblesManager: @unchecked Sendable {
     private let purchaseTransactionDispatcher: CollectiblesPurchaseTransactionDispatcher
     private let buybackTransactionDispatcher: CollectiblesBuybackTransactionDispatcher
     private let delayProvider: any PollDelayProvider
+    private let dateProvider: any DateProvider
 
     private let stateSubject = CurrentValueSubject<CollectiblesState, Never>(.unresolved)
     private let vaultUsdcStateSubject = CurrentValueSubject<CollectiblesVaultUsdcState, Never>(.loading)
     private let isOnboardingSubject = CurrentValueSubject<Bool, Never>(false)
     private let isInAccountListSubject = CurrentValueSubject<Bool, Never>(false)
     private let lastVaultUsdcBalance = OSAllocatedUnfairLock<UInt64?>(initialState: nil)
+    private let lastRelink = OSAllocatedUnfairLock<(replacedSessionKey: Data, landedAt: Date?)?>(initialState: nil)
+    private let stateUpdateCriticalSection = OSAllocatedUnfairLock()
 
     private let refreshProcessor = SingleTaskProcessor<Bool, Never>()
-    private let onboardingProcessor = SingleTaskProcessor<Void, any Error>()
-    private let purchaseSigningTasks = OSAllocatedUnfairLock<[String: Task<CollectiblesSignedPurchase, any Error>]>(
-        initialState: [:]
-    )
+    private let onboardingProcessor = SingleTaskProcessor<(canDeployVault: Bool, outcome: OnboardingOutcome), any Error>()
 
     public init(
         userWalletId: UserWalletId,
@@ -56,7 +56,8 @@ public final class CollectiblesManager: @unchecked Sendable {
         purchaseTransactionDispatcher: CollectiblesPurchaseTransactionDispatcher,
         buybackTransactionDispatcher: CollectiblesBuybackTransactionDispatcher,
         presenceStore: any CollectiblesAccountPresenceStore,
-        delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider()
+        delayProvider: any PollDelayProvider = TaskSleepPollDelayProvider(),
+        dateProvider: any DateProvider = SystemDateProvider()
     ) {
         self.userWalletId = userWalletId
         self.coldOwnerProvider = coldOwnerProvider
@@ -71,6 +72,7 @@ public final class CollectiblesManager: @unchecked Sendable {
         self.buybackTransactionDispatcher = buybackTransactionDispatcher
         self.presenceStore = presenceStore
         self.delayProvider = delayProvider
+        self.dateProvider = dateProvider
 
         runTask { [weak self] in
             await self?.refreshState()
@@ -98,6 +100,10 @@ public extension CollectiblesManager {
             .map { state, isRecorded in state.hasAccount(isRecorded: isRecorded) }
             .removeDuplicates()
             .eraseToAnyPublisher()
+    }
+
+    var isRelinkRequired: Bool {
+        state.isRelinkRequired(isRecorded: isRecorded)
     }
 
     var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> {
@@ -133,6 +139,15 @@ public extension CollectiblesManager {
         }
 
         await refresh(silent: false)
+    }
+
+    func refreshStateSilently() async {
+        await refresh(silent: true)
+    }
+
+    func resolveRelinkRequirement() async throws -> Bool {
+        let state = update(state: try await resolveState())
+        return state.isRelinkRequired(isRecorded: isRecorded)
     }
 }
 
@@ -173,34 +188,56 @@ extension CollectiblesManager: CollectiblesOnboarder {
     /// the loop the agreed onboarding flow is drawn as. Every step reads before it writes, so an interrupted
     /// run is resumed by calling this again rather than repaired.
     public func onboard() async throws {
-        try await onboardingProcessor.execute { [weak self] in
-            guard let self else {
-                return
+        _ = try await runOnboardingPass(canDeployVault: true)
+    }
+
+    private func runOnboardingPass(canDeployVault: Bool) async throws -> OnboardingOutcome {
+        while true {
+            let run = try await onboardingProcessor.execute { [weak self] in
+                guard let self else {
+                    throw CancellationError()
+                }
+
+                let outcome = try await runOnboarding(canDeployVault: canDeployVault)
+                return (canDeployVault: canDeployVault, outcome: outcome)
             }
 
-            try await runOnboarding()
+            guard run.canDeployVault != canDeployVault else {
+                return run.outcome
+            }
+
+            try Task.checkCancellation()
+            CollectiblesLogger.debug("onboarding: joined a run with another deploy rule, running again with its own")
         }
     }
 
-    private func runOnboarding() async throws {
+    private func runOnboarding(canDeployVault: Bool) async throws -> OnboardingOutcome {
         isOnboardingSubject.send(true)
         defer { isOnboardingSubject.send(false) }
 
         var performedSteps: Set<CollectiblesOnboardingInteractor.OnboardingStep> = []
 
         while true {
-            let resolved = try await resolveState()
-            update(state: resolved)
+            let resolved = update(state: try await resolveState())
 
             if performedSteps.isEmpty, resolved != .coldOwnerNotDerived {
                 CollectiblesLogger.debug("create account: -> Solana address of the key stored locally, derivation skipped")
             }
 
-            guard let step = try onboardingInteractor.onboardingStep(for: resolved) else {
+            let step: CollectiblesOnboardingInteractor.OnboardingStep
+
+            switch try onboardingInteractor.onboardingDecision(for: resolved, canDeployVault: canDeployVault) {
+            case .ready:
                 let outcome = performedSteps.isEmpty ? "nothing to do" : "set up in this run"
                 CollectiblesLogger.debug("create account: the account is ready to use, \(outcome)")
+
                 await refreshBalance(for: resolved, silent: false)
-                return
+                return .ready
+            case .vaultMissing:
+                CollectiblesLogger.debug("relink: no vault on chain for this key, nothing to relink")
+                return .vaultMissing
+            case .step(let nextStep):
+                step = nextStep
             }
 
             // A step can land and still resolve back to the state that asked for it — an RPC that has not
@@ -215,7 +252,33 @@ extension CollectiblesManager: CollectiblesOnboarder {
                 continue
             }
 
-            performedSteps.formUnion(try await onboardingInteractor.perform(step, resolveState: resolveState))
+            if step == .vault(.pointAtHeldSessionKey) {
+                rememberReplacedSessionKey(in: resolved)
+            }
+
+            do {
+                performedSteps.formUnion(
+                    try await onboardingInteractor.perform(
+                        step,
+                        canDeployVault: canDeployVault,
+                        resolveState: resolveStateRememberingReplacedKey
+                    )
+                )
+            } catch {
+                forgetReplacedSessionKey()
+                throw error
+            }
+        }
+    }
+}
+
+// MARK: - CollectiblesRelinker protocol conformance
+
+extension CollectiblesManager: CollectiblesRelinker {
+    public func relink() async throws -> CollectiblesRelinkOutcome {
+        switch try await runOnboardingPass(canDeployVault: false) {
+        case .ready: .relinked
+        case .vaultMissing: .accountNotFound
         }
     }
 }
@@ -224,13 +287,17 @@ extension CollectiblesManager: CollectiblesOnboarder {
 
 public extension CollectiblesManager {
     var purchaseAddresses: CollectiblesPurchaseAddresses? {
-        guard case .ready = state, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
+        guard case .ready(let vault) = state, let coldOwner = coldOwnerProvider.coldOwnerKey()?.blockchainKey else {
             return nil
         }
 
         let ownerAddress = coldOwner.base58EncodedString
 
-        return CollectiblesPurchaseAddresses(player: ownerAddress, prizeRecipient: ownerAddress)
+        return CollectiblesPurchaseAddresses(
+            player: ownerAddress,
+            prizeRecipient: ownerAddress,
+            payoutRecipient: vault.vaultAddress
+        )
     }
 }
 
@@ -255,44 +322,7 @@ public extension CollectiblesManager {
     ) async throws -> CollectiblesSignedPurchase {
         try purchaseTransactionDispatcher.validate(purchase, against: confirmedPrice)
 
-        let signing = purchaseSigningTasks.withLock { tasks in
-            if let task = tasks[purchase.memo] {
-                return task
-            }
-
-            let task = Task<CollectiblesSignedPurchase, any Error> { [weak self] in
-                guard let self else {
-                    throw CancellationError()
-                }
-
-                return try await makeSignedPurchase(purchase)
-            }
-
-            tasks[purchase.memo] = task
-            return task
-        }
-
-        let signedPurchase: CollectiblesSignedPurchase
-
-        do {
-            signedPurchase = try await signing.value
-        } catch {
-            purchaseSigningTasks.withLock { tasks in
-                guard tasks[purchase.memo] == signing else {
-                    return
-                }
-
-                tasks[purchase.memo] = nil
-            }
-
-            throw error
-        }
-
-        guard signedPurchase.amount == purchase.amount, signedPurchase.feeAmount == purchase.feeAmount else {
-            throw PurchaseError.conflictingPurchase
-        }
-
-        return signedPurchase
+        return try await makeSignedPurchase(purchase)
     }
 
     func sendPurchase(_ signedPurchase: CollectiblesSignedPurchase) async throws(CollectiblesSendError) {
@@ -420,6 +450,52 @@ private extension CollectiblesManager {
         return .ready(vault)
     }
 
+    func resolveStateRememberingReplacedKey() async throws -> CollectiblesState {
+        let state = try await resolveState()
+        rememberReplacedSessionKey(in: state)
+        return state
+    }
+
+    func rememberReplacedSessionKey(in state: CollectiblesState) {
+        guard case .rekeyRequired(let vault) = state else {
+            return
+        }
+
+        stateUpdateCriticalSection {
+            lastRelink.withLock { $0 = (replacedSessionKey: vault.sessionKey, landedAt: nil) }
+
+            if case .ready = stateSubject.value {
+                startRelinkGracePeriod()
+            }
+        }
+    }
+
+    func forgetReplacedSessionKey() {
+        lastRelink.withLock { $0 = nil }
+    }
+
+    func startRelinkGracePeriod() {
+        let now = dateProvider.now
+
+        lastRelink.withLock { lastRelink in
+            guard let pendingRelink = lastRelink, pendingRelink.landedAt == nil else {
+                return
+            }
+
+            lastRelink = (replacedSessionKey: pendingRelink.replacedSessionKey, landedAt: now)
+        }
+    }
+
+    func isStaleRelinkRead(of sessionKey: Data) -> Bool {
+        guard let lastRelink = lastRelink.withLock({ $0 }),
+              lastRelink.replacedSessionKey == sessionKey,
+              let landedAt = lastRelink.landedAt else {
+            return false
+        }
+
+        return dateProvider.now.timeIntervalSince(landedAt) < Constants.relinkGracePeriod
+    }
+
     @discardableResult
     func refresh(silent: Bool) async -> Bool {
         await refreshProcessor.execute { [weak self] in
@@ -428,8 +504,7 @@ private extension CollectiblesManager {
             }
 
             do {
-                let state = try await resolveState()
-                update(state: state)
+                let state = update(state: try await resolveState())
                 await refreshBalance(for: state, silent: silent)
             } catch {
                 // A read that failed says nothing about the vault, so the last resolved state stands
@@ -490,17 +565,33 @@ private extension CollectiblesManager {
         balanceUpdater.update(.loaded(info.balance))
     }
 
-    func update(state: CollectiblesState) {
-        recordPresence(of: state)
+    func update(state: CollectiblesState) -> CollectiblesState {
+        stateUpdateCriticalSection {
+            let currentState = stateSubject.value
 
-        // Every emission re-triggers the accounts pipeline's CombineLatest — don't re-publish sameness
-        guard state != stateSubject.value else {
-            CollectiblesLogger.debug("State resolve finished, unchanged: \(state.logDescription)")
-            return
+            if case .rekeyRequired(let vault) = state,
+               case .ready = currentState,
+               isStaleRelinkRead(of: vault.sessionKey) {
+                CollectiblesLogger.debug("Replaced session key read in the relink grace period, keeping the state")
+                return currentState
+            }
+
+            if case .ready = state {
+                startRelinkGracePeriod()
+            }
+
+            recordPresence(of: state)
+
+            // Every emission re-triggers the accounts pipeline's CombineLatest — don't re-publish sameness
+            guard state != currentState else {
+                CollectiblesLogger.debug("State resolve finished, unchanged: \(state.logDescription)")
+                return state
+            }
+
+            CollectiblesLogger.debug("State resolved: \(state.logDescription), was: \(currentState.logDescription)")
+            stateSubject.send(state)
+            return state
         }
-
-        CollectiblesLogger.debug("State resolved: \(state.logDescription), was: \(stateSubject.value.logDescription)")
-        stateSubject.send(state)
     }
 
     func recordPresence(of state: CollectiblesState) {
@@ -553,8 +644,7 @@ private extension CollectiblesManager {
 
 private extension CollectiblesManager {
     func makeSignedPurchase(_ purchase: CollectiblesPackPurchase) async throws -> CollectiblesSignedPurchase {
-        let state = try await resolveState()
-        update(state: state)
+        let state = update(state: try await resolveState())
 
         guard case .ready(let vault) = state else {
             throw PurchaseError.vaultNotReady
@@ -564,12 +654,20 @@ private extension CollectiblesManager {
     }
 }
 
+// MARK: - Onboarding outcome
+
+extension CollectiblesManager {
+    enum OnboardingOutcome {
+        case ready
+        case vaultMissing
+    }
+}
+
 // MARK: - Error
 
 extension CollectiblesManager {
     enum PurchaseError: Error {
         case vaultNotReady
-        case conflictingPurchase
     }
 }
 
@@ -581,6 +679,7 @@ private extension CollectiblesManager {
         static let stateAdvanceInterval: TimeInterval = 2
         static let depositPollAttempts = 18
         static let depositPollInterval: TimeInterval = 5
+        static let relinkGracePeriod: TimeInterval = 120
     }
 }
 

@@ -31,7 +31,7 @@ struct SingleWalletMainContentRedesignedView: View {
 
     @ViewBuilder
     private var tokenCard: some View {
-        switch viewModel.redesignState?.tokenCardVariant {
+        switch viewModel.tokenCardVariant {
         case .token(let tokenItemViewModel):
             MainPageTangemTokenRow(viewModel: tokenItemViewModel)
                 .backgroundColor(Constants.tokenListBackgroundColor)

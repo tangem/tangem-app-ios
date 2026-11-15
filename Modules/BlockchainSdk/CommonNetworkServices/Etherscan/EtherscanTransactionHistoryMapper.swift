@@ -11,7 +11,7 @@ import TangemFoundation
 
 final class EtherscanTransactionHistoryMapper {
     private let blockchain: Blockchain
-    private var transactionIndicesCounter: [String: Int] = [:]
+    private let transactionIndicesCounter = OSAllocatedUnfairLock(initialState: [String: Int]())
     private let aaveTokens: Set<String>?
     private let isSafe: Bool
 
@@ -268,8 +268,12 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
                 return nil
             }
 
-            let index = transactionIndicesCounter[transaction.hash, default: 0]
-            transactionIndicesCounter[transaction.hash] = index + 1
+            let index = transactionIndicesCounter { counter in
+                let index = counter[transaction.hash, default: 0]
+                counter[transaction.hash] = index + 1
+
+                return index
+            }
 
             let isFromYieldContract = aaveTokens?.contains { $0.caseInsensitiveEquals(to: transaction.from) } ?? false
 
@@ -291,7 +295,7 @@ extension EtherscanTransactionHistoryMapper: TransactionHistoryMapper {
     }
 
     func reset() {
-        transactionIndicesCounter.removeAll()
+        transactionIndicesCounter { $0.removeAll() }
     }
 }
 

@@ -71,6 +71,7 @@ private extension OverlayViewPresentationHost {
         // the presenter holds is what the user asked for last.
         dismiss { [weak self] in
             guard let self, viewModel.presentedOverlay?.id == overlay.id else {
+                overlay.onDismiss?()
                 return
             }
 
@@ -100,11 +101,12 @@ private extension OverlayViewPresentationHost {
         // A screen can go without the presenter asking for it: the user swipes it away, or the screen it was
         // shown from is closed and takes it along. Either way the presenter has to stop holding it.
         viewController.didDisappear = { [weak self, weak viewController] in
-            guard let self, presented?.viewController === viewController else {
+            guard let self, let presented, presented.viewController === viewController else {
                 return
             }
 
-            presented = nil
+            self.presented = nil
+            presented.overlay.onDismiss?()
             viewModel.dismiss()
         }
 
@@ -146,6 +148,7 @@ private extension OverlayViewPresentationHost {
         }
 
         self.presented = nil
+        presented.overlay.onDismiss?()
 
         // Nothing to close while the screen is still waiting for the one on top to finish: dropping it is the
         // whole dismissal, and asking UIKit to dismiss what it never presented would leave the caller waiting

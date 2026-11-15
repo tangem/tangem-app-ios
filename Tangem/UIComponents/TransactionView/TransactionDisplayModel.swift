@@ -201,7 +201,7 @@ extension TransactionDisplayModel {
     ) -> TitleContent {
         switch transactionType {
         case .transfer where isPendingSignature:
-            return .plain(Localization.commonSend)
+            return .plain(Localization.transactionHistoryPendingSend)
         case .transfer, .gaslessTransfer:
             return transferTitle(isOutgoing: isOutgoing, status: status, subtitleOwner: subtitleOwner)
         case .operation where isTangemPayCounterparty, .unknownOperation where isTangemPayCounterparty:

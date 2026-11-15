@@ -91,6 +91,11 @@ extension CollectiblesCoordinator: CollectiblesWelcomeRoutable {
     func closeReconnection() {
         reconnectionViewModel = nil
     }
+
+    func closeCollectibles() {
+        reconnectionViewModel = nil
+        dismiss()
+    }
 }
 
 extension CollectiblesCoordinator: CollectiblesMainRoutable {
@@ -112,8 +117,8 @@ extension CollectiblesCoordinator: CollectiblesMainRoutable {
             routable: self,
             prizePoolProvider: CommonCollectiblesPrizePoolProvider(userWalletID: userWalletID),
             relinkStatusProvider: accountModel,
-            hasUnfinishedPurchase: { [purchaseInteractor = accountModel?.purchaseInteractor] in
-                purchaseInteractor?.hasUnfinishedPurchase(machineID: pack.id) ?? false
+            isPurchaseLocked: { [purchaseInteractor = accountModel?.purchaseInteractor] in
+                purchaseInteractor?.isPurchaseLocked(machineID: pack.id) ?? false
             }
         )
     }
@@ -142,6 +147,7 @@ extension CollectiblesCoordinator: CollectiblesMachineRoutable {
             isTurboModeOn: isTurboModeOn,
             usdcBalanceProvider: accountModel.usdcTokenBalanceProvider,
             purchaseInteractor: accountModel.purchaseInteractor,
+            relinkStatusProvider: accountModel,
             routable: self,
             revealAssetsPreloader: RemoteCollectiblesRevealAssetsPreloader(openingMedia: machine.openingMedia),
             refreshBalance: accountModel.refreshState

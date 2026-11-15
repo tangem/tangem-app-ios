@@ -13,7 +13,9 @@ struct MCPIntentDeeplink: HostNamedDeeplink, Equatable {
     let source: String
     let type: String
 
-    var action: DeeplinkNavigationAction { DeeplinkNavigationAction.mcpIntent(self) }
+    var action: DeeplinkNavigationAction {
+        DeeplinkNavigationAction.mcpIntent(self)
+    }
 }
 
 // MARK: - Parsing

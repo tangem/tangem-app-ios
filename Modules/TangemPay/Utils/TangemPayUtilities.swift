@@ -22,6 +22,10 @@ public extension TangemPayUtilities {
         try! DerivationPath(rawPath: FeatureDerivationPaths.tangemPay)
     }
 
+    static var bankingAccountDerivationPath: DerivationPath {
+        try! DerivationPath(rawPath: FeatureDerivationPaths.tangemPayBankingAccount)
+    }
+
     static func prepareForSign(challengeResponse: TangemPayGetChallengeResponse) throws -> SignRequestData {
         let signingRequestMessage = Self.makeCustomerWalletSigningRequestMessage(nonce: challengeResponse.nonce)
         let eip191Message = Self.makeEIP191Message(content: signingRequestMessage)
@@ -32,6 +36,21 @@ public extension TangemPayUtilities {
 
         let hash = eip191MessageData.sha3(.keccak256)
         return SignRequestData(message: signingRequestMessage, hash: hash)
+    }
+
+    static func prepareBankingAccountDepositAddressForSign(depositAddress: String) throws -> SignRequestData {
+        let message = makeBankingAccountDepositAddressMessage(depositAddress: depositAddress)
+        let eip191Message = makeEIP191Message(content: message)
+
+        guard let eip191MessageData = eip191Message.data(using: .utf8) else {
+            throw Error.failedToCreateEIP191Message(content: message)
+        }
+
+        return SignRequestData(message: message, hash: eip191MessageData.sha3(.keccak256))
+    }
+
+    private static func makeBankingAccountDepositAddressMessage(depositAddress: String) -> String {
+        "Banking account deposit address \(depositAddress.lowercased())"
     }
 
     private static func makeCustomerWalletSigningRequestMessage(nonce: String) -> String {

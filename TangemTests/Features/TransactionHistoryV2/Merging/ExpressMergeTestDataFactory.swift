@@ -151,7 +151,7 @@ enum ExpressMergeTestDataFactory {
             txId: txId,
             providerId: "test-provider",
             status: status,
-            rateType: nil,
+            rateType: .float,
             externalTx: nil,
             fromAddress: fromAddress,
             payIn: PayInInfo(address: payInAddress, extraId: nil, hash: payInHash),

@@ -57,6 +57,19 @@ struct YieldModePromoContentTests {
         #expect(YieldModePromoContent(candidate: candidate, earnResponse: response(total: 5, topApy: "0")) == nil)
     }
 
+    @Test("The experiment arm picks whose rate the card shows", arguments: [
+        ("user_max_apy", Decimal(string: "0.0612")),
+        ("global_max_apy", Decimal(string: "0.092")),
+        ("control", nil),
+        ("unknown", nil),
+        (nil, nil),
+    ] as [(String?, Decimal?)])
+    func picksDataForArm(variant: String?, expectedApy: Decimal?) throws {
+        let content = try #require(YieldModePromoContent(candidate: candidate, earnResponse: response(total: 42, topApy: "0.092")))
+
+        #expect(content.sheetData(for: variant)?.apy == expectedApy)
+    }
+
     private func response(total: Int, topApy: String?) -> EarnDTO.List.Response {
         let items = topApy.map {
             [

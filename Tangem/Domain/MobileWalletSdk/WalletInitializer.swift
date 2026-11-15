@@ -34,20 +34,39 @@ struct WalletInitializerParameters {
 final class MobileWalletInitializer: WalletInitializer {
     @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
-    func initializeWallet(parameters: WalletInitializerParameters) async throws -> MobileWalletInfo {
+    private let sdk: MobileWalletSdk
+
+    init(sdk: MobileWalletSdk = CommonMobileWalletSdk()) {
+        self.sdk = sdk
+    }
+
+    func initializeWallet(parameters: WalletInitializerParameters) async throws -> PreparedWallet {
         if FeatureProvider.isAvailable(.mobileWalletMultiCreation), userWalletRepository.isMobileWalletsLimitReached {
             throw UserWalletRepositoryError.mobileWalletLimitReached
         }
 
-        let sdk = CommonMobileWalletSdk()
-
         let userWalletId = switch parameters.mnemonic {
         case .some(let mnemonic):
-            try importWallet(mnemonic: mnemonic, passphrase: parameters.passphrase ?? "", sdk: sdk)
+            try importWallet(mnemonic: mnemonic, passphrase: parameters.passphrase ?? "")
         case .none:
             try sdk.generateWallet()
         }
 
+        do {
+            let walletInfo = try makeWalletInfo(userWalletId: userWalletId, parameters: parameters)
+
+            guard let walletId = UserWalletId(config: MobileUserWalletConfig(mobileWalletInfo: walletInfo)) else {
+                throw UserWalletRepositoryError.cantUnlockWallet
+            }
+
+            return PreparedWallet(walletId: walletId, walletInfo: walletInfo)
+        } catch {
+            MobileCleanupUtil.cleanMobileWallet(walletId: userWalletId)
+            throw error
+        }
+    }
+
+    private func makeWalletInfo(userWalletId: UserWalletId, parameters: WalletInitializerParameters) throws -> MobileWalletInfo {
         let context = try sdk.validate(auth: .none, for: userWalletId)
 
         let mobileWallet = try sdk.deriveMasterKeys(context: context)
@@ -100,7 +119,7 @@ final class MobileWalletInitializer: WalletInitializer {
         return mobileWalletInfo
     }
 
-    private func importWallet(mnemonic: Mnemonic, passphrase: String, sdk: MobileWalletSdk) throws -> UserWalletId {
+    private func importWallet(mnemonic: Mnemonic, passphrase: String) throws -> UserWalletId {
         let userWalletId = try MnemonicUserWalletIdFactory().makeUserWalletId(mnemonic: mnemonic, passphrase: passphrase)
 
         guard userWalletRepository.models[userWalletId] == nil else {
@@ -118,5 +137,14 @@ final class MobileWalletInitializer: WalletInitializer {
         case .none:
             return BlockchainNetwork(blockchain, derivationPath: nil)
         }
+    }
+}
+
+// MARK: - Types
+
+extension MobileWalletInitializer {
+    struct PreparedWallet {
+        let walletId: UserWalletId
+        let walletInfo: MobileWalletInfo
     }
 }

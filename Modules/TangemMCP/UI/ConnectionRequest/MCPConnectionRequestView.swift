@@ -25,14 +25,15 @@ struct MCPConnectionRequestView: View {
             header
         }
         .scrollBounceBehavior(.basedOnSize)
-        .animation(.contentFrameUpdate, value: viewModel.state)
-        .floatingSheetConfiguration { configuration in
-            configuration.sheetBackground = .color(DesignSystem.Color.bgPrimary)
-            configuration.sheetFrameUpdateAnimation = .contentFrameUpdate
-            configuration.backgroundInteractionBehavior = .consumeTouches
-        }
+        .animation(Animation.mcpFloatingSheetFrameUpdate, value: viewModel.state)
+        .animation(Animation.mcpFloatingSheetFrameUpdate, value: viewModel.isPushPermissionsBannerVisible)
         .task {
             viewModel.handle(action: .viewDidLoad)
+        }
+        .floatingSheetConfiguration { configuration in
+            configuration.sheetFrameUpdateAnimation = Animation.mcpFloatingSheetFrameUpdate
+            configuration.sheetBackground = FloatingSheetConfiguration.Background.mcpFloatingSheet
+            configuration.backgroundInteractionBehavior = .consumeTouches
         }
     }
 
@@ -41,15 +42,15 @@ struct MCPConnectionRequestView: View {
         switch viewModel.state {
         case .proposal(let proposalViewModel):
             MCPConnectionRequestProposalView(viewModel: proposalViewModel, imageCache: imageCache)
-                .transition(.content)
+                .transition(AnyTransition.mcpContent)
 
         case .userWalletSelector(let userWalletSelectorViewModel):
             MCPConnectionRequestUserWalletSelectorView(viewModel: userWalletSelectorViewModel)
-                .transition(.content)
+                .transition(AnyTransition.mcpContent)
 
         case .agentConnected(let agentConnectedViewModel):
             MCPConnectionRequestAgentConnectedView(viewModel: agentConnectedViewModel)
-                .transition(.content)
+                .transition(AnyTransition.mcpContent)
         }
     }
 
@@ -81,19 +82,6 @@ struct MCPConnectionRequestView: View {
             bottomSeparatorLineIsVisible: false,
             backButtonAction: backButtonAction,
             closeButtonAction: closeButtonAction
-        )
-    }
-}
-
-extension Animation {
-    static let contentFrameUpdate = Animation.curve(.easeInOutRefined, duration: 0.5)
-}
-
-private extension AnyTransition {
-    static var content: AnyTransition {
-        AnyTransition.asymmetric(
-            insertion: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3).delay(0.2)),
-            removal: .opacity.animation(.curve(.easeInOutRefined, duration: 0.3))
         )
     }
 }

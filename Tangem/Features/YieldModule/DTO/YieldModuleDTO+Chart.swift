@@ -24,8 +24,6 @@ extension YieldModuleDTO.Response {
         let market: String
         let bucketSizeDays: Int
         let period: YieldModuleDTO.ChartWindow
-        let from: String
-        let to: String
         let data: [ChartData]
         let avr: Double
 

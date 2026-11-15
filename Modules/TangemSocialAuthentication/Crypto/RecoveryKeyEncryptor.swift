@@ -14,24 +14,17 @@ import TangemFoundation
 struct RecoveryKeyEncryptor {
     /// - Parameters:
     ///   - recoveryKey: raw social backup recovery key `K`.
-    ///   - publicKey: KMS recovery public key (JWK).
-    /// - Returns: Base64 of `recoveryKey` encrypted with the JWK's RSA key (RSA-OAEP-256).
+    ///   - publicKey: KMS recovery public key.
+    /// - Returns: Base64 of `recoveryKey` encrypted with the key's RSA components (RSA-OAEP-256), together with the id of the key that produced it.
     func encrypt(
         recoveryKey: Data,
-        publicKey: RecoveryPublicKeyDTO.Response
-    ) throws(RecoveryKeyEncryptionError) -> String {
-        guard publicKey.alg == Constants.supportedAlgorithm else {
-            throw .unsupportedAlgorithm(publicKey.alg)
+        publicKey: RecoveryPublicKey
+    ) throws(RecoveryKeyEncryptionError) -> EncryptedRecoveryKey {
+        guard publicKey.algorithm == Constants.supportedAlgorithm else {
+            throw .unsupportedAlgorithm(publicKey.algorithm)
         }
 
-        guard
-            let modulus = publicKey.n.base64URLDecodedData(),
-            let exponent = publicKey.e.base64URLDecodedData()
-        else {
-            throw .invalidPublicKey
-        }
-
-        let secKey = try makeRSAPublicKey(modulus: modulus, exponent: exponent)
+        let secKey = try makeRSAPublicKey(modulus: publicKey.modulus, exponent: publicKey.exponent)
 
         let algorithm = SecKeyAlgorithm.rsaEncryptionOAEPSHA256
         guard SecKeyIsAlgorithmSupported(secKey, .encrypt, algorithm) else {
@@ -43,7 +36,10 @@ struct RecoveryKeyEncryptor {
             throw .encryptionFailed(code: (error?.takeRetainedValue()).map(CFErrorGetCode))
         }
 
-        return (encrypted as Data).base64EncodedString()
+        return EncryptedRecoveryKey(
+            ciphertext: (encrypted as Data).base64EncodedString(),
+            keyId: publicKey.keyId
+        )
     }
 }
 
@@ -102,25 +98,6 @@ private extension RecoveryKeyEncryptor {
                 remaining >>= 8
             }
             return Data([0x80 | UInt8(lengthBytes.count)]) + Data(lengthBytes)
-        }
-    }
-}
-
-// MARK: - RecoveryKeyEncryptionError
-
-enum RecoveryKeyEncryptionError: Error, LocalizedError {
-    case unsupportedAlgorithm(String)
-    case invalidPublicKey
-    case encryptionFailed(code: Int?)
-
-    var errorDescription: String? {
-        switch self {
-        case .unsupportedAlgorithm(let algorithm):
-            "The recovery public key algorithm is not supported: \(algorithm)"
-        case .invalidPublicKey:
-            "The recovery public key is invalid"
-        case .encryptionFailed(let code):
-            "Failed to encrypt the recovery key (code: \(code.map(String.init) ?? "unknown"))"
         }
     }
 }

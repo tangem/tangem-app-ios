@@ -19,6 +19,7 @@ enum SendMainButtonType: Hashable {
 
 enum SendFlowActionType: Hashable {
     case send
+    case createOperation
     case swap
     case approve
     case stake
@@ -48,6 +49,7 @@ enum SendFlowActionType: Hashable {
     var title: String {
         switch self {
         case .send: Localization.commonSend
+        case .createOperation: Localization.jointAccountSendCreateRequest
         case .swap: Localization.commonSwap
         case .approve: Localization.givePermissionTitle
         case .stake: Localization.commonStake

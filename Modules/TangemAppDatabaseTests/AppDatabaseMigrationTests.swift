@@ -103,6 +103,57 @@ struct AppDatabaseMigrationTests {
 
         #expect(walletIDs == ["collision", "migrated-CC03"])
     }
+
+    @Test("V4 keeps the stored Express data intact and adds empty joint operation tables")
+    func v4KeepsExpressDataAndAddsEmptyJointOperationTables() throws {
+        let databaseQueue = try AppDatabaseTestFactory.makeMigratedDatabaseQueue(upTo: .v3)
+        let exchangeTransaction = AppDatabaseFixtures.makeMinimalExchangeTransactionRecord()
+        let onrampTransaction = AppDatabaseFixtures.makeMinimalOnrampTransactionRecord()
+        let historyIndex = AppDatabaseFixtures.makeHistoryIndexRecord(
+            entityType: TransactionHistoryIndexRecord.Values.EntityType.expressExchange,
+            entityID: exchangeTransaction.id,
+            address: exchangeTransaction.payOutAddress,
+            network: exchangeTransaction.toNetwork,
+            contract: exchangeTransaction.toContract,
+            dateTime: exchangeTransaction.createdAt
+        )
+        let syncMetadata = AppDatabaseFixtures.makeFullSyncMetadataRecord(walletID: "hashed-wallet-id", endpointType: "swap")
+
+        try databaseQueue.write { database in
+            try exchangeTransaction.insert(database)
+            try onrampTransaction.insert(database)
+            try historyIndex.insert(database)
+            try syncMetadata.insert(database)
+        }
+
+        try AppDatabase
+            .makeDatabaseMigrator(migrationHelper: AppDatabaseMigrationHelperStub.prefixing)
+            .migrate(databaseQueue)
+
+        let (fetchedExchange, fetchedOnramp, fetchedIndexes, fetchedSyncMetadata) = try databaseQueue.read { database in
+            (
+                try ExpressExchangeTransactionRecord.fetchOne(database, key: exchangeTransaction.id),
+                try ExpressOnrampTransactionRecord.fetchOne(database, key: onrampTransaction.id),
+                try TransactionHistoryIndexRecord.fetchAll(database),
+                try ExpressSyncMetadataRecord.fetchAll(database)
+            )
+        }
+        let (jointOperationsCount, jointSyncMetadataCount) = try databaseQueue.read { database in
+            (
+                try JointOperationRecord.fetchCount(database),
+                try JointOperationsSyncMetadataRecord.fetchCount(database)
+            )
+        }
+
+        try expectSameDatabaseRepresentation(try #require(fetchedExchange), exchangeTransaction)
+        try expectSameDatabaseRepresentation(try #require(fetchedOnramp), onrampTransaction)
+        #expect(fetchedIndexes.count == 1)
+        #expect(fetchedSyncMetadata.count == 1)
+        try expectSameDatabaseRepresentation(try #require(fetchedIndexes.first), historyIndex)
+        try expectSameDatabaseRepresentation(try #require(fetchedSyncMetadata.first), syncMetadata)
+        #expect(jointOperationsCount == 0)
+        #expect(jointSyncMetadataCount == 0)
+    }
 }
 
 // MARK: - Factory methods

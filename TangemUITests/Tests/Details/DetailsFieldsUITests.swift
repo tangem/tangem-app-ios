@@ -16,7 +16,7 @@ final class DetailsFieldsUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .twin)
             .openDetails()
-            .verifySections(walletConnect: false)
+            .verifySections()
     }
 
     func testDetailsFields_Note() {
@@ -26,7 +26,7 @@ final class DetailsFieldsUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .xrpNote)
             .openDetails()
-            .verifySections(walletConnect: false)
+            .verifySections()
     }
 
     func testDetailsFields_Wallet() {
@@ -36,7 +36,7 @@ final class DetailsFieldsUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
             .openDetails()
-            .verifySections(walletConnect: true)
+            .verifySections()
     }
 
     func testDetailsFields_V412() {
@@ -46,7 +46,7 @@ final class DetailsFieldsUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .four12)
             .openDetails()
-            .verifySections(walletConnect: true)
+            .verifySections()
     }
 
     func testDetailsFields_V3Multi() {
@@ -56,7 +56,7 @@ final class DetailsFieldsUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .v3seckp)
             .openDetails()
-            .verifySections(walletConnect: true)
+            .verifySections()
     }
 
     func testDetailsFields_SingleCurrency() {
@@ -66,7 +66,7 @@ final class DetailsFieldsUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .xlmBird)
             .openDetails()
-            .verifySections(walletConnect: false)
+            .verifySections()
     }
 
     func testDetailsFields_S2C() {
@@ -76,7 +76,7 @@ final class DetailsFieldsUITests: BaseTestCase {
         CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .s2c)
             .openDetails()
-            .verifySections(walletConnect: false)
+            .verifySections()
     }
 
     func testS2C_ActionButtonsAndStandardDetails() {
@@ -87,7 +87,7 @@ final class DetailsFieldsUITests: BaseTestCase {
             .scanMockWallet(name: .s2c)
             .verifySingleCurrencyWalletActionButtons()
             .openDetails()
-            .verifySections(walletConnect: false)
+            .verifySections()
     }
 
     func testToSScreenDisplaying() {

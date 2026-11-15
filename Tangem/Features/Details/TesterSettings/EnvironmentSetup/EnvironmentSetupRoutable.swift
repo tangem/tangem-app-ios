@@ -19,4 +19,5 @@ protocol EnvironmentSetupRoutable: AnyObject {
     func openStoriesV2Demo()
     func openSparrowSurveyClassicDemo(withToken token: String)
     func openSilentPushTester()
+    func openBackendAuthentication()
 }

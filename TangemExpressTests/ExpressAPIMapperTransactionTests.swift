@@ -16,7 +16,7 @@ import TangemFoundation
 struct ExpressAPIMapperTransactionTests {
     private let mapper = ExpressAPIMapper(
         exchangeDataDecoder: StubExpressExchangeDataDecoder(),
-        featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
+        featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
     )
 
     // MARK: - Exchange
@@ -28,8 +28,7 @@ struct ExpressAPIMapperTransactionTests {
             pagination: ExpressDTO.Swap.History.Pagination(
                 endCursor: AnyDecodable("cursor-end"),
                 startDeltaCursor: AnyDecodable("cursor-delta"),
-                hasMore: true,
-                hasNextPage: nil
+                hasMore: true
             )
         )
 
@@ -71,7 +70,7 @@ struct ExpressAPIMapperTransactionTests {
                     updatedAt: nil
                 ),
             ],
-            pagination: ExpressDTO.Swap.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: nil, hasNextPage: nil)
+            pagination: ExpressDTO.Swap.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false)
         )
 
         let page = try mapper.mapToExchangeHistoryPage(response: response)
@@ -82,8 +81,23 @@ struct ExpressAPIMapperTransactionTests {
         #expect(record.externalTx == nil)
         #expect(record.refund == nil)
         #expect(record.updatedAt == record.createdAt) // Nil `updatedAt` in the DTO falls back to `createdAt` during mapping
-        #expect(!page.hasMore) // Both `hasMore` and the legacy `hasNextPage` are nil, so `hasMore` defaults to false
+        #expect(!page.hasMore)
         #expect(page.nextCursor == nil)
+    }
+
+    @Test(
+        "Exchange rate type maps from its raw value",
+        arguments: [("float", ExpressProviderRateType.float), ("fixed", .fixed)]
+    )
+    func exchangeRateTypeMapping(rawValue: String, expected: ExpressProviderRateType) throws {
+        let response = ExpressDTO.Swap.History.Response(
+            items: [Self.makeExchangeTransaction(rateType: rawValue)],
+            pagination: ExpressDTO.Swap.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false)
+        )
+
+        let page = try mapper.mapToExchangeHistoryPage(response: response)
+
+        #expect(page.records.first?.rateType == expected)
     }
 
     // MARK: - Onramp
@@ -105,14 +119,13 @@ struct ExpressAPIMapperTransactionTests {
             pagination: ExpressDTO.Onramp.History.Pagination(
                 endCursor: AnyDecodable("cursor-end"),
                 startDeltaCursor: nil,
-                hasMore: nil,
-                hasNextPage: true
+                hasMore: true
             )
         )
 
         let page = try mapper.mapToOnrampHistoryPage(response: response)
 
-        #expect(page.hasMore) // Nil `hasMore` falls back to the legacy `hasNextPage` field
+        #expect(page.hasMore)
         #expect(page.records.count == 2)
 
         let pending = try #require(page.records.first)
@@ -147,7 +160,7 @@ struct ExpressAPIMapperTransactionTests {
     func onrampUnknownStatusFallback() throws {
         let response = ExpressDTO.Onramp.History.Response(
             items: [Self.makeOnrampTransaction(status: "exchange-tx-sent")],
-            pagination: ExpressDTO.Onramp.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false, hasNextPage: nil)
+            pagination: ExpressDTO.Onramp.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false)
         )
 
         let page = try mapper.mapToOnrampHistoryPage(response: response)
@@ -170,11 +183,23 @@ struct ExpressAPIMapperTransactionTests {
         #expect(!page.hasMore)
     }
 
+    @Test("An unknown exchange rate type in a record fails the whole page mapping")
+    func unknownRateTypeThrows() throws {
+        let response = ExpressDTO.Swap.History.Response(
+            items: [Self.makeExchangeTransaction(rateType: "some-future-rate")],
+            pagination: ExpressDTO.Swap.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false)
+        )
+
+        #expect(throws: ExpressAPIMapperError.self) {
+            try mapper.mapToExchangeHistoryPage(response: response)
+        }
+    }
+
     @Test("Malformed decimal amount in a record fails the whole page mapping")
     func malformedDecimalAmountThrows() throws {
         let response = ExpressDTO.Onramp.History.Response(
             items: [Self.makeOnrampTransaction(toAmount: "not-a-decimal")],
-            pagination: ExpressDTO.Onramp.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false, hasNextPage: nil)
+            pagination: ExpressDTO.Onramp.History.Pagination(endCursor: nil, startDeltaCursor: nil, hasMore: false)
         )
 
         #expect(throws: (any Error).self) {
@@ -192,7 +217,8 @@ private extension ExpressAPIMapperTransactionTests {
         refundContractAddress: String? = "0xrefund-token",
         status: String = "finished",
         externalTxId: String? = "ext-1",
-        updatedAt: Date? = Date(timeIntervalSince1970: 2_000)
+        updatedAt: Date? = Date(timeIntervalSince1970: 2_000),
+        rateType: String = "float"
     ) -> ExpressDTO.Swap.Transaction {
         ExpressDTO.Swap.Transaction(
             txId: "tx-1",
@@ -203,7 +229,7 @@ private extension ExpressAPIMapperTransactionTests {
             payoutAddress: "0xpayout",
             refundAddress: refundAddress,
             refundExtraId: "memo-refund",
-            rateType: "float",
+            rateType: rateType,
             status: status,
             externalTxId: externalTxId,
             externalTxUrl: "https://provider.example/tx/ext-1",

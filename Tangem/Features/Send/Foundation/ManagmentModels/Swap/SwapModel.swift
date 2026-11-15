@@ -1204,13 +1204,14 @@ extension SwapModel {
                 let result = try await dispatcher.send(transaction: .cex(data: data, fee: fee))
                 analyticsLogger.logSwapTransactionSent(result: result)
 
-                if !source.isTangemPayAccount {
+                if source.accountType != .tangemPay {
                     await notifyExpressAboutTransactionDidSent(source: source, data: data, result: result)
                 }
                 persistSentTransaction(
                     source: source,
                     receive: receive,
                     provider: selected.provider,
+                    rateType: selected.rateType,
                     fee: fee,
                     data: data,
                     result: result
@@ -1228,6 +1229,7 @@ extension SwapModel {
                     source: source,
                     receive: receive,
                     provider: selected.provider,
+                    rateType: selected.rateType,
                     data: readyToSwap.data,
                     fee: readyToSwap.fee,
                     dispatcher: dispatcher,
@@ -1249,6 +1251,7 @@ extension SwapModel {
                     source: source,
                     receive: receive,
                     provider: selected.provider,
+                    rateType: selected.rateType,
                     data: readyToApproveAndSwap.data,
                     fee: readyToApproveAndSwap.fee,
                     dispatcher: dispatcher,
@@ -1296,6 +1299,7 @@ extension SwapModel {
         source: SendSwapableToken,
         receive: SendReceiveToken,
         provider: ExpressProvider,
+        rateType: ExpressProviderRateType,
         data: ExpressTransactionData,
         fee: BSDKFee,
         dispatcher: TransactionDispatcher,
@@ -1315,6 +1319,7 @@ extension SwapModel {
             source: source,
             receive: receive,
             provider: provider,
+            rateType: rateType,
             fee: fee,
             data: data,
             result: result
@@ -1343,6 +1348,7 @@ extension SwapModel {
         source: SendSwapableToken,
         receive: SendReceiveToken,
         provider: ExpressProvider,
+        rateType: ExpressProviderRateType,
         fee: BSDKFee,
         data: ExpressTransactionData,
         result: TransactionDispatcherResult
@@ -1354,6 +1360,7 @@ extension SwapModel {
             receive: receive,
             fee: fee,
             provider: provider,
+            rateType: rateType,
             date: Date(),
             expressTransactionData: data
         )
@@ -2024,8 +2031,8 @@ extension SwapModel: SendFeeInput {
 // MARK: - FeeSelectorOutput
 
 extension SwapModel: FeeSelectorOutput {
-    func userDidFinishSelection(feeTokenItem: TokenItem, feeOption: FeeOption) {
-        tokenFeeProvidersManager?.updateSelectedFeeProvider(feeTokenItem: feeTokenItem)
+    func userDidFinishSelection(feeProviderID: TokenFeeProviderID, feeOption: FeeOption) {
+        tokenFeeProvidersManager?.updateSelectedFeeProvider(feeProviderID: feeProviderID)
         tokenFeeProvidersManager?.update(feeOption: feeOption)
 
         updateTask(loadingType: .fee) { manager in
@@ -2385,7 +2392,8 @@ extension SwapModel: NotificationTapDelegate {
              .yieldBoostPromoLater,
              .openGetTangemPay,
              .closeGetTangemPay,
-             .removeTangemPayAccount:
+             .removeTangemPayAccount,
+             .linkUserWallet:
             assertionFailure("Notification tap not handled")
         }
     }

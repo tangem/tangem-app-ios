@@ -14,9 +14,7 @@ import TangemFoundation
 final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
     private let networkProvider: TangemProvider<KaspaTransactionHistoryTarget>
     private let mapper: KaspaTransactionHistoryMapper
-
-    private var page: TransactionHistoryIndexPage?
-    private var hasReachedEnd = false
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     private let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -34,17 +32,19 @@ final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
     }
 
     var description: String {
+        let snapshot = state { $0 }
+
         return objectDescription(
             self,
             userInfo: [
-                "pageNumber": page?.number ?? "nil",
-                "hasReachedEnd": hasReachedEnd,
+                "pageNumber": snapshot.page?.number ?? "nil",
+                "hasReachedEnd": snapshot.hasReachedEnd,
             ]
         )
     }
 
     var canFetchHistory: Bool {
-        !hasReachedEnd
+        state { !$0.hasReachedEnd }
     }
 
     // [REDACTED_TODO_COMMENT]
@@ -52,6 +52,8 @@ final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
         guard case .address(let address) = request.key else {
             return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
         }
+
+        let (resetToken, page) = state { ($0.resetToken, $0.page) }
 
         // if indexing is created, load the next page
         let requestPage: Int = if let page {
@@ -84,16 +86,33 @@ final class KaspaTransactionHistoryProvider: TransactionHistoryProvider {
                             record: record
                         )
                     }
-                historyProvider.page = TransactionHistoryIndexPage(number: requestPage)
-                historyProvider.hasReachedEnd = result.count < limit
+                historyProvider.state { state in
+                    guard state.resetToken == resetToken else {
+                        return
+                    }
+
+                    state.page = TransactionHistoryIndexPage(number: requestPage)
+                    state.hasReachedEnd = result.count < limit
+                }
+
                 return TransactionHistory.Response(records: transactionRecords)
             }
             .eraseToAnyPublisher()
     }
 
     func reset() {
-        page = nil
-        hasReachedEnd = false
+        state { $0 = State() }
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension KaspaTransactionHistoryProvider {
+    struct State {
+        /// Changes with every reset, so a response to a request made before the reset can't update the new state.
+        let resetToken = UUID()
+        var page: TransactionHistoryIndexPage?
+        var hasReachedEnd = false
     }
 }
 

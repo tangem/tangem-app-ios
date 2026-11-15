@@ -81,3 +81,25 @@ extension TangemPayManagerWeakReferenceHolder: TangemPayTariffPlanSelector {
         try await tangemPayManager?.cancelTariffPlanPendingTransition()
     }
 }
+
+// MARK: - TangemPayManagerWeakReferenceHolder+TangemPayUnifiedOnboardingInteractor
+
+extension TangemPayManagerWeakReferenceHolder: TangemPayUnifiedOnboardingInteractor {
+    func loadProductsAvailability() async throws -> TangemPayProductsAvailability {
+        guard let tangemPayManager else {
+            throw TangemPayManagerError.managerDeallocated
+        }
+        return try await tangemPayManager.loadProductsAvailability()
+    }
+
+    func placeOnboardingOrder(
+        products: TangemPayProductsAvailability,
+        plan: TangemPayTariffPlanTransition?,
+        addressSigner: TangemPayBankingAccountAddressSigning
+    ) async throws(TangemPayOnboardingOrderError) {
+        guard let tangemPayManager else {
+            throw .failed(TangemPayManagerError.managerDeallocated)
+        }
+        try await tangemPayManager.placeOnboardingOrder(products: products, plan: plan, addressSigner: addressSigner)
+    }
+}

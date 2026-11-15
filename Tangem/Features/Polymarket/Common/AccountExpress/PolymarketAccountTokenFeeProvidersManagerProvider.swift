@@ -38,7 +38,8 @@ extension PolymarketAccountTokenFeeProvidersManagerProvider: TokenFeeProvidersMa
             tokenFeeLoader: DefaultTokenFeeLoader(loader: PolymarketAccountTokenFeeLoader(feeTokenItem: feeTokenItem)),
             customFeeProvider: .none,
             feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
-            supportingOptions: .all
+            supportingOptions: .all,
+            payer: .user
         )
 
         return CommonTokenFeeProvidersManager(

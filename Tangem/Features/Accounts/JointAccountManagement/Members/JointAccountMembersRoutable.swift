@@ -6,7 +6,15 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Foundation
+import SwiftUI
+
 protocol JointAccountMembersRoutable: AnyObject {
     func closeMembers()
+    func closedActivatedAccount()
     func openAboutSignatures(policy: JointAccountPolicy)
+    func openShareInviteMember(url: URL, accountName: String)
+    func showInviteIssueError(_ error: Error)
+    func openMemberDetails(name: String, address: String, accentColor: Color)
+    func openConfirmSharedAddress(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
 }
