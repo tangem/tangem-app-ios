@@ -104,9 +104,9 @@ final class FeeSelectorSummaryViewModel: ObservableObject {
 
         return FeeSelectorRowViewModel(
             rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
-            title: feeTokenItem.name,
+            title: tokenFeeProvider.feeSelectorTitle,
             subtitle: .balance(subtitleBalanceState),
-            accessibilityIdentifier: FeeAccessibilityIdentifiers.feeCurrencyOption(symbol: feeTokenItem.currencySymbol),
+            accessibilityIdentifier: FeeAccessibilityIdentifiers.feeCurrencyOption(symbol: tokenFeeProvider.feeSelectorAccessibilitySymbol),
             expandAction: canExpand ? userDidTapToken : nil
         )
     }

@@ -2,6 +2,7 @@ ATM / 12, 16, 20, 24, 28, 32 / Regular
 Address Polygon / 16, 20, 24 / Regular
 Airplane / 12, 16, 20, 24, 28, 32 / Regular
 Arrow Collapse / 16, 20, 24, 28 / Regular
+Arrow Cross Horizontal / 12, 16, 20, 24, 28, 32 / Regular
 Arrow Down Left / 12, 16, 20, 24, 28 / Regular
 Arrow Down Right / 12, 16, 20, 24, 28 / Regular
 Arrow Down / 12, 16, 20, 24, 28, 32 / Regular
@@ -43,6 +44,7 @@ Chart Bar Vertical / 16, 20, 24, 28 / Regular
 Chart Line Vertical / 16, 20, 24, 28 / Regular
 Checkmark / 16, 20, 24, 28 / Regular
 Chevron Collapse / 16, 20, 24, 28 / Regular
+Chevron Double Vertical Collapse / 12, 16, 20, 24, 28, 32 / Regular
 Chevron Double Vertical / 12, 16, 20, 24, 28, 32 / Regular
 Chevron Down / 12, 16, 20, 24, 28, 32 / Regular
 Chevron Expand / 16, 20, 24, 28 / Regular
@@ -99,7 +101,7 @@ Info / 16, 20, 24, 28, 32 / Regular
 Keyboard Down / 16, 20, 24 / Regular
 Keyboard Up / 16, 20, 24 / Regular
 Kids Bottle / 12, 16, 20, 24, 28, 32 / Regular
-Lightning / 20, 24, 28 / Regular
+Lightning / 12, 16, 20, 24, 28 / Regular
 Loading Spinner / 12, 16, 20, 24, 28, 32 / Regular
 Lock / 12, 16, 20, 24, 28, 32 / Regular
 Logo Apple / 16, 20, 24, 28, 32 / Regular
@@ -146,7 +148,7 @@ Train / 12, 16, 20, 24, 28, 32 / Regular
 Trash Bin / 12, 16, 20, 24, 28 / Regular
 Triangle Down / 12, 16, 20, 24, 28, 32 / Regular
 Triangle Up / 12, 16, 20, 24, 28, 32 / Regular
-Unlock / 12, 16, 20, 24, 28, 32 / Regular
+Unlock / 12, 16, 20, 24, 28, 32 / Filled & Regular
 User Plus / 16, 20, 24, 28 / Regular
 User / 12, 16, 20, 24, 28, 32 / Filled & Regular
 Users / 16, 20, 24, 28 / Filled & Regular

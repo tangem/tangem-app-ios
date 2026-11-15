@@ -180,6 +180,6 @@ extension VisaConfig: VisaCardOnboardingStepsBuilderFactory {
 
 extension VisaConfig {
     func makeActionButtonsRole() -> ActionButtonsWalletRole {
-        return ActionButtonsWalletRole(providesHotCryptoTokens: false, forcesActionButtonsRow: false, preselectsUserWalletInBuy: false)
+        return ActionButtonsWalletRole(forcesActionButtonsRow: false, preselectsUserWalletInBuy: false)
     }
 }

@@ -7,6 +7,7 @@
 //
 
 #if INTERNAL || DEBUG
+import Combine
 import SwiftUI
 import TangemAssets
 import TangemUI
@@ -24,6 +25,7 @@ struct ModalShowcase: View {
     @State private var preventsDismissal = false
     @State private var actionTaps = 0
     @State private var isPresented = false
+    @State private var flow: ModalShowcaseFlow?
 
     var body: some View {
         DSShowcase("Modal", layout: .fill) { controls in
@@ -56,6 +58,7 @@ struct ModalShowcase: View {
             }
 
             controls.action("Present modal") { isPresented = true }
+            controls.action("Present item flow") { flow = ModalShowcaseFlow() }
             controls.note("Dynamic Type, RTL and appearance from the Environment panel reach the presented modal. Nested modals reuse the same configuration.")
         } stage: {
             VStack(spacing: 16) {
@@ -73,6 +76,20 @@ struct ModalShowcase: View {
                 actionTaps: $actionTaps,
                 configuration: configuration
             ))
+            .modal(
+                item: $flow,
+                size: { $0.step == .done ? .full : .flexible },
+                contentLayout: { $0.step == .done ? .fill : .scrollable },
+                navigation: { flow in
+                    switch flow.step {
+                    case .review, .signing:
+                        .title("Claim rewards", subtitle: "2 rewards", isCloseEnabled: flow.step != .signing)
+                    case .done:
+                        .closeButton()
+                    }
+                },
+                content: { ModalShowcaseFlowView(flow: $0) }
+            )
         }
     }
 
@@ -89,6 +106,51 @@ struct ModalShowcase: View {
             callerManagedList: isListManaged,
             preventsDismissal: preventsDismissal
         )
+    }
+}
+
+private final class ModalShowcaseFlow: ObservableObject, Identifiable {
+    enum Step {
+        case review
+        case signing
+        case done
+    }
+
+    @Published private(set) var step = Step.review
+
+    @MainActor
+    func sign() async {
+        step = .signing
+        try? await ContinuousClock().sleep(for: .seconds(2))
+        step = .done
+    }
+}
+
+private struct ModalShowcaseFlowView: View {
+    @ObservedObject var flow: ModalShowcaseFlow
+
+    var body: some View {
+        switch flow.step {
+        case .review, .signing:
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Navigation, size and layout come from the item, so they follow its state. The close button is disabled while signing.")
+                    .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textSecondary)
+
+                TangemUI.Button(label: "Sign", accessibilityLabel: nil) {
+                    Task { await flow.sign() }
+                }
+                .loading(.spinner(if: flow.step == .signing))
+                .horizontalLayout(.infinity)
+            }
+            .padding(16)
+            .interactiveDismissDisabled(flow.step == .signing)
+        case .done:
+            Text("Rewards claimed. Only the close button is left.")
+                .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
+                .multilineTextAlignment(.center)
+                .padding(16)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
     }
 }
 
@@ -266,7 +328,7 @@ private struct ModalShowcasePresenter: ViewModifier {
                         .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
                         .padding(16)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .topNavigation(title: "Details", onClose: { isPresented = false })
+                        .topNavigation(title: "Details", close: .enabled { isPresented = false })
                 } label: {
                     Text("Open details")
                         .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textAccentBlue)

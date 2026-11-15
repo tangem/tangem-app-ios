@@ -93,7 +93,7 @@ extension XCUIElement {
 extension XCUIElement {
     func scrollToElement(_ element: XCUIElement, startPoint: Double = 0.8, attempts: SwipeAttempts = .standard) {
         for _ in 0 ..< attempts.rawValue {
-            if !element.isHittable || !element.isEnabled {
+            if !element.isHittableInWindow() || !element.isEnabled {
                 let startCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: startPoint))
                 let endCoordinate = coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.1))
                 startCoordinate.press(forDuration: 0.1, thenDragTo: endCoordinate)
@@ -358,6 +358,17 @@ extension XCUIElement {
         }
 
         return isHittable
+    }
+
+    func isHittableInWindow(bottomInset: CGFloat = 0.1) -> Bool {
+        guard exists else { return false }
+
+        let window = XCUIApplication().frame
+        let frame = frame
+        guard frame.width > 0, frame.height > 0 else { return false }
+
+        let visibleArea = CGRect(x: window.minX, y: window.minY, width: window.width, height: window.height * (1 - bottomInset))
+        return visibleArea.contains(CGPoint(x: frame.midX, y: frame.midY))
     }
 }
 

@@ -13,6 +13,12 @@ import TangemNetworkUtils
 struct ExpressAPITarget: Moya.TargetType {
     let expressAPIType: ExpressAPIType
     let target: Target
+    let apiVersion: APIVersion
+
+    enum APIVersion: String, CaseIterable {
+        case v1
+        case v2
+    }
 
     enum Target {
         case assets(request: ExpressDTO.Swap.Assets.Request)
@@ -40,37 +46,38 @@ struct ExpressAPITarget: Moya.TargetType {
     }
 
     var baseURL: URL {
+        let version = apiVersion.rawValue
         switch expressAPIType {
         case .develop:
-            return URL(string: "https://express.tangem.org/v1/")!
+            return URL(string: "https://express.tangem.org/\(version)/")!
         case .developNew:
-            return URL(string: "https://express-dev1.tests-d.com/v1/")!
+            return URL(string: "https://express-dev1.tests-d.com/\(version)/")!
         case .develop2:
-            return URL(string: "https://express2.tests-d.com/v1/")!
+            return URL(string: "https://express2.tests-d.com/\(version)/")!
         case .develop2New:
-            return URL(string: "https://express-dev2.tests-d.com/v1/")!
+            return URL(string: "https://express-dev2.tests-d.com/\(version)/")!
         case .develop3:
-            return URL(string: "https://express3.tests-d.com/v1/")!
+            return URL(string: "https://express3.tests-d.com/\(version)/")!
         case .develop3New:
-            return URL(string: "https://express-dev3.tests-d.com/v1/")!
+            return URL(string: "https://express-dev3.tests-d.com/\(version)/")!
         case .production:
-            return URL(string: "https://express.tangem.com/v1/")!
+            return URL(string: "https://express.tangem.com/\(version)/")!
         case .productionNew:
-            return URL(string: "https://express-new.tangem.com/v1/")!
+            return URL(string: "https://express-new.tangem.com/\(version)/")!
         case .stage:
-            return URL(string: "https://express-stage.tangem.com/v1/")!
+            return URL(string: "https://express-stage.tangem.com/\(version)/")!
         case .develop4New:
-            return URL(string: "https://express-dev4.tests-d.com/v1/")!
+            return URL(string: "https://express-dev4.tests-d.com/\(version)/")!
         case .stage2:
-            return URL(string: "https://express.tests-s1.com/v1/")!
+            return URL(string: "https://express.tests-s1.com/\(version)/")!
         case .develop5New:
-            return URL(string: "https://express-dev5.tests-d.com/v1/")!
+            return URL(string: "https://express-dev5.tests-d.com/\(version)/")!
         case .stage3:
-            return URL(string: "https://express.tests-s2.com/v1/")!
+            return URL(string: "https://express.tests-s2.com/\(version)/")!
         case .develop6New:
-            return URL(string: "https://express-dev6.tests-d.com/v1/")!
+            return URL(string: "https://express-dev6.tests-d.com/\(version)/")!
         case .mock:
-            return URL(string: "\(WireMockEnvironment.baseURL)/v1/")!
+            return URL(string: "\(WireMockEnvironment.baseURL)/\(version)/")!
         }
     }
 
@@ -156,4 +163,11 @@ struct ExpressAPITarget: Moya.TargetType {
     }
 
     var headers: [String: String]? { nil }
+
+    var validationType: ValidationType {
+        switch apiVersion {
+        case .v1: .none
+        case .v2: .successCodes
+        }
+    }
 }

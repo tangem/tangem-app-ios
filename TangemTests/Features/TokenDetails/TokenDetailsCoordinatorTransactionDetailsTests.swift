@@ -53,6 +53,23 @@ struct TokenDetailsCoordinatorTransactionDetailsTests {
             #expect(sheetStateProvider.hasPresentedSheet, "The details were dropped because another sheet was on screen")
         }
     }
+
+    @Test("Leaving the screen while the details are paused keeps them from showing up after sheets resume", .timeLimit(.minutes(1)))
+    func leavingScreenWhileDetailsArePausedDropsThem() async throws {
+        try await withSheetsDisplayed {
+            let coordinator = TokenDetailsCoordinator(dismissAction: { _ in }, popToRootAction: { _ in })
+
+            coordinator.openTransactionDetails(makeRouteData())
+            _ = await sheetStateProvider.hasPresentedSheetPublisher.values.first { $0 }
+
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            coordinator.cancelTransactionDetailsPresentation()
+            await Task { @MainActor in }.value
+            floatingSheetPresenter.resumeSheetsDisplaying()
+
+            #expect(!sheetStateProvider.hasPresentedSheet, "The details paused for Share came back on the screen the user went back to")
+        }
+    }
 }
 
 // MARK: - Helpers

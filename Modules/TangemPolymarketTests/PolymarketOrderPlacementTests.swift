@@ -139,17 +139,17 @@ struct PolymarketPlaceOrderWireFormatTests {
         #expect(message == detail.detail)
     }
 
-    @Test("A refusal the exchange spelled out is final, not ambiguous")
-    func spelledOutRefusalIsFinal() {
+    @Test("A refusal the exchange spelled out is final, not ambiguous", arguments: [400, 403])
+    func spelledOutRefusalIsFinal(_ statusCode: Int) {
         let detail = PolymarketProblemDetail(
             type: nil,
             title: nil,
-            status: 400,
+            status: statusCode,
             detail: "not enough balance",
             instance: nil
         )
 
-        let error = CommonPolymarketCLOBService.placementError(from: .http(statusCode: 400, problemDetail: detail))
+        let error = CommonPolymarketCLOBService.placementError(from: .http(statusCode: statusCode, problemDetail: detail))
 
         #expect(!error.isAmbiguous)
 
@@ -159,23 +159,31 @@ struct PolymarketPlaceOrderWireFormatTests {
         }
     }
 
-    @Test("An order the exchange refused for rejected credentials was not placed, so it is final, not ambiguous")
-    func unauthorizedOrderIsFinal() {
-        let error = CommonPolymarketCLOBService.placementError(from: .http(statusCode: 401, problemDetail: nil))
+    @Test("An order refused for its credentials is told apart from any other refusal and is final, not ambiguous")
+    func unauthorizedOrderIsItsOwnRefusal() {
+        let detail = PolymarketProblemDetail(status: 401, detail: "Unauthorized/Invalid api key")
+
+        let error = CommonPolymarketCLOBService.placementError(from: .http(statusCode: 401, problemDetail: detail))
 
         #expect(!error.isAmbiguous)
 
-        guard case .rejected = error else {
-            Issue.record("Expected a rejection, got \(error)")
+        guard case .unauthorized(let message) = error else {
+            Issue.record("Expected an unauthorized refusal, got \(error)")
             return
         }
+
+        #expect(message == detail.detail)
     }
 
     @Test("An order that never left the device is a definite failure, not an unknown outcome", arguments: [
         URLError.Code.notConnectedToInternet,
         .cannotFindHost,
+        .cannotConnectToHost,
         .dnsLookupFailed,
         .secureConnectionFailed,
+        .appTransportSecurityRequiresSecureConnection,
+        .internationalRoamingOff,
+        .dataNotAllowed,
     ])
     func unsentOrderIsFinal(_ code: URLError.Code) {
         let error = CommonPolymarketCLOBService.placementError(from: .connection(underlying: URLError(code)))
@@ -190,6 +198,7 @@ struct PolymarketPlaceOrderWireFormatTests {
 
     @Test("An outcome the device never learned is ambiguous, so the order is never offered twice", arguments: [
         PolymarketAPIError.connection(underlying: URLError(.timedOut)),
+        PolymarketAPIError.connection(underlying: URLError(.networkConnectionLost)),
         PolymarketAPIError.http(statusCode: 502, problemDetail: nil),
     ])
     func unknownOutcomeIsAmbiguous(_ apiError: PolymarketAPIError) {

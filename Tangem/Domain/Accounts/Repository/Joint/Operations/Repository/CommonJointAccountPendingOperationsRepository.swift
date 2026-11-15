@@ -55,6 +55,25 @@ extension CommonJointAccountPendingOperationsRepository: JointAccountPendingOper
         return poller?.requestFrequentUpdates()
     }
 
+    func loadOperation(id: String, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation {
+        guard isJointAccountsAvailable else {
+            throw InternalError.featureUnavailable
+        }
+
+        guard case .modified(let item, _) = try await networkService.getOperation(id: id, knownETag: nil) else {
+            throw InternalError.operationNotReturned
+        }
+
+        guard item.cryptoAccountId.caseInsensitiveEquals(to: cryptoAccountId) else {
+            throw JointOperationError.operationNotFound
+        }
+
+        try await synchronizer.apply(.operationAdded(item.operation, cryptoAccountId: cryptoAccountId))
+        updatePollers(for: synchronizer.operations)
+
+        return item.operation
+    }
+
     func createOperation(_ request: JointAccountOperationRequest, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation {
         guard isJointAccountsAvailable else {
             throw InternalError.featureUnavailable
@@ -66,13 +85,16 @@ extension CommonJointAccountPendingOperationsRepository: JointAccountPendingOper
         return operation
     }
 
-    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data, forCryptoAccountId cryptoAccountId: String) async throws {
+    @discardableResult
+    func signOperation(id: String, safeTransaction: SafeTransaction, signature: Data, forCryptoAccountId cryptoAccountId: String) async throws -> JointAccountOperation {
         guard isJointAccountsAvailable else {
             throw InternalError.featureUnavailable
         }
 
         let operation = try await networkService.signOperation(id: id, safeTransaction: safeTransaction, signature: signature)
         try await synchronizer.apply(.localOperation(operation, cryptoAccountId: cryptoAccountId))
+
+        return operation
     }
 
     func rejectOperation(id: String, forCryptoAccountId cryptoAccountId: String) async throws {
@@ -168,6 +190,7 @@ private extension CommonJointAccountPendingOperationsRepository {
 extension CommonJointAccountPendingOperationsRepository {
     enum InternalError: Error {
         case featureUnavailable
+        case operationNotReturned
     }
 }
 

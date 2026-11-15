@@ -18,6 +18,7 @@ protocol TokenFeeLoaderProvider {
         yieldFeeContext: GaslessYieldFeeContext?,
         isFeeTokenFundedByTransaction: Bool
     ) -> TokenFeeLoader?
+    func makeSolanaGaslessTokenFeeLoader() -> TokenFeeLoader?
     /// `nil` when the fee is not editable by hand.
     func makeCustomFeeProvider() -> (any CustomFeeProvider)?
 }

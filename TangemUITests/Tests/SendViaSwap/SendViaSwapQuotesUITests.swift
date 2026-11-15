@@ -307,8 +307,8 @@ private extension SendViaSwapQuotesUITests {
 
         enum Endpoint {
             static let method = "GET"
-            static let doubledSendAmountQuote = "/v1/exchange-quote\\?.*fromAmount=200000.*"
-            static let changeHeroQuote = "/v1/exchange-quote\\?.*providerId=changehero.*"
+            static let doubledSendAmountQuote = "/v2/exchange-quote\\?.*fromAmount=200000.*"
+            static let changeHeroQuote = "/v2/exchange-quote\\?.*providerId=changehero.*"
         }
 
         enum Token {

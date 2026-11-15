@@ -13,4 +13,5 @@ protocol CollectiblesWelcomeRoutable: AnyObject {
     func openStories()
     func openLegalTerms(url: URL)
     func closeReconnection()
+    func closeCollectibles()
 }

@@ -216,7 +216,7 @@ private extension TransactionDetailsProviderIdTests {
                 txId: Self.expressTxId,
                 providerId: "changehero",
                 status: .finished,
-                rateType: nil,
+                rateType: .float,
                 externalTx: externalTxId.map {
                     ExternalTxInfo(id: $0, url: URL(string: "https://changehero.io/exchange-transaction/processing?id=\($0)"))
                 },

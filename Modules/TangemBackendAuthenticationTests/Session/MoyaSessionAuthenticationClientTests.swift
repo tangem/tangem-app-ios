@@ -81,13 +81,7 @@ struct MoyaSessionAuthenticationClientTests {
             responseBody: TokensResponseFixture.valid(accessToken: expectedAccessToken, refreshToken: expectedRefreshToken)
         )
 
-        let sessionTokens = try await sut.authenticate(
-            devicePublicKey: .fake,
-            decryptedNonce: "decrypted-nonce",
-            metadata: .fake,
-            signature: .fake,
-            attestationToken: nil
-        )
+        let sessionTokens = try await sut.authenticate(request: SessionAuthenticationRequest.fake)
 
         #expect(sessionTokens.accessToken.jwt == expectedAccessToken)
         #expect(sessionTokens.refreshToken?.jwt == expectedRefreshToken)
@@ -102,13 +96,7 @@ struct MoyaSessionAuthenticationClientTests {
         )
 
         let error = try await #require(throws: SessionAuthenticationClientError.self) {
-            _ = try await sut.authenticate(
-                devicePublicKey: .fake,
-                decryptedNonce: "decrypted-nonce",
-                metadata: .fake,
-                signature: .fake,
-                attestationToken: nil
-            )
+            _ = try await sut.authenticate(request: SessionAuthenticationRequest.fake)
         }
 
         guard case .authenticateFailed = error else {
@@ -122,13 +110,7 @@ struct MoyaSessionAuthenticationClientTests {
         let sut = try Self.makeSUT(statusCode: authenticationRejectionStatusCode)
 
         let error = try await #require(throws: SessionAuthenticationClientError.self) {
-            _ = try await sut.authenticate(
-                devicePublicKey: .fake,
-                decryptedNonce: "decrypted-nonce",
-                metadata: .fake,
-                signature: .fake,
-                attestationToken: nil
-            )
+            _ = try await sut.authenticate(request: SessionAuthenticationRequest.fake)
         }
 
         guard case .authenticationRejected = error else {
@@ -143,17 +125,26 @@ struct MoyaSessionAuthenticationClientTests {
         let sut = try Self.makeSUT(statusCode: notFoundStatusCode, responseBody: TokensResponseFixture.deviceNotFoundErrorResponse)
 
         let error = try await #require(throws: SessionAuthenticationClientError.self) {
-            _ = try await sut.authenticate(
-                devicePublicKey: .fake,
-                decryptedNonce: "decrypted-nonce",
-                metadata: .fake,
-                signature: .fake,
-                attestationToken: nil
-            )
+            _ = try await sut.authenticate(request: SessionAuthenticationRequest.fake)
         }
 
         guard case .deviceRegistrationMissing = error else {
             Issue.record("Expected .deviceRegistrationMissing, got \(error)")
+            return
+        }
+    }
+
+    @Test
+    func authenticateThrowsAppAttestRejectedFor400WithAppAttestRejectedCode() async throws {
+        let appAttestRejectedError = TangemProblemDetailError(httpStatusCode: 400, message: nil, code: "APPATTEST_REJECTED")
+        let sut = try Self.makeSUT(statusCode: 400, responseBody: appAttestRejectedError.jsonString)
+
+        let error = try await #require(throws: SessionAuthenticationClientError.self) {
+            _ = try await sut.authenticate(request: .fake)
+        }
+
+        guard case .appAttestRejected = error else {
+            Issue.record("Expected .appAttestRejected, got \(error)")
             return
         }
     }
@@ -168,13 +159,7 @@ struct MoyaSessionAuthenticationClientTests {
         let sut = try Self.makeSUT(statusCode: notFoundStatusCode, responseBody: responseBody)
 
         let error = try await #require(throws: SessionAuthenticationClientError.self) {
-            _ = try await sut.authenticate(
-                devicePublicKey: .fake,
-                decryptedNonce: "decrypted-nonce",
-                metadata: .fake,
-                signature: .fake,
-                attestationToken: nil
-            )
+            _ = try await sut.authenticate(request: SessionAuthenticationRequest.fake)
         }
 
         guard case .authenticateFailed = error else {
@@ -188,13 +173,7 @@ struct MoyaSessionAuthenticationClientTests {
         let sut = try Self.makeSUT(statusCode: errorStatusCode)
 
         let error = try await #require(throws: SessionAuthenticationClientError.self) {
-            _ = try await sut.authenticate(
-                devicePublicKey: .fake,
-                decryptedNonce: "decrypted-nonce",
-                metadata: .fake,
-                signature: .fake,
-                attestationToken: nil
-            )
+            _ = try await sut.authenticate(request: SessionAuthenticationRequest.fake)
         }
 
         guard case .authenticateFailed = error else {

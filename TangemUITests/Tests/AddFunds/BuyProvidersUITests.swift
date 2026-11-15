@@ -97,9 +97,9 @@ private extension BuyProvidersUITests {
         }
 
         enum Endpoint {
-            static let mercuryoQuote = "/v1/onramp-quote\\?.*providerId=mercuryo.*"
-            static let simplexQuote = "/v1/onramp-quote\\?.*providerId=simplex.*"
-            static let cardQuote = "/v1/onramp-quote\\?.*paymentMethod=card.*"
+            static let mercuryoQuote = "/v2/onramp-quote\\?.*providerId=mercuryo.*"
+            static let simplexQuote = "/v2/onramp-quote\\?.*providerId=simplex.*"
+            static let cardQuote = "/v2/onramp-quote\\?.*paymentMethod=card.*"
         }
     }
 }

@@ -9,7 +9,7 @@
 import SwiftUI
 
 public enum ThumbnailRingTwoCardsPathBuilder: ThumbnailPathBuilding {
-    public struct FillColors: Equatable, Sendable {
+    public struct FillColors: Hashable, Sendable {
         public let ring: Color
         public let card: Color
         public let secondCard: Color

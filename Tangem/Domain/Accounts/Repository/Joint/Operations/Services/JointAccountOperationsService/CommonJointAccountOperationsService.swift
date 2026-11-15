@@ -42,7 +42,7 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
         }
 
         let chainId = try chainId(of: wallet)
-        let account = try activeAccount(of: wallet)
+        let account = try await activeAccount(of: wallet)
         let safeOperationsService = try safeOperationsService(of: wallet)
 
         try await ensureNetworkIsFree(chainId: chainId, cryptoAccountId: account.cryptoAccountId)
@@ -68,8 +68,9 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
         return try await pendingOperationsRepository.createOperation(request, forCryptoAccountId: account.cryptoAccountId)
     }
 
-    func signOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws {
-        let account = try activeAccount(of: wallet)
+    @discardableResult
+    func signOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws -> JointAccountOperation {
+        let account = try await activeAccount(of: wallet)
         let safeOperationsService = try safeOperationsService(of: wallet)
 
         // Checked anew: nothing binds the Safe on chain to what it was when the operation was created
@@ -81,7 +82,7 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
         let hash = operation.safeTransaction.signHash(chainId: operation.chainId, safeAddress: account.safeAddress)
         let signature = try await sign(hash: hash, walletPublicKey: wallet.publicKey)
 
-        try await pendingOperationsRepository.signOperation(
+        return try await pendingOperationsRepository.signOperation(
             id: operation.id,
             safeTransaction: operation.safeTransaction,
             signature: signature,
@@ -92,7 +93,7 @@ extension CommonJointAccountOperationsService: JointAccountOperationsService {
     /// Neither signed nor given anything to send: cancelling and declining are one and the same call, and which of
     /// the two it is the endpoint works out from the wallet it was made for.
     func rejectOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws {
-        let account = try activeAccount(of: wallet)
+        let account = try await activeAccount(of: wallet)
 
         try await pendingOperationsRepository.rejectOperation(
             id: operation.id,
@@ -137,16 +138,16 @@ private extension CommonJointAccountOperationsService {
         return safeOperationsService
     }
 
-    func activeAccount(of wallet: JointAccountWallet) throws -> ActiveAccount {
+    func activeAccount(of wallet: JointAccountWallet) async throws -> ActiveAccount {
         guard let account = wallet.account else {
             throw JointOperationError.accountUnavailable
         }
 
-        guard case .active(let safeAddress) = account.status else {
+        guard case .active(let safeAddress) = account.jointAccountStatusProvider.status else {
             throw JointOperationError.accountNotActive
         }
 
-        let members = account.jointAccountMembersService.slots.members
+        let members = try await account.jointAccountMembersService.slotsPublisher.async().members
         return ActiveAccount(
             cryptoAccountId: account.id.rawValue.hexString,
             safeAddress: safeAddress,
@@ -177,10 +178,11 @@ private extension CommonJointAccountOperationsService {
     }
 
     func ensureIsNotMalicious(_ operation: JointAccountOperation, in wallet: JointAccountWallet, safeAddress: String, at state: SafeContractState) async throws {
+        let ownerAddress = try wallet.ownAddress()
         let verdict = await blockaidGate.verdict(
             on: operation,
             safeAddress: safeAddress,
-            ownerAddress: wallet.ownAddress,
+            ownerAddress: ownerAddress,
             blockchain: wallet.tokenItem.blockchain
         )
 

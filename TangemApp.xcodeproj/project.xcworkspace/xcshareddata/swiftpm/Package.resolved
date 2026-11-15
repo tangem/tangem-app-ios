@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bitcoindevkit/bdk-swift",
       "state" : {
-        "revision" : "c38d7caa06ec26289cb40b1ea42531aea631c47e",
-        "version" : "2.3.1"
+        "revision" : "55284dc4e767c301c7926c412daad241c0667106",
+        "version" : "3.1.1"
       }
     },
     {
@@ -798,8 +798,8 @@
       "kind" : "remoteSourceControl",
       "location" : "git@github.com:tangem-developments/tangem-sdk-ios.git",
       "state" : {
-        "revision" : "4c0143eca341ccb6f8b8f76d68e0d67cd2b9661b",
-        "version" : "5.3.3"
+        "revision" : "b4bb16def710f66905d162cd018741175f8c7391",
+        "version" : "5.3.4"
       }
     },
     {

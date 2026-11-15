@@ -22,6 +22,7 @@ extension TangemPayTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerPro
             customFeeProvider: .none,
             feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
             supportingOptions: .all,
+            payer: .user,
         )
 
         return CommonTokenFeeProvidersManager(

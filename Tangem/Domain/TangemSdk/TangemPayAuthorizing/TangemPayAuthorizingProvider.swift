@@ -10,4 +10,5 @@ import TangemPay
 
 protocol TangemPayAuthorizingProvider: AnyObject {
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing { get }
+    var tangemPayBankingAccountAddressSigner: TangemPayBankingAccountAddressSigning { get }
 }

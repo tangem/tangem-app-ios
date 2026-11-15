@@ -65,7 +65,7 @@ struct MarketingBannerServiceAmountFilterTests {
     }
 }
 
-@Suite("MarketingBannerService publisher", .tags(.marketingBanners), .serialized)
+@Suite("MarketingBannerService publisher", .tags(.marketingBanners), .serialized, .timeLimit(.minutes(1)))
 final class MarketingBannerServicePublisherTests: LeakTrackingTestSuite {
     private typealias Fixtures = MarketingCampaignsFixtures
 
@@ -399,8 +399,69 @@ final class MarketingBannerServicePublisherTests: LeakTrackingTestSuite {
         }
     }
 
+    @Test("Amount combined with the fiat currency, as on the Buy screen, reaches the bounded campaign filter after the campaigns arrive")
+    func buyScreenAmountReachesFilterAfterCampaignsArrive() async throws {
+        let apiSpy = MarketingCampaignsApiSpy(campaigns: [
+            Fixtures.makeCampaign(id: 1, priority: 1, minAmount: 30000, uiType: .standaloneCTA, buttonText: "Join"),
+            Fixtures.makeCampaign(id: 2, priority: 2, uiType: .standaloneCTA, buttonText: "Join"),
+        ])
+
+        try await withInjectedTangemApiService(apiSpy.fake) {
+            let sut = makeSUT()
+            let requests = CurrentValueSubject<OnrampMarketingBannerRequest?, Never>(onrampRequest)
+            let fiatAmount = CurrentValueSubject<Decimal?, Never>(nil)
+            let amount = Self.makeBuyScreenAmount(
+                fiatAmount: fiatAmount.eraseToAnyPublisher(),
+                currencyCode: CurrentValueSubject<String?, Never>("USD").eraseToAnyPublisher()
+            )
+
+            var shownIds = sut.bannerPublisher(for: requests.eraseToAnyPublisher(), amount: amount)
+                .map { $0.callToAction.map(\.id) }
+                .values
+                .makeAsyncIterator()
+
+            let campaignsShown = try await Self.next(&shownIds, equalTo: [2])
+            #expect(campaignsShown)
+
+            fiatAmount.send(30000)
+
+            let boundedCampaignShown = try await Self.next(&shownIds, equalTo: [1, 2])
+            #expect(boundedCampaignShown)
+        }
+    }
+
+    // MARK: - Helpers
+
     private var onrampRequest: OnrampMarketingBannerRequest {
         OnrampMarketingBannerRequest(destination: sourceTokenItem, fiatCurrencyCode: "EUR")
+    }
+
+    private static func makeBuyScreenAmount(
+        fiatAmount: AnyPublisher<Decimal?, Never>,
+        currencyCode: AnyPublisher<String?, Never>
+    ) -> AnyPublisher<MarketingBannerAmount?, Never> {
+        Publishers.CombineLatest(fiatAmount, currencyCode)
+            .map { value, code -> MarketingBannerAmount? in
+                guard let value, let code else {
+                    return nil
+                }
+
+                return .fiat(value: value, currencyCode: code)
+            }
+            .eraseToAnyPublisher()
+    }
+
+    private static func next<Iterator: AsyncIteratorProtocol>(
+        _ iterator: inout Iterator,
+        equalTo expected: Iterator.Element
+    ) async throws -> Bool where Iterator.Element: Equatable {
+        while let value = try await iterator.next() {
+            if value == expected {
+                return true
+            }
+        }
+
+        return false
     }
 
     private static func quotes(price: Decimal, priceUsd: Decimal) -> (QuotesDTO.Request) throws -> [Quote] {

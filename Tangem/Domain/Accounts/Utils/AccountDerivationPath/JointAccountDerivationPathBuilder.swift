@@ -53,7 +53,7 @@ extension JointAccountDerivationPathBuilder: AccountDerivationPathBuilder {
         }
 
         let accountDerivationNode = try accountDerivationNode(in: derivationPath, forBlockchain: blockchain)
-        let expectedDerivationIndex = UInt32(derivationIndex)
+        let expectedDerivationIndex = try rawDerivationIndex()
 
         guard accountDerivationNode.rawIndex == expectedDerivationIndex else {
             throw .accountDerivationNodeMismatch(expected: expectedDerivationIndex, actual: accountDerivationNode.rawIndex)
@@ -76,7 +76,19 @@ private extension JointAccountDerivationPathBuilder {
             throw .jointAccountsUnavailableForBlockchain(displayName)
         }
 
-        return JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIndex)
+        do {
+            return try JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIndex)
+        } catch {
+            throw .invalidDerivationIndex(derivationIndex)
+        }
+    }
+
+    func rawDerivationIndex() throws(AccountDerivationPathError) -> UInt32 {
+        do {
+            return try AccountDerivationIndex.nodeIndex(derivationIndex)
+        } catch {
+            throw .invalidDerivationIndex(derivationIndex)
+        }
     }
 
     /// - Note: Makes sure the path is a joint one before reading the node: a path of the wallet's own accounts keeps
@@ -94,7 +106,7 @@ private extension JointAccountDerivationPathBuilder {
         }
 
         let accountDerivationNode = derivationPath.nodes[nodeIndex]
-        let expectedPath = JointAccountKeyPath.derivationPath(forAccountAtIndex: Int(accountDerivationNode.rawIndex))
+        let expectedPath = try? JointAccountKeyPath.derivationPath(forAccountAtIndex: Int(accountDerivationNode.rawIndex))
 
         guard derivationPath == expectedPath else {
             throw .notAJointAccountDerivationPath(blockchain.displayName)

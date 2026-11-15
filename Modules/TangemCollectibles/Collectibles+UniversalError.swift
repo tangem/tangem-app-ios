@@ -119,7 +119,6 @@ extension CollectiblesManager.PurchaseError: UniversalError {
     var errorCode: Int {
         switch self {
         case .vaultNotReady: 114008000
-        case .conflictingPurchase: 114008001
         }
     }
 }

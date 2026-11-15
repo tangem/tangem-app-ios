@@ -7,6 +7,7 @@
 //
 
 import TangemFoundation
+import TangemAppDatabase
 @testable import Tangem
 
 /// Serializes tests that swap globals in `InjectedValues`: suites run in parallel, so without a shared
@@ -70,6 +71,15 @@ func withInjectedTangemApiService<T>(
         let previous = InjectedValues[\.tangemApiService]
         InjectedValues[\.tangemApiService] = service
         defer { InjectedValues[\.tangemApiService] = previous }
+        return try await operation()
+    }
+}
+
+func withInjectedInMemoryAppDatabase<T>(operation: () async throws -> T) async rethrows -> T {
+    try await InjectedDependenciesIsolation.shared.run {
+        let previous = InjectedValues[\.appDatabase]
+        InjectedValues[\.appDatabase] = AppDatabase.makeWithInMemoryStorage(migrationHelper: CommonAppDatabaseMigrationHelper())
+        defer { InjectedValues[\.appDatabase] = previous }
         return try await operation()
     }
 }

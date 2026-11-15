@@ -16,13 +16,16 @@ final class CryptoAccountsNetworkMapper {
     weak var externalParametersProvider: UserTokenListExternalParametersProvider?
 
     private let supportedBlockchains: SupportedBlockchainsSet
+    private let isJointAccountsAvailable: Bool
     private let remoteIdentifierBuilder: RemoteIdentifierBuilder
 
     init(
         supportedBlockchains: SupportedBlockchainsSet,
+        isJointAccountsAvailable: Bool,
         remoteIdentifierBuilder: @escaping RemoteIdentifierBuilder
     ) {
         self.supportedBlockchains = supportedBlockchains
+        self.isJointAccountsAvailable = isJointAccountsAvailable
         self.remoteIdentifierBuilder = remoteIdentifierBuilder
     }
 
@@ -401,6 +404,10 @@ final class CryptoAccountsNetworkMapper {
             let accountType = mapAccountType(rawType: archivedAccountDTO.type)
 
             guard accountType != .collectibles else {
+                return nil
+            }
+
+            guard accountType != .joint || isJointAccountsAvailable else {
                 return nil
             }
 

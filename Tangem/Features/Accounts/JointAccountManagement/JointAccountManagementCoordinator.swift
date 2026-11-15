@@ -27,6 +27,13 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
     @Published var aboutSignaturesViewModel: JointAccountAboutSignaturesViewModel?
     @Published var memberDetailsViewModel: JointAccountMemberDetailsViewModel?
+    @Published var shareInviteMemberViewModel: JointAccountShareInviteMemberViewModel?
+    @Published var confirmSharedAddressViewModel: JointAccountConfirmSharedAddressViewModel?
+
+    let supportChatPresenter = SupportChatPresenter()
+
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
 
     private var isCreationWalletFixed = false
 
@@ -40,9 +47,9 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         switch options {
-        case .creation(let creationHelper, let isWalletFixed):
+        case .creation(let creationHelper, let isWalletFixed, let source):
             isCreationWalletFixed = isWalletFixed
-            root = .onboarding(JointAccountOnboardingViewModel(creationHelper: creationHelper, coordinator: self))
+            root = .onboarding(JointAccountOnboardingViewModel(creationHelper: creationHelper, source: source, coordinator: self))
 
         case .members(let jointAccount, let userWalletConfig):
             root = .members(makeMembersViewModel(jointAccount: jointAccount, userWalletConfig: userWalletConfig))
@@ -54,7 +61,7 @@ final class JointAccountManagementCoordinator: CoordinatorObject {
 
 extension JointAccountManagementCoordinator {
     enum Options {
-        case creation(JointAccountCreationHelper, isWalletFixed: Bool)
+        case creation(JointAccountCreationHelper, isWalletFixed: Bool, source: Analytics.JointAccountCreationSource)
         case members(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig)
     }
 }
@@ -193,18 +200,21 @@ extension JointAccountManagementCoordinator: JointAccountMembersRoutable {
         dismiss()
     }
 
+    func closedActivatedAccount() {
+        dismiss()
+    }
+
     func openAboutSignatures(policy: JointAccountPolicy) {
         aboutSignaturesViewModel = JointAccountAboutSignaturesViewModel(policy: policy, coordinator: self)
     }
-}
 
-// MARK: - JointAccountMembersViewSlotRoutable
+    func openShareInviteMember(url: URL, accountName: String) {
+        let inviteActivityItemSource = JointAccountInviteActivityItemSource(accountName: accountName, url: url)
+        shareInviteMemberViewModel = JointAccountShareInviteMemberViewModel(inviteActivityItemSource: inviteActivityItemSource, coordinator: self)
+    }
 
-extension JointAccountManagementCoordinator: JointAccountMembersViewSlotRoutable {
-    func shareInvite(url: URL, accountName: String) {
-        let itemSource = JointAccountInviteActivityItemSource(url: url, accountName: accountName)
-
-        AppPresenter.shared.show(UIActivityViewController(activityItems: [itemSource], applicationActivities: nil))
+    func showInviteIssueError(_ error: Error) {
+        alertPresenter.present(alert: error.alertBinder)
     }
 
     func openMemberDetails(name: String, address: String, accentColor: Color) {
@@ -214,6 +224,72 @@ extension JointAccountManagementCoordinator: JointAccountMembersViewSlotRoutable
             accentColor: accentColor,
             coordinator: self
         )
+    }
+
+    func openConfirmSharedAddress(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) {
+        guard case .confirming(.some(let safeAddress)) = jointAccount.jointAccountStatusProvider.status else {
+            return
+        }
+
+        let signingActionButtonType = SigningActionButtonViewTypeBuilder().build(config: userWalletConfig)
+        confirmSharedAddressViewModel = JointAccountConfirmSharedAddressViewModel(
+            address: safeAddress,
+            jointAccount: jointAccount,
+            signingActionButtonType: signingActionButtonType,
+            coordinator: self
+        )
+    }
+}
+
+// MARK: - JointAccountConfirmSharedAddressRoutable
+
+extension JointAccountManagementCoordinator: JointAccountConfirmSharedAddressRoutable {
+    func shareSharedAddress(_ address: String) {
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [address], applicationActivities: nil))
+    }
+
+    func openSharedAddressMismatch() {
+        Task { @MainActor [weak self] in
+            guard let self else {
+                return
+            }
+
+            openSupportTypeSelection(
+                emailAction: { [weak self] in self?.openSharedAddressMismatchMail() },
+                chatInput: SupportChatInputFactory().makeInput(source: .settings)
+            )
+        }
+    }
+
+    func didConfirmSharedAddress() {
+        confirmSharedAddressViewModel = nil
+    }
+}
+
+private extension JointAccountManagementCoordinator {
+    func openSharedAddressMismatchMail() {
+        let logsComposer = LogsComposer(infoProvider: BaseDataCollector())
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.default.recipient,
+            emailType: .appFeedback(subject: EmailConfig.default.subject)
+        )
+
+        Task { @MainActor in
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+}
+
+// MARK: - SupportChatPresenting
+
+extension JointAccountManagementCoordinator: SupportChatPresenting {}
+
+// MARK: - JointAccountShareInviteMemberRoutable
+
+extension JointAccountManagementCoordinator: JointAccountShareInviteMemberRoutable {
+    func shareInvite(item: JointAccountInviteActivityItemSource) {
+        AppPresenter.shared.show(UIActivityViewController(activityItems: [item], applicationActivities: nil))
     }
 }
 
@@ -230,9 +306,8 @@ extension JointAccountManagementCoordinator: JointAccountMemberDetailsRoutable {
 private extension JointAccountManagementCoordinator {
     func makeMembersViewModel(jointAccount: any JointAccountModel, userWalletConfig: UserWalletConfig) -> JointAccountMembersViewModel {
         JointAccountMembersViewModel(
-            jointAccount: jointAccount,
-            contentProvider: CommonJointAccountMembersViewModelContentProvider(jointAccount: jointAccount, routable: self),
             userWalletConfig: userWalletConfig,
+            jointAccount: jointAccount,
             coordinator: self
         )
     }

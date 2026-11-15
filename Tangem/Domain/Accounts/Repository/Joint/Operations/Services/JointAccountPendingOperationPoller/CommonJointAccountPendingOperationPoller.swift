@@ -122,7 +122,7 @@ extension CommonJointAccountPendingOperationPoller {
         let regular: Duration
         let frequent: Duration
 
-        static let `default` = Intervals(regular: .seconds(30), frequent: .seconds(2))
+        static let `default` = Intervals(regular: .seconds(30), frequent: .seconds(5))
     }
 }
 

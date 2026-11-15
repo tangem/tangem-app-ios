@@ -86,7 +86,7 @@ private extension PolymarketBalanceDisplay {
     }
 
     func makeState(from formatted: FormattedTokenBalanceType) -> LoadableBalanceView.State {
-        AttributedBalanceFormatter.decimalColored(
+        AttributedBalanceFormatter.splitFonts(
             stateBuilder.build(type: Self.steady(formatted), icon: .leading),
             integerPart: .init(
                 token: DesignSystem.Font.displayMediumToken,

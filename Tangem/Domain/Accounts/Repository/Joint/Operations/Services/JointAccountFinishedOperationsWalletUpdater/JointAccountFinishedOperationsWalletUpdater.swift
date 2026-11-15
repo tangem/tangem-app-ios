@@ -14,14 +14,17 @@ import TangemFoundation
 final class JointAccountFinishedOperationsWalletUpdater {
     private let pendingOperationsProvider: any JointAccountPendingOperationsProvider
     private let walletModelsManager: WalletModelsManager
+    private let historyDeltaSyncing: JointOperationsHistoryDeltaSyncing
     private var subscription: AnyCancellable?
 
     init(
         pendingOperationsProvider: any JointAccountPendingOperationsProvider,
-        walletModelsManager: WalletModelsManager
+        walletModelsManager: WalletModelsManager,
+        historyDeltaSyncing: JointOperationsHistoryDeltaSyncing
     ) {
         self.pendingOperationsProvider = pendingOperationsProvider
         self.walletModelsManager = walletModelsManager
+        self.historyDeltaSyncing = historyDeltaSyncing
 
         bind()
     }
@@ -36,7 +39,18 @@ final class JointAccountFinishedOperationsWalletUpdater {
             .withWeakCaptureOf(self)
             .sink { updater, networks in
                 updater.updateWallets(in: networks)
+                updater.syncHistoryDelta()
             }
+    }
+
+    func dispose() {
+        subscription = nil
+    }
+
+    private func syncHistoryDelta() {
+        runTask { [historyDeltaSyncing] in
+            await historyDeltaSyncing.syncDelta()
+        }
     }
 
     private func updateWallets(in networks: Set<BlockchainNetwork>) {
@@ -50,8 +64,8 @@ final class JointAccountFinishedOperationsWalletUpdater {
     ) -> [String: BlockchainNetwork] {
         Dictionary(
             pendingOperations
-                .filter(\.operation.status.isInFlight)
-                .map { ($0.operation.id, $0.tokenItem.blockchainNetwork) },
+                .filter(\.status.isInFlight)
+                .map { ($0.id, $0.tokenItem.blockchainNetwork) },
             uniquingKeysWith: { _, last in last }
         )
     }

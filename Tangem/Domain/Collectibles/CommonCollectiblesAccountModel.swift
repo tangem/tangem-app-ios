@@ -8,6 +8,7 @@
 
 import Combine
 import TangemCollectibles
+import TangemFoundation
 
 /// Presents the manager as an account of the wallet: the manager owns the vault state, this hands it the account
 /// identity, name and the balance the app displays, none of which the module knows about.
@@ -17,18 +18,24 @@ final class CommonCollectiblesAccountModel {
     private let manager: CollectiblesManager
     private let balanceService: any CollectiblesBalanceService
     private let buybackSigningLimits: any CollectiblesBuybackSigningLimits
+    private let coldOwnerNetwork: BlockchainNetwork
+    private let keysPublisher: AnyPublisher<[KeyInfo], Never>
     private let nameSubject: CurrentValueSubject<String, Never>
 
     init(
         manager: CollectiblesManager,
         name: String,
         balanceService: any CollectiblesBalanceService,
-        buybackSigningLimits: any CollectiblesBuybackSigningLimits
+        buybackSigningLimits: any CollectiblesBuybackSigningLimits,
+        coldOwnerNetwork: BlockchainNetwork,
+        keysPublisher: AnyPublisher<[KeyInfo], Never>
     ) {
         id = CollectiblesAccountId(userWalletId: manager.userWalletId)
         self.manager = manager
         self.balanceService = balanceService
         self.buybackSigningLimits = buybackSigningLimits
+        self.coldOwnerNetwork = coldOwnerNetwork
+        self.keysPublisher = keysPublisher
         nameSubject = CurrentValueSubject(name)
     }
 
@@ -67,6 +74,14 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         manager.isSyncRequiredPublisher
     }
 
+    var pendingDerivationNetworksPublisher: AnyPublisher<[BlockchainNetwork], Never> {
+        Self.pendingDerivationNetworks(
+            network: coldOwnerNetwork,
+            isSyncRequiredPublisher: manager.isSyncRequiredPublisher.receiveOnMain().eraseToAnyPublisher(),
+            keysPublisher: keysPublisher.receiveOnMain().eraseToAnyPublisher()
+        )
+    }
+
     var fiatTotalTokenBalanceProvider: TokenBalanceProvider {
         balanceService.fiatTotalTokenBalanceProvider
     }
@@ -97,7 +112,8 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
                 signer: manager,
                 sentReporter: provider,
                 statusProvider: provider,
-                opener: provider
+                opener: provider,
+                pendingPurchaseProvider: provider
             )
         }
         interactor.update(signer: manager)
@@ -130,12 +146,20 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
         await manager.refreshState()
     }
 
+    func refreshStateSilently() async {
+        await manager.refreshStateSilently()
+    }
+
     func awaitDeposit() async {
         await manager.awaitDeposit()
     }
 
     func onboard() async throws {
         try await manager.onboard()
+    }
+
+    func relink() async throws -> CollectiblesRelinkOutcome {
+        try await manager.relink()
     }
 }
 
@@ -144,6 +168,25 @@ extension CommonCollectiblesAccountModel: CollectiblesAccountModel {
 extension CommonCollectiblesAccountModel {
     func resolve<R>(using resolver: R) -> R.Result where R: AccountModelResolving {
         resolver.resolve(accountModel: self)
+    }
+}
+
+// MARK: - Pending derivation networks
+
+extension CommonCollectiblesAccountModel {
+    static func pendingDerivationNetworks(
+        network: BlockchainNetwork,
+        isSyncRequiredPublisher: AnyPublisher<Bool, Never>,
+        keysPublisher: AnyPublisher<[KeyInfo], Never>
+    ) -> AnyPublisher<[BlockchainNetwork], Never> {
+        isSyncRequiredPublisher
+            .combineLatest(keysPublisher)
+            .map { isSyncRequired, keys in
+                let pendingDerivations = PendingDerivationHelper.pendingDerivations(network: network, keys: keys)
+                return isSyncRequired && pendingDerivations.isNotEmpty ? [network] : []
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 }
 

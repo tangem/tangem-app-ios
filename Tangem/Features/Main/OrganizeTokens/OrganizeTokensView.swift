@@ -20,9 +20,7 @@ struct OrganizeTokensView: View {
 
     @ObservedObject private var viewModel: OrganizeTokensViewModel
 
-    private let onCloseTap: (() -> Void)?
-
-    @Environment(\.isAddAndOrganizeRedesignEnabled) private var isRedesign
+    private let onCloseTap: () -> Void
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -83,24 +81,11 @@ struct OrganizeTokensView: View {
     // MARK: - Colors
 
     private var backgroundColor: Color {
-        if isRedesign {
-            return DesignSystem.Color.bgPrimary
-        }
-        return .clear
+        DesignSystem.Color.bgPrimary
     }
 
     private var cellBackgroundColor: Color {
         DesignSystem.Color.bgSecondary
-    }
-
-    // MARK: - Layout (redesign-aware)
-
-    private var contentCornerRadius: CGFloat {
-        isRedesign ? Constants.redesignContentCornerRadius : Constants.contentCornerRadius
-    }
-
-    private var contentHorizontalInset: CGFloat {
-        isRedesign ? Constants.redesignContentHorizontalInset : Constants.contentHorizontalInset
     }
 
     // MARK: - Body
@@ -114,23 +99,12 @@ struct OrganizeTokensView: View {
             tokenListFooter
         }
         .background(backgroundColor.ignoresSafeArea())
-        .toolbar { redesignedToolbarContent }
         .onWillAppear {
             dragAndDropController.dataSource = viewModel
             viewModel.onViewWillAppear()
         }
         .onAppear {
             scrollState.onViewAppear()
-        }
-    }
-
-    @ToolbarContentBuilder
-    private var redesignedToolbarContent: some ToolbarContent {
-        // Standalone-sheet path (no custom `BottomSheetHeaderView`): host the sort menu in the native nav bar.
-        if isRedesign, onCloseTap == nil, let headerViewModel = viewModel.headerViewModel {
-            ToolbarItem(placement: .topBarTrailing) {
-                OrganizeTokensSortMenuView(viewModel: headerViewModel, appliesGlassBackground: false)
-            }
         }
     }
 
@@ -173,7 +147,7 @@ struct OrganizeTokensView: View {
     private var tokenListContent: some View {
         let parametersProvider = OrganizeTokensListCornerRadiusParametersProvider(
             sections: viewModel.sections,
-            cornerRadius: contentCornerRadius
+            cornerRadius: Constants.contentCornerRadius
         )
 
         return ForEach(indexed: viewModel.sections) { outerSectionIndex, outerSectionViewModel in
@@ -255,7 +229,6 @@ struct OrganizeTokensView: View {
     private var topContent: some View {
         VStack(spacing: 0) {
             tokenListTitle
-            tokenListHeader
         }
         // Full width so the `.bar` band paints behind the system nav-bar title when `topContent` is otherwise empty.
         .frame(maxWidth: .infinity)
@@ -265,59 +238,32 @@ struct OrganizeTokensView: View {
         .infinityFrame(alignment: .top)
     }
 
-    @ViewBuilder
     private var tokenListTitle: some View {
-        if let onCloseTap {
-            BottomSheetHeaderView(
-                title: Localization.organizeTokensTitle,
-                titleAccessibilityIdentifier: OrganizeTokensAccessibilityIdentifiers.organizeTokensTitle,
-                trailing: { headerTrailing(onCloseTap: onCloseTap) }
-            )
-            .padding(.top, 4)
-            .padding(.horizontal, contentHorizontalInset)
-        }
+        BottomSheetHeaderView(
+            title: Localization.organizeTokensTitle,
+            titleAccessibilityIdentifier: OrganizeTokensAccessibilityIdentifiers.organizeTokensTitle,
+            trailing: { headerTrailing }
+        )
+        .padding(.top, 4)
+        .padding(.horizontal, Constants.contentHorizontalInset)
     }
 
     @ViewBuilder
-    private func headerTrailing(onCloseTap: @escaping () -> Void) -> some View {
-        if isRedesign, let headerViewModel = viewModel.headerViewModel {
+    private var headerTrailing: some View {
+        if let headerViewModel = viewModel.headerViewModel {
             OrganizeTokensSortMenuView(viewModel: headerViewModel, appliesGlassBackground: true)
         } else {
             NavigationBarButton.close(action: onCloseTap)
         }
     }
 
-    @ViewBuilder
-    private var tokenListHeader: some View {
-        // [REDACTED_INFO]: legacy inline sort/group header — hidden under `.redesign` because controls moved into the navbar dropdown
-        if !isRedesign, let headerViewModel = viewModel.headerViewModel {
-            OrganizeTokensListHeader(
-                viewModel: headerViewModel,
-                horizontalInset: contentHorizontalInset,
-                bottomInset: Constants.headerBottomInset
-            )
-        }
-    }
-
     private var tokenListFooter: some View {
-        Group {
-            if isRedesign {
-                OrganizeTokensListFooterRedesigned(
-                    actionsHandler: viewModel,
-                    isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
-                    contentInsets: footerContentInsets
-                )
-                .animation(.easeInOut(duration: 0.25), value: scrollState.isTokenListFooterGradientHidden)
-            } else {
-                OrganizeTokensListFooter(
-                    actionsHandler: viewModel,
-                    isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
-                    cornerRadius: contentCornerRadius,
-                    contentInsets: footerContentInsets
-                )
-                .animation(.linear(duration: 0.1), value: scrollState.isTokenListFooterGradientHidden)
-            }
-        }
+        OrganizeTokensListFooterRedesigned(
+            actionsHandler: viewModel,
+            isTokenListFooterGradientHidden: scrollState.isTokenListFooterGradientHidden,
+            contentInsets: footerContentInsets
+        )
+        .animation(.easeInOut(duration: 0.25), value: scrollState.isTokenListFooterGradientHidden)
         .readGeometry(inCoordinateSpace: .global) { geometryInfo in
             scrollState.tokenListFooterFrameMinYSubject.send(geometryInfo.frame.minY + Constants.contentVerticalInset)
             $scrollViewBottomContentInset.wrappedValue = geometryInfo.size.height
@@ -328,15 +274,15 @@ struct OrganizeTokensView: View {
     private var footerContentInsets: EdgeInsets {
         EdgeInsets(
             top: Constants.contentVerticalInset,
-            leading: contentHorizontalInset,
+            leading: Constants.contentHorizontalInset,
             bottom: 0.0,
-            trailing: contentHorizontalInset
+            trailing: Constants.contentHorizontalInset
         )
     }
 
     init(
         viewModel: OrganizeTokensViewModel,
-        onCloseTap: (() -> Void)? = nil
+        onCloseTap: @escaping () -> Void
     ) {
         self.viewModel = viewModel
         self.onCloseTap = onCloseTap
@@ -425,26 +371,20 @@ struct OrganizeTokensView: View {
         atIndexPath indexPath: OrganizeTokensIndexPath,
         parametersProvider: OrganizeTokensListCornerRadiusParametersProvider
     ) -> some View {
-        Group {
-            if isRedesign {
-                OrganizeTokensListItemViewRedesigned(viewModel: viewModel)
-            } else {
-                OrganizeTokensListItemView(viewModel: viewModel)
-            }
-        }
-        .accessibilityIdentifier(
-            OrganizeTokensAccessibilityIdentifiers.tokenAtPosition(
-                name: viewModel.name,
-                outerSection: indexPath.outerSection,
-                innerSection: indexPath.innerSection,
-                item: indexPath.item
+        OrganizeTokensListItemViewRedesigned(viewModel: viewModel)
+            .accessibilityIdentifier(
+                OrganizeTokensAccessibilityIdentifiers.tokenAtPosition(
+                    name: viewModel.name,
+                    outerSection: indexPath.outerSection,
+                    innerSection: indexPath.innerSection,
+                    item: indexPath.item
+                )
             )
-        )
-        .background(cellBackgroundColor)
-        .cornerRadius(
-            parametersProvider.cornerRadius(forItemAt: indexPath),
-            corners: parametersProvider.rectCorners(forItemAt: indexPath)
-        )
+            .background(cellBackgroundColor)
+            .cornerRadius(
+                parametersProvider.cornerRadius(forItemAt: indexPath),
+                corners: parametersProvider.rectCorners(forItemAt: indexPath)
+            )
     }
 
     @ViewBuilder
@@ -470,13 +410,8 @@ struct OrganizeTokensView: View {
         )
     }
 
-    @ViewBuilder
     private func makeInnerSectionView(title: String, identifier: AnyHashable, isDraggable: Bool) -> some View {
-        if isRedesign {
-            OrganizeTokensListInnerSectionViewRedesigned(title: title, identifier: identifier, isDraggable: isDraggable)
-        } else {
-            OrganizeTokensListInnerSectionView(title: title, identifier: identifier, isDraggable: isDraggable)
-        }
+        OrganizeTokensListInnerSectionViewRedesigned(title: title, identifier: identifier, isDraggable: isDraggable)
     }
 
     @ViewBuilder
@@ -490,21 +425,12 @@ struct OrganizeTokensView: View {
             case .invisible:
                 EmptyView()
             case .default(let title, let iconData):
-                if isRedesign {
-                    OrganizeTokensListOuterSectionViewRedesigned(
-                        title: title,
-                        iconData: iconData,
-                        outerSectionIndex: sectionIndex,
-                        accountId: section.model.id
-                    )
-                } else {
-                    OrganizeTokensListOuterSectionView(
-                        title: title,
-                        iconData: iconData,
-                        outerSectionIndex: sectionIndex,
-                        accountId: section.model.id
-                    )
-                }
+                OrganizeTokensListOuterSectionViewRedesigned(
+                    title: title,
+                    iconData: iconData,
+                    outerSectionIndex: sectionIndex,
+                    accountId: section.model.id
+                )
             }
         }
         .background(cellBackgroundColor)
@@ -713,14 +639,12 @@ private extension AnyTransition {
 
 private extension OrganizeTokensView {
     enum Constants {
-        static let contentCornerRadius = 14.0
-        static let redesignContentCornerRadius: CGFloat = 24
+        static let contentCornerRadius: CGFloat = 24
         static let interSectionSpacing = 8.0
         static let headerBottomInset = 10.0
         static var headerAdditionalBottomInset: CGFloat { contentVerticalInset - headerBottomInset }
         static let contentVerticalInset = 14.0
-        static let contentHorizontalInset = 16.0
-        static let redesignContentHorizontalInset: CGFloat = 12
+        static let contentHorizontalInset: CGFloat = 12
         static let dragAndDropGestureDuration = 0.15
         static let dragAndDropGestureAllowableMovement = 5.0
         static let dragLiftAnimationDuration = 0.2
@@ -764,7 +688,7 @@ private extension OrganizeTokensView {
                 tokenListContent
             }
             .animation(.spring(), value: viewModel.sections)
-            .padding(.horizontal, contentHorizontalInset)
+            .padding(.horizontal, Constants.contentHorizontalInset)
             .coordinateSpace(name: CoordinateSpaceName.ScrollView.content)
             .readGeometry(
                 \.frame.maxY,
@@ -807,7 +731,7 @@ private extension OrganizeTokensView {
     }
 
     var tokenListDraggableOverlay: some View {
-        makeDraggableComponent(width: max(0, tokenListWidth - contentHorizontalInset * 2.0))
+        makeDraggableComponent(width: max(0, tokenListWidth - Constants.contentHorizontalInset * 2.0))
             .animation(.linear(duration: Constants.dragLiftAnimationDuration), value: hasActiveDrag)
     }
 }

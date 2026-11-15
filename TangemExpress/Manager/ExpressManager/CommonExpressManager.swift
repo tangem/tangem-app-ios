@@ -189,8 +189,7 @@ extension CommonExpressManager: ExpressManager {
     func update(prefersDEX: Bool) {
         _prefersDEX = prefersDEX
 
-        guard featureFlags.isSwapBestRateDefaultProviderEnabled,
-              prefersDEX,
+        guard prefersDEX,
               case .swap(.some(let selected), let providers) = currentState,
               !selected.provider.type.isDEX else {
             return
@@ -334,8 +333,7 @@ private extension CommonExpressManager {
             return preferred
         }
 
-        let prefersDEX = _prefersDEX || !featureFlags.isSwapBestRateDefaultProviderEnabled
-        return prefersDEX ? providers.bestPreferringDEX() : providers.best()
+        return _prefersDEX ? providers.bestPreferringDEX() : providers.best()
     }
 
     func preferredRate(

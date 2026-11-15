@@ -24,14 +24,7 @@ struct CommonTransactionHistoryRecordsWriter {
         }
 
         try await appDatabase.databaseHandle.write { database in
-            for transactionRecord in transactionRecords {
-                try transactionRecord.upsert(database)
-            }
-
-            for indexRecord in indexRecords {
-                // No upsert needed for index records, just do not insert if the index record already exists
-                try indexRecord.insert(database, onConflict: .ignore)
-            }
+            try database.saveTransactionHistory(transactionRecords: transactionRecords, indexRecords: indexRecords)
         }
     }
 }
@@ -59,5 +52,36 @@ extension CommonTransactionHistoryRecordsWriter: TransactionHistoryRecordsWriter
         }
 
         try await save(transactionRecords: transactionRecords, indexRecords: indexRecords)
+    }
+
+    func save(_ items: [JointOperationHistoryItem]) async throws {
+        let operationRecords = items.map(TransactionHistoryRecordsMapper.mapToJointOperationRecord)
+        let indexRecords = items.compactMap(TransactionHistoryRecordsMapper.mapToTransactionHistoryIndexRecord)
+
+        try await save(transactionRecords: operationRecords, indexRecords: indexRecords)
+    }
+
+    func write(_ resolver: some TransactionHistoryRecordsWriteResolver) async throws {
+        try await appDatabase.databaseHandle.write { database in
+            try resolver.write(in: database)
+        }
+    }
+}
+
+// MARK: - Database+
+
+extension Database {
+    func saveTransactionHistory(
+        transactionRecords: [some PersistableRecord],
+        indexRecords: [some PersistableRecord]
+    ) throws {
+        for transactionRecord in transactionRecords {
+            try transactionRecord.upsert(self)
+        }
+
+        for indexRecord in indexRecords {
+            // No upsert needed for index records, just do not insert if the index record already exists
+            try indexRecord.insert(self, onConflict: .ignore)
+        }
     }
 }

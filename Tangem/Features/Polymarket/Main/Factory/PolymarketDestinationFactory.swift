@@ -88,6 +88,29 @@ final class PolymarketDestinationFactory {
         return coordinator
     }
 
+    func makeCategory(
+        category: PolymarketCategory,
+        onRegionWarning: @escaping () -> Void,
+        onClose: @escaping Action<Void>
+    ) -> PolymarketCategoryCoordinator {
+        let coordinator = PolymarketCategoryCoordinator(dismissAction: onClose)
+        let dependencies = dependencies
+        let refreshCenter = PolymarketMainRefreshCenter()
+
+        coordinator.start(with: .init(
+            category: category,
+            refreshCenter: refreshCenter,
+            makeEventsViewModel: { routable in
+                dependencies.makeCategoryEventsViewModel(category: category, refreshCenter: refreshCenter, routable: routable)
+            },
+            onRegionWarning: onRegionWarning,
+            orderBuilder: self,
+            eventBuilder: self
+        ))
+
+        return coordinator
+    }
+
     func makeMyPositions(
         tab: PolymarketPositionsTab,
         onOrderPlaced: @escaping @MainActor (PolymarketOrderIndexing) -> Void,

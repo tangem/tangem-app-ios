@@ -14,7 +14,7 @@ enum MobileSocialLoginSource {
 
     var analyticsParameterValue: Analytics.ParameterValue {
         switch self {
-        case .createWallet: .create
+        case .createWallet: .createWallet
         case .importWallet: .importWallet
         }
     }

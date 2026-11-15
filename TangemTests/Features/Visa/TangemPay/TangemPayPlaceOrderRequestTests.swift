@@ -193,4 +193,60 @@ struct TangemPayPlaceOrderRequestTests {
         #expect(data["emboss_name"] as? String == "JOHN DOE")
         #expect(data["shipping_address"] != nil)
     }
+
+    @Test("Onboarding order with both products carries the plan and the account blocks and no specification_name")
+    func onboardingOrder_bothProducts_encodesBothBlocks() throws {
+        let json = try encodeToDictionary(
+            .init(
+                customerWalletAddress: "0xWALLET",
+                tariffPlanTransition: .init(targetTariffPlanId: "plan-plus", tariffPlanTransitionType: "ACTIVATION"),
+                accountIssueBanking: .init(depositAddress: "0xdeposit", signature: "abc123")
+            )
+        )
+
+        #expect(Set(json.keys) == ["data"])
+
+        let data = try #require(json["data"] as? [String: Any])
+        #expect(data["type"] as? String == "ONBOARDING_RAIN")
+        #expect(data["customer_wallet_address"] as? String == "0xWALLET")
+        #expect(Set(data.keys) == ["type", "customer_wallet_address", "tariff_plan_transition", "account_issue_banking"])
+
+        let plan = try #require(data["tariff_plan_transition"] as? [String: Any])
+        #expect(plan["target_tariff_plan_id"] as? String == "plan-plus")
+        #expect(plan["tariff_plan_transition_type"] as? String == "ACTIVATION")
+        #expect(Set(plan.keys) == ["target_tariff_plan_id", "tariff_plan_transition_type"])
+
+        let account = try #require(data["account_issue_banking"] as? [String: Any])
+        #expect(account["deposit_address"] as? String == "0xdeposit")
+        #expect(account["signature"] as? String == "abc123")
+        #expect(Set(account.keys) == ["deposit_address", "signature"])
+    }
+
+    @Test("Onboarding order for the card only omits the account block")
+    func onboardingOrder_cardOnly_omitsAccountBlock() throws {
+        let json = try encodeToDictionary(
+            .init(
+                customerWalletAddress: "0xWALLET",
+                tariffPlanTransition: .init(targetTariffPlanId: "plan-basic", tariffPlanTransitionType: "ACTIVATION"),
+                accountIssueBanking: nil
+            )
+        )
+
+        let data = try #require(json["data"] as? [String: Any])
+        #expect(Set(data.keys) == ["type", "customer_wallet_address", "tariff_plan_transition"])
+    }
+
+    @Test("Onboarding order for the account only omits the plan block")
+    func onboardingOrder_accountOnly_omitsPlanBlock() throws {
+        let json = try encodeToDictionary(
+            .init(
+                customerWalletAddress: "0xWALLET",
+                tariffPlanTransition: nil,
+                accountIssueBanking: .init(depositAddress: "0xdeposit", signature: "abc123")
+            )
+        )
+
+        let data = try #require(json["data"] as? [String: Any])
+        #expect(Set(data.keys) == ["type", "customer_wallet_address", "account_issue_banking"])
+    }
 }

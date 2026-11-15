@@ -19,6 +19,10 @@ final class JointAccountsPendingOperationsPersistentStorageStub: JointAccountsPe
         recordsLock.withLock { $0 }
     }
 
+    var recordsReader: @Sendable () -> [StoredJointAccountPendingOperations] {
+        { [recordsLock] in recordsLock.withLock { $0 } }
+    }
+
     var didUpdatePublisher: AnyPublisher<Void, Never> {
         didUpdateSubject.eraseToAnyPublisher()
     }

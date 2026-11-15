@@ -92,7 +92,11 @@ private extension JointAccountMemberNameViewModel {
             try await helper.submit(name: name.trimmed())
         } catch .unknownError(let underlying) where underlying.isCancellationError {
             // The user backed out; the flow stays where it is, with nothing to report
+        } catch .tooManyAccounts {
+            Analytics.logJointAccountAccountsLimitReached(flow: helper.analyticsFlow)
+            alert = AccountEditErrorAlertBuilder.makeAlert(for: .tooManyAccounts)
         } catch {
+            Analytics.logJointAccountError(source: Analytics.JointAccountErrorSource(flow: helper.analyticsFlow), error: error)
             alert = AccountEditErrorAlertBuilder.makeAlert(for: error)
         }
     }

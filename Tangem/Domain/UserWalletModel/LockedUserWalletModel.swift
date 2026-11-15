@@ -113,6 +113,10 @@ final class LockedUserWalletModel: UserWalletModel {
         DummyTangemPayAuthorizer()
     }
 
+    var tangemPayBankingAccountAddressSigner: TangemPayBankingAccountAddressSigning {
+        DummyTangemPayBankingAccountAddressSigner()
+    }
+
     var jointAccountDerivationInteractor: JointAccountDerivationInteractor {
         UnavailableJointAccountDerivationInteractor()
     }
@@ -315,6 +319,12 @@ private extension LockedUserWalletModel {
             authorizationService: TangemPay.TangemPayAuthorizationService
         ) async throws(TangemPayAuthorizationError) -> TangemPayAuthorizingResponse {
             throw TangemPayAuthorizationError(underlyingError: "Locked wallet does not support Tangem Pay authorization", derivationResult: [:])
+        }
+    }
+
+    final class DummyTangemPayBankingAccountAddressSigner: TangemPayBankingAccountAddressSigning {
+        func signDepositAddress() async throws(TangemPayBankingAccountSigningError) -> TangemPayBankingAccountSigningResponse {
+            throw TangemPayBankingAccountSigningError(underlyingError: "Locked wallet does not support Tangem Pay signing", derivationResult: [:])
         }
     }
 }

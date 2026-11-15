@@ -32,8 +32,28 @@ struct YieldModePromoContent: Equatable {
         )
     }
 
+    func sheetData(for experimentVariant: String?) -> YieldModePromoSheetData? {
+        switch experimentVariant.flatMap(ExperimentArm.init(rawValue:)) {
+        case .userMaxApy:
+            candidateData
+        case .globalMaxApy:
+            topData
+        case nil:
+            nil
+        }
+    }
+
     private static func shownApy(_ apy: Decimal) -> Decimal {
         apy.rounded(scale: Constants.apyFractionScale, roundingMode: .plain)
+    }
+}
+
+// MARK: - Experiment arms
+
+private extension YieldModePromoContent {
+    enum ExperimentArm: String {
+        case userMaxApy = "user_max_apy"
+        case globalMaxApy = "global_max_apy"
     }
 }
 

@@ -87,11 +87,19 @@ extension AccountsFeedRouter: AddAccountTypeSelectorRoutable {
     }
 
     func openJointAccountManagement() {
+        Analytics.log(event: .jointAccountButtonCreateJointAccount, params: [.source: Analytics.JointAccountCreationSource.mainScreen.rawValue])
+
         Task { @MainActor [self] in
             let wallets = UserWalletModelsProvider.accountCreationCandidates(for: .joint)
 
-            guard let navigation, navigation.presented == nil, validateAccountLimit(in: wallets),
-                  let wallet = UserWalletModelsProvider.default(from: wallets) else { return }
+            guard let navigation, navigation.presented == nil else { return }
+
+            guard validateAccountLimit(in: wallets) else {
+                Analytics.logJointAccountAccountsLimitReached(flow: .create)
+                return
+            }
+
+            guard let wallet = UserWalletModelsProvider.default(from: wallets) else { return }
 
             widgetSheetPresenter.dismissSelector { [weak self] in
                 guard let self else { return }
@@ -105,7 +113,11 @@ extension AccountsFeedRouter: AddAccountTypeSelectorRoutable {
                     },
                     popToRootAction: popToRootAction
                 )
-                coordinator.start(with: .creation(JointAccountCreationHelper(userWalletModel: wallet), isWalletFixed: false))
+                coordinator.start(with: .creation(
+                    JointAccountCreationHelper(userWalletModel: wallet),
+                    isWalletFixed: false,
+                    source: .mainScreen
+                ))
                 navigation.present(.jointAccount(coordinator))
             }
         }

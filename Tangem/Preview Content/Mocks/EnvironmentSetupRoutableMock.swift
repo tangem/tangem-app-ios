@@ -15,4 +15,5 @@ final class EnvironmentSetupRoutableMock: EnvironmentSetupRoutable {
     func openStoriesV2Demo() {}
     func openSparrowSurveyClassicDemo(withToken: String) {}
     func openSilentPushTester() {}
+    func openBackendAuthentication() {}
 }

@@ -13,37 +13,38 @@ import TangemFoundation
 /// - Note: Everything a joint account shares with the wallet's own accounts is delegated to the crypto account it is
 /// built on, so the two kinds cannot drift apart as that one gains behaviour.
 final class CommonJointAccountModel {
-    private var accountStatus: JointAccountStatus {
-        didSet { didChangeSubject.send() }
-    }
-
     private let derivationIdentity: CryptoAccountDerivationIdentity
     private let accountPolicy: JointAccountPolicy
     private let cryptoAccount: any CryptoAccountModel
+    private let statusProvider: any JointAccountStatusProvider
     private let operationsService: any JointAccountOperationsService
     private let pendingOperationsProvider: any JointAccountPendingOperationsProvider
     private let membersService: any JointAccountMembersService
+    private let finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater
+    private let userRoleService: any JointAccountUserRoleService
     private weak var delegate: (any JointAccountModelDelegate)?
-
-    private let didChangeSubject = PassthroughSubject<Void, Never>()
 
     init(
         cryptoAccount: any CryptoAccountModel,
         derivationIdentity: CryptoAccountDerivationIdentity,
         accountPolicy: JointAccountPolicy,
-        accountStatus: JointAccountStatus,
+        statusProvider: any JointAccountStatusProvider,
         operationsService: any JointAccountOperationsService,
         pendingOperationsProvider: any JointAccountPendingOperationsProvider,
         membersService: any JointAccountMembersService,
+        finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater,
+        userRoleService: any JointAccountUserRoleService,
         delegate: any JointAccountModelDelegate
     ) {
         self.cryptoAccount = cryptoAccount
         self.derivationIdentity = derivationIdentity
         self.accountPolicy = accountPolicy
-        self.accountStatus = accountStatus
+        self.statusProvider = statusProvider
         self.operationsService = operationsService
         self.pendingOperationsProvider = pendingOperationsProvider
         self.membersService = membersService
+        self.finishedOperationsWalletUpdater = finishedOperationsWalletUpdater
+        self.userRoleService = userRoleService
         self.delegate = delegate
     }
 }
@@ -52,17 +53,13 @@ final class CommonJointAccountModel {
 
 extension CommonJointAccountModel {
     @discardableResult
-    func update(with editor: (_ editor: CommonJointAccountModelEditor) -> Void) -> Self {
-        let jointAccountModelEditor = CommonJointAccountModelEditor()
-        editor(jointAccountModelEditor)
+    func update(with editor: (_ editor: CommonCryptoAccountModel.CommonAccountModelEditor) -> Void) -> Self {
+        let accountModelEditor = CommonCryptoAccountModel.CommonAccountModelEditor()
+        editor(accountModelEditor)
 
         cryptoAccount.update { cryptoAccountModelEditor in
-            jointAccountModelEditor.name.map(cryptoAccountModelEditor.setName)
-            jointAccountModelEditor.icon.map(cryptoAccountModelEditor.setIcon)
-        }
-
-        if let newStatus = jointAccountModelEditor.status, accountStatus != newStatus {
-            accountStatus = newStatus
+            accountModelEditor.name.map(cryptoAccountModelEditor.setName)
+            accountModelEditor.icon.map(cryptoAccountModelEditor.setIcon)
         }
 
         return self
@@ -84,27 +81,20 @@ extension CommonJointAccountModel: JointAccountModel {
         accountPolicy
     }
 
-    var status: JointAccountStatus {
-        accountStatus
+    var jointAccountStatusProvider: any JointAccountStatusProvider {
+        statusProvider
     }
 
-    var canActivate: Bool {
-        guard case .confirming = accountStatus else {
-            return false
-        }
-
-        return membersService.userRole.isCreator
-    }
-
-    func activate() async throws(AccountEditError) {
+    @discardableResult
+    func confirm(safeAddress: String) async throws(AccountEditError) -> JointAccountStatus {
         guard let delegate else {
-            let error = JointAccountModelError.activationUnavailable
-            JointAccountsLogger.error("The joint account has nothing left to activate it", error: error)
+            let error = JointAccountModelError.confirmationUnavailable
+            JointAccountsLogger.error("The joint account has nothing left to confirm it", error: error)
             throw .unknownError(error)
         }
 
-        let config = try makeActivationConfig()
-        try await delegate.activateJointAccount(with: config)
+        let config = try makeConfirmationConfig(safeAddress: safeAddress)
+        return try await delegate.confirmJointAccount(with: config)
     }
 
     var name: String {
@@ -118,7 +108,7 @@ extension CommonJointAccountModel: JointAccountModel {
     var didChangePublisher: AnyPublisher<Void, Never> {
         cryptoAccount
             .didChangePublisher
-            .merge(with: didChangeSubject)
+            .merge(with: statusProvider.statusPublisher.dropFirst().map { _ in () })
             .eraseToAnyPublisher()
     }
 
@@ -147,7 +137,7 @@ extension CommonJointAccountModel: JointAccountModel {
     }
 
     @discardableResult
-    func edit(with editor: (_ editor: CommonJointAccountModelEditor) -> Void) async throws(AccountEditError) -> Self {
+    func edit(with editor: (_ editor: CommonCryptoAccountModel.CommonAccountModelEditor) -> Void) async throws(AccountEditError) -> Self {
         throw .unknownError(JointAccountModelError.editingNotSupported)
     }
 
@@ -167,37 +157,16 @@ extension CommonJointAccountModel {
 // MARK: - Private
 
 private extension CommonJointAccountModel {
-    /// Checked before the wallet is asked for anything: a composition that does not resolve to the announced address
-    /// is not the account it claims to be, and there is nothing worth signing.
-    func makeActivationConfig() throws(AccountEditError) -> JointAccountActivationConfig {
-        // Announced, not verified: the address is the backend's word until the composition is checked against it.
-        // Read before the composition is, so that an account that cannot be activated costs nothing to turn away
-        guard case .confirming(.some(let announcedSafeAddress)) = status else {
-            throw .unknownError(JointAccountModelError.notReadyForActivation)
+    func makeConfirmationConfig(safeAddress: String) throws(AccountEditError) -> JointAccountConfirmationConfig {
+        guard case .confirming(.some(let statusSafeAddress)) = statusProvider.status else {
+            throw .unknownError(JointAccountModelError.notReadyForConfirmation)
         }
 
-        let members = membersService.slots.compactMap(\.member)
-
-        guard let creator = members.first(where: { $0.role == .creator }) else {
-            throw .unknownError(JointAccountModelError.notReadyForActivation)
+        guard statusSafeAddress == safeAddress else {
+            throw .unknownError(JointAccountModelError.addressChanged)
         }
 
-        let safeAddress: String
-
-        do {
-            safeAddress = try JointAccountSafeAddressVerifier.confirm(
-                announcedAddress: announcedSafeAddress,
-                owners: members.map(\.address),
-                threshold: accountPolicy.signersCount
-            )
-        } catch {
-            JointAccountsLogger.error("The joint account does not resolve to the address it was given", error: error)
-            throw .unknownError(error)
-        }
-
-        return JointAccountActivationConfig(
-            // The identifier the backend minted the account with is the one the app works out for itself, case included
-            cryptoAccountId: id.rawValue.hexString,
+        return JointAccountConfirmationConfig(
             signedConfig: JointAccountSignedConfig(
                 name: name,
                 icon: icon.name.rawValue,
@@ -206,7 +175,6 @@ private extension CommonJointAccountModel {
                 threshold: accountPolicy.signersCount
             ),
             safeAddress: safeAddress,
-            creatorAddress: creator.address,
             derivationIndex: derivationIdentity.derivationIndex
         )
     }
@@ -230,6 +198,10 @@ extension CommonJointAccountModel: JointAccountMembersServiceProviding {
     var jointAccountMembersService: any JointAccountMembersService {
         membersService
     }
+
+    var jointAccountUserRoleService: any JointAccountUserRoleService {
+        userRoleService
+    }
 }
 
 // MARK: - BalanceProvidingAccountModel protocol conformance
@@ -248,6 +220,7 @@ extension CommonJointAccountModel: BalanceProvidingAccountModel {
 
 extension CommonJointAccountModel: DisposableEntity {
     nonisolated func dispose() {
+        finishedOperationsWalletUpdater.dispose()
         cryptoAccount.dispose()
     }
 }
@@ -259,30 +232,7 @@ extension CommonJointAccountModel: CustomStringConvertible {
         objectDescription(self, userInfo: [
             "cryptoAccount": cryptoAccount,
             "accountPolicy": accountPolicy,
-            "status": status,
+            "status": statusProvider.status,
         ])
-    }
-}
-
-// MARK: - Auxiliary types
-
-extension CommonJointAccountModel {
-    /// Not private: a private type cannot be the witness for `Editor`.
-    final class CommonJointAccountModelEditor: JointAccountModelEditor {
-        var name: String?
-        var icon: AccountModel.CompositeIcon?
-        var status: JointAccountStatus?
-
-        func setName(_ name: String) {
-            self.name = name
-        }
-
-        func setIcon(_ icon: AccountModel.CompositeIcon) {
-            self.icon = icon
-        }
-
-        func setStatus(_ status: JointAccountStatus) {
-            self.status = status
-        }
     }
 }

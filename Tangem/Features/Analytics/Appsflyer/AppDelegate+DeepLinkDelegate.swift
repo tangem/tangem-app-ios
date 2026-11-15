@@ -29,8 +29,7 @@ extension AppDelegate: DeepLinkDelegate {
             return
         }
 
-        let deepLinkStr: String = deepLink.toString()
-        AppsflyerLogger.info("DeepLink data is: \(deepLinkStr)")
+        AppsflyerLogger.info("Deep link value: \(deepLink.deeplinkValue ?? "none")")
 
         let deepLinkType = deepLink.isDeferred ? "deferred" : "direct"
         AppsflyerLogger.info("This is a \(deepLinkType) deep link")

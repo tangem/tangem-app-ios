@@ -16,6 +16,7 @@ final class TangemPayBuilder {
     private let userWalletId: UserWalletId
     private let keysRepository: KeysRepository
     private let signerFactory: TangemSignerFactory
+    private let walletModelsFactoryProvider: WalletModelsFactoryProvider
 
     private var customerWalletId: String {
         userWalletId.stringValue
@@ -34,7 +35,8 @@ final class TangemPayBuilder {
         customerWalletId: customerWalletId,
         availabilityService: availabilityService,
         customerService: customerService,
-        isCustomerSummaryEnabled: FeatureProvider.isAvailable(.tangemPayCustomerSummary)
+        isCustomerSummaryEnabled: FeatureProvider.isAvailable(.tangemPayCustomerSummary),
+        isUnifiedOnboardingEnabled: TangemPayUnifiedOnboarding.isEnabled
     )
 
     private lazy var orderStatusPollingService = TangemPayOrderStatusPollingService(
@@ -92,11 +94,13 @@ final class TangemPayBuilder {
     init(
         userWalletId: UserWalletId,
         keysRepository: KeysRepository,
-        signerFactory: TangemSignerFactory
+        signerFactory: TangemSignerFactory,
+        walletModelsFactoryProvider: WalletModelsFactoryProvider
     ) {
         self.userWalletId = userWalletId
         self.keysRepository = keysRepository
         self.signerFactory = signerFactory
+        self.walletModelsFactoryProvider = walletModelsFactoryProvider
     }
 
     func buildTangemPayManager() -> TangemPayManager {
@@ -147,6 +151,27 @@ extension TangemPayBuilder: TangemPayAccountBuilder {
             virtualAccountCreationFailureStorage: AppSettings.shared,
             account: account,
             accountRemover: accountRemover
+        )
+    }
+
+    func makeMoneyAccount(
+        customerId: String,
+        bankingAccount: TangemPayCustomerSummaryResponse.BankingAccount,
+        account: (any TangemPayAccountModel)?
+    ) -> TangemPayMoneyAccount? {
+        let walletModelBuilder = TangemPayMoneyAccountWalletModelBuilder(
+            walletModelsFactoryProvider: walletModelsFactoryProvider
+        )
+
+        guard let walletModel = walletModelBuilder.makeWalletModel() else {
+            return nil
+        }
+
+        return TangemPayMoneyAccount(
+            customerId: customerId,
+            bankingAccount: bankingAccount,
+            walletModel: walletModel,
+            account: account
         )
     }
 }

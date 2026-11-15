@@ -10,6 +10,7 @@ import SwiftUI
 import TangemAssets
 import TangemUI
 import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 struct PushNotificationsWarningView: View {
     @ObservedObject var viewModel: PushNotificationsWarningViewModel
@@ -76,6 +77,7 @@ private extension PushNotificationsWarningView {
                 style: .secondary,
                 action: viewModel.onSkipTap
             )
+            .accessibilityIdentifier(PushPermissionAccessibilityIdentifiers.warningSkipButton)
 
             MainButton(
                 title: Localization.pushNotificationWarningSheetButtonEnable,

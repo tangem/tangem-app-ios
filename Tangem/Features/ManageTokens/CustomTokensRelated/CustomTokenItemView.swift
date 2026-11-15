@@ -48,7 +48,6 @@ struct CustomTokenItemView: View {
                     .cornerRadiusContinuous(20)
             }
         }
-        .background(DesignSystem.Color.bgSecondary)
         .padding(.all, 16)
     }
 }

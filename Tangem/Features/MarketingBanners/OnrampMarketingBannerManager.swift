@@ -45,9 +45,13 @@ extension OnrampMarketingBannerManager {
     ) {
         let requests = amountInput.fiatCurrencyPublisher
             .map { fiatCurrency -> OnrampMarketingBannerRequest? in
-                OnrampMarketingBannerRequest(
+                guard let fiatCurrency else {
+                    return nil
+                }
+
+                return OnrampMarketingBannerRequest(
                     destination: tokenItem,
-                    fiatCurrencyCode: fiatCurrency?.identity.code
+                    fiatCurrencyCode: fiatCurrency.identity.code
                 )
             }
             .eraseToAnyPublisher()

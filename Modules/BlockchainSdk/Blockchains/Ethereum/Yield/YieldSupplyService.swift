@@ -15,13 +15,14 @@ public protocol YieldSupplyService {
     func getYieldContract() async throws -> String
 
     func storeYieldContract(_ yieldContract: String) async
-    func storedYieldContract() async -> String?
+    func storedYieldContract() -> String?
 
     func calculateYieldContract() async throws -> String
     func getYieldSupplyStatus(tokenContractAddress: String) async throws -> YieldSupplyStatus
     func getBalance(yieldSupplyStatus: YieldSupplyStatus, token: Token) async throws -> Amount
     func getBalances(address: String, tokens: [Token]) async -> [Token: Result<Amount, Error>]
     func allowance(tokenContractAddress: String) async throws -> String
+    func makeLendingLiquidityProvider() -> YieldModuleLendingLiquidityProvider?
 
     func makeVersionChecker() -> YieldModuleVersionChecker?
     func makeVersionResolver() -> YieldModuleVersionResolver?
@@ -29,6 +30,7 @@ public protocol YieldSupplyService {
 }
 
 public extension YieldSupplyService {
+    func makeLendingLiquidityProvider() -> YieldModuleLendingLiquidityProvider? { nil }
     func makeVersionChecker() -> YieldModuleVersionChecker? { nil }
     func makeVersionResolver() -> YieldModuleVersionResolver? { nil }
     func makeSwapExecutionRegistryProvider() -> YieldModuleSwapExecutionRegistryProvider? { nil }
@@ -74,7 +76,7 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
     }
 
     public func getYieldContract() async throws -> String {
-        let storedYieldContractAddress = await storedYieldContract()
+        let storedYieldContractAddress = storedYieldContract()
         switch storedYieldContractAddress {
         case .some(let address):
             return address
@@ -98,8 +100,8 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
         await dataStorage.store(key: storageKey(), value: yieldContract)
     }
 
-    public func storedYieldContract() async -> String? {
-        await dataStorage.get(key: storageKey())
+    public func storedYieldContract() -> String? {
+        dataStorage.get(key: storageKey())
     }
 
     public func calculateYieldContract() async throws -> String {
@@ -214,6 +216,18 @@ public final class EthereumYieldSupplyService: YieldSupplyService {
             spender: getYieldContract(),
             contractAddress: tokenContractAddress
         ).async()
+    }
+
+    public func makeLendingLiquidityProvider() -> YieldModuleLendingLiquidityProvider? {
+        guard isSupported() else {
+            return nil
+        }
+
+        return CommonYieldModuleLendingLiquidityProvider(
+            smartContractInteractor: networkService,
+            decimalCount: wallet.blockchain.decimalCount,
+            resolveYieldModule: getYieldContract
+        )
     }
 
     public func makeVersionChecker() -> YieldModuleVersionChecker? {

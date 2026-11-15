@@ -24,6 +24,8 @@ enum FiatCurrenciesCacheTable: AppDatabaseTable {
             break
         case .v3:
             break
+        case .v4:
+            break
         }
     }
 }

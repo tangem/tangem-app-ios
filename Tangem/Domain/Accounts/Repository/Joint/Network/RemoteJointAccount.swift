@@ -6,23 +6,17 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import TangemFoundation
 
 /// A joint account as the endpoint keeps it.
 struct RemoteJointAccount: Equatable {
-    struct Invite: Equatable {
-        let slot: JointAccountMemberSlotID
-        let expiresAt: Date
-    }
-
     let cryptoAccountId: String
     let membersCount: Int
     let threshold: Int
     let status: JointAccountStatus
     /// Only the slots that are taken, in the order they were taken, the creator first.
     let members: [StoredJointAccount.Member]
-    let invites: [Invite]
+    let invites: [StoredJointAccount.Invite]
     /// The unfinished operations, at most one per network.
     let operations: [JointAccountOperation]
 }

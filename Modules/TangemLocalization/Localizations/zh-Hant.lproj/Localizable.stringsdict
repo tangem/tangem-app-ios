@@ -12,10 +12,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li person</string>
         <key>other</key>
-        <string>%li people</string>
+        <string>%li 人</string>
       </dict>
     </dict>
     <key>address_book_addresses</key>
@@ -28,10 +26,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li address</string>
         <key>other</key>
-        <string>%li addresses</string>
+        <string>%li 個地址</string>
       </dict>
     </dict>
     <key>card_label_card_count</key>
@@ -58,10 +54,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li card</string>
         <key>other</key>
-        <string>%li cards</string>
+        <string>%li 張卡</string>
       </dict>
     </dict>
     <key>common_assets_count</key>
@@ -74,10 +68,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li asset</string>
         <key>other</key>
-        <string>%li assets</string>
+        <string>%li 個資產</string>
       </dict>
     </dict>
     <key>common_days_no_param</key>
@@ -90,10 +82,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>day</string>
         <key>other</key>
-        <string>days</string>
+        <string>天</string>
       </dict>
     </dict>
     <key>common_networks_count</key>
@@ -106,10 +96,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li network</string>
         <key>other</key>
-        <string>%li networks</string>
+        <string>%li 個網路</string>
       </dict>
     </dict>
     <key>common_tokens_count</key>
@@ -136,10 +124,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Awaiting for %li member to join</string>
         <key>other</key>
-        <string>Awaiting for %li members to join</string>
+        <string>等待 %li 位成員加入</string>
       </dict>
     </dict>
     <key>joint_account_invite_members_invite_count</key>
@@ -152,10 +138,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Invite %li member</string>
         <key>other</key>
-        <string>Invite %li members</string>
+        <string>邀請 %li 位成員</string>
       </dict>
     </dict>
     <key>joint_account_invite_members_invite_more</key>
@@ -168,10 +152,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Invite %li more member</string>
         <key>other</key>
-        <string>Invite %li more members</string>
+        <string>再邀請 %li 位成員</string>
       </dict>
     </dict>
     <key>joint_account_invite_members_still_need_to_join</key>
@@ -184,10 +166,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li member still needs to join</string>
         <key>other</key>
-        <string>%li members still need to join</string>
+        <string>%li 位成員尚未加入</string>
       </dict>
     </dict>
     <key>joint_account_join_signatures_count</key>
@@ -200,10 +180,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li signature</string>
         <key>other</key>
-        <string>%li signatures</string>
+        <string>%li 個簽名</string>
       </dict>
     </dict>
     <key>joint_account_main_waiting_confirmations</key>
@@ -216,10 +194,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Waiting for %li confirmation</string>
         <key>other</key>
-        <string>Waiting for %li confirmations</string>
+        <string>等待 %li 位成員確認</string>
       </dict>
     </dict>
     <key>joint_account_main_waiting_members</key>
@@ -232,10 +208,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Waiting for %li member</string>
         <key>other</key>
-        <string>Waiting for %li members</string>
+        <string>等待 %li 位成員</string>
       </dict>
     </dict>
     <key>joint_account_members_count</key>
@@ -248,10 +222,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li member</string>
         <key>other</key>
-        <string>%li members</string>
+        <string>%li 位成員</string>
       </dict>
     </dict>
     <key>joint_account_members_still_need_to_confirm</key>
@@ -264,10 +236,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li member still needs to confirm</string>
         <key>other</key>
-        <string>%li members still need to confirm</string>
+        <string>還有 %li 位成員需要確認</string>
       </dict>
     </dict>
     <key>joint_account_send_signatures_required_banner</key>
@@ -280,10 +250,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%1$li signature required</string>
         <key>other</key>
-        <string>%1$li signatures required</string>
+        <string>需要 %1$li 個簽名</string>
       </dict>
     </dict>
     <key>markets_token_details_amount_exchanges</key>
@@ -296,10 +264,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li exchange</string>
         <key>other</key>
-        <string>%li exchanges</string>
+        <string>%li 個交易所</string>
       </dict>
     </dict>
     <key>markets_token_details_based_on_ratings</key>
@@ -312,10 +278,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Based on %li rating</string>
         <key>other</key>
-        <string>Based on %li ratings</string>
+        <string>基於 %li 個評分</string>
       </dict>
     </dict>
     <key>nft_collections_count</key>
@@ -328,26 +292,22 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li item</string>
         <key>other</key>
-        <string>%li items</string>
+        <string>%li 個項目</string>
       </dict>
     </dict>
     <key>nft_wallet_count_ios</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@nfts_count@ in %#@collections_count@</string>
+      <string>%#@nfts_count@ 於 %#@collections_count@</string>
       <key>collections_count</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li collection</string>
         <key>other</key>
-        <string>%li collections</string>
+        <string>%li 個收藏集</string>
       </dict>
       <key>nfts_count</key>
       <dict>
@@ -355,10 +315,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li NFT</string>
         <key>other</key>
-        <string>%li NFTs</string>
+        <string>%li 個 NFT</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_message_words_count</key>
@@ -372,7 +330,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>按照下面給出的順序寫下這 %li 個單詞，並將它們存放在安全秘密的地方。</string>
+        <string>請按照以下順序寫下這 %li 個助記詞，並將其存放在隱密且安全的地方。</string>
       </dict>
     </dict>
     <key>onboarding_seed_generate_words_count</key>
@@ -385,10 +343,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string></string>
         <key>other</key>
-        <string>%li words</string>
+        <string>%li 個單詞</string>
       </dict>
     </dict>
     <key>onramp_providers_count</key>
@@ -401,10 +357,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li provider</string>
         <key>other</key>
-        <string>%li providers</string>
+        <string>%li 個提供者</string>
       </dict>
     </dict>
     <key>onramp_timing_days</key>
@@ -417,10 +371,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>up to %li day</string>
         <key>other</key>
-        <string>up to %li days</string>
+        <string>最多 %li 天</string>
       </dict>
     </dict>
     <key>prediction_event_more_outcomes</key>
@@ -437,7 +389,7 @@
         <string>other: +%li 個結果</string>
       </dict>
     </dict>
-    <key>referral_number_of_wallets</key>
+    <key>prediction_session_key_banner_extend_title</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -448,9 +400,23 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>for %li wallet</string>
+        <string>Fast trading expires in %li day</string>
         <key>other</key>
-        <string>for %li wallets</string>
+        <string>Fast trading expires in %li days</string>
+      </dict>
+    </dict>
+    <key>referral_number_of_wallets</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>other</key>
+        <string>適用於 %li 個錢包</string>
       </dict>
     </dict>
     <key>referral_wallets_purchased_count</key>
@@ -477,10 +443,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li token isn't compatible with this address</string>
         <key>other</key>
-        <string>%li tokens aren't compatible with this address</string>
+        <string>%li 代幣與此地址不相容</string>
       </dict>
     </dict>
     <key>tangempay_cards_count</key>
@@ -535,10 +499,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li business day</string>
         <key>other</key>
-        <string>%li business days</string>
+        <string>%li 個工作天</string>
       </dict>
     </dict>
     <key>top_assets_count</key>
@@ -551,10 +513,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Top %li asset</string>
         <key>other</key>
-        <string>Top %li assets</string>
+        <string>前 %li 項資產</string>
       </dict>
     </dict>
     <key>visa_limits_available_for_days_title</key>
@@ -567,10 +527,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>available for %li day</string>
         <key>other</key>
-        <string>available for %li days</string>
+        <string>可使用 %li 天</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_message</key>
@@ -583,10 +541,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Use your card or ring to get an address for %li network</string>
         <key>other</key>
-        <string>Use your card or ring to get addresses for %li networks</string>
+        <string>使用您的卡片或戒指取得 %li 個網路的地址</string>
       </dict>
     </dict>
     <key>warning_missing_derivation_no_nfc_message</key>
@@ -599,10 +555,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Sync addresses to get an address for %li network</string>
         <key>other</key>
-        <string>Sync addresses to get addresses for %li networks</string>
+        <string>同步地址以獲取 %li 個網路的地址</string>
       </dict>
     </dict>
     <key>yield_module_main_promo_tokens_count</key>
@@ -615,10 +569,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>Choose from %li token</string>
         <key>other</key>
-        <string>Choose from %li tokens</string>
+        <string>超過 %li 個可用代幣</string>
       </dict>
     </dict>
   </dict>

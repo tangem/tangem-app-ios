@@ -20,7 +20,7 @@ extension WalletModel {
             .jointAccountPendingOperationsProvider
             .pendingOperationsPublisher
             .map { operations in
-                operations.filter { $0.operation.status == .awaitingSignatures && $0.tokenItem == tokenItem }
+                operations.filter { $0.status == .awaitingSignatures && $0.tokenItem == tokenItem }
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
@@ -31,11 +31,9 @@ extension WalletModel {
             return .just(output: [])
         }
 
-        let standingResolver = JointAccountPendingOperationStandingResolver()
-
         return jointOperationsAwaitingSignaturesPublisher
             .combineLatest(jointAccount.jointAccountMembersService.slotsPublisher)
-            .map { operations, _ in operations.filter(standingResolver.canSign) }
+            .map { operations, _ in operations.filter(\.canSign) }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }

@@ -20,6 +20,7 @@ protocol GaslessTransactionsAPIService {
     typealias TronEstimateResponse = GaslessTransactionsDTO.Response.TronEstimate
     typealias TronSubmitRequest = GaslessTransactionsDTO.Request.TronSubmit
     typealias TronSubmitResponse = GaslessTransactionsDTO.Response.TronSubmit
+    typealias SolanaSubmitRequest = GaslessTransactionsDTO.Request.SolanaSubmit
 
     func getAvailableTokens() async throws -> [FeeToken]
     func getAvailableTronTokens() async throws -> [TronFeeToken]
@@ -38,6 +39,11 @@ protocol GaslessTransactionsAPIService {
         _ request: TronSubmitRequest,
         userWalletId: UserWalletId
     ) async throws -> TronSubmitResponse
+    func getSolanaFeePayer() async throws -> String
+    func submitSolanaGaslessTransaction(
+        _ request: SolanaSubmitRequest,
+        userWalletId: UserWalletId
+    ) async throws -> String
 }
 
 final class CommonGaslessTransactionAPIService {
@@ -96,6 +102,23 @@ extension CommonGaslessTransactionAPIService: GaslessTransactionsAPIService {
         userWalletId: UserWalletId
     ) async throws -> TronSubmitResponse {
         try await self.request(for: .tronSubmit(request: request, userWalletId: userWalletId))
+    }
+
+    func getSolanaFeePayer() async throws -> String {
+        let response: GaslessTransactionsDTO.Response.Envelope<GaslessTransactionsDTO.Response.SolanaFeePayer> = try await request(
+            for: .solanaFeePayer
+        )
+        return response.result.feePayer
+    }
+
+    func submitSolanaGaslessTransaction(
+        _ request: SolanaSubmitRequest,
+        userWalletId: UserWalletId
+    ) async throws -> String {
+        let response: GaslessTransactionsDTO.Response.Envelope<GaslessTransactionsDTO.Response.SolanaSubmit> = try await self.request(
+            for: .solanaSubmit(request: request, userWalletId: userWalletId)
+        )
+        return response.result.signature
     }
 }
 

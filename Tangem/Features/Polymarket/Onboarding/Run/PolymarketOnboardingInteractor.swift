@@ -526,14 +526,6 @@ private extension Error {
     }
 }
 
-private extension PolymarketAPIError {
-    var isClientRefusal: Bool {
-        guard case .http(let statusCode, _) = self else { return false }
-
-        return (400 ..< 500).contains(statusCode)
-    }
-}
-
 // MARK: - Constants
 
 private extension CommonPolymarketOnboardingInteractor {

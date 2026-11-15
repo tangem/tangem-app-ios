@@ -15,13 +15,9 @@ import TangemAccessibilityIdentifiers
 struct TangemPayMobileOnboardingView: View {
     @ObservedObject var viewModel: TangemPayMobileOnboardingViewModel
 
-    private var isBundleIntroductionEnabled: Bool {
-        FeatureProvider.isAvailable(.payBundleIntroduction)
-    }
-
     var body: some View {
         TangemPayOnboardingContentView(
-            usesBundleIntroductionLayout: isBundleIntroductionEnabled,
+            usesBundleIntroductionLayout: true,
             getCardIcon: nil,
             titleAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.mobileOnboardingTitle,
             getCardButtonAccessibilityIdentifier: TangemPayAccessibilityIdentifiers.mobileOnboardingGetCardButton,
@@ -30,15 +26,13 @@ struct TangemPayMobileOnboardingView: View {
             onLegalLinkTap: viewModel.openLegalDocument
         )
         .toolbar {
-            if isBundleIntroductionEnabled {
-                ToolbarItem(placement: .topBarLeading) {
-                    DesignSystem.Icons.LogoTangem.regular24.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                        .foregroundStyle(DesignSystem.Color.textPrimary)
-                }
+            ToolbarItem(placement: .topBarLeading) {
+                DesignSystem.Icons.LogoTangem.regular24.image
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(DesignSystem.Color.textPrimary)
             }
 
             ToolbarItem(placement: .topBarTrailing) {

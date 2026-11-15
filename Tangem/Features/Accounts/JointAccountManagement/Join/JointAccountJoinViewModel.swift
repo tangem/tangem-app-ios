@@ -111,6 +111,7 @@ private extension JointAccountJoinViewModel {
         guard let userWalletModel = UserWalletModelsProvider.default(from: available) else {
             // Every wallet is locked, so there is none to join with — offered a retry because unlocking one
             // is what the user has to do anyway, and the invite itself is fine
+            Analytics.logJointAccountError(source: .join, error: LoadingError.noUnlockedWallet)
             state = .loadFailed(isRetrying: false)
             return
         }
@@ -131,6 +132,7 @@ private extension JointAccountJoinViewModel {
     }
 
     func handle(loadingError: Error) {
+        Analytics.logJointAccountError(source: .join, error: loadingError)
         state = isInviteRejected(loadingError) ? .invalidInvite : .loadFailed(isRetrying: false)
     }
 
@@ -209,5 +211,17 @@ extension JointAccountJoinViewModel {
         let subtitle: AttributedString
         let creatorName: String
         let isWalletSelectionAvailable: Bool
+    }
+}
+
+// MARK: - Errors
+
+extension JointAccountJoinViewModel {
+    enum LoadingError: String, LocalizedError {
+        case noUnlockedWallet
+
+        var errorDescription: String? {
+            "Every wallet is locked, so there is none to join with."
+        }
     }
 }

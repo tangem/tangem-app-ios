@@ -15,21 +15,44 @@ struct WalletModelTokenFeeProvidersManagerProvider {
 
     private let walletModel: any WalletModel
     private let tokenFeeLoaderProvider: any TokenFeeLoaderProvider
-    private let supportingOptions: TokenFeeProviderSupportingOptions
+    private let purpose: Purpose
     private let transactionReleasesSourceToken: Bool
     private let providerSwitching: CommonTokenFeeProvidersManager.ProviderSwitching
 
     init(
         walletModel: any WalletModel,
-        supportingOptions: TokenFeeProviderSupportingOptions = .all,
+        purpose: Purpose,
         transactionReleasesSourceToken: Bool = false,
         providerSwitching: CommonTokenFeeProvidersManager.ProviderSwitching = .always
     ) {
         self.walletModel = walletModel
         tokenFeeLoaderProvider = WalletModelTokenFeeLoaderProvider(walletModel: walletModel)
-        self.supportingOptions = supportingOptions
+        self.purpose = purpose
         self.transactionReleasesSourceToken = transactionReleasesSourceToken
         self.providerSwitching = providerSwitching
+    }
+}
+
+// MARK: - Purpose
+
+extension WalletModelTokenFeeProvidersManagerProvider {
+    enum Purpose {
+        case transfer(TokenFeeProviderSupportingOptions)
+        case swap
+
+        var supportingOptions: TokenFeeProviderSupportingOptions {
+            switch self {
+            case .transfer(let supportingOptions): supportingOptions
+            case .swap: .swap
+            }
+        }
+
+        var includesSponsoredFee: Bool {
+            switch self {
+            case .transfer: false
+            case .swap: true
+            }
+        }
     }
 }
 
@@ -43,6 +66,10 @@ extension WalletModelTokenFeeProvidersManagerProvider: TokenFeeProvidersManagerP
         if walletModel.tokenItem.token?.metadata.kind == .fungible {
             let gaslessTokenFeeProviders = makeGaslessTokenFeeProviders()
             feeProviders.append(contentsOf: gaslessTokenFeeProviders)
+        }
+
+        if let sponsoredTokenFeeProvider = makeSponsoredTokenFeeProvider() {
+            feeProviders.append(sponsoredTokenFeeProvider)
         }
 
         let initialSelectedProvider = prepareInitialTokenFeeProvider(main: coinTokenFeeProvider, all: feeProviders)
@@ -79,6 +106,10 @@ extension WalletModelTokenFeeProvidersManagerProvider {
         // Early exit when we have only main provider
         guard all.hasMultipleFeeProviders else {
             return main
+        }
+
+        if let sponsoredProvider = all.first(where: { $0.payer == .tangem }) {
+            return sponsoredProvider
         }
 
         // Tron: prefer gasless when the available fee token has a positive balance.
@@ -129,7 +160,8 @@ private extension WalletModelTokenFeeProvidersManagerProvider {
             tokenFeeLoader: tokenFeeLoader,
             customFeeProvider: customFeeProvider,
             feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
-            supportingOptions: supportingOptions,
+            supportingOptions: purpose.supportingOptions,
+            payer: .user,
         )
     }
 
@@ -188,10 +220,37 @@ private extension WalletModelTokenFeeProvidersManagerProvider {
                 feeTokenItemBalanceProvider: feeTokenItemBalanceProvider,
                 supportingOptions: .exactly([.market]),
                 minimumRequiredBalance: minimumRequiredGaslessFeeTokenBalance(),
+                payer: .user,
             )
         }
 
         return gaslessTokenFeeProviders
+    }
+
+    func makeSponsoredTokenFeeProvider() -> (any TokenFeeProvider)? {
+        guard purpose.includesSponsoredFee, FeatureProvider.isAvailable(.solanaGasless) else {
+            return nil
+        }
+
+        guard let tokenFeeLoader = tokenFeeLoaderProvider.makeSolanaGaslessTokenFeeLoader() else {
+            return nil
+        }
+
+        guard gaslessTransactionsNetworkManager.cachedSolanaFeePayer != nil else {
+            _ = Task { [gaslessTransactionsNetworkManager] in
+                _ = await gaslessTransactionsNetworkManager.solanaFeePayer
+            }
+            return nil
+        }
+
+        return CommonTokenFeeProvider(
+            feeTokenItem: walletModel.feeTokenItem,
+            tokenFeeLoader: tokenFeeLoader,
+            customFeeProvider: .none,
+            feeTokenItemBalanceProvider: walletModel.feeTokenItemBalanceProvider,
+            supportingOptions: .exactly([.market]),
+            payer: .tangem
+        )
     }
 
     func makeYieldFeeContext(
@@ -207,9 +266,7 @@ private extension WalletModelTokenFeeProvidersManagerProvider {
             yieldModuleBalance: activeInfo.yieldModuleBalanceValue,
             feeTokenBalanceProvider: feeTokenItemBalanceProvider,
             versionChecker: feeWalletModel.yieldModuleManager?.versionChecker,
-            versionResolver: FeatureProvider.isAvailable(.yieldModuleOwnerActionUpgrade)
-                ? feeWalletModel.yieldModuleManager?.versionResolver
-                : nil
+            versionResolver: feeWalletModel.yieldModuleManager?.versionResolver
         )
     }
 }

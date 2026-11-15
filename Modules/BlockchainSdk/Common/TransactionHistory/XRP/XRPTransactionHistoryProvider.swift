@@ -14,9 +14,7 @@ import AnyCodable
 final class XRPTransactionHistoryProvider: TransactionHistoryProvider {
     private let networkService: XRPNetworkService
     private let mapper: XRPTransactionHistoryMapper
-
-    private var marker: [String: AnyCodable]?
-    private var hasReachedEnd: Bool = false
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     init(
         networkService: XRPNetworkService,
@@ -27,15 +25,17 @@ final class XRPTransactionHistoryProvider: TransactionHistoryProvider {
     }
 
     var canFetchHistory: Bool {
-        !hasReachedEnd
+        state { !$0.hasReachedEnd }
     }
 
     var description: String {
-        objectDescription(
+        let snapshot = state { $0 }
+
+        return objectDescription(
             self,
             userInfo: [
-                "marker": marker?.description ?? "-",
-                "hasReachedEnd": hasReachedEnd,
+                "marker": snapshot.marker?.description ?? "-",
+                "hasReachedEnd": snapshot.hasReachedEnd,
             ]
         )
     }
@@ -65,6 +65,8 @@ final class XRPTransactionHistoryProvider: TransactionHistoryProvider {
             return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
         }
 
+        let (resetToken, marker) = state { ($0.resetToken, $0.marker) }
+
         return networkService
             .getAccountTransactions(
                 account: address,
@@ -92,8 +94,14 @@ final class XRPTransactionHistoryProvider: TransactionHistoryProvider {
                     )
                 }
 
-                marker = response.marker
-                hasReachedEnd = response.marker == nil
+                state { state in
+                    guard state.resetToken == resetToken else {
+                        return
+                    }
+
+                    state.marker = response.marker
+                    state.hasReachedEnd = response.marker == nil
+                }
 
                 return .init(records: records)
             }
@@ -101,8 +109,18 @@ final class XRPTransactionHistoryProvider: TransactionHistoryProvider {
     }
 
     func reset() {
-        marker = nil
-        hasReachedEnd = false
+        state { $0 = State() }
         mapper.reset()
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension XRPTransactionHistoryProvider {
+    struct State {
+        /// Changes with every reset, so a response to a request made before the reset can't update the new state.
+        let resetToken = UUID()
+        var marker: [String: AnyCodable]?
+        var hasReachedEnd = false
     }
 }

@@ -163,6 +163,12 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func cancelTransactionDetailsPresentation() {
         transactionDetailsPresentationTask?.cancel()
         transactionDetailsPresentationTask = nil
+
+        guard let transactionDetailsSheetId else { return }
+
+        Task { @MainActor in
+            floatingSheetPresenter.removeSheet(withId: transactionDetailsSheetId)
+        }
     }
 
     private var isTransactionDetailsSheetAlive: Bool {
@@ -182,11 +188,21 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         )
     }
 
-    func openJointAccountOperationDetails(pendingOperation: JointAccountPendingOperation, userWalletInfo: UserWalletInfo) {
-        let viewModel = JointAccountOperationDetailsViewModelBuilder().build(
+    func openJointAccountOperationDetails(
+        pendingOperation: JointAccountPendingOperation,
+        userWalletInfo: UserWalletInfo,
+        addressBookManager: AddressBookManager
+    ) {
+        let addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
+        let viewModel = JointAccountOperationDetailsViewModel(
             pendingOperation: pendingOperation,
-            userWalletInfo: userWalletInfo,
-            coordinator: self
+            addressBookWallet: addressBookWallet,
+            recipientSource: CommonJointAccountOperationRecipientSource(addressBookWallet: addressBookWallet),
+            coordinator: self,
+            analyticsLogger: CommonJointAccountOperationAnalyticsLogger(
+                tokenItem: pendingOperation.tokenItem,
+                policy: pendingOperation.wallet.account?.policy
+            )
         )
 
         Task { @MainActor in
@@ -598,6 +614,13 @@ extension TokenDetailsCoordinator: JointAccountOperationDetailsRoutable {
     func closeOperationDetails() {
         Task { @MainActor in
             floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+
+    func openAddContactFromOperationDetails(addressBookWallet: AddressBookWallet, prefilledEntries: [AddressBookEntryDraft]) {
+        Task { @MainActor in
+            floatingSheetPresenter.pauseSheetsDisplaying()
+            openAddContact(addressBookWallet: addressBookWallet, prefilledEntries: prefilledEntries)
         }
     }
 }

@@ -25,12 +25,15 @@ struct MultiWalletMainContentRedesignedView: View {
             pendingJointAccountsOperations
 
             VStack(spacing: 8) {
-                if viewModel.isTangemPayMoneyAccountVisible {
-                    TangemPayMoneyAccountRowView(onTap: viewModel.openTangemPayMoneyAccount)
-                }
-
                 if let tangemPayAccountViewModel = viewModel.tangemPayAccountViewModel {
                     TangemPayAccountView(viewModel: tangemPayAccountViewModel)
+                }
+
+                if let tangemPayMoneyAccountRowState = viewModel.tangemPayMoneyAccountRowState {
+                    TangemPayMoneyAccountRowView(
+                        state: tangemPayMoneyAccountRowState,
+                        onTap: viewModel.openTangemPayMoneyAccount
+                    )
                 }
 
                 if let polymarketAccountViewModel = viewModel.polymarketAccountViewModel {
@@ -38,6 +41,8 @@ struct MultiWalletMainContentRedesignedView: View {
                 }
 
                 pendingJointAccounts
+
+                pausedJointAccounts
 
                 listContent
 
@@ -99,6 +104,16 @@ struct MultiWalletMainContentRedesignedView: View {
         }
     }
 
+    // MARK: - Paused joint accounts
+
+    private var pausedJointAccounts: some View {
+        ForEach(viewModel.pausedJointAccountViewModels) { pausedJointAccountViewModel in
+            PausedJointAccountItemView(viewModel: pausedJointAccountViewModel)
+                .cornerRadius(MultiWalletMainContentConstants.cornerRadius)
+                .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
+        }
+    }
+
     // MARK: - List Content
 
     @ViewBuilder
@@ -152,9 +167,6 @@ struct MultiWalletMainContentRedesignedView: View {
     private var emptyList: some View {
         VStack(spacing: 16) {
             MultiWalletTokenItemsEmptyView()
-                .iconColor(DesignSystem.Color.iconTertiary)
-                .textColor(DesignSystem.Color.textSecondary)
-                .spacing(20)
 
             TangemUI.Button(
                 label: Localization.commonAddTokens,

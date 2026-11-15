@@ -77,7 +77,7 @@ private extension TangemPayResidencyCoordinatorView {
             TangemPayUnavailableRegionView(output: { [weak coordinator] in coordinator?.handle($0) })
                 .topNavigation(
                     leading: .none,
-                    onClose: { [weak coordinator] in coordinator?.close() }
+                    close: .enabled { [weak coordinator] in coordinator?.close() }
                 )
         }
     }
@@ -95,7 +95,7 @@ private extension TangemPayResidencyCoordinatorView {
                 )
                 .topNavigation(
                     leading: .none,
-                    onClose: { [weak coordinator] in coordinator?.closeWaitlist() }
+                    close: .enabled { [weak coordinator] in coordinator?.closeWaitlist() }
                 )
             }
             .sheet(item: $coordinator.privacyPolicyViewModel) {

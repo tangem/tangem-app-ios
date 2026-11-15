@@ -20,14 +20,14 @@ struct JointAccountInviteLinkBuilderTests {
 
     @Test("The invite is written into the path of a universal link")
     func universalLinkIsBuilt() throws {
-        let url = try #require(builder.buildURL(invite: StoredJointAccountInvite(id: inviteId)))
+        let url = try builder.buildURL(inviteId: inviteId)
 
         #expect(url.absoluteString == "https://tangem.com/joint-account/join/\(inviteId)")
     }
 
     @Test("The link the builder writes is the one the parser reads")
     func builtLinkIsParsedBack() throws {
-        let url = try #require(builder.buildURL(invite: StoredJointAccountInvite(id: inviteId)))
+        let url = try builder.buildURL(inviteId: inviteId)
 
         #expect(parser.parse(url) == .navigation(.jointAccountInvite(JointAccountInviteDeeplink(inviteId: inviteId))))
     }

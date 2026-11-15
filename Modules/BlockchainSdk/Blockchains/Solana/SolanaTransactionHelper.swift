@@ -76,6 +76,10 @@ public struct SolanaTransactionHelper {
         return try readSignerPublicKeys(from: message, maxSigners: Int.max) == [publicKey]
     }
 
+    public func usesDurableNonce(in transaction: Data) throws -> Bool {
+        try messageLayout(of: transaction).usesDurableNonce
+    }
+
     public func replaceRecentBlockhash(_ blockhash: Data, in transaction: Data) throws -> Data {
         guard blockhash.count == Constants.blockhashLength else {
             throw SolanaBSDKError.invalidBlockhashLength
@@ -272,6 +276,128 @@ public struct SolanaTransactionHelper {
         return value
     }
 
+    func injectFeePayer(_ feePayer: Data, walletPublicKey: Data, into transaction: Data) throws -> Data {
+        guard feePayer.count == Constants.publicKeyLength else {
+            throw SolanaGaslessError.invalidFeePayer
+        }
+
+        var reader = BinaryReader(bytes: transaction.bytes)
+
+        let signatureSlotCount = try readCompactU16(from: &reader)
+        for _ in 0 ..< signatureSlotCount {
+            let slot = try reader.read(count: Constants.signatureLength)
+            guard slot.allSatisfy({ $0 == 0 }) else {
+                throw SolanaGaslessError.transactionAlreadySigned
+            }
+        }
+
+        var message = Data()
+
+        var peekReader = reader
+        let firstByte = try peekReader.read()
+        let isVersioned = firstByte & Constants.versionedMessageMask != 0
+        if isVersioned {
+            guard firstByte & ~Constants.versionedMessageMask == Constants.supportedMessageVersion else {
+                throw SolanaBSDKError.unsupportedMessageVersion
+            }
+
+            message.append(try reader.read())
+        }
+
+        let numRequiredSignatures = Int(try reader.read())
+        let numReadonlySignedAccounts = try reader.read()
+        let numReadonlyUnsignedAccounts = try reader.read()
+
+        guard numRequiredSignatures == signatureSlotCount, numRequiredSignatures < Int(UInt8.max) else {
+            throw SolanaGaslessError.malformedTransaction
+        }
+
+        let accountCount = try readCompactU16(from: &reader)
+        let accountKeys = try (0 ..< accountCount).map { _ in Data(try reader.read(count: Constants.publicKeyLength)) }
+
+        guard accountKeys.first == walletPublicKey else {
+            throw SolanaGaslessError.walletIsNotFeePayer
+        }
+
+        guard !accountKeys.contains(feePayer) else {
+            throw SolanaGaslessError.feePayerAlreadyPresent
+        }
+
+        message.append(contentsOf: [UInt8(numRequiredSignatures + 1), numReadonlySignedAccounts, numReadonlyUnsignedAccounts])
+        message.append(Data.encodeLength(accountCount + 1))
+        message.append(feePayer)
+        accountKeys.forEach { message.append($0) }
+
+        message.append(contentsOf: try reader.read(count: Constants.blockhashLength))
+
+        let instructionCount = try readCompactU16(from: &reader)
+        message.append(Data.encodeLength(instructionCount))
+
+        for _ in 0 ..< instructionCount {
+            message.append(try shiftedAccountIndex(try reader.read()))
+
+            let accountIndexCount = try readCompactU16(from: &reader)
+            message.append(Data.encodeLength(accountIndexCount))
+            for _ in 0 ..< accountIndexCount {
+                message.append(try shiftedAccountIndex(try reader.read()))
+            }
+
+            let dataLength = try readCompactU16(from: &reader)
+            message.append(Data.encodeLength(dataLength))
+            message.append(contentsOf: try reader.read(count: dataLength))
+        }
+
+        if isVersioned {
+            let lookupTables = try reader.readAll()
+            try validateTotalAccountCount(staticAccountCount: accountCount + 1, lookupTables: lookupTables)
+            message.append(contentsOf: lookupTables)
+        } else {
+            guard reader.remainBytes == 0 else {
+                throw SolanaGaslessError.malformedTransaction
+            }
+
+            try validateTotalAccountCount(staticAccountCount: accountCount + 1, lookupTables: [])
+        }
+
+        let newSignatureSlotCount = numRequiredSignatures + 1
+        return Data.encodeLength(newSignatureSlotCount)
+            + Data(repeating: 0, count: newSignatureSlotCount * Constants.signatureLength)
+            + message
+    }
+
+    private func shiftedAccountIndex(_ index: UInt8) throws -> UInt8 {
+        guard index < UInt8.max else {
+            throw SolanaGaslessError.accountIndexOverflow
+        }
+
+        return index + 1
+    }
+
+    private func validateTotalAccountCount(staticAccountCount: Int, lookupTables: [UInt8]) throws {
+        var reader = BinaryReader(bytes: lookupTables)
+        var lookupAccountCount = 0
+
+        if !lookupTables.isEmpty {
+            let tableCount = try readCompactU16(from: &reader)
+            for _ in 0 ..< tableCount {
+                _ = try reader.read(count: Constants.publicKeyLength)
+                let writableCount = try readCompactU16(from: &reader)
+                _ = try reader.read(count: writableCount)
+                let readonlyCount = try readCompactU16(from: &reader)
+                _ = try reader.read(count: readonlyCount)
+                lookupAccountCount += writableCount + readonlyCount
+            }
+
+            guard reader.remainBytes == 0 else {
+                throw SolanaGaslessError.malformedTransaction
+            }
+        }
+
+        guard staticAccountCount + lookupAccountCount <= Constants.maxAccountCount else {
+            throw SolanaGaslessError.accountIndexOverflow
+        }
+    }
+
     public func transactionSize(withSignaturePlaceholders: Data) throws -> SolanaTransactionSize {
         let transaction = try removeSignaturesPlaceholders(from: withSignaturePlaceholders).transaction
         return transactionSize(withoutSignaturePlaceholders: transaction)
@@ -300,6 +426,7 @@ extension SolanaTransactionHelper {
         static let messageHeaderLength: Int = 3
         static let versionedMessageMask: UInt8 = 0x80
         static let supportedMessageVersion: UInt8 = 0
+        static let maxAccountCount: Int = 256
         static let instructionDiscriminatorLength: Int = 4
         static let systemProgramKey = Data(repeating: 0, count: publicKeyLength)
         static let advanceNonceAccountDiscriminator = Data([0x04, 0x00, 0x00, 0x00])

@@ -33,8 +33,7 @@ struct CommonSendSourceToken: SendSourceToken {
     let blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper
     let accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)?
     let receivingRestrictionsProvider: any ReceivingRestrictionsProvider
-    let isTangemPayAccount: Bool
-    let jointAccountPolicy: JointAccountPolicy?
+    let accountType: SendSourceTokenAccountType
     let isCustomSlippageAllowed = true
 
     // MARK: - SendReceiveToken

@@ -23,7 +23,7 @@ struct YieldModuleRateInfoChartContainer: View {
 
             case .loaded(let data):
                 makeTopContent(isLoading: false)
-                YieldModuleChart(state: .loaded(apyData: data.buckets, xAxisLabels: data.xLabels, averageApy: data.averageApy))
+                YieldModuleChart(state: .loaded(apyData: data.buckets, xAxisTicks: data.xTicks, averageApy: data.averageApy))
 
             case .error(action: let retry):
                 errorView { await retry() }

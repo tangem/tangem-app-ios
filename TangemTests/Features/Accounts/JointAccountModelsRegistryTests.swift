@@ -19,28 +19,24 @@ import TangemFoundation
 struct JointAccountModelsRegistryTests {
     @Test("A record moving on reaches the model that was handed out, rather than a fresh one nobody holds yet")
     func recordChangesReachTheModelHandedOut() async throws {
-        let sut = Self.makeSUT()
+        let repository = JointAccountsRepositoryStub(jointAccounts: [Self.storedJointAccount(status: .pending, memberNames: ["Alice"])])
+        let sut = Self.makeSUT(dependenciesFactory: JointAccountDependenciesFactoryStub(repository: repository))
         let delegate = JointAccountModelDelegateMock()
         let entry = Self.storedCryptoAccount()
 
-        let first = await sut.jointAccountModels(
-            from: [entry],
-            with: [Self.storedJointAccount(status: .pending, memberNames: ["Alice"])],
-            delegate: delegate
-        )
+        let first = await sut.jointAccountModels(from: [entry], with: repository.jointAccounts, delegate: delegate)
         let model = try #require(first.first)
         let didChangeCount = OSAllocatedUnfairLock(initialState: 0)
         let subscription = model.didChangePublisher.sink { didChangeCount.withLock { $0 += 1 } }
 
-        let second = await sut.jointAccountModels(
-            from: [entry],
-            with: [Self.storedJointAccount(status: .confirming(safeAddress: Self.safeAddress), memberNames: ["Alice", "Bob"])],
-            delegate: delegate
-        )
+        #expect(didChangeCount.withLock { $0 } == 0)
+
+        repository.store([Self.storedJointAccount(status: .confirming(safeAddress: Self.safeAddress), memberNames: ["Alice", "Bob"])])
+        let second = await sut.jointAccountModels(from: [entry], with: repository.jointAccounts, delegate: delegate)
 
         #expect(second.count == 1)
         #expect(second.first === model)
-        #expect(model.status == .confirming(safeAddress: Self.safeAddress))
+        #expect(model.jointAccountStatusProvider.status == .confirming(safeAddress: Self.safeAddress))
         #expect(didChangeCount.withLock { $0 } == 1)
         withExtendedLifetime(subscription) {}
     }
@@ -101,7 +97,8 @@ private extension JointAccountModelsRegistryTests {
                     slot: nil,
                     signature: nil
                 )
-            }
+            },
+            invites: []
         )
     }
 }
@@ -109,7 +106,12 @@ private extension JointAccountModelsRegistryTests {
 // MARK: - Test doubles
 
 private final class JointAccountDependenciesFactoryStub: JointAccountDependenciesFactory {
+    private let repository: JointAccountsRepository
     private let callsCount = OSAllocatedUnfairLock(initialState: 0)
+
+    init(repository: JointAccountsRepository = JointAccountsRepositoryStub()) {
+        self.repository = repository
+    }
 
     var makeDependenciesCallsCount: Int {
         callsCount.withLock { $0 }
@@ -132,9 +134,17 @@ private final class JointAccountDependenciesFactoryStub: JointAccountDependencie
             pendingOperationsProvider: pendingOperationsProvider,
             finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
                 pendingOperationsProvider: pendingOperationsProvider,
-                walletModelsManager: walletModelsManager
+                walletModelsManager: walletModelsManager,
+                historyDeltaSyncing: JointOperationsHistoryDeltaSyncingStub()
             ),
-            membersService: JointAccountMembersServiceMock()
+            membersService: JointAccountMembersServiceMock(),
+            userRoleService: JointAccountUserRoleServiceMock(),
+            statusProvider: CommonJointAccountStatusProvider(
+                userWalletId: JointAccountModelsRegistryTests.userWalletId,
+                derivationIdentity: derivationIdentity,
+                jointAccountsRepository: repository,
+                userRoleService: JointAccountUserRoleServiceMock()
+            )
         )
     }
 }

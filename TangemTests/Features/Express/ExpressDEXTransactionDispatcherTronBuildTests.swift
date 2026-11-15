@@ -208,7 +208,8 @@ private extension ExpressDEXTransactionDispatcherTronBuildTests {
         let dispatcher = ExpressDEXTransactionDispatcher(
             walletModel: walletModel,
             transactionSigner: signer,
-            transferTransactionDispatcher: transferDispatcher
+            transferTransactionDispatcher: transferDispatcher,
+            solanaGaslessTransactionSender: SolanaGaslessTransactionSender(walletModel: walletModel, transactionSigner: signer)
         )
 
         trackForMemoryLeaks(walletModel)

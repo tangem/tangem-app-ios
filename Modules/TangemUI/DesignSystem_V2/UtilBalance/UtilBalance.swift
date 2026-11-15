@@ -41,6 +41,7 @@ public struct UtilBalance: View, Setupable {
         switch value {
         case .string(let string):
             Text(isMasked ? Self.maskGlyph : string)
+                .monospacedDigit()
 
         case .attributed(let attributed):
             Text(isMasked ? attributed.masked(with: Self.maskGlyph) : attributed)

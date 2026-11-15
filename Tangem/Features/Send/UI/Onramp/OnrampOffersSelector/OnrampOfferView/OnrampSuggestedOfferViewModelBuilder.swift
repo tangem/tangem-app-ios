@@ -72,6 +72,7 @@ struct OnrampSuggestedOfferViewModelBuilder {
         let timeFormatted = processingTimeFormatter.format(provider.paymentMethod.type.processingTime)
         let offerProvider: OnrampOfferViewModel.Provider = .init(
             name: provider.provider.name,
+            iconURL: provider.provider.imageURL,
             paymentType: provider.paymentMethod,
             timeFormatted: timeFormatted
         )

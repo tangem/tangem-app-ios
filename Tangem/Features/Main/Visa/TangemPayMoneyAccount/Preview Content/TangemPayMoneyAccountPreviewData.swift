@@ -11,7 +11,7 @@ import Foundation
 
 enum TangemPayMoneyAccountPreviewData {
     static let menuSections: [[TangemPayMoneyAccountMenuItem]] = [
-        [.currentPlan(planName: "Basic"), .termsAndFees, .support],
+        [.termsAndFees, .support],
         [.closeAccount],
     ]
 
@@ -57,6 +57,15 @@ enum TangemPayMoneyAccountPreviewData {
             ]
         ),
     ]
+
+    static let sessionExpiredBannerItems = MultiWalletNotificationBannerMapper().mapItems(
+        [
+            NotificationsFactory().buildNotificationInput(
+                for: TangemPayNotificationEvent.sessionExpired(icon: nil, isRenewing: false),
+                buttonAction: { _, _ in }
+            ),
+        ]
+    )
 
     private static func transaction(
         interactionAddress: TransactionViewModel.InteractionAddressType,

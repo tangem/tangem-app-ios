@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemSdk
 import TangemFoundation
 @testable import Tangem
 
@@ -25,53 +26,79 @@ enum JointAccountCompositionFixture {
         return String(identifier.map { $0.isUppercase ? Character($0.lowercased()) : Character($0.uppercased()) })
     }
 
+    /// - Parameter memberSlots: The slot of each member, as only the creator of a pending account is told them;
+    /// nil for everyone else.
     static func makeMembersService(
         status: JointAccountStatus = .pending,
         membersCount: Int,
         members: [JointAccountMember],
+        memberSlots: [Int]? = nil,
+        memberSignatures: [String?]? = nil,
+        invites: [StoredJointAccount.Invite] = [],
+        userRoleService: JointAccountUserRoleService? = nil,
         keysProvider: KeysProvider = KeysRepositoryTestsMock(keys: [])
     ) -> CommonJointAccountMembersService {
         let repository = JointAccountsRepositoryStub(
-            jointAccounts: [storedAccount(status: status, membersCount: membersCount, members: members)]
+            jointAccounts: [
+                storedAccount(
+                    status: status,
+                    membersCount: membersCount,
+                    members: members,
+                    memberSlots: memberSlots,
+                    memberSignatures: memberSignatures,
+                    invites: invites
+                ),
+            ]
         )
 
-        return makeMembersService(repository: repository, keysProvider: keysProvider)
+        return makeMembersService(repository: repository, userRoleService: userRoleService, keysProvider: keysProvider)
     }
 
     static func makeMembersService(
         repository: JointAccountsRepository,
+        userRoleService: JointAccountUserRoleService? = nil,
         keysProvider: KeysProvider = KeysRepositoryTestsMock(keys: [])
     ) -> CommonJointAccountMembersService {
         CommonJointAccountMembersService(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: repository,
-            userRoleService: CommonJointAccountUserRoleService(
-                derivationIdentity: derivationIdentity,
-                keysProvider: keysProvider
-            )
+            userRoleService: userRoleService ?? makeUserRoleService(repository: repository, keysProvider: keysProvider)
+        )
+    }
+
+    static func makeUserRoleService(repository: JointAccountsRepository, keysProvider: KeysProvider) -> CommonJointAccountUserRoleService {
+        CommonJointAccountUserRoleService(
+            userWalletId: userWalletId,
+            derivationIdentity: derivationIdentity,
+            keysProvider: keysProvider,
+            jointAccountsRepository: repository
         )
     }
 
     static func storedAccount(
         status: JointAccountStatus,
         membersCount: Int,
-        members: [JointAccountMember]
+        members: [JointAccountMember],
+        memberSlots: [Int]? = nil,
+        memberSignatures: [String?]? = nil,
+        invites: [StoredJointAccount.Invite] = []
     ) -> StoredJointAccount {
         StoredJointAccount(
             cryptoAccountId: caseFlippedCryptoAccountId,
             membersCount: membersCount,
             threshold: 2,
             status: status,
-            members: members.map { member in
+            members: members.enumerated().map { index, member in
                 StoredJointAccount.Member(
                     name: member.name,
                     address: member.address,
                     role: member.role == .creator ? .creator : .member,
-                    slot: nil,
-                    signature: nil
+                    slot: memberSlots?[safe: index].map(JointAccountMemberSlotID.init),
+                    signature: memberSignatures?[safe: index] ?? nil
                 )
-            }
+            },
+            invites: invites
         )
     }
 
@@ -84,7 +111,9 @@ enum JointAccountCompositionFixture {
         status: JointAccountOperationStatus = .awaitingSignatures,
         finishedAt: Date? = nil,
         initiator: String = "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
-        signatures: [JointAccountOperation.Signature] = []
+        signatures: [JointAccountOperation.Signature] = [],
+        createdAt: Date? = nil,
+        threshold: Int? = nil
     ) -> JointAccountOperation {
         JointAccountOperation(
             id: id,
@@ -106,7 +135,59 @@ enum JointAccountCompositionFixture {
             finishedAt: finishedAt,
             cancelReason: nil,
             initiator: initiator,
-            signatures: signatures
+            signatures: signatures,
+            createdAt: createdAt,
+            threshold: threshold
+        )
+    }
+}
+
+// MARK: - Keys
+
+extension JointAccountCompositionFixture {
+    static let ownAddress = "0x6ECa00c52AFC728CDbF42E817d712e175bb23C7d"
+    static let strangerAddress = "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c"
+    static let seedKey = Data(hexString: "0279BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798")
+    static let derivedKey = ExtendedPublicKey(
+        publicKey: Data(hexString: "0241DCD64B5F4A039FC339A16300A833A883B218909F2EBCAF3906651C76842C45"),
+        chainCode: Data(repeating: 0x11, count: 32)
+    )
+
+    static var ownKeyPath: DerivationPath {
+        get throws {
+            try JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIdentity.derivationIndex)
+        }
+    }
+
+    static var ownKeyDerivation: DerivationResult {
+        get throws {
+            try [seedKey: DerivedKeys(keys: [ownKeyPath: derivedKey])]
+        }
+    }
+
+    static func masterKey(derivedKeys: [DerivationPath: ExtendedPublicKey] = [:]) -> KeyInfo {
+        KeyInfo(
+            publicKey: seedKey,
+            chainCode: Data(repeating: 0x11, count: 32),
+            curve: .secp256k1,
+            isImported: false,
+            derivedKeys: derivedKeys
+        )
+    }
+
+    static func member(address: String, role: JointAccountMember.Role = .member) -> JointAccountMember {
+        JointAccountMember(name: "Member", address: address, role: role, isMe: false, signature: nil)
+    }
+
+    static func makeStatusProvider(
+        repository: JointAccountsRepository,
+        userRoleService: JointAccountUserRoleService
+    ) -> CommonJointAccountStatusProvider {
+        CommonJointAccountStatusProvider(
+            userWalletId: userWalletId,
+            derivationIdentity: derivationIdentity,
+            jointAccountsRepository: repository,
+            userRoleService: userRoleService
         )
     }
 }

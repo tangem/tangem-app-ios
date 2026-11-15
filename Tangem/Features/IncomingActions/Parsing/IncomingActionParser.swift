@@ -58,6 +58,10 @@ class IncomingActionParser {
         return externalLinkParser.parse(url)
     }
 
+    func pushLink(from userInfo: [AnyHashable: Any]) -> URL? {
+        pushLinkString(from: userInfo).flatMap(URL.init(string:))
+    }
+
     /// Reads a push notification's payload: a payment push, a link carried under the `deeplink` or `link` key,
     /// or a transaction push, which is assembled into a token link.
     func parse(push userInfo: [AnyHashable: Any]) -> IncomingAction? {
@@ -65,7 +69,7 @@ class IncomingActionParser {
             return .navigation(payload.action)
         }
 
-        if let link = [PushKeys.deeplink, PushKeys.externalLink].compactMap({ userInfo[$0] as? String }).first {
+        if let link = pushLinkString(from: userInfo) {
             return URL(string: link).flatMap(parseIncomingURL)
         }
 
@@ -112,9 +116,13 @@ private extension IncomingActionParser {
         static let deeplink = "deeplink"
         static let externalLink = "link"
     }
+
+    func pushLinkString(from userInfo: [AnyHashable: Any]) -> String? {
+        [PushKeys.deeplink, PushKeys.externalLink].compactMap { userInfo[$0] as? String }.first
+    }
 }
 
-private extension URL {
+extension URL {
     /// The link as it would have been written in lower case. A link that already is one comes back untouched,
     /// so nothing that works today is rebuilt on its way in.
     func withLowercasedScheme() -> URL {

@@ -318,7 +318,7 @@ private extension CommonPolymarketAccountModel {
     }
 
     func dropCredentialsIfRejected(_ error: Error) {
-        guard case .http(let statusCode, _) = error as? PolymarketAPIError, statusCode == Constants.unauthorizedStatusCode else {
+        guard (error as? PolymarketAPIError)?.isUnauthorized == true else {
             return
         }
 
@@ -333,13 +333,5 @@ private extension CommonPolymarketAccountModel {
         }
 
         return current
-    }
-}
-
-// MARK: - Constants
-
-private extension CommonPolymarketAccountModel {
-    enum Constants {
-        static let unauthorizedStatusCode = 401
     }
 }

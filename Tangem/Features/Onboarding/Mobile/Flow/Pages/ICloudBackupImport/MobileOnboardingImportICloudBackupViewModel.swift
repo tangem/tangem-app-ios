@@ -17,7 +17,6 @@ import TangemLocalization
 import TangemUIUtils
 
 final class MobileOnboardingImportICloudBackupViewModel: ObservableObject {
-    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
     @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
 
     @Published private(set) var state: State = .password
@@ -199,7 +198,7 @@ private extension MobileOnboardingImportICloudBackupViewModel {
             logImportErrorAnalytics(error)
 
             switch error {
-            case UserWalletRepositoryError.duplicateWalletAdded:
+            case UserWalletRepositoryError.duplicateWalletAdded, UserWalletRepositoryError.mobileWalletLimitReached:
                 await showAlert(error.alertBinder)
             default:
                 await showErrorAlert()
@@ -230,8 +229,7 @@ private extension MobileOnboardingImportICloudBackupViewModel {
     func addWallet(userWalletModel: UserWalletModel) async throws {
         AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
 
-        BackendAuthenticationRegistrar.registerNewUnprotectedMobileWallet(userWalletModel)
-        try userWalletRepository.add(userWalletModel: userWalletModel)
+        try creationUtil.store(userWalletModel)
     }
 }
 

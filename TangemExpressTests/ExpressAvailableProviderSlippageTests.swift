@@ -126,7 +126,7 @@ private extension ExpressAvailableProviderSlippageTests {
             ),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
+            featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
         )
     }
 }

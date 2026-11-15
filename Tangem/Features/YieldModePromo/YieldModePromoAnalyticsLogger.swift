@@ -10,11 +10,24 @@ import Foundation
 import TangemFoundation
 
 protocol YieldModePromoAnalyticsLogger {
+    func logOpened(data: YieldModePromoSheetData)
+    func logSkipped(reason: MainScreenPromoSheetSkipReason)
     func logClosed(data: YieldModePromoSheetData, method: YieldModePromoCloseMethod)
     func logTryYieldMode(data: YieldModePromoSheetData)
 }
 
 struct CommonYieldModePromoAnalyticsLogger: YieldModePromoAnalyticsLogger {
+    func logOpened(data: YieldModePromoSheetData) {
+        Analytics.log(
+            event: .earningPromoScreenOpened,
+            params: offerParams(data).merging([.tokensCount: String(data.tokensCount)]) { $1 }
+        )
+    }
+
+    func logSkipped(reason: MainScreenPromoSheetSkipReason) {
+        Analytics.log(event: .earningPromoScreenSkipped, params: [.reason: Self.skipReasonValue(reason)])
+    }
+
     func logClosed(data: YieldModePromoSheetData, method: YieldModePromoCloseMethod) {
         Analytics.log(
             event: .earningPromoScreenClosed,
@@ -32,6 +45,15 @@ struct CommonYieldModePromoAnalyticsLogger: YieldModePromoAnalyticsLogger {
             .blockchain: data.blockchainName,
             .apy: Self.formatAPY(data.apy),
         ]
+    }
+
+    static func skipReasonValue(_ reason: MainScreenPromoSheetSkipReason) -> String {
+        switch reason {
+        case .surfaceBusy: "Surface Busy"
+        case .dataNotReady: "Data Not Ready"
+        case .noEligibleContent: "No Eligible Token"
+        case .variantNotReady: "Variant Not Ready"
+        }
     }
 
     static func formatAPY(_ apy: Decimal) -> String {

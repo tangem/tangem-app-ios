@@ -19,9 +19,7 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
     private let networkProvider: TangemProvider<EtherscanTransactionHistoryTarget>
     private let targetConfiguration: EtherscanTransactionHistoryTarget.Configuration
     private let calldataLoader: EtherscanCalldataLoader
-
-    private var page: TransactionHistoryIndexPage?
-    private var hasReachedEnd = false
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     init(
         mapper: Mapper,
@@ -71,6 +69,7 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
 
     private func loadTransactionHistory(
         request: TransactionHistory.Request,
+        resetToken: UUID,
         requestedPageNumber: Int?,
         retryAttempt: Int
     ) -> AnyPublisher<TransactionHistory.Response, Error> {
@@ -82,7 +81,7 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
             Future { promise in
                 if let requestedPageNumber {
                     promise(.success(requestedPageNumber))
-                } else if let currentPageNumber = self?.page?.number {
+                } else if let currentPageNumber = self?.state({ $0.page?.number }) {
                     promise(.success(currentPageNumber + 1))
                 } else {
                     promise(.success(Constants.initialPageNumber))
@@ -127,7 +126,14 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
                                 record: record
                             )
                         }
-                    historyProvider.page = TransactionHistoryIndexPage(number: requestedPageNumber)
+                    historyProvider.state { state in
+                        guard state.resetToken == resetToken else {
+                            return
+                        }
+
+                        state.page = TransactionHistoryIndexPage(number: requestedPageNumber)
+                    }
+
                     return TransactionHistory.Response(records: transactionRecords)
                 }
                 .tryCatch { [weak historyProvider] error in
@@ -137,6 +143,7 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
                             return historyProvider.handleLoadTransactionHistoryError(
                                 error,
                                 request: request,
+                                resetToken: resetToken,
                                 requestedPageNumber: requestedPageNumber,
                                 retryAttempt: retryAttempt
                             )
@@ -149,6 +156,7 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
     private func handleLoadTransactionHistoryError(
         _ error: Error,
         request: TransactionHistory.Request,
+        resetToken: UUID,
         requestedPageNumber: Int,
         retryAttempt: Int
     ) -> AnyPublisher<TransactionHistory.Response, Error> {
@@ -167,14 +175,22 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
                 .flatMap { historyProvider, _ in
                     return historyProvider.loadTransactionHistory(
                         request: request,
+                        resetToken: resetToken,
                         requestedPageNumber: requestedPageNumber,
                         retryAttempt: nextRetryAttempt
                     )
                 }
                 .eraseToAnyPublisher()
         case .endOfTransactionHistoryReached:
-            page = TransactionHistoryIndexPage(number: requestedPageNumber)
-            hasReachedEnd = true
+            state { state in
+                guard state.resetToken == resetToken else {
+                    return
+                }
+
+                state.page = TransactionHistoryIndexPage(number: requestedPageNumber)
+                state.hasReachedEnd = true
+            }
+
             return .justWithError(output: TransactionHistory.Response(records: []))
         case .unknown, .maxRateLimitReached:
             return .anyFail(error: error)
@@ -186,17 +202,21 @@ final class EtherscanTransactionHistoryProvider<Mapper> where
 
 extension EtherscanTransactionHistoryProvider: TransactionHistoryProvider {
     var description: String {
+        let snapshot = state { $0 }
+
         return objectDescription(
             self,
             userInfo: [
-                "pageNumber": page?.number ?? "nil",
-                "hasReachedEnd": hasReachedEnd,
+                "pageNumber": snapshot.page?.number ?? "nil",
+                "hasReachedEnd": snapshot.hasReachedEnd,
             ]
         )
     }
 
     var canFetchHistory: Bool {
-        page == nil || !hasReachedEnd
+        state { state in
+            state.page == nil || !state.hasReachedEnd
+        }
     }
 
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
@@ -204,13 +224,25 @@ extension EtherscanTransactionHistoryProvider: TransactionHistoryProvider {
             return .anyFail(error: TransactionHistory.ProviderError.requestKeyNotSupported)
         }
 
-        return loadTransactionHistory(request: request, requestedPageNumber: nil, retryAttempt: 0)
+        let resetToken = state { $0.resetToken }
+
+        return loadTransactionHistory(request: request, resetToken: resetToken, requestedPageNumber: nil, retryAttempt: 0)
     }
 
     func reset() {
         mapper.reset()
-        page = nil
-        hasReachedEnd = false
+        state { $0 = State() }
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension EtherscanTransactionHistoryProvider {
+    struct State {
+        /// Changes with every reset, so a response to a request made before the reset can't update the new state.
+        let resetToken = UUID()
+        var page: TransactionHistoryIndexPage?
+        var hasReachedEnd = false
     }
 }
 

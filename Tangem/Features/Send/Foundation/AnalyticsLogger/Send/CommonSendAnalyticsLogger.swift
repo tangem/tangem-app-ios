@@ -26,6 +26,14 @@ class CommonSendAnalyticsLogger {
         sendSourceTokenInput?.sourceToken.value?.tokenItem
     }
 
+    private var jointAccountPolicy: JointAccountPolicy? {
+        guard case .joint(let policy) = sendSourceTokenInput?.sourceToken.value?.accountType else {
+            return nil
+        }
+
+        return policy
+    }
+
     private var receiveTokenItem: TokenItem? {
         sendReceiveTokenInput?.receiveToken.value?.tokenItem
     }
@@ -58,6 +66,33 @@ class CommonSendAnalyticsLogger {
 
     private func buildRateTypeAnalyticsValue() -> String? {
         sendSwapProvidersInput?.currentRateType?.analyticsValue.rawValue
+    }
+
+    private func buildFeeTypeAnalyticsValue(selectedFee: FeeOption?) -> Analytics.ParameterValue {
+        guard jointAccountPolicy == nil else {
+            return .fixed
+        }
+
+        return SendAnalyticsHelper.makeFeeTypeParameter(
+            selectedFee: selectedFee,
+            supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false
+        )
+    }
+
+    private func buildJointAccountAnalyticsParameters() -> [Analytics.ParameterKey: String] {
+        guard let jointAccountPolicy else {
+            return [:]
+        }
+
+        return [
+            .membersCount: "\(jointAccountPolicy.membersCount)",
+            .threshold: "\(jointAccountPolicy.signersCount)",
+        ]
+    }
+
+    private func buildSourceAccountTypeAnalyticsParameters() -> [Analytics.ParameterKey: String] {
+        sendSourceTokenInput?.sourceToken.value?.accountModelAnalyticsProvider?
+            .analyticsParameters(with: AccountTypeAnalyticsBuilder()) ?? [:]
     }
 
     private func buildAccountAnalyticsParameters() -> [Analytics.ParameterKey: String] {
@@ -732,8 +767,7 @@ extension CommonSendAnalyticsLogger: SwapManagementModelAnalyticsLogger {
             let parameter = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: selectedFee.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
             analyticsParameters[.feeType] = parameter.rawValue
             analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
-            let isGasless = selectedFee.value.value?.isGasless ?? false
-            analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
+            analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(for: selectedFee.value.value).rawValue
         }
 
         Analytics.log(
@@ -791,7 +825,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         default: .sendTransactionSentScreenOpened
         }
 
-        let feeTypeAnalyticsParameter = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: sendFeeInput?.selectedFee?.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
+        let feeTypeAnalyticsParameter = buildFeeTypeAnalyticsValue(selectedFee: sendFeeInput?.selectedFee?.option)
 
         var analyticsParameters: [Analytics.ParameterKey: String] = [
             .token: tokenItem.currencySymbol,
@@ -807,12 +841,16 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             }
 
             analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
-            let isGasless = selectedFee.value.value?.isGasless ?? false
-            analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
+            analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(for: selectedFee.value.value).rawValue
+        }
+
+        if jointAccountPolicy != nil {
+            analyticsParameters[.nonce] = Analytics.ParameterValue.no.rawValue
         }
 
         // Merge account analytics (source + destination)
         analyticsParameters.merge(buildAccountAnalyticsParameters()) { $1 }
+        analyticsParameters.merge(buildJointAccountAnalyticsParameters()) { $1 }
 
         Analytics.log(
             event: event,
@@ -842,7 +880,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
         ]
 
         if let sourceToken = sendSourceTokenInput?.sourceToken.value {
-            let isTangemPayAccount = sourceToken.isTangemPayAccount
+            let isTangemPayAccount = sourceToken.accountType == .tangemPay
             analyticsParameters[.payAccount] = Analytics.ParameterValue.boolState(for: isTangemPayAccount).rawValue
         }
 
@@ -850,8 +888,7 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             let parameter = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: selectedFee.option, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
             analyticsParameters[.feeType] = parameter.rawValue
             analyticsParameters[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: selectedFee.tokenItem)
-            let isGasless = selectedFee.value.value?.isGasless ?? false
-            analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
+            analyticsParameters[.feeAssetType] = Analytics.ParameterValue.feeAssetType(for: selectedFee.value.value).rawValue
         }
 
         if let receive = sendReceiveTokenInput?.receiveToken.value {
@@ -964,6 +1001,11 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             return
         }
 
+        guard jointAccountPolicy == nil else {
+            Analytics.logJointAccountError(source: .createOperation, error: error)
+            return
+        }
+
         Analytics.log(event: .sendErrorTransactionRejected, params: [
             .token: tokenItem.currencySymbol,
             .errorCode: "\(error.universalErrorCode)",
@@ -985,7 +1027,7 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
             return
         }
 
-        let feeType = SendAnalyticsHelper.makeFeeTypeParameter(selectedFee: fee, supportFeeSelection: sendFeeInput?.supportFeeSelection ?? false)
+        let feeType = buildFeeTypeAnalyticsValue(selectedFee: fee)
 
         // If the blockchain doesn't support additional field -- return null
         // Otherwise return full / empty
@@ -1007,9 +1049,11 @@ extension CommonSendAnalyticsLogger: SendManagementModelAnalyticsLogger {
 
         if let tokenFee = tokenFee {
             params[.feeToken] = SendAnalyticsHelper.makeAnalyticsTokenName(from: tokenFee.tokenItem)
-            let isGasless = tokenFee.value.value?.isGasless ?? false
-            params[.feeAssetType] = Analytics.ParameterValue.feeAssetType(isGasless: isGasless).rawValue
+            params[.feeAssetType] = Analytics.ParameterValue.feeAssetType(for: tokenFee.value.value).rawValue
         }
+
+        params.merge(buildSourceAccountTypeAnalyticsParameters()) { $1 }
+        params.merge(buildJointAccountAnalyticsParameters()) { $1 }
 
         Analytics.log(
             event: .transactionSent,

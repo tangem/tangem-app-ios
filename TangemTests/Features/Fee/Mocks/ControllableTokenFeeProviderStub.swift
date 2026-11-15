@@ -12,6 +12,7 @@ import BlockchainSdk
 
 final class ControllableTokenFeeProviderStub: TokenFeeProvider {
     let feeTokenItem: TokenItem
+    let payer: TokenFeePayer
     let hasMultipleFeeOptions: Bool = false
 
     private let _state: CurrentValueSubject<TokenFeeProviderState, Never>
@@ -23,11 +24,13 @@ final class ControllableTokenFeeProviderStub: TokenFeeProvider {
 
     init(
         feeTokenItem: TokenItem,
+        payer: TokenFeePayer = .user,
         state: TokenFeeProviderState = .idle,
         balance: TokenBalanceType = .loaded(0),
         selectedTokenFee: TokenFee
     ) {
         self.feeTokenItem = feeTokenItem
+        self.payer = payer
         _state = .init(state)
         _balance = .init(balance)
         _selectedTokenFee = .init(selectedTokenFee)

@@ -165,8 +165,6 @@ struct ReceiveBottomSheetNotificationInputsFactory {
 
 private extension ReceiveBottomSheetNotificationInputsFactory {
     var solanaUnsupportedNFTTypesDescription: String {
-        FeatureProvider.isAvailable(.solanaPNFTAndMetaplexCore)
-            ? Localization.nftReceiveUnsupportedCnftDescription
-            : Localization.nftReceiveUnsupportedTypesDescription
+        Localization.nftReceiveUnsupportedCnftDescription
     }
 }

@@ -12,12 +12,13 @@ import TangemLocalization
 import TangemUI
 
 struct TangemPayMoneyAccountRowView: View {
+    let state: TangemPayMoneyAccountRowState
     let onTap: () -> Void
 
     var body: some View {
         Row(
             title: Localization.moneyAccountMainName,
-            subtitle: Localization.moneyAccountMainStatusActivating
+            subtitle: subtitle
         )
         .start { avatar }
         .includeInnerPadding(false)
@@ -35,11 +36,24 @@ struct TangemPayMoneyAccountRowView: View {
             size: .size40
         )
     }
+
+    private var subtitle: String {
+        switch state {
+        case .activating:
+            Localization.moneyAccountMainStatusActivating
+        case .awaitingDeposit:
+            Localization.moneyAccountMainStatusAwaitingDeposit
+        case .failed:
+            Localization.moneyAccountMainStatusFailed
+        case .active:
+            Localization.moneyAccountMainStatusActiveV2
+        }
+    }
 }
 
 // MARK: - Previews
 
 #Preview {
-    TangemPayMoneyAccountRowView(onTap: {})
+    TangemPayMoneyAccountRowView(state: .awaitingDeposit, onTap: {})
         .padding(.horizontal, 12)
 }

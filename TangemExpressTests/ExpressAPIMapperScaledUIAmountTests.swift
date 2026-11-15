@@ -13,7 +13,7 @@ import Testing
 struct ExpressAPIMapperScaledUIAmountTests {
     private let mapper = ExpressAPIMapper(
         exchangeDataDecoder: StubExchangeDataDecoder(),
-        featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
+        featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
     )
 
     @Test("A CEX txValue is mapped into displayed space, matching what the chain expects to unscale")

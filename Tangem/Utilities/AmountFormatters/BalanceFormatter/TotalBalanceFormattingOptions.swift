@@ -18,31 +18,19 @@ struct TotalBalanceFormattingOptions {
     init(
         integerPartFont: TangemTypographyToken,
         fractionalPartFont: TangemTypographyToken,
-        integerPartColor: Color,
-        fractionalPartColor: Color,
+        color: Color,
         fractionalPartIncludesDecimalSeparator: Bool
     ) {
-        integerPart = AttributedBalanceFormatter.PartStyle(token: integerPartFont, color: integerPartColor)
-        fractionalPart = AttributedBalanceFormatter.PartStyle(token: fractionalPartFont, color: fractionalPartColor)
+        integerPart = AttributedBalanceFormatter.PartStyle(token: integerPartFont, color: color)
+        fractionalPart = AttributedBalanceFormatter.PartStyle(token: fractionalPartFont, color: color)
         self.fractionalPartIncludesDecimalSeparator = fractionalPartIncludesDecimalSeparator
-    }
-
-    static var defaultOptionsRedesign: TotalBalanceFormattingOptions {
-        .init(
-            integerPartFont: DesignSystem.Font.displayMediumToken,
-            fractionalPartFont: DesignSystem.Font.headingMediumToken,
-            integerPartColor: DesignSystem.Color.textPrimary,
-            fractionalPartColor: DesignSystem.Color.textSecondary,
-            fractionalPartIncludesDecimalSeparator: true
-        )
     }
 
     static var mainHeaderRedesign: TotalBalanceFormattingOptions {
         TotalBalanceFormattingOptions(
             integerPartFont: DesignSystem.Font.displayMediumToken,
             fractionalPartFont: DesignSystem.Font.headingMediumToken,
-            integerPartColor: DesignSystem.Color.textPrimary,
-            fractionalPartColor: DesignSystem.Color.textPrimary,
+            color: DesignSystem.Color.textPrimary,
             fractionalPartIncludesDecimalSeparator: true
         )
     }

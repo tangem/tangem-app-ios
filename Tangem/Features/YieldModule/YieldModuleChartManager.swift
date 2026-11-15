@@ -9,47 +9,70 @@
 import Foundation
 
 protocol YieldModuleChartManager {
-    func makeMonthLabels(from fromDate: String, to toDate: String, bucketsCount: Int) -> [String]
+    func makeMonthTicks(bucketStarts: [Date]) -> [Int: String]
 }
 
 final class CommonYieldModuleChartManager {
-    // MARK: - Private Implementation
+    private let calendar: Calendar
+    private let monthFormatter: DateFormatter
 
-    private func parseISO(_ string: String) -> Date? {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [
-            .withFullDate,
-            .withFullTime,
-            .withColonSeparatorInTime,
-            .withDashSeparatorInDate,
-            .withTimeZone,
-        ]
-        return formatter.date(from: string)
+    init(locale: Locale = .current) {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .gmt
+        self.calendar = calendar
+
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.timeZone = .gmt
+        formatter.setLocalizedDateFormatFromTemplate("LLL")
+        monthFormatter = formatter
     }
 }
 
+// MARK: - YieldModuleChartManager
+
 extension CommonYieldModuleChartManager: YieldModuleChartManager {
-    func makeMonthLabels(from fromDate: String, to toDate: String, bucketsCount: Int) -> [String] {
-        guard
-            let from = parseISO(fromDate),
-            let to = parseISO(toDate),
-            to > from,
-            bucketsCount > 1
-        else {
-            return []
+    func makeMonthTicks(bucketStarts: [Date]) -> [Int: String] {
+        guard bucketStarts.count > 1 else { return [:] }
+
+        let minSpacing = Int((Double(bucketStarts.count) / Double(Constants.maxTicksCount)).rounded(.up))
+
+        var ticks: [Int: String] = [:]
+        var lastTickIndex: Int?
+
+        for index in monthStartIndices(of: bucketStarts).reversed() {
+            if let lastTickIndex, lastTickIndex - index < minSpacing {
+                continue
+            }
+
+            ticks[index] = monthFormatter.string(from: bucketStarts[index])
+            lastTickIndex = index
         }
 
-        let total = to.timeIntervalSince(from)
-        let step = total / 4.0
+        return ticks
+    }
 
-        let formatter = DateFormatter()
-        formatter.locale = Locale.current
-        formatter.setLocalizedDateFormatFromTemplate("LLL")
+    private func monthStartIndices(of dates: [Date]) -> [Int] {
+        var indices: [Int] = []
+        var lastMonth: DateComponents?
 
-        return (0 ... 4).map { i in
-            let t = from.addingTimeInterval(Double(i) * step)
-            let title = formatter.string(from: t)
-            return title
+        for (index, date) in dates.enumerated() {
+            let month = calendar.dateComponents([.year, .month], from: date)
+
+            if month != lastMonth {
+                indices.append(index)
+                lastMonth = month
+            }
         }
+
+        return indices
+    }
+}
+
+// MARK: - Constants
+
+private extension CommonYieldModuleChartManager {
+    enum Constants {
+        static let maxTicksCount = 5
     }
 }

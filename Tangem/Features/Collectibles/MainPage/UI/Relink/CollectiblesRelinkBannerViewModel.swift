@@ -14,10 +14,13 @@ import TangemFoundation
 final class CollectiblesRelinkBannerViewModel: ObservableObject {
     // MARK: - Properties
 
-    private let relinker: any CollectiblesRelinkStatusProvider & CollectiblesOnboarder
+    private let relinker: any CollectiblesRelinkStatusProvider & CollectiblesRelinker
     private let openReconnection: (@MainActor () -> Void)?
+    private let closeCollectibles: @MainActor () -> Void
 
     private var errorDismissTask: Task<Void, Error>?
+
+    private(set) var relinkTask: Task<Void, Never>?
 
     // MARK: - Publishers
 
@@ -28,11 +31,13 @@ final class CollectiblesRelinkBannerViewModel: ObservableObject {
     // MARK: - Init
 
     init(
-        relinker: any CollectiblesRelinkStatusProvider & CollectiblesOnboarder,
-        openReconnection: (@MainActor () -> Void)?
+        relinker: any CollectiblesRelinkStatusProvider & CollectiblesRelinker,
+        openReconnection: (@MainActor () -> Void)?,
+        closeCollectibles: @escaping @MainActor () -> Void
     ) {
         self.relinker = relinker
         self.openReconnection = openReconnection
+        self.closeCollectibles = closeCollectibles
 
         relinker.isRelinkRequiredPublisher
             .receiveOnMain()
@@ -71,9 +76,16 @@ final class CollectiblesRelinkBannerViewModel: ObservableObject {
 
 private extension CollectiblesRelinkBannerViewModel {
     func signRelink() {
-        Task { [weak self, relinker] in
+        relinkTask = Task { [weak self, relinker] in
+            defer { self?.relinkTask = nil }
+
             do {
-                try await relinker.onboard()
+                guard try await relinker.relink() == .accountNotFound else {
+                    return
+                }
+
+                CollectiblesLogger.debug("relink: no account to relink, closing Packs")
+                self?.closeCollectibles()
             } catch {
                 guard !error.isCancellationError else {
                     CollectiblesLogger.debug("relink: cancelled")

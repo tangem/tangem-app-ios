@@ -235,6 +235,7 @@ protocol WalletModelDependenciesProvider {
     var ethereumGaslessTransactionFeeProvider: (any GaslessTransactionFeeProvider)? { get }
     var ethereumGaslessDataProvider: (any EthereumGaslessDataProvider)? { get }
     var tronGaslessTransactionsBuilder: (any TronGaslessTransactionsBuilder)? { get }
+    var solanaGaslessTransactionBuilder: (any SolanaGaslessTransactionBuilder)? { get }
     var pendingTransactionRecordAdder: (any PendingTransactionRecordAdding)? { get }
 
     // MARK: - Safe

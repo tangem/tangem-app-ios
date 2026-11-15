@@ -101,9 +101,8 @@ extension NFTChain: Identifiable {
 // MARK: - Convenience extensions
 
 public extension NFTChain {
-    /// Poor man's `CaseIterable`.
-    static func allCases(isTestnet: Bool) -> Set<NFTChain> {
-        switch NFTChain.ethereum(isTestnet: false) {
+    private static func assertAllCasesListed(_ chain: NFTChain) {
+        switch chain {
         case .ethereum:
             break
         case .polygon:
@@ -134,6 +133,11 @@ public extension NFTChain {
         // READ BELOW:
         //
         // Did you get a compilation error here? If so, add your new chain to the array below
+    }
+
+    /// Poor man's `CaseIterable`.
+    static func allCases(isTestnet: Bool) -> Set<NFTChain> {
+        assertAllCasesListed(.ethereum(isTestnet: false))
 
         return [
             .ethereum(isTestnet: isTestnet),

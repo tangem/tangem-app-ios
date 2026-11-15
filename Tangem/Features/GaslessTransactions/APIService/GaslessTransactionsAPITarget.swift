@@ -26,6 +26,8 @@ enum GaslessApiTargetConstants {
     static let tronTokensPath = "/tron/tokens"
     static let tronEstimatePath = "/tron/transaction/estimate"
     static let tronSubmitPath = "/tron/transaction/submit"
+    static let solanaFeePayerPath = "/solana/config/fee-payer"
+    static let solanaSubmitPath = "/solana/transaction/submit"
 }
 
 struct GaslessTransactionsAPITarget: TargetType {
@@ -48,6 +50,8 @@ struct GaslessTransactionsAPITarget: TargetType {
         case tronTokens
         case tronEstimate(request: GaslessTransactionsDTO.Request.TronEstimate, userWalletId: UserWalletId)
         case tronSubmit(request: GaslessTransactionsDTO.Request.TronSubmit, userWalletId: UserWalletId)
+        case solanaFeePayer
+        case solanaSubmit(request: GaslessTransactionsDTO.Request.SolanaSubmit, userWalletId: UserWalletId)
     }
 
     var baseURL: URL {
@@ -73,7 +77,7 @@ struct GaslessTransactionsAPITarget: TargetType {
             return apiVersion.rawValue
         case .sendGaslessBatchTransaction:
             return APIVersion.v2.rawValue
-        case .availableTokens, .feeRecipient, .tronTokens, .tronEstimate, .tronSubmit:
+        case .availableTokens, .feeRecipient, .tronTokens, .tronEstimate, .tronSubmit, .solanaFeePayer, .solanaSubmit:
             return APIVersion.v1.rawValue
         }
     }
@@ -94,14 +98,18 @@ struct GaslessTransactionsAPITarget: TargetType {
             return GaslessApiTargetConstants.tronEstimatePath
         case .tronSubmit:
             return GaslessApiTargetConstants.tronSubmitPath
+        case .solanaFeePayer:
+            return GaslessApiTargetConstants.solanaFeePayerPath
+        case .solanaSubmit:
+            return GaslessApiTargetConstants.solanaSubmitPath
         }
     }
 
     var method: Moya.Method {
         switch target {
-        case .availableTokens, .feeRecipient, .tronTokens:
+        case .availableTokens, .feeRecipient, .tronTokens, .solanaFeePayer:
             return .get
-        case .sendGaslessTransaction, .sendGaslessBatchTransaction, .tronEstimate, .tronSubmit:
+        case .sendGaslessTransaction, .sendGaslessBatchTransaction, .tronEstimate, .tronSubmit, .solanaSubmit:
             return .post
         }
     }
@@ -116,16 +124,18 @@ struct GaslessTransactionsAPITarget: TargetType {
             return .requestJSONEncodable(request)
         case .tronSubmit(let request, _):
             return .requestJSONEncodable(request)
-        case .availableTokens, .feeRecipient, .tronTokens:
+        case .solanaSubmit(let request, _):
+            return .requestJSONEncodable(request)
+        case .availableTokens, .feeRecipient, .tronTokens, .solanaFeePayer:
             return .requestPlain
         }
     }
 
     var headers: [String: String]? {
         switch target {
-        case .tronEstimate(_, let userWalletId), .tronSubmit(_, let userWalletId):
+        case .tronEstimate(_, let userWalletId), .tronSubmit(_, let userWalletId), .solanaSubmit(_, let userWalletId):
             return ["userWalletId": userWalletId.stringValue]
-        case .availableTokens, .sendGaslessTransaction, .sendGaslessBatchTransaction, .feeRecipient, .tronTokens:
+        case .availableTokens, .sendGaslessTransaction, .sendGaslessBatchTransaction, .feeRecipient, .tronTokens, .solanaFeePayer:
             return nil
         }
     }

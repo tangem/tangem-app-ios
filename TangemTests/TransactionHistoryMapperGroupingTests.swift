@@ -121,15 +121,15 @@ struct TransactionHistoryMapperGroupingTests {
 
     // MARK: - .day
 
-    @Test("Same-day records collapse into one section", arguments: [Tangem.TransactionHistoryMapper.DayFormatStyle.short, .long])
-    func sameDayRecordsCollapse(format: Tangem.TransactionHistoryMapper.DayFormatStyle) {
+    @Test("Same-day records collapse into one section")
+    func sameDayRecordsCollapse() {
         let mapper = makeSUT()
         let items = mapper.mapTransactionListItem(
             from: [
                 makeRecord(hash: "A", date: today),
                 makeRecord(hash: "B", date: calendar.date(byAdding: .hour, value: 2, to: today)!),
             ],
-            groupingStyle: .day(format),
+            groupingStyle: .day,
             dustFilter: TransactionHistoryDustFilter(usdRate: nil),
             subtitleOwnerResolver: nil
         )
@@ -139,30 +139,12 @@ struct TransactionHistoryMapperGroupingTests {
         #expect(items[0].header.isNotEmpty)
     }
 
-    @Test("Short format header matches DateFormatter dateStyle .short")
-    func shortFormatHeader() {
+    @Test("Day header matches DateFormatter dateStyle .long")
+    func dayHeader() {
         let pastDate = calendar.date(byAdding: .day, value: -10, to: today)!
         let items = makeSUT().mapTransactionListItem(
             from: [makeRecord(hash: "A", date: pastDate)],
-            groupingStyle: .day(.short),
-            dustFilter: TransactionHistoryDustFilter(usdRate: nil),
-            subtitleOwnerResolver: nil
-        )
-
-        let formatter = DateFormatter()
-        formatter.locale = .autoupdatingCurrent
-        formatter.dateStyle = .short
-        formatter.doesRelativeDateFormatting = true
-
-        #expect(items.first?.header == formatter.string(from: pastDate))
-    }
-
-    @Test("Long format header matches DateFormatter dateStyle .long")
-    func longFormatHeader() {
-        let pastDate = calendar.date(byAdding: .day, value: -10, to: today)!
-        let items = makeSUT().mapTransactionListItem(
-            from: [makeRecord(hash: "A", date: pastDate)],
-            groupingStyle: .day(.long),
+            groupingStyle: .day,
             dustFilter: TransactionHistoryDustFilter(usdRate: nil),
             subtitleOwnerResolver: nil
         )
@@ -175,15 +157,15 @@ struct TransactionHistoryMapperGroupingTests {
         #expect(items.first?.header == formatter.string(from: pastDate))
     }
 
-    @Test("Multi-day records produce separate sections sorted newest first", arguments: [Tangem.TransactionHistoryMapper.DayFormatStyle.short, .long])
-    func multiDaySortedDescending(format: Tangem.TransactionHistoryMapper.DayFormatStyle) {
+    @Test("Multi-day records produce separate sections sorted newest first")
+    func multiDaySortedDescending() {
         let mapper = makeSUT()
         let items = mapper.mapTransactionListItem(
             from: [
                 makeRecord(hash: "old", date: yesterday),
                 makeRecord(hash: "new", date: today),
             ],
-            groupingStyle: .day(format),
+            groupingStyle: .day,
             dustFilter: TransactionHistoryDustFilter(usdRate: nil),
             subtitleOwnerResolver: nil
         )

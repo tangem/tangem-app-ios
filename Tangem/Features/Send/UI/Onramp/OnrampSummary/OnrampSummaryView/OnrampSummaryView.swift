@@ -18,7 +18,7 @@ struct OnrampSummaryView: View {
     @FocusState.Binding var keyboardActive: Bool
 
     var body: some View {
-        GroupedScrollView(contentType: .plain(spacing: 12)) {
+        GroupedScrollView(contentType: .plain(spacing: 8)) {
             OnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
 
             marketingBanner
@@ -72,10 +72,10 @@ struct OnrampSummaryView: View {
 
     private var loadingView: some View {
         HStack(spacing: 8) {
-            ProgressView()
+            Loader()
 
             Text(Localization.expressFetchBestRates)
-                .style(Fonts.Regular.subheadline, color: DesignSystem.Color.textSecondary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
         }
         .padding(.top, 12)
     }
@@ -83,77 +83,127 @@ struct OnrampSummaryView: View {
     @ViewBuilder
     private func providersView(offers: OnrampSummaryViewModel.SuggestedOffers) -> some View {
         if let recent = offers.recent {
-            VStack(alignment: .leading, spacing: 8) {
-                DefaultHeaderView(Localization.onrampRecentlyUsedTitle)
-                    .padding(.leading, 14)
-
+            OnrampOffersSectionView(title: Localization.onrampRecentlyUsedTitle) {
                 OnrampOfferView(viewModel: recent)
             }
-            .padding(.top, 12)
         }
 
         if !offers.recommended.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                DefaultHeaderView(Localization.onrampRecommendedTitle)
-                    .padding(.leading, 14)
-
+            OnrampOffersSectionView(title: Localization.onrampRecommendedTitle) {
                 ForEach(offers.recommended) { item in
                     VStack(alignment: .leading, spacing: 8) {
                         OnrampOfferView(viewModel: item.viewModel)
 
                         if let footnote = item.footnote {
-                            Text(footnote)
-                                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
-                                .padding(.horizontal, 14)
+                            OnrampOfferFootnoteView(text: footnote)
                         }
                     }
                 }
             }
-            .padding(.top, 12)
         }
 
-        MainButton(title: Localization.onrampAllOffersButtonTitle, style: .secondary) {
+        OnrampAllOffersButton {
             keyboardActive = false
             viewModel.userDidTapAllOffersButton()
         }
-        .accessibilityIdentifier(OnrampAccessibilityIdentifiers.allOffersButton)
     }
 
     private var bottomContainer: some View {
-        HStack(spacing: 4) {
-            presets
-
-            HideKeyboardButton(focused: $keyboardActive)
-                .padding(.vertical, 5)
-                .padding(.horizontal, 12)
-                .background(DesignSystem.Color.bgTransparentSecondary)
-                .clipShape(Capsule())
-        }
-        .padding(.horizontal, 12)
-        .padding(.bottom, 8)
+        OnrampFiatPresetsBar(
+            presets: presets,
+            onPresetTap: { viewModel.usedDidTapPreset(preset: $0) },
+            onHideKeyboardTap: { keyboardActive = false }
+        )
         .animation(.default, value: keyboardActive)
         .visible(keyboardActive)
     }
 
-    @ViewBuilder
-    private var presets: some View {
+    private var presets: [FiatPresetService.Preset]? {
         switch viewModel.viewState {
         case .idle, .loading, .suggestedOffers:
-            // Use the `Spacer()` to keep `HideKeyboardButton` in the trailing position
-            Spacer()
+            nil
         case .presets(let presets):
+            presets
+        }
+    }
+}
+
+// MARK: - Subviews
+
+private struct OnrampOffersSectionView<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(title)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            VStack(alignment: .leading, spacing: 8) {
+                content()
+            }
+        }
+    }
+}
+
+private struct OnrampOfferFootnoteView: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            .padding(.horizontal, 16)
+    }
+}
+
+private struct OnrampAllOffersButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        TangemUI.Button(label: Localization.onrampAllOffersButtonTitle, accessibilityLabel: nil, action: action)
+            .size(.x10)
+            .styleType(.secondary(.default))
+            .horizontalLayout(.infinity)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.allOffersButton)
+    }
+}
+
+private struct OnrampFiatPresetsBar: View {
+    let presets: [FiatPresetService.Preset]?
+    let onPresetTap: (FiatPresetService.Preset) -> Void
+    let onHideKeyboardTap: () -> Void
+
+    var body: some View {
+        HStack(spacing: 4) {
+            presetButtons
+
+            TangemUI.Button(icon: DesignSystem.Icons.KeyboardDown.regular20, accessibilityLabel: Localization.commonHide, action: onHideKeyboardTap)
+                .size(.x8)
+                .styleType(.secondary(.default))
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+    }
+
+    @ViewBuilder
+    private var presetButtons: some View {
+        if let presets {
             HStack(spacing: 4) {
                 ForEach(presets) { preset in
-                    SwiftUI.Button(action: { viewModel.usedDidTapPreset(preset: preset) }) {
-                        Text(.init(preset.formatted))
-                            .padding(.vertical, 6)
-                            .style(Fonts.Bold.footnote, color: DesignSystem.Color.textPrimary)
-                            .infinityFrame(axis: .horizontal)
-                            .background(DesignSystem.Color.bgTransparentSecondary)
-                            .clipShape(Capsule())
+                    TangemUI.Button(label: preset.formatted, accessibilityLabel: nil) {
+                        onPresetTap(preset)
                     }
+                    .size(.x8)
+                    .styleType(.secondary(.default))
+                    .horizontalLayout(.infinity)
+                    .minimumScaleFactor(0.7)
                 }
             }
+        } else {
+            // Use the `Spacer()` to keep the hide keyboard button in the trailing position
+            Spacer()
         }
     }
 }

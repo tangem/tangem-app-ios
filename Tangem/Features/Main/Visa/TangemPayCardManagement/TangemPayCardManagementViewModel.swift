@@ -279,7 +279,11 @@ private extension TangemPayCardManagementViewModel {
             .withWeakCaptureOf(self)
             .sink { viewModel, output in
                 let (state, cardEntities) = output
-                viewModel.updateCloseCardRow(isClosing: state.isClosing, isOnlyCard: cardEntities.count <= 1)
+                viewModel.updateCloseCardRow(
+                    isAvailable: state.isCloseCardAvailable,
+                    isClosing: state.isClosing,
+                    isOnlyCard: cardEntities.count <= 1
+                )
             }
             .store(in: &bag)
     }
@@ -542,7 +546,13 @@ private extension TangemPayCardManagementViewModel {
         return detailsViewModel
     }
 
-    func updateCloseCardRow(isClosing: Bool, isOnlyCard: Bool) {
+    func updateCloseCardRow(isAvailable: Bool, isClosing: Bool, isOnlyCard: Bool) {
+        guard isAvailable else {
+            closeCardRow = nil
+            closeCardSubtitle = nil
+            return
+        }
+
         let isBusy = isClosing || isOnlyCard
         let action: () -> Void = { [weak self] in
             self?.showCloseCardPopup()

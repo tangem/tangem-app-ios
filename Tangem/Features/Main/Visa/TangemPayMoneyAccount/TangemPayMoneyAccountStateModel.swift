@@ -9,24 +9,10 @@
 import Foundation
 
 struct TangemPayMoneyAccountStateModel {
-    var balance: Balance
+    var balance: FormattedTokenBalanceType
     var transactionHistory: TransactionsListView.State
     var isTrxHistoryReloading = false
-}
-
-// MARK: - Balance
-
-extension TangemPayMoneyAccountStateModel {
-    enum Balance {
-        case loading(cached: String)
-        case loaded(String)
-        case failed(cached: String)
-
-        var isFailed: Bool {
-            switch self {
-            case .failed: true
-            default: false
-            }
-        }
-    }
+    var fetchMore: FetchMore?
+    var notificationBannerItems: [NotificationBannerItem] = []
+    var isStale = false
 }

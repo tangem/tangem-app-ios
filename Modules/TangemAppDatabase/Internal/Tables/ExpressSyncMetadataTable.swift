@@ -24,6 +24,8 @@ enum ExpressSyncMetadataTable: AppDatabaseTable {
             try V2.register(in: database)
         case .v3:
             try V3.register(in: database, migrationHelper: migrationHelper)
+        case .v4:
+            break
         }
     }
 }

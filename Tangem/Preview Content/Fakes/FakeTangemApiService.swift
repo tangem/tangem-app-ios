@@ -281,10 +281,6 @@ final class FakeTangemApiService: TangemApiService {
         throw "Not implemented"
     }
 
-    func loadHotCrypto(requestModel: HotCryptoDTO.Request) async throws -> HotCryptoDTO.Response {
-        throw "Not implemented"
-    }
-
     func pushNotificationsEligibleNetworks() async throws -> [NotificationDTO.NetworkItem] {
         throw "Not implemented"
     }
@@ -404,12 +400,6 @@ final class FakeTangemApiService: TangemApiService {
 
     func joinJointAccount(
         walletId: String, body: JointAccountsDTO.Request.Join
-    ) async throws -> JointAccountsDTO.Response.JointAccount {
-        throw "Not implemented"
-    }
-
-    func activateJointAccount(
-        walletId: String, body: JointAccountsDTO.Request.Activate
     ) async throws -> JointAccountsDTO.Response.JointAccount {
         throw "Not implemented"
     }

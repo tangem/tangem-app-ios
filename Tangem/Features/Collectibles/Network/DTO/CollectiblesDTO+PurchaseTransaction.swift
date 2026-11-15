@@ -13,17 +13,17 @@ extension CollectiblesDTO {
         let txID: String
         let status: String
         let nftWon: NftWon?
-        let buyback: PurchaseBuyback?
+        let autoBuyback: AutoBuyback?
 
         private enum CodingKeys: String, CodingKey {
             case txID = "txId"
             case status
             case nftWon
-            case buyback
+            case autoBuyback
         }
     }
 
-    struct PurchaseBuyback: Decodable {
+    struct AutoBuyback: Decodable {
         let toAmount: String?
         let toDecimals: Int?
     }

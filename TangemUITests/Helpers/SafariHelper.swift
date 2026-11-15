@@ -26,8 +26,18 @@ struct SafariHelper {
         }
 
         UIPasteboard.general.string = deeplink
+        dismissOnboardingIfNeeded()
         urlField.doubleTap()
-        safari.menuItems["Paste and Go"].tap()
+        let pasteAndGo = safari.descendants(matching: .any).matching(NSPredicate(
+            format: "label == %@ AND (elementType == %d OR elementType == %d)",
+            "Paste and Go", XCUIElement.ElementType.menuItem.rawValue, XCUIElement.ElementType.button.rawValue
+        )).firstMatch
+        if !pasteAndGo.waitForExistence(timeout: .conditional) {
+            dismissOnboardingIfNeeded()
+            urlField.doubleTap()
+        }
+        XCTAssertTrue(pasteAndGo.waitForExistence(timeout: .robustUIUpdate), "Paste and Go should be offered")
+        pasteAndGo.tap()
 
         dismissToolTipIfNeeded()
     }
@@ -49,6 +59,13 @@ struct SafariHelper {
         }
         let lastValue = urlField.exists ? urlField.getValue() : ""
         XCTFail("Safari URL should contain '\(expected)' but was '\(lastValue)'")
+    }
+
+    func dismissOnboardingIfNeeded() {
+        let continueButton = safari.buttons["Continue"].firstMatch
+        if continueButton.exists, continueButton.isEnabled {
+            continueButton.tap()
+        }
     }
 
     func dismissToolTipIfNeeded() {

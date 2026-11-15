@@ -19,7 +19,7 @@ class CommonTransactionHistoryService {
 
     private var _state = CurrentValueSubject<TransactionHistoryServiceState, Never>(.initial)
     private let pageSize: Int = 100
-    private var cancellable: AnyCancellable?
+    private let cancellable = ThreadSafeCancellableSlot()
     private let storage = TransactionRecordsStorage()
 
     init(
@@ -49,7 +49,7 @@ extension CommonTransactionHistoryService: TransactionHistoryService {
     }
 
     func clearHistory() async {
-        cancellable = nil
+        cancellable.cancel()
         transactionHistoryProvider.reset()
         await cleanStorage()
         AppLogger.info(self, "was reset")
@@ -69,7 +69,7 @@ extension CommonTransactionHistoryService: TransactionHistoryService {
 
 private extension CommonTransactionHistoryService {
     func fetch(result: @escaping (Result<Void, Never>) -> Void) {
-        cancellable = nil
+        let requestToken = cancellable.begin()
 
         guard canFetchHistory else {
             AppLogger.info(self, "reached the end of list")
@@ -82,7 +82,7 @@ private extension CommonTransactionHistoryService {
 
         let request = TransactionHistory.Request(address: address, amountType: tokenItem.amountType, limit: pageSize)
 
-        cancellable = transactionHistoryProvider
+        transactionHistoryProvider
             .loadTransactionHistory(request: request)
             .handleEvents(receiveCancel: { [weak self] in
                 // Resolves conflicting requests for tracking history from different consumers so as not to lose output from the update process
@@ -105,6 +105,7 @@ private extension CommonTransactionHistoryService {
                     result(.success(()))
                 }
             }
+            .store(in: cancellable, for: requestToken)
     }
 
     func cleanStorage() async {

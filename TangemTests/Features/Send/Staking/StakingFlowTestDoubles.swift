@@ -239,8 +239,7 @@ final class SendStakingableTokenStub: SendStakingableToken {
 
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { nil }
     var receivingRestrictionsProvider: any ReceivingRestrictionsProvider { ReceivingRestrictionsProviderStub(result: nil) }
-    var isTangemPayAccount: Bool { false }
-    var jointAccountPolicy: JointAccountPolicy? { nil }
+    var accountType: SendSourceTokenAccountType { .crypto }
     var isCustomSlippageAllowed: Bool { true }
 
     var transactionCreator: SendTransactionCreator { SendTransactionCreatorStub() }

@@ -138,6 +138,9 @@ final class AppSettings {
     @AppStorageCompat(StorageType.tangemPayIsKYCHiddenForCustomerWalletId)
     var tangemPayIsKYCHiddenForCustomerWalletId: [String: Bool] = [:]
 
+    @AppStorageCompat(StorageType.coldWalletAddedEventLogged)
+    var isColdWalletAddedEventLogged: Bool = false
+
     @AppStorageCompat(StorageType.tangemPayCashbackBlockedBannerDismissedForCustomerWalletId)
     var tangemPayCashbackBlockedBannerDismissedForCustomerWalletId: [String: Bool] = [:]
 

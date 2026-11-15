@@ -8,24 +8,28 @@
 
 typealias SubmitUserWalletRegistration = @Sendable (
     _ request: UserWalletRegistrationRequest
-) async throws(SubmitUserWalletRegistrationError) -> Void
+) async throws(SubmitUserWalletRegistrationError) -> UserWalletRegistrationResult
 
 public struct SubmitUserWalletRegistrationUseCase: Sendable {
     private let registrationClient: any UserWalletRegistrationClient
     private let registrationStatusRepository: any UserWalletRegistrationStatusRepository
     private let sessionTokensRepository: any SessionTokensRepository
+    private let appAttestationStatusRepository: any AppAttestationStatusRepository
 
     init(
         registrationClient: some UserWalletRegistrationClient,
         registrationStatusRepository: some UserWalletRegistrationStatusRepository,
-        sessionTokensRepository: some SessionTokensRepository
+        sessionTokensRepository: some SessionTokensRepository,
+        appAttestationStatusRepository: some AppAttestationStatusRepository
     ) {
         self.registrationClient = registrationClient
         self.registrationStatusRepository = registrationStatusRepository
         self.sessionTokensRepository = sessionTokensRepository
+        self.appAttestationStatusRepository = appAttestationStatusRepository
     }
 
-    public func callAsFunction(request: UserWalletRegistrationRequest) async throws(SubmitUserWalletRegistrationError) {
+    @discardableResult
+    public func callAsFunction(request: UserWalletRegistrationRequest) async throws(SubmitUserWalletRegistrationError) -> UserWalletRegistrationResult {
         let sessionTokens = try await register(request: request)
 
         if let sessionTokens {
@@ -33,6 +37,8 @@ public struct SubmitUserWalletRegistrationUseCase: Sendable {
         }
 
         await registrationStatusRepository.persist(registeredID: request.id)
+
+        return sessionTokens == nil ? .alreadyRegistered : .registered
     }
 
     private func register(request: UserWalletRegistrationRequest) async throws(SubmitUserWalletRegistrationError) -> SessionTokens? {
@@ -40,6 +46,9 @@ public struct SubmitUserWalletRegistrationUseCase: Sendable {
             return try await registrationClient.register(request: request)
         } catch UserWalletRegistrationClientError.alreadyRegistered {
             return nil
+        } catch UserWalletRegistrationClientError.appAttestRejected {
+            appAttestationStatusRepository.persist(isAppAttested: false)
+            throw SubmitUserWalletRegistrationError.clientFailure(.appAttestRejected)
         } catch {
             throw SubmitUserWalletRegistrationError.clientFailure(error)
         }

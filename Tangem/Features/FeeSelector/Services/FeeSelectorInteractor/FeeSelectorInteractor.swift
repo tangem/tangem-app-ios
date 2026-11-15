@@ -12,7 +12,7 @@ import TangemFoundation
 protocol FeeSelectorInteractor: FeeSelectorTokensDataProvider, FeeSelectorFeesDataProvider, FeeSelectorCustomFeeDataProviding {
     var state: FeeSelectorInteractorState { get }
 
-    func userDidSelect(feeTokenItem: TokenItem)
+    func userDidSelect(feeProviderID: TokenFeeProviderID)
     func userDidSelect(feeOption: FeeOption)
 
     func completeSelection()

@@ -235,7 +235,7 @@ final class TokenScreen: ScreenBase<TokenScreenElement> {
     private func scrollAboveFloatingBar(_ element: XCUIElement) {
         let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.7))
         let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.4))
-        for _ in 0 ..< 4 where !element.isHittable {
+        for _ in 0 ..< 4 where !element.isHittableInWindow(bottomInset: 0.2) {
             start.press(forDuration: 0.1, thenDragTo: end)
         }
     }

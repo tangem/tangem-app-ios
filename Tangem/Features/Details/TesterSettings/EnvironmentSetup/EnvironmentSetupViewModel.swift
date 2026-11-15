@@ -31,6 +31,14 @@ final class EnvironmentSetupViewModel: ObservableObject {
         !searchQueryTokens(from: searchText).isEmpty
     }
 
+    var featureTogglesSectionTitle: String {
+        guard isSearching else {
+            return "Feature toggles"
+        }
+
+        return "Feature toggles (\(featureStateViewModels.count) of \(allFeatureStateViewModels.count))"
+    }
+
     /// Demo
     @Published var forcedDemoCardId: String = ""
 
@@ -225,6 +233,9 @@ final class EnvironmentSetupViewModel: ObservableObject {
             DefaultRowViewModel(title: "Silent Push Tester", action: { [weak self] in
                 self?.coordinator?.openSilentPushTester()
             }),
+            DefaultRowViewModel(title: "Backend Auth", action: { [weak self] in
+                self?.coordinator?.openBackendAuthentication()
+            }),
             DefaultRowViewModel(title: "Drop app database", action: { [weak self] in
                 self?.showDropAppDatabaseAlert()
             }),
@@ -243,10 +254,6 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
         updateApplicationUid()
         updateWalletIds()
-    }
-
-    func copyField(_ keyPath: KeyPath<EnvironmentSetupViewModel, String>) {
-        copy(self[keyPath: keyPath])
     }
 
     func copy(_ value: String) {

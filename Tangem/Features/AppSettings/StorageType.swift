@@ -80,4 +80,5 @@ enum StorageType: String {
     case hiddenMarketingCampaigns = "hidden_marketing_campaigns"
     case geoIpRegionCode = "geo_ip_region_code"
     case geoIpRegionCodeUpdateDate = "geo_ip_region_code_update_date"
+    case coldWalletAddedEventLogged = "cold_wallet_added_event_logged"
 }

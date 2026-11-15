@@ -20,6 +20,7 @@ import TangemFoundation
 final class CommonJointAccountPendingOperationsProvider {
     private let pendingOperationsRepository: JointAccountPendingOperationsRepository
     private let walletModelsManager: WalletModelsManager
+    private let membersService: JointAccountMembersService
 
     private let cryptoAccountId: String
     private let walletBuilder = JointAccountWalletBuilder()
@@ -30,10 +31,12 @@ final class CommonJointAccountPendingOperationsProvider {
         userWalletId: UserWalletId,
         derivationIdentity: CryptoAccountDerivationIdentity,
         pendingOperationsRepository: JointAccountPendingOperationsRepository,
-        walletModelsManager: WalletModelsManager
+        walletModelsManager: WalletModelsManager,
+        membersService: JointAccountMembersService
     ) {
         self.pendingOperationsRepository = pendingOperationsRepository
         self.walletModelsManager = walletModelsManager
+        self.membersService = membersService
 
         // [REDACTED_TODO_COMMENT]
         cryptoAccountId = CryptoAccountModelId(userWalletId: userWalletId, derivationIdentity: derivationIdentity).rawValue.hexString
@@ -44,14 +47,17 @@ final class CommonJointAccountPendingOperationsProvider {
     private func makePendingOperationsPublisher() -> AnyPublisher<[JointAccountPendingOperation], Never> {
         let cryptoAccountId = cryptoAccountId
 
-        return Publishers.CombineLatest(
+        return Publishers.CombineLatest3(
             pendingOperationsRepository.operationsPublisher
                 .map { $0.first(by: cryptoAccountId) }
                 .removeDuplicates(),
-            walletModelsManager.walletModelsPublisher
+            walletModelsManager.walletModelsPublisher,
+            membersService.slotsPublisher
+                .map(\.members)
+                .removeDuplicates()
         )
         .withWeakCaptureOf(self)
-        .map { $0.pendingOperations(in: $1.0, walletModels: $1.1) }
+        .map { $0.pendingOperations(in: $1.0, walletModels: $1.1, members: $1.2) }
         .removeDuplicates()
         .share(replay: 1)
         .eraseToAnyPublisher()
@@ -59,12 +65,13 @@ final class CommonJointAccountPendingOperationsProvider {
 
     private func pendingOperations(
         in record: StoredJointAccountPendingOperations?,
-        walletModels: [any WalletModel]
+        walletModels: [any WalletModel],
+        members: [JointAccountMember]
     ) -> [JointAccountPendingOperation] {
         let operations = record?.operations.filter(\.status.isInFlight) ?? []
 
         return operations.compactMap {
-            mapToJointAccountPendingOperation(operation: $0, walletModels: walletModels)
+            mapToJointAccountPendingOperation(operation: $0, walletModels: walletModels, members: members)
         }
     }
 
@@ -72,24 +79,31 @@ final class CommonJointAccountPendingOperationsProvider {
     /// this wallet has not added yet.
     private func mapToJointAccountPendingOperation(
         operation: JointAccountOperation,
-        walletModels: [any WalletModel]
+        walletModels: [any WalletModel],
+        members: [JointAccountMember]
     ) -> JointAccountPendingOperation? {
-        do {
-            let innerCallType = try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall)
-            let walletModel = try walletModel(relatedTo: innerCallType, chainId: operation.chainId, among: walletModels)
-            let wallet = try walletBuilder.build(walletModel: walletModel)
-            let feeTokenItem = feeTokenItem(of: operation, through: walletModel, among: walletModels)
+        try? makePendingOperation(from: operation, walletModels: walletModels, members: members)
+    }
 
-            return JointAccountPendingOperation(
-                wallet: wallet,
-                operation: operation,
-                operationPublisher: pendingOperationsRepository.operationPublisher(id: operation.id, in: cryptoAccountId),
-                innerCallType: innerCallType,
-                feeTokenItem: feeTokenItem
-            )
-        } catch {
-            return nil
-        }
+    private func makePendingOperation(
+        from operation: JointAccountOperation,
+        walletModels: [any WalletModel],
+        members: [JointAccountMember]
+    ) throws -> JointAccountPendingOperation {
+        let innerCallType = try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall)
+        let walletModel = try walletModel(relatedTo: innerCallType, chainId: operation.chainId, among: walletModels)
+        let wallet = try walletBuilder.build(walletModel: walletModel)
+        let feeTokenItem = feeTokenItem(of: operation, through: walletModel, among: walletModels)
+        let initiator = initiator(of: operation, wallet: wallet, members: members)
+
+        return JointAccountPendingOperation(
+            wallet: wallet,
+            initiator: initiator,
+            operation: operation,
+            operationPublisher: pendingOperationsRepository.operationPublisher(id: operation.id, in: cryptoAccountId),
+            innerCallType: innerCallType,
+            feeTokenItem: feeTokenItem
+        )
     }
 
     /// The account's wallet of the token a transfer moves: the network's own for the coin, the one at the contract for a
@@ -107,10 +121,26 @@ final class CommonJointAccountPendingOperationsProvider {
         }
 
         guard let walletModel else {
-            throw Error.walletNotFound
+            throw JointAccountPendingOperationsProviderError.walletNotFound
         }
 
         return walletModel
+    }
+
+    private func initiator(
+        of operation: JointAccountOperation,
+        wallet: JointAccountWallet,
+        members: [JointAccountMember]
+    ) -> JointAccountPendingOperation.Initiator {
+        if (try? wallet.ownAddress())?.caseInsensitiveEquals(to: operation.initiator) == true {
+            return .me
+        }
+
+        if let member = members.first(where: { $0.address.caseInsensitiveEquals(to: operation.initiator) }) {
+            return .member(name: member.name)
+        }
+
+        return .unlisted(address: operation.initiator)
     }
 
     private func feeTokenItem(
@@ -147,11 +177,9 @@ final class CommonJointAccountPendingOperationsProvider {
 // MARK: - JointAccountPendingOperationsProvider protocol conformance
 
 extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperationsProvider {
-    var pendingOperations: [JointAccountPendingOperation] {
-        pendingOperations(
-            in: pendingOperationsRepository.operations.first(by: cryptoAccountId),
-            walletModels: walletModelsManager.walletModels
-        )
+    func hasPendingOperations(chainId: Int) -> Bool {
+        let operations = pendingOperationsRepository.operations.first(by: cryptoAccountId)?.operations ?? []
+        return operations.contains { $0.chainId == chainId && $0.status.isInFlight }
     }
 
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
@@ -161,13 +189,14 @@ extension CommonJointAccountPendingOperationsProvider: JointAccountPendingOperat
     func requestFrequentUpdates(operationId: String) -> AnyCancellable? {
         pendingOperationsRepository.requestFrequentUpdates(operationId: operationId)
     }
-}
 
-// MARK: - Auxiliary types
+    func loadOperation(id: String) async throws -> JointAccountPendingOperation {
+        let operation = try await pendingOperationsRepository.loadOperation(id: id, forCryptoAccountId: cryptoAccountId)
 
-private extension CommonJointAccountPendingOperationsProvider {
-    enum Error: Swift.Error {
-        /// The account has no wallet of the token on this device — another member may have added it.
-        case walletNotFound
+        return try await makePendingOperation(
+            from: operation,
+            walletModels: walletModelsManager.walletModels,
+            members: membersService.slotsPublisher.async().members
+        )
     }
 }

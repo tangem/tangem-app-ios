@@ -23,7 +23,7 @@ public struct CollectiblesVaultProgram {
         case invalidPurchase
     }
 
-    public static let devnetProgramId = "29agFEruMu2jedVwnDgKPuq7ejmTiB7sEqzdhufQQS9u"
+    public static let devnetProgramId = "FKWs2cd5E9Fi8t2Gqbq6SkgekL4MJwZgkRMrGFcPGVvt"
 
     let programId: PublicKey
 
@@ -422,13 +422,11 @@ extension CollectiblesVaultProgram {
     struct Config {
         let admin: Data
         let usdcMint: Data
-        let collectiblesWallet: Data
         let collectiblesUsdcAccount: Data
         let feeUsdcAccount: Data
         let minFeeBps: UInt16
         let maxFeeBps: UInt16
         let paused: Bool
-        let allowBuybackDelegation: Bool
         let bump: UInt8
     }
 
@@ -439,39 +437,34 @@ extension CollectiblesVaultProgram {
         let dailyCap: UInt64
         let spentToday: UInt64
         let dayIndex: Int64
-        let liveBuybackMint: Data?
-        let liveBuybackToken: Data?
         let bump: UInt8
     }
 }
 
 extension CollectiblesVaultProgram.Config {
-    /// 176-byte layout with fixed offsets; the length check is a lower bound, not an exact size.
-    /// Byte 171 is a legacy `_reserved` filler that can legitimately hold garbage.
+    /// 174-byte layout with fixed offsets; the length check is a lower bound, not an exact size.
     init(data: Data) throws {
         let reader = CollectiblesAccountReader(data: data)
         try reader.requireDiscriminator(CollectiblesVaultProgram.accountDiscriminator("Config"))
-        try reader.requireCount(176)
+        try reader.requireCount(174)
 
         admin = try reader.bytes(at: 8, count: 32)
         usdcMint = try reader.bytes(at: 40, count: 32)
-        collectiblesWallet = try reader.bytes(at: 72, count: 32)
-        collectiblesUsdcAccount = try reader.bytes(at: 104, count: 32)
-        feeUsdcAccount = try reader.bytes(at: 136, count: 32)
-        minFeeBps = try reader.uint16LE(at: 168)
-        maxFeeBps = try reader.uint16LE(at: 174)
-        paused = try reader.bool(at: 170)
-        allowBuybackDelegation = try reader.bool(at: 172)
-        bump = try reader.byte(at: 173)
+        collectiblesUsdcAccount = try reader.bytes(at: 72, count: 32)
+        feeUsdcAccount = try reader.bytes(at: 104, count: 32)
+        minFeeBps = try reader.uint16LE(at: 136)
+        maxFeeBps = try reader.uint16LE(at: 138)
+        paused = try reader.bool(at: 140)
+        bump = try reader.byte(at: 141)
     }
 }
 
 extension CollectiblesVaultProgram.Vault {
-    /// Offsets are fixed only up to byte 112; the `Option<Pubkey>` tail is variable-width and keeps
-    /// stale bytes from previous states, so it MUST be read with a cursor, never fixed offsets.
+    /// 137-byte layout with fixed offsets; the length check is a lower bound, not an exact size.
     init(data: Data) throws {
         let reader = CollectiblesAccountReader(data: data)
         try reader.requireDiscriminator(CollectiblesVaultProgram.accountDiscriminator("Vault"))
+        try reader.requireCount(137)
 
         coldOwner = try reader.bytes(at: 8, count: 32)
         sessionKey = try reader.bytes(at: 40, count: 32)
@@ -479,26 +472,7 @@ extension CollectiblesVaultProgram.Vault {
         dailyCap = try reader.uint64LE(at: 80)
         spentToday = try reader.uint64LE(at: 88)
         dayIndex = try Int64(bitPattern: reader.uint64LE(at: 96))
-        // 104..<112 is a reserved u64, ignored
-
-        var cursor = 112
-        liveBuybackMint = try Self.readOptionalPubkey(reader: reader, cursor: &cursor)
-        liveBuybackToken = try Self.readOptionalPubkey(reader: reader, cursor: &cursor)
-        bump = try reader.byte(at: cursor)
-    }
-
-    private static func readOptionalPubkey(reader: CollectiblesAccountReader, cursor: inout Int) throws -> Data? {
-        switch try reader.byte(at: cursor) {
-        case 0:
-            cursor += 1
-            return nil
-        case 1:
-            let value = try reader.bytes(at: cursor + 1, count: 32)
-            cursor += 33
-            return value
-        default:
-            throw CollectiblesVaultProgram.ProgramError.invalidAccountData
-        }
+        bump = try reader.byte(at: 104)
     }
 }
 

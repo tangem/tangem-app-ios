@@ -24,7 +24,6 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
 
     @Published private(set) var viewState: RootViewState?
 
-    @Published var addToPortfolioBottomSheetInfo: HotCryptoAddToPortfolioBottomSheetViewModel?
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator?
 
     // MARK: - Private property
@@ -44,7 +43,6 @@ final class ActionButtonsBuyCoordinator: CoordinatorObject {
         userWalletModels = options.userWalletModels
         let tokenSelectorViewModel = makeTokenSelectorViewModel(preferredWalletId: options.preferredWalletId)
         let viewModel = ActionButtonsBuyViewModel(
-            userWalletModels: options.userWalletModels,
             tokenSelectorViewModel: tokenSelectorViewModel,
             pulseMarketWidgetViewModel: makePulseMarketWidgetViewModel(),
             coordinator: self
@@ -156,7 +154,7 @@ extension ActionButtonsBuyCoordinator: AddFundsRoutable {
     }
 }
 
-// MARK: - HotCryptoAddTokenRoutable, AddTokenFlowRoutable, AddTokenFlowRedesignedRoutable
+// MARK: - AddTokenFlowRoutable, AddTokenFlowRedesignedRoutable
 
 extension ActionButtonsBuyCoordinator: AddTokenFlowRoutable, AddTokenFlowRedesignedRoutable {
     func addTokenFlowShowGetToken(for tokenItem: TokenItem, accountSelectorCell: AccountSelectorCellModel) {

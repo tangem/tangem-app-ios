@@ -111,6 +111,23 @@ final class UserDefaultsUserWalletRegistrationStatusRepositoryTests: LeakTrackin
         #expect(await sut.retrieve(id: Self.firstWalletID) == false)
         #expect(await sut.retrieve(id: Self.secondWalletID) == false)
     }
+
+    @Test
+    func updatesEmitCurrentStatusAndEveryChange() async throws {
+        let (sut, _) = try makeSUT()
+        var iterator = await sut.updates(id: Self.firstWalletID).makeAsyncIterator()
+
+        #expect(await iterator.next() == false)
+
+        await sut.persist(registeredID: Self.firstWalletID)
+        #expect(await iterator.next() == true)
+
+        await sut.remove(registeredID: Self.firstWalletID)
+        #expect(await iterator.next() == false)
+
+        await sut.replaceAll(with: [Self.secondWalletID, Self.firstWalletID])
+        #expect(await iterator.next() == true)
+    }
 }
 
 // MARK: - Factory methods

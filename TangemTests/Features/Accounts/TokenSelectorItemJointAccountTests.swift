@@ -114,10 +114,16 @@ private extension TokenSelectorItemJointAccountTests {
             cryptoAccount: CryptoAccountModelMock(isMainAccount: false, accountType: .joint, onArchive: { _ in }),
             derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
             accountPolicy: JointAccountPolicy(membersCount: 2, signersCount: 2),
-            accountStatus: .pending,
+            statusProvider: JointAccountStatusProviderStub(status: .pending),
             operationsService: JointAccountOperationsServiceMock(),
             pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
             membersService: JointAccountMembersServiceMock(),
+            finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
+                pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+                walletModelsManager: WalletModelsManagerMock(),
+                historyDeltaSyncing: JointOperationsHistoryDeltaSyncingStub()
+            ),
+            userRoleService: JointAccountUserRoleServiceMock(),
             delegate: delegate
         )
     }

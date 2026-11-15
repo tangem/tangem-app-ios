@@ -26,7 +26,7 @@ struct TransferConfirmationView: View {
         .topNavigation(
             title: viewModel.title,
             leading: viewModel.isSending ? .none : .automatic,
-            onClose: viewModel.onCloseTap
+            close: .enabled(viewModel.onCloseTap)
         )
         .onAppear(perform: viewModel.refresh)
     }

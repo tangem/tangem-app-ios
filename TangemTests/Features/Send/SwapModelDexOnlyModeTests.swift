@@ -294,7 +294,7 @@ private extension SwapModelDexOnlyModeTests {
             expressFeeProvider: ExpressFeeProviderDummy(),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
+            featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
         )
 
         return ExpressAvailableProvider(
@@ -385,9 +385,8 @@ private final class DexOnlySwapableTokenStub: SendSwapableToken {
     var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider { inner.transactionSummaryDescriptionBuilderProvider }
     var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { inner.blockchainSDKNotificationMapper }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { inner.accountModelAnalyticsProvider }
-    var isTangemPayAccount: Bool { inner.isTangemPayAccount }
-    var jointAccountPolicy: JointAccountPolicy? { inner.jointAccountPolicy }
     var sendingRestrictionsProvider: any SendingRestrictionsProvider { NoSendingRestrictionsProviderStub() }
+    var accountType: SendSourceTokenAccountType { inner.accountType }
 
     // MARK: - Unused in tests
 

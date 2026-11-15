@@ -16,6 +16,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         launchApp(
             tangemApiType: .mock,
+            expressApiType: .mock,
             clearStorage: true
         )
 
@@ -47,6 +48,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         launchApp(
             tangemApiType: .mock,
+            expressApiType: .mock,
             clearStorage: true
         )
 
@@ -77,6 +79,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         launchApp(
             tangemApiType: .mock,
+            expressApiType: .mock,
             clearStorage: true
         )
 
@@ -121,6 +124,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         launchApp(
             tangemApiType: .mock,
+            expressApiType: .mock,
             clearStorage: true
         )
 
@@ -166,6 +170,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         launchApp(
             tangemApiType: .mock,
+            expressApiType: .mock,
             clearStorage: true
         )
 
@@ -213,6 +218,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         launchApp(
             tangemApiType: .mock,
+            expressApiType: .mock,
             clearStorage: true
         )
 
@@ -262,6 +268,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         launchApp(
             tangemApiType: .mock,
+            expressApiType: .mock,
             clearStorage: true,
             scenarios: [storiesErrorScenario]
         )
@@ -283,7 +290,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         wireMockClient.resetScenarioSync("stories_first_time_swap_v2")
         app.terminate()
-        launchApp(tangemApiType: .mock, clearStorage: false)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, clearStorage: false)
 
         let marketsTokenDetailsScreenAfterRestart = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -308,6 +315,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         launchApp(
             tangemApiType: .mock,
+            expressApiType: .mock,
             clearStorage: true,
             scenarios: [storiesErrorScenario]
         )
@@ -327,7 +335,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         wireMockClient.resetScenarioSync("stories_first_time_swap_v2")
         app.terminate()
-        launchApp(tangemApiType: .mock, clearStorage: false)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, clearStorage: false)
 
         let mainScreenAfterRestart = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -349,6 +357,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         launchApp(
             tangemApiType: .mock,
+            expressApiType: .mock,
             clearStorage: true,
             scenarios: [storiesErrorScenario]
         )
@@ -368,7 +377,7 @@ final class SwapStoriesUITests: BaseTestCase {
 
         wireMockClient.resetScenarioSync("stories_first_time_swap_v2")
         app.terminate()
-        launchApp(tangemApiType: .mock, clearStorage: false)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, clearStorage: false)
 
         let tokenScreenAfterRestart = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)

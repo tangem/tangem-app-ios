@@ -72,8 +72,7 @@ struct CommonSendSourceTokenFactory {
             blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper(tokenItem: walletModel.tokenItem),
             accountModelAnalyticsProvider: walletModel.account,
             receivingRestrictionsProvider: WalletModelReceivingRestrictionsProvider(userWalletInfo: userWalletInfo, walletModel: walletModel),
-            isTangemPayAccount: false,
-            jointAccountPolicy: (walletModel.account as? any JointAccountModel)?.policy,
+            accountType: makeAccountType(),
             tokenItem: walletModel.tokenItem,
             fiatItem: fiatItem,
             address: walletModel.defaultAddressString,
@@ -86,6 +85,14 @@ struct CommonSendSourceTokenFactory {
 // MARK: - Private
 
 private extension CommonSendSourceTokenFactory {
+    func makeAccountType() -> SendSourceTokenAccountType {
+        if let jointAccount = walletModel.account as? any JointAccountModel {
+            return .joint(jointAccount.policy)
+        }
+
+        return .crypto
+    }
+
     func makeScaledUIAmountMultiplierResolver() -> ScaledUIAmountMultiplierResolver? {
         // Scaling is declared by the mint, so only tokens can carry it — a coin has no contract address.
         guard let scaledUIAmountProvider = walletModel.scaledUIAmountProvider,

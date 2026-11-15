@@ -27,6 +27,10 @@ final class SpyUserWalletRegistrationStatusRepository: UserWalletRegistrationSta
         return retrieveResult
     }
 
+    func updates(id: UserWalletId) -> AsyncStream<Bool> {
+        AsyncStream { $0.finish() }
+    }
+
     func persist(registeredID: UserWalletId) {
         state.withLock { $0.receivedMessages.append(.persist(registeredID)) }
     }
