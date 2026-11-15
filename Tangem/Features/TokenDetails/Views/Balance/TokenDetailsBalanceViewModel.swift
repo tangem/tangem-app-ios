@@ -232,8 +232,7 @@ private extension TokenDetailsBalanceViewModel {
         let attributedBalance = AttributedBalanceFormatter.format(
             balance,
             token: DesignSystem.Font.displayMediumToken,
-            integerColor: DesignSystem.Color.textPrimary,
-            fractionalColor: DesignSystem.Color.textSecondary
+            color: DesignSystem.Color.textPrimary
         )
         return .attributed(attributedBalance)
     }
@@ -242,8 +241,7 @@ private extension TokenDetailsBalanceViewModel {
         let attributedBalance = AttributedBalanceFormatter.format(
             balance,
             token: DesignSystem.Font.bodyMediumToken,
-            integerColor: DesignSystem.Color.textSecondary,
-            fractionalColor: DesignSystem.Color.textSecondary
+            color: DesignSystem.Color.textSecondary
         )
         return .attributed(attributedBalance)
     }

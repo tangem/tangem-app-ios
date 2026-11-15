@@ -48,7 +48,7 @@ struct JointAccountsNetworkMapperTests {
 
         let account = try #require(try mapper.mapToJointAccounts(from: response).first)
 
-        #expect(account.invites == [RemoteJointAccount.Invite(slot: JointAccountMemberSlotID(2), expiresAt: Constants.inviteExpiresAt)])
+        #expect(account.invites == [StoredJointAccount.Invite(slot: JointAccountMemberSlotID(2), expiresAt: Constants.inviteExpiresAt)])
     }
 
     @Test("An issued invite is read with its code, its slot and when it expires")
@@ -78,10 +78,10 @@ struct JointAccountsNetworkMapperTests {
         let accounts = try mapper.mapToJointAccounts(from: response)
 
         #expect(accounts.count == 1)
-        #expect(accounts.first?.status == .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"))
-        #expect(accounts.first?.members.map(\.name) == ["Alice", "Bob"])
-        #expect(accounts.first?.members.map(\.role) == [.creator, .member])
-        #expect(accounts.first?.members.map(\.slot) == [nil, nil])
+        #expect(accounts.first?.status == .confirming(safeAddress: "0x9295a5836685c5f5f42242f9b64d23e46f8c259f"))
+        #expect(accounts.first?.members.map(\.name) == ["Alice", "Bob", "Carol"])
+        #expect(accounts.first?.members.map(\.role) == [.creator, .member, .member])
+        #expect(accounts.first?.members.map(\.slot) == [nil, nil, nil])
     }
 
     @Test("A member's confirmation of the account is read, and is absent until they confirm")
@@ -90,7 +90,7 @@ struct JointAccountsNetworkMapperTests {
 
         let account = try #require(try mapper.mapToJointAccounts(from: response).first)
 
-        #expect(account.members.map(\.signature) == [Constants.creatorConfirmation, nil])
+        #expect(account.members.map(\.signature) == [Constants.creatorConfirmation, nil, nil])
     }
 
     @Test("An empty list is a list and not a failure")
@@ -115,12 +115,12 @@ struct JointAccountsNetworkMapperTests {
 
     @Test("An active account is read with the address it lives at")
     func activeStatusCarriesTheAddress() throws {
-        let json = Constants.accountsJSON(status: "active", safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")
+        let json = Constants.accountsJSON(status: "active", safeAddress: "0x9295a5836685c5f5f42242f9b64d23e46f8c259f")
         let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
 
         let statuses = try mapper.mapToJointAccounts(from: response).map(\.status)
 
-        #expect(statuses == [.active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")])
+        #expect(statuses == [.active(safeAddress: "0x9295a5836685c5f5f42242f9b64d23e46f8c259f")])
     }
 
     @Test("An active account without an address is a failure, not a guess")
@@ -132,19 +132,30 @@ struct JointAccountsNetworkMapperTests {
         }
     }
 
-    @Test("An account awaiting activation is read with the address it is about to be activated at")
+    @Test("An account awaiting confirmations is read with the address its members confirm")
     func confirmingStatusCarriesTheAddress() throws {
-        let json = Constants.accountsJSON(status: "confirming", safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")
+        let json = Constants.accountsJSON(status: "confirming", safeAddress: "0x9295a5836685c5f5f42242f9b64d23e46f8c259f")
         let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
 
         let statuses = try mapper.mapToJointAccounts(from: response).map(\.status)
 
-        #expect(statuses == [.confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")])
+        #expect(statuses == [.confirming(safeAddress: "0x9295a5836685c5f5f42242f9b64d23e46f8c259f")])
     }
 
-    /// Unlike an activated account, which is unusable without the address it is operated at, this one is merely
-    /// unactivatable — and refusing it would cost every other account in the answer its refresh.
-    @Test("An account awaiting activation without an address is read all the same, with nothing to activate at")
+    @Test(
+        "An address the composition does not resolve to makes the account untrusted, whatever stage it is named at",
+        arguments: ["confirming", "active"]
+    )
+    func addressOfAnotherCompositionMakesTheAccountUntrusted(rawStatus: String) throws {
+        let json = Constants.accountsJSON(status: rawStatus, safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")
+        let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(json)
+
+        #expect(try mapper.mapToJointAccounts(from: response).map(\.status) == [.untrusted])
+    }
+
+    /// Unlike an active account, which is unusable without the address it is operated at, this one merely cannot be
+    /// confirmed — and refusing it would cost every other account in the answer its refresh.
+    @Test("An account awaiting confirmations without an address is read all the same, with nothing to confirm")
     func confirmingStatusWithoutAddressIsRead() throws {
         let response: JointAccountsDTO.Response.JointAccounts = try Self.decode(Constants.accountsJSON(status: "confirming"))
 
@@ -169,9 +180,10 @@ struct JointAccountsNetworkMapperTests {
     func statusRoundTripsThroughStorage() throws {
         let statuses: [JointAccountStatus] = [
             .pending,
-            .confirming(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
+            .confirming(safeAddress: "0x9295a5836685c5f5f42242f9b64d23e46f8c259f"),
             .confirming(safeAddress: nil),
-            .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"),
+            .active(safeAddress: "0x9295a5836685c5f5f42242f9b64d23e46f8c259f"),
+            .untrusted,
             .cancelled,
             .unknown,
         ]
@@ -256,6 +268,30 @@ struct JointAccountsNetworkMapperTests {
         #expect(operation.safeTransaction.data.isEmpty)
         #expect(try SafeInnerCallTypeParser.parse(operation.safeTransaction.innerCall) == .transfer(.coin(destination: "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", value: 1_000_000_000_000_000)))
         #expect(operation.signatures.map(\.state) == [.signed, .declined])
+        #expect(operation.createdAt == ISO8601DateFormatter().date(from: "2026-09-02T10:15:00Z"))
+        #expect(operation.threshold == 2)
+    }
+
+    @Test("An operation stored before it kept its creation date and threshold is still read")
+    func operationStoredWithoutCreationDateAndThresholdIsRead() throws {
+        let operation = JointAccountCompositionFixture.coinTransfer()
+        let storedBlob = try JSONEncoder().encode(StoredJointAccountPendingOperations(cryptoAccountId: "account", operations: [operation]))
+        let storedJSON = String(decoding: storedBlob, as: UTF8.self)
+
+        let decoded = try JSONDecoder().decode(StoredJointAccountPendingOperations.self, from: storedBlob)
+
+        #expect(!storedJSON.contains("createdAt"))
+        #expect(!storedJSON.contains("threshold"))
+        #expect(decoded.operations == [operation])
+    }
+
+    @Test("An operation is stored with its creation date and threshold")
+    func operationIsStoredWithCreationDateAndThreshold() throws {
+        let operation = JointAccountCompositionFixture.coinTransfer(createdAt: ISO8601DateFormatter().date(from: "2026-09-02T10:15:00Z"), threshold: 2)
+
+        let decoded = try JSONDecoder().decode(JointAccountOperation.self, from: JSONEncoder().encode(operation))
+
+        #expect(decoded == operation)
     }
 
     @Test("An operation of a form this version cannot read keeps its place, with no call to show")
@@ -398,7 +434,7 @@ struct JointAccountsNetworkMapperTests {
     @Test("Creating an operation names the Safe the signature's domain is built over")
     func createOperationRequestIsWritten() throws {
         let request = JointAccountOperationRequest(
-            safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b",
+            safeAddress: "0x9295a5836685c5f5f42242f9b64d23e46f8c259f",
             chainId: 1,
             safeTransaction: Self.makeSafeTransaction(),
             signature: Data([0x01, 0xAB, 0xFF])
@@ -406,7 +442,7 @@ struct JointAccountsNetworkMapperTests {
 
         let dto = try mapper.mapToRequest(from: request)
 
-        #expect(dto.safeAddress == "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b")
+        #expect(dto.safeAddress == "0x9295a5836685c5f5f42242f9b64d23e46f8c259f")
         #expect(dto.chainId == 1)
         #expect(dto.safeTx.nonce == "7")
         #expect(dto.signature == "0x01ABFF")
@@ -501,13 +537,14 @@ private extension JointAccountsNetworkMapperTests {
           "jointAccounts": [
             {
               "cryptoAccountId": "0F2A4B6C8D0E2F4A61C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A",
-              "membersCount": 2,
+              "membersCount": 3,
               "threshold": 2,
-              "safeAddress": "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b",
+              "safeAddress": "0x9295a5836685c5f5f42242f9b64d23e46f8c259f",
               "status": "confirming",
               "members": [
-                { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator", "slot": null, "signature": "0xababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab" },
-                { "name": "Bob", "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "role": "member", "slot": null, "signature": null }
+                { "name": "Alice", "address": "0xa9936482d7d056d6f843f5c6088ff0123b796bcc", "role": "creator", "slot": null, "signature": "0xababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab" },
+                { "name": "Bob", "address": "0xb8c09e7abe7e0f70f4f4caf48eed46cc8bfda120", "role": "member", "slot": null, "signature": null },
+                { "name": "Carol", "address": "0xd048326c01787c475af00c51eb0221d2557bfec2", "role": "member", "slot": null, "signature": null }
               ]
             }
           ]
@@ -519,13 +556,14 @@ private extension JointAccountsNetworkMapperTests {
           "jointAccounts": [
             {
               "cryptoAccountId": "0F2A4B6C8D0E2F4A61C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A",
-              "membersCount": 2,
+              "membersCount": 3,
               "threshold": 2,
-              "safeAddress": "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b",
+              "safeAddress": "0x9295a5836685c5f5f42242f9b64d23e46f8c259f",
               "status": "active",
               "members": [
-                { "name": "Alice", "address": "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "role": "creator", "slot": null },
-                { "name": "Bob", "address": "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c", "role": "member", "slot": null }
+                { "name": "Alice", "address": "0xa9936482d7d056d6f843f5c6088ff0123b796bcc", "role": "creator", "slot": null },
+                { "name": "Bob", "address": "0xb8c09e7abe7e0f70f4f4caf48eed46cc8bfda120", "role": "member", "slot": null },
+                { "name": "Carol", "address": "0xd048326c01787c475af00c51eb0221d2557bfec2", "role": "member", "slot": null }
               ],
               "operations": [
                 {
@@ -564,11 +602,15 @@ private extension JointAccountsNetworkMapperTests {
               "jointAccounts": [
                 {
                   "cryptoAccountId": "0F2A4B6C8D0E2F4A61C8A9E7D6053A1B4C7E2F8D9A0B3C5E7F1A2D4B6C8E0F2A",
-                  "membersCount": 2,
+                  "membersCount": 3,
                   "threshold": 2,
                   "safeAddress": \(safeAddress.map { "\"\($0)\"" } ?? "null"),
                   "status": "\(status)",
-                  "members": []
+                  "members": [
+                    { "name": "Alice", "address": "0xa9936482d7d056d6f843f5c6088ff0123b796bcc", "role": "creator", "slot": null },
+                    { "name": "Bob", "address": "0xb8c09e7abe7e0f70f4f4caf48eed46cc8bfda120", "role": "member", "slot": null },
+                    { "name": "Carol", "address": "0xd048326c01787c475af00c51eb0221d2557bfec2", "role": "member", "slot": null }
+                  ]
                 }
               ]
             }

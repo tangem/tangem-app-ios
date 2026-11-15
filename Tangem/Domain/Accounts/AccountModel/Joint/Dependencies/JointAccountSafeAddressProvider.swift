@@ -9,65 +9,34 @@
 import Foundation
 import Combine
 import BlockchainSdk
-import TangemFoundation
 
-/// The Safe address of a joint account: nil until it is activated, since only `JointAccountStatus.active` carries one,
-/// and nil for one whose composition does not resolve to it — see `JointAccountSafeAddressVerifier`.
+/// The Safe address a joint account's wallets are built at: nil until the account is active, although
+/// `JointAccountStatus.confirming` carries the address already, and nil for an untrusted account.
 protocol JointAccountSafeAddressProvider {
     var safeAddress: String? { get }
     var safeAddressPublisher: AnyPublisher<String?, Never> { get }
 }
 
-struct JointAccountsRepositorySafeAddressProvider {
-    private let cryptoAccountId: String
-    private let jointAccountsRepository: JointAccountsRepository
-
-    init(
-        userWalletId: UserWalletId,
-        derivationIdentity: CryptoAccountDerivationIdentity,
-        jointAccountsRepository: JointAccountsRepository,
-    ) {
-        self.jointAccountsRepository = jointAccountsRepository
-        cryptoAccountId = CryptoAccountModelId(userWalletId: userWalletId, derivationIdentity: derivationIdentity).rawValue.hexString
-    }
-
-    /// Checked on every read rather than once on activation: a member who did not activate the account never had it
-    /// checked otherwise, and any refresh can bring a different address along.
-    private func safeAddress(in storedJointAccounts: [StoredJointAccount]) -> String? {
-        guard
-            let storedJointAccount = storedJointAccounts.first(by: cryptoAccountId),
-            case .active(let announcedSafeAddress) = storedJointAccount.status
-        else {
-            return nil
-        }
-
-        do {
-            let confirmedSafeAddress = try JointAccountSafeAddressVerifier.confirm(
-                announcedAddress: announcedSafeAddress,
-                owners: storedJointAccount.members.map(\.address),
-                threshold: storedJointAccount.threshold
-            )
-
-            return EVMAddressUtils.toChecksumAddress(confirmedSafeAddress) ?? confirmedSafeAddress
-        } catch {
-            JointAccountsLogger.error("The Safe of a joint account does not resolve to the composition it is stored with", error: error)
-            return nil
-        }
-    }
-}
-
 // MARK: - JointAccountSafeAddressProvider protocol conformance
 
-extension JointAccountsRepositorySafeAddressProvider: JointAccountSafeAddressProvider {
+extension JointAccountStatusProvider {
     var safeAddress: String? {
-        safeAddress(in: jointAccountsRepository.jointAccounts)
+        status.activeSafeAddress
     }
 
     var safeAddressPublisher: AnyPublisher<String?, Never> {
-        jointAccountsRepository
-            .jointAccountsPublisher
-            .map { safeAddress(in: $0) }
+        statusPublisher
+            .map(\.activeSafeAddress)
             .removeDuplicates()
             .eraseToAnyPublisher()
+    }
+}
+
+private extension JointAccountStatus {
+    var activeSafeAddress: String? {
+        switch self {
+        case .active(let safeAddress): EVMAddressUtils.toChecksumAddress(safeAddress) ?? safeAddress
+        case .pending, .confirming, .untrusted, .cancelled, .unknown: nil
+        }
     }
 }

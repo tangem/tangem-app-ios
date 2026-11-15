@@ -22,6 +22,5 @@ public enum ExpressTransactionStatus: String, Codable, CaseIterable {
     case txFailed = "tx-failed"
     case refunded
     case verifying
-    // [REDACTED_TODO_COMMENT]
     case paused
 }

@@ -23,10 +23,7 @@ final class UTXOTransactionHistoryProvider<Mapper>: MultiNetworkProvider where
 
     private let blockBookProviders: [BlockBookUTXOProvider]
     private let mapper: Mapper
-
-    private var page: TransactionHistoryIndexPage?
-    private var totalPages: Int = 0
-    private var totalRecordsCount: Int = 0
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     init(
         blockBookProviders: [BlockBookUTXOProvider],
@@ -41,39 +38,42 @@ final class UTXOTransactionHistoryProvider<Mapper>: MultiNetworkProvider where
 
 extension UTXOTransactionHistoryProvider: TransactionHistoryProvider {
     var canFetchHistory: Bool {
-        page == nil || (page?.number ?? 0) < totalPages
+        state { state in
+            state.page == nil || (state.page?.number ?? 0) < state.totalPages
+        }
     }
 
     var description: String {
+        let snapshot = state { $0 }
+
         return objectDescription(
             self,
             userInfo: [
-                "pageNumber": page?.number ?? "nil",
-                "totalPages": totalPages,
-                "totalRecordsCount": totalRecordsCount,
+                "pageNumber": snapshot.page?.number ?? "nil",
+                "totalPages": snapshot.totalPages,
+                "totalRecordsCount": snapshot.totalRecordsCount,
             ]
         )
     }
 
     func reset() {
-        page = nil
-        totalPages = 0
-        totalRecordsCount = 0
+        state { $0 = State() }
     }
 
     func loadTransactionHistory(request: TransactionHistory.Request) -> AnyPublisher<TransactionHistory.Response, Error> {
-        providerPublisher { [weak self] provider in
+        let (resetToken, page) = state { ($0.resetToken, $0.page) }
+        let requestPage: Int
+
+        // if indexing is created, load the next page
+        if let page {
+            requestPage = page.number + 1
+        } else {
+            requestPage = 0
+        }
+
+        return providerPublisher { [weak self] provider in
             guard let self else {
                 return .anyFail(error: BlockchainSdkError.empty)
-            }
-
-            let requestPage: Int
-
-            // if indexing is created, load the next page
-            if let page {
-                requestPage = page.number + 1
-            } else {
-                requestPage = 0
             }
 
             let dataPublisher: AnyPublisher<BlockBookAddressResponse, Error>
@@ -115,13 +115,31 @@ extension UTXOTransactionHistoryProvider: TransactionHistoryProvider {
                         )
                     }
 
-                    page = TransactionHistoryIndexPage(number: response.page ?? 0)
-                    totalPages = response.totalPages ?? 0
-                    totalRecordsCount = response.txs
+                    state { state in
+                        guard state.resetToken == resetToken else {
+                            return
+                        }
+
+                        state.page = TransactionHistoryIndexPage(number: response.page ?? 0)
+                        state.totalPages = response.totalPages ?? 0
+                        state.totalRecordsCount = response.txs
+                    }
 
                     return TransactionHistory.Response(records: records)
                 }
                 .eraseToAnyPublisher()
         }
+    }
+}
+
+// MARK: - Auxiliary types
+
+private extension UTXOTransactionHistoryProvider {
+    struct State {
+        /// Changes with every reset, so a response to a request made before the reset can't update the new state.
+        let resetToken = UUID()
+        var page: TransactionHistoryIndexPage?
+        var totalPages = 0
+        var totalRecordsCount = 0
     }
 }

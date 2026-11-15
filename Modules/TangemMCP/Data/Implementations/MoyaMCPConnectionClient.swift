@@ -14,13 +14,13 @@ import struct TangemFoundation.UserWalletId
 private import TangemNetworkUtils
 
 struct MoyaMCPConnectionClient: MCPConnectionClient {
-    private let provider: MoyaProvider<MCPConnectionTarget>
+    private let provider: MoyaProvider<MCPDeviceVerificationTarget>
     private let baseURL: URL
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
     init(
-        provider: MoyaProvider<MCPConnectionTarget>,
+        provider: MoyaProvider<MCPDeviceVerificationTarget>,
         baseURL: URL,
         encoder: JSONEncoder,
         decoder: JSONDecoder
@@ -32,8 +32,8 @@ struct MoyaMCPConnectionClient: MCPConnectionClient {
     }
 
     func fetch(userCode: String) async throws(MCPConnectionClientError) -> MCPConnectionRequest {
-        let queryParameters = FetchMCPConnectionRequestDTO.Request.QueryParameters(userCode: userCode)
-        let target = MCPConnectionTarget.get(queryParameters: queryParameters, baseURL: baseURL)
+        let queryParameters = MCPDeviceVerificationDTO.Get.Request.QueryParameters(userCode: userCode)
+        let target = MCPDeviceVerificationTarget.get(queryParameters: queryParameters, baseURL: baseURL)
 
         let response: Moya.Response
         do {
@@ -43,7 +43,7 @@ struct MoyaMCPConnectionClient: MCPConnectionClient {
         }
 
         do {
-            let fetchResponse = try decoder.decode(FetchMCPConnectionRequestDTO.Response.self, from: response.data)
+            let fetchResponse = try decoder.decode(MCPDeviceVerificationDTO.Get.Response.self, from: response.data)
             return MCPConnectionRequestMapper.mapToDomainRequest(fetchResponse)
         } catch {
             throw MCPConnectionClientError.fetchFailed(underlying: error)
@@ -54,21 +54,21 @@ struct MoyaMCPConnectionClient: MCPConnectionClient {
         request: MCPConnectionRequest,
         userWalletID: UserWalletId
     ) async throws(MCPConnectionClientError) {
-        let requestBody = MCPConnectionRequestMapper.mapDecisionRequestBody(
+        let requestBody = MCPConnectionRequestMapper.mapDeviceVerificationPostBody(
             fromDomain: request,
             userWalletID: userWalletID
         )
 
-        let target: MCPConnectionTarget
+        let target: MCPDeviceVerificationTarget
         do {
-            target = try MCPConnectionTarget.post(
+            target = try MCPDeviceVerificationTarget.post(
                 accept: requestBody,
-                queryParameters: MCPConnectionRequestMapper.mapDecisionRequestQueryParameters(fromDomain: request),
+                queryParameters: MCPConnectionRequestMapper.mapDeviceVerificationPostQueryParameters(fromDomain: request),
                 baseURL: baseURL,
                 encoder: encoder
             )
         } catch {
-            assertionFailure("Failed to construct MCPConnectionTarget. Request body corrupted. Developer mistake.")
+            assertionFailure("Failed to construct MCPDeviceVerificationTarget. Post request body corrupted. Developer mistake.")
             throw MCPConnectionClientError.acceptFailed(underlying: error)
         }
 
@@ -88,8 +88,8 @@ struct MoyaMCPConnectionClient: MCPConnectionClient {
     }
 
     func reject(request: MCPConnectionRequest) async throws(MCPConnectionClientError) {
-        let queryParameters = MCPConnectionRequestMapper.mapDecisionRequestQueryParameters(fromDomain: request)
-        let target = MCPConnectionTarget.delete(queryParameters: queryParameters, baseURL: baseURL)
+        let queryParameters = MCPConnectionRequestMapper.mapDeviceVerificationDeleteQueryParameters(fromDomain: request)
+        let target = MCPDeviceVerificationTarget.delete(queryParameters: queryParameters, baseURL: baseURL)
 
         do {
             _ = try await provider.request(target)

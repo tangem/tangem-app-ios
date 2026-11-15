@@ -256,7 +256,9 @@ private extension JointAccountPendingOperationsMergerTests {
             finishedAt: finishedAt,
             cancelReason: nil,
             initiator: initiator,
-            signatures: []
+            signatures: [],
+            createdAt: nil,
+            threshold: nil
         )
     }
 }

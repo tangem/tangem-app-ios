@@ -31,8 +31,8 @@ struct LinkedMarketingBannerViewModel: Hashable {
 
 struct LinkedMarketingBannerView: View {
     let viewModel: LinkedMarketingBannerViewModel
+    let cardCornerRadius: CGFloat
 
-    private static let topOverlap = defaultCornerRadius
     private static let contentVerticalInset: CGFloat = 12
 
     var body: some View {
@@ -50,7 +50,7 @@ struct LinkedMarketingBannerView: View {
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 16)
-            .padding(.top, Self.contentVerticalInset + Self.topOverlap)
+            .padding(.top, Self.contentVerticalInset + cardCornerRadius)
             .padding(.bottom, Self.contentVerticalInset)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(viewModel.backgroundColorHex.map { Color(hex: $0, fallback: DesignSystem.Color.bgStatusInfoSubtle) } ?? DesignSystem.Color.bgStatusInfoSubtle)
@@ -59,10 +59,10 @@ struct LinkedMarketingBannerView: View {
         .buttonStyle(.plain)
         .allowsHitTesting(viewModel.action != nil)
         .cornerRadiusContinuous(
-            bottomLeadingRadius: Self.defaultCornerRadius,
-            bottomTrailingRadius: Self.defaultCornerRadius
+            bottomLeadingRadius: cardCornerRadius,
+            bottomTrailingRadius: cardCornerRadius
         )
-        .padding(.top, -Self.topOverlap)
+        .padding(.top, -cardCornerRadius)
     }
 }
 

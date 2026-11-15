@@ -24,6 +24,8 @@ protocol CollectiblesVaultUsdcAccountProvider: AnyObject {
 protocol CollectiblesRelinkStatusProvider: AnyObject {
     var isRelinkRequiredPublisher: AnyPublisher<Bool, Never> { get }
     var isRelinkingPublisher: AnyPublisher<Bool, Never> { get }
+
+    func refreshStateSilently() async
 }
 
 protocol CollectiblesDepositAwaiter: AnyObject {
@@ -32,6 +34,9 @@ protocol CollectiblesDepositAwaiter: AnyObject {
 
 protocol CollectiblesPurchaseSigner: AnyObject {
     var purchaseAddresses: CollectiblesPurchaseAddresses? { get }
+    var isRelinkRequired: Bool { get }
+
+    func resolveRelinkRequirement() async throws -> Bool
 
     func signPurchase(
         _ purchase: CollectiblesPackPurchase,
@@ -61,16 +66,22 @@ protocol CollectiblesBuybackInteractorProvider: AnyObject {
     var buybackInteractor: any CollectiblesBuybackInteractor { get }
 }
 
+protocol CollectiblesPendingDerivationNetworksProvider: AnyObject {
+    var pendingDerivationNetworksPublisher: AnyPublisher<[BlockchainNetwork], Never> { get }
+}
+
 /// Refines `CollectiblesOnboarder`: the account model owns the vault's state, so it is also what walks that
 /// state to `.ready` — the alternative is a second object deciding the same three questions from its own reads.
 protocol CollectiblesAccountModel: BaseAccountModel,
     CollectiblesOnboarder,
+    CollectiblesRelinker,
     CollectiblesBalanceSource,
     CollectiblesVaultUsdcAccountProvider,
     CollectiblesRelinkStatusProvider,
     CollectiblesDepositAwaiter,
     CollectiblesPackPurchaseInteractorProvider,
-    CollectiblesBuybackInteractorProvider
+    CollectiblesBuybackInteractorProvider,
+    CollectiblesPendingDerivationNetworksProvider
     where Icon == AccountModel.StandaloneIcon, ID == CollectiblesAccountId {
     var state: CollectiblesState { get }
 

@@ -58,6 +58,19 @@ public struct TangemPayPlaceOrderRequest: Encodable {
         )
     }
 
+    public init(
+        customerWalletAddress: String,
+        tariffPlanTransition: TariffPlanTransition?,
+        accountIssueBanking: AccountIssueBanking?
+    ) {
+        data = Data(
+            type: TangemPayOrderType.onboardingRain.rawValue,
+            customerWalletAddress: customerWalletAddress,
+            tariffPlanTransition: tariffPlanTransition,
+            accountIssueBanking: accountIssueBanking
+        )
+    }
+
     public init(networkContractChainId: Int) {
         data = Data(
             type: TangemPayOrderType.smartContractIssueRain.rawValue,
@@ -132,6 +145,38 @@ public struct TangemPayPlaceOrderRequest: Encodable {
             shippingAddress: shippingAddress,
             sourceProductInstanceId: sourceProductInstanceId
         )
+    }
+}
+
+public extension TangemPayPlaceOrderRequest {
+    struct TariffPlanTransition: Encodable {
+        public let targetTariffPlanId: String
+        public let tariffPlanTransitionType: String
+
+        enum CodingKeys: String, CodingKey {
+            case targetTariffPlanId = "target_tariff_plan_id"
+            case tariffPlanTransitionType = "tariff_plan_transition_type"
+        }
+
+        public init(targetTariffPlanId: String, tariffPlanTransitionType: String) {
+            self.targetTariffPlanId = targetTariffPlanId
+            self.tariffPlanTransitionType = tariffPlanTransitionType
+        }
+    }
+
+    struct AccountIssueBanking: Encodable {
+        public let depositAddress: String
+        public let signature: String
+
+        enum CodingKeys: String, CodingKey {
+            case depositAddress = "deposit_address"
+            case signature
+        }
+
+        public init(depositAddress: String, signature: String) {
+            self.depositAddress = depositAddress
+            self.signature = signature
+        }
     }
 }
 
@@ -328,6 +373,8 @@ public extension TangemPayPlaceOrderRequest {
         public let bankAccountId: String?
         public let bankAccount: BankAccount?
         public let deeplinkValue: String?
+        public let tariffPlanTransition: TariffPlanTransition?
+        public let accountIssueBanking: AccountIssueBanking?
 
         enum CodingKeys: String, CodingKey {
             case type
@@ -347,6 +394,8 @@ public extension TangemPayPlaceOrderRequest {
             case bankAccountId = "bank_account_id"
             case bankAccount = "bank_account"
             case deeplinkValue = "deeplink_value"
+            case tariffPlanTransition = "tariff_plan_transition"
+            case accountIssueBanking = "account_issue_banking"
         }
 
         init(
@@ -366,7 +415,9 @@ public extension TangemPayPlaceOrderRequest {
             tokenContractAddress: String? = nil,
             bankAccountId: String? = nil,
             bankAccount: BankAccount? = nil,
-            deeplinkValue: String? = nil
+            deeplinkValue: String? = nil,
+            tariffPlanTransition: TariffPlanTransition? = nil,
+            accountIssueBanking: AccountIssueBanking? = nil
         ) {
             self.type = type
             self.specificationName = specificationName
@@ -385,6 +436,8 @@ public extension TangemPayPlaceOrderRequest {
             self.bankAccountId = bankAccountId
             self.bankAccount = bankAccount
             self.deeplinkValue = deeplinkValue
+            self.tariffPlanTransition = tariffPlanTransition
+            self.accountIssueBanking = accountIssueBanking
         }
     }
 }

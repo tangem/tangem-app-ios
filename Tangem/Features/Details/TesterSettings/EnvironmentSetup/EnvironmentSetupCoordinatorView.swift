@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemBackendAuthenticationDebugSupport
 import TangemUI
 
 struct EnvironmentSetupCoordinatorView: CoordinatorView {
@@ -41,6 +42,9 @@ struct EnvironmentSetupCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.silentPushTesterViewModel) {
                 SilentPushTesterView(viewModel: $0)
+            }
+            .navigation(item: $coordinator.backendAuthenticationDebugViewModel) {
+                BackendAuthenticationDebugView(viewModel: $0)
             }
         #if INTERNAL || DEBUG
             .navigation(item: $coordinator.designSystemDemoViewModel) {

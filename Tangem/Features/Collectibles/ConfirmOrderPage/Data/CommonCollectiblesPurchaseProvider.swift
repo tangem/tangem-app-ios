@@ -48,15 +48,27 @@ extension CommonCollectiblesPurchaseProvider: CollectiblesPurchaseSentReporter {
 // MARK: - CollectiblesPurchaseStatusProvider protocol conformance
 
 extension CommonCollectiblesPurchaseProvider: CollectiblesPurchaseStatusProvider {
-    func load(txID: String) async throws -> CollectiblesPurchaseTransaction {
-        try await service.loadPurchaseStatus(txID: txID, userWalletID: userWalletID)
+    func load(txID: String, includesAutoBuyback: Bool) async throws -> CollectiblesPurchaseTransaction {
+        try await service.loadPurchaseStatus(
+            txID: txID,
+            includesAutoBuyback: includesAutoBuyback,
+            userWalletID: userWalletID
+        )
     }
 }
 
 // MARK: - CollectiblesPackOpener protocol conformance
 
 extension CommonCollectiblesPurchaseProvider: CollectiblesPackOpener {
-    func open(txID: String) async throws -> CollectiblesPurchaseTransaction {
-        try await service.openPack(txID: txID, userWalletID: userWalletID)
+    func open(txID: String, includesAutoBuyback: Bool) async throws -> CollectiblesPurchaseTransaction {
+        try await service.openPack(txID: txID, includesAutoBuyback: includesAutoBuyback, userWalletID: userWalletID)
+    }
+}
+
+// MARK: - CollectiblesPendingPurchaseProvider protocol conformance
+
+extension CommonCollectiblesPurchaseProvider: CollectiblesPendingPurchaseProvider {
+    func load() async throws -> CollectiblesPendingPurchase? {
+        try await service.loadActivePurchases(userWalletID: userWalletID).first
     }
 }

@@ -136,6 +136,16 @@ extension CommonPolymarketCLOBService: PolymarketCLOBService {
 
         return try mapper.mapOrderRecord(dto)
     }
+
+    func sessionSigners(
+        credentials: PolymarketL2Credentials,
+        ownerAddress: String
+    ) async throws -> [PolymarketSessionSigner] {
+        let data = try await send(.sessionSigners, credentials: credentials, ownerAddress: ownerAddress)
+        let dto = try decode(PolymarketDTO.SessionSignersResponse.self, from: data)
+
+        return mapper.mapSessionSigners(dto)
+    }
 }
 
 // MARK: - Order placement errors
@@ -143,10 +153,14 @@ extension CommonPolymarketCLOBService: PolymarketCLOBService {
 extension CommonPolymarketCLOBService {
     static func placementError(from error: PolymarketAPIError) -> PolymarketOrderPlacementError {
         guard case .http(let statusCode, let problemDetail) = error, (400 ..< 500).contains(statusCode) else {
-            return reachedExchange(error) ? .ambiguous(underlying: error) : .notSent(underlying: error)
+            return error.neverReachedTheServer ? .notSent(underlying: error) : .ambiguous(underlying: error)
         }
 
         let message = problemDetail?.message
+
+        guard !error.isUnauthorized else {
+            return .unauthorized(message: message)
+        }
 
         guard let message, message.localizedCaseInsensitiveContains(Constants.noMatchMarker) else {
             return .rejected(message: message)
@@ -155,27 +169,8 @@ extension CommonPolymarketCLOBService {
         return .noLiquidity(message: message)
     }
 
-    private static func reachedExchange(_ error: PolymarketAPIError) -> Bool {
-        guard case .connection(let underlying) = error, let code = underlying.networkErrorCode else {
-            return true
-        }
-
-        return !Constants.unreachableCodes.contains(code)
-    }
-
     private enum Constants {
         static let noMatchMarker = "no orders found to match"
-
-        static let unreachableCodes: Set<URLError.Code> = [
-            .notConnectedToInternet,
-            .cannotFindHost,
-            .cannotConnectToHost,
-            .dnsLookupFailed,
-            .secureConnectionFailed,
-            .appTransportSecurityRequiresSecureConnection,
-            .internationalRoamingOff,
-            .dataNotAllowed,
-        ]
     }
 }
 

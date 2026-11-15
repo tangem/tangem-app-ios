@@ -142,15 +142,6 @@ extension AnyWalletFactoryError: UniversalError {
     }
 }
 
-extension MultipleAddressTransactionHistoryService.ServiceError: UniversalError {
-    var errorCode: Int {
-        switch self {
-        case .unknownProvider:
-            100006000
-        }
-    }
-}
-
 extension CommonUserTokensManager.Error: UniversalError {
     var errorCode: Int {
         switch self {
@@ -168,6 +159,8 @@ extension CommonUserTokensManager.Error: UniversalError {
             100011005
         case .failedToDeleteNetworkHasTokens:
             100011006
+        case .unsupportedBlockchain:
+            100011007
         }
     }
 }

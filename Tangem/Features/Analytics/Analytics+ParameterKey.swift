@@ -50,6 +50,15 @@ extension Analytics {
         case accountDerivation = "Account Derivation"
         case accountDerivationFrom = "Account Derivation (from)"
         case accountDerivationTo = "Account Derivation (to)"
+        case accountType = "Account Type"
+        case accountTypeFrom = "Account Type (from)"
+        case accountTypeTo = "Account Type (to)"
+        case jointAccountsCount = "Joint Accounts Count"
+        case pendingJointAccountsCount = "Pending Joint Accounts Count"
+        case membersCount = "Members Count"
+        case threshold = "Threshold"
+        case signaturesCollected = "Signatures Collected"
+        case thresholdReached = "Threshold Reached"
         case payAccount = "Pay Account"
         case sku = "SKU"
         case amount = "Amount"
@@ -173,6 +182,13 @@ extension Analytics {
         case walletConnectDAppUrl = "DApp Url"
         case walletConnectDAppDomainVerification = "Domain Verification"
         case walletConnectTransactionEmulationStatus = "Emulation Status"
+
+        // MARK: - MCP
+
+        case mcpAgentName = "Agent Name"
+        case mcpIntentType = "Intent Type"
+        case mcpIntentId = "Intent Id"
+        case mcpIntentModified = "Intent Modified"
 
         // MARK: - NFT
 

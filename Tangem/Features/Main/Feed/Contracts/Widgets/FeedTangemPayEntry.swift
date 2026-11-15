@@ -28,7 +28,7 @@ enum FeedTangemPayEntry {
             return .kycDeclined(interactor)
         case .planSelectNeeded(let tariffPlanSelector):
             return .selectPlan(tariffPlanSelector, wallet: wallet)
-        case .none, .loading, .syncNeeded, .syncInProgress, .unavailable, .failedToIssueCard, .tangemPayAccount, .cardDeactivated:
+        case .none, .loading, .syncNeeded, .syncInProgress, .unavailable, .failedToIssueCard, .tangemPayAccount, .cardDeactivated, .cardNotOpened, .verified:
             return nil
         }
     }

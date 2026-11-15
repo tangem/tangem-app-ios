@@ -339,7 +339,7 @@ extension VisaUserWalletModel: MainHeaderBalanceProvider {
             if let balances, let tokenItem {
                 let balanceFormatter = BalanceFormatter()
                 let formattedBalance = balanceFormatter.formatCryptoBalance(balances.available, currencyCode: tokenItem.currencySymbol)
-                let formattingOptions: TotalBalanceFormattingOptions = .defaultOptionsRedesign
+                let formattingOptions: TotalBalanceFormattingOptions = .mainHeaderRedesign
 
                 let formattedForMain = balanceFormatter.formatAttributedTotalBalance(
                     fiatBalance: formattedBalance,
@@ -445,6 +445,10 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var tangemPayAuthorizingInteractor: TangemPayAuthorizing {
         userWalletModel.tangemPayAuthorizingInteractor
+    }
+
+    var tangemPayBankingAccountAddressSigner: TangemPayBankingAccountAddressSigning {
+        userWalletModel.tangemPayBankingAccountAddressSigner
     }
 
     var polymarketOwnerKeySession: PolymarketOwnerKeySession {

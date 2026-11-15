@@ -12,7 +12,7 @@ public struct ExchangeTransaction: TransactionHistoryRecord, Hashable, @unchecke
     public let txId: String
     public let providerId: ExpressProvider.Id
     public let status: ExpressTransactionStatus
-    public let rateType: ExpressProviderRateType?
+    public let rateType: ExpressProviderRateType
     public let externalTx: ExternalTxInfo?
     public let fromAddress: String?
     public let payIn: PayInInfo
@@ -29,7 +29,7 @@ public struct ExchangeTransaction: TransactionHistoryRecord, Hashable, @unchecke
         txId: String,
         providerId: ExpressProvider.Id,
         status: ExpressTransactionStatus,
-        rateType: ExpressProviderRateType?,
+        rateType: ExpressProviderRateType,
         externalTx: ExternalTxInfo?,
         fromAddress: String?,
         payIn: PayInInfo,

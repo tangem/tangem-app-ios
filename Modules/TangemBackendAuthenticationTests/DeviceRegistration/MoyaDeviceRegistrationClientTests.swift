@@ -233,7 +233,7 @@ private extension DeviceRegistrationRequest {
                 decryptedNonce: "decrypted-nonce",
                 metadata: DeviceMetadata.fake,
                 signature: DeviceSignature.fake,
-                appAttestationToken: nil
+                appAttestation: nil
             )
         }
     }

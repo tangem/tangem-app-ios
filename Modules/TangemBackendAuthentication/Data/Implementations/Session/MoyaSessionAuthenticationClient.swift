@@ -51,22 +51,8 @@ struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
         }
     }
 
-    func authenticate(
-        devicePublicKey: DevicePublicKey,
-        decryptedNonce: String,
-        metadata: DeviceMetadata,
-        signature: DeviceSignature,
-        attestationToken: Data?
-    ) async throws(SessionAuthenticationClientError) -> SessionTokens {
-        let requestBody = AuthenticateDTO.Request(
-            payload: AuthenticateDTO.Request.Payload(
-                devicePublicKey: devicePublicKey.derRepresentation.base64EncodedString(),
-                nonce: decryptedNonce,
-                attestationToken: attestationToken?.base64EncodedString(),
-                metadata: DeviceMetadataMapper.mapToDTO(metadata)
-            ),
-            signature: signature.derRepresentation.base64EncodedString()
-        )
+    func authenticate(request: SessionAuthenticationRequest) async throws(SessionAuthenticationClientError) -> SessionTokens {
+        let requestBody = SessionAuthenticationRequestMapper.map(fromDomain: request)
         let target = BackendAuthenticationTarget(authenticate: requestBody, baseURL: baseURL)
 
         let response: Moya.Response
@@ -85,6 +71,10 @@ struct MoyaSessionAuthenticationClient: SessionAuthenticationClient {
 
                 if problemDetailsError == .deviceNotFound {
                     throw SessionAuthenticationClientError.deviceRegistrationMissing
+                }
+
+                if problemDetailsError.isAppAttestRejected {
+                    throw SessionAuthenticationClientError.appAttestRejected
                 }
 
                 throw SessionAuthenticationClientError.authenticateFailed(underlying: problemDetailsError)

@@ -190,12 +190,30 @@ struct TronTransactionTests {
             sourceAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
             destinationAddress: "TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn",
             changeAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
-            params: TronTransactionParams(transactionType: .contractCall(callData: Data(hex: "a9059cbb00ff"), feeLimit: nil), memo: memo)
+            params: TronTransactionParams(transactionType: .contractCall(callData: Data(hex: "a9059cbb00ff"), feeLimit: nil), memo: Data(memo.utf8))
         )
 
         let presignedInput = try txBuilder.buildForSign(transaction: transaction, block: tronBlock)
 
         #expect(presignedInput.rawData.data == expectedMemoBytes)
+    }
+
+    @Test("a binary memo is written to the transaction byte for byte")
+    func dexSwapContractCallBinaryMemo() throws {
+        let memo = Data([0x03, 0x00, 0x89, 0xF4, 0x15, 0x56, 0xFF, 0xC0])
+
+        let transaction = Transaction(
+            amount: Amount(with: blockchain, value: 0),
+            fee: Fee(.zeroCoin(for: blockchain)),
+            sourceAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            destinationAddress: "TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn",
+            changeAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
+            params: TronTransactionParams(transactionType: .contractCall(callData: Data(hex: "a9059cbb00ff"), feeLimit: nil), memo: memo)
+        )
+
+        let presignedInput = try txBuilder.buildForSign(transaction: transaction, block: tronBlock)
+
+        #expect(presignedInput.rawData.data == memo)
     }
 
     /// An empty memo must not produce a `raw.data` field — Tron charges a flat fee for one.
@@ -207,7 +225,7 @@ struct TronTransactionTests {
             sourceAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
             destinationAddress: "TXXxc9NsHndfQ2z9kMKyWpYa5T3QbhKGwn",
             changeAddress: "TU1BRXbr6EmKmrLL4Kymv7Wp18eYFkRfAF",
-            params: TronTransactionParams(transactionType: .contractCall(callData: Data(hex: "a9059cbb00ff"), feeLimit: nil), memo: "")
+            params: TronTransactionParams(transactionType: .contractCall(callData: Data(hex: "a9059cbb00ff"), feeLimit: nil), memo: Data())
         )
 
         let presignedInput = try txBuilder.buildForSign(transaction: transaction, block: tronBlock)

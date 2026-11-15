@@ -18,7 +18,6 @@ struct AccountDetailsCoordinatorView: View {
         ZStack {
             if let rootViewModel = coordinator.rootViewModel {
                 AccountDetailsView(viewModel: rootViewModel)
-                    .navigationTitle(rootViewModel.title)
                     .padding(.horizontal, 16)
                     .background(DesignSystem.Color.bgPrimary.edgesIgnoringSafeArea(.all))
                     .navigationLinks(links)
@@ -53,6 +52,9 @@ struct AccountDetailsCoordinatorView: View {
                 navigation: .title(Localization.commonSupportedNetworks)
             ) {
                 JointAccountSupportedNetworksView(viewModel: $0)
+            }
+            .modalStatus(item: $coordinator.aboutSignaturesViewModel) {
+                JointAccountAboutSignaturesView(viewModel: $0)
             }
     }
 }

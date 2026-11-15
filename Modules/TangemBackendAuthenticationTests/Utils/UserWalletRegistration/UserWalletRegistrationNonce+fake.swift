@@ -13,6 +13,6 @@ extension UserWalletRegistrationNonce {
     static let fake = UserWalletRegistrationNonce(
         value: "fake-decrypted-nonce",
         bytesToSign: Data([0x01, 0x02, 0x03]),
-        appAttestationToken: nil
+        appAssertion: nil
     )
 }

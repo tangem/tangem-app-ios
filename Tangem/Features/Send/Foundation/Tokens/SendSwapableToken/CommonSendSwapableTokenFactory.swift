@@ -29,12 +29,12 @@ struct CommonSendSwapableTokenFactory: SendSwapableTokenFactory {
 
         let swapTokenFeeProvidersManagerProvider = WalletModelTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
-            supportingOptions: .swap
+            purpose: .swap
         )
 
         let transferTokenFeeProvidersManager = WalletModelTokenFeeProvidersManagerProvider(
             walletModel: walletModel,
-            supportingOptions: .all
+            purpose: .transfer(.all)
         ).makeTokenFeeProvidersManager()
 
         let transactionValidator = SendTransactionValidatorFactory(
@@ -124,13 +124,9 @@ private extension CommonSendSwapableTokenFactory {
             return nil
         }
 
-        let versionResolver = FeatureProvider.isAvailable(.yieldModuleOwnerActionUpgrade)
-            ? walletModel.yieldModuleManager?.versionResolver
-            : nil
-
         return CommonYieldModuleUpgradeHandler(
             versionChecker: versionChecker,
-            versionResolver: versionResolver,
+            versionResolver: walletModel.yieldModuleManager?.versionResolver,
             yieldModuleAddress: yieldModuleAddress
         )
     }

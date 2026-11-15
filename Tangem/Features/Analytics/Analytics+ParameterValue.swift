@@ -67,6 +67,7 @@ extension Analytics {
 
         case main = "Main"
         case token = "Token"
+        case sponsored = "Sponsored"
         case manageTokens = "Manage Tokens"
         case introduction = "Introduction"
         case onboarding = "Onboarding"
@@ -205,7 +206,6 @@ extension Analytics {
         case walletConnectTxSend = "wallet_connect_tx_sign"
         case readPinSettings = "read_pin_settings"
         case changeSecOptions = "change_sec_options"
-        case createWallet = "create_wallet"
         case purgeWallet = "purge_wallet"
         case deriveKeys = "derive_keys"
         case preparePrimary = "prepare_primary"
@@ -267,7 +267,7 @@ extension Analytics {
         case marketsErrorCodeIsNotHTTPError = "Is not http error"
 
         case marketsErrorTypeHTTP = "Http"
-        case marketsErrorTypeTimeout = "Timeout"
+        case timeout = "Timeout"
         case marketsErrorTypeNetwork = "Network"
 
         // MARK: - News
@@ -319,7 +319,7 @@ extension Analytics {
         // MARK: - Mobile Wallet
 
         case `import` = "Import"
-        case create = "Create Wallet"
+        case createWallet = "Create Wallet"
         case importWallet = "Import Wallet"
         case walletSettings = "Wallet Settings"
         case upgrade = "Upgrade"
@@ -361,6 +361,12 @@ extension Analytics {
         case accountSourceNew = "New Account"
         case accountSourceArchive = "Archive"
 
+        // MARK: - Account Type
+
+        case accountTypeCrypto = "Crypto"
+        case accountTypeJoint = "Joint"
+        case accountTypeCollectibles = "Collectibles"
+
         // MARK: - Swap
 
         case simple
@@ -370,7 +376,7 @@ extension Analytics {
 
         case addressBookSourceSendFlow = "Send Flow"
         case addressBookSourceTransactionDetails = "Transaction Details"
-        case addressBookModeCreate = "Create"
+        case create = "Create"
         case addressBookErrorServer = "Server"
         case addressBookErrorSigning = "Signing"
         case addressBookSelectAll = "Select All"
@@ -384,7 +390,7 @@ extension Analytics {
 
         // MARK: - Welcome V2
 
-        // The Create Wallet sheet reuses `.create` (= "Create Wallet") from the Mobile Wallet block.
+        // The Create Wallet sheet reuses `.createWallet` (= "Create Wallet") from the Mobile Wallet block.
 
         case welcomeIHaveWallet = "I Have Wallet"
         case welcomeImportExisting = "Import Existing"
@@ -408,6 +414,14 @@ extension Analytics {
         case backendAuthNonceTypeAuthentication = "Authentication"
         case backendAuthNonceTypeMobileWallet = "Mobile Wallet"
         case backendAuthNonceTypeColdWallet = "Cold Wallet"
+
+        case backendAuthAttestationStageAttestation = "Attestation"
+        case backendAuthAttestationStageAssertion = "Assertion"
+
+        case backendAuthRegistrationStageNonce = "Nonce"
+        case backendAuthRegistrationStagePrepare = "Prepare"
+        case backendAuthRegistrationStageSubmit = "Submit"
+        case backendAuthRegistrationStageRegister = "Register"
 
         // MARK: - Common
 
@@ -435,8 +449,16 @@ extension Analytics {
             return balance > 0 ? .full : .empty
         }
 
-        static func feeAssetType(isGasless: Bool) -> ParameterValue {
-            return isGasless ? .token : .coin
+        static func feeAssetType(for fee: BSDKFee?) -> ParameterValue {
+            guard let fee else {
+                return .coin
+            }
+
+            if fee.isSponsored {
+                return .sponsored
+            }
+
+            return fee.isGasless ? .token : .coin
         }
 
         static let transactionFeeMax: ParameterValue = .max

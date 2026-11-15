@@ -12,11 +12,11 @@ import TangemUI
 public struct PolymarketCategoryTab: TabNavigationItem {
     public let id: Int
     public let title: String
-    public let icon: ImageType?
+    public let start: TabNavigationItemStart?
 
     public init(id: Int, title: String, icon: ImageType? = nil) {
         self.id = id
         self.title = title
-        self.icon = icon
+        start = icon.map(TabNavigationItemStart.icon)
     }
 }

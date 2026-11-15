@@ -7,21 +7,30 @@
 //
 
 enum MCPAgentMapper {
-    static func mapToDomain(_ fetchResponse: FetchMCPAgentDTO.Response) -> MCPAgent {
+    static func mapToDomain(_ clientResponse: MCPClientDTO.Get.Response) -> MCPAgent {
         MCPAgent(
-            id: fetchResponse.clientId,
-            name: fetchResponse.clientName,
-            host: fetchResponse.clientOrigin,
-            icon: fetchResponse.clientIconUrl
+            id: clientResponse.clientId,
+            name: clientResponse.clientName,
+            host: clientResponse.clientOrigin,
+            icon: clientResponse.clientIconUrl
         )
     }
 
-    static func mapToDomain(_ fetchResponse: FetchMCPConnectionRequestDTO.Response) -> MCPAgent {
+    static func mapToDomain(_ deviceVerificationResponse: MCPDeviceVerificationDTO.Get.Response) -> MCPAgent {
         MCPAgent(
-            id: fetchResponse.clientId,
-            name: fetchResponse.clientName,
-            host: fetchResponse.clientOrigin,
-            icon: fetchResponse.clientIconUrl
+            id: deviceVerificationResponse.clientId,
+            name: deviceVerificationResponse.clientName,
+            host: deviceVerificationResponse.clientOrigin,
+            icon: deviceVerificationResponse.clientIconUrl
+        )
+    }
+
+    static func mapToDomain(_ sessionResponse: MCPSessionsDTO.Get.Session) -> MCPAgent {
+        MCPAgent(
+            id: sessionResponse.clientId,
+            name: sessionResponse.clientName,
+            host: sessionResponse.clientOrigin,
+            icon: sessionResponse.clientIconUrl
         )
     }
 }

@@ -31,14 +31,20 @@ public final class CustomerWalletAuthorizationTask: CardSessionRunnable {
 
             do {
                 let derivationPath = TangemPayUtilities.derivationPath
+                let derivationPaths = TangemPayUnifiedOnboarding.isEnabled
+                    ? [derivationPath, TangemPayUtilities.bankingAccountDerivationPath]
+                    : [derivationPath]
                 let wallets = session.environment.card?.wallets
 
                 guard let seedKey = wallets?.first(where: { $0.curve == TangemPayUtilities.mandatoryCurve })?.publicKey else {
                     throw CustomerWalletAuthorizationTaskError.derivedKeyNotFound
                 }
 
-                let derivationTask = DeriveMultipleWalletPublicKeysTask([seedKey: [derivationPath]], shouldFailIfNothingDerived: true)
-                    .withUserWalletRegistration()
+                let derivationTask = DeriveMultipleWalletPublicKeysTask(
+                    [seedKey: derivationPaths],
+                    shouldFailIfNothingDerived: true
+                )
+                .withUserWalletRegistration()
 
                 try await derivationTask
                     .prepare(session)

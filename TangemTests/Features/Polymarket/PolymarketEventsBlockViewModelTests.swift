@@ -11,6 +11,7 @@ import Foundation
 import Testing
 import UIKit
 import TangemFoundation
+import TangemLocalization
 import TangemPolymarket
 import TangemPolymarketUI
 @testable import Tangem
@@ -514,6 +515,337 @@ struct PolymarketEventsBlockViewModelTests {
 
         await Self.awayScore(of: context.sut, becomes: "100")
     }
+
+    // MARK: - Subcategories
+
+    @Test("A category with subcategories shows them after an All tab standing for the category itself")
+    func subcategoryTabsStartWithAll() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.categoryList = [Self.sports, Self.category(2)]
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): Self.page(["a"]),
+            .init(category: 2, cursor: nil): Self.page(["b"]),
+        ]
+        let sut = Self.makeSUT(provider: provider, showsSubcategories: true)
+
+        await Self.cards(of: sut, become: ["a"])
+
+        #expect(sut.subcategoryTabs.map(\.id) == [1, 10, 11])
+        #expect(sut.subcategoryTabs.map(\.title) == [Localization.commonAll, "Soccer", "NBA"])
+        #expect(sut.selectedSubcategoryTab.wrappedValue.id == 1)
+
+        sut.selectedCategoryTab.wrappedValue = PolymarketCategoryTab(id: 2, title: "")
+        await Self.cards(of: sut, become: ["b"])
+
+        #expect(sut.subcategoryTabs.isEmpty)
+    }
+
+    @Test("See all opens the parent category even while one of its subcategories is picked")
+    func seeAllOpensTheParentCategory() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.categoryList = [Self.sports]
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): Self.page(["a"]),
+            .init(category: 10, cursor: nil): Self.page(["soccer"]),
+        ]
+        let routable = PolymarketEventOpeningRoutableSpy()
+        let sut = Self.makeSUT(provider: provider, routable: routable, showsSubcategories: true)
+        await Self.cards(of: sut, become: ["a"])
+        sut.selectedSubcategoryTab.wrappedValue = PolymarketCategoryTab(id: 10, title: "")
+        await Self.cards(of: sut, become: ["soccer"])
+
+        sut.handleViewAction(.seeAllTapped)
+
+        #expect(routable.openedCategoryIDs == [1])
+    }
+
+    @Test("See all does nothing for a category without subcategories")
+    func seeAllNeedsSubcategories() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.categoryList = [Self.category(2)]
+        provider.eventPages = [.init(category: 2, cursor: nil): Self.page(["a"])]
+        let routable = PolymarketEventOpeningRoutableSpy()
+        let sut = Self.makeSUT(provider: provider, routable: routable, showsSubcategories: true)
+        await Self.cards(of: sut, become: ["a"])
+
+        sut.handleViewAction(.seeAllTapped)
+
+        #expect(routable.openedCategoryIDs.isEmpty)
+    }
+
+    @Test("Without phase two a category with subcategories shows no subcategory tabs")
+    func subcategoryTabsNeedPhaseTwo() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.categoryList = [Self.sports]
+        provider.eventPages = [.init(category: 1, cursor: nil): Self.page(["a"])]
+        let sut = Self.makeSUT(provider: provider, showsSubcategories: false)
+
+        await Self.cards(of: sut, become: ["a"])
+
+        #expect(sut.subcategoryTabs.isEmpty)
+    }
+
+    @Test("Picking a subcategory loads the feed by its id, and All brings the category feed back from the cache")
+    func subcategoryLoadsItsOwnFeed() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.categoryList = [Self.sports]
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): Self.page(["a"]),
+            .init(category: 10, cursor: nil): Self.page(["soccer"]),
+        ]
+        let sut = Self.makeSUT(provider: provider, showsSubcategories: true)
+        await Self.cards(of: sut, become: ["a"])
+
+        sut.selectedSubcategoryTab.wrappedValue = PolymarketCategoryTab(id: 10, title: "")
+        await Self.cards(of: sut, become: ["soccer"])
+
+        sut.selectedSubcategoryTab.wrappedValue = PolymarketCategoryTab(id: 1, title: "")
+
+        #expect(Self.cardIDs(sut) == ["a"])
+        #expect(sut.selectedSubcategoryID == nil)
+        #expect(provider.eventsRequests.map(\.category) == [1, 10])
+    }
+
+    @Test("Switching to another category and back resets the subcategory to All")
+    func switchingCategoryResetsSubcategory() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.categoryList = [Self.sports, Self.category(2)]
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): Self.page(["a"]),
+            .init(category: 2, cursor: nil): Self.page(["b"]),
+            .init(category: 10, cursor: nil): Self.page(["soccer"]),
+        ]
+        let sut = Self.makeSUT(provider: provider, showsSubcategories: true)
+        await Self.cards(of: sut, become: ["a"])
+        sut.selectedSubcategoryTab.wrappedValue = PolymarketCategoryTab(id: 10, title: "")
+        await Self.cards(of: sut, become: ["soccer"])
+
+        sut.selectedCategoryTab.wrappedValue = PolymarketCategoryTab(id: 2, title: "")
+        await Self.cards(of: sut, become: ["b"])
+        sut.selectedCategoryTab.wrappedValue = PolymarketCategoryTab(id: 1, title: "")
+
+        #expect(sut.selectedSubcategoryID == nil)
+        #expect(sut.selectedSubcategoryTab.wrappedValue.id == 1)
+        #expect(Self.cardIDs(sut) == ["a"])
+    }
+
+    @Test("Pull to refresh reloads the picked subcategory and keeps it picked")
+    func refreshKeepsSubcategory() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.categoryList = [Self.sports]
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): Self.page(["a"]),
+            .init(category: 10, cursor: nil): Self.page(["soccer"]),
+        ]
+        let refreshCenter = PolymarketMainRefreshCenter()
+        let sut = Self.makeSUT(provider: provider, refreshCenter: refreshCenter, showsSubcategories: true)
+        await Self.cards(of: sut, become: ["a"])
+        sut.selectedSubcategoryTab.wrappedValue = PolymarketCategoryTab(id: 10, title: "")
+        await Self.cards(of: sut, become: ["soccer"])
+        provider.eventPages[.init(category: 10, cursor: nil)] = Self.page(["soccer2"])
+
+        await refreshCenter.refresh(.full)
+
+        #expect(Self.cardIDs(sut) == ["soccer2"])
+        #expect(sut.selectedSubcategoryID == 10)
+        #expect(provider.eventsRequests.map(\.category) == [1, 10, 10])
+    }
+
+    @Test("A visible page of a subcategory is polled with the subcategory id")
+    func pollingUsesSubcategory() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.categoryList = [Self.sports]
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): Self.page(["a"]),
+            .init(category: 10, cursor: nil): Self.page(["soccer"]),
+        ]
+        let clock = PollingClock()
+        let delays = PolymarketSteppedDelayProvider(passing: { $0 == Delays.silentRetryDelay })
+        let appState = AppStateObserverStub()
+        let outdatedDataLog = OutdatedDataLog()
+        let sut = Self.makeSUT(
+            provider: provider,
+            appState: appState,
+            clock: clock,
+            delays: delays,
+            outdatedDataLog: outdatedDataLog,
+            showsSubcategories: true
+        )
+        await Self.cards(of: sut, become: ["a"])
+        sut.selectedSubcategoryTab.wrappedValue = PolymarketCategoryTab(id: 10, title: "")
+        await Self.cards(of: sut, become: ["soccer"])
+        let context = PollingContext(
+            sut: sut,
+            provider: provider,
+            clock: clock,
+            delays: delays,
+            outdatedDataLog: outdatedDataLog,
+            appState: appState
+        )
+
+        clock.advance(by: 21)
+        sut.handleViewAction(.onEventVisibilityChange(id: "soccer", isVisible: true))
+        try await context.runVisibilityTick()
+
+        #expect(provider.eventsRequests.map(\.category) == [1, 10, 10])
+    }
+
+    @Test("An event opened from a subcategory feed carries the subcategory")
+    func openedEventCarriesSubcategory() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.categoryList = [Self.sports]
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): Self.page(["a"]),
+            .init(category: 10, cursor: nil): Self.page(["soccer"]),
+        ]
+        let routable = PolymarketEventOpeningRoutableSpy()
+        let sut = Self.makeSUT(provider: provider, routable: routable, showsSubcategories: true)
+        await Self.cards(of: sut, become: ["a"])
+        sut.selectedSubcategoryTab.wrappedValue = PolymarketCategoryTab(id: 10, title: "")
+        await Self.cards(of: sut, become: ["soccer"])
+
+        sut.handleViewAction(.openEventDetails(id: "soccer"))
+
+        #expect(routable.openedEventCategories.map { $0?.id } == [10])
+    }
+
+    // MARK: - Category screen
+
+    @Test("A pinned category loads its feed with the first known filter without asking for the categories")
+    func pinnedCategoryLoadsWithTheFirstFilter() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.eventPages = [.init(category: 1, cursor: nil): Self.page(["a"])]
+        let sut = Self.makeSUT(provider: provider, showsSubcategories: true, source: .category(Self.filteredSports))
+
+        await Self.cards(of: sut, become: ["a"])
+
+        #expect(sut.subcategoryTabs.map(\.id) == [1, 10, 11])
+        #expect(sut.filterTabs.map(\.id) == [.games, .props])
+        #expect(sut.selectedFilterTab.wrappedValue.id == .games)
+        #expect(provider.eventsRequests.map(\.category) == [1])
+        #expect(provider.eventsRequests.map(\.filter) == [.games])
+    }
+
+    @Test("The main feed never sends a filter, even for a category that has them")
+    func exploreFeedSendsNoFilter() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.categoryList = [Self.filteredSports]
+        provider.eventPages = [.init(category: 1, cursor: nil): Self.page(["a"])]
+        let sut = Self.makeSUT(provider: provider, showsSubcategories: true)
+
+        await Self.cards(of: sut, become: ["a"])
+
+        #expect(sut.filterTabs.isEmpty)
+        #expect(provider.eventsRequests.map(\.filter) == [nil])
+    }
+
+    @Test("Picking a filter asks for the feed with it, and coming back to the first one asks for it again")
+    func pickedFilterGoesIntoTheRequest() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.eventPages = [.init(category: 1, cursor: nil): Self.page(["a"])]
+        let sut = Self.makeSUT(provider: provider, showsSubcategories: true, source: .category(Self.filteredSports))
+        await Self.cards(of: sut, become: ["a"])
+
+        sut.selectedFilterTab.wrappedValue = PolymarketFilterTab(id: .props, title: "")
+        try await provider.eventsRequested.waitForCount(2)
+        await Self.loadingState(of: sut, becomes: .allDataLoaded)
+
+        sut.selectedFilterTab.wrappedValue = PolymarketFilterTab(id: .games, title: "")
+        try await provider.eventsRequested.waitForCount(3)
+
+        #expect(provider.eventsRequests.map(\.filter) == [.games, .props, .games])
+        #expect(provider.eventsRequests.map(\.category) == [1, 1, 1])
+        #expect(sut.selectedFilter == .games)
+    }
+
+    @Test("A subcategory without filters is asked for without one, and switching subcategories goes back to the first filter")
+    func subcategoryResetsTheFilter() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): Self.page(["a"]),
+            .init(category: 10, cursor: nil): Self.page(["soccer"]),
+            .init(category: 11, cursor: nil): Self.page(["nba"]),
+        ]
+        let sut = Self.makeSUT(provider: provider, showsSubcategories: true, source: .category(Self.filteredSports))
+        await Self.cards(of: sut, become: ["a"])
+        sut.selectedFilterTab.wrappedValue = PolymarketFilterTab(id: .props, title: "")
+        try await provider.eventsRequested.waitForCount(2)
+
+        sut.selectedSubcategoryTab.wrappedValue = PolymarketCategoryTab(id: 10, title: "")
+        await Self.cards(of: sut, become: ["soccer"])
+        #expect(sut.filterTabs.isEmpty)
+
+        sut.selectedSubcategoryTab.wrappedValue = PolymarketCategoryTab(id: 11, title: "")
+        await Self.cards(of: sut, become: ["nba"])
+
+        #expect(sut.selectedFilter == .games)
+        #expect(provider.eventsRequests.map(\.category) == [1, 1, 10, 11])
+        #expect(provider.eventsRequests.map(\.filter) == [.games, .props, nil, .games])
+    }
+
+    @Test("Coming back to All on the category screen loads it again from the first page")
+    func categoryScreenReloadsAll() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): Self.page(["a"]),
+            .init(category: 10, cursor: nil): Self.page(["soccer"]),
+        ]
+        let sut = Self.makeSUT(provider: provider, showsSubcategories: true, source: .category(Self.filteredSports))
+        await Self.cards(of: sut, become: ["a"])
+        sut.selectedSubcategoryTab.wrappedValue = PolymarketCategoryTab(id: 10, title: "")
+        await Self.cards(of: sut, become: ["soccer"])
+
+        sut.selectedSubcategoryTab.wrappedValue = PolymarketCategoryTab(id: 1, title: "")
+
+        #expect(sut.loadingState == .loading)
+        await Self.cards(of: sut, become: ["a"])
+        #expect(provider.eventsRequests.map(\.category) == [1, 10, 1])
+        #expect(provider.eventsRequests.map(\.cursor) == [nil, nil, nil])
+    }
+
+    @Test("Pull to refresh reloads the picked filter and keeps it picked")
+    func refreshKeepsFilter() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.eventPages = [.init(category: 1, cursor: nil): Self.page(["a"])]
+        let refreshCenter = PolymarketMainRefreshCenter()
+        let sut = Self.makeSUT(provider: provider, refreshCenter: refreshCenter, showsSubcategories: true, source: .category(Self.filteredSports))
+        await Self.cards(of: sut, become: ["a"])
+        sut.selectedFilterTab.wrappedValue = PolymarketFilterTab(id: .props, title: "")
+        try await provider.eventsRequested.waitForCount(2)
+        await Self.loadingState(of: sut, becomes: .allDataLoaded)
+        provider.eventPages[.init(category: 1, cursor: nil)] = Self.page(["b"])
+
+        await refreshCenter.refresh(.full)
+
+        #expect(Self.cardIDs(sut) == ["b"])
+        #expect(sut.selectedFilter == .props)
+        #expect(provider.eventsRequests.map(\.filter) == [.games, .props, .props])
+    }
+
+    @Test("A filter the app does not know is not offered, and a lone filter is not offered either")
+    func unknownAndLoneFiltersAreNotOffered() async throws {
+        let provider = PolymarketAPIProviderStub()
+        provider.eventPages = [
+            .init(category: 1, cursor: nil): Self.page(["a"]),
+            .init(category: 10, cursor: nil): Self.page(["soccer"]),
+        ]
+        let category = PolymarketCategory(
+            id: 1,
+            label: "Sports",
+            icon: .sports,
+            subcategories: [PolymarketCategory(id: 10, label: "Soccer", icon: .soccer, filters: [.games])],
+            filters: [.unknown("live"), .games, .props]
+        )
+        let sut = Self.makeSUT(provider: provider, showsSubcategories: true, source: .category(category))
+        await Self.cards(of: sut, become: ["a"])
+        #expect(sut.filterTabs.map(\.id) == [.games, .props])
+
+        sut.selectedSubcategoryTab.wrappedValue = PolymarketCategoryTab(id: 10, title: "")
+        await Self.cards(of: sut, become: ["soccer"])
+
+        #expect(sut.filterTabs.isEmpty)
+        #expect(provider.eventsRequests.map(\.filter) == [.games, nil])
+    }
 }
 
 // MARK: - Helpers
@@ -530,11 +862,13 @@ private extension PolymarketEventsBlockViewModelTests {
         liveQuotes: PolymarketLiveQuotesSourceSpy = PolymarketLiveQuotesSourceSpy(),
         quoteBatches: any PollDelayProvider = InstantPollDelayProvider(),
         liveGames: PolymarketLiveGamesSourceSpy = PolymarketLiveGamesSourceSpy(),
-        usesPhaseTwoCards: Bool = false
+        usesPhaseTwoCards: Bool = false,
+        refreshCenter: PolymarketMainRefreshCenter = PolymarketMainRefreshCenter(),
+        showsSubcategories: Bool = false,
+        source: PolymarketEventsBlockViewModel.Source? = nil
     ) -> PolymarketEventsBlockViewModel {
-        let refreshCenter = PolymarketMainRefreshCenter()
-
-        return PolymarketEventsBlockViewModel(
+        PolymarketEventsBlockViewModel(
+            source: source ?? .explore(categoryOpener: routable),
             apiProvider: provider,
             refreshCenter: refreshCenter,
             activityHandler: PolymarketMainActivityHandler(
@@ -544,6 +878,7 @@ private extension PolymarketEventsBlockViewModelTests {
             liveQuotesTracker: liveQuotes.makeTracker(delayProvider: quoteBatches),
             liveGamesTracker: liveGames.makeTracker(),
             usesPhaseTwoCards: usesPhaseTwoCards,
+            showsSubcategories: showsSubcategories,
             isRegionRestricted: { isRegionRestricted },
             routable: routable,
             appStateObserver: appState,
@@ -764,6 +1099,27 @@ private extension PolymarketEventsBlockViewModelTests {
     static func category(_ id: Int) -> PolymarketCategory {
         PolymarketCategory(id: id, label: "\(id)", icon: nil)
     }
+
+    static let sports = PolymarketCategory(
+        id: 1,
+        label: "Sports",
+        icon: .sports,
+        subcategories: [
+            PolymarketCategory(id: 10, label: "Soccer", icon: .soccer),
+            PolymarketCategory(id: 11, label: "NBA", icon: .nba),
+        ]
+    )
+
+    static let filteredSports = PolymarketCategory(
+        id: 1,
+        label: "Sports",
+        icon: .sports,
+        subcategories: [
+            PolymarketCategory(id: 10, label: "Soccer", icon: .soccer),
+            PolymarketCategory(id: 11, label: "NBA", icon: .nba, filters: [.games, .props]),
+        ],
+        filters: [.games, .props]
+    )
 
     static func page(_ ids: [String], cursor: String? = nil, outcomes: [PolymarketOutcome] = []) -> PolymarketEventsPage {
         PolymarketEventsPage(

@@ -29,7 +29,7 @@ struct WithdrawHubView: View {
         .topNavigation(
             title: Localization.tangempayWithdrawHubTitle,
             leading: .none,
-            onClose: viewModel.onCloseTap
+            close: .enabled(viewModel.onCloseTap)
         )
     }
 }

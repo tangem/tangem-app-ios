@@ -7,6 +7,7 @@
 //
 
 import class UIKit.UIImage
+import TangemAssets
 import TangemFoundation
 private import enum TangemLocalization.Localization
 
@@ -24,12 +25,10 @@ struct MCPConnectionRequestUserWalletSelectorRowState: Equatable {
         self.userWallet = userWallet
         title = userWallet.name
 
-        subtitle = Subtitle(
-            numberOfCards: Localization.collectiblesAccountCollectionCardsCount(userWallet.numberOfCards),
-            isUserWalletLocked: userWallet.isLocked,
-            balance: nil
-        )
-        image = .loading
+        subtitle = userWallet.isLocked ? .locked : .loading
+        image = userWallet.isMobileWallet
+            ? .mobileWallet(DesignSystem.Icons.Cloud.filled32)
+            : .loading
 
         isDisabled = userWallet.isLocked
         self.isSelected = isSelected
@@ -37,28 +36,27 @@ struct MCPConnectionRequestUserWalletSelectorRowState: Equatable {
 }
 
 extension MCPConnectionRequestUserWalletSelectorRowState {
-    struct Subtitle: Equatable, CustomStringConvertible {
-        let numberOfCards: String
-        let isUserWalletLocked: Bool
-        let delimiter = String.bulletSign
-        var balance: String?
+    enum Subtitle: Equatable {
+        case locked
+        case loading
+        case balance(String)
 
-        var description: String {
-            guard !isUserWalletLocked else {
-                return "\(numberOfCards) \(delimiter) \(Localization.commonLocked)"
+        var text: String? {
+            switch self {
+            case .locked:
+                Localization.commonLocked
+            case .loading:
+                nil
+            case .balance(let balance):
+                balance
             }
-
-            guard let balance else {
-                return "\(numberOfCards)"
-            }
-
-            return "\(numberOfCards) \(delimiter) \(balance)"
         }
     }
 
     enum ImageState: Equatable {
         case loading
         case content(UIImage)
+        case mobileWallet(ImageType)
     }
 }
 

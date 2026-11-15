@@ -29,6 +29,7 @@ private enum QueryKey: String {
     case baseCurrencyAmount
     case depositWalletAddress
     case depositWalletAddressTag
+    case requestId = "request_id"
 }
 
 private struct IpCheckResponse: Decodable {
@@ -99,6 +100,8 @@ class MoonPayService {
     private var bag: Set<AnyCancellable> = []
     private let darkThemeName = "dark"
     private let session: URLSession
+    private let redirectRequestRegistry = SellRedirectRequestRegistry()
+    private let redirectQueryValueAllowed = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~")
 
     init() {
         let config = URLSessionConfiguration.default
@@ -161,8 +164,38 @@ extension MoonPayService: SellService {
         return cryptoCurrency
     }
 
-    func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
+    private func redirectRequestKey(for currency: MoonpaySupportedCurrency, userWalletId: UserWalletId) -> SellRedirectRequestRegistry.Key {
+        SellRedirectRequestRegistry.Key(
+            userWalletId: userWalletId,
+            currencyCode: currency.currencyCode,
+            networkCode: currency.networkCode,
+            contractAddress: currency.contractAddress
+        )
+    }
+
+    private func makeRedirectUrl(requestId: String) -> String? {
+        guard var components = URLComponents(string: sellRequestUrl) else {
+            return nil
+        }
+
+        components.queryItems = [URLQueryItem(key: .requestId, value: requestId)]
+        return components.url?.absoluteString
+    }
+
+    func getSellUrl(
+        currencySymbol: String,
+        amountType: Amount.AmountType,
+        blockchain: Blockchain,
+        walletAddress: String,
+        userWalletId: UserWalletId
+    ) -> URL? {
         guard let currency = getCryptoCurrency(amountType: amountType, blockchain: blockchain, fromCurrencies: availableToSell) else {
+            return nil
+        }
+
+        let requestId = redirectRequestRegistry.requestId(for: redirectRequestKey(for: currency, userWalletId: userWalletId))
+
+        guard let redirectUrl = makeRedirectUrl(requestId: requestId) else {
             return nil
         }
 
@@ -174,7 +207,7 @@ extension MoonPayService: SellService {
         queryItems.append(.init(key: .apiKey, value: keys.apiKey.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .baseCurrencyCode, value: currency.currencyCode.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .refundWalletAddress, value: walletAddress.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
-        queryItems.append(.init(key: .redirectURL, value: sellRequestUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
+        queryItems.append(URLQueryItem(key: .redirectURL, value: redirectUrl.addingPercentEncoding(withAllowedCharacters: redirectQueryValueAllowed)))
 
         if useDarkTheme {
             queryItems.append(.init(key: .theme, value: darkThemeName))
@@ -189,13 +222,33 @@ extension MoonPayService: SellService {
         return url
     }
 
-    func extractSellCryptoRequest(from data: String) -> SellCryptoRequest? {
+    func extractSellCryptoRequest(
+        from data: String,
+        amountType: Amount.AmountType,
+        blockchain: Blockchain,
+        userWalletId: UserWalletId
+    ) -> SellCryptoRequest? {
         guard
             data.starts(with: sellRequestUrl),
             let url = URL(string: data),
             let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
-            let items = components.queryItems,
+            let items = components.queryItems
+        else {
+            return nil
+        }
+
+        guard
+            let currency = getCryptoCurrency(amountType: amountType, blockchain: blockchain, fromCurrencies: availableToSell),
+            let requestId = items.first(where: { $0.name == QueryKey.requestId.rawValue })?.value,
+            redirectRequestRegistry.isValid(requestId: requestId, for: redirectRequestKey(for: currency, userWalletId: userWalletId)),
             let currencyCode = items.first(where: { $0.name == QueryKey.baseCurrencyCode.rawValue })?.value,
+            currencyCode.caseInsensitiveCompare(currency.currencyCode) == .orderedSame
+        else {
+            AppLogger.warning("Rejected a sell redirect that doesn't match a pending sell request")
+            return nil
+        }
+
+        guard
             let amountStr = items.first(where: { $0.name == QueryKey.baseCurrencyAmount.rawValue })?.value,
             let amount = Decimal(string: amountStr),
             let targetAddress = items.first(where: { $0.name == QueryKey.depositWalletAddress.rawValue })?.value

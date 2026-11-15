@@ -9,13 +9,25 @@
 import Foundation
 import TangemLocalization
 import BlockchainSdk
+import TangemFoundation
 
 protocol SellService: AnyObject, Initializable {
     var initializationPublisher: Published<SellServiceState>.Publisher { get }
 
     func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool
-    func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL?
-    func extractSellCryptoRequest(from data: String) -> SellCryptoRequest?
+    func getSellUrl(
+        currencySymbol: String,
+        amountType: Amount.AmountType,
+        blockchain: Blockchain,
+        walletAddress: String,
+        userWalletId: UserWalletId
+    ) -> URL?
+    func extractSellCryptoRequest(
+        from data: String,
+        amountType: Amount.AmountType,
+        blockchain: Blockchain,
+        userWalletId: UserWalletId
+    ) -> SellCryptoRequest?
 }
 
 enum SellServiceState: Equatable {

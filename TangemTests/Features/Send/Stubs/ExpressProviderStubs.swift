@@ -64,7 +64,8 @@ enum ExpressAvailableProviderFixture {
         state: ExpressProviderManagerState,
         expressFeeProvider: ExpressFeeProvider = ExpressFeeProviderDummy(),
         slippage: Decimal? = nil,
-        isCustomSlippageSupported: Bool = false
+        isCustomSlippageSupported: Bool = false,
+        rateType: ExpressProviderRateType = .float
     ) -> ExpressAvailableProvider {
         let provider = ExpressProvider(
             id: "provider",
@@ -82,11 +83,11 @@ enum ExpressAvailableProviderFixture {
         let context = ExpressProviderFlowContext(
             provider: provider,
             pair: ExpressManagerSwappingPair(source: ExpressWalletDummy(), destination: ExpressWalletDummy()),
-            rateType: .float,
+            rateType: rateType,
             expressFeeProvider: expressFeeProvider,
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
+            featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
         )
 
         return ExpressAvailableProvider(context: context, manager: ExpressProviderManagerStub(state: state))

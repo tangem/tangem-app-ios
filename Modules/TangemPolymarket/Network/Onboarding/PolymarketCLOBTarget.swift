@@ -22,6 +22,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         case balanceAllowance
         case placeOrder(body: Data)
         case order(id: String)
+        case sessionSigners
         case price(tokenId: String, orderSide: PolymarketOrderSide)
         case priceHistory(tokenId: String, query: PolymarketPriceHistoryQuery)
     }
@@ -38,6 +39,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         case .balanceAllowance: "/balance-allowance"
         case .placeOrder: "/order"
         case .order(let id): "/data/order/\(id)"
+        case .sessionSigners: "/v1/user/session-signers"
         case .price: "/price"
         case .priceHistory: "/prices-history"
         }
@@ -52,6 +54,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
              .updateBalanceAllowance,
              .balanceAllowance,
              .order,
+             .sessionSigners,
              .price,
              .priceHistory:
             .get
@@ -60,7 +63,10 @@ struct PolymarketCLOBTarget: Moya.TargetType {
 
     var task: Moya.Task {
         switch target {
-        case .createCredentials, .deriveCredentials, .order:
+        case .createCredentials,
+             .deriveCredentials,
+             .order,
+             .sessionSigners:
             return .requestPlain
         case .placeOrder(let body):
             return .requestData(body)
@@ -83,7 +89,8 @@ struct PolymarketCLOBTarget: Moya.TargetType {
         case .updateBalanceAllowance,
              .balanceAllowance,
              .placeOrder,
-             .order:
+             .order,
+             .sessionSigners:
             true
         case .createCredentials,
              .deriveCredentials,
@@ -102,6 +109,7 @@ struct PolymarketCLOBTarget: Moya.TargetType {
              .updateBalanceAllowance,
              .balanceAllowance,
              .order,
+             .sessionSigners,
              .price,
              .priceHistory:
             return authHeaders

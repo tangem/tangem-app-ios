@@ -12,7 +12,7 @@ import TangemNetworkUtils
 
 final class XRPTransactionHistoryMapper {
     private let blockchain: Blockchain
-    private var transactionIndicesCounter: [String: Int] = [:]
+    private let transactionIndicesCounter = OSAllocatedUnfairLock(initialState: [String: Int]())
 
     init(blockchain: Blockchain) {
         self.blockchain = blockchain
@@ -21,7 +21,7 @@ final class XRPTransactionHistoryMapper {
 
 extension XRPTransactionHistoryMapper: TransactionHistoryMapper {
     func reset() {
-        transactionIndicesCounter.removeAll()
+        transactionIndicesCounter { $0.removeAll() }
     }
 
     func mapToTransactionRecords(
@@ -138,8 +138,12 @@ private extension XRPTransactionHistoryMapper {
             .contractMethodName(name: transactionType.rawValue)
         }
 
-        let index = transactionIndicesCounter[hash, default: 0]
-        transactionIndicesCounter[hash] = index + 1
+        let index = transactionIndicesCounter { counter in
+            let index = counter[hash, default: 0]
+            counter[hash] = index + 1
+
+            return index
+        }
 
         return TransactionRecord(
             hash: hash,

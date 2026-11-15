@@ -222,20 +222,12 @@ public struct TangemTokenRow: View {
 
     // MARK: - Fiat Balance
 
-    private func formattedFiatBalance(_ text: String) -> AttributedString {
-        // Colors only — LoadableBalanceView applies the font via `.style`, keeping Dynamic Type scaling.
-        AttributedBalanceFormatter.dimmingDecimals(
-            text,
-            decimalColor: Constants.Style.FiatBalance.decimalColor
-        )
-    }
-
     private func fiatBalanceView(state: LoadableBalanceView.State) -> some View {
         LoadableBalanceView(
             state: state,
             style: .init(
                 font: Constants.Style.FiatBalance.font,
-                textColor: Constants.Style.FiatBalance.integerColor
+                textColor: Constants.Style.FiatBalance.color
             ),
             loader: .init(
                 size: CGSize(width: 40, height: 12) * scaleFactor,
@@ -248,7 +240,7 @@ public struct TangemTokenRow: View {
     @ViewBuilder
     private func fiatBalanceLoadingView(cached: String?) -> some View {
         let state: LoadableBalanceView.State = if let cached {
-            .loading(cached: .attributed(formattedFiatBalance(cached)))
+            .loading(cached: .string(cached))
         } else {
             .loading(cached: nil)
         }
@@ -260,9 +252,9 @@ public struct TangemTokenRow: View {
     private func fiatBalanceValueView(value: TangemTokenRowViewData.BalanceValue) -> some View {
         let state: LoadableBalanceView.State = switch value {
         case .value(let text):
-            .loaded(text: .attributed(formattedFiatBalance(text)))
+            .loaded(text: .string(text))
         case .failed(let cached):
-            .failed(cached: .attributed(formattedFiatBalance(cached)), icon: .leading)
+            .failed(cached: .string(cached), icon: .leading)
         }
         fiatBalanceView(state: state)
     }

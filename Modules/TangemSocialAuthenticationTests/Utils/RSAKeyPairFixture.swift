@@ -28,14 +28,28 @@ enum RSAKeyPairFixture {
 
     static func publicKeyJWK(
         alg: String = "RSA-OAEP-256",
+        kid: String = "kms-recovery-key",
         n: String = keyPair.modulus.base64URLEncodedString,
         e: String = keyPair.exponent.base64URLEncodedString
     ) -> RecoveryPublicKeyDTO.Response {
-        RecoveryPublicKeyDTO.Response(kty: "RSA", use: "enc", alg: alg, kid: "kms-recovery-key", n: n, e: e)
+        RecoveryPublicKeyDTO.Response(kty: "RSA", use: "enc", alg: alg, kid: kid, n: n, e: e)
+    }
+
+    static func publicKey(
+        algorithm: String = "RSA-OAEP-256",
+        keyId: String? = "kms-recovery-key",
+        modulus: Data = keyPair.modulus,
+        exponent: Data = keyPair.exponent
+    ) -> RecoveryPublicKey {
+        RecoveryPublicKey(keyId: keyId, algorithm: algorithm, modulus: modulus, exponent: exponent)
     }
 
     static var modulus: Data {
         keyPair.modulus
+    }
+
+    static var exponent: Data {
+        keyPair.exponent
     }
 
     static func decrypt(base64Ciphertext: String) throws -> Data {

@@ -52,15 +52,16 @@ struct CommonTokenFeeProvidersManagerTronDEXTests {
         arguments: [
             (TronDEXFixtures.swapKitRawTransactionHex, "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", nil, TronDEXFixtures.swapKitMemo),
             (TronDEXFixtures.swapKitRawTransactionHex, "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", "fallback-extra-id", TronDEXFixtures.swapKitMemo),
-            (TronDEXFixtures.liFiRawTransactionHex, "TU3ymitEKCWQFtASkEeHaPb8NfZcJtCHLt", "fallback-extra-id", "fallback-extra-id"),
+            (TronDEXFixtures.swapKitChainflipRawTransactionHex, "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", nil, TronDEXFixtures.swapKitChainflipMemo),
+            (TronDEXFixtures.liFiRawTransactionHex, "TU3ymitEKCWQFtASkEeHaPb8NfZcJtCHLt", "fallback-extra-id", Data("fallback-extra-id".utf8)),
             (TronDEXFixtures.liFiRawTransactionHex, "TU3ymitEKCWQFtASkEeHaPb8NfZcJtCHLt", "", nil),
-        ] as [(String, String, String?, String?)]
+        ] as [(String, String, String?, Data?)]
     )
     func transactionFee_tronDex_forwardsMemo(
         rawTransactionHex: String,
         destinationAddress: String,
         extraDestinationId: String?,
-        expectedMemo: String?
+        expectedMemo: Data?
     ) async throws {
         let loadedFee = BSDKFee(BSDKAmount(with: .tron(testnet: false), value: 1))
         let provider = makeProvider(loadedFee: loadedFee)

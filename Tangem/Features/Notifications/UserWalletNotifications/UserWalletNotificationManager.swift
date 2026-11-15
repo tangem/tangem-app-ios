@@ -27,6 +27,7 @@ final class UserWalletNotificationManager {
     private let userWalletModel: UserWalletModel
     private let rateAppController: RateAppNotificationController
     private let mobileUpgradeBannerManager: MobileUpgradeBannerManager
+    private let userWalletLinkBannerManager: UserWalletLinkBannerManager
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
 
     private weak var delegate: NotificationTapDelegate?
@@ -48,6 +49,7 @@ final class UserWalletNotificationManager {
     private var showForceUpdateNotification = false
     private var shownForceUpdateNotificationId: NotificationViewId?
     private var shownTokenSyncNotificationId: NotificationViewId?
+    private var shownUserWalletLinkNotificationId: NotificationViewId?
 
     private lazy var pushPermissionNotificationInteractor: PushPermissionNotificationManager = makePushPermissionNotificationsManager()
 
@@ -61,9 +63,11 @@ final class UserWalletNotificationManager {
         self.rateAppController = rateAppController
         analyticsService = NotificationsAnalyticsService(userWalletId: userWalletModel.userWalletId)
         mobileUpgradeBannerManager = CommonMobileUpgradeBannerManager(userWalletModel: userWalletModel)
+        userWalletLinkBannerManager = CommonUserWalletLinkBannerManager(userWalletModel: userWalletModel)
 
         bind()
         bindTokenSyncProgress()
+        userWalletLinkBannerManager.load(onUpdate: weakify(self, forFunction: UserWalletNotificationManager.showUserWalletLinkNotificationIfNeeded))
     }
 
     deinit {
@@ -151,6 +155,7 @@ final class UserWalletNotificationManager {
         showMobileActivationNotificationIfNeeded()
         createAndShowPushPermissionNotificationIfNeeded()
         showForceUpdateNotificationIfNeeded()
+        showUserWalletLinkNotificationIfNeeded()
     }
 
     private func createAndShowPushPermissionNotificationIfNeeded() {
@@ -206,7 +211,10 @@ final class UserWalletNotificationManager {
             return
         }
 
-        notificationInputsSubject.value.insert(input, at: 0)
+        let isUserWalletLinkNotificationOnTop = shownUserWalletLinkNotificationId != nil
+            && notificationInputsSubject.value.first?.id == shownUserWalletLinkNotificationId
+
+        notificationInputsSubject.value.insert(input, at: isUserWalletLinkNotificationOnTop ? 1 : 0)
     }
 
     private func showMobileActivationNotificationIfNeeded() {
@@ -366,6 +374,43 @@ final class UserWalletNotificationManager {
         )
 
         addInputIfNeeded(input)
+    }
+
+    // MARK: - User Wallet Link
+
+    private func showUserWalletLinkNotificationIfNeeded() {
+        hideUserWalletLinkNotificationIfNeeded()
+
+        guard let event = userWalletLinkBannerManager.event else {
+            return
+        }
+
+        let buttonAction: NotificationView.NotificationButtonTapAction = { [weak self] id, action in
+            if case .linkUserWallet = action {
+                self?.userWalletLinkBannerManager.link()
+            } else {
+                self?.delegate?.didTapNotification(with: id, action: action)
+            }
+        }
+
+        let input = NotificationsFactory().buildNotificationInput(
+            for: event,
+            action: { _ in },
+            buttonAction: buttonAction,
+            dismissAction: { _ in }
+        )
+
+        shownUserWalletLinkNotificationId = input.id
+        addInputIfNeeded(input)
+    }
+
+    private func hideUserWalletLinkNotificationIfNeeded() {
+        guard let shownUserWalletLinkNotificationId else {
+            return
+        }
+
+        hideNotification(with: shownUserWalletLinkNotificationId)
+        self.shownUserWalletLinkNotificationId = nil
     }
 
     // MARK: - Initial Wallet Token Sync
@@ -549,6 +594,10 @@ final class UserWalletNotificationManager {
     private func makePendingDerivationsCountPublisher() -> AnyPublisher<Int, Never>? {
         // receive(on:) must stay BEFORE each combineLatest — moving it downstream
         // re-races AbstractCombineLatest with deinit cancel cascade. See [REDACTED_INFO].
+        let collectiblesPendingDerivationsCountPublisher = userWalletModel.accountModelsManager
+            .collectiblesPendingDerivationNetworksPublisher
+            .map(\.count)
+
         return AccountModelsAggregator(.crypto, .joint)
             .modelsPublisher(from: userWalletModel.accountModelsManager)
             .map { $0.compactMap(\.userTokensManager.derivationManager) }
@@ -558,6 +607,8 @@ final class UserWalletNotificationManager {
                     .combineLatest()
                     .map { $0.reduce(0, +) }
             }
+            .combineLatest(collectiblesPendingDerivationsCountPublisher)
+            .map { $0 + $1 }
             .eraseToAnyPublisher()
     }
 

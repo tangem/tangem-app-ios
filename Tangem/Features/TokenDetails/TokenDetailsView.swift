@@ -271,6 +271,8 @@ private extension TokenDetailsView {
         @ViewBuilder var principalContent: PrincipalContent
         @ViewBuilder var trailingContent: TrailingContent
 
+        @Environment(\.mainShtorkaContentIsCollapsed) private var isContentCollapsed
+
         func body(content: Content) -> some View {
             Group {
                 switch presentSource {
@@ -290,8 +292,10 @@ private extension TokenDetailsView {
                 .navigationBarTitleDisplayMode(.inline)
         }
 
+        @ViewBuilder
         private func makeMarketsNavigation(content: Content) -> some View {
-            content
+            let view = content
+                .hiddenWhileCollapsed()
                 .safeAreaInset(edge: .top, spacing: 16) {
                     NavigationHeader(
                         leadingContent: { leadingContent },
@@ -299,8 +303,16 @@ private extension TokenDetailsView {
                         trailingContent: { trailingContent }
                     )
                     .backgroundColor(backgroundColor)
+                    .backgroundHidden(isContentCollapsed)
                     .contentShape(.rect)
                 }
+                .frame(minHeight: 0, maxHeight: .infinity, alignment: .top)
+
+            if #available(iOS 18.0, *) {
+                view.containerBackground(.clear, for: .navigation)
+            } else {
+                view
+            }
         }
     }
 }

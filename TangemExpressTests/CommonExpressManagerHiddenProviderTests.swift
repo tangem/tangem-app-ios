@@ -82,7 +82,7 @@ private extension CommonExpressManagerHiddenProviderTests {
             expressAPIProvider: ExpressAPIProviderStub(),
             expressProviderManagerFactory: FailingSendDataFactory(failures: failures),
             expressRepository: CEXRepositoryStub(providers: providerIds.map { makeProvider(id: $0) }),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: false)
+            featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
         )
     }
 
@@ -172,7 +172,7 @@ private final class FailingSendDataFactory: ExpressProviderManagerFactory {
             expressFeeProvider: FeeProviderFactoryStub().makeExpressFeeProvider(),
             expressAPIProvider: ExpressAPIProviderStub(),
             mapper: ExpressManagerMapper(),
-            featureFlags: ExpressFeatureFlags(isSwapBestRateDefaultProviderEnabled: false, isHideRejectedSwapProvidersEnabled: true)
+            featureFlags: ExpressFeatureFlags(isAPIV2Enabled: false)
         )
 
         let manager = FailingSendDataProviderManager(

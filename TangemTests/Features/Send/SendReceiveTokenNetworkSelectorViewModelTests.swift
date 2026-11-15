@@ -89,10 +89,7 @@ final class SendReceiveTokenNetworkSelectorViewModelTests {
         }
     }
 
-    @Test(
-        "A failed pairs request shows the translated Express error",
-        .enabled(if: FeatureProvider.isAvailable(.hideRejectedSwapProviders))
-    )
+    @Test("A failed pairs request shows the translated Express error")
     func pairsRequestFailureShowsTranslatedError() async throws {
         let repository = SwapRepositoryConfigurableStub(
             pairs: [],
@@ -107,23 +104,6 @@ final class SendReceiveTokenNetworkSelectorViewModelTests {
             return
         }
         #expect(text == Localization.expressErrorSwapUnavailable(2200))
-    }
-
-    @Test(
-        "Without the toggle, a failed pairs request shows the error description",
-        .enabled(if: !FeatureProvider.isAvailable(.hideRejectedSwapProviders))
-    )
-    func pairsRequestFailureShowsErrorDescriptionWithoutToggle() async throws {
-        let error = ExpressAPIError(code: 2200, description: "Core: swaps are unavailable", value: nil)
-        let repository = SwapRepositoryConfigurableStub(pairs: [], providers: [], updatePairsError: error)
-
-        let state = try await loadedState(repository: repository, networks: [polygonItem])
-
-        guard case .notSupported(let text) = state else {
-            Issue.record("Expected .notSupported, got \(state)")
-            return
-        }
-        #expect(text == error.errorDescription)
     }
 
     @Test("Manual swap is not suggested when the source token can't be swapped")
@@ -392,8 +372,7 @@ private final class SendSwapableTokenStub: SendSwapableToken {
     var transactionSummaryDescriptionBuilderProvider: any TransactionSummaryDescriptionBuilderProvider { inner.transactionSummaryDescriptionBuilderProvider }
     var blockchainSDKNotificationMapper: BlockchainSDKNotificationMapper { inner.blockchainSDKNotificationMapper }
     var accountModelAnalyticsProvider: (any AccountModelAnalyticsProviding)? { inner.accountModelAnalyticsProvider }
-    var isTangemPayAccount: Bool { inner.isTangemPayAccount }
-    var jointAccountPolicy: JointAccountPolicy? { inner.jointAccountPolicy }
+    var accountType: SendSourceTokenAccountType { inner.accountType }
 
     // MARK: - Unused in tests
 

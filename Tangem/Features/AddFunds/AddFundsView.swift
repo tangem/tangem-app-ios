@@ -97,7 +97,7 @@ struct AddFundsView: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 20)
         .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .topNavigation(title: viewModel.title, leading: stackLeading, onClose: viewModel.close)
+        .topNavigation(title: viewModel.title, leading: stackLeading, close: .enabled(viewModel.close))
     }
 
     private var stackLeading: TopNavigation.LeadingPolicy {

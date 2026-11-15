@@ -53,4 +53,13 @@ extension Error {
     var isPassKitError: Bool {
         (self as NSError).domain == PKPaymentErrorDomain
     }
+
+    var isRefusedByBackEnd: Bool {
+        guard let statusCode = (self as? MoyaError)?.response?.statusCode else {
+            return false
+        }
+
+        let isRetryableClientError = [408, 429].contains(statusCode)
+        return (400 ... 499).contains(statusCode) && !isRetryableClientError
+    }
 }

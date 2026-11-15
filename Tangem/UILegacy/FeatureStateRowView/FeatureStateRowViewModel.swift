@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct FeatureStateRowViewModel: Hashable, Identifiable {
-    var id: Int { hashValue }
+    var id: Feature { feature }
 
     let feature: Feature
     let enabledByDefault: Bool

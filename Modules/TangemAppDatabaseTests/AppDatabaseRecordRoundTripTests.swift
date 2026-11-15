@@ -183,6 +183,42 @@ struct AppDatabaseRecordRoundTripTests {
         }
     }
 
+    @Test("Fully populated JointOperationRecord round-trips, signatures included")
+    func fullJointOperationRecordRoundTrips() throws {
+        let record = AppDatabaseFixtures.makeFullJointOperationRecord(id: "joint-operation-1")
+
+        try performRoundTrip(of: record) { database in
+            try JointOperationRecord.fetchOne(database, key: record.id)
+        }
+    }
+
+    @Test("JointOperationRecord with all optionals nil and no signatures round-trips")
+    func minimalJointOperationRecordRoundTrips() throws {
+        let record = AppDatabaseFixtures.makeMinimalJointOperationRecord(id: "joint-operation-1")
+
+        try performRoundTrip(of: record) { database in
+            try JointOperationRecord.fetchOne(database, key: record.id)
+        }
+    }
+
+    @Test("Fully populated JointOperationsSyncMetadataRecord round-trips")
+    func fullJointOperationsSyncMetadataRecordRoundTrips() throws {
+        let record = AppDatabaseFixtures.makeFullJointOperationsSyncMetadataRecord(walletID: "hashed-wallet-id")
+
+        try performRoundTrip(of: record) { database in
+            try JointOperationsSyncMetadataRecord.fetchOne(database, key: record.walletID)
+        }
+    }
+
+    @Test("JointOperationsSyncMetadataRecord with all optionals nil round-trips")
+    func minimalJointOperationsSyncMetadataRecordRoundTrips() throws {
+        let record = AppDatabaseFixtures.makeMinimalJointOperationsSyncMetadataRecord(walletID: "hashed-wallet-id")
+
+        try performRoundTrip(of: record) { database in
+            try JointOperationsSyncMetadataRecord.fetchOne(database, key: record.walletID)
+        }
+    }
+
     /// Inserting via raw SQL with only the NOT NULL columns exercises the table-nullability vs
     /// record-optionality contract independently of the record encoder: the nil round-trips above
     /// can never omit a non-optional property, so they can't catch one sitting on a nullable column.

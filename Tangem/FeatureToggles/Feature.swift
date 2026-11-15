@@ -9,10 +9,10 @@
 import Foundation
 
 enum Feature: String, Hashable, CaseIterable {
-    case walletCardsBackupReportOnLogin
     case disableFirmwareVersionLimit
     case visa // [REDACTED_TODO_COMMENT]
     case exchangeOnlyWithinSingleAddress
+    // When enabling, check signPsbt with other parties' finalized inputs: since bdk-swift 3.1.1 they no longer fail finalization
     case walletConnectBitcoin
     case usdtRevokeGaslessFee
     case mobileWalletMultiCreation
@@ -26,26 +26,22 @@ enum Feature: String, Hashable, CaseIterable {
     case mobileSocialLogin
     case jointAccountsGaslessTokenFee
     case mcp
-    case payBundleIntroduction
     case tangemPayAppleWalletProvisioning
     case tronGaslessDEX
     case marketingActivityBinding
-    case qrScanDeeplinks
     case yieldModePromo
-    case swapBestRateDefaultProvider
-    case solanaPNFTAndMetaplexCore
     case tangemPayMoneyAccount
-    case hideRejectedSwapProviders
     case tangemPayCustomerSummary
-    case yieldModuleOwnerActionUpgrade
-    case walletCardsBackupReportWithoutRole
-    case yieldModeGasless
+    case solanaGasless
+    case promoPage
+    case dogecoinPsbtBdkFeeRateLimit
+    case walletLinking
+    case expressApiV2
 
     /// Feature toggle `name` format: `TWI-XXX_description_snake_case` or `IOS-XXX_description_snake_case`.
     /// Use the `IOS-` prefix when the toggle has no TWI ticket or tracks a decomposed sub-task of one.
     var name: String {
         switch self {
-        case .walletCardsBackupReportOnLogin: return "[REDACTED_INFO]_card_backups_on_login"
         case .disableFirmwareVersionLimit: return "Disable firmware version limit"
         case .visa: return "Visa"
         case .exchangeOnlyWithinSingleAddress: return "Filter by `exchangeOnlyWithinSingleAddress`"
@@ -62,26 +58,22 @@ enum Feature: String, Hashable, CaseIterable {
         case .mobileSocialLogin: return "[REDACTED_INFO]_mobile_social_login"
         case .jointAccountsGaslessTokenFee: return "[REDACTED_INFO]_joint_accounts_gasless_token_fee"
         case .mcp: return "TWI-1721_mcp"
-        case .payBundleIntroduction: return "TWI-1728_pay_bundle_introduction"
         case .tangemPayAppleWalletProvisioning: return "TWI-1062_apple_wallet_push_provisioning"
         case .tronGaslessDEX: return "TWI-1850_tron_gasless_dex"
         case .marketingActivityBinding: return "TWI-1732_marketing_activity_binding"
-        case .qrScanDeeplinks: return "TWI-1690_qr_scan_deeplinks"
         case .yieldModePromo: return "TWI-1762_yield_mode_promo"
-        case .swapBestRateDefaultProvider: return "[REDACTED_INFO]_swap_best_rate_default_provider"
-        case .solanaPNFTAndMetaplexCore: return "TWI-1822_solana_pnft_and_metaplex_core"
         case .tangemPayMoneyAccount: return "TWI-1525_money_account"
-        case .hideRejectedSwapProviders: return "[REDACTED_INFO]_hide_cex_provider_after_exchange_data_error"
         case .tangemPayCustomerSummary: return "[REDACTED_INFO]_tangem_pay_customer_summary"
-        case .yieldModuleOwnerActionUpgrade: return "[REDACTED_INFO]_yield_module_owner_action_upgrade"
-        case .walletCardsBackupReportWithoutRole: return "[REDACTED_INFO]_card_backups_without_role"
-        case .yieldModeGasless: return "[REDACTED_INFO]_yield_mode_gasless"
+        case .solanaGasless: return "TWI-1258_solana_gasless"
+        case .promoPage: return "[REDACTED_INFO]_promo_page"
+        case .dogecoinPsbtBdkFeeRateLimit: return "[REDACTED_INFO]_dogecoin_psbt_bdk_fee_rate_limit"
+        case .walletLinking: return "[REDACTED_INFO]_wallet_linking"
+        case .expressApiV2: return "TWI-1906_express_api_v2"
         }
     }
 
     var releaseVersion: ReleaseVersion {
         switch self {
-        case .walletCardsBackupReportOnLogin: return .version("6.7")
         case .disableFirmwareVersionLimit: return .unspecified
         case .visa: return .unspecified
         case .exchangeOnlyWithinSingleAddress: return .unspecified
@@ -97,21 +89,18 @@ enum Feature: String, Hashable, CaseIterable {
         case .totalTokenBalanceV2: return .unspecified
         case .mobileSocialLogin: return .unspecified
         case .jointAccountsGaslessTokenFee: return .unspecified
-        case .mcp: return .unspecified
-        case .payBundleIntroduction: return .version("6.7")
+        case .mcp: return .version("6.8")
         case .tangemPayAppleWalletProvisioning: return .unspecified
         case .tronGaslessDEX: return .unspecified
-        case .marketingActivityBinding: return .unspecified
-        case .qrScanDeeplinks: return .version("6.7")
-        case .yieldModePromo: return .unspecified
-        case .swapBestRateDefaultProvider: return .version("6.7")
-        case .solanaPNFTAndMetaplexCore: return .version("6.7")
+        case .marketingActivityBinding: return .version("6.8")
+        case .yieldModePromo: return .version("6.8")
         case .tangemPayMoneyAccount: return .unspecified
-        case .hideRejectedSwapProviders: return .version("6.7")
         case .tangemPayCustomerSummary: return .unspecified
-        case .yieldModuleOwnerActionUpgrade: return .version("6.7")
-        case .walletCardsBackupReportWithoutRole: return .version("6.7")
-        case .yieldModeGasless: return .version("6.7")
+        case .solanaGasless: return .unspecified
+        case .promoPage: return .unspecified
+        case .dogecoinPsbtBdkFeeRateLimit: return .unspecified
+        case .walletLinking: return .version("6.8")
+        case .expressApiV2: return .version("6.8")
         }
     }
 }

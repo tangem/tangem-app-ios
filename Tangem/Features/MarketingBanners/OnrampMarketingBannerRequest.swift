@@ -10,5 +10,5 @@ import Foundation
 
 struct OnrampMarketingBannerRequest: Equatable {
     let destination: TokenItem
-    let fiatCurrencyCode: String?
+    let fiatCurrencyCode: String
 }

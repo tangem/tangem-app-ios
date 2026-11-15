@@ -42,7 +42,7 @@ let package = Package(
         .package(url: "https://github.com/CombineCommunity/CombineExt.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMajor(from: "1.9.0")),
         .package(url: "https://github.com/groue/GRDB.swift.git", .upToNextMajor(from: "7.1.1")),
-        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.3.3"),
+        .package(url: "git@github.com:tangem-developments/tangem-sdk-ios.git", exact: "5.3.4"),
         // When a Swift macro target (`TangemMacro`) is used in the same package (`TangemModules`) in which it is defined,
         // and that package contains a test target (`BlockchainSdkTests`) that uses macros from that macro target,
         // this causes linker to incorrectly link the macros target plugin (build for macOS) into the iOS test binary,
@@ -59,7 +59,7 @@ let package = Package(
         // AnyCodable
         .package(url: "git@github.com:tangem-developments/SwiftBinanceChain.git", exact: "0.0.18"),
         .package(url: "https://github.com/jedisct1/swift-sodium.git", .upToNextMajor(from: "0.10.0")),
-        .package(url: "https://github.com/bitcoindevkit/bdk-swift", .upToNextMajor(from: "2.3.1")),
+        .package(url: "https://github.com/bitcoindevkit/bdk-swift", .upToNextMajor(from: "3.1.1")),
         // CombineExt
         // CryptoSwift
         .package(url: "git@github.com:tangem-developments/grpc-swift.git", exact: "1.26.2-tangem1"),
@@ -400,6 +400,7 @@ var featureModules: [PackageDescription.Target] {
                 "TangemUI",
                 "TangemFoundation",
                 "TangemAccessibilityIdentifiers",
+                "TangemMacro",
             ],
             swiftSettings: [
                 // [REDACTED_TODO_COMMENT]
@@ -478,6 +479,18 @@ var featureModules: [PackageDescription.Target] {
                 "TangemAssets",
                 "TangemFoundation",
                 "TangemLocalization",
+                "TangemUI",
+                "TangemUIUtils",
+            ],
+            swiftSettings: .swift6StrictSettings
+        ),
+        .tangemTarget(
+            name: "TangemBackendAuthenticationDebugSupport",
+            dependencies: [
+                "TangemAssets",
+                "TangemBackendAuthentication",
+                "TangemFoundation",
+                "TangemLogger",
                 "TangemUI",
                 "TangemUIUtils",
             ],
@@ -613,6 +626,7 @@ var unitTestsModules: [PackageDescription.Target] {
         .tangemTestTarget(
             name: "TangemMCPTests",
             dependencies: [
+                "TangemAssets",
                 "TangemMCP",
                 "TangemTestKit",
             ],

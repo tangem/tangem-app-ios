@@ -25,6 +25,14 @@ public extension Decimal {
         self.init(string: stringValue, locale: .posixEnUS)
     }
 
+    init?(strictStringValue: String) {
+        guard strictStringValue.range(of: #"^[0-9]+(\.[0-9]+)?$"#, options: .regularExpression) != nil else {
+            return nil
+        }
+
+        self.init(stringValue: strictStringValue)
+    }
+
     /// return 8 bytes of integer. LittleEndian  format
     var bytes8LE: [UInt8] {
         let int64value = (rounded(scale: 0) as NSDecimalNumber).intValue

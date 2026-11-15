@@ -10,26 +10,31 @@ import TangemFoundation
 import struct TangemUIUtils.AlertBinder
 
 struct TangemPayCampaignHotWalletCreator {
-    @Injected(\.userWalletRepository)
-    private var userWalletRepository: UserWalletRepository
-
     @Injected(\.pushNotificationsInteractor)
     private var pushNotificationsInteractor: PushNotificationsInteractor
 
     private let mobileWalletFeatureProvider = MobileWalletFeatureProvider()
 
     var restrictionAlert: AlertBinder? {
-        mobileWalletFeatureProvider.isAvailable ? nil : mobileWalletFeatureProvider.makeRestrictionAlert()
+        guard mobileWalletFeatureProvider.isAvailable else {
+            return mobileWalletFeatureProvider.makeRestrictionAlert()
+        }
+
+        guard FeatureProvider.isAvailable(.mobileWalletMultiCreation) else {
+            return nil
+        }
+
+        return MobileWalletLimitUtil().restriction(for: .create)?.makeAlert()
     }
 
     func createWallet() async throws -> UserWalletModel {
-        let userWalletModel = try await MobileCreationUtil().makeCreatedModel()
+        let creationUtil = MobileCreationUtil()
+        let userWalletModel = try await creationUtil.makeCreatedModel()
 
         AmplitudeWrapper.shared.setUserIdIfOnboarding(userWalletId: userWalletModel.userWalletId)
         logWalletCreatedAnalytics()
 
-        BackendAuthenticationRegistrar.registerNewUnprotectedMobileWallet(userWalletModel)
-        try userWalletRepository.add(userWalletModel: userWalletModel)
+        try creationUtil.store(userWalletModel)
 
         await runOnMain { pushNotificationsInteractor.suppressAfterLoginRequestsInCurrentSession() }
 

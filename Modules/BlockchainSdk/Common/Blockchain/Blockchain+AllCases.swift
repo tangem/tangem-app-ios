@@ -9,10 +9,9 @@
 import Foundation
 
 public extension Blockchain {
-    /// Temporary solution unlit we removed `testnet` flag from a `case` blockchain
-    static var allMainnetCases: [Blockchain] {
+    private static func assertAllCasesListed(_ blockchain: Blockchain) {
         // Did you get a compilation error here? If so, add your new blockchain to the array below
-        switch Blockchain.bitcoin(testnet: false) {
+        switch blockchain {
         case .bitcoin: break
         case .litecoin: break
         case .stellar: break
@@ -120,6 +119,11 @@ public extension Blockchain {
             //
             // Did you get a compilation error here? If so, add your new blockchain to the array below
         }
+    }
+
+    /// Temporary solution unlit we removed `testnet` flag from a `case` blockchain
+    static var allMainnetCases: [Blockchain] {
+        assertAllCasesListed(.bitcoin(testnet: false))
 
         return [
             .ethereum(testnet: false),

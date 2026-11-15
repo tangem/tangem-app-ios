@@ -32,7 +32,8 @@ extension WalletModelTransactionDispatcherProvider: TransactionDispatcherProvide
             walletModel: walletModel,
             transactionSigner: signer,
             gaslessTransactionSender: gaslessTransactionSender,
-            tronGaslessTransactionSender: tronGaslessTransactionSender
+            tronGaslessTransactionSender: tronGaslessTransactionSender,
+            solanaGaslessTransactionSender: makeSolanaGaslessTransactionSender()
         )
     }
 
@@ -56,7 +57,8 @@ extension WalletModelTransactionDispatcherProvider: TransactionDispatcherProvide
         return ExpressDEXTransactionDispatcher(
             walletModel: walletModel,
             transactionSigner: signer,
-            transferTransactionDispatcher: makeTransferTransactionDispatcher()
+            transferTransactionDispatcher: makeTransferTransactionDispatcher(),
+            solanaGaslessTransactionSender: makeSolanaGaslessTransactionSender()
         )
     }
 
@@ -135,5 +137,13 @@ extension WalletModelTransactionDispatcherProvider: TransactionDispatcherProvide
             transactionSigner: signer,
             logger: CommonYieldAnalyticsLogger(tokenItem: walletModel.tokenItem, userWalletId: walletModel.userWalletId)
         )
+    }
+}
+
+// MARK: - Private
+
+private extension WalletModelTransactionDispatcherProvider {
+    func makeSolanaGaslessTransactionSender() -> SolanaGaslessTransactionSender {
+        SolanaGaslessTransactionSender(walletModel: walletModel, transactionSigner: signer)
     }
 }

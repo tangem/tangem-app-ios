@@ -62,6 +62,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private let notificationBannerMapper: MultiWalletNotificationBannerMapper
     private let deeplinkHandler: TokenScreenDeeplinkResponder
     private var bag = Set<AnyCancellable>()
+    private var jointOperationDetailsTask: Task<Void, Never>?
 
     private lazy var yieldStateFactory = TokenDetailsYieldStateFactory(
         walletModel: walletModel,
@@ -117,12 +118,17 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     }
 
     deinit {
+        jointOperationDetailsTask?.cancel()
         AppLogger.debug("TokenDetailsViewModel deinit")
     }
 
     func openTransactionDetails(_ transaction: TransactionViewModel) {
         if let jointOperation = jointOperation(for: transaction) {
-            coordinator?.openJointAccountOperationDetails(pendingOperation: jointOperation, userWalletInfo: userWalletInfo)
+            coordinator?.openJointAccountOperationDetails(
+                pendingOperation: jointOperation,
+                userWalletInfo: userWalletInfo,
+                addressBookManager: addressBookManager
+            )
             return
         }
 
@@ -180,7 +186,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .openGetTangemPay,
              .closeGetTangemPay,
              .removeTangemPayAccount,
-             .editSlippage:
+             .editSlippage,
+             .linkUserWallet:
             break
         case .openFeeCurrency:
             coordinator?.proceedFeeCurrencyNavigatingDismissOption(
@@ -522,17 +529,37 @@ private extension TokenDetailsViewModel {
     }
 
     private func bindJointOperationDetails(operationId: String) {
-        jointOperationsInFlightPublisher
-            .compactMap { operations in operations.first { $0.operation.id == operationId } }
-            .timeout(.seconds(Constants.jointOperationAppearanceTimeout), scheduler: DispatchQueue.main)
-            .prefix(1)
-            .receiveOnMain()
-            .sink { [weak self] pendingOperation in
-                guard let self else { return }
+        guard let jointAccount = walletModel.account as? any JointAccountModel else {
+            return
+        }
 
-                coordinator?.openJointAccountOperationDetails(pendingOperation: pendingOperation, userWalletInfo: userWalletInfo)
+        let resolver = JointAccountOperationDeeplinkResolver(
+            jointAccount: jointAccount,
+            timeout: Constants.jointOperationResolutionTimeout
+        )
+
+        jointOperationDetailsTask = Task { [weak self] in
+            do {
+                let pendingOperation = try await resolver.resolve(operationId: operationId)
+                try Task.checkCancellation()
+                await self?.openJointOperationDetails(pendingOperation: pendingOperation)
+            } catch {
+                guard !error.isCancellationError else {
+                    return
+                }
+
+                JointAccountsLogger.error("Failed to open the joint operation from a deeplink", error: error)
             }
-            .store(in: &bag)
+        }
+    }
+
+    @MainActor
+    private func openJointOperationDetails(pendingOperation: JointAccountPendingOperation) {
+        coordinator?.openJointAccountOperationDetails(
+            pendingOperation: pendingOperation,
+            userWalletInfo: userWalletInfo,
+            addressBookManager: addressBookManager
+        )
     }
 
     private func bind() {
@@ -685,8 +712,7 @@ private extension TokenDetailsViewModel {
         let attributedFiatBalance = AttributedBalanceFormatter.format(
             formattedFiatBalance,
             token: DesignSystem.Font.bodyMediumToken,
-            integerColor: DesignSystem.Color.textPrimary,
-            fractionalColor: DesignSystem.Color.textSecondary
+            color: DesignSystem.Color.textPrimary
         )
 
         let item = TokenDetailsStakingState.EnableItem(
@@ -875,7 +901,7 @@ extension TokenDetailsViewModel: TokenDetailsActionsRoutable {}
 
 private extension TokenDetailsViewModel {
     enum Constants {
-        static let jointOperationAppearanceTimeout: TimeInterval = 10
+        static let jointOperationResolutionTimeout: Duration = .seconds(10)
     }
 }
 

@@ -70,7 +70,7 @@ final class FeeSelectorTokensViewModel: ObservableObject {
             return providers.map { provider in
                 viewModel.mapTokenItemToRowViewModel(
                     tokenFeeProvider: provider,
-                    isSelected: selectedProvider.feeTokenItem == provider.feeTokenItem
+                    isSelected: selectedProvider.id == provider.id
                 )
             }
         }
@@ -104,9 +104,9 @@ final class FeeSelectorTokensViewModel: ObservableObject {
 
         return FeeSelectorRowViewModel(
             rowType: .token(tokenIconInfo: TokenIconInfoBuilder().build(from: feeTokenItem, isCustom: false)),
-            title: feeTokenItem.name,
+            title: tokenFeeProvider.feeSelectorTitle,
             subtitle: .balance(subtitleBalanceState),
-            accessibilityIdentifier: FeeAccessibilityIdentifiers.feeCurrencyOption(symbol: feeTokenItem.currencySymbol),
+            accessibilityIdentifier: FeeAccessibilityIdentifiers.feeCurrencyOption(symbol: tokenFeeProvider.feeSelectorAccessibilitySymbol),
             availability: feeTokenAvailability,
             isSelected: isSelected,
             selectAction: { [weak self] in

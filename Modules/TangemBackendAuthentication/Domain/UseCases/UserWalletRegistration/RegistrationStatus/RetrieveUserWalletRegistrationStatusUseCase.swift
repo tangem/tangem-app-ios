@@ -18,4 +18,8 @@ public struct RetrieveUserWalletRegistrationStatusUseCase: Sendable {
     public func callAsFunction(id: UserWalletId) async -> Bool {
         await registrationStatusRepository.retrieve(id: id)
     }
+
+    public func updates(id: UserWalletId) async -> AsyncStream<Bool> {
+        await registrationStatusRepository.updates(id: id)
+    }
 }

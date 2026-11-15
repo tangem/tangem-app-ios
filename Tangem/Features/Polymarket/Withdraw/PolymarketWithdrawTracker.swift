@@ -20,7 +20,11 @@ actor PolymarketWithdrawTracker {
         _state.eraseToAnyPublisher()
     }
 
-    private nonisolated let _state = CurrentValueSubject<PolymarketWithdrawState?, Never>(nil)
+    nonisolated var state: PolymarketWithdrawState? {
+        _state.value
+    }
+
+    private nonisolated let _state: CurrentValueSubject<PolymarketWithdrawState?, Never>
     private let withdrawService: PolymarketWithdrawService
     private let store: PolymarketWithdrawRecordStore
     private let delayProvider: PollDelayProvider
@@ -40,6 +44,7 @@ actor PolymarketWithdrawTracker {
         self.store = store
         self.delayProvider = delayProvider
         self.serverClock = serverClock
+        _state = CurrentValueSubject(Self.visibleState(of: store.entry(), now: serverClock.now))
     }
 
     deinit {
@@ -87,20 +92,22 @@ private extension PolymarketWithdrawTracker {
         self.entry = entry
 
         let record = entry.record
-        let remaining = timeLeft(for: entry)
+        let now = serverClock.now
+
+        guard let state = Self.visibleState(of: entry, now: now) else {
+            forget(record, reason: "its outcome was shown long enough")
+            return
+        }
+
+        _state.send(state)
+
+        let remaining = Self.timeLeft(for: entry, now: now)
 
         guard !record.state.isTerminal else {
-            guard remaining > 0 else {
-                forget(record, reason: "its outcome was shown long enough")
-                return
-            }
-
-            _state.send(record.state)
             scheduleExpiry(of: record, in: remaining)
             return
         }
 
-        _state.send(record.state)
         scheduleExpiry(of: record, in: max(remaining, Constants.settlementGrace))
 
         pollingTask = Task { [weak self, withdrawService, delayProvider] in
@@ -185,10 +192,26 @@ private extension PolymarketWithdrawTracker {
     }
 
     func timeLeft(for entry: PolymarketWithdrawRecordStore.Entry) -> TimeInterval {
+        Self.timeLeft(for: entry, now: serverClock.now)
+    }
+
+    static func timeLeft(for entry: PolymarketWithdrawRecordStore.Entry, now: Date) -> TimeInterval {
         let expiresAt = entry.settledAt.map { $0.addingTimeInterval(Constants.outcomeNoticeLifetime) }
             ?? entry.deadline.addingTimeInterval(Constants.settlementGrace)
 
-        return expiresAt.timeIntervalSince(serverClock.now)
+        return expiresAt.timeIntervalSince(now)
+    }
+
+    static func visibleState(of entry: PolymarketWithdrawRecordStore.Entry?, now: Date) -> PolymarketWithdrawState? {
+        guard let entry else {
+            return nil
+        }
+
+        guard entry.record.state.isTerminal else {
+            return entry.record.state
+        }
+
+        return timeLeft(for: entry, now: now) > 0 ? entry.record.state : nil
     }
 }
 

@@ -234,7 +234,7 @@ private extension TangemPayCrossWalletSwapUITests {
         }
 
         enum Endpoint {
-            static let exchangeData = "/v1/exchange-data"
+            static let exchangeData = "/v2/exchange-data"
         }
 
         enum Scenario {

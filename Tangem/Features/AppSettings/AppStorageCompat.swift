@@ -21,12 +21,13 @@ public struct AppStorageCompat<Key: RawRepresentable<String>, Value>: DynamicPro
 
     private init(
         value: Value,
+        defaultValue: Value,
         store: UserDefaults,
         key: Key,
         transform: @escaping (Any?) -> Value?,
         saveValue: @escaping (Value) -> Void
     ) {
-        _value = Storage(value: value, store: store, key: key.rawValue, transform: transform)
+        _value = Storage(value: value, defaultValue: defaultValue, store: store, key: key.rawValue, transform: transform)
         self.saveValue = saveValue
     }
 
@@ -57,9 +58,9 @@ final class Storage<Value>: NSObject, ObservableObject {
     private let keyPath: String
     private let transform: (Any?) -> Value?
 
-    init(value: Value, store: UserDefaults, key: String, transform: @escaping (Any?) -> Value?) {
+    init(value: Value, defaultValue: Value, store: UserDefaults, key: String, transform: @escaping (Any?) -> Value?) {
         publishedValue = value
-        defaultValue = value
+        self.defaultValue = defaultValue
         self.store = store
         keyPath = key
         self.transform = transform
@@ -101,7 +102,7 @@ extension AppStorageCompat where Value: PropertyListObjectRepresentable {
     init(wrappedValue: Value, _ key: Key, store: UserDefaults? = .defaultStore) {
         let store = (store ?? .standard)
         let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
-        self.init(value: initialValue, store: store, key: key, transform: {
+        self.init(value: initialValue, defaultValue: wrappedValue, store: store, key: key, transform: {
             $0 as? Value
         }, saveValue: { newValue in
             store.setValue(newValue, forKey: key.rawValue)
@@ -109,7 +110,7 @@ extension AppStorageCompat where Value: PropertyListObjectRepresentable {
     }
 }
 
-extension AppStorageCompat where Value: PropertyListObjectRepresentable, Value: OptionalProtocol {
+extension AppStorageCompat where Value: PropertyListObjectRepresentable, Value: OptionalProtocol, Value: ExpressibleByNilLiteral {
     /// Creates a property that can read and write to a user default value of
     /// the optional type that conforms `PropertyListObjectRepresentable`.
     ///
@@ -121,7 +122,7 @@ extension AppStorageCompat where Value: PropertyListObjectRepresentable, Value: 
     init(wrappedValue: Value, _ key: Key, store: UserDefaults? = .defaultStore) {
         let store = (store ?? .standard)
         let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
-        self.init(value: initialValue, store: store, key: key, transform: {
+        self.init(value: initialValue, defaultValue: nil, store: store, key: key, transform: {
             $0 as? Value
         }, saveValue: { newValue in
             switch newValue.wrapped {
@@ -161,7 +162,7 @@ extension AppStorageCompat where Value: RawRepresentable, Value.RawValue: Proper
         let store = (store ?? .standard)
         let rawValue = store.value(forKey: key.rawValue) as? Value.RawValue
         let initialValue = rawValue.flatMap(Value.init) ?? wrappedValue
-        self.init(value: initialValue, store: store, key: key, transform: {
+        self.init(value: initialValue, defaultValue: wrappedValue, store: store, key: key, transform: {
             ($0 as? Value.RawValue).flatMap(Value.init)
         }, saveValue: { newValue in
             store.setValue(newValue.rawValue, forKey: key.rawValue)
@@ -182,7 +183,7 @@ extension AppStorageCompat where Value == [Feature: FeatureState] {
     init(wrappedValue: Value, _ key: Key, store: UserDefaults? = .defaultStore) {
         let store = (store ?? .standard)
         let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
-        self.init(value: initialValue, store: store, key: key) { value in
+        self.init(value: initialValue, defaultValue: wrappedValue, store: store, key: key) { value in
             let dictionary = (value as? [String: String]) ?? [:]
 
             return dictionary.reduce(into: [:]) { result, element in

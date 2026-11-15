@@ -263,13 +263,10 @@ private extension LegacyConfig {
 extension LegacyConfig {
     func makeActionButtonsRole() -> ActionButtonsWalletRole {
         if isMultiwallet {
-            return ActionButtonsWalletRole(providesHotCryptoTokens: true, forcesActionButtonsRow: false, preselectsUserWalletInBuy: false)
+            return ActionButtonsWalletRole(forcesActionButtonsRow: false, preselectsUserWalletInBuy: false)
         }
 
-        // A preconfigured token (e.g. Nodl) is a single-token product — it still offers its network's
-        // hot crypto; a bare single coin (XLM/XRP bird) offers none.
         return ActionButtonsWalletRole(
-            providesHotCryptoTokens: defaultToken != nil,
             forcesActionButtonsRow: true,
             preselectsUserWalletInBuy: true
         )

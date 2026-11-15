@@ -14,6 +14,7 @@ import BlockchainSdk
 /// The dependencies of the wallet's own accounts; the joint ones have `CommonJointAccountDependenciesFactory`.
 struct CommonCryptoAccountDependenciesFactory {
     let userWalletId: UserWalletId
+    let configProvider: UserWalletConfigProvider
     /// A single instance per user wallet
     let derivationManager: DerivationManager?
     let derivationStyle: DerivationStyle?
@@ -52,6 +53,7 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
 
         let userTokensManager = CommonUserTokensManager(
             userWalletId: userWalletId,
+            configProvider: configProvider,
             userTokensRepository: userTokensRepository,
             derivationPathBuilder: derivationPathBuilder,
             existingCurves: existingCurves,
@@ -70,7 +72,9 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
         let blockchainSettingsUpdater = CommonBlockchainSettingsUpdater(userTokensRepository: userTokensRepository)
         let walletModelsFactory = walletModelsFactoryProvider.makeWalletModelsFactory(
             blockchainSettingsUpdater: blockchainSettingsUpdater,
-            userTokensManager: userTokensManager
+            userTokensManager: userTokensManager,
+            isSafe: false,
+            isEarnSupported: true
         )
         let wrappedWalletModelsFactory = WalletModelsFactoryWrapper(innerFactory: walletModelsFactory)
 

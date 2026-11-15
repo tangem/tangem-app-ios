@@ -15,7 +15,7 @@ import TangemAccessibilityIdentifiers
 struct AddCustomTokenView: View {
     @ObservedObject private var viewModel: AddCustomTokenViewModel
 
-    @Environment(\.isAddAndOrganizeRedesignEnabled) private var isRedesign
+    @Environment(\.isInTokensManagementFlow) private var isInTokensManagementFlow
 
     init(viewModel: AddCustomTokenViewModel) {
         self.viewModel = viewModel
@@ -33,15 +33,15 @@ struct AddCustomTokenView: View {
     // MARK: - Redesign-aware styling
 
     private var screenBackgroundColor: Color {
-        isRedesign ? DesignSystem.Color.bgPrimary : DesignSystem.Color.bgPrimary
+        DesignSystem.Color.bgPrimary
     }
 
     private var cardBackgroundColor: Color {
-        isRedesign ? DesignSystem.Color.bgSecondary : DesignSystem.Color.bgSecondary
+        DesignSystem.Color.bgSecondary
     }
 
     private var cardCornerRadius: CGFloat {
-        isRedesign ? 20 : Self.defaultCornerRadius
+        isInTokensManagementFlow ? 20 : Self.defaultCornerRadius
     }
 
     var body: some View {

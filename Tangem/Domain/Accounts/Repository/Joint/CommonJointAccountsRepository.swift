@@ -21,7 +21,6 @@ final class CommonJointAccountsRepository {
     private let networkService: JointAccountsNetworkService
     private let derivationInteractorFactory: JointAccountDerivationInteractorFactory
     private let persistentStorage: JointAccountsPersistentStorage
-    private let invitesPersistentStorage: JointAccountsInvitesPersistentStorage
     private let pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer
     private let eTagStorage: ETagStorage
     private let isJointAccountsAvailable: Bool
@@ -57,24 +56,11 @@ final class CommonJointAccountsRepository {
         .share(replay: 1)
         .eraseToAnyPublisher()
 
-    /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
-    private lazy var invitesStorageDidUpdatePublisher: AnyPublisher<[StoredJointAccountInvites], Never> = invitesPersistentStorage
-        .didUpdatePublisher
-        .prepend(()) // An initial value to trigger loading from storage
-        .receive(on: storageReadingQueue)
-        .withWeakCaptureOf(self)
-        .map { repository, _ in repository.invitesPersistentStorage.getList() }
-        .removeDuplicates()
-        .receiveOnMain()
-        .share(replay: 1)
-        .eraseToAnyPublisher()
-
     init(
         userWalletId: UserWalletId,
         networkService: JointAccountsNetworkService,
         derivationInteractorFactory: JointAccountDerivationInteractorFactory,
         persistentStorage: JointAccountsPersistentStorage,
-        invitesPersistentStorage: JointAccountsInvitesPersistentStorage,
         pendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer,
         eTagStorage: ETagStorage,
         isJointAccountsAvailable: Bool
@@ -83,7 +69,6 @@ final class CommonJointAccountsRepository {
         self.networkService = networkService
         self.derivationInteractorFactory = derivationInteractorFactory
         self.persistentStorage = persistentStorage
-        self.invitesPersistentStorage = invitesPersistentStorage
         self.pendingOperationsSynchronizer = pendingOperationsSynchronizer
         self.eTagStorage = eTagStorage
         self.isJointAccountsAvailable = isJointAccountsAvailable
@@ -91,7 +76,6 @@ final class CommonJointAccountsRepository {
         // Eager initialization of these lazy properties to ensure that there are no race conditions
         _ = loadJointAccountsDebouncer
         _ = storageDidUpdatePublisher
-        _ = invitesStorageDidUpdatePublisher
 
         _ = autoupdater
     }
@@ -106,14 +90,6 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
 
     var jointAccountsPublisher: AnyPublisher<[StoredJointAccount], Never> {
         storageDidUpdatePublisher
-    }
-
-    var jointAccountsInvites: [StoredJointAccountInvites] {
-        invitesPersistentStorage.getList()
-    }
-
-    var jointAccountsInvitesPublisher: AnyPublisher<[StoredJointAccountInvites], Never> {
-        invitesStorageDidUpdatePublisher
     }
 
     func initialize() {
@@ -191,17 +167,12 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
         try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
     }
 
-    func activateJointAccount(withConfig config: JointAccountActivationConfig) async throws {
+    func confirmJointAccount(withConfig config: JointAccountConfirmationConfig) async throws -> JointAccountStatus {
         guard isJointAccountsAvailable else {
             throw InternalError.featureUnavailable
         }
 
-        let payloadBuilder = JointAccountActivationPayloadBuilder(
-            userWalletId: userWalletId,
-            cryptoAccountId: config.cryptoAccountId,
-            config: config.signedConfig,
-            safeAddress: config.safeAddress
-        )
+        let payloadBuilder = JointAccountConfirmationPayloadBuilder(config: config.signedConfig, safeAddress: config.safeAddress)
         let interactor = derivationInteractorFactory.makeInteractor()
 
         let result = try await interactor.deriveAndSign(
@@ -209,17 +180,26 @@ extension CommonJointAccountsRepository: JointAccountsRepository {
             payloadBuilder: payloadBuilder
         )
 
-        // Which wallet was tapped is only known once it has been: a wallet other than the creator's would be turned
-        // away by the endpoint anyway, and stopping here says why instead of reporting a bare refusal
-        guard result.derivedKey.address.caseInsensitiveCompare(config.creatorAddress) == .orderedSame else {
-            throw InternalError.notCreatorWallet
-        }
+        let blob = JointAccountConfirmationBlob(payload: result.payload, signature: result.signature)
 
-        let blob = JointAccountActivationBlob(payload: result.payload, signature: result.signature)
-
-        let account = try await networkService.activateJointAccount(blob: blob)
+        let account = try await networkService.confirmJointAccount(blob: blob)
 
         try persistentStorage.appendNewOrUpdateExisting(StoredJointAccount(remote: account))
+
+        return account.status
+    }
+
+    func issueInvite(cryptoAccountId: String, slot: JointAccountMemberSlotID) async throws -> JointAccountIssuedInvite {
+        guard isJointAccountsAvailable else {
+            throw InternalError.featureUnavailable
+        }
+
+        let invite = try await networkService.issueInvite(cryptoAccountId: cryptoAccountId, slot: slot)
+        let storedInvite = StoredJointAccount.Invite(slot: invite.slot, expiresAt: invite.expiresAt)
+
+        try persistentStorage.updateInvite(storedInvite, ofAccountWith: cryptoAccountId)
+
+        return invite
     }
 }
 
@@ -297,9 +277,6 @@ extension CommonJointAccountsRepository {
         /// Creating an account is asked for by a screen the feature toggle is supposed to keep out of reach, so this
         /// is a programming error rather than something a user can arrive at.
         case featureUnavailable
-        /// The wallet that was tapped holds a slot of the account, but not the creator's, and only the creator
-        /// activates.
-        case notCreatorWallet
     }
 }
 
@@ -311,7 +288,7 @@ private extension CommonJointAccountsRepository {
         /// The listing is the only place an account waiting for its members or its activation moves on, so it is re-read
         /// this often until every account has settled.
         static let regularPollingInterval: Duration = .seconds(60)
-        static let frequentPollingInterval: Duration = .seconds(2)
+        static let frequentPollingInterval: Duration = .seconds(5)
     }
 }
 
@@ -415,7 +392,7 @@ extension CommonJointAccountsRepository.JointAccountsRepositoryAutoupdater {
             let hasPendingAccounts = accounts.contains { account in
                 switch account.status {
                 case .pending, .confirming: true
-                case .active, .cancelled, .unknown: false
+                case .active, .untrusted, .cancelled, .unknown: false
                 }
             }
 

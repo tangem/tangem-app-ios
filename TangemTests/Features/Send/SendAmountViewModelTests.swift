@@ -55,10 +55,7 @@ struct SendAmountViewModelTests {
     }
 
     @MainActor
-    @Test(
-        "Losing the fixed rate after a receive amount was entered quotes the send amount instead",
-        .enabled(if: FeatureProvider.isAvailable(.hideRejectedSwapProviders))
-    )
+    @Test("Losing the fixed rate after a receive amount was entered quotes the send amount instead")
     func losingFixedRateQuotesSendAmount() async throws {
         let (sut, interactor) = try await loseFixedRateAfterEnteringReceiveAmount()
 
@@ -67,10 +64,7 @@ struct SendAmountViewModelTests {
     }
 
     @MainActor
-    @Test(
-        "A failed provider load after a receive amount was entered keeps the receive amount",
-        .enabled(if: FeatureProvider.isAvailable(.hideRejectedSwapProviders))
-    )
+    @Test("A failed provider load after a receive amount was entered keeps the receive amount")
     func failedProviderLoadKeepsReceiveAmount() async throws {
         let (_, interactor) = try await loseFixedRateAfterEnteringReceiveAmount(then: [[]])
 
@@ -78,25 +72,11 @@ struct SendAmountViewModelTests {
     }
 
     @MainActor
-    @Test(
-        "Only float providers loading after a failed load quotes the send amount instead",
-        .enabled(if: FeatureProvider.isAvailable(.hideRejectedSwapProviders))
-    )
+    @Test("Only float providers loading after a failed load quotes the send amount instead")
     func floatOnlyAfterFailedLoadQuotesSendAmount() async throws {
         let (_, interactor) = try await loseFixedRateAfterEnteringReceiveAmount(then: [[], [.float]])
 
         #expect(interactor.sourceAmountUpdates == [2])
-    }
-
-    @MainActor
-    @Test(
-        "Without the toggle, losing the fixed rate after a receive amount was entered does not quote the send amount",
-        .enabled(if: !FeatureProvider.isAvailable(.hideRejectedSwapProviders))
-    )
-    func losingFixedRateWithoutToggleKeepsReceiveAmount() async throws {
-        let (_, interactor) = try await loseFixedRateAfterEnteringReceiveAmount()
-
-        #expect(interactor.sourceAmountUpdates.isEmpty)
     }
 
     @MainActor

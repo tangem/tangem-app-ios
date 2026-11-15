@@ -86,6 +86,8 @@ struct CustomerInfoManagementAPITarget: TargetType {
             "customer/card/reissue"
         case .getEligibility:
             "eligibility/channels"
+        case .checkEligibility:
+            "eligibility/check"
         case .getCashbackSummary:
             "customer/cashback/summary"
         case .getCashbackHistory:
@@ -124,6 +126,7 @@ struct CustomerInfoManagementAPITarget: TargetType {
              .getBankAccounts,
              .getBankOfframpOptions,
              .getEligibility,
+             .checkEligibility,
              .getCardProcessorDetails:
             .get
 
@@ -188,6 +191,9 @@ struct CustomerInfoManagementAPITarget: TargetType {
                 return .requestPlain
             }
             return .requestParameters(parameters: ["months_number": months], encoding: URLEncoding.default)
+
+        case .checkEligibility(let product):
+            return .requestParameters(parameters: ["product": product.rawValue], encoding: URLEncoding.default)
 
         case .cancelKYC:
             let requestData = TangemPayCancelKYCRequest()
@@ -334,6 +340,7 @@ extension CustomerInfoManagementAPITarget {
         case getBankOfframpOptions
 
         case getEligibility
+        case checkEligibility(product: TangemPayProduct)
         case getCashbackSummary
         case getCashbackHistory(months: Int?)
         case getCashbackPromotions

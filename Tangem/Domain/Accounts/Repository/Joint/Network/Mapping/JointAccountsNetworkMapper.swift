@@ -91,13 +91,15 @@ extension JointAccountsNetworkMapper {
         )
     }
 
-    func mapToInvite(from dto: JointAccountsDTO.Response.JointAccount.Invite) -> RemoteJointAccount.Invite? {
+    func mapToInvite(from dto: JointAccountsDTO.Response.JointAccount.Invite) -> StoredJointAccount.Invite? {
         guard let expiresAt = parseDate(dto.expiresAt) else {
             JointAccountsLogger.warning("An invite of the joint account has an unreadable expiry and is skipped")
             return nil
         }
 
-        return RemoteJointAccount.Invite(slot: JointAccountMemberSlotID(dto.slot), expiresAt: expiresAt)
+        let slot = JointAccountMemberSlotID(dto.slot)
+
+        return StoredJointAccount.Invite(slot: slot, expiresAt: expiresAt)
     }
 
     func mapToIssuedInvite(from dto: JointAccountsDTO.Response.IssuedInvite) throws -> JointAccountIssuedInvite {
@@ -116,7 +118,7 @@ extension JointAccountsNetworkMapper {
     }
 
     func mapToOperation(from dto: JointAccountsDTO.Response.Operation) throws -> JointAccountOperation {
-        try mapToOperation(from: dto, txHash: nil, finishedAt: nil, cancelReason: nil)
+        try mapToOperation(from: dto, createdAt: parseDate(dto.createdAt), txHash: nil, finishedAt: nil, cancelReason: nil)
     }
 
     func mapToSignature(from dto: JointAccountsDTO.Response.Operation.Vote) -> JointAccountOperation.Signature {
@@ -173,6 +175,7 @@ extension JointAccountsNetworkMapper {
         let cancelReason = mapCancelReason(from: dto.cancelReason, operationId: dto.operation.operationId)
         let operation = try mapToOperation(
             from: dto.operation,
+            createdAt: createdAt,
             txHash: dto.txHash?.lowercased(),
             finishedAt: finishedAt,
             cancelReason: cancelReason
@@ -196,28 +199,7 @@ extension JointAccountsNetworkMapper {
             return nil
         }
 
-        switch reasonCode {
-        case "UNSUPPORTED_CHAIN":
-            return .unsupportedChain
-        case "NONCE_MISMATCH":
-            return .nonceMismatch
-        case "INVALID_BASE_GAS":
-            return .invalidBaseGas
-        case "GAS_PRICE_TOO_LOW":
-            return .gasPriceTooLow
-        case "GAS_PRICE_TOO_HIGH":
-            return .gasPriceTooHigh
-        case "GAS_TOKEN_NOT_ALLOWED":
-            return .gasTokenNotAllowed
-        case "INVALID_REFUND_RECEIVER":
-            return .invalidRefundReceiver
-        case "INVALID_SAFE_OPERATION":
-            return .invalidSafeOperation
-        case "INVALID_SAFE_ADDRESS":
-            return .invalidSafeAddress
-        default:
-            return .unknown(reasonCode)
-        }
+        return JointOperationRefusal(reasonCode: reasonCode)
     }
 }
 
@@ -234,6 +216,7 @@ private extension JointAccountsNetworkMapper {
 
     func mapToOperation(
         from dto: JointAccountsDTO.Response.Operation,
+        createdAt: Date?,
         txHash: String?,
         finishedAt: Date?,
         cancelReason: JointOperationCancelReason?
@@ -251,7 +234,9 @@ private extension JointAccountsNetworkMapper {
             finishedAt: finishedAt,
             cancelReason: cancelReason,
             initiator: dto.initiator,
-            signatures: signatures
+            signatures: signatures,
+            createdAt: createdAt,
+            threshold: dto.threshold
         )
     }
 
@@ -294,6 +279,19 @@ private extension JointAccountsNetworkMapper {
         Self.dateFormatter.date(from: string) ?? Self.dateFallbackFormatter.date(from: string)
     }
 
+    func verifiedSafeAddress(_ announcedSafeAddress: String, of dto: JointAccountsDTO.Response.JointAccount) -> String? {
+        do {
+            return try JointAccountSafeAddressVerifier.confirm(
+                announcedAddress: announcedSafeAddress,
+                owners: dto.members.map(\.address),
+                threshold: dto.threshold
+            )
+        } catch {
+            JointAccountsLogger.error("The Safe of a joint account does not resolve to its composition", error: error)
+            return nil
+        }
+    }
+
     func mapStatus(from dto: JointAccountsDTO.Response.JointAccount) throws -> JointAccountStatus {
         switch dto.status {
         case .pending:
@@ -301,10 +299,22 @@ private extension JointAccountsNetworkMapper {
         case .confirming:
             // Taken as it comes: an answer that names the stage without the address is the one account's problem,
             // and refusing it here would cost the whole list its refresh
-            return .confirming(safeAddress: dto.safeAddress)
+            guard let announcedSafeAddress = dto.safeAddress else {
+                return .confirming(safeAddress: nil)
+            }
+
+            guard let safeAddress = verifiedSafeAddress(announcedSafeAddress, of: dto) else {
+                return .untrusted
+            }
+
+            return .confirming(safeAddress: safeAddress)
         case .active:
-            guard let safeAddress = dto.safeAddress else {
+            guard let announcedSafeAddress = dto.safeAddress else {
                 throw JointAccountsNetworkMapperError.activeAccountWithoutAddress
+            }
+
+            guard let safeAddress = verifiedSafeAddress(announcedSafeAddress, of: dto) else {
+                return .untrusted
             }
 
             return .active(safeAddress: safeAddress)

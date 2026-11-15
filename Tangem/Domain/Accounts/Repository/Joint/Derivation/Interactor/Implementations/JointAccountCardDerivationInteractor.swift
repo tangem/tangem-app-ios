@@ -30,8 +30,14 @@ extension JointAccountCardDerivationInteractor: JointAccountDerivationInteractor
         derivationIndex: Int,
         payloadBuilder: Builder
     ) async throws -> JointAccountDerivationInteractorResult<Builder.Payload> {
+        let derivationPath = try JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIndex)
         let seedKey = try keysRepository.masterKeyPublicKey(curve: JointAccountKeyPath.blockchain.curve)
-        let task = JointAccountDerivationTask(seedKey: seedKey, derivationIndex: derivationIndex, payloadBuilder: payloadBuilder)
+        let task = JointAccountDerivationTask(
+            seedKey: seedKey,
+            derivationIndex: derivationIndex,
+            derivationPath: derivationPath,
+            payloadBuilder: payloadBuilder
+        )
 
         let response: JointAccountDerivationTask<Builder>.Response = try await withCheckedThrowingContinuation { continuation in
             tangemSdk.startSession(with: task, filter: filter) { result in
@@ -69,10 +75,10 @@ private final class JointAccountDerivationTask<Builder: JointAccountPayloadBuild
     private let derivationPath: DerivationPath
     private let payloadBuilder: Builder
 
-    init(seedKey: Data, derivationIndex: Int, payloadBuilder: Builder) {
+    init(seedKey: Data, derivationIndex: Int, derivationPath: DerivationPath, payloadBuilder: Builder) {
         self.derivationIndex = derivationIndex
         self.seedKey = seedKey
-        derivationPath = JointAccountKeyPath.derivationPath(forAccountAtIndex: derivationIndex)
+        self.derivationPath = derivationPath
         self.payloadBuilder = payloadBuilder
     }
 

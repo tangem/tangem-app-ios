@@ -52,7 +52,9 @@ class FakeWalletManager: WalletManager {
             keysDerivingInteractorFactory: KeysDerivingInteractorFactory(),
             transactionHistoryProviderResolver: TransactionHistoryProviderResolver(
                 userWalletId: userWalletId,
-                refcodeProvider: WalletInfo.cardWallet(CardMock.wallet.cardInfo).refcodeProvider
+                refcodeProvider: WalletInfo.cardWallet(CardMock.wallet.cardInfo).refcodeProvider,
+                jointAccountsRepository: FakeJointAccountsRepository(),
+                isJointAccountsAvailable: false
             ),
             transactionHistoryUpdater: TransactionHistoryUpdater()
         )
@@ -60,7 +62,9 @@ class FakeWalletManager: WalletManager {
         let walletModelsFactory = walletModelsFactoryProvider
             .makeWalletModelsFactory(
                 blockchainSettingsUpdater: FakeBlockchainSettingsUpdater(),
-                userTokensManager: UserTokensManagerMock()
+                userTokensManager: UserTokensManagerMock(),
+                isSafe: false,
+                isEarnSupported: true
             )
 
         walletModels = walletModelsFactory.makeWalletModels(

@@ -16,8 +16,6 @@ protocol StoredJointAccountRecord {
 
 extension StoredJointAccount: StoredJointAccountRecord {}
 
-extension StoredJointAccountInvites: StoredJointAccountRecord {}
-
 extension StoredJointAccountPendingOperations: StoredJointAccountRecord {}
 
 extension Collection where Element: StoredJointAccountRecord {

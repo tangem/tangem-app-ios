@@ -260,7 +260,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             }
         } else {
             // add model
-            let hadSingleMobileWallet = UserWalletRepositoryModeHelper.hasSingleMobileWallet
+            let walletAddedLogger = WalletAddedAnalyticsLogger()
 
             if AppSettings.shared.saveUserWallets {
                 try? userWalletRepository.add(userWalletModel: userWalletModel)
@@ -274,8 +274,10 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 }
             }
 
-            if hadSingleMobileWallet, userWalletRepository.models.count == 2 {
-                logColdWalletAddedAnalytics(contextData: userWalletModel.analyticsContextData)
+            let isWalletAdded = userWalletRepository.models[userWalletModel.userWalletId] != nil
+
+            if isWalletAdded {
+                walletAddedLogger.logIfNeeded(source: .onboarding, contextData: userWalletModel.analyticsContextData)
             }
 
             DispatchQueue.main.async {
@@ -457,19 +459,6 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 }
             }
             .store(in: &bag)
-    }
-}
-
-// MARK: - Analytics
-
-private extension OnboardingViewModel {
-    func logColdWalletAddedAnalytics(contextData: AnalyticsContextData) {
-        Analytics.log(
-            .settingsColdWalletAdded,
-            params: [.source: Analytics.ParameterValue.onboarding],
-            analyticsSystems: .all,
-            contextParams: .custom(contextData)
-        )
     }
 }
 

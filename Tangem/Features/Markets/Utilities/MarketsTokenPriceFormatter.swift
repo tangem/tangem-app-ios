@@ -61,8 +61,7 @@ final class MarketsTokenPriceFormatter {
         let formattingOptions = TotalBalanceFormattingOptions(
             integerPartFont: DesignSystem.Font.displayMediumToken,
             fractionalPartFont: DesignSystem.Font.displayMediumToken,
-            integerPartColor: DesignSystem.Color.textPrimary,
-            fractionalPartColor: DesignSystem.Color.textSecondary,
+            color: DesignSystem.Color.textPrimary,
             fractionalPartIncludesDecimalSeparator: true
         )
 

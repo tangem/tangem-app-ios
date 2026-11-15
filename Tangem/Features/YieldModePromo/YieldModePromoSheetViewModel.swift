@@ -8,10 +8,16 @@
 
 import Combine
 import Foundation
+import TangemLocalization
+import TangemUI
 
 @MainActor
 final class YieldModePromoSheetViewModel: Identifiable {
     let data: YieldModePromoSheetData
+
+    let tokenIcons: [TokenIconInfo] = ["usd-coin", "dai", "tether"].map {
+        TokenIconInfo.remote(name: $0, imageURL: IconURLBuilder().tokenIconURL(id: $0))
+    }
 
     private let analyticsLogger: YieldModePromoAnalyticsLogger
     private weak var routable: YieldModePromoSheetRoutable?
@@ -28,21 +34,20 @@ final class YieldModePromoSheetViewModel: Identifiable {
         self.analyticsLogger = analyticsLogger
     }
 
-    // [REDACTED_TODO_COMMENT]
     var title: String {
-        "Earn with your crypto\nup to \(PercentFormatter().format(data.apy, option: .yield)) APY"
+        Localization.yieldModuleMainPromoTitle(PercentFormatter().format(data.apy, option: .interval))
     }
 
     var subtitle: String {
-        "Put idle coins to work. No lockups, withdraw anytime."
+        Localization.yieldModuleMainPromoSubtitle
     }
 
     var tokensCountText: String {
-        data.tokensCount == 1 ? "Choose from 1 token" : "Choose from \(data.tokensCount) tokens"
+        Localization.yieldModuleMainPromoTokensCount(data.tokensCount)
     }
 
     var actionTitle: String {
-        "Try Yield Mode"
+        Localization.yieldModuleMainPromoButton
     }
 
     var appearancePublisher: AnyPublisher<Void, Never> {

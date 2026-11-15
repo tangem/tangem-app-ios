@@ -69,8 +69,19 @@ public struct Footer: View, Setupable {
                     .horizontalLayout(.infinity)
             }
 
-        case .signingButton(let button):
-            button
+        case .buttonGroup(let group):
+            group
+
+        case .signingButton(let button, let secondary):
+            VStack(spacing: Metrics.buttonSpacing) {
+                if let secondary {
+                    secondary
+                        .size(.x12)
+                        .horizontalLayout(.infinity)
+                }
+
+                button
+            }
 
         case .toolbar(let start, let end):
             HStack(spacing: 0) {
@@ -81,6 +92,15 @@ public struct Footer: View, Setupable {
                 end?.size(.x11)
             }
             .padding(.horizontal, utilityBarPadding)
+
+        case .toolbarWithStack(let buttonStack, let end):
+            HStack(spacing: 0) {
+                buttonStack
+
+                Spacer(minLength: Metrics.buttonSpacing)
+
+                end
+            }
 
         case .search(let search):
             search

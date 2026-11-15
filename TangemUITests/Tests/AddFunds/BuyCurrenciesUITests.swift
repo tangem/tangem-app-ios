@@ -53,7 +53,7 @@ private extension BuyCurrenciesUITests {
         }
 
         enum Endpoint {
-            static let currencies = "/v1/currencies"
+            static let currencies = "/v2/currencies"
         }
     }
 }

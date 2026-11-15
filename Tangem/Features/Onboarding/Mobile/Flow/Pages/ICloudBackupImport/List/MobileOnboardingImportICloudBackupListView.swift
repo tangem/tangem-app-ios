@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemUI
+import TangemUIUtils
 import TangemAssets
 
 struct MobileOnboardingImportICloudBackupListView: View {
@@ -34,6 +35,10 @@ private extension MobileOnboardingImportICloudBackupListView {
                 ForEach(indexed: viewModel.items, id: \.0) { _, item in
                     itemView(item)
                 }
+
+                if viewModel.isHintVisible {
+                    hintView
+                }
             }
             .padding(.horizontal, Layout.itemsHorizontalPadding)
             .padding(.vertical, Layout.itemsVerticalPadding)
@@ -41,12 +46,29 @@ private extension MobileOnboardingImportICloudBackupListView {
         .scrollIndicators(.hidden)
     }
 
+    @ViewBuilder
     func itemView(_ item: ViewModel.Item) -> some View {
-        Row(title: item.title, subtitle: item.description)
-            .start { itemLeadingIcon }
-            .end { itemTrailingIcon }
-            .onTap(action: item.action)
-            .background(Appearance.itemBackgroundColor, in: itemBackgroundShape)
+        switch item.state {
+        case .available(let action):
+            Row(title: item.title, subtitle: item.description)
+                .start { availableItemLeadingIcon }
+                .end { availableItemTrailingIcon }
+                .onTap(action: action)
+                .background(Appearance.itemBackgroundColor, in: itemBackgroundShape)
+        case .added(let badgeTitle):
+            Row(title: item.title, subtitle: item.description)
+                .overrideTextColors(Appearance.addedItemTextColors)
+                .start { addedItemLeadingIcon }
+                .end { addedItemBadge(title: badgeTitle) }
+                .background(Appearance.itemBackgroundColor, in: itemBackgroundShape)
+        }
+    }
+
+    var hintView: some View {
+        Text(viewModel.hint)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
+            .multilineTextAlignment(.leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     var itemBackgroundShape: some Shape {
@@ -57,22 +79,23 @@ private extension MobileOnboardingImportICloudBackupListView {
         MobileOnboardingFlowNavBarAction.back(handler: viewModel.onBackTap).view()
     }
 
-    var itemLeadingIcon: some View {
-        ZStack {
-            Circle()
-                .fill(DesignSystem.Color.bgStatusInfoSubtle)
-                .frame(size: CGSize(bothDimensions: Layout.itemLeadingIconSide))
-
-            DesignSystem.Icons.Cloud.filled20.image
-                .renderingMode(.template)
-                .foregroundStyle(DesignSystem.Color.iconBrand)
-        }
+    var availableItemLeadingIcon: some View {
+        Avatar(.icon(DesignSystem.Icons.Cloud.filled20, appearance: .info))
     }
 
-    var itemTrailingIcon: some View {
+    var availableItemTrailingIcon: some View {
         DesignSystem.Icons.ChevronRight.regular20.image
             .renderingMode(.template)
             .foregroundStyle(DesignSystem.Color.iconSecondary)
+    }
+
+    var addedItemLeadingIcon: some View {
+        Avatar(.icon(DesignSystem.Icons.Cloud.filled20, appearance: .neutral))
+    }
+
+    func addedItemBadge(title: String) -> some View {
+        Badge(label: title, accessibilityLabel: nil)
+            .layoutPriority(1)
     }
 }
 
@@ -84,11 +107,14 @@ private extension MobileOnboardingImportICloudBackupListView {
         static let itemsHorizontalPadding: CGFloat = 16
         static let itemsVerticalPadding: CGFloat = 12
         static let itemBackgroundCornerRadius: CGFloat = 24
-        static let itemLeadingIconSide: CGFloat = 40
     }
 
     enum Appearance {
         static let backgroundColor: Color = DesignSystem.Color.bgPrimary
         static let itemBackgroundColor: Color = DesignSystem.Color.bgSecondary
+        static let addedItemTextColors = RowOverrideTextColors(
+            title: DesignSystem.Color.textSecondary,
+            subtitle: DesignSystem.Color.textSecondary
+        )
     }
 }

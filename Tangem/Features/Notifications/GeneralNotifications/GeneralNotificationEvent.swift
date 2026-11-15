@@ -36,6 +36,7 @@ enum GeneralNotificationEvent: Equatable, Hashable {
     case pushNotificationsPermissionRequest
     case initialWalletTokenSyncCompleted
     case forceUpdateAvailable
+    case userWalletLinkRequired(signingActionButtonType: SigningActionButtonViewType, isLinking: Bool)
 }
 
 /// For Notifications
@@ -52,7 +53,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         case .backupErrors, .missingBackup, .lowSignatures, .numberOfSignedHashesIncorrect:
             return .critical
 
-        case .missingDerivation, .walletLocked, .forceUpdateAvailable:
+        case .missingDerivation, .walletLocked, .forceUpdateAvailable, .userWalletLinkRequired:
             return .warning
 
         case .mobileFinishActivation(let hasPositiveBalance, _):
@@ -77,7 +78,7 @@ extension GeneralNotificationEvent: NotificationEvent {
 
     var bannerVariant: MessageBannerVariant? {
         switch self {
-        case .missingDerivation, .walletLocked, .forceUpdateAvailable:
+        case .missingDerivation, .walletLocked, .forceUpdateAvailable, .userWalletLinkRequired:
             return .neutral(.light)
         case .failedToVerifyCard:
             return .error
@@ -92,7 +93,7 @@ extension GeneralNotificationEvent: NotificationEvent {
         switch self {
         case .walletLocked, .missingDerivation:
             return .magic
-        case .forceUpdateAvailable:
+        case .forceUpdateAvailable, .userWalletLinkRequired:
             return .warning
         case .failedToVerifyCard:
             return .off
@@ -157,6 +158,8 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .string(Localization.forceUpdateBannerTitle)
         case .addFunds:
             return .string(Localization.mainAddFundsPromoTitle)
+        case .userWalletLinkRequired:
+            return .string(Localization.warningLinkWalletTitle)
         }
     }
 
@@ -215,6 +218,10 @@ extension GeneralNotificationEvent: NotificationEvent {
             return Localization.forceUpdateBannerMessage
         case .addFunds:
             return Localization.mainAddFundsPromoDescription
+        case .userWalletLinkRequired(.requiredNFCInteraction, _):
+            return Localization.warningLinkWalletColdMessage
+        case .userWalletLinkRequired(.holdToConfirm, _):
+            return Localization.warningLinkWalletHotMessage
         }
     }
 
@@ -229,7 +236,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .mobileUpgrade,
              .pushNotificationsPermissionRequest,
              .initialWalletTokenSyncCompleted,
-             .forceUpdateAvailable:
+             .forceUpdateAvailable,
+             .userWalletLinkRequired:
             return .primary
         default:
             return .secondary
@@ -298,6 +306,12 @@ extension GeneralNotificationEvent: NotificationEvent {
                 renderingMode: .template,
                 color: DesignSystem.Color.textPrimary
             )
+        case .userWalletLinkRequired:
+            return .init(
+                iconType: .image(Assets.DesignSystem.attention),
+                renderingMode: .template,
+                color: DesignSystem.Color.iconStatusWarning
+            )
         }
     }
 
@@ -353,7 +367,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .missingBackup,
              .supportedOnlySingleCurrencyWallet,
              .mobileFinishActivation,
-             .forceUpdateAvailable:
+             .forceUpdateAvailable,
+             .userWalletLinkRequired:
             return .warning
         }
     }
@@ -377,7 +392,8 @@ extension GeneralNotificationEvent: NotificationEvent {
              .mobileUpgrade,
              .mobileFinishActivation,
              .forceUpdateAvailable,
-             .addFunds:
+             .addFunds,
+             .userWalletLinkRequired:
             return false
         case .numberOfSignedHashesIncorrect,
              .systemDeprecationTemporary,
@@ -477,6 +493,18 @@ extension GeneralNotificationEvent: NotificationEvent {
             return .withButtons([
                 .init(action: buttonAction, actionType: .addFunds, isWithLoader: false),
             ])
+        case .userWalletLinkRequired(let signingActionButtonType, let isLinking):
+            guard let buttonAction else {
+                break
+            }
+            return .withButtons([
+                .init(
+                    action: buttonAction,
+                    actionType: .linkUserWallet(signingActionButtonType: signingActionButtonType),
+                    isWithLoader: true,
+                    isLoading: isLinking
+                ),
+            ])
         default: break
         }
         return .plain
@@ -511,6 +539,7 @@ extension GeneralNotificationEvent {
         case .initialWalletTokenSyncCompleted: return nil
         case .forceUpdateAvailable: return .mainNoticeSoftUpdate
         case .addFunds: return .addFundsBannerAppear
+        case .userWalletLinkRequired: return .mainNoticeLinkWallet
         }
     }
 

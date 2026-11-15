@@ -164,6 +164,15 @@ final class SendFinishScreen: ScreenBase<SendFinishScreenElement> {
     }
 
     @discardableResult
+    func reportNetworkFee() -> Self {
+        let blockTexts = app.staticTexts.matching(identifier: SendAccessibilityIdentifiers.networkFeeBlock)
+        waitAndAssertTrue(blockTexts.firstMatch, "Network fee block should be displayed on the success screen")
+        let value = blockTexts.allElementsBoundByIndex.map(\.label).joined(separator: " | ")
+        XCTContext.runActivity(named: "Success screen network fee: \(value)") { _ in }
+        return self
+    }
+
+    @discardableResult
     func assertStakingSuccessContent() -> Self {
         XCTContext.runActivity(named: "Assert the staking success screen content is displayed") { _ in
             waitForDisplay()
