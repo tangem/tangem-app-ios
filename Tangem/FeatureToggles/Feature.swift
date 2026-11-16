@@ -103,7 +103,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .tangemPayCustomerSummary: return .unspecified
         case .solanaGasless: return .unspecified
         case .promoPage: return .version("6.9")
-        case .dogecoinPsbtBdkFeeRateLimit: return .unspecified
+        case .dogecoinPsbtBdkFeeRateLimit: return .version("6.9")
         case .polymarketFastOrders: return .unspecified
         case .polymarketFastTradingPause: return .unspecified
         case .allServices: return .unspecified
