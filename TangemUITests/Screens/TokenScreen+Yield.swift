@@ -31,6 +31,14 @@ extension TokenScreen {
     @discardableResult
     func waitForAvailableYieldBlock() -> Self {
         XCTContext.runActivity(named: "Wait for available yield block") { _ in
+            for _ in 0 ..< Constants.refreshAttempts {
+                if availableYieldEntry.waitForExistence(timeout: .conditional) {
+                    break
+                }
+
+                pullToRefresh()
+            }
+
             waitAndAssertTrue(availableYieldEntry, "Available yield block should be displayed")
             return self
         }
@@ -89,5 +97,11 @@ extension TokenScreen {
             )
             return self
         }
+    }
+}
+
+private extension TokenScreen {
+    enum Constants {
+        static let refreshAttempts = 3
     }
 }
