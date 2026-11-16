@@ -130,6 +130,38 @@
         <string>%li Token</string>
       </dict>
     </dict>
+    <key>earn_calculator_months</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li Month</string>
+        <key>other</key>
+        <string>%li Months</string>
+      </dict>
+    </dict>
+    <key>earn_calculator_years</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li Year</string>
+        <key>other</key>
+        <string>%li Years</string>
+      </dict>
+    </dict>
     <key>joint_account_invite_members_awaiting_to_join</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -525,6 +557,22 @@
         <string>%li Karten</string>
       </dict>
     </dict>
+    <key>tangempay_main_group_subtitle</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li account</string>
+        <key>other</key>
+        <string>%li accounts</string>
+      </dict>
+    </dict>
     <key>tangempay_order_success_delivery_eta</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -571,6 +619,22 @@
         <string>%li Werktag</string>
         <key>other</key>
         <string>%li Werktage</string>
+      </dict>
+    </dict>
+    <key>token_details_yield_active_count</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li active</string>
+        <key>other</key>
+        <string>%li active</string>
       </dict>
     </dict>
     <key>top_assets_count</key>
