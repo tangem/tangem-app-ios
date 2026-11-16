@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Testing
+import BigInt
 import BlockchainSdk
 import TangemSdk
 @testable import Tangem
@@ -181,6 +182,29 @@ struct CommonJointAccountOperationsServiceTests {
         #expect(signed.signature.count == 65)
     }
 
+    @Test("A co-signer does not sign an operation of an unsupported form")
+    func signAnUnsupportedFormIsRefused() async throws {
+        let context = try makeContext()
+        let operation = Self.operation(innerCall: SafeInnerCall(to: Constants.safeAddress, value: 1, data: Data()))
+
+        await #expect(throws: JointOperationError.unsupportedOperationForm) {
+            try await context.sut.signOperation(operation, in: context.wallet)
+        }
+        #expect(context.repository.signedOperations.isEmpty)
+        #expect(context.signer.signedHashes.isEmpty)
+    }
+
+    @Test("An unsupported form is refused before the operation is checked for being malicious")
+    func signAnUnsupportedFormIsRefusedBeforeTheSecurityCheck() async throws {
+        let context = try makeContext(blockaidVerdict: .malicious)
+        let operation = Self.operation(innerCall: SafeInnerCall(to: Constants.safeAddress, value: 1, data: Data()))
+
+        await #expect(throws: JointOperationError.unsupportedOperationForm) {
+            try await context.sut.signOperation(operation, in: context.wallet)
+        }
+        #expect(context.signer.signedHashes.isEmpty)
+    }
+
     /// The nonce the operation was created with is the one the Safe is still waiting to use.
     @Test("An operation the Safe has moved past is not worth a signature")
     func signOperationTheSafeHasMovedPastIsRefused() async throws {
@@ -252,9 +276,8 @@ struct CommonJointAccountOperationsServiceTests {
     @Test("A decline names the operation and the account it belongs to, and carries nothing else")
     func rejectedOperationIsHandedOn() async throws {
         let context = try makeContext()
-        let operation = Self.operation(id: "op_01HZX")
 
-        try await context.sut.rejectOperation(operation, in: context.wallet)
+        try await context.sut.rejectOperation(id: "op_01HZX", in: context.wallet)
 
         let rejected = try #require(context.repository.rejectedOperations.first)
 
@@ -271,7 +294,7 @@ struct CommonJointAccountOperationsServiceTests {
     func rejectDoesNotReadTheSafe() async throws {
         let context = try makeContext(state: nil)
 
-        try await context.sut.rejectOperation(Self.operation(), in: context.wallet)
+        try await context.sut.rejectOperation(id: "op_01HZX", in: context.wallet)
 
         #expect(context.repository.rejectedOperations.count == 1)
     }
@@ -295,19 +318,23 @@ private extension CommonJointAccountOperationsServiceTests {
             account: account,
             safeWalletManagerOperationsService: SafeWalletManagerOperationsServiceTestsMock(state: state, innerCall: innerCall)
         )
+        walletModel.ethereumNetworkProvider = GasPriceNetworkProviderStub(gasPrice: Constants.networkGasPrice)
         let wallet = try JointAccountWalletBuilder().build(walletModel: walletModel)
 
         let cryptoAccountId = account.id.rawValue.hexString
         let records = pendingOperations.isEmpty
             ? []
-            : [StoredJointAccountPendingOperations(cryptoAccountId: cryptoAccountId, operations: pendingOperations)]
+            : [JointAccountOperations(cryptoAccountId: cryptoAccountId, operations: pendingOperations)]
         let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: records, registeredOperation: registeredOperation)
 
         let signer = try TangemSignerDouble()
         let userWalletModel = UserWalletModelDouble(signer: signer)
+        let walletModelsManager = WalletModelsManagerTestsMock()
+        walletModelsManager.walletModels = [walletModel]
         let sut = CommonJointAccountOperationsService(
             pendingOperationsRepository: repository,
             signerFactory: TangemSignerFactory(userWalletModel: userWalletModel),
+            walletModelsManager: walletModelsManager,
             blockaidGate: JointOperationBlockaidGateStub(verdict: blockaidVerdict)
         )
 
@@ -366,20 +393,26 @@ private extension CommonJointAccountOperationsServiceTests {
         id: String = "op",
         chainId: Int = Constants.chainId,
         nonce: Int = Constants.nonce,
-        status: JointAccountOperationStatus = .awaitingSignatures
+        status: JointAccountOperationStatus = .awaitingSignatures,
+        innerCall: SafeInnerCall = Constants.innerCall
     ) -> JointAccountOperation {
-        JointAccountOperation(
+        let safeTransaction = SafeTransaction(innerCall: innerCall, feeParameters: Constants.feeParameters, nonce: nonce)
+        let vote = safeTransaction == Constants.defaultSafeTransaction
+            ? Constants.initiatorVote.signature
+            : try! JointOperationVoteFixture.approve(over: safeTransaction, chainId: Constants.chainId, safeAddress: Constants.safeAddress).signature
+
+        return JointAccountOperation(
             id: id,
             chainId: chainId,
-            safeTransaction: SafeTransaction(innerCall: Constants.innerCall, feeParameters: Constants.feeParameters, nonce: nonce),
+            safeTransaction: safeTransaction,
             status: status,
             txHash: nil,
             finishedAt: nil,
             cancelReason: nil,
-            initiator: Constants.members[0],
-            signatures: [],
-            createdAt: nil,
-            threshold: nil
+            initiator: vote.address,
+            signatures: [vote],
+            createdAt: Date(timeIntervalSince1970: 1_757_323_237),
+            threshold: 2
         )
     }
 }
@@ -413,20 +446,24 @@ private extension CommonJointAccountOperationsServiceTests {
         static let safeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
         static let recipient = "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c"
         static let refundReceiver = "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf"
-        static let members = ["0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf", "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c"]
         /// Belongs to nobody the account knows, so a Safe owned by it is a Safe of another composition.
         static let outsider = "0x1f4c7a3e9b5d2086c4e6a8b0d2f4c6e8a0b2d4f6"
+        static let networkGasPrice = BigUInt(1_000_000_000)
 
         static let innerCall = SafeInnerCall(to: recipient, value: 1_000_000_000_000_000, data: Data())
 
         static let feeParameters = SafeTransactionFeeParameters(
             safeTxGas: 23520,
-            baseGas: 100_000,
+            baseGas: JointOperationFeeConstants.baseGas,
             gasPrice: 1_575_000_000,
             gasToken: .coin(ethereum.blockchain),
-            refundReceiver: refundReceiver,
+            refundReceiver: JointOperationFeeConstants.refundReceiver,
             isDeployed: true
         )
+
+        static let defaultSafeTransaction = SafeTransaction(innerCall: innerCall, feeParameters: feeParameters, nonce: nonce)
+        static let initiatorVote = try! JointOperationVoteFixture.approve(over: defaultSafeTransaction, chainId: chainId, safeAddress: safeAddress)
+        static let members = [initiatorVote.address, "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c"]
     }
 }
 
@@ -476,6 +513,28 @@ private final class TangemSignerDouble: TangemSigner {
     func sign(dataToSign: [SignData], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[SignatureInfo], Error> {
         sign(hashes: dataToSign.flatMap(\.hashes), walletPublicKey: walletPublicKey)
     }
+}
+
+private struct GasPriceNetworkProviderStub: EthereumNetworkProvider {
+    let gasPrice: BigUInt
+
+    func getGasPrice() -> AnyPublisher<BigUInt, Error> {
+        Just(gasPrice).setFailureType(to: Error.self).eraseToAnyPublisher()
+    }
+
+    func getFee(destination: String, value: String?, data: Data?, stateOverride: EthereumStateOverride?) -> AnyPublisher<[Fee], Error> { .empty }
+    func getGasLimit(to: String, from: String, value: String?, data: String?) -> AnyPublisher<BigUInt, Error> { .empty }
+    func getFeeHistory() -> AnyPublisher<EthereumFeeHistory, Error> { .empty }
+    func getAllowance(owner: String, spender: String, contractAddress: String) -> AnyPublisher<Decimal, Error> { .empty }
+    func getAllowanceRaw(owner: String, spender: String, contractAddress: String) -> AnyPublisher<String, Error> { .empty }
+    func getBalance(_ address: String) -> AnyPublisher<Decimal, Error> { .empty }
+    func getTxCount(_ address: String) -> AnyPublisher<Int, Error> { .empty }
+    func getPendingTxCount(_ address: String) -> AnyPublisher<Int, Error> { .empty }
+    func getSmartContractNonce(for address: String) -> AnyPublisher<Int, Error> { .empty }
+    func hasCode(at address: String) -> AnyPublisher<Bool, Error> { .empty }
+    func getSafeNonce(for address: String) -> AnyPublisher<Int?, Error> { .empty }
+    func getSafeOwners(for address: String) -> AnyPublisher<[String], Error> { .empty }
+    func getSafeThreshold(for address: String) -> AnyPublisher<Int, Error> { .empty }
 }
 
 private struct JointOperationBlockaidGateStub: JointOperationBlockaidGate {

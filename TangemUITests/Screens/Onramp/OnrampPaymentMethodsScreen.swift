@@ -51,7 +51,7 @@ final class OnrampPaymentMethodsScreen: ScreenBase<OnrampPaymentMethodsScreenEle
     @discardableResult
     func waitForScreenTitleDisplayed() -> Self {
         XCTContext.runActivity(named: "Validate payment methods screen title is displayed") { _ in
-            let title = app.staticTexts[OnrampAccessibilityIdentifiers.providersScreenTitle].firstMatch
+            let title = app.staticTexts.matching(NSPredicate(format: "label == %@", Localization.onrampAllOffersButtonTitle)).firstMatch
             waitAndAssertTrue(title, "Payment methods screen title should exist")
         }
         return self

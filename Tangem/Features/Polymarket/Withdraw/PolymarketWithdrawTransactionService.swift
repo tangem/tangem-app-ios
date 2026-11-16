@@ -23,6 +23,7 @@ actor PolymarketWithdrawTransactionService {
     private let signer: PolymarketBatchSigning
     private let serverClock: PolymarketServerClock
     private let sessionHealth: PolymarketSessionHealthChecking?
+    private let operationSlot: PolymarketWalletOperationSlot?
 
     private var isWithdrawInProgress = false
 
@@ -35,7 +36,8 @@ actor PolymarketWithdrawTransactionService {
         depositWalletResolver: PolymarketDepositWalletResolver,
         signer: PolymarketBatchSigning,
         serverClock: PolymarketServerClock,
-        sessionHealth: PolymarketSessionHealthChecking? = nil
+        sessionHealth: PolymarketSessionHealthChecking? = nil,
+        operationSlot: PolymarketWalletOperationSlot? = nil
     ) {
         self.bridgeService = bridgeService
         self.configurationService = configurationService
@@ -46,6 +48,7 @@ actor PolymarketWithdrawTransactionService {
         self.signer = signer
         self.serverClock = serverClock
         self.sessionHealth = sessionHealth
+        self.operationSlot = operationSlot
     }
 }
 
@@ -108,6 +111,16 @@ private extension PolymarketWithdrawTransactionService {
 
         defer { isWithdrawInProgress = false }
 
+        guard let operationSlot else {
+            return try await prepareAndSubmitWithdraw(amount: amount, to: recipientAddress)
+        }
+
+        return try await operationSlot.exclusively(orThrow: Error.withdrawInProgress, whileFastTradingChangePends: Error.fastTradingChangePending) {
+            try await prepareAndSubmitWithdraw(amount: amount, to: recipientAddress)
+        }
+    }
+
+    func prepareAndSubmitWithdraw(amount: Decimal, to recipientAddress: String) async throws -> PolymarketWithdrawRecord {
         let addresses = try await depositWalletResolver.resolve()
         let builderCode = try await configurationService.builderCode()
 
@@ -245,6 +258,7 @@ extension PolymarketWithdrawTransactionService {
         case transferFailed(PolymarketWithdrawRecord)
         case refused(PolymarketWithdrawError)
         case reconnectRequired
+        case fastTradingChangePending
 
         var errorDescription: String? {
             switch self {
@@ -261,6 +275,8 @@ extension PolymarketWithdrawTransactionService {
             // [REDACTED_TODO_COMMENT]
             case .reconnectRequired:
                 "Your prediction account needs to be reconnected before you can withdraw."
+            case .fastTradingChangePending:
+                PolymarketFastTradingStrings.walletOperationWaitsForChange
             }
         }
     }

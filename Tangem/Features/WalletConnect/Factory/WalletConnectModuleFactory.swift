@@ -20,7 +20,6 @@ import TangemUIUtils
 @MainActor
 enum WalletConnectModuleFactory {
     @Injected(\.wcService) private static var walletConnectService: any WCService
-    @Injected(\.dAppSessionsExtender) private static var dAppsSessionExtender: WalletConnectDAppSessionsExtender
     @Injected(\.userWalletRepository) private static var userWalletRepository: any UserWalletRepository
     @Injected(\.connectedDAppRepository) private static var connectedDAppRepository: any WalletConnectConnectedDAppRepository
     @Injected(\.dAppVerificationService) private static var dAppVerificationService: any WalletConnectDAppVerificationService
@@ -50,39 +49,6 @@ enum WalletConnectModuleFactory {
         formatter.locale = Locale(identifier: "en_US")
         return formatter
     }()
-
-    static func makeWalletConnectViewModel(
-        coordinator: some WalletConnectRoutable,
-        prefetchedConnectedDApps: [WalletConnectConnectedDApp]?
-    ) -> WalletConnectViewModel {
-        let establishDAppConnectionUseCase = WalletConnectEstablishDAppConnectionUseCase(
-            userWalletRepository: userWalletRepository,
-            cameraAccessProvider: cameraAccessProvider,
-            openSystemSettingsAction: openSystemSettingsAction
-        )
-
-        let disconnectDAppUseCase = WalletConnectDisconnectDAppUseCase(
-            disconnectDAppService: disconnectDAppService,
-            connectedDAppRepository: connectedDAppRepository
-        )
-
-        let interactor = WalletConnectInteractor(
-            extendConnectedDApps: WalletConnectExtendConnectedDAppsUseCase(sessionsExtender: dAppsSessionExtender),
-            getConnectedDApps: WalletConnectGetConnectedDAppsUseCase(repository: connectedDAppRepository),
-            establishDAppConnection: establishDAppConnectionUseCase,
-            disconnectDApp: disconnectDAppUseCase
-        )
-
-        return WalletConnectViewModel(
-            interactor: interactor,
-            userWalletRepository: userWalletRepository,
-            cryptoAccountsGlobalStateProvider: Self.cryptoAccountsGlobalStateProvider,
-            analyticsLogger: CommonWalletConnectAnalyticsLogger(),
-            logger: WCLogger,
-            coordinator: coordinator,
-            prefetchedConnectedDApps: prefetchedConnectedDApps
-        )
-    }
 
     static func makeDAppConnectionViewModel(
         forURI uri: WalletConnectRequestURI,
@@ -176,8 +142,8 @@ enum WalletConnectModuleFactory {
         )
     }
 
-    static func makeSuccessToast(with message: String) -> Toast<SuccessToast> {
-        Toast(view: SuccessToast(text: message))
+    static func makeSuccessToast(with message: String) -> LegacyToast<SuccessToast> {
+        LegacyToast(view: SuccessToast(text: message))
     }
 
     // MARK: - Formatters
@@ -188,7 +154,7 @@ enum WalletConnectModuleFactory {
 
     // MARK: - Errors factory methods
 
-    static func makeDAppProposalLoadingErrorToast(_ proposalLoadingError: WalletConnectDAppProposalLoadingError) -> Toast<WarningToast>? {
+    static func makeDAppProposalLoadingErrorToast(_ proposalLoadingError: WalletConnectDAppProposalLoadingError) -> LegacyToast<WarningToast>? {
         let errorMessage: String
 
         switch proposalLoadingError {
@@ -205,10 +171,10 @@ enum WalletConnectModuleFactory {
             return nil
         }
 
-        return Toast(view: WarningToast(text: errorMessage))
+        return LegacyToast(view: WarningToast(text: errorMessage))
     }
 
-    static func makeDAppProposalApprovalErrorToast(_ proposalApprovalError: WalletConnectDAppProposalApprovalError) -> Toast<WarningToast>? {
+    static func makeDAppProposalApprovalErrorToast(_ proposalApprovalError: WalletConnectDAppProposalApprovalError) -> LegacyToast<WarningToast>? {
         let errorMessage: String
 
         switch proposalApprovalError {
@@ -222,15 +188,15 @@ enum WalletConnectModuleFactory {
             return nil
         }
 
-        return Toast(view: WarningToast(text: errorMessage))
+        return LegacyToast(view: WarningToast(text: errorMessage))
     }
 
-    static func makeDAppPersistenceErrorToast(_ dAppPersistenceError: WalletConnectDAppPersistenceError) -> Toast<WarningToast> {
-        return Toast(view: WarningToast(text: Localization.wcAlertUnsupportedMethodTitle))
+    static func makeDAppPersistenceErrorToast(_ dAppPersistenceError: WalletConnectDAppPersistenceError) -> LegacyToast<WarningToast> {
+        return LegacyToast(view: WarningToast(text: Localization.wcAlertUnsupportedMethodTitle))
     }
 
-    static func makeGenericErrorToast(_ error: some Error) -> Toast<WarningToast> {
-        Toast(
+    static func makeGenericErrorToast(_ error: some Error) -> LegacyToast<WarningToast> {
+        LegacyToast(
             view: WarningToast(
                 text: Localization.wcAlertUnknownErrorDescription(formattedErrorCode(from: error.toUniversalError()))
             )

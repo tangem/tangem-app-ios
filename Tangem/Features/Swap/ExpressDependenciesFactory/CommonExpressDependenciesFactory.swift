@@ -43,7 +43,7 @@ private extension CommonExpressDependenciesFactory {
             expressAPIProvider: expressAPIProvider,
             expressRepository: swapRepository,
             featureFlags: ExpressFeatureFlags(
-                isAPIV2Enabled: FeatureProvider.isAvailable(.expressApiV2)
+                isAPIV2Enabled: true
             ),
             preferredProviderId: preferredProviderId,
             mcpIntentID: mcpIntentID

@@ -19,7 +19,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
     @Published var notificationInputs: [NotificationViewInput] = []
     @Published var walletPromoBannerViewModel: WalletPromoBannerViewModel?
     let mainNotificationsViewModel: MainNotificationsViewModel
-    /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
     @Published var exploreConfirmationDialog: ConfirmationDialogViewModel?
 
     private(set) var actionButtonsViewModel: ActionButtonsViewModel?
@@ -147,7 +146,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         }
     }
 
-    /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
     override func present(exploreConfirmationDialog: ConfirmationDialogViewModel) {
         self.exploreConfirmationDialog = exploreConfirmationDialog
     }
@@ -186,7 +184,6 @@ final class SingleWalletMainContentViewModel: SingleTokenBaseViewModel, Observab
         }
     }
 
-    /// [REDACTED_INFO]: Remove when the redesign feature toggle is removed
     override func openMarketsTokenDetails() {
         guard isMarketsDetailsAvailable else {
             return

@@ -48,6 +48,9 @@ struct JointAccountJoinCoordinatorView: View {
         ) {
             JointAccountMemberDetailsView(viewModel: $0)
         }
+        .modalStatus(item: $coordinator.aboutSignaturesViewModel) {
+            JointAccountAboutSignaturesView(viewModel: $0)
+        }
     }
 
     @ViewBuilder

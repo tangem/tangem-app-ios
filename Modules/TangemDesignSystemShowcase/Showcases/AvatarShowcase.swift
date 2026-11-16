@@ -23,6 +23,9 @@ struct AvatarShowcase: View {
     @State private var fill: Fill = .palatinateBlue
     @State private var hasIdenticon = true
     @State private var asset: Asset = .flag
+    @State private var shape: Avatar.Shape = .circle
+    @State private var accountKind: AccountKind = .icon
+    @State private var hasIndicator = false
     @State private var isShimmer = false
 
     var body: some View {
@@ -34,6 +37,7 @@ struct AvatarShowcase: View {
             switch kind {
             case .icon:
                 controls.picker("Appearance", $appearance)
+                controls.picker("Shape", $shape)
             case .transaction:
                 controls.picker("Type", $transactionKind)
                 controls.picker("Status", $status)
@@ -47,8 +51,19 @@ struct AvatarShowcase: View {
                 controls.toggle("Identicon", $hasIdenticon)
             case .asset:
                 controls.picker("Image", $asset)
+                controls.picker("Shape", $shape)
             case .account:
-                controls.picker("Fill", $fill)
+                controls.picker("Kind", $accountKind)
+                controls.toggle("Indicator", $hasIndicator)
+                switch accountKind {
+                case .icon:
+                    controls.picker("Fill", $fill)
+                case .letter:
+                    controls.text("Letter", $initial)
+                    controls.picker("Fill", $fill)
+                case .prediction, .gacha, .visa, .money:
+                    EmptyView()
+                }
             }
         } stage: {
             Avatar(content(for: kind), size: size)
@@ -65,7 +80,31 @@ struct AvatarShowcase: View {
 
             DSShowcaseGroup("Icon appearance") {
                 DSShowcaseMatrix(rows: Avatar.IconAppearance.allCases, columns: Self.figmaSizes) { appearance, size in
-                    Avatar(.icon(Self.iconSample, appearance: appearance), size: size)
+                    HStack(spacing: 8) {
+                        Avatar(.icon(Self.iconSample, appearance: appearance), size: size)
+                        Avatar(.icon(Self.iconSample, appearance: appearance, shape: .roundedSquare), size: size)
+                    }
+                }
+            }
+
+            DSShowcaseGroup("Shape") {
+                shapeMatrix
+            }
+
+            DSShowcaseGroup("Shape · shimmer") {
+                shapeMatrix
+                    .environment(\.isShimmerActive, true)
+            }
+
+            DSShowcaseGroup("Account") {
+                DSShowcaseMatrix(rows: AccountKind.allCases, columns: Self.figmaSizes) { kind, size in
+                    Avatar(.account(kind.account(letter: "M", fill: Fill.palatinateBlue.color)), size: size)
+                }
+            }
+
+            DSShowcaseGroup("Account indicator") {
+                DSShowcaseMatrix(rows: AccountKind.allCases, columns: Self.indicatorSizes) { kind, size in
+                    Avatar(.account(kind.account(letter: "M", fill: Fill.palatinateBlue.color), hasIndicator: true), size: size)
                 }
             }
 
@@ -81,10 +120,17 @@ struct AvatarShowcase: View {
                 }
             }
 
+            DSShowcaseGroup("Address state") {
+                DSShowcaseMatrix(rows: AddressState.allCases, columns: Self.figmaSizes) { state, size in
+                    Avatar(.address(state.image), size: size)
+                }
+            }
+
             DSShowcaseGroup("Account fill") {
                 DSShowcaseMatrix(rows: Fill.allCases) { fill in
                     HStack(spacing: 8) {
-                        Avatar(.account(Self.accountIcon, fill: fill.color), size: .size40)
+                        Avatar(.account(.icon(Self.accountIcon, fill: fill.color)), size: .size40)
+                        Avatar(.account(.letter("M", fill: fill.color)), size: .size40)
                         Avatar(.user(.initial("M", fill: fill.color)), size: .size40)
                     }
                 }
@@ -98,14 +144,25 @@ struct AvatarShowcase: View {
         }
     }
 
+    private var shapeMatrix: some View {
+        DSShowcaseMatrix(rows: Avatar.Shape.allCases, columns: Self.figmaSizes) { shape, size in
+            HStack(spacing: 8) {
+                Avatar(.icon(Self.iconSample, shape: shape), size: size)
+                Avatar(.asset(Asset.flag.image, shape: shape), size: size)
+            }
+        }
+    }
+
     private func content(for kind: Kind) -> Avatar.Content {
-        switch kind {
-        case .icon: .icon(Self.iconSample, appearance: appearance)
+        let letter = String(initial.prefix(1)).uppercased()
+
+        return switch kind {
+        case .icon: .icon(Self.iconSample, appearance: appearance, shape: shape)
         case .transaction: .transaction(transactionKind, status: status)
-        case .user: .user(isFallback ? .fallback : .initial(String(initial.prefix(1)).uppercased(), fill: fill.color))
+        case .user: .user(isFallback ? .fallback : .initial(letter, fill: fill.color))
         case .address: .address(hasIdenticon ? Self.identicon : nil)
-        case .asset: .asset(asset.image)
-        case .account: .account(Self.accountIcon, fill: fill.color)
+        case .asset: .asset(asset.image, shape: shape)
+        case .account: .account(accountKind.account(letter: letter, fill: fill.color), hasIndicator: hasIndicator)
         }
     }
 
@@ -116,7 +173,7 @@ struct AvatarShowcase: View {
         case .user: .user(.initial("M", fill: Fill.palatinateBlue.color))
         case .address: .address(Self.identicon)
         case .asset: .asset(Asset.flag.image)
-        case .account: .account(Self.accountIcon, fill: Fill.palatinateBlue.color)
+        case .account: .account(.icon(Self.accountIcon, fill: Fill.palatinateBlue.color))
         }
     }
 
@@ -124,12 +181,16 @@ struct AvatarShowcase: View {
         Avatar.Size.allCases.reversed()
     }
 
+    private static var indicatorSizes: [Avatar.Size] {
+        figmaSizes.filter { $0 != .size16 }
+    }
+
     private static var iconSample: ImageType {
         DesignSystem.Icons.Clock.regular20
     }
 
     private static var accountIcon: ImageType {
-        Assets.Accounts.airplane
+        DesignSystem.Icons.accountAirplane
     }
 
     fileprivate static let identicon: Image = {
@@ -197,6 +258,19 @@ private extension AvatarShowcase {
         }
     }
 
+    enum AddressState: CaseIterable, Hashable {
+        case identicon
+        case empty
+
+        @MainActor
+        var image: Image? {
+            switch self {
+            case .identicon: AvatarShowcase.identicon
+            case .empty: nil
+            }
+        }
+    }
+
     enum Asset: CaseIterable, Hashable {
         case flag
         case identicon
@@ -206,6 +280,27 @@ private extension AvatarShowcase {
             switch self {
             case .flag: AvatarShowcase.flag
             case .identicon: AvatarShowcase.identicon
+            }
+        }
+    }
+
+    enum AccountKind: CaseIterable, Hashable {
+        case icon
+        case letter
+        case prediction
+        case gacha
+        case visa
+        case money
+
+        @MainActor
+        func account(letter: String, fill: Color) -> Avatar.Account {
+            switch self {
+            case .icon: .icon(AvatarShowcase.accountIcon, fill: fill)
+            case .letter: .letter(letter, fill: fill)
+            case .prediction: .prediction
+            case .gacha: .gacha
+            case .visa: .visa
+            case .money: .money
             }
         }
     }
@@ -226,18 +321,18 @@ private extension AvatarShowcase {
 
         var color: Color {
             switch self {
-            case .palatinateBlue: Colors.Accounts.palatinateBlue
-            case .azureBlue: Colors.Accounts.azureBlue
-            case .caribbeanBlue: Colors.Accounts.caribbeanBlue
-            case .dullLavender: Colors.Accounts.dullLavender
-            case .candyGrapeFizz: Colors.Accounts.candyGrapeFizz
-            case .fuchsiaNebula: Colors.Accounts.fuchsiaNebula
-            case .mexicanPink: Colors.Accounts.mexicanPink
-            case .sweetDesire: Colors.Accounts.sweetDesire
-            case .pelati: Colors.Accounts.pelati
-            case .pattypan: Colors.Accounts.pattypan
-            case .ufoGreen: Colors.Accounts.ufoGreen
-            case .vitalGreen: Colors.Accounts.vitalGreen
+            case .palatinateBlue: DesignSystem.Colors.accountPalatinateBlue
+            case .azureBlue: DesignSystem.Colors.accountAzureBlue
+            case .caribbeanBlue: DesignSystem.Colors.accountCaribbeanBlue
+            case .dullLavender: DesignSystem.Colors.accountDullLavender
+            case .candyGrapeFizz: DesignSystem.Colors.accountCandyGrapeFizz
+            case .fuchsiaNebula: DesignSystem.Colors.accountFuchsiaNebula
+            case .mexicanPink: DesignSystem.Colors.accountMexicanPink
+            case .sweetDesire: DesignSystem.Colors.accountSweetDesire
+            case .pelati: DesignSystem.Colors.accountPelati
+            case .pattypan: DesignSystem.Colors.accountPattypan
+            case .ufoGreen: DesignSystem.Colors.accountUFOGreen
+            case .vitalGreen: DesignSystem.Colors.accountVitalGreen
             }
         }
     }

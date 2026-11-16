@@ -24,13 +24,7 @@ struct ExpressAPIProviderFactory {
 
     func makeExpressAPIProvider(userId: String, refcode: Refcode?) -> ExpressAPIProvider {
         let factory = TangemExpressFactory()
-        let expressAPIType: ExpressAPIType = {
-            if AppEnvironment.current.isProduction {
-                return .production
-            }
-
-            return ExpressAPIType(rawValue: FeatureStorage.instance.apiExpress) ?? .production
-        }()
+        let expressAPIType = AppEnvironment.current.expressAPIType
 
         let apiKey = apiKey(expressAPIType: expressAPIType)
         let exchangeDataDecoder = exchangeDataDecoder(expressAPIType: expressAPIType)
@@ -43,7 +37,7 @@ struct ExpressAPIProviderFactory {
         )
 
         let featureFlags = ExpressFeatureFlags(
-            isAPIV2Enabled: FeatureProvider.isAvailable(.expressApiV2)
+            isAPIV2Enabled: true
         )
 
         return factory.makeExpressAPIProvider(
@@ -52,7 +46,7 @@ struct ExpressAPIProviderFactory {
             expressAPIType: expressAPIType,
             exchangeDataDecoder: exchangeDataDecoder,
             featureFlags: featureFlags,
-            requestInterceptor: featureFlags.isAPIV2Enabled ? authenticationInterceptor : nil
+            requestInterceptor: authenticationInterceptor
         )
     }
 }

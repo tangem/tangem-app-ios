@@ -207,8 +207,8 @@ private extension NotificationBannerCatalogView {
         TokenIconInfo(name: "Solana", blockchainIconAsset: nil, imageURL: nil, isCustom: false, customTokenColor: nil)
     }
 
-    static func notEnoughFeeConfiguration(purchaseAllowed: Bool) -> TokenNotificationEvent.NotEnoughFeeConfiguration {
-        TokenNotificationEvent.NotEnoughFeeConfiguration(
+    static func notEnoughFeeConfiguration(purchaseAllowed: Bool) -> NotEnoughFeeConfiguration {
+        NotEnoughFeeConfiguration(
             amountCurrencySymbol: "USDT",
             amountCurrencyBlockchainName: "Ethereum",
             transactionAmountTypeName: "Tether",

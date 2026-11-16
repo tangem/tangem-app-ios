@@ -25,11 +25,15 @@ final class JointAccountSignersViewModel: ObservableObject {
 
     private weak var coordinator: JointAccountSignersRoutable?
 
-    init(pendingOperation: JointAccountPendingOperation, coordinator: JointAccountSignersRoutable?) {
+    init(
+        pendingOperation: JointAccountPendingOperation,
+        handle: JointAccountPendingOperationHandle,
+        coordinator: JointAccountSignersRoutable?
+    ) {
         self.pendingOperation = pendingOperation
         self.coordinator = coordinator
 
-        bind()
+        bind(handle: handle)
     }
 
     /// Back steps up to the operation this list belongs to; close leaves the operation altogether. The design
@@ -46,8 +50,9 @@ final class JointAccountSignersViewModel: ObservableObject {
 // MARK: - Updates
 
 private extension JointAccountSignersViewModel {
-    func bind() {
-        pendingOperation.didChangePublisher
+    func bind(handle: JointAccountPendingOperationHandle) {
+        handle.pendingOperationPublisher
+            .compactMap { $0 }
             .receiveOnMain()
             .assign(to: &$pendingOperation)
 

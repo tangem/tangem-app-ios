@@ -76,7 +76,7 @@ struct MarketCapView: View {
                 .typography(DesignSystem.Font.headingSmallToken)
                 .updating()
         default:
-            PriceChangeView(state: state, useRedesignColors: true)
+            PriceChangeView(state: state)
         }
     }
 

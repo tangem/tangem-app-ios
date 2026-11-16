@@ -18,6 +18,8 @@ protocol EmailDataCollectorBuilder {
 
     func makeMailData(expressTransaction: ExpressTransactionData, isFeeIncluded: Bool, amount: BSDKAmount, fee: BSDKFee, error: SendTxError) -> EmailDataCollector
 
+    func makeMailData(swapProvider: ExpressProvider, isFeeIncluded: Bool, amount: BSDKAmount, error: UniversalError) -> EmailDataCollector
+
     func makeMailData(
         stakingActionType: StakingAction.ActionType?,
         target: StakingTargetInfo,
@@ -34,4 +36,10 @@ protocol EmailDataCollectorBuilder {
         isFeeIncluded: Bool,
         error: SendTxError
     ) -> EmailDataCollector
+}
+
+extension EmailDataCollectorBuilder {
+    func makeMailData(swapProvider: ExpressProvider, isFeeIncluded: Bool, amount: BSDKAmount, error: UniversalError) -> EmailDataCollector {
+        BaseDataCollector()
+    }
 }

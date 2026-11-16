@@ -221,7 +221,6 @@ extension Analytics {
         case settingsButtonChat = "[Settings] Button - Chat"
         case settingsButtonManageTokens = "[Settings] Button - Manage Tokens"
         case settingsColdWalletAdded = "[Settings] Cold Wallet Added"
-        case buttonWalletConnect = "[Settings] Button - Wallet Connect"
         case buttonConnections = "[Settings] Button - Connections"
         case buttonStartWalletConnectSession = "[Settings] Button - Start Wallet Connect Session"
         case buttonStopWalletConnectSession = "[Settings] Button - Stop Wallet Connect Session"
@@ -233,6 +232,7 @@ extension Analytics {
         case settingsButtonAddHardwareWallet = "[Settings] Button - Add Hardware Wallet"
         case settingsButtonAddMobileWallet = "[Settings] Button - Add Mobile Wallet"
         case settingsNoticeMoreMobileWallets = "[Settings] Notice - More Mobile Wallets"
+        case settingsNoticeMobileWalletLimit = "[Settings] Notice - Mobile Wallet Limit"
         case buttonFactoryReset = "[Settings / Card Settings] Button - Factory Reset"
         case factoryResetFinished = "[Settings / Card Settings] Factory Reset Finished"
         case factoryResetCancelled = "[Settings / Card Settings] Factory Reset Cancelled"
@@ -328,9 +328,6 @@ extension Analytics {
         case connectionsDisconnectAllButtonTapped = "[Connections] Button - Disconnect All"
 
         // MARK: - Wallet Connect
-
-        case walletConnectScreenOpened = "[Wallet Connect] WC Screen Opened"
-        case walletConnectDisconnectAllButtonTapped = "[Wallet Connect] Button - Disconnect All"
 
         case walletConnectDAppDetailsDisconnectButtonTapped = "[Wallet Connect] Button - Disconnect"
 
@@ -628,6 +625,26 @@ extension Analytics {
         case earnTokenAdded = "[Earn] Token Added"
         case earnPageLoadError = "[Earn] Page Load Error"
         case earnBestOpportunitiesLoadError = "[Earn] Best Opportunities Load Error"
+
+        // MARK: - ETH Lending
+
+        case ethLendingDepositScreenOpened = "[ETH Lending] Deposit Screen Opened"
+        case ethLendingWithdrawScreenOpened = "[ETH Lending] Withdraw Screen Opened"
+        case ethLendingButtonCurrencyToggle = "[ETH Lending] Button - Currency Toggle"
+        case ethLendingButtonMax = "[ETH Lending] Button - Max"
+        case ethLendingButtonPercent = "[ETH Lending] Button - Percent"
+        case ethLendingButtonFeeSpeed = "[ETH Lending] Button - Fee Speed"
+        case ethLendingNoticeInsufficientBalance = "[ETH Lending] Notice - Insufficient Balance"
+        case ethLendingNoticeInsufficientFee = "[ETH Lending] Notice - Insufficient Fee"
+        case ethLendingConfirmScreenOpened = "[ETH Lending] Confirm Screen Opened"
+        case ethLendingTransactionSigned = "[ETH Lending] Transaction Signed"
+        case ethLendingErrorSignCancelled = "[ETH Lending] Error - Sign Cancelled"
+        case ethLendingTransactionSubmitted = "[ETH Lending] Transaction Submitted"
+        case ethLendingErrorTransactionFailed = "[ETH Lending] Error - Transaction Failed"
+        case ethLendingNoticeErrorPopup = "[ETH Lending] Notice - Error Popup"
+        case ethLendingButtonErrorPopup = "[ETH Lending] Button - Error Popup"
+        case ethLendingSuccessScreenOpened = "[ETH Lending] Success Screen Opened"
+        case ethLendingButtonResultAction = "[ETH Lending] Button - Result Action"
 
         // MARK: - Markets / Chart
 

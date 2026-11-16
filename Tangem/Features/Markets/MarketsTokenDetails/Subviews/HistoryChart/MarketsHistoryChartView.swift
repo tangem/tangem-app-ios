@@ -32,7 +32,7 @@ struct MarketsHistoryChartView: View {
                     noDataView
 
                 case .failed:
-                    TangemUnableToLoadDataView(
+                    UnableToLoadDataView(
                         isButtonBusy: false,
                         retryButtonAction: viewModel.reload
                     )

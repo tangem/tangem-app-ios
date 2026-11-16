@@ -77,6 +77,7 @@ enum NotificationButtonActionType: Identifiable {
     case openAppStore
     case removeTangemPayAccount
     case editSlippage
+    case changeOnrampCountry
     case linkUserWallet(signingActionButtonType: SigningActionButtonViewType)
 
     var id: Int {
@@ -124,6 +125,7 @@ enum NotificationButtonActionType: Identifiable {
         case .openAppStore: "openAppStore".hashValue
         case .removeTangemPayAccount: "removeTangemPayAccount".hashValue
         case .editSlippage: "editSlippage".hashValue
+        case .changeOnrampCountry: "changeOnrampCountry".hashValue
         case .linkUserWallet: "linkUserWallet".hashValue
         }
     }
@@ -166,6 +168,8 @@ enum NotificationButtonActionType: Identifiable {
             return Localization.commonContactSupport
         case .openCurrency:
             return Localization.commonGoToToken
+        case .changeOnrampCountry:
+            return Localization.commonChange
         case .unlock:
             return Localization.visaUnlockNotificationButton
         case .renewTangemPaySession:
@@ -245,6 +249,7 @@ enum NotificationButtonActionType: Identifiable {
              .editSlippage,
              .backupErrorSupport,
              .openCurrency,
+             .changeOnrampCountry,
              .addTokenTrustline,
              .openMobileFinishActivation,
              .openMobileUpgrade,
@@ -298,6 +303,7 @@ enum NotificationButtonActionType: Identifiable {
              .stake,
              .openFeedbackMail,
              .openCurrency,
+             .changeOnrampCountry,
              .swap,
              .addTokenTrustline,
              .postponePushPermissionRequest,

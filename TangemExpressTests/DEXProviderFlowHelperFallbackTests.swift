@@ -10,7 +10,7 @@ import Testing
 import BlockchainSdk
 @testable import TangemExpress
 
-@Suite("DEXProviderFlowHelper — fallbacks")
+@Suite("DEXProviderFlowHelper — fallbacks and approve amounts")
 struct DEXProviderFlowHelperFallbackTests {
     // MARK: - Gas-override fallback (readyToApproveAndSwap)
 
@@ -220,6 +220,218 @@ struct DEXProviderFlowHelperFallbackTests {
         #expect(permission.fee == revokeTotal)
     }
 
+    // MARK: - Fee currency balance (checkRestriction)
+
+    @Test("A zero fee currency balance restricts the swap unless the fee is sponsored", arguments: [false, true])
+    func checkRestriction_zeroFeeCurrencyBalance(isFeeSponsored: Bool) async {
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(
+                combinedResult: .failure(StubError.notImplemented),
+                approveFee: zeroFee(),
+                isFeeSponsored: isFeeSponsored,
+                feeCurrencyBalance: 0
+            ),
+            analyticsLogger: AnalyticsLoggerSpy()
+        )
+
+        let result = await sut.checkRestriction(sourceAmount: 1, request: makeRequest(), quote: makeQuote())
+
+        switch result {
+        case .terminalState(.some(.restriction(.feeCurrencyHasZeroBalance, _))):
+            #expect(!isFeeSponsored)
+        case .terminalState(.none):
+            #expect(isFeeSponsored)
+        default:
+            Issue.record("Unexpected result \(result)")
+        }
+    }
+
+    // MARK: - Allowance amount (processAfterQuote)
+
+    @Test("The allowance check gets the amount being sent and the selected approve policy", arguments: AllowanceCheckCase.allCases)
+    private func allowanceCheck(testCase: AllowanceCheckCase) async {
+        let allowanceProvider = AllowanceProviderSpy()
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(combinedResult: .failure(StubError.notImplemented), approveFee: zeroFee()),
+            analyticsLogger: AnalyticsLoggerSpy(),
+            allowanceProvider: allowanceProvider
+        )
+
+        _ = await sut.processAfterQuote(
+            quote: makeQuote(fromAmount: testCase.quotedSourceAmount, allowanceContract: "0xSpender"),
+            request: makeRequest(amountType: testCase.amountType, approvePolicy: testCase.approvePolicy)
+        )
+
+        #expect(allowanceProvider.checks == [.init(amount: 5, approvePolicy: testCase.approvePolicy)])
+    }
+
+    // MARK: - Approve amount (checkRestriction)
+
+    @Test(
+        "A receive-side amount is approved with the slippage buffer while the allowance is checked against the quoted amount",
+        arguments: ApproveRequiredCase.allCases
+    )
+    private func receiveSideApproveBuffer(testCase: ApproveRequiredCase) async {
+        let allowanceProvider = AllowanceProviderSpy(state: testCase.allowanceState(approveData: makeApproveTransactionData()))
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(combinedResult: .failure(StubError.notImplemented), approveFee: zeroFee()),
+            analyticsLogger: AnalyticsLoggerSpy(),
+            allowanceProvider: allowanceProvider
+        )
+
+        let result = await sut.checkRestriction(
+            sourceAmount: 5,
+            request: makeRequest(amountType: .to(1)),
+            quote: makeQuote(fromAmount: 5, allowanceContract: "0xSpender", slippage: Decimal(string: "0.02"))
+        )
+
+        #expect(approveAmount(of: result) == Decimal(string: "5.1")!)
+        #expect(allowanceProvider.checks == [.init(amount: 5, approvePolicy: .specified)])
+        #expect(allowanceProvider.approveDataAmounts == [Decimal(string: "5.1")!])
+    }
+
+    @Test("The approve buffer takes the quote slippage first, then the request one, then the provider one", arguments: SlippageSourceCase.allCases)
+    private func approveBufferSlippageSource(testCase: SlippageSourceCase) async {
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(combinedResult: .failure(StubError.notImplemented), approveFee: zeroFee()),
+            analyticsLogger: AnalyticsLoggerSpy(),
+            allowanceProvider: AllowanceProviderSpy(state: .permissionRequired(makeApproveTransactionData())),
+            providerSlippage: testCase.providerSlippage
+        )
+
+        let result = await sut.checkRestriction(
+            sourceAmount: 5,
+            request: makeRequest(amountType: .to(1), slippage: testCase.requestSlippage),
+            quote: makeQuote(fromAmount: 5, allowanceContract: "0xSpender", slippage: testCase.quoteSlippage)
+        )
+
+        #expect(approveAmount(of: result) == testCase.expectedApproveAmount)
+    }
+
+    @Test("The buffered approve amount is rounded up to the token decimals")
+    private func approveBufferRoundsUp() async {
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(combinedResult: .failure(StubError.notImplemented), approveFee: zeroFee()),
+            analyticsLogger: AnalyticsLoggerSpy(),
+            allowanceProvider: AllowanceProviderSpy(state: .permissionRequired(makeApproveTransactionData()))
+        )
+
+        let result = await sut.checkRestriction(
+            sourceAmount: 5,
+            request: makeRequest(amountType: .to(1)),
+            quote: makeQuote(fromAmount: 5, allowanceContract: "0xSpender", slippage: Decimal(string: "0.00333321"))
+        )
+
+        #expect(approveAmount(of: result) == Decimal(string: "5.016667")!)
+    }
+
+    @Test("The approve data is kept as is for a send-side amount and for the unlimited policy", arguments: ApproveDataKeptCase.allCases)
+    private func approveDataKept(testCase: ApproveDataKeptCase) async {
+        let allowanceProvider = AllowanceProviderSpy(state: .permissionRequired(makeApproveTransactionData()))
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(combinedResult: .failure(StubError.notImplemented), approveFee: zeroFee()),
+            analyticsLogger: AnalyticsLoggerSpy(),
+            allowanceProvider: allowanceProvider
+        )
+
+        let result = await sut.checkRestriction(
+            sourceAmount: 5,
+            request: makeRequest(amountType: testCase.amountType, approvePolicy: testCase.approvePolicy),
+            quote: makeQuote(fromAmount: 5, allowanceContract: "0xSpender", slippage: Decimal(string: "0.02"))
+        )
+
+        #expect(approveAmount(of: result) == testCase.expectedApproveAmount)
+        #expect(allowanceProvider.approveDataAmounts.isEmpty)
+    }
+
+    // MARK: - Approve amount (readyToApproveAndSwap)
+
+    @Test(
+        "The approve grows to the exchange-data amount with the slippage buffer when the swap spends more than was approved",
+        arguments: ApproveWithSwapOutcome.allCases
+    )
+    private func approveCoversExchangeDataAmount(outcome: ApproveWithSwapOutcome) async throws {
+        let allowanceProvider = AllowanceProviderSpy()
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(combinedResult: outcome.combinedFeeResult(zeroFee: zeroFee()), approveFee: zeroFee()),
+            analyticsLogger: AnalyticsLoggerSpy(),
+            allowanceProvider: allowanceProvider
+        )
+
+        let state = try await sut.readyToApproveAndSwap(
+            request: makeRequest(amountType: .to(1)),
+            quote: makeQuote(fromAmount: 5, slippage: Decimal(string: "0.02")),
+            data: makeData(fromAmount: Decimal(string: "5.3")!),
+            approveData: makeApproveData(approveAmount: Decimal(string: "5.1")!)
+        )
+
+        #expect(approveAmount(of: state) == Decimal(string: "5.406")!)
+        #expect(allowanceProvider.approveDataAmounts == [Decimal(string: "5.406")!])
+    }
+
+    @Test("Under the unlimited policy the approve amount grows to the exchange-data amount without rebuilding the approve")
+    private func unlimitedApproveGrowsWithoutRebuild() async throws {
+        let allowanceProvider = AllowanceProviderSpy()
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(combinedResult: ApproveWithSwapOutcome.oneTap.combinedFeeResult(zeroFee: zeroFee()), approveFee: zeroFee()),
+            analyticsLogger: AnalyticsLoggerSpy(),
+            allowanceProvider: allowanceProvider
+        )
+
+        let state = try await sut.readyToApproveAndSwap(
+            request: makeRequest(amountType: .to(1), approvePolicy: .unlimited),
+            quote: makeQuote(fromAmount: 5, slippage: Decimal(string: "0.02")),
+            data: makeData(fromAmount: Decimal(string: "5.3")!),
+            approveData: makeApproveData(approveAmount: Decimal(string: "5.1")!, approvePolicy: .unlimited)
+        )
+
+        #expect(approveAmount(of: state) == Decimal(string: "5.406")!)
+        #expect(allowanceProvider.approveDataAmounts.isEmpty)
+    }
+
+    @Test(
+        "The approve covers the buffered exchange-data amount, taking the exchange-data slippage before the quote one",
+        arguments: BufferedExchangeDataCase.allCases
+    )
+    private func approveCoversBufferedExchangeDataAmount(testCase: BufferedExchangeDataCase) async throws {
+        let allowanceProvider = AllowanceProviderSpy()
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(combinedResult: ApproveWithSwapOutcome.oneTap.combinedFeeResult(zeroFee: zeroFee()), approveFee: zeroFee()),
+            analyticsLogger: AnalyticsLoggerSpy(),
+            allowanceProvider: allowanceProvider
+        )
+
+        let state = try await sut.readyToApproveAndSwap(
+            request: makeRequest(amountType: .to(1)),
+            quote: makeQuote(fromAmount: 5, slippage: Decimal(string: "0.02")),
+            data: makeData(fromAmount: testCase.exchangeDataAmount, slippage: testCase.exchangeDataSlippage),
+            approveData: makeApproveData(approveAmount: Decimal(string: "5.1")!)
+        )
+
+        #expect(approveAmount(of: state) == testCase.expectedApproveAmount)
+        #expect(allowanceProvider.approveDataAmounts == [testCase.expectedApproveAmount])
+    }
+
+    @Test("The approve stays as is when it already covers the exchange-data amount", arguments: ApproveWithSwapOutcome.allCases)
+    private func approveAlreadyCoversExchangeDataAmount(outcome: ApproveWithSwapOutcome) async throws {
+        let allowanceProvider = AllowanceProviderSpy()
+        let sut = makeSUT(
+            feeProvider: FeeProviderStub(combinedResult: outcome.combinedFeeResult(zeroFee: zeroFee()), approveFee: zeroFee()),
+            analyticsLogger: AnalyticsLoggerSpy(),
+            allowanceProvider: allowanceProvider
+        )
+
+        let state = try await sut.readyToApproveAndSwap(
+            request: makeRequest(amountType: .to(1)),
+            quote: makeQuote(fromAmount: 5),
+            data: makeData(fromAmount: 5),
+            approveData: makeApproveData(approveAmount: Decimal(string: "5.1")!)
+        )
+
+        #expect(approveAmount(of: state) == Decimal(string: "5.1")!)
+        #expect(allowanceProvider.approveDataAmounts.isEmpty)
+    }
+
     // MARK: - Insufficient-balance estimate (proceed)
 
     /// Providers send `gas` for chains without a gas-based estimate too (e.g. Tron) —
@@ -274,12 +486,13 @@ private extension DEXProviderFlowHelperFallbackTests {
         feeProvider: ExpressFeeProvider,
         analyticsLogger: AnalyticsLogger,
         address: String? = "0xOwner",
-        allowanceProvider: AllowanceProvider? = nil
+        allowanceProvider: AllowanceProvider? = nil,
+        providerSlippage: Decimal? = nil
     ) -> DEXProviderFlowHelper {
         let source = SourceWalletStub(analyticsLogger: analyticsLogger, address: address, allowanceProvider: allowanceProvider)
         let pair = ExpressManagerSwappingPair(source: source, destination: DestinationWalletStub())
         let context = ExpressProviderFlowContext(
-            provider: makeProvider(),
+            provider: makeProvider(slippage: providerSlippage),
             pair: pair,
             rateType: .float,
             expressFeeProvider: feeProvider,
@@ -290,7 +503,7 @@ private extension DEXProviderFlowHelperFallbackTests {
         return DEXProviderFlowHelper(context: context)
     }
 
-    func makeProvider() -> ExpressProvider {
+    func makeProvider(slippage: Decimal? = nil) -> ExpressProvider {
         ExpressProvider(
             id: "test-provider",
             name: "Test",
@@ -300,31 +513,35 @@ private extension DEXProviderFlowHelperFallbackTests {
             termsOfUse: nil,
             privacyPolicy: nil,
             recommended: nil,
-            slippage: nil,
+            slippage: slippage,
             isCustomSlippageSupported: false
         )
     }
 
-    func makeRequest() -> ExpressManagerSwappingPairRequest {
+    func makeRequest(
+        amountType: ExpressAmountType = .from(1),
+        approvePolicy: ApprovePolicy = .specified,
+        slippage: Decimal? = nil
+    ) -> ExpressManagerSwappingPairRequest {
         ExpressManagerSwappingPairRequest(
-            amountType: .from(1),
+            amountType: amountType,
             rateType: .float,
-            approvePolicy: .specified,
+            approvePolicy: approvePolicy,
             operationType: .swap,
-            slippage: nil,
+            slippage: slippage,
             mcpIntentID: nil,
             quotesLoadingPerformanceTracker: nil
         )
     }
 
-    func makeQuote(allowanceContract: String? = nil, slippage: Decimal? = nil) -> ExpressQuote {
-        ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: allowanceContract, quoteId: nil, txType: nil, isRestricted: false, slippage: slippage)
+    func makeQuote(fromAmount: Decimal = .zero, allowanceContract: String? = nil, slippage: Decimal? = nil) -> ExpressQuote {
+        ExpressQuote(fromAmount: fromAmount, expectAmount: .zero, allowanceContract: allowanceContract, quoteId: nil, txType: nil, isRestricted: false, slippage: slippage)
     }
 
-    func makeData(txValue: Decimal = .zero, estimatedGasLimit: Int? = nil, slippage: Decimal? = nil) -> ExpressTransactionData {
+    func makeData(fromAmount: Decimal = .zero, txValue: Decimal = .zero, estimatedGasLimit: Int? = nil, slippage: Decimal? = nil) -> ExpressTransactionData {
         ExpressTransactionData(
             requestId: "",
-            fromAmount: .zero,
+            fromAmount: fromAmount,
             toAmount: .zero,
             expressTransactionId: "",
             transactionType: .swap,
@@ -342,18 +559,186 @@ private extension DEXProviderFlowHelperFallbackTests {
         )
     }
 
-    func makeApproveData() -> DEXProviderFlowHelper.RestrictionCheckResult.ApproveData {
+    func makeApproveData(approveAmount: Decimal = 1, approvePolicy: ApprovePolicy = .specified) -> DEXProviderFlowHelper.RestrictionCheckResult.ApproveData {
         DEXProviderFlowHelper.RestrictionCheckResult.ApproveData(
             provider: makeProvider(),
-            approvePolicy: .specified,
-            approveTransactionData: ApproveTransactionData(txData: Data([0xAB]), spender: "0xSpender", toContractAddress: "0xContract", amountRaw: 1),
+            approvePolicy: approvePolicy,
+            approveTransactionData: makeApproveTransactionData(),
+            approveAmount: approveAmount,
             approvalFlow: .approve,
             owner: "0xOwner"
         )
     }
 
+    func makeApproveTransactionData() -> ApproveTransactionData {
+        ApproveTransactionData(txData: Data([0xAB]), spender: "0xSpender", toContractAddress: "0xContract", amountRaw: 1)
+    }
+
     func zeroFee() -> Fee {
         Fee(Amount(with: .ethereum(testnet: false), value: 0))
+    }
+
+    func approveAmount(of result: DEXProviderFlowHelper.RestrictionCheckResult) -> Decimal? {
+        switch result {
+        case .dexApproveFlowState(let data): data.approveAmount
+        case .terminalState(.some(let state)): approveAmount(of: state)
+        case .terminalState(.none): nil
+        }
+    }
+
+    func approveAmount(of state: ExpressProviderManagerState) -> Decimal? {
+        switch state {
+        case .dexWithApprovePreview(let preview): preview.approveData.approveAmount
+        case .permissionRequired(let permission), .revokeAndPermissionRequired(let permission): permission.approveAmount
+        default: nil
+        }
+    }
+}
+
+// MARK: - Test cases
+
+private extension DEXProviderFlowHelperFallbackTests {
+    enum ApproveRequiredCase: CaseIterable, Sendable {
+        case approve
+        case revokeAndApprove
+
+        func allowanceState(approveData: ApproveTransactionData) -> AllowanceState {
+            switch self {
+            case .approve: .permissionRequired(approveData)
+            case .revokeAndApprove: .revokeAndPermissionRequired(revoke: approveData, approve: approveData)
+            }
+        }
+    }
+
+    enum SlippageSourceCase: CaseIterable, Sendable {
+        case quote
+        case request
+        case provider
+        case zeroQuote
+        case none
+
+        var quoteSlippage: Decimal? {
+            switch self {
+            case .quote: Decimal(string: "0.02")
+            case .zeroQuote: 0
+            case .request, .provider, .none: nil
+            }
+        }
+
+        var requestSlippage: Decimal? {
+            switch self {
+            case .quote, .request, .zeroQuote: Decimal(string: "0.05")
+            case .provider, .none: nil
+            }
+        }
+
+        var providerSlippage: Decimal? {
+            switch self {
+            case .quote, .request, .provider, .zeroQuote: Decimal(string: "0.1")
+            case .none: nil
+            }
+        }
+
+        var expectedApproveAmount: Decimal {
+            switch self {
+            case .quote: Decimal(string: "5.1")!
+            case .request: Decimal(string: "5.25")!
+            case .provider: Decimal(string: "5.5")!
+            case .zeroQuote, .none: 5
+            }
+        }
+    }
+
+    enum BufferedExchangeDataCase: CaseIterable, Sendable {
+        case smallerThanApproveBeforeBuffer
+        case ownSlippage
+
+        var exchangeDataAmount: Decimal {
+            switch self {
+            case .smallerThanApproveBeforeBuffer: Decimal(string: "5.05")!
+            case .ownSlippage: Decimal(string: "5.3")!
+            }
+        }
+
+        var exchangeDataSlippage: Decimal? {
+            switch self {
+            case .smallerThanApproveBeforeBuffer: nil
+            case .ownSlippage: Decimal(string: "0.04")
+            }
+        }
+
+        var expectedApproveAmount: Decimal {
+            switch self {
+            case .smallerThanApproveBeforeBuffer: Decimal(string: "5.151")!
+            case .ownSlippage: Decimal(string: "5.512")!
+            }
+        }
+    }
+
+    enum ApproveWithSwapOutcome: CaseIterable, Sendable {
+        case oneTap
+        case twoStepFallback
+
+        func combinedFeeResult(zeroFee: Fee) -> Result<ApproveWithSwapFee, Error> {
+            switch self {
+            case .oneTap: .success(ApproveWithSwapFee(total: zeroFee, approve: zeroFee))
+            case .twoStepFallback: .failure(StubError.estimateFailed)
+            }
+        }
+    }
+
+    enum AllowanceCheckCase: CaseIterable, Sendable {
+        case sendSide
+        case receiveSide
+        case unlimitedPolicy
+
+        var amountType: ExpressAmountType {
+            switch self {
+            case .sendSide: .from(5)
+            case .receiveSide: .to(Decimal(string: "0.001")!)
+            case .unlimitedPolicy: .to(1)
+            }
+        }
+
+        var quotedSourceAmount: Decimal {
+            switch self {
+            case .sendSide: Decimal(string: "4.9")!
+            case .receiveSide, .unlimitedPolicy: 5
+            }
+        }
+
+        var approvePolicy: ApprovePolicy {
+            switch self {
+            case .sendSide, .receiveSide: .specified
+            case .unlimitedPolicy: .unlimited
+            }
+        }
+    }
+
+    enum ApproveDataKeptCase: CaseIterable, Sendable {
+        case sendSide
+        case unlimitedPolicy
+
+        var amountType: ExpressAmountType {
+            switch self {
+            case .sendSide: .from(5)
+            case .unlimitedPolicy: .to(1)
+            }
+        }
+
+        var approvePolicy: ApprovePolicy {
+            switch self {
+            case .sendSide: .specified
+            case .unlimitedPolicy: .unlimited
+            }
+        }
+
+        var expectedApproveAmount: Decimal {
+            switch self {
+            case .sendSide: 5
+            case .unlimitedPolicy: Decimal(string: "5.1")!
+            }
+        }
     }
 }
 
@@ -370,10 +755,12 @@ final class AnalyticsLoggerSpy: AnalyticsLogger {
 
 final class FeeProviderStub: ExpressFeeProvider {
     let supportsGasBasedFeeEstimate: Bool
+    let isFeeSponsored: Bool
 
     private let combinedResult: Result<ApproveWithSwapFee, Error>
     private let approveFee: BSDKFee
     private let revokeAndApproveFee: RevokeAndApproveFee
+    private let balance: Decimal
 
     init(
         combinedResult: Result<ApproveWithSwapFee, Error>,
@@ -382,16 +769,20 @@ final class FeeProviderStub: ExpressFeeProvider {
             unit: Fee(Amount(with: .ethereum(testnet: false), value: 0)),
             total: Fee(Amount(with: .ethereum(testnet: false), value: 0))
         ),
-        supportsGasBasedFeeEstimate: Bool = true
+        supportsGasBasedFeeEstimate: Bool = true,
+        isFeeSponsored: Bool = false,
+        feeCurrencyBalance: Decimal = 1000
     ) {
         self.combinedResult = combinedResult
         self.approveFee = approveFee
         self.revokeAndApproveFee = revokeAndApproveFee
         self.supportsGasBasedFeeEstimate = supportsGasBasedFeeEstimate
+        self.isFeeSponsored = isFeeSponsored
+        balance = feeCurrencyBalance
     }
 
     func feeCurrency() -> ExpressWalletCurrency { makeCurrency() }
-    func feeCurrencyBalance() throws -> Decimal { 1000 }
+    func feeCurrencyBalance() throws -> Decimal { balance }
     func estimatedFee(amount: Decimal) async throws -> BSDKFee { throw StubError.notImplemented }
     func estimatedFee(estimatedGasLimit: Int, otherNativeFee: Decimal?) async throws -> BSDKFee { throw StubError.notImplemented }
     func transactionFee(approveData: BSDKApproveTransactionData) async throws -> BSDKFee { approveFee }
@@ -411,12 +802,39 @@ private struct AllowanceProviderStub: AllowanceProvider {
     let state: AllowanceState
     var supportsOneTapApprove: Bool = true
 
-    func allowanceState(request: ExpressManagerSwappingPairRequest, contractAddress: String, spender: String) async throws -> AllowanceState {
+    func allowanceState(amount: Decimal, approvePolicy: ApprovePolicy, contractAddress: String, spender: String) async throws -> AllowanceState {
         state
     }
 
     func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData {
         ApproveTransactionData(txData: Data(), spender: spender, toContractAddress: "0xContract", amountRaw: 1)
+    }
+}
+
+private final class AllowanceProviderSpy: AllowanceProvider {
+    struct Check: Equatable {
+        let amount: Decimal
+        let approvePolicy: ApprovePolicy
+    }
+
+    private let state: AllowanceState
+    private(set) var checks: [Check] = []
+    private(set) var approveDataAmounts: [Decimal] = []
+
+    var supportsOneTapApprove: Bool { true }
+
+    init(state: AllowanceState = .enoughAllowance) {
+        self.state = state
+    }
+
+    func allowanceState(amount: Decimal, approvePolicy: ApprovePolicy, contractAddress: String, spender: String) async throws -> AllowanceState {
+        checks.append(Check(amount: amount, approvePolicy: approvePolicy))
+        return state
+    }
+
+    func makeApproveData(spender: String, amount: Decimal, policy: ApprovePolicy) async throws -> ApproveTransactionData {
+        approveDataAmounts.append(amount)
+        return ApproveTransactionData(txData: Data(), spender: spender, toContractAddress: "0xContract", amountRaw: 1)
     }
 }
 

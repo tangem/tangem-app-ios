@@ -79,7 +79,7 @@ struct AddressBooksView: View {
     private var nonEmptyContent: some View {
         switch viewModel.contentState {
         case .failure:
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.retry)
+            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.retry)
                 .infinityFrame()
 
         case .noResults:

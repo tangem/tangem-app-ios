@@ -26,7 +26,6 @@ struct CollectiblesStoriesView: View {
         }
         .overlay(header, alignment: .top)
         .safeAreaInset(edge: .bottom) { continueButton }
-        .environment(\.isRedesign, true)
         .task(viewModel.run)
     }
 }

@@ -91,7 +91,7 @@ private final class CollectiblesAccountModelStub: CollectiblesAccountModel {
 
     var isSyncRequiredPublisher: AnyPublisher<Bool, Never> { Just(false).eraseToAnyPublisher() }
 
-    var pendingDerivationNetworksPublisher: AnyPublisher<[BlockchainNetwork], Never> { Just([]).eraseToAnyPublisher() }
+    var pendingDerivationProvider: AccountPendingDerivationProvider { NoopAccountPendingDerivationProvider() }
 
     func update(name: String) {}
 
@@ -149,13 +149,29 @@ private final class CollectiblesPackPurchaseInteractorStub: CollectiblesPackPurc
         false
     }
 
-    func restorePendingPurchase() async {}
+    func isDelivered(txID: String) -> Bool {
+        false
+    }
 
     func purchase(
         machineID: String,
         price: Decimal,
         platformFee: Decimal,
         isTurboModeOn: Bool,
+        onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
+    ) async throws -> CollectiblesPackPurchaseResult {
+        throw CancellationError()
+    }
+
+    func resumePurchase(
+        _ purchase: CollectiblesPendingPurchase,
+        onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
+    ) async throws -> CollectiblesPackPurchaseResult {
+        throw CancellationError()
+    }
+
+    func resumeKeptPurchase(
+        machineID: String,
         onStep: @escaping (CollectiblesPackPurchaseStep) -> Void
     ) async throws -> CollectiblesPackPurchaseResult {
         throw CancellationError()

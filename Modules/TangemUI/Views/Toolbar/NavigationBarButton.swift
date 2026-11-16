@@ -15,24 +15,20 @@ import TangemLocalization
 ///
 /// On iOS 26, it matches look and feel of system ``NavigationStack`` back / close toolbar buttons.
 ///
-/// On earlier iOS versions, an icon with a round background is used.
+/// On earlier iOS versions, a plain system symbol is used.
 /// - SeeAlso: Prefer using ``NavigationToolbarButton`` when you need back button inside ``View.toolbar(content:)`` to avoid glass effect overlap.
 public struct NavigationBarButton: View {
     private let sfSymbol: String
-    private let iconAsset: ImageType
     private let action: () -> Void
 
-    @Environment(\.isRedesign) private var isRedesign
     @Environment(\.isDimmed) private var isDimmed
 
     /// Creates a navigation bar button.
     /// - Parameters:
     ///   - sfSymbol: The name of the system symbol image. Use the SF Symbols app to look up the names of system symbol images.
-    ///   - iconAsset: The icon used for 18 and older iOS versions.
     ///   - action: The action to perform when the user triggers the button.
-    init(sfSymbol: String, iconAsset: ImageType, action: @escaping () -> Void) {
+    init(sfSymbol: String, action: @escaping () -> Void) {
         self.sfSymbol = sfSymbol
-        self.iconAsset = iconAsset
         self.action = action
     }
 
@@ -40,10 +36,8 @@ public struct NavigationBarButton: View {
         if #available(iOS 26.0, *) {
             systemLabelButton
                 .glassEffect(.regular.interactive(), in: .circle)
-        } else if isRedesign {
-            systemLabelButton
         } else {
-            circleIconButton
+            systemLabelButton
         }
     }
 
@@ -53,22 +47,6 @@ public struct NavigationBarButton: View {
                 .foregroundStyle(isDimmed ? DesignSystem.Color.iconTertiary : DesignSystem.Color.iconPrimary)
                 .font(.title2)
                 .frame(width: 44, height: 44)
-        }
-    }
-
-    private var circleIconButton: some View {
-        SwiftUI.Button(action: action) {
-            iconAsset.image
-                .resizable()
-                .renderingMode(.template)
-                .frame(width: 20, height: 20)
-                .foregroundStyle(isDimmed ? DesignSystem.Color.iconTertiary : DesignSystem.Color.iconSecondary)
-                .padding(4)
-                .background {
-                    Circle()
-                        .fill(DesignSystem.Color.bgTransparentSecondary)
-                }
-                .contentShape(.rect)
         }
     }
 }
@@ -102,7 +80,7 @@ public extension NavigationBarButton {
     }
 
     private static func navigationBarButton(for role: NavigationBarButtonRole, action: @escaping () -> Void) -> some View {
-        NavigationBarButton(sfSymbol: role.sfSymbol, iconAsset: role.iconAsset, action: action)
+        NavigationBarButton(sfSymbol: role.sfSymbol, action: action)
             .accessibilityIdentifier(role.accessibilityIdentifier)
     }
 }

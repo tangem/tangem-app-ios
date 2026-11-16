@@ -39,9 +39,11 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
     private let model: PolymarketOrderModel
     private let account: PolymarketOrderAccount?
     private let submission: PolymarketOrderSubmission
+    private let signingChoice: PolymarketOrderSigningChoice?
     private weak var coordinator: PolymarketOrderSummaryRoutable?
 
     private var placementTask: Task<Void, Never>?
+    private var renderedState: PolymarketOrderModel.State?
     private var bag: Set<AnyCancellable> = []
 
     // MARK: - Init
@@ -51,12 +53,14 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
         account: PolymarketOrderAccount?,
         placementService: PolymarketOrderPlacementService,
         signingButtonType: SigningActionButtonViewType,
+        signingChoice: PolymarketOrderSigningChoice? = nil,
         coordinator: PolymarketOrderSummaryRoutable?
     ) {
         self.model = model
         self.account = account
-        submission = PolymarketOrderSubmission(model: model, placementService: placementService)
+        submission = PolymarketOrderSubmission(model: model, placementService: placementService, signingChoice: signingChoice)
         self.signingButtonType = signingButtonType
+        self.signingChoice = signingChoice
         self.coordinator = coordinator
 
         marketRow = .make(
@@ -70,6 +74,7 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
         slippageText = PolymarketSlippageFormatter.rowText(model.state.slippagePercent)
 
         bind()
+        forwardSigningChoiceChanges()
     }
 
     deinit {
@@ -90,8 +95,8 @@ final class PolymarketOrderSummaryViewModel: ObservableObject {
             guard !isPlacing else { return }
 
             coordinator?.closeSummary()
-        case .placeOrder:
-            place()
+        case .placeOrder(let signing):
+            place(signing: signing)
         case .openFeeBreakdown:
             openFeeBreakdown()
         case .openLegalTerms(let url):
@@ -108,7 +113,7 @@ extension PolymarketOrderSummaryViewModel {
         case onDisappear
         case goBack
         case close
-        case placeOrder
+        case placeOrder(signing: PolymarketOrderSigningMethod)
         case openFeeBreakdown
         case openLegalTerms(URL)
     }
@@ -117,10 +122,10 @@ extension PolymarketOrderSummaryViewModel {
 // MARK: - Placement
 
 private extension PolymarketOrderSummaryViewModel {
-    func place() {
-        guard !isPlacing else { return }
+    func place(signing: PolymarketOrderSigningMethod) {
+        guard let renderedState, !isPlacing else { return }
 
-        switch submission.readiness() {
+        switch submission.readiness(of: renderedState) {
         case .unavailable:
             return
         case .staleQuote:
@@ -132,14 +137,14 @@ private extension PolymarketOrderSummaryViewModel {
             placementTask = Task { @MainActor [weak self] in
                 guard let self else { return }
 
-                handle(await submission.submit(quote: quote) { self.marketRow })
+                handle(await submission.submit(quote: quote, signing: signing) { self.marketRow })
             }
         }
     }
 
     func handle(_ outcome: PolymarketOrderSubmission.Outcome) {
         switch outcome {
-        case .cancelled:
+        case .cancelled, .signingChanged:
             resume()
         case .failed(let returningToMain):
             reportFailure(returningToMain: returningToMain)
@@ -198,6 +203,8 @@ private extension PolymarketOrderSummaryViewModel {
     }
 
     func update(with state: PolymarketOrderModel.State) {
+        renderedState = state
+
         let gate = PolymarketOrderGate(state: state, intent: model.intent)
 
         header = Self.makeHeader(state: state, intent: model.intent, account: account)
@@ -280,5 +287,21 @@ private extension PolymarketOrderSummaryViewModel {
 
     static func makeFeeText(state: PolymarketOrderModel.State) -> String {
         PolymarketOrderFormatter.money(state.quote.quote?.fees.total)
+    }
+}
+
+// MARK: - Signing choice
+
+extension PolymarketOrderSummaryViewModel {
+    var signingMethod: PolymarketOrderSigningMethod {
+        signingChoice?.method ?? .ownerKey
+    }
+}
+
+private extension PolymarketOrderSummaryViewModel {
+    func forwardSigningChoiceChanges() {
+        signingChoice?.objectWillChange
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &bag)
     }
 }

@@ -17,7 +17,7 @@ final class PromoCampaignEnrolledWalletViewModel: ObservableObject, Identifiable
 
     let name: String
     let subtitle: String
-    let imageProvider: WalletImageProviding
+    let walletIcon: UserWalletIcon
 
     private let isUserWalletLocked: Bool
     private var bag: Set<AnyCancellable> = []
@@ -26,7 +26,7 @@ final class PromoCampaignEnrolledWalletViewModel: ObservableObject, Identifiable
         self.init(
             name: userWalletModel.name,
             subtitle: userWalletModel.cardSetLabel,
-            imageProvider: userWalletModel.walletImageProvider,
+            walletIcon: userWalletModel.walletIcon,
             isUserWalletLocked: userWalletModel.isUserWalletLocked,
             totalBalancePublisher: userWalletModel.totalBalancePublisher
         )
@@ -35,13 +35,13 @@ final class PromoCampaignEnrolledWalletViewModel: ObservableObject, Identifiable
     init(
         name: String,
         subtitle: String,
-        imageProvider: WalletImageProviding,
+        walletIcon: UserWalletIcon,
         isUserWalletLocked: Bool,
         totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
     ) {
         self.name = name
         self.subtitle = subtitle
-        self.imageProvider = imageProvider
+        self.walletIcon = walletIcon
         self.isUserWalletLocked = isUserWalletLocked
         bind(totalBalancePublisher: totalBalancePublisher)
     }
@@ -76,14 +76,14 @@ extension PromoCampaignEnrolledWalletViewModel {
             PromoCampaignEnrolledWalletViewModel(
                 name: "Main wallet",
                 subtitle: "3 cards",
-                imageProvider: CardImageProviderMock(),
+                walletIcon: .loadable(CardImageProviderMock()),
                 isUserWalletLocked: false,
                 totalBalancePublisher: Just(.loaded(balance: 4496.75)).eraseToAnyPublisher()
             ),
             PromoCampaignEnrolledWalletViewModel(
                 name: "Multi Card",
                 subtitle: "1 card",
-                imageProvider: CardImageProviderMock(),
+                walletIcon: .loadable(CardImageProviderMock()),
                 isUserWalletLocked: false,
                 totalBalancePublisher: Just(.loaded(balance: 0.03)).eraseToAnyPublisher()
             ),

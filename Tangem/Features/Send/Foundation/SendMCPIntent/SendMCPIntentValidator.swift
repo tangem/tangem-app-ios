@@ -11,20 +11,13 @@ import TangemFoundation
 
 enum SendMCPIntentValidator {
     static func canSend(from target: DeeplinkWalletModelLocator.Target) -> Bool {
-        let hasBlockingPendingTransaction = target.walletModel.hasAnyPendingTransactions
-            && !target.walletModel.tokenItem.blockchain.isParallelTransactionAllowed
-
-        guard !hasBlockingPendingTransaction else {
-            return false
-        }
-
         let availability = TokenActionAvailabilityProvider(
             userWalletInfo: target.userWalletModel.userWalletInfo,
             walletModel: target.walletModel
         ).sendAvailability
 
         switch availability {
-        case .available, .zeroWalletBalance, .blockchainLoading, .blockchainUnreachable, .hasOnlyCachedBalance:
+        case .available, .zeroFeeCurrencyBalance, .zeroWalletBalance, .blockchainLoading, .blockchainUnreachable, .hasOnlyCachedBalance:
             return true
         case .oldCard, .cantSignLongTransactions, .hasPendingTransaction, .yieldModuleApproveNeeded, .noAccount:
             return false

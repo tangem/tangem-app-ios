@@ -108,8 +108,8 @@ struct AddFundsView: View {
 
     private var optionsSection: some View {
         VStack(spacing: 8) {
-            if viewModel.isRestrictedForCountry {
-                BuyAndSwapRestrictionBanner()
+            if viewModel.showsRestrictionBanner {
+                BuyAndSwapRestrictionBanner(regionName: viewModel.restrictedRegionName)
             }
 
             ForEach(viewModel.options) { option in

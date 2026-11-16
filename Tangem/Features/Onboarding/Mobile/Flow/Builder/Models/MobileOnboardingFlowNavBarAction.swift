@@ -24,7 +24,6 @@ enum MobileOnboardingFlowNavBarAction {
         switch self {
         case .back(let handler):
             NavigationBarButton.back(action: handler)
-                .redesigned()
         case .close(let style, let handler):
             makeCloseAction(style: style, handler: handler)
                 .padding(.leading, 16)

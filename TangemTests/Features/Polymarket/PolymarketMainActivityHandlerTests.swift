@@ -61,13 +61,13 @@ private extension PolymarketMainActivityHandlerTests {
     struct Context {
         let handler: PolymarketMainActivityHandler
         let tracker: PolymarketFundsArrivalTracker
-        let log: PolymarketTestSignal<ActivityEvent>
+        let log: TestSignal<ActivityEvent>
     }
 
     static func makeSUT() -> Context {
         let refreshCenter = PolymarketMainRefreshCenter()
         let tracker = PolymarketFundsArrivalTracker(balancePublisher: Empty().eraseToAnyPublisher())
-        let log = PolymarketTestSignal<ActivityEvent>()
+        let log = TestSignal<ActivityEvent>()
 
         refreshCenter.register { log.send(.refresh($0)) }
 

@@ -63,6 +63,25 @@ func makeLockedUserWalletModel(idSeed: String) -> LockedUserWalletModel {
     )
 }
 
+func makeJointAccountStub(isActive: Bool, delegate: any JointAccountModelDelegate) -> any JointAccountModel {
+    CommonJointAccountModel(
+        cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
+        derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
+        accountPolicy: JointAccountPolicy(membersCount: 3, signersCount: 2),
+        statusProvider: JointAccountStatusProviderStub(status: isActive ? .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b") : .pending),
+        operationsService: JointAccountOperationsServiceMock(),
+        pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+        membersService: JointAccountMembersServiceMock(),
+        finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
+            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
+            walletModelsManager: WalletModelsManagerMock(),
+            historyDeltaSyncing: JointOperationsHistoryDeltaSyncingStub()
+        ),
+        userRoleService: JointAccountUserRoleServiceMock(),
+        delegate: delegate
+    )
+}
+
 final class SelectorAccountModelsManagerStub: AccountModelsManager {
     private let accountModelsSubject: CurrentValueSubject<[AccountModel]?, Never>
 
@@ -78,6 +97,8 @@ final class SelectorAccountModelsManagerStub: AccountModelsManager {
     var accountModels: [AccountModel] { accountModelsSubject.value ?? [] }
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { accountModelsSubject.compactMap { $0 }.eraseToAnyPublisher() }
     var hasArchivedCryptoAccountsPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
+    var accountsOrderPublisher: AnyPublisher<[CryptoAccountDerivationIdentity], Never> { .just(output: []) }
+    func collectiblesAccountModel() async -> (any CollectiblesAccountModel)? { nil }
     var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> { .just(output: true) }
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: accountModels.cryptoAccountsCount) }
     var totalJointAccountsCountPublisher: AnyPublisher<Int, Never> { .just(output: 0) }

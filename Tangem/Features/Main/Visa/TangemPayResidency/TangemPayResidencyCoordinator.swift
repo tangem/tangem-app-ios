@@ -148,8 +148,9 @@ private extension TangemPayResidencyCoordinator {
         eligibilityTask?.cancel()
         eligibilityTask = Task { @MainActor [weak self, availabilityService, product] in
             do {
-                let response = try await availabilityService.checkEligibility(
-                    product: product,
+                let response = try await Self.checkEligibility(
+                    availabilityService: availabilityService,
+                    products: TangemPayUnifiedOnboarding.isEnabled ? [.paymentAccount, .bankingAccount] : [product],
                     country: country.code,
                     region: region?.code
                 )
@@ -166,6 +167,28 @@ private extension TangemPayResidencyCoordinator {
                 showEligibilityError(country: country, region: region)
             }
         }
+    }
+
+    static func checkEligibility(
+        availabilityService: TangemPayAvailabilityService,
+        products: [TangemPayProduct],
+        country: String,
+        region: String?
+    ) async throws -> TangemPayEligibilityCheckResponse {
+        let responses = try await withThrowingTaskGroup(of: TangemPayEligibilityCheckResponse.self) { group in
+            for product in products {
+                group.addTask {
+                    try await availabilityService.checkEligibility(product: product, country: country, region: region)
+                }
+            }
+            return try await group.reduce(into: [TangemPayEligibilityCheckResponse]()) { $0.append($1) }
+        }
+
+        guard let response = responses.first(where: \.available) ?? responses.first else {
+            throw TangemPayResidencyEligibilityError.noProducts
+        }
+
+        return response
     }
 
     func handleEligibility(
@@ -230,4 +253,8 @@ extension TangemPayResidencyCoordinator {
         case region(countryCode: String)
         case unavailableRegion
     }
+}
+
+enum TangemPayResidencyEligibilityError: Error {
+    case noProducts
 }

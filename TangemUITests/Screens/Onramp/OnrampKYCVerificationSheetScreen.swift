@@ -10,14 +10,11 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class OnrampKYCVerificationSheetScreen: ScreenBase<OnrampKYCVerificationSheetScreenElement> {
-    private lazy var icon = image(.icon)
     private lazy var closeButton = button(.closeButton)
 
     @discardableResult
     func waitForSheetDisplayed(provider: String) -> Self {
         XCTContext.runActivity(named: "Validate KYC verification sheet content") { _ in
-            waitAndAssertTrue(icon, "Verification icon should exist")
-
             let texts = [
                 Localization.onrampKycVerificationTitle,
                 Localization.onrampKycVerificationSubtitle(provider),
@@ -55,13 +52,10 @@ final class OnrampKYCVerificationSheetScreen: ScreenBase<OnrampKYCVerificationSh
 }
 
 enum OnrampKYCVerificationSheetScreenElement: String, UIElement {
-    case icon
     case closeButton
 
     var accessibilityIdentifier: String {
         switch self {
-        case .icon:
-            return OnrampAccessibilityIdentifiers.kycIcon
         case .closeButton:
             return CommonUIAccessibilityIdentifiers.closeButton
         }

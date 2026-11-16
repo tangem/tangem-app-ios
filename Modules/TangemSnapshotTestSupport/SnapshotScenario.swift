@@ -16,6 +16,7 @@ public protocol SnapshotScenario: CaseIterable, Sendable, CustomTestStringConver
     var canvases: [SnapshotCanvas] { get }
     var layoutDirection: LayoutDirection { get }
     var dynamicTypeSize: DynamicTypeSize { get }
+    var reduceTransparency: Bool { get }
     @MainActor @ViewBuilder var body: Body { get }
 }
 
@@ -23,6 +24,7 @@ public extension SnapshotScenario {
     var canvases: [SnapshotCanvas] { [.component] }
     var layoutDirection: LayoutDirection { .leftToRight }
     var dynamicTypeSize: DynamicTypeSize { .large }
+    var reduceTransparency: Bool { false }
     var testDescription: String { snapshotName }
 }
 
@@ -41,7 +43,8 @@ public func assertSnapshots<S: SnapshotScenario>(
     let strategies = [String: Snapshotting<S.Body, UIImage>].themed(
         canvases: scenario.canvases,
         layoutDirection: scenario.layoutDirection,
-        dynamicTypeSize: scenario.dynamicTypeSize
+        dynamicTypeSize: scenario.dynamicTypeSize,
+        reduceTransparency: scenario.reduceTransparency
     )
     let directory = snapshotDirectory(for: filePath)
 

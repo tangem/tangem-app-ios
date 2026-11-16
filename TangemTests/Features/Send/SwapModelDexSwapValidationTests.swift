@@ -124,6 +124,20 @@ struct SwapModelDexSwapValidationTests {
             return
         }
     }
+
+    @Test("A permission-required provider keeps its approve amount, not the quoted amount, for the approve sheet")
+    func permissionRequiredKeepsApproveAmount() async throws {
+        let sut = makeSUT()
+
+        let state = try await sut.map(provider: makeProvider(), permissionRequired: makePermissionRequired(approveAmount: Constants.approveAmount))
+
+        guard case .permissionRequired(let permission) = state else {
+            Issue.record("Expected the permission-required state, got \(state)")
+            return
+        }
+
+        #expect(permission.approveAmount == Constants.approveAmount)
+    }
 }
 
 // MARK: - SUT
@@ -196,6 +210,18 @@ private extension SwapModelDexSwapValidationTests {
         )
     }
 
+    func makePermissionRequired(approveAmount: Decimal) -> ExpressProviderManagerState.PermissionRequired {
+        ExpressProviderManagerState.PermissionRequired(
+            provider: makeProvider().provider,
+            policy: .specified,
+            data: ApproveTransactionData(txData: Data(), spender: "0xSpender", toContractAddress: "0xContract", amountRaw: 1),
+            approveAmount: approveAmount,
+            approvalFlow: .approve,
+            fee: makeFee(),
+            quote: ExpressQuoteFixture.make(fromAmount: Constants.fromAmount, expectAmount: Constants.expectAmount)
+        )
+    }
+
     func makeAmount() -> Amount {
         Amount(with: .bitcoin(testnet: false), type: .coin, value: Constants.fromAmount)
     }
@@ -216,6 +242,7 @@ private extension SwapModelDexSwapValidationTests {
         static let fromAmount: Decimal = 1
         static let expectAmount: Decimal = 2
         static let fee = Decimal(stringValue: "0.0001")!
+        static let approveAmount = Decimal(stringValue: "1.02")!
     }
 }
 

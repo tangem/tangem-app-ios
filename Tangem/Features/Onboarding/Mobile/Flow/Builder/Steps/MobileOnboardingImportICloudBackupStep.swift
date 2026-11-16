@@ -13,10 +13,12 @@ final class MobileOnboardingImportICloudBackupStep: MobileOnboardingFlowStep {
     private let viewModel: MobileOnboardingImportICloudBackupViewModel
 
     init(
+        source: MobileImportWalletSource,
         dataSource: MobileOnboardingImportICloudBackupDataSource,
         delegate: MobileOnboardingImportICloudBackupDelegate
     ) {
         viewModel = MobileOnboardingImportICloudBackupViewModel(
+            source: source,
             dataSource: dataSource,
             delegate: delegate
         )

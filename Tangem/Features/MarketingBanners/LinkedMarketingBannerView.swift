@@ -53,7 +53,7 @@ struct LinkedMarketingBannerView: View {
             .padding(.top, Self.contentVerticalInset + cardCornerRadius)
             .padding(.bottom, Self.contentVerticalInset)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(viewModel.backgroundColorHex.map { Color(hex: $0, fallback: DesignSystem.Color.bgStatusInfoSubtle) } ?? DesignSystem.Color.bgStatusInfoSubtle)
+            .background(backgroundColor.mask { cardCutout })
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -63,6 +63,21 @@ struct LinkedMarketingBannerView: View {
             bottomTrailingRadius: cardCornerRadius
         )
         .padding(.top, -cardCornerRadius)
+    }
+
+    private var backgroundColor: Color {
+        viewModel.backgroundColorHex.map { Color(hex: $0, fallback: DesignSystem.Color.bgStatusInfoSubtle) } ?? DesignSystem.Color.bgStatusInfoSubtle
+    }
+
+    private var cardCutout: some View {
+        Rectangle()
+            .overlay(alignment: .top) {
+                RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
+                    .frame(height: cardCornerRadius * 4)
+                    .offset(y: -cardCornerRadius * 3)
+                    .blendMode(.destinationOut)
+            }
+            .compositingGroup()
     }
 }
 

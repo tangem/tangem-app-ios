@@ -47,6 +47,7 @@ public struct TangemExpressFactory {
         analyticsLogger: ExpressAnalyticsLogger,
         providerItemSorter: ProviderItemSorter,
         preferredValues: PreferredValues,
+        countryByIPProvider: (() async throws -> OnrampCountry)? = nil
     ) -> OnrampManager {
         CommonOnrampManager(
             apiProvider: expressAPIProvider,
@@ -54,12 +55,17 @@ public struct TangemExpressFactory {
             dataRepository: dataRepository,
             analyticsLogger: analyticsLogger,
             sorter: providerItemSorter,
-            preferredValues: preferredValues
+            preferredValues: preferredValues,
+            countryByIPProvider: countryByIPProvider
         )
     }
 
     public func makeOnrampRepository(storage: OnrampStorage) -> OnrampRepository {
         CommonOnrampRepository(storage: storage)
+    }
+
+    public func makeCountryByIPOnrampRepository(userCurrencyStore: OnrampUserCurrencyStore) -> OnrampRepository {
+        CountryByIPOnrampRepository(userCurrencyStore: userCurrencyStore)
     }
 
     public func makeOnrampDataRepository(expressAPIProvider: ExpressAPIProvider) -> OnrampDataRepository {

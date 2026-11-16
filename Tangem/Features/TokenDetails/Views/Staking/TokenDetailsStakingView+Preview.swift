@@ -40,7 +40,7 @@ import TangemUI
                 return .enable(item: .init(
                     title: "Staking",
                     rewardsState: .claimed("0.0012 ETH unclaimed"),
-                    fiatBalance: AttributedString("$1,234.56"),
+                    fiatBalance: "$1,234.56",
                     cryptoBalance: "0.5 ETH",
                     action: {}
                 ))
@@ -49,7 +49,7 @@ import TangemUI
                 return .enable(item: .init(
                     title: "Staking",
                     rewardsState: .auto("5.2% APY"),
-                    fiatBalance: AttributedString("$2,450.00"),
+                    fiatBalance: "$2,450.00",
                     cryptoBalance: "1.0 ETH",
                     action: {}
                 ))
@@ -58,7 +58,7 @@ import TangemUI
                 return .enable(item: .init(
                     title: "Staking",
                     rewardsState: .empty("No rewards yet"),
-                    fiatBalance: AttributedString("$489.20"),
+                    fiatBalance: "$489.20",
                     cryptoBalance: "0.2 ETH",
                     action: {}
                 ))

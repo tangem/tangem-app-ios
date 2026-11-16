@@ -19,9 +19,22 @@ struct CryptoAccountsNetworkMapperTests {
         let info = try map(response: Fixtures.responseWithoutPerTypeCounters)
 
         #expect(info.accounts.map(\.derivationIdentity.derivationIndex) == [0, 1])
-        // A record from before the kinds existed names none and is one of the wallet's own accounts;
-        // an unknown kind is a contract violation and traps in the mapper, so there is no case for it here
+        // A record from before the kinds existed names none and is one of the wallet's own accounts
         #expect(info.accounts.map(\.derivationIdentity.type) == [.crypto, .joint])
+    }
+
+    @Test("An account of a kind this version does not know is left out, and the rest is kept")
+    func unknownAccountTypeIsSkipped() throws {
+        let info = try map(response: Fixtures.responseWithUnknownAccountType)
+
+        #expect(info.accounts.map(\.derivationIdentity.type) == [.crypto])
+    }
+
+    @Test("An archived account of a kind this version does not know is not offered for recovery")
+    func archivedUnknownAccountTypeIsSkipped() throws {
+        let infos = try map(archivedResponse: Fixtures.archivedResponseWithUnknownAccountType)
+
+        #expect(infos.map(\.derivationIdentity.type) == [.crypto])
     }
 
     @Test("Absent per-type counters stand in for the crypto one only, leaving the joint one with no count")
@@ -228,6 +241,32 @@ private extension CryptoAccountsNetworkMapperTests {
             { "id": "id-999799", "name": "Collectibles", "icon": "Package", "iconColor": "Azure", "derivation": 999799, "type": "collectibles", "tokens": [] }
           ],
           "unassignedTokens": []
+        }
+        """
+
+        static let responseWithUnknownAccountType = """
+        {
+          "wallet": {
+            "version": 1,
+            "group": "network",
+            "sort": "manual",
+            "totalAccounts": 1,
+            "totalArchivedAccounts": 0
+          },
+          "accounts": [
+            { "id": "id-0", "name": "Main", "icon": "Star", "iconColor": "Azure", "derivation": 0, "tokens": [] },
+            { "id": "id-7", "name": "Predictions", "icon": "Star", "iconColor": "Azure", "derivation": 7, "type": "polymarket", "tokens": [] }
+          ],
+          "unassignedTokens": []
+        }
+        """
+
+        static let archivedResponseWithUnknownAccountType = """
+        {
+          "archivedAccounts": [
+            { "id": "id-1", "name": "Savings", "icon": "Star", "iconColor": "Azure", "derivation": 1, "type": "crypto", "totalTokens": 0, "totalNetworks": 0 },
+            { "id": "id-7", "name": "Predictions", "icon": "Star", "iconColor": "Azure", "derivation": 7, "type": "polymarket", "totalTokens": 0, "totalNetworks": 0 }
+          ]
         }
         """
 

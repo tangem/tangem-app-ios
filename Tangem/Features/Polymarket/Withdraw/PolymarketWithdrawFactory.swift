@@ -40,7 +40,8 @@ struct PolymarketWithdrawFactory {
             ),
             signer: PolymarketBatchSigner(keysRepository: userWalletModel.keysRepository, signer: signer),
             serverClock: InjectedValues[\.polymarketServerClock],
-            sessionHealth: sessionHealth
+            sessionHealth: sessionHealth,
+            operationSlot: PolymarketWalletOperationSlot(userWalletId: userWalletModel.userWalletId)
         )
 
         return PolymarketWithdrawContext(

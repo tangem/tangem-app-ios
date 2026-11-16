@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemUI
 import TangemUIUtils
@@ -14,11 +15,18 @@ import TangemUIUtils
 public struct AccountPickerList: View {
     private let sections: [AccountPickerUserWalletSection]
     private let isBalanceMasked: Bool
+    private let showsSelectionCheckmarks: Bool
     private let onTap: (AccountPickerAccountItem) -> Void
 
-    public init(sections: [AccountPickerUserWalletSection], isBalanceMasked: Bool, onTap: @escaping (AccountPickerAccountItem) -> Void) {
+    public init(
+        sections: [AccountPickerUserWalletSection],
+        isBalanceMasked: Bool,
+        showsSelectionCheckmarks: Bool,
+        onTap: @escaping (AccountPickerAccountItem) -> Void
+    ) {
         self.sections = sections
         self.isBalanceMasked = isBalanceMasked
+        self.showsSelectionCheckmarks = showsSelectionCheckmarks
         self.onTap = onTap
     }
 
@@ -31,7 +39,11 @@ public struct AccountPickerList: View {
                     }
 
                     ForEach(section.accounts) { account in
-                        AccountPickerAccountRow(item: account, isBalanceMasked: isBalanceMasked) {
+                        AccountPickerAccountRow(
+                            item: account,
+                            isBalanceMasked: isBalanceMasked,
+                            showsSelectionCheckmark: showsSelectionCheckmarks
+                        ) {
                             onTap(account)
                         }
                     }
@@ -63,22 +75,25 @@ struct AccountPickerSectionHeader: View {
 struct AccountPickerAccountRow: View {
     let item: AccountPickerAccountItem
     let isBalanceMasked: Bool
+    let showsSelectionCheckmark: Bool
     let onTap: () -> Void
 
     var body: some View {
         let row = Row(title: item.name)
-            .start { AccountPickerAvatar(icon: item.icon) }
+            .start { Avatar(.account(item.icon)) }
             .titleAccessory { titleBadge }
             .subtitleAccessory { subtitle }
             .end { end }
 
         if item.availability.isAvailable {
             row.onTap(action: onTap)
+                .accessibilityIdentifier(AccountsAccessibilityIdentifiers.walletSettingsAccountRow(accountName: item.name))
         } else {
             SwiftUI.Button(action: onTap) {
                 row.disabled(true)
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier(AccountsAccessibilityIdentifiers.walletSettingsAccountRow(accountName: item.name))
         }
     }
 
@@ -109,23 +124,8 @@ struct AccountPickerAccountRow: View {
     private var end: some View {
         if let label = item.availability.unavailableReason?.badge {
             SelectorUnavailableBadge(label: label)
-        } else {
+        } else if showsSelectionCheckmark {
             Checkmark.Label(isChecked: item.isSelected)
-        }
-    }
-}
-
-struct AccountPickerAvatar: View {
-    let icon: AccountIconView.ViewData
-
-    var body: some View {
-        switch icon {
-        case .composite(let fill, .letter(let letter, _)):
-            Avatar(.user(.initial(letter, fill: fill)))
-        case .composite(let fill, .imageType(let imageType, _)):
-            Avatar(.account(imageType, fill: fill))
-        case .standalone(let imageType):
-            Avatar(.asset(imageType.image))
         }
     }
 }
@@ -137,7 +137,7 @@ struct AccountPickerAvatar: View {
         AccountPickerAccountItem(
             id: "main",
             name: "Main account",
-            icon: .composite(backgroundColor: .blue, nameMode: .imageType(Assets.Accounts.family)),
+            icon: .icon(DesignSystem.Icons.accountFamily, fill: .blue),
             badge: nil,
             subtitle: "12 tokens •",
             balance: .loaded("$4,496.75"),
@@ -147,7 +147,7 @@ struct AccountPickerAvatar: View {
         AccountPickerAccountItem(
             id: "joint",
             name: "Family",
-            icon: .composite(backgroundColor: .orange, nameMode: .letter("F")),
+            icon: .letter("F", fill: .orange),
             badge: "Joint",
             subtitle: "3 tokens •",
             balance: .loading(cached: nil),
@@ -157,7 +157,7 @@ struct AccountPickerAvatar: View {
         AccountPickerAccountItem(
             id: "added",
             name: "Savings",
-            icon: .composite(backgroundColor: .green, nameMode: .imageType(Assets.Accounts.beach)),
+            icon: .icon(DesignSystem.Icons.accountBeach, fill: .green),
             badge: nil,
             subtitle: "1 token •",
             balance: .loaded("$12.40"),
@@ -173,6 +173,7 @@ struct AccountPickerAvatar: View {
                 AccountPickerUserWalletSection(id: "2", header: AccountPickerUserWalletSection.Header(name: "My wallet 2", thumbnail: nil), accounts: [accounts[0]]),
             ],
             isBalanceMasked: false,
+            showsSelectionCheckmarks: true,
             onTap: { _ in }
         )
         .padding(16)

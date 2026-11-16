@@ -47,7 +47,13 @@ final class CommonCryptoAccountsRepository {
         self?.updateAccountsOnServer(updateOptions: .tokens, completion: completion)
     }
 
+    private lazy var refresher = CryptoAccountsRepositoryRefresher(
+        innerRepository: self,
+        isJointAccountsAvailable: isJointAccountsAvailable
+    )
+
     private let hasTokenSynchronization: Bool
+    private let isJointAccountsAvailable: Bool
 
     /// `uncheckedState` since the collected completions are plain non-`Sendable` closures.
     private let loadState = OSAllocatedUnfairLock(uncheckedState: LoadState())
@@ -63,7 +69,8 @@ final class CommonCryptoAccountsRepository {
         auxiliaryDataStorage: CryptoAccountsAuxiliaryDataStorage,
         persistentStorage: CryptoAccountsPersistentStorage,
         storageController: CryptoAccountsPersistentStorageController,
-        hasTokenSynchronization: Bool
+        hasTokenSynchronization: Bool,
+        isJointAccountsAvailable: Bool
     ) {
         stateHolder = .init()
         storageDidUpdateSubject = .init()
@@ -75,8 +82,13 @@ final class CommonCryptoAccountsRepository {
         self.persistentStorage = persistentStorage
         self.storageController = storageController
         self.hasTokenSynchronization = hasTokenSynchronization
-        _ = loadAccountsFromServerDebouncer // Eager initialization of this lazy property to ensure that there are no race conditions
-        _ = updateTokensOnServerDebouncer // Eager initialization of this lazy property to ensure that there are no race conditions
+        self.isJointAccountsAvailable = isJointAccountsAvailable
+
+        // Eager initialization of these lazy properties to ensure that there are no race conditions
+        _ = loadAccountsFromServerDebouncer
+        _ = updateTokensOnServerDebouncer
+        _ = refresher
+
         storageController.bind(to: storageDidUpdateSubject)
     }
 
@@ -348,11 +360,12 @@ final class CommonCryptoAccountsRepository {
     private func addNewOrUpdateExistingAccountInternal(
         withConfig config: CryptoAccountPersistentConfig,
         remoteState: CryptoAccountsRemoteState,
+        placement: StoredCryptoAccountsMerger.NewAccountsPlacement
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
         let tokenListAppearance = cryptoAccountTokenListAppearance(withConfig: config, remoteState: remoteState)
         let newCryptoAccount = StoredCryptoAccount(config: config, tokenListAppearance: tokenListAppearance)
         let existingCryptoAccounts = remoteState.accounts
-        let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: true)
+        let merger = StoredCryptoAccountsMerger(preserveTokensWhileMergingAccounts: true, newAccountsPlacement: placement)
         let (editedItems, isDirty) = merger.merge(oldAccounts: existingCryptoAccounts, newAccounts: [newCryptoAccount])
 
         if isDirty {
@@ -468,6 +481,10 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
             .eraseToAnyPublisher()
     }
 
+    var cryptoAccounts: [StoredCryptoAccount] {
+        persistentStorage.getList()
+    }
+
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> {
         storageDidUpdatePublisher
             .eraseToAnyPublisher()
@@ -546,9 +563,10 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
 
     func addNewCryptoAccount(
         withConfig config: CryptoAccountPersistentConfig,
-        remoteState: CryptoAccountsRemoteState
+        remoteState: CryptoAccountsRemoteState,
+        placement: StoredCryptoAccountsMerger.NewAccountsPlacement
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult {
-        return try await addNewOrUpdateExistingAccountInternal(withConfig: config, remoteState: remoteState)
+        return try await addNewOrUpdateExistingAccountInternal(withConfig: config, remoteState: remoteState, placement: placement)
     }
 
     func updateExistingCryptoAccount(
@@ -556,7 +574,7 @@ extension CommonCryptoAccountsRepository: CryptoAccountsRepository {
         remoteState: CryptoAccountsRemoteState
     ) async throws {
         // Ignoring the result, as tokens redistribution can't be performed when editing an existing account
-        let _ = try await addNewOrUpdateExistingAccountInternal(withConfig: config, remoteState: remoteState)
+        let _ = try await addNewOrUpdateExistingAccountInternal(withConfig: config, remoteState: remoteState, placement: .last)
     }
 
     func removeCryptoAccount(withIdentifier identifier: some Hashable) async throws {
@@ -763,6 +781,85 @@ private extension CommonCryptoAccountsRepository {
     enum Constants {
         static let maxRetryCount = 3
         static let debounceInterval = 0.3
+    }
+}
+
+// MARK: - Refresher
+
+extension CommonCryptoAccountsRepository {
+    final class CryptoAccountsRepositoryRefresher {
+        @Injected(\.silentPushNotificationsPublisher)
+        private var silentPushNotificationsPublisher: SilentPushNotificationsPublishing
+
+        private weak var innerRepository: CommonCryptoAccountsRepository?
+        private let appStateObserver: AppStateObserving
+        private var silentPushSubscription: AnyCancellable?
+
+        private var hasJointAccounts: Bool {
+            innerRepository?.persistentStorage.getList().contains { $0.derivationIdentity.type == .joint } == true
+        }
+
+        init(
+            innerRepository: CommonCryptoAccountsRepository,
+            isJointAccountsAvailable: Bool,
+            appStateObserver: AppStateObserving = AppStateObserver()
+        ) {
+            self.innerRepository = innerRepository
+            self.appStateObserver = appStateObserver
+
+            if isJointAccountsAvailable {
+                bind()
+            }
+        }
+
+        private func bind() {
+            silentPushSubscription = silentPushNotificationsPublisher
+                .silentPushPublisher
+                .compactMap { JointAccountTokensPushPayload(userInfo: $0.raw) }
+                .withWeakCaptureOf(self)
+                .sink { refresher, payload in
+                    refresher.handle(payload: payload)
+                }
+
+            appStateObserver.start { [weak self] isInBackground in
+                guard !isInBackground else {
+                    return
+                }
+
+                self?.handleReturnToForeground()
+            }
+        }
+
+        private func handle(payload: JointAccountTokensPushPayload) {
+            guard innerRepository?.userWalletInfoProvider?.userWalletInfo.id.stringValue == payload.userWalletId else {
+                return
+            }
+
+            AccountsLogger.info("CryptoAccountsRepositoryRefresher reloads the accounts on a joint tokens push for account \(payload.accountId.masked())")
+
+            runTask { [weak self] in
+                await self?.reload()
+            }
+        }
+
+        private func handleReturnToForeground() {
+            runTask(isDetached: true) { [weak self] in
+                guard let self, hasJointAccounts else {
+                    return
+                }
+
+                AccountsLogger.info("CryptoAccountsRepositoryRefresher reloads the accounts on return to foreground: the wallet holds a joint account")
+                await reload()
+            }
+        }
+
+        private func reload() async {
+            do {
+                try await innerRepository?.loadCryptoAccountsFromRemote()
+            } catch {
+                AccountsLogger.error("CryptoAccountsRepositoryRefresher failed to reload the accounts", error: error)
+            }
+        }
     }
 }
 

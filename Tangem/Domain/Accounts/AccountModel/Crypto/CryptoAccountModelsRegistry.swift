@@ -98,7 +98,7 @@ actor CryptoAccountModelsRegistry {
                     userTokensManager: dependencies.userTokensManager,
                     accountBalanceProvider: balanceProvidingDependencies.balanceProvider,
                     accountRateProvider: balanceProvidingDependencies.ratesProvider,
-                    derivationManager: dependencies.derivationManager,
+                    pendingDerivationProvider: dependencies.pendingDerivationProvider,
                     delegate: delegate
                 )
 

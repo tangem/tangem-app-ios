@@ -22,8 +22,8 @@ struct JointAccountOperation: Hashable, Identifiable, Codable {
     let initiator: String
     /// Only the members who have answered — the rest are the account's members not listed here.
     let signatures: [Signature]
-    let createdAt: Date?
-    let threshold: Int?
+    let createdAt: Date
+    let threshold: Int
 }
 
 extension JointAccountOperation {
@@ -57,7 +57,15 @@ extension JointAccountOperation {
 
         let address: String
         let state: State
+        let signature: String?
         /// Kept as the endpoint sends it; whoever shows it decides how to read the date.
         let at: String
+
+        init(address: String, state: State, signature: String? = nil, at: String) {
+            self.address = address
+            self.state = state
+            self.signature = signature
+            self.at = at
+        }
     }
 }

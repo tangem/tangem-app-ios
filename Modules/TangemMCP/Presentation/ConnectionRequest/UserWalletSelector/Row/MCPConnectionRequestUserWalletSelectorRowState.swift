@@ -27,7 +27,7 @@ struct MCPConnectionRequestUserWalletSelectorRowState: Equatable {
 
         subtitle = userWallet.isLocked ? .locked : .loading
         image = userWallet.isMobileWallet
-            ? .mobileWallet(DesignSystem.Icons.Cloud.filled32)
+            ? .mobileWallet
             : .loading
 
         isDisabled = userWallet.isLocked
@@ -56,7 +56,7 @@ extension MCPConnectionRequestUserWalletSelectorRowState {
     enum ImageState: Equatable {
         case loading
         case content(UIImage)
-        case mobileWallet(ImageType)
+        case mobileWallet
     }
 }
 

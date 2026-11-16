@@ -57,6 +57,7 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: jointAccountsRepository,
+            cryptoAccountsRepository: cryptoAccountsRepository,
             userRoleService: userRoleService
         )
 
@@ -110,16 +111,14 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             derivationPathBuilder: derivationPathBuilder
         )
 
-        // A single instance per unique account, account-specific proxy for `derivationManager`
-        let accountSpecificDerivationManager = derivationManager.map { innerDerivationManager in
-            return AccountDerivationManager(
-                keysRepository: keysRepository,
-                userTokensManager: userTokensManager,
-                innerDerivationManager: innerDerivationManager
-            )
-        }
+        let pendingDerivationProvider = JointAccountPendingDerivationProvider(
+            derivationIndex: derivationIdentity.derivationIndex,
+            userTokensManager: userTokensManager,
+            keysRepository: keysRepository,
+            isDerivationSupported: derivationManager != nil
+        )
 
-        userTokensManager.derivationManager = accountSpecificDerivationManager
+        userTokensManager.derivationManager = derivationManager
         userTokensManager.walletModelsManager = walletModelsManager
 
         let membersService = CommonJointAccountMembersService(
@@ -134,7 +133,8 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
             derivationIdentity: derivationIdentity,
             pendingOperationsRepository: jointAccountPendingOperationsRepository,
             walletModelsManager: walletModelsManager,
-            membersService: membersService
+            membersService: membersService,
+            statusProvider: statusProvider
         )
 
         let finishedOperationsWalletUpdater = JointAccountFinishedOperationsWalletUpdater(
@@ -145,14 +145,15 @@ extension CommonJointAccountDependenciesFactory: JointAccountDependenciesFactory
 
         let operationsService = CommonJointAccountOperationsService(
             pendingOperationsRepository: jointAccountPendingOperationsRepository,
-            signerFactory: signerFactory
+            signerFactory: signerFactory,
+            walletModelsManager: walletModelsManager
         )
 
         return JointAccountDependencies(
             userTokensManager: userTokensManager,
             walletModelsManager: walletModelsManager,
             walletModelsFactoryInput: wrappedWalletModelsFactory,
-            derivationManager: accountSpecificDerivationManager,
+            pendingDerivationProvider: pendingDerivationProvider,
             operationsService: operationsService,
             pendingOperationsProvider: pendingOperationsProvider,
             finishedOperationsWalletUpdater: finishedOperationsWalletUpdater,

@@ -55,7 +55,8 @@ private extension CryptoAccountsRepositoryLoadTests {
             auxiliaryDataStorage: AuxiliaryDataStorageStub(),
             persistentStorage: PersistentStorageStub(),
             storageController: PersistentStorageControllerStub(),
-            hasTokenSynchronization: true
+            hasTokenSynchronization: true,
+            isJointAccountsAvailable: false
         )
 
         return UserTokensRepositoryAdapter(innerRepository: repository, derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 0, type: .crypto))

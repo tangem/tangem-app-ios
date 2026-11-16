@@ -19,10 +19,6 @@ final class TransactionHistoryRecordsWriterStub: TransactionHistoryRecordsWriter
         state.withLock { $0.savedOperationIds }
     }
 
-    var writtenResolvers: [any TransactionHistoryRecordsWriteResolver] {
-        state.withLock { $0.writtenResolvers }
-    }
-
     init(isFailing: Bool) {
         self.isFailing = isFailing
     }
@@ -38,10 +34,6 @@ final class TransactionHistoryRecordsWriterStub: TransactionHistoryRecordsWriter
 
         state.withLock { $0.savedOperationIds.append(items.map(\.operation.id)) }
     }
-
-    func write(_ resolver: some TransactionHistoryRecordsWriteResolver) async throws {
-        state.withLock { $0.writtenResolvers.append(resolver) }
-    }
 }
 
 // MARK: - Auxiliary types
@@ -49,6 +41,5 @@ final class TransactionHistoryRecordsWriterStub: TransactionHistoryRecordsWriter
 private extension TransactionHistoryRecordsWriterStub {
     struct State {
         var savedOperationIds: [[String]] = []
-        var writtenResolvers: [any TransactionHistoryRecordsWriteResolver] = []
     }
 }

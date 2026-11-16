@@ -18,10 +18,14 @@ public struct PolymarketPositionsSkeletonView: View {
     }
 
     public var body: some View {
-        VStack(spacing: Constants.rowSpacing) {
-            ForEach(0 ..< rowCount, id: \.self) { _ in
-                PolymarketPositionRowSkeleton()
+        if rowCount > 0 {
+            VStack(spacing: Constants.rowSpacing) {
+                ForEach(0 ..< rowCount, id: \.self) { _ in
+                    PolymarketPositionRowSkeleton()
+                }
             }
+        } else {
+            PolymarketNoActivePositionsSkeleton()
         }
     }
 }

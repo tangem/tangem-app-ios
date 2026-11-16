@@ -35,6 +35,7 @@ struct WebView: UIViewRepresentable {
     var messageHandlers: [String: (Any) -> Void] = [:]
     /// Called with the created `WKWebView` so the caller can keep a reference (evaluate JS / reload).
     var onMakeWebView: ((WKWebView) -> Void)?
+    var restrictedLoading: RestrictedLoading?
 
     func makeUIView(context: Context) -> WKWebView {
         let preferences = WKPreferences()
@@ -96,6 +97,9 @@ struct WebView: UIViewRepresentable {
         let allowsJavaScript: Bool
         let validatesCertificateTransparency: Bool
         let messageHandlers: [String: (Any) -> Void]
+        let restrictedLoading: RestrictedLoading?
+
+        private var initialLoad: InitialLoad = .loading
 
         init(
             urlActions: [String: (String) -> Void] = [:],
@@ -104,7 +108,8 @@ struct WebView: UIViewRepresentable {
             fallbackURL: URL?,
             allowsJavaScript: Bool,
             validatesCertificateTransparency: Bool,
-            messageHandlers: [String: (Any) -> Void]
+            messageHandlers: [String: (Any) -> Void],
+            restrictedLoading: RestrictedLoading? = nil
         ) {
             self.urlActions = urlActions
             self.popupUrl = popupUrl
@@ -113,6 +118,7 @@ struct WebView: UIViewRepresentable {
             self.allowsJavaScript = allowsJavaScript
             self.validatesCertificateTransparency = validatesCertificateTransparency
             self.messageHandlers = messageHandlers
+            self.restrictedLoading = restrictedLoading
         }
 
         func webView(
@@ -134,11 +140,25 @@ struct WebView: UIViewRepresentable {
                 return
             }
 
+            let isLinkOfOurs = requestURL.absoluteString.lowercased().starts(with: IncomingActionConstants.appScheme)
+
+            if let restrictedLoading, navigationAction.targetFrame?.isMainFrame ?? true, !restrictedLoading.isAllowed(requestURL) {
+                refuse(requestURL)
+                decisionHandler(.cancel, preferences)
+                return
+            }
+
+            if restrictedLoading != nil, isLinkOfOurs {
+                AppLogger.info("A link of ours from a restricted page is cancelled: \(requestURL.host ?? "")")
+                decisionHandler(.cancel, preferences)
+                return
+            }
+
             AppLogger.info("Start to find decide for url \(String(describing: requestURL.absoluteString))")
 
             // A link of ours goes to the deeplink system, which validates and parses it like every other
             // incoming link.
-            if requestURL.absoluteString.lowercased().starts(with: IncomingActionConstants.appScheme),
+            if isLinkOfOurs,
                incomingActionHandler.handleIncomingURL(requestURL) {
                 decisionHandler(.cancel, preferences)
                 return
@@ -176,20 +196,62 @@ struct WebView: UIViewRepresentable {
             completionHandler(disposition, credential)
         }
 
+        func webView(
+            _ webView: WKWebView,
+            decidePolicyFor navigationResponse: WKNavigationResponse,
+            decisionHandler: @escaping @MainActor (WKNavigationResponsePolicy) -> Void
+        ) {
+            guard let restrictedLoading, navigationResponse.isForMainFrame else {
+                decisionHandler(.allow)
+                return
+            }
+
+            if let responseURL = navigationResponse.response.url, !restrictedLoading.isAllowed(responseURL) {
+                refuse(responseURL)
+                decisionHandler(.cancel)
+                return
+            }
+
+            if initialLoad == .loading,
+               let statusCode = (navigationResponse.response as? HTTPURLResponse)?.statusCode,
+               statusCode >= Constants.firstHTTPErrorStatusCode {
+                failInitialLoad()
+                decisionHandler(.cancel)
+                return
+            }
+
+            decisionHandler(.allow)
+        }
+
         func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
             isLoading?.wrappedValue = false
+
+            guard let restrictedLoading, initialLoad == .loading else {
+                return
+            }
+
+            initialLoad = .shown
+            restrictedLoading.onFirstContent()
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
             isLoading?.wrappedValue = false
+            failInitialLoad(after: error)
         }
 
         func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+            if restrictedLoading != nil, popupUrl == nil {
+                webView.load(navigationAction.request)
+                return nil
+            }
+
             popupUrl?.wrappedValue = navigationAction.request.url
             return nil
         }
 
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: any Error) {
+            failInitialLoad(after: error)
+
             guard let fallbackURL, let htmlString = try? String(contentsOf: fallbackURL, encoding: .utf8) else {
                 return
             }
@@ -204,6 +266,30 @@ struct WebView: UIViewRepresentable {
         ) {
             messageHandlers[message.name]?(message.body)
         }
+
+        private func refuse(_ url: URL) {
+            AppLogger.info("Navigation to a page that isn't allowed is cancelled: \(url.host ?? "")")
+            failInitialLoad()
+        }
+
+        private func failInitialLoad(after error: any Error) {
+            let error = error as NSError
+
+            guard error.domain != NSURLErrorDomain || error.code != NSURLErrorCancelled else {
+                return
+            }
+
+            failInitialLoad()
+        }
+
+        private func failInitialLoad() {
+            guard let restrictedLoading, initialLoad == .loading else {
+                return
+            }
+
+            initialLoad = .failed
+            restrictedLoading.onInitialLoadFailure()
+        }
     }
 
     func makeCoordinator() -> Coordinator {
@@ -214,8 +300,27 @@ struct WebView: UIViewRepresentable {
             fallbackURL: timeoutSettings?.fallbackURL,
             allowsJavaScript: allowsJavaScript,
             validatesCertificateTransparency: validatesCertificateTransparency,
-            messageHandlers: messageHandlers
+            messageHandlers: messageHandlers,
+            restrictedLoading: restrictedLoading
         )
+    }
+}
+
+// MARK: - RestrictedLoading
+
+extension WebView {
+    struct RestrictedLoading {
+        let isAllowed: @MainActor (URL) -> Bool
+        let onFirstContent: @MainActor () -> Void
+        let onInitialLoadFailure: @MainActor () -> Void
+    }
+}
+
+private extension WebView.Coordinator {
+    enum InitialLoad {
+        case loading
+        case shown
+        case failed
     }
 }
 
@@ -223,5 +328,6 @@ private extension WebView {
     enum Constants {
         static let defaultWebViewTimeoutInterval: TimeInterval = 60
         static let fileURLScheme: String = "file"
+        static let firstHTTPErrorStatusCode = 400
     }
 }

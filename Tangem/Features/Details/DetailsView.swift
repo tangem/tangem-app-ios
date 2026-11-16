@@ -49,8 +49,6 @@ struct DetailsView: View {
             switch type {
             case .connections(let viewModel):
                 ConnectionsRowView(viewModel: viewModel)
-            case .walletConnect(let viewModel):
-                WalletConnectRedesignedRowView(viewModel: viewModel)
             case .addressBook(let viewModel):
                 AddressBookRowView(viewModel: viewModel)
             }

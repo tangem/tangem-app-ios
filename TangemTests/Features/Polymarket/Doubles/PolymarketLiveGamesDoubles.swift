@@ -13,7 +13,7 @@ import TangemFoundation
 
 final class PolymarketLiveGamesSourceSpy: Sendable {
     let statuses = PolymarketLiveStreamSpy<PolymarketWebSocketConnectionStatus>()
-    let requests = PolymarketTestSignal<PolymarketLiveStreamSpy<PolymarketLiveGame>>()
+    let requests = TestSignal<PolymarketLiveStreamSpy<PolymarketLiveGame>>()
 
     private let state = OSAllocatedUnfairLock(initialState: [PolymarketLiveStreamSpy<PolymarketLiveGame>]())
 

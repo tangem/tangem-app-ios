@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import BlockchainSdk
 import TangemFoundation
@@ -27,8 +28,10 @@ final class LendingPositionViewModel: ObservableObject {
     private weak var router: LendingPositionRoutable?
 
     private var position: Decimal?
+    private var availableToWithdraw: Decimal?
     private(set) var positionTask: Task<Void, Never>?
     private(set) var chartTask: Task<Void, Never>?
+    private var bag = Set<AnyCancellable>()
 
     init(
         tokenItem: TokenItem,
@@ -39,6 +42,7 @@ final class LendingPositionViewModel: ObservableObject {
         liquidityProvider: YieldModuleLendingLiquidityProvider,
         apyHistoryProvider: LendingApyHistoryProvider,
         fiatConverter: @escaping (Decimal) async -> Decimal?,
+        pendingTransactions: AnyPublisher<[PendingTransactionRecord], Never> = .just(output: []),
         router: LendingPositionRoutable?
     ) {
         self.tokenItem = tokenItem
@@ -66,14 +70,37 @@ final class LendingPositionViewModel: ObservableObject {
             projector: CompoundingEarnCalculatorProjector(apy: currentApy ?? 0, performanceFee: performanceFee),
             currencyCode: currencyCode
         )
+
+        pendingTransactions
+            .map(\.isEmpty)
+            .removeDuplicates()
+            .dropFirst()
+            .filter { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.reloadPosition()
+            }
+            .store(in: &bag)
     }
 
     func onAppear() {
-        loadPosition()
+        reloadPosition()
 
         if chartTask == nil {
             loadChart()
         }
+    }
+
+    func reloadPosition() {
+        loadPosition()
+    }
+
+    func setAddFundsLoading(_ isLoading: Bool) {
+        state.isAddFundsLoading = isLoading
+    }
+
+    func setWithdrawLoading(_ isLoading: Bool) {
+        state.isWithdrawLoading = isLoading
     }
 
     func handle(_ action: Action) {
@@ -83,9 +110,10 @@ final class LendingPositionViewModel: ObservableObject {
             state.period = period
             loadChart()
         case .withdraw:
-            guard state.canWithdraw, let position else { return }
-            router?.openWithdraw(position: position)
+            guard state.canWithdraw, !state.isRouteLoading, let position else { return }
+            router?.openWithdraw(position: position, available: availableToWithdraw)
         case .addFunds:
+            guard !state.isRouteLoading else { return }
             router?.openAddFunds()
         case .howItWorks:
             router?.openHowItWorks()
@@ -127,11 +155,13 @@ private extension LendingPositionViewModel {
                 let position = try await liquidityProvider.nativePosition()
                 async let available = liquidityProvider.availableToWithdraw(nativePosition: position)
                 let fiat = await fiatConverter(position)
-                let availableValue = (try? await available) ?? position
+                let readAvailable = try? await available
+                let availableValue = readAvailable ?? position
                 let formatter = BalanceFormatter()
                 guard !Task.isCancelled else { return }
 
                 self?.position = position
+                self?.availableToWithdraw = readAvailable
                 self?.state.balance = StateModel.Balance(
                     fiat: formatter.formatFiatBalance(fiat, currencyCode: currencyCode),
                     crypto: formatter.formatCryptoBalance(position, currencyCode: tokenItem.currencySymbol)
@@ -143,6 +173,7 @@ private extension LendingPositionViewModel {
                 AppLogger.error(error: error)
                 let empty = BalanceFormatter.defaultEmptyBalanceString
                 self?.position = nil
+                self?.availableToWithdraw = nil
                 self?.state.balance = StateModel.Balance(fiat: empty, crypto: empty)
                 self?.state.availableBalance = empty
                 self?.state.canWithdraw = false

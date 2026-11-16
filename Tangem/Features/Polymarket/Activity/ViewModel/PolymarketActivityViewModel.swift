@@ -297,7 +297,7 @@ private extension PolymarketActivityViewModel {
     }
 
     func presentExportFailureToast() {
-        Toast(view: WarningToast(text: Localization.commonSomethingWentWrong))
+        LegacyToast(view: WarningToast(text: Localization.commonSomethingWentWrong))
             .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 

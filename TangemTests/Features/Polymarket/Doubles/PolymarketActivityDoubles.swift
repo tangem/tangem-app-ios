@@ -22,7 +22,7 @@ final class PolymarketLaunchDepositsReconcilerStub: PolymarketLaunchDepositsReco
 final class PolymarketActivityServiceStub: PolymarketActivityService {
     var pages: [String?: Result<PolymarketActivityPage, Error>] = [:]
     var firstPageGate: PolymarketTestGate?
-    let reconciled = PolymarketTestSignal<Void>()
+    let reconciled = TestSignal<Void>()
     private(set) var requestedCursors: [String?] = []
 
     @MainActor

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TangemAccessibilityIdentifiers
 import TangemAssets
 import TangemLocalization
 import TangemUI
@@ -15,6 +16,8 @@ struct PolymarketOverflowMenu: View {
     let onHistory: () -> Void
     let onHowItWorks: () -> Void
     let onSupportChat: () -> Void
+    let isSettingsVisible: Bool
+    let onSettings: () -> Void
 
     var body: some View {
         Menu {
@@ -38,10 +41,20 @@ struct PolymarketOverflowMenu: View {
                     icon: { DesignSystem.Icons.HeadphonesSupport.regular20.image.renderingMode(.template) }
                 )
             }
+
+            if isSettingsVisible {
+                SwiftUI.Button(action: onSettings) {
+                    Label(
+                        title: { Text(PolymarketFastTradingStrings.settingsTitle) },
+                        icon: { DesignSystem.Icons.Gear.regular20.image.renderingMode(.template) }
+                    )
+                }
+            }
         } label: {
             NavigationBarButton.details {}
                 .allowsHitTesting(false)
         }
+        .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.overflowMenuButton)
     }
 }
 

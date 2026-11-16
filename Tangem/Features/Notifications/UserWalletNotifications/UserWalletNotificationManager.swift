@@ -508,7 +508,8 @@ final class UserWalletNotificationManager {
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.createNotifications))
             .store(in: &bag)
 
-        makePendingDerivationsCountPublisher()?
+        userWalletModel.derivationManager?
+            .pendingDerivationsCount
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink(receiveValue: weakify(self, forFunction: UserWalletNotificationManager.addMissingDerivationWarningIfNeeded(pendingDerivationsCount:)))
@@ -589,27 +590,6 @@ final class UserWalletNotificationManager {
 
     private func recordDeprecationNotificationDismissal() {
         deprecationService.didDismissSystemDeprecationWarning()
-    }
-
-    private func makePendingDerivationsCountPublisher() -> AnyPublisher<Int, Never>? {
-        // receive(on:) must stay BEFORE each combineLatest — moving it downstream
-        // re-races AbstractCombineLatest with deinit cancel cascade. See [REDACTED_INFO].
-        let collectiblesPendingDerivationsCountPublisher = userWalletModel.accountModelsManager
-            .collectiblesPendingDerivationNetworksPublisher
-            .map(\.count)
-
-        return AccountModelsAggregator(.crypto, .joint)
-            .modelsPublisher(from: userWalletModel.accountModelsManager)
-            .map { $0.compactMap(\.userTokensManager.derivationManager) }
-            .flatMapLatest { derivationManagers in
-                return derivationManagers
-                    .map { $0.pendingDerivationsCount.receive(on: DispatchQueue.main).eraseToAnyPublisher() }
-                    .combineLatest()
-                    .map { $0.reduce(0, +) }
-            }
-            .combineLatest(collectiblesPendingDerivationsCountPublisher)
-            .map { $0 + $1 }
-            .eraseToAnyPublisher()
     }
 
     private func makePushPermissionNotificationsManager() -> PushPermissionNotificationManager {

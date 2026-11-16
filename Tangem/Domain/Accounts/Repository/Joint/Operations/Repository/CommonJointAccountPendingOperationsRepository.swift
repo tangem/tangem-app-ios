@@ -37,16 +37,16 @@ final class CommonJointAccountPendingOperationsRepository {
 // MARK: - JointAccountPendingOperationsRepository protocol conformance
 
 extension CommonJointAccountPendingOperationsRepository: JointAccountPendingOperationsRepository {
-    var operations: [StoredJointAccountPendingOperations] {
-        synchronizer.operations
+    var pendingOperations: [JointAccountOperations] {
+        synchronizer.pendingOperations
     }
 
-    var operationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
-        synchronizer.operationsPublisher
+    var pendingOperationsPublisher: AnyPublisher<[JointAccountOperations], Never> {
+        synchronizer.pendingOperationsPublisher
     }
 
-    func operationPublisher(id: String, in cryptoAccountId: String) -> AnyPublisher<JointAccountOperation, Never> {
-        synchronizer.operationPublisher(id: id, in: cryptoAccountId)
+    func operationPublisher(id: String) -> AnyPublisher<JointAccountOperation?, Never> {
+        synchronizer.operationPublisher(id: id)
     }
 
     func requestFrequentUpdates(operationId: String) -> AnyCancellable? {
@@ -69,7 +69,7 @@ extension CommonJointAccountPendingOperationsRepository: JointAccountPendingOper
         }
 
         try await synchronizer.apply(.operationAdded(item.operation, cryptoAccountId: cryptoAccountId))
-        updatePollers(for: synchronizer.operations)
+        updatePollers(for: synchronizer.pendingOperations)
 
         return item.operation
     }
@@ -145,14 +145,14 @@ extension CommonJointAccountPendingOperationsRepository: JointAccountPendingOper
 private extension CommonJointAccountPendingOperationsRepository {
     func bind() {
         pendingOperationsSubscription = synchronizer
-            .operationsPublisher
+            .pendingOperationsPublisher
             .withWeakCaptureOf(self)
             .sink { repository, records in
                 repository.updatePollers(for: records)
             }
     }
 
-    func updatePollers(for records: [StoredJointAccountPendingOperations]) {
+    func updatePollers(for records: [JointAccountOperations]) {
         let inFlightRecords = inFlightRecords(in: records)
         let inFlightOperationIds = Set(inFlightRecords.flatMap { $0.operations.map(\.id) })
 
@@ -171,16 +171,16 @@ private extension CommonJointAccountPendingOperationsRepository {
         }
     }
 
-    func inFlightRecords(in records: [StoredJointAccountPendingOperations]) -> [StoredJointAccountPendingOperations] {
+    func inFlightRecords(in records: [JointAccountOperations]) -> [JointAccountOperations] {
         records.compactMap { record in
             let operations = record.operations.filter(\.status.isInFlight)
 
-            return operations.isEmpty ? nil : StoredJointAccountPendingOperations(cryptoAccountId: record.cryptoAccountId, operations: operations)
+            return operations.isEmpty ? nil : JointAccountOperations(cryptoAccountId: record.cryptoAccountId, operations: operations)
         }
     }
 
     func isInFlight(operationWithId operationId: String, in cryptoAccountId: String) -> Bool {
-        let operations = synchronizer.operations.first(by: cryptoAccountId)?.operations
+        let operations = synchronizer.pendingOperations.first(by: cryptoAccountId)?.operations
         return operations?.first { $0.id == operationId }?.status.isInFlight == true
     }
 }

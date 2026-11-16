@@ -55,7 +55,7 @@ private extension ForYouView {
 
     var navigationBar: some View {
         NavigationHeader(
-            leadingContent: NavigationBarButton.back(action: onBackButtonAction).redesigned,
+            leadingContent: { NavigationBarButton.back(action: onBackButtonAction) },
             principalContent: {
                 Text(Localization.forYouTitle)
                     .style(Fonts.Bold.body, color: DesignSystem.Color.textPrimary)

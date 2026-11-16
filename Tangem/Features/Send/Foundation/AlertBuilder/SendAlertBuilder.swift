@@ -14,6 +14,7 @@ import struct TangemUIUtils.AlertBinder
 
 protocol SendAlertBuilder {
     func makeTransactionFailedAlert(sendTxError: SendTxError, openMailAction: @escaping () -> Void) -> AlertBinder
+    func makeExchangeDataFailedAlert(message: String, openMailAction: @escaping () -> Void) -> AlertBinder
     func makeDismissAlert(dismissAction: @escaping () -> Void) -> AlertBinder
     func makeFeeRetryAlert(retryAction: @escaping () -> Void) -> AlertBinder
     func makeCancelConvertingFlowAlert(action: @escaping () -> Void, cancel: @escaping () -> Void) -> AlertBinder
@@ -30,6 +31,15 @@ extension SendAlertBuilder {
             message: Localization.sendAlertTransactionFailedText(reason, sendTxError.errorCode),
             primaryButton: .default(Text(Localization.alertButtonRequestSupport), action: openMailAction),
             secondaryButton: .default(Text(Localization.commonCancel))
+        )
+    }
+
+    func makeExchangeDataFailedAlert(message: String, openMailAction: @escaping () -> Void) -> AlertBinder {
+        AlertBuilder.makeAlert(
+            title: Localization.commonError,
+            message: message,
+            primaryButton: .default(Text(Localization.commonSupport), action: openMailAction),
+            secondaryButton: .cancel(Text(Localization.commonCancel))
         )
     }
 

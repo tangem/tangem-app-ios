@@ -30,7 +30,7 @@ struct SendDestinationView: View {
                         .accessibilityIdentifier(SendAccessibilityIdentifiers.addressResolvedAddress)
                 }
             } footer: {
-                DefaultFooterView(Localization.sendRecipientAddressFooter(viewModel.networkName))
+                DefaultFooterView(Localization.sendRecipientAddressFooter(viewModel.networkName.droppingNetworkSuffix))
                     .accessibilityIdentifier(SendAccessibilityIdentifiers.addressNetworkWarning)
             }
             .interItemSpacing(12)

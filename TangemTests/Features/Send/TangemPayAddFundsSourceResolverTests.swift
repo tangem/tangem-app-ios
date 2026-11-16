@@ -29,8 +29,8 @@ struct TangemPayAddFundsSourceResolverTests {
 
     @Test("A currency-matched token stays the transfer source even when Express can't swap it")
     func preferredTokenWinsWithoutSwapAvailability() async {
-        let preferred = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 50)
-        let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 500)
+        let preferred = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 50)
+        let swapFallback = makeWalletModel(tokenItem: ethereum, fiatBalance: 500)
 
         let chosen = await chooseSource(
             from: [preferred, swapFallback],
@@ -45,8 +45,8 @@ struct TangemPayAddFundsSourceResolverTests {
     func preferredWithoutQuoteStaysTransfer() async {
         // The transfer gate already guarantees a positive crypto balance —
         // a missing quote only hides it from the fiat comparison.
-        let preferred = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 0)
-        let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 500)
+        let preferred = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 0)
+        let swapFallback = makeWalletModel(tokenItem: ethereum, fiatBalance: 500)
 
         let chosen = await chooseSource(
             from: [preferred, swapFallback],
@@ -59,9 +59,8 @@ struct TangemPayAddFundsSourceResolverTests {
 
     @Test("A preferred token the app can't transfer is skipped for the swap fallback")
     func transferUnavailablePreferredSkipped() async {
-        let preferred = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 50)
-        preferred.sendingRestrictionsMock = .blockchainUnreachable
-        let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 5)
+        let preferred = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 50, availableBalance: .failure(nil))
+        let swapFallback = makeWalletModel(tokenItem: ethereum, fiatBalance: 5)
 
         let chosen = await chooseSource(
             from: [preferred, swapFallback],
@@ -73,9 +72,8 @@ struct TangemPayAddFundsSourceResolverTests {
 
     @Test("Without a currency match the richest swap-available token wins; swap-unavailable ones never do")
     func fallbackRequiresSwapAvailability() async {
-        let swapAvailable = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 100)
-        let swapUnavailable = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 999)
-        swapUnavailable.sendingRestrictionsMock = .blockchainUnreachable
+        let swapAvailable = makeWalletModel(tokenItem: ethereum, fiatBalance: 100)
+        let swapUnavailable = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 999, availableBalance: .failure(nil))
 
         let chosen = await chooseSource(
             from: [swapAvailable, swapUnavailable],
@@ -87,9 +85,8 @@ struct TangemPayAddFundsSourceResolverTests {
 
     @Test("With no positive fiat anywhere the first swap-available token still becomes the source")
     func nothingFundedFallsBackToFirstSwapAvailable() async {
-        let unavailable = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 0)
-        unavailable.sendingRestrictionsMock = .blockchainUnreachable
-        let available = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 0)
+        let unavailable = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 0, availableBalance: .failure(nil))
+        let available = makeWalletModel(tokenItem: ethereum, fiatBalance: 0)
 
         let chosen = await chooseSource(
             from: [unavailable, available],
@@ -101,8 +98,7 @@ struct TangemPayAddFundsSourceResolverTests {
 
     @Test("Without a single swap-available token the source stays unresolved")
     func noSwapAvailableTokensResolveToNil() async {
-        let unavailable = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 999)
-        unavailable.sendingRestrictionsMock = .blockchainUnreachable
+        let unavailable = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 999, availableBalance: .failure(nil))
 
         let chosen = await chooseSource(
             from: [unavailable],
@@ -114,8 +110,8 @@ struct TangemPayAddFundsSourceResolverTests {
 
     @Test("A custom token in the Pay currency is never the transfer source, so the swap fallback is picked")
     func customTokenIsNotTransferSource() async {
-        let custom = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 500, isCustom: true)
-        let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 5)
+        let custom = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 500, isCustom: true)
+        let swapFallback = makeWalletModel(tokenItem: ethereum, fiatBalance: 5)
 
         let chosen = await chooseSource(
             from: [custom, swapFallback],
@@ -180,9 +176,11 @@ private extension TangemPayAddFundsSourceResolverTests {
     func makeWalletModel(
         tokenItem: TokenItem,
         fiatBalance: Decimal,
-        accountType: AccountType = .crypto
+        accountType: AccountType = .crypto,
+        isCustom: Bool = false,
+        availableBalance: TokenBalanceType = .loaded(1)
     ) -> WalletModelTestsMock {
-        WalletModelTestsMock(
+        let walletModel = WalletModelTestsMock(
             tokenItem: tokenItem,
             isEmpty: false,
             fiatBalance: fiatBalance,
@@ -190,8 +188,12 @@ private extension TangemPayAddFundsSourceResolverTests {
                 isMainAccount: false,
                 accountType: accountType,
                 onArchive: { _ in }
-            )
+            ),
+            isCustom: isCustom
         )
+        walletModel.availableBalanceProviderMock = TokenBalanceProviderTestsMock(balanceType: availableBalance)
+
+        return walletModel
     }
 
     func makeUserWalletInfo() -> UserWalletInfo {

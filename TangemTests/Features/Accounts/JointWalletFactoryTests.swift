@@ -45,7 +45,7 @@ struct JointWalletFactoryTests {
 
     @Test("A key arriving for an account whose members exclude this wallet builds no wallet, read the moment the key arrives")
     func lateKeyOutsideTheMembersBuildsNoWallet() throws {
-        let outcome = try Self.walletBuiltWhenTheKeyArrives(memberAddress: JointAccountCompositionFixture.strangerAddress)
+        let outcome = try Self.walletBuiltWhenTheKeyArrives(jointAccount: Self.strangersAccount)
 
         let error = #expect(throws: AnyWalletFactoryError.self) { try outcome.get() }
         guard case .accountAddressUnavailable? = error else {
@@ -56,9 +56,12 @@ struct JointWalletFactoryTests {
 
     @Test("A key arriving for an account this wallet is a member of builds the wallet at its Safe")
     func lateKeyOfAMemberBuildsTheWallet() throws {
-        let outcome = try Self.walletBuiltWhenTheKeyArrives(memberAddress: JointAccountCompositionFixture.ownAddress)
+        let signedComposition = JointAccountCompositionFixture.Signed.self
+        let outcome = try Self.walletBuiltWhenTheKeyArrives(
+            jointAccount: signedComposition.account(status: .active(safeAddress: signedComposition.safeAddress))
+        )
 
-        #expect(try outcome.get().address == Self.checksummedSafeAddress)
+        #expect(try outcome.get().address == signedComposition.checksummedSafeAddress)
     }
 
     @Test("A token the backend files under another key builds no wallet while this wallet's own key is unknown, even with that key at hand")
@@ -67,10 +70,7 @@ struct JointWalletFactoryTests {
         let keysRepository = KeysRepositoryTestsMock(
             keys: [JointAccountCompositionFixture.masterKey(derivedKeys: [foreignPath: JointAccountCompositionFixture.derivedKey])]
         )
-        let sut = Self.makeSUT(
-            memberAddress: JointAccountCompositionFixture.strangerAddress,
-            keysRepository: keysRepository
-        )
+        let sut = Self.makeSUT(keysRepository: keysRepository)
 
         let error = #expect(throws: AnyWalletFactoryError.self) {
             try sut.makeWallet(blockchainNetwork: Self.network(at: foreignPath), keys: keysRepository.keys)
@@ -84,11 +84,7 @@ struct JointWalletFactoryTests {
     @Test("A wallet that cannot derive the account's key builds no wallet, even with a factory that does not need it")
     func walletThatCannotDeriveTheKeyBuildsNoWallet() {
         let keysRepository = KeysRepositoryTestsMock(keys: [JointAccountCompositionFixture.masterKey()])
-        let sut = Self.makeSUT(
-            memberAddress: JointAccountCompositionFixture.strangerAddress,
-            keysRepository: keysRepository,
-            defaultWalletFactory: SimpleWalletFactory()
-        )
+        let sut = Self.makeSUT(keysRepository: keysRepository, defaultWalletFactory: SimpleWalletFactory())
 
         let error = #expect(throws: AnyWalletFactoryError.self) {
             try sut.makeWallet(blockchainNetwork: Self.network(at: JointAccountCompositionFixture.ownKeyPath), keys: keysRepository.keys)
@@ -104,24 +100,22 @@ struct JointWalletFactoryTests {
 
 private extension JointWalletFactoryTests {
     static let safeAddress = "0x8f3a1C5E7B9D0246A8C0E2B4D6F8A0C2E4B6c21b"
-    static let checksummedSafeAddress = "0x9295a5836685C5F5f42242f9B64d23E46F8c259F"
+    static let strangersAccount = JointAccountCompositionFixture.storedAccount(
+        status: .active(safeAddress: "0x9295a5836685C5F5f42242f9B64d23E46F8c259F"),
+        membersCount: 1,
+        members: [JointAccountCompositionFixture.member(address: JointAccountCompositionFixture.strangerAddress, role: .creator)]
+    )
 
     static func network(at derivationPath: DerivationPath) -> BlockchainNetwork {
         BlockchainNetwork(.ethereum(testnet: false), derivationPath: derivationPath)
     }
 
     static func makeSUT(
-        memberAddress: String,
+        jointAccount: StoredJointAccount = strangersAccount,
         keysRepository: KeysRepositoryTestsMock,
         defaultWalletFactory: any AnyWalletFactory = HDWalletFactory()
     ) -> JointWalletFactory {
-        let repository = JointAccountsRepositoryStub(jointAccounts: [
-            JointAccountCompositionFixture.storedAccount(
-                status: .active(safeAddress: checksummedSafeAddress),
-                membersCount: 1,
-                members: [JointAccountCompositionFixture.member(address: memberAddress, role: .creator)]
-            ),
-        ])
+        let repository = JointAccountsRepositoryStub(jointAccounts: [jointAccount])
         let userRoleService = JointAccountCompositionFixture.makeUserRoleService(repository: repository, keysProvider: keysRepository)
         let statusProvider = JointAccountCompositionFixture.makeStatusProvider(repository: repository, userRoleService: userRoleService)
 
@@ -132,9 +126,9 @@ private extension JointWalletFactoryTests {
         )
     }
 
-    static func walletBuiltWhenTheKeyArrives(memberAddress: String) throws -> Result<Wallet, any Error> {
+    static func walletBuiltWhenTheKeyArrives(jointAccount: StoredJointAccount) throws -> Result<Wallet, any Error> {
         let keysRepository = KeysRepositoryTestsMock(keys: [JointAccountCompositionFixture.masterKey()])
-        let sut = makeSUT(memberAddress: memberAddress, keysRepository: keysRepository)
+        let sut = makeSUT(jointAccount: jointAccount, keysRepository: keysRepository)
         var outcome: Result<Wallet, any Error>?
 
         let subscription = keysRepository.keysPublisher

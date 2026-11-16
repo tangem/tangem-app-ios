@@ -32,6 +32,7 @@ struct DeeplinkMarketingActivityUidTests {
         CampaignsDeeplink.host: "tangem://campaigns?campaignId=some-id",
         OnboardVisaDeeplink.host: "tangem://onboard-visa?entry=banner&id=some-id",
         PayAppDeeplink.host: "tangem://pay-app?id=some-id",
+        OnboardVirtualAccountDeeplink.host: "tangem://onboard-virtual-account?entry=ff1&id=VRTACC01",
         JointAccountInviteDeeplink.host: "tangem://joint-account-invite?id=some-invite-id",
         JointAccountDeeplink.host: "tangem://joint_account?entry=members&user_wallet_id=AB12&account_id=BA910A77",
         SupportDeeplink.host: "tangem://support",
@@ -86,6 +87,7 @@ struct DeeplinkMarketingActivityUidTests {
             "tangem://onboard-visa?entry=banner&id=42",
             "tangem://pay-app?id=42",
             "https://tangem.com/pay-app?id=42",
+            "tangem://onboard-virtual-account?entry=ff1&id=42",
         ]
     )
     func tangemPayLinkLosesUid(link: String) throws {

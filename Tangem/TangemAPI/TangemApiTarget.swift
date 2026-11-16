@@ -210,10 +210,10 @@ struct TangemApiTarget: TargetType {
         // MARK: - Accounts
         case .createWallet:
             return "/user-wallets/wallets"
-        case .getUserAccounts(let userWalletId),
-             .saveUserAccounts(let userWalletId, _, _):
+        case .getUserAccounts(let userWalletId, _),
+             .saveUserAccounts(let userWalletId, _, _, _):
             return "/wallets/\(userWalletId)/accounts"
-        case .getArchivedUserAccounts(let userWalletId):
+        case .getArchivedUserAccounts(let userWalletId, _):
             return "/wallets/\(userWalletId)/accounts/archived"
 
         // MARK: - Joint accounts
@@ -467,12 +467,15 @@ struct TangemApiTarget: TargetType {
         // MARK: - Accounts
         case .createWallet(let context):
             return .requestJSONEncodable(context)
-        case .getUserAccounts:
+        case .getUserAccounts(_, let urlParameters) where AccountsDTO.isV2Available,
+             .getArchivedUserAccounts(_, let urlParameters) where AccountsDTO.isV2Available:
+            return .requestParameters(urlParameters, encoding: URLEncoding.queryString)
+        case .getUserAccounts, .getArchivedUserAccounts:
             return .requestPlain
-        case .saveUserAccounts(_, _, let accounts):
+        case .saveUserAccounts(_, let urlParameters, _, let accounts) where AccountsDTO.isV2Available:
+            return .requestCompositeParameters(body: accounts, urlParameters: urlParameters)
+        case .saveUserAccounts(_, _, _, let accounts):
             return .requestJSONEncodable(accounts)
-        case .getArchivedUserAccounts:
-            return .requestPlain
 
         // MARK: - Joint accounts
         case .getJointAccounts, .getJointAccountInvite:
@@ -525,7 +528,7 @@ struct TangemApiTarget: TargetType {
 
     var headers: [String: String]? {
         switch type {
-        case .saveUserAccounts(_, let revision, _):
+        case .saveUserAccounts(_, _, let revision, _):
             // This endpoint uses manual ETags for optimistic locking during mutations
             return [
                 TangemAPIHeaders.ifMatch.rawValue: revision,
@@ -720,9 +723,14 @@ extension TangemApiTarget {
         case getPriceAlertsSubscriptions(userWalletId: String)
 
         // Accounts
-        case getUserAccounts(userWalletId: String)
-        case saveUserAccounts(userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts)
-        case getArchivedUserAccounts(userWalletId: String)
+        case getUserAccounts(userWalletId: String, urlParameters: AccountsDTO.Request.URLParameters)
+        case saveUserAccounts(
+            userWalletId: String,
+            urlParameters: AccountsDTO.Request.URLParameters,
+            revision: String,
+            accounts: AccountsDTO.Request.Accounts
+        )
+        case getArchivedUserAccounts(userWalletId: String, urlParameters: AccountsDTO.Request.URLParameters)
 
         // Joint accounts
         case getJointAccounts(walletId: String, knownETag: String?)
@@ -778,9 +786,9 @@ extension TangemApiTarget: TargetTypeLogConvertible {
              .saveWalletCards(let walletId, _),
              .getNotificationPreferences(let walletId),
              .updateNotificationPreferences(let walletId, _),
-             .getUserAccounts(let walletId),
-             .saveUserAccounts(let walletId, _, _),
-             .getArchivedUserAccounts(let walletId),
+             .getUserAccounts(let walletId, _),
+             .saveUserAccounts(let walletId, _, _, _),
+             .getArchivedUserAccounts(let walletId, _),
              .getJointAccounts(let walletId, _),
              .createJointAccount(let walletId, _),
              .issueJointAccountInvite(let walletId, _),

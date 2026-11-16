@@ -84,6 +84,29 @@ struct CommonEthereumTokenFeeLoaderTests {
         let swapParameters = try #require(parameters.swapParameters as? EthereumLegacyFeeParameters)
         #expect(swapParameters.gasPrice == 30_000_000_000)
     }
+
+    @Test(
+        "A contract call gets the gas limit margin it asks for, 12% by default and 40% for a yield module call",
+        arguments: [(false, 112_000), (true, 140_000)]
+    )
+    func contractCallGasLimitMargin(isYieldModuleCall: Bool, expectedGasLimit: Int) async throws {
+        let loader = makeLoader(swapFees: [], approveFees: [makeLegacyFee(gasPrice: 20_000_000_000, gasLimit: 100_000)])
+        let request = makeRequest()
+        let input: TokenFeeProviderInputDataDEXType = isYieldModuleCall
+            ? .ethereum(
+                amount: request.amount,
+                destination: request.destination,
+                txData: request.txData,
+                otherNativeFee: nil,
+                gasLimitIncreasePercent: EthereumFeeParametersConstants.yieldModuleGasLimitIncreasePercent
+            )
+            : .ethereum(amount: request.amount, destination: request.destination, txData: request.txData, otherNativeFee: nil)
+
+        let fees = try await loader.loadFees(.dex(input), feeBlockchain: .ethereum(testnet: false))
+
+        let parameters = try #require(fees.first?.parameters as? EthereumLegacyFeeParameters)
+        #expect(parameters.gasLimit == BigUInt(expectedGasLimit))
+    }
 }
 
 // MARK: - Helpers

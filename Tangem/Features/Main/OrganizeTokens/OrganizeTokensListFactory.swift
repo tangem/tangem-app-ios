@@ -34,7 +34,7 @@ struct OrganizeTokensListFactory {
                 items: itemViewModels
             )
         case .group(let blockchainNetwork):
-            let title = Localization.walletNetworkGroupTitle(blockchainNetwork.blockchain.displayName)
+            let title = Localization.walletNetworkGroupTitle(blockchainNetwork.blockchain.displayName.droppingNetworkSuffix)
             return OrganizeTokensListInnerSection(
                 model: .init(id: blockchainNetwork, style: .draggable(title: title)),
                 items: itemViewModels

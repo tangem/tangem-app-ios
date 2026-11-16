@@ -12,7 +12,7 @@ import struct TangemUIUtils.ConfirmationDialogViewModel
 
 struct ConnectionsQRScanViewState {
     let navigationBar = NavigationBar()
-    let hint = FeatureProvider.isAvailable(.mcp) ? Localization.wcConnectionsQrScanHint : Localization.wcQrScanHint
+    let hint = Localization.wcConnectionsQrScanHint
     var hasCameraAccess = false
     var confirmationDialog: ConfirmationDialogViewModel?
 }

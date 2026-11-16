@@ -18,7 +18,6 @@ struct EarnCalculatorChart: View {
     let bars: [EarnCalculatorViewState.Bar]
     @Binding var selectedBarID: EarnCalculatorViewState.Bar.ID?
 
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.layoutDirection) private var layoutDirection
 
     var body: some View {
@@ -124,18 +123,17 @@ private extension EarnCalculatorChart {
                 plotFrame: plotFrame
             )
 
-            tooltipSurface {
-                VStack(alignment: .leading, spacing: .zero) {
-                    Text(bar.balance)
-                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
+            VStack(alignment: .leading, spacing: .zero) {
+                Text(bar.balance)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
 
-                    Text(bar.earned)
-                        .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textBrand)
-                }
-                .padding(.horizontal, Constants.tooltipHorizontalPadding)
-                .padding(.vertical, Constants.tooltipVerticalPadding)
-                .environment(\.layoutDirection, layoutDirection)
+                Text(bar.earned)
+                    .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textBrand)
             }
+            .padding(.horizontal, Constants.tooltipHorizontalPadding)
+            .padding(.vertical, Constants.tooltipVerticalPadding)
+            .environment(\.layoutDirection, layoutDirection)
+            .tangemMaterialSurface(in: RoundedRectangle(cornerRadius: Constants.tooltipCornerRadius))
             .fixedSize()
             .alignmentGuide(.leading) { dimensions in
                 -tooltipLeading(anchor: anchor, tooltipSize: dimensions)
@@ -145,17 +143,6 @@ private extension EarnCalculatorChart {
             }
             .allowsHitTesting(false)
             .transition(.opacity)
-        }
-    }
-
-    @ViewBuilder
-    func tooltipSurface<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        let shape = RoundedRectangle(cornerRadius: Constants.tooltipCornerRadius)
-
-        if reduceTransparency {
-            content().background(DesignSystem.Color.materialModalFillSolid, in: shape)
-        } else {
-            content().tangemMaterialSurface(in: shape)
         }
     }
 }

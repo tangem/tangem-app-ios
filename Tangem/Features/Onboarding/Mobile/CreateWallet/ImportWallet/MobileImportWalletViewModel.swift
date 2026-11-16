@@ -25,11 +25,19 @@ final class MobileImportWalletViewModel: ObservableObject, FloatingSheetContentV
 
     let recoveryPhraseTitle = Localization.hwCloudBackupRestoreUseRecoveryPhrase
 
+    var hasNavigationBar: Bool {
+        mode == .standalone
+    }
+
+    private let mode: Mode
+    private let source: MobileImportWalletSource
     private let backupManager: MobileWalletBackupManager
 
     private weak var coordinator: MobileImportWalletRoutable?
 
-    init(coordinator: MobileImportWalletRoutable) {
+    init(mode: Mode, source: MobileImportWalletSource, coordinator: MobileImportWalletRoutable) {
+        self.mode = mode
+        self.source = source
         self.coordinator = coordinator
         backupManager = CommonMobileWalletBackupManager(destination: .iCloud)
 
@@ -42,6 +50,10 @@ final class MobileImportWalletViewModel: ObservableObject, FloatingSheetContentV
 extension MobileImportWalletViewModel {
     func onRecoveryPhraseTap() {
         openWalletImportFlow()
+    }
+
+    func onBackTap() {
+        back()
     }
 
     func onCloseTap() {
@@ -134,7 +146,11 @@ private extension MobileImportWalletViewModel {
     }
 
     func openICloudBackupImportFlow(_ backups: [MobileWalletBackup]) {
-        let flow = MobileOnboardingFlow.iCloudBackupImport(backups: backups, source: .importWallet)
+        let flow = MobileOnboardingFlow.iCloudBackupImport(
+            backups: backups,
+            source: .importWallet,
+            analyticsSource: source
+        )
         let input = MobileOnboardingInput(flow: flow)
         let options = OnboardingCoordinator.Options.mobileInput(input)
         runTask(in: self) { viewModel in
@@ -154,6 +170,12 @@ private extension MobileImportWalletViewModel {
         }
     }
 
+    func back() {
+        runTask(in: self) { viewModel in
+            await viewModel.backFromImportWallet()
+        }
+    }
+
     func close() {
         runTask(in: self) { viewModel in
             await viewModel.closeImportWallet()
@@ -166,8 +188,11 @@ private extension MobileImportWalletViewModel {
 @MainActor
 private extension MobileImportWalletViewModel {
     func openOnboarding(options: OnboardingCoordinator.Options) {
-        coordinator?.closeImportWallet()
         coordinator?.openOnboarding(options: options)
+    }
+
+    func backFromImportWallet() {
+        coordinator?.backFromImportWallet()
     }
 
     func closeImportWallet() {
@@ -203,6 +228,11 @@ private extension MobileImportWalletViewModel {
 // MARK: - Types
 
 extension MobileImportWalletViewModel {
+    enum Mode {
+        case standalone
+        case embedded
+    }
+
     struct Description {
         let title: String
         let subtitle: String

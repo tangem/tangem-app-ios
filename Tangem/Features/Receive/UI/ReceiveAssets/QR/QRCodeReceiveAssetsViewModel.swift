@@ -59,11 +59,11 @@ final class QRCodeReceiveAssetsViewModel: ObservableObject, Identifiable {
 
         return switch flow {
         case .nft:
-            Localization.receiveBottomSheetWarningMessageCompact(Localization.detailsNftTitle, tokenItem.networkName)
+            Localization.receiveBottomSheetWarningMessageCompact(Localization.detailsNftTitle, tokenItem.networkName.droppingNetworkSuffix)
         case .crypto where tokenItem.blockchain.isL2EthereumNetwork:
-            Localization.receiveBottomSheetWarningMessageCompact(name, tokenItem.networkName)
+            Localization.receiveBottomSheetWarningMessageCompact(name, tokenItem.networkName.droppingNetworkSuffix)
         case .crypto, .polymarketDeposit:
-            Localization.receiveBottomSheetWarningMessage(name, tokenItem.currencySymbol, tokenItem.networkName)
+            Localization.receiveBottomSheetWarningMessage(name, tokenItem.currencySymbol, tokenItem.networkName.droppingNetworkSuffix)
         }
     }
 

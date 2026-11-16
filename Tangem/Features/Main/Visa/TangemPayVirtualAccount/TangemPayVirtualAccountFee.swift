@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemPay
 
 struct TangemPayVirtualAccountFee: Hashable, Identifiable {
@@ -22,17 +23,33 @@ extension TangemPayVirtualAccountFee {
 
         self.init(id: response.type, title: name, value: Self.format(amount: response.amount, currency: response.currency))
     }
+
+    init?(credentials: TangemPayBankCredentialsResponse) {
+        guard
+            let rail = credentials.rail,
+            !rail.isEmpty,
+            let amount = credentials.fee?.flatAmount
+        else {
+            return nil
+        }
+
+        self.init(id: rail, title: rail, value: Self.format(amount: amount, currency: Constants.bankCredentialsFeeCurrency))
+    }
 }
 
 // MARK: - Formatting
 
 private extension TangemPayVirtualAccountFee {
+    enum Constants {
+        static let bankCredentialsFeeCurrency = "USD"
+    }
+
     static func format(amount: Decimal, currency: String) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.locale = Locale(identifier: "en_US")
         formatter.currencyCode = currency
-        formatter.minimumFractionDigits = 0
+        formatter.minimumFractionDigits = amount.scale == 0 ? 0 : 2
         formatter.maximumFractionDigits = 2
         return formatter.string(from: amount as NSDecimalNumber) ?? "\(amount) \(currency)"
     }

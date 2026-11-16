@@ -87,7 +87,7 @@ struct TransactionViewAmountViewData: Hashable {
 
     var amountColor: Color {
         switch (status, type) {
-        case (.failed, _):
+        case (.failed, _), (.cancelled, _):
             return DesignSystem.Color.textAccentRed
 
         case (_, .tangemPay(.spend(_, _, let isDeclined, _))) where isDeclined:

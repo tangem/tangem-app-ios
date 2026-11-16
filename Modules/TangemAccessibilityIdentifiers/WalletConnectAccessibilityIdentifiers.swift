@@ -28,12 +28,6 @@ public enum WalletConnectAccessibilityIdentifiers {
     public static let cancelButton = "wc_cancel_button"
     public static let connectButton = "wc_connect_button"
 
-    /// WalletConnect button in Details screen
-    public static let detailsButton = "walletConnectDetailsButton"
-
-    /// New connection button in WalletConnections screen
-    public static let newConnectionButton = "walletConnectNewConnectionButton"
-
     /// DApp row in connections list
     public static let dAppRow = "walletConnectDAppRow"
 

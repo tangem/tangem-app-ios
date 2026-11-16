@@ -7,8 +7,6 @@
 //
 
 import Foundation
-import SwiftUI
-import TangemAssets
 import TangemFoundation
 
 /// An experimental implementation, currently used only in the `Markets` module.
@@ -55,20 +53,6 @@ final class MarketsTokenPriceFormatter {
         }
 
         return formatPrice(value, formattingOptions: makeFormattingOptions(forScale: scale))
-    }
-
-    func formatPrice(_ price: String) -> AttributedString {
-        let formattingOptions = TotalBalanceFormattingOptions(
-            integerPartFont: DesignSystem.Font.displayMediumToken,
-            fractionalPartFont: DesignSystem.Font.displayMediumToken,
-            color: DesignSystem.Color.textPrimary,
-            fractionalPartIncludesDecimalSeparator: true
-        )
-
-        return balanceFormatter.formatAttributedTotalBalance(
-            fiatBalance: price,
-            formattingOptions: formattingOptions
-        )
     }
 
     private static func scale(

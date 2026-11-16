@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemFoundation
 import TangemPolymarket
 
 enum PolymarketFastTradingState: Equatable {
@@ -22,6 +23,8 @@ struct PolymarketFastTradingSnapshot {
     let signers: [PolymarketSessionSigner]?
     let now: Date
     var operations: [PolymarketFastTradingOperation]
+    var isLocalKeyRefused: Bool
+    let revokingSince: [String: Date]
 
     init(
         sessionKeys: [PolymarketSessionKey],
@@ -29,7 +32,9 @@ struct PolymarketFastTradingSnapshot {
         deviceId: String,
         signers: [PolymarketSessionSigner]?,
         now: Date,
-        operations: [PolymarketFastTradingOperation] = []
+        operations: [PolymarketFastTradingOperation] = [],
+        isLocalKeyRefused: Bool = false,
+        revokingSince: [String: Date] = [:]
     ) {
         self.sessionKeys = sessionKeys.map(\.withLowercasedAddress)
         self.localKeyAddress = localKeyAddress?.lowercased()
@@ -37,51 +42,74 @@ struct PolymarketFastTradingSnapshot {
         self.signers = signers?.map(\.withLowercasedAddress)
         self.now = now
         self.operations = operations
+        self.isLocalKeyRefused = isLocalKeyRefused
+        self.revokingSince = Dictionary(revokingSince.map { ($0.key.lowercased(), $0.value) }, uniquingKeysWith: { min($0, $1) })
     }
 }
 
 enum PolymarketFastTradingOperation: Equatable {
     case activation
+    case renewal
     case revocation
     case toggle
+
+    var authorizesLocalKey: Bool {
+        switch self {
+        case .activation, .renewal:
+            true
+        case .revocation, .toggle:
+            false
+        }
+    }
 }
 
 struct PolymarketFastTradingAssessment: Equatable {
     let status: Status
     let sessionKeys: [PolymarketSessionKey]
     let localKeyAddress: String?
+    let localKey: PolymarketSessionKey?
+    let otherDeviceKeys: [PolymarketSessionKey]
     let foreignSigners: [PolymarketSessionSigner]
+    let signersBeingRevoked: [PolymarketSessionSigner]
     let missingOnExchange: Set<String>
-    let mismatchedOnExchange: Set<String>
+    let reRegisteredOnExchange: Set<String>
     let settlingKey: PolymarketSessionKey?
     let isRenewDue: Bool
     let operations: [PolymarketFastTradingOperation]
     let now: Date
 
+    private let isLocalKeyRefused: Bool
+    private let revokingSince: [String: Date]
     private let exchangeListing: ExchangeListing
 
     init(snapshot: PolymarketFastTradingSnapshot) {
         let exchangeListing = ExchangeListing(signers: snapshot.signers)
         let missingOnExchange = Self.missingOnExchange(snapshot, listing: exchangeListing)
-        let mismatchedOnExchange = Self.mismatchedOnExchange(snapshot, listing: exchangeListing)
+        let reRegisteredOnExchange = Self.reRegisteredOnExchange(snapshot, listing: exchangeListing)
         let settlingKey = snapshot.sessionKeys.first { Self.isSettling($0, snapshot: snapshot) }
+        let localKey = Self.localKey(in: snapshot)
 
         status = Self.status(
             snapshot,
+            own: localKey,
             listing: exchangeListing,
             settlingKey: settlingKey,
-            missingOnExchange: missingOnExchange,
-            mismatchedOnExchange: mismatchedOnExchange
+            missingOnExchange: missingOnExchange
         )
         sessionKeys = snapshot.sessionKeys
         localKeyAddress = snapshot.localKeyAddress
-        foreignSigners = Self.foreignSigners(snapshot)
+        self.localKey = localKey
+        otherDeviceKeys = Self.otherDeviceKeys(in: snapshot)
+        foreignSigners = Self.untrustedSigners(snapshot, reRegistered: reRegisteredOnExchange).filter { !Self.isBeingRevoked($0.address, in: snapshot) }
+        signersBeingRevoked = Self.untrustedSigners(snapshot, reRegistered: reRegisteredOnExchange).filter { Self.isBeingRevoked($0.address, in: snapshot) }
         self.missingOnExchange = missingOnExchange
-        self.mismatchedOnExchange = mismatchedOnExchange
+        self.reRegisteredOnExchange = reRegisteredOnExchange
         self.settlingKey = settlingKey
-        isRenewDue = Self.isRenewDue(status: status, now: snapshot.now)
+        isRenewDue = status.activeOrPausedKey.map { Self.isRenewDue($0, now: snapshot.now) } ?? false
         operations = snapshot.operations
         now = snapshot.now
+        isLocalKeyRefused = snapshot.isLocalKeyRefused
+        revokingSince = snapshot.revokingSince
         self.exchangeListing = exchangeListing
     }
 
@@ -89,35 +117,68 @@ struct PolymarketFastTradingAssessment: Equatable {
         !operations.isEmpty
     }
 
-    var isActivating: Bool {
-        operations.contains(.activation)
-    }
-
     var hasSettlingChange: Bool {
         settlingKey != nil
     }
 
+    var needsFollowUpReads: Bool {
+        hasSettlingChange
+    }
+
+    var isExchangeUnreadable: Bool {
+        status.isExchangeUnreadable
+    }
+
     var activeOrPausedLocalKey: PolymarketSessionKey? {
-        switch status {
-        case .active(let sessionKey), .paused(let sessionKey): sessionKey
-        default: nil
-        }
+        status.activeOrPausedKey
     }
 
     var hasForeignSigners: Bool {
         !foreignSigners.isEmpty
     }
 
-    func isLocalKey(_ sessionKey: PolymarketSessionKey) -> Bool {
-        sessionKey.address == localKeyAddress
+    var isLocalActivationFailed: Bool {
+        guard let localKey, !operations.contains(where: \.authorizesLocalKey) else {
+            return false
+        }
+
+        switch localKey.status {
+        case .failed:
+            return true
+        case .pending:
+            return !isSettling(localKey)
+        case .active, .revoking, .revoked, .expired, .unknown:
+            return false
+        }
     }
 
     func isListedOnExchange(_ sessionKey: PolymarketSessionKey) -> Bool {
-        exchangeListing.lists(sessionKey.address) ?? false
+        exchangeListing.lists(sessionKey.address) == true
+    }
+
+    func isUsableOnExchange(_ sessionKey: PolymarketSessionKey, at date: Date) -> Bool {
+        guard let signer = exchangeListing.signer(for: sessionKey.address) else {
+            return false
+        }
+
+        return signer.isUsable(at: date) && signer.hasTerms(of: sessionKey)
+    }
+
+    func usableUntil(_ sessionKey: PolymarketSessionKey) -> Date? {
+        guard let keyValidUntil = sessionKey.validUntil, let signerValidUntil = exchangeListing.signer(for: sessionKey.address)?.validUntil else {
+            return nil
+        }
+
+        return min(keyValidUntil, signerValidUntil).addingTimeInterval(-PolymarketSessionKey.signingExpiryMargin)
     }
 
     func isOutOfSyncWithExchange(_ sessionKey: PolymarketSessionKey) -> Bool {
-        missingOnExchange.contains(sessionKey.address) || mismatchedOnExchange.contains(sessionKey.address)
+        missingOnExchange.contains(sessionKey.address)
+            || (isLocalKeyRefused && sessionKey.address == localKeyAddress)
+    }
+
+    func isSettling(_ sessionKey: PolymarketSessionKey) -> Bool {
+        Self.isSettling(sessionKey, now: now, operations: operations, localKeyAddress: localKeyAddress, revokingSince: revokingSince)
     }
 }
 
@@ -132,27 +193,49 @@ extension PolymarketFastTradingAssessment {
         case revoking(PolymarketSessionKey)
         case reenable(PolymarketSessionKey)
         case repairByRenewal(PolymarketSessionKey)
-        case awaitingExchangeListing(PolymarketSessionKey)
+        case exchangeUnreadable(PolymarketSessionKey)
         case waitingForSettlement(PolymarketSessionKey)
         case replace(previous: PolymarketSessionKey, revokesPrevious: Bool)
+
+        var activeOrPausedKey: PolymarketSessionKey? {
+            switch self {
+            case .active(let sessionKey), .paused(let sessionKey):
+                sessionKey
+            default:
+                nil
+            }
+        }
+
+        var isExchangeUnreadable: Bool {
+            if case .exchangeUnreadable = self {
+                return true
+            }
+
+            return false
+        }
     }
 }
 
 // MARK: - Decision table
 
 private extension PolymarketFastTradingAssessment {
+    static func localKey(in snapshot: PolymarketFastTradingSnapshot) -> PolymarketSessionKey? {
+        snapshot.localKeyAddress.flatMap(snapshot.sessionKeys.decisiveRecord(of:))
+    }
+
+    static func otherDeviceKeys(in snapshot: PolymarketFastTradingSnapshot) -> [PolymarketSessionKey] {
+        let others = snapshot.sessionKeys.filter { $0.address != snapshot.localKeyAddress }
+
+        return others.uniqueProperties(\.address).compactMap(others.decisiveRecord(of:))
+    }
+
     static func status(
         _ snapshot: PolymarketFastTradingSnapshot,
+        own: PolymarketSessionKey?,
         listing: ExchangeListing,
         settlingKey: PolymarketSessionKey?,
-        missingOnExchange: Set<String>,
-        mismatchedOnExchange: Set<String>
+        missingOnExchange: Set<String>
     ) -> Status {
-        let own = snapshot.localKeyAddress.flatMap { address in
-            snapshot.sessionKeys
-                .filter { $0.address == address }
-                .min { $0.status.localKeyRank < $1.status.localKeyRank }
-        }
         let previous = snapshot.sessionKeys.first { sessionKey in
             sessionKey.deviceId == snapshot.deviceId
                 && sessionKey.address != snapshot.localKeyAddress
@@ -161,12 +244,12 @@ private extension PolymarketFastTradingAssessment {
         }
 
         if let own {
-            let isInSync = !missingOnExchange.contains(own.address) && !mismatchedOnExchange.contains(own.address)
+            let isInSync = !missingOnExchange.contains(own.address) && !snapshot.isLocalKeyRefused
 
             switch own.status {
             case .pending where isSettling(own, snapshot: snapshot):
                 return .enabling(own)
-            case .revoking:
+            case .revoking where isSettling(own, snapshot: snapshot):
                 return .revoking(own)
             case .active where !isExpired(own, now: snapshot.now) && isInSync:
                 return own.isEnabled ? .active(own) : .paused(own)
@@ -181,64 +264,117 @@ private extension PolymarketFastTradingAssessment {
 
         if let previous {
             guard listing.lists(previous.address) != nil else {
-                return .awaitingExchangeListing(previous)
+                return .exchangeUnreadable(previous)
             }
 
             return .replace(previous: previous, revokesPrevious: !missingOnExchange.contains(previous.address))
         }
 
-        if let own, own.status == .active {
-            return mismatchedOnExchange.contains(own.address) ? .repairByRenewal(own) : .reenable(own)
+        guard let own else {
+            return .offerEnable
         }
 
-        if let own {
-            guard own.status == .failed else {
-                return .reenable(own)
-            }
-
-            guard let isListed = listing.lists(own.address) else {
-                return .awaitingExchangeListing(own)
-            }
-
-            return isListed ? .repairByRenewal(own) : .reenable(own)
+        switch own.status {
+        case .active where snapshot.isLocalKeyRefused && !isExpired(own, now: snapshot.now):
+            return repairIfListed(own, listing: listing)
+        case .failed:
+            return repairIfListed(own, listing: listing)
+        default:
+            return .reenable(own)
         }
-
-        return .offerEnable
     }
 
-    static func isRenewDue(status: Status, now: Date) -> Bool {
-        guard case .active(let sessionKey) = status else {
-            return false
+    static func repairIfListed(_ own: PolymarketSessionKey, listing: ExchangeListing) -> Status {
+        guard let isListed = listing.lists(own.address) else {
+            return .exchangeUnreadable(own)
         }
 
-        guard let renewAfter = sessionKey.renewAfter else {
-            return expiresSoon(sessionKey, now: now)
-        }
-
-        return now >= renewAfter
+        return isListed ? .repairByRenewal(own) : .reenable(own)
     }
 
     static func isSettling(_ sessionKey: PolymarketSessionKey, snapshot: PolymarketFastTradingSnapshot) -> Bool {
+        isSettling(
+            sessionKey,
+            now: snapshot.now,
+            operations: snapshot.operations,
+            localKeyAddress: snapshot.localKeyAddress,
+            revokingSince: snapshot.revokingSince
+        )
+    }
+
+    static func isSettling(
+        _ sessionKey: PolymarketSessionKey,
+        now: Date,
+        operations: [PolymarketFastTradingOperation],
+        localKeyAddress: String?,
+        revokingSince: [String: Date]
+    ) -> Bool {
         switch sessionKey.status {
         case .revoking:
-            return true
-        case .pending:
-            if snapshot.operations.contains(.activation), sessionKey.address == snapshot.localKeyAddress {
+            guard let since = revokingSince[sessionKey.address] else {
                 return true
             }
 
-            guard let createdAt = sessionKey.createdAt else { return false }
+            return now.timeIntervalSince(since) < PolymarketSessionKey.backendHoldWindow
+        case .pending:
+            if sessionKey.address == localKeyAddress, operations.contains(where: \.authorizesLocalKey) {
+                return true
+            }
 
-            return snapshot.now.timeIntervalSince(createdAt) < Constants.pendingTimeout
+            guard let createdAt = sessionKey.createdAt else {
+                return false
+            }
+
+            return now.timeIntervalSince(createdAt) < PolymarketSessionKey.backendHoldWindow
         case .active, .revoked, .expired, .failed, .unknown:
             return false
         }
     }
 }
 
+// MARK: - Refusal
+
+extension PolymarketFastTradingAssessment {
+    static func confirmsLocalKey(after refusal: PolymarketOrderSigningRefusal, in snapshot: PolymarketFastTradingSnapshot) -> Bool {
+        guard
+            let routedOn = refusal.routedOn,
+            let localKey = localKey(in: snapshot),
+            localKey.status == .active,
+            !isExpired(localKey, now: snapshot.now),
+            let signer = ExchangeListing(signers: snapshot.signers).signer(for: localKey.address),
+            signer.isUsable(at: snapshot.now),
+            !hasOtherValidity(signer, than: localKey)
+        else {
+            return false
+        }
+
+        return !routedOn.record.hasSameTerms(as: localKey) || !routedOn.signer.hasSameTerms(as: signer)
+    }
+}
+
+private extension PolymarketSessionKey {
+    func hasSameTerms(as other: PolymarketSessionKey) -> Bool {
+        status == other.status
+            && isEnabled == other.isEnabled
+            && Set(scopes.map { $0.uppercased() }) == Set(other.scopes.map { $0.uppercased() })
+            && PolymarketFastTradingAssessment.isSameValidity(validUntil, other.validUntil)
+    }
+}
+
+private extension PolymarketSessionSigner {
+    func hasSameTerms(as other: PolymarketSessionSigner) -> Bool {
+        Set(scopes.map { $0.uppercased() }) == Set(other.scopes.map { $0.uppercased() })
+            && PolymarketFastTradingAssessment.isSameValidity(validUntil, other.validUntil)
+    }
+}
+
 // MARK: - Expiry
 
 extension PolymarketFastTradingAssessment {
+    static func isRenewDue(_ sessionKey: PolymarketSessionKey, now: Date) -> Bool {
+        daysUntilExpiry(of: sessionKey, now: now).map { $0 <= Constants.renewalWindowDays } ?? false
+    }
+
     static func isExpired(_ sessionKey: PolymarketSessionKey, now: Date) -> Bool {
         guard let validUntil = sessionKey.validUntil else { return true }
 
@@ -249,10 +385,6 @@ extension PolymarketFastTradingAssessment {
         guard let validUntil = sessionKey.validUntil, validUntil > now else { return nil }
 
         return Int((validUntil.timeIntervalSince(now) / Constants.secondsInDay).rounded(.up))
-    }
-
-    static func expiresSoon(_ sessionKey: PolymarketSessionKey, now: Date) -> Bool {
-        daysUntilExpiry(of: sessionKey, now: now).map { $0 <= Constants.renewalWindowDays } ?? false
     }
 }
 
@@ -285,25 +417,40 @@ private extension PolymarketFastTradingAssessment {
         return Set(missing.map(\.address))
     }
 
-    static func mismatchedOnExchange(_ snapshot: PolymarketFastTradingSnapshot, listing: ExchangeListing) -> Set<String> {
-        let mismatched = snapshot.sessionKeys.filter { sessionKey in
+    static func reRegisteredOnExchange(_ snapshot: PolymarketFastTradingSnapshot, listing: ExchangeListing) -> Set<String> {
+        let reRegistered = snapshot.sessionKeys.filter { sessionKey in
             guard isExpectedOnExchange(sessionKey, now: snapshot.now), let signer = listing.signer(for: sessionKey.address) else {
                 return false
             }
 
-            return !signer.hasTradingScope || hasOtherValidity(signer, than: sessionKey)
+            return !signer.hasTerms(of: sessionKey)
         }
 
-        return Set(mismatched.map(\.address))
+        return Set(reRegistered.map(\.address))
     }
 
-    static func foreignSigners(_ snapshot: PolymarketFastTradingSnapshot) -> [PolymarketSessionSigner] {
-        let recorded = Set(snapshot.sessionKeys.filter { !$0.status.isEnded }.map(\.address))
-            .union(snapshot.localKeyAddress.map { [$0] } ?? [])
+    static func untrustedSigners(_ snapshot: PolymarketFastTradingSnapshot, reRegistered: Set<String>) -> [PolymarketSessionSigner] {
+        var recorded = Set(snapshot.sessionKeys.filter(\.isOurs).map(\.address))
+
+        if let localKeyAddress = snapshot.localKeyAddress, isLocalKeyOurs(in: snapshot) {
+            recorded.insert(localKeyAddress)
+        }
 
         return (snapshot.signers ?? []).filter { signer in
-            !recorded.contains(signer.address) && !signer.isExpired(at: snapshot.now)
+            (!recorded.contains(signer.address) || reRegistered.contains(signer.address)) && !signer.isExpired(at: snapshot.now)
         }
+    }
+
+    static func isLocalKeyOurs(in snapshot: PolymarketFastTradingSnapshot) -> Bool {
+        if snapshot.operations.contains(where: \.authorizesLocalKey) {
+            return true
+        }
+
+        guard let localKey = localKey(in: snapshot) else {
+            return false
+        }
+
+        return localKey.isOurs || localKey.status == .failed
     }
 
     static func isExpectedOnExchange(_ sessionKey: PolymarketSessionKey, now: Date) -> Bool {
@@ -317,7 +464,11 @@ private extension PolymarketFastTradingAssessment {
             return false
         }
 
-        return abs(listedValidUntil.timeIntervalSince(validUntil)) > Constants.validityTolerance
+        return !isSameValidity(listedValidUntil, validUntil)
+    }
+
+    static func isSameValidity(_ validUntil: Date?, _ otherValidUntil: Date?) -> Bool {
+        validUntil.map(\.wholeSeconds) == otherValidUntil.map(\.wholeSeconds)
     }
 
     static func isAwaitingReadiness(_ sessionKey: PolymarketSessionKey, now: Date) -> Bool {
@@ -332,28 +483,46 @@ private extension PolymarketFastTradingAssessment {
 private extension PolymarketFastTradingAssessment {
     enum Constants {
         static let readinessGrace: TimeInterval = 10 * 60
-        static let pendingTimeout: TimeInterval = 10 * 60
-        static let validityTolerance: TimeInterval = 60
         static let renewalWindowDays = 30
         static let secondsInDay: TimeInterval = 24 * 60 * 60
     }
 }
 
-// MARK: - Ended records
+// MARK: - Our signers
 
-private extension PolymarketSessionKey.Status {
-    var isEnded: Bool {
-        switch self {
-        case .revoked, .expired, .failed: true
-        case .pending, .active, .revoking, .unknown: false
+extension PolymarketSessionKey {
+    var isOurs: Bool {
+        switch status {
+        case .pending, .active, .revoking, .unknown:
+            true
+        case .revoked, .expired, .failed:
+            false
         }
     }
 }
 
-// MARK: - Local key record
+// MARK: - Record selection
+
+extension Sequence where Element == PolymarketSessionKey {
+    func decisiveRecord(of address: String) -> PolymarketSessionKey? {
+        filter { $0.address.caseInsensitiveCompare(address) == .orderedSame }
+            .min { $0.status.recordRank < $1.status.recordRank }
+    }
+
+    func revocationRecord(of address: String, at now: Date) -> PolymarketSessionKey? {
+        let records = filter { $0.address.caseInsensitiveCompare(address) == .orderedSame }
+
+        return records.first { PolymarketFastTradingAssessment.isSettling($0, now: now, operations: [], localKeyAddress: nil, revokingSince: [:]) }
+            ?? records.first { $0.status == .active }
+            ?? records.first { $0.status == .revoked }
+            ?? records.first
+    }
+}
+
+// MARK: - Record rank
 
 private extension PolymarketSessionKey.Status {
-    var localKeyRank: Int {
+    var recordRank: Int {
         switch self {
         case .active: 0
         case .pending: 1
@@ -369,11 +538,21 @@ private extension PolymarketSessionKey.Status {
 // MARK: - Session signer terms
 
 extension PolymarketSessionSigner {
-    var hasTradingScope: Bool {
-        scopes.contains { Self.tradingScopes.contains($0.uppercased()) }
+    var hasTradingTerms: Bool {
+        scopes.map { $0.uppercased() } == Self.tradingScopes && validUntil != nil
     }
 
-    private static let tradingScopes: Set<String> = ["CLOB", "ALL"]
+    func hasTerms(of sessionKey: PolymarketSessionKey) -> Bool {
+        hasTradingTerms && PolymarketFastTradingAssessment.isSameValidity(validUntil, sessionKey.validUntil)
+    }
+
+    private static let tradingScopes = ["CLOB"]
+}
+
+private extension Date {
+    var wholeSeconds: Int {
+        Int(timeIntervalSince1970)
+    }
 }
 
 private extension PolymarketSessionSigner {
@@ -394,7 +573,6 @@ private extension PolymarketSessionKey {
             status: status,
             scopes: scopes,
             validUntil: validUntil,
-            renewAfter: renewAfter,
             authorizedAt: authorizedAt,
             createdAt: createdAt
         )
@@ -404,5 +582,25 @@ private extension PolymarketSessionKey {
 private extension PolymarketSessionSigner {
     var withLowercasedAddress: PolymarketSessionSigner {
         PolymarketSessionSigner(address: address.lowercased(), scopes: scopes, validUntil: validUntil)
+    }
+}
+
+// MARK: - Settling keys
+
+extension PolymarketFastTradingAssessment {
+    static func settlingKeys(in snapshot: PolymarketFastTradingSnapshot) -> [PolymarketSessionKey] {
+        snapshot.sessionKeys.filter { isSettling($0, snapshot: snapshot) }
+    }
+}
+
+// MARK: - Signers being revoked
+
+extension PolymarketFastTradingAssessment {
+    static func isBeingRevoked(_ address: String, in snapshot: PolymarketFastTradingSnapshot) -> Bool {
+        guard let revokingSince = snapshot.revokingSince[address] else {
+            return false
+        }
+
+        return snapshot.now.timeIntervalSince(revokingSince) < PolymarketSessionKey.backendHoldWindow
     }
 }

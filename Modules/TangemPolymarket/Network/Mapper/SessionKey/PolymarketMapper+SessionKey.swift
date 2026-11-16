@@ -18,7 +18,6 @@ extension PolymarketMapper {
             status: PolymarketSessionKey.Status(apiValue: dto.status),
             scopes: dto.scopes ?? [],
             validUntil: dto.validUntil.map(Self.date),
-            renewAfter: dto.renewAfter.map(Self.date),
             authorizedAt: dto.authorizedAt.map(Self.date),
             createdAt: dto.createdAt.map(Self.date)
         )

@@ -18,6 +18,10 @@ import TangemUIUtils
 final class PolymarketWelcomeViewModel: ObservableObject {
     @Published private(set) var runState: RunState = .idle
     @Published private(set) var reportedStatus: PolymarketDepositWalletStatus?
+    @Published var isFastTradingEnabled: Bool {
+        didSet { fastTrading?.isEnabled = isFastTradingEnabled }
+    }
+
     @Published var alert: AlertBinder?
 
     let copy: PolymarketWelcomeCopy
@@ -25,23 +29,29 @@ final class PolymarketWelcomeViewModel: ObservableObject {
 
     var isRunning: Bool { runState != .idle }
 
+    var showsFastTradingToggle: Bool { fastTrading != nil }
+
     var stageMessage: String? {
         PolymarketOnboardingCopy.stage(for: runState, status: reportedStatus)
     }
 
     private let interactor: PolymarketOnboardingInteractor
+    private let fastTrading: PolymarketOnboardingFastTrading?
     private weak var coordinator: PolymarketWelcomeRoutable?
 
     init(
         interactor: PolymarketOnboardingInteractor,
         hasExistingAccount: Bool,
         signingButtonType: SigningActionButtonViewType,
+        fastTrading: PolymarketOnboardingFastTrading? = nil,
         coordinator: PolymarketWelcomeRoutable
     ) {
         self.interactor = interactor
         self.signingButtonType = signingButtonType
+        self.fastTrading = fastTrading
         self.coordinator = coordinator
 
+        isFastTradingEnabled = fastTrading?.isEnabled ?? false
         copy = PolymarketWelcomeCopy(hasExistingAccount: hasExistingAccount)
     }
 }
@@ -73,6 +83,7 @@ private extension PolymarketWelcomeViewModel {
     func onStartTap() {
         guard !isRunning else { return }
 
+        coordinator?.onboardingDidStart()
         runState = .deriving
 
         runTask(in: self) { @MainActor viewModel in
@@ -140,7 +151,7 @@ private extension PolymarketWelcomeViewModel {
     @MainActor
     func presentAccountCreatedToast() {
         // [REDACTED_TODO_COMMENT]
-        Toast(view: SuccessToast(text: "Predictions account is ready"))
+        LegacyToast(view: SuccessToast(text: "Predictions account is ready"))
             .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 

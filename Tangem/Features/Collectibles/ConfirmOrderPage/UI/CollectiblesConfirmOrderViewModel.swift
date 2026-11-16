@@ -22,6 +22,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     private let platformFee: Decimal
     private let total: Decimal
     private let isTurboModeOn: Bool
+    private let unfinishedPurchase: CollectiblesPendingPurchase?
     private let purchaseInteractor: any CollectiblesPackPurchaseInteractor
     private let revealAssetsPreloader: any CollectiblesRevealAssetsPreloader
     private let delayProvider: any PollDelayProvider
@@ -31,6 +32,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
 
     private var balanceState: BalanceState = .loading
     private var orderPhase: OrderPhase = .idle
+    private var isResumingPurchase = false
     private var revealColorScheme: ColorScheme?
     private var bag = Set<AnyCancellable>()
     private var errorDismissTask: Task<Void, Error>?
@@ -46,6 +48,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     @Published private(set) var revealViewModel: CollectiblesPackRevealViewModel?
     @Published private(set) var errorMessage: String?
     @Published var sheet: Sheet?
+    @Published var isPackOpenFailedPresented = false
 
     // MARK: - Init
 
@@ -53,6 +56,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         machineID: String,
         machine: CollectiblesMachine,
         isTurboModeOn: Bool,
+        unfinishedPurchase: CollectiblesPendingPurchase? = nil,
         usdcBalanceProvider: any TokenBalanceProvider,
         purchaseInteractor: any CollectiblesPackPurchaseInteractor,
         relinkStatusProvider: (any CollectiblesRelinkStatusProvider)?,
@@ -66,6 +70,7 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         platformFee = machine.platformFee
         total = machine.price + machine.platformFee
         self.isTurboModeOn = isTurboModeOn
+        self.unfinishedPurchase = unfinishedPurchase
         self.purchaseInteractor = purchaseInteractor
         self.revealAssetsPreloader = revealAssetsPreloader
         self.routable = routable
@@ -94,47 +99,33 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         ]
 
         bind(usdcBalanceProvider: usdcBalanceProvider, relinkStatusProvider: relinkStatusProvider)
-        restorePendingPurchase()
     }
 
     // MARK: - Methods
 
+    func onFirstDidAppear() {
+        guard unfinishedPurchase != nil else { return }
+
+        resumeUnfinishedPurchase()
+    }
+
     func approve() {
         guard buttonState == .approve else { return }
 
-        dismissError()
-        orderPhase = .generating
-        updateButtonState()
-
-        if let revealColorScheme {
-            revealAssetsPreloader.preload(for: revealColorScheme)
+        guard unfinishedPurchase == nil else {
+            resumeUnfinishedPurchase()
+            return
         }
 
-        Task { [weak self, purchaseInteractor, revealAssetsPreloader, machineID, price, platformFee, isTurboModeOn, refreshBalance] in
-            do {
-                let result = try await purchaseInteractor.purchase(
-                    machineID: machineID,
-                    price: price,
-                    platformFee: platformFee,
-                    isTurboModeOn: isTurboModeOn,
-                    onStep: { [weak self] step in self?.apply(step) }
-                )
-
-                switch result {
-                case .wonCard(let wonCard):
-                    let imageURLs = [wonCard.imageFrontURL, wonCard.imageBackURL].compactMap { $0 }
-                    let assets = await revealAssetsPreloader.assets(prefetchingImages: imageURLs)
-
-                    // [REDACTED_TODO_COMMENT]
-                    self?.openReveal(of: wonCard, assets: assets)
-                case .autoSold(let amount, let wonCard):
-                    self?.showBuybackComplete(amount: amount, wonCard: wonCard)
-                }
-            } catch {
-                self?.handlePurchaseFailure(error)
-            }
-
-            await refreshBalance()
+        isResumingPurchase = false
+        runOrder { [purchaseInteractor, machineID, price, platformFee, isTurboModeOn] onStep in
+            try await purchaseInteractor.purchase(
+                machineID: machineID,
+                price: price,
+                platformFee: platformFee,
+                isTurboModeOn: isTurboModeOn,
+                onStep: onStep
+            )
         }
     }
 
@@ -184,14 +175,23 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
     }
 
     func openUnopenedPack() {
-        guard sheet != nil else { return }
-
-        dismissSheet()
-        approve()
+        dismissSheet { [weak self] in self?.resumeUnfinishedPurchase() }
     }
 
     func openAgain() {
         dismissSheet { [weak self] in self?.routable?.returnToMachine() }
+    }
+
+    func getAssistance() {
+        routable?.openSupport()
+    }
+
+    func closePackOpenFailed() {
+        isPackOpenFailedPresented = false
+    }
+
+    func packOpenFailedDidDismiss() {
+        routable?.closePackFlow()
     }
 
     func sheetDidDismiss() {
@@ -199,8 +199,13 @@ final class CollectiblesConfirmOrderViewModel: ObservableObject {
         presentedSheet = nil
 
         guard let sheetDismissal else {
-            if case .buybackComplete = dismissedSheet {
+            switch dismissedSheet {
+            case .buybackComplete:
                 routable?.returnToMachine()
+            case .refundOnTheWay:
+                routable?.closePackFlow()
+            case .lowInventory, .packUnopened, .none:
+                break
             }
 
             return
@@ -247,6 +252,7 @@ extension CollectiblesConfirmOrderViewModel {
     enum Sheet: Hashable, Identifiable {
         case lowInventory
         case packUnopened
+        case refundOnTheWay
         case buybackComplete(BuybackComplete)
 
         var id: Self { self }
@@ -306,10 +312,47 @@ private extension CollectiblesConfirmOrderViewModel {
             .store(in: &bag)
     }
 
-    func restorePendingPurchase() {
-        Task { [weak self, purchaseInteractor] in
-            await purchaseInteractor.restorePendingPurchase()
-            self?.updateButtonState()
+    func resumeUnfinishedPurchase() {
+        isResumingPurchase = true
+        runOrder { [purchaseInteractor, machineID, unfinishedPurchase] onStep in
+            guard let unfinishedPurchase else {
+                return try await purchaseInteractor.resumeKeptPurchase(machineID: machineID, onStep: onStep)
+            }
+
+            return try await purchaseInteractor.resumePurchase(unfinishedPurchase, onStep: onStep)
+        }
+    }
+
+    func runOrder(
+        _ request: @escaping (_ onStep: @escaping (CollectiblesPackPurchaseStep) -> Void) async throws -> CollectiblesPackPurchaseResult
+    ) {
+        dismissError()
+        orderPhase = .generating
+        updateButtonState()
+
+        if let revealColorScheme {
+            revealAssetsPreloader.preload(for: revealColorScheme)
+        }
+
+        Task { [weak self, revealAssetsPreloader, refreshBalance] in
+            do {
+                let result = try await request { [weak self] step in self?.apply(step) }
+
+                switch result {
+                case .wonCard(let wonCard):
+                    let imageURLs = [wonCard.imageFrontURL, wonCard.imageBackURL].compactMap { $0 }
+                    let assets = await revealAssetsPreloader.assets(prefetchingImages: imageURLs)
+
+                    // [REDACTED_TODO_COMMENT]
+                    self?.openReveal(of: wonCard, assets: assets)
+                case .autoSold(let amount, let wonCard):
+                    self?.showBuybackComplete(amount: amount, wonCard: wonCard)
+                }
+            } catch {
+                self?.handlePurchaseFailure(error)
+            }
+
+            await refreshBalance()
         }
     }
 
@@ -381,15 +424,19 @@ private extension CollectiblesConfirmOrderViewModel {
             buttonState = .relinkRequired
         case .lowInventory:
             present(.lowInventory)
-        case .packUnopened, .openFailed, .prizeNotDelivered:
+        case .packUnopened, .openFailed, .prizeNotDelivered, .paymentTimedOut:
             present(.packUnopened)
-        // [REDACTED_TODO_COMMENT]
-        case .paymentFailed(.expired):
-            showError(message: "Your purchase has expired")
+        case .openRefused, .paymentFailed(.expired), .paymentFailed(.packOpeningError):
+            isPackOpenFailedPresented = true
         case .paymentFailed(.refunded):
-            showError(message: "Your payment has been refunded")
+            present(.refundOnTheWay)
+        case .paymentFailed where isResumingPurchase:
+            routable?.closePackFlow()
+        // [REDACTED_TODO_COMMENT]
         case .anotherPurchaseInProgress:
             showError(message: "Open your other pack first")
+        case .noUnfinishedPurchase:
+            routable?.closePackFlow()
         default:
             showError()
         }

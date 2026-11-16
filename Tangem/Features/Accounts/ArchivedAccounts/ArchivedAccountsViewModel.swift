@@ -112,7 +112,7 @@ final class ArchivedAccountsViewModel: ObservableObject {
 
         Analytics.log(.walletSettingsAccountRecovered)
 
-        Toast(view: SuccessToast(text: Localization.accountRecoverSuccessMessage))
+        LegacyToast(view: SuccessToast(text: Localization.accountRecoverSuccessMessage))
             .present(layout: .top(padding: 24), type: .temporary(interval: 4))
     }
 

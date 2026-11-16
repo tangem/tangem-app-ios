@@ -56,9 +56,6 @@ extension OnrampProviderItemViewModel {
         var attributedFormatted: AttributedString {
             let string = "\(Localization.onrampUpToRate) \(formatted)"
             var formatted = AttributedString(string)
-            formatted.font = Fonts.Regular.caption1
-            formatted.foregroundColor = DesignSystem.Color.textSecondary
-
             if let range = formatted.range(of: self.formatted) {
                 formatted[range].foregroundColor = DesignSystem.Color.textPrimary
             }

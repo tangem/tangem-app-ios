@@ -17,7 +17,6 @@ public struct MainButton: View {
     private let style: Style
     private let size: Size
     private let isDisabled: Bool
-    private let isRedesign: Bool
     private let action: () -> Void
     private let handleActionWhenDisabled: Bool
     private let accessibilityIdentifier: String?
@@ -32,7 +31,6 @@ public struct MainButton: View {
         size: Size = .default,
         isLoading: Bool = false,
         isDisabled: Bool = false,
-        isRedesign: Bool = true,
         handleActionWhenDisabled: Bool = false,
         accessibilityIdentifier: String? = nil,
         action: @escaping (() -> Void)
@@ -44,14 +42,13 @@ public struct MainButton: View {
         self.size = size
         self.isLoading = isLoading
         self.isDisabled = isDisabled
-        self.isRedesign = isRedesign
         self.handleActionWhenDisabled = handleActionWhenDisabled
         self.accessibilityIdentifier = accessibilityIdentifier
         self.action = action
     }
 
     private var cornerRadius: CGFloat {
-        isRedesign ? size.height / 2 : style.cornerRadius(for: size)
+        size.height / 2
     }
 
     public init(settings: Settings) {

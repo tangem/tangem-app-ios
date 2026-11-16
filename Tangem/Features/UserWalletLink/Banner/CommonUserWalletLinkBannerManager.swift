@@ -49,7 +49,6 @@ extension CommonUserWalletLinkBannerManager: UserWalletLinkBannerManager {
         self.onUpdate = onUpdate
 
         guard
-            FeatureProvider.isAvailable(.walletLinking),
             !userWalletModel.isUserWalletLocked,
             userWalletLinker.isLinkSupported(userWalletModel)
         else {

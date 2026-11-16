@@ -497,6 +497,10 @@ private extension Blockchain {
         case .arc: return nil
         case .publicMasterpiece: return nil
         case .onyx: return nil
+        case .zeniq: return nil
+        case .katana: return nil
+        case .xLayer: return nil
+        case .ink: return nil
         case .seiEvm: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }
@@ -547,7 +551,7 @@ private extension Blockchain {
         case .terraV1: return nil
         case .terraV2: return nil
         case .tezos: return "xtz"
-        case .ton: return "ton"
+        case .ton: return "gram"
         case .tron: return "trx"
         case .veChain: return "vet"
         case .xdc: return nil
@@ -607,6 +611,10 @@ private extension Blockchain {
         case .arc: return nil
         case .publicMasterpiece: return nil
         case .onyx: return nil
+        case .zeniq: return nil
+        case .katana: return nil
+        case .xLayer: return nil
+        case .ink: return nil
         case .seiEvm: return nil
             // Did you get a compilation error here? If so, check whether the network is supported at https://api.moonpay.com/v3/currencies
         }

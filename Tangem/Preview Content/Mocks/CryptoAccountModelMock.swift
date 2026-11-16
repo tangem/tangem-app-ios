@@ -20,6 +20,7 @@ final class CryptoAccountModelMock {
     let walletModelsManager: WalletModelsManager
     let totalBalanceProvider: TotalBalanceProvider
     let userTokensManager: UserTokensManager
+    let pendingDerivationProvider: AccountPendingDerivationProvider
 
     private(set) var name = "Mock Account" {
         didSet {
@@ -49,6 +50,7 @@ final class CryptoAccountModelMock {
         walletModelsManager: WalletModelsManager = WalletModelsManagerMock(),
         totalBalanceProvider: TotalBalanceProvider = TotalBalanceProviderMock(),
         userTokensManager: UserTokensManager = UserTokensManagerMock(),
+        pendingDerivationProvider: AccountPendingDerivationProvider = NoopAccountPendingDerivationProvider(),
         onArchive: @escaping OnArchive
     ) {
         // A wallet of its own per mock, so that two of them never answer to the same identifier
@@ -64,6 +66,7 @@ final class CryptoAccountModelMock {
         self.walletModelsManager = walletModelsManager
         self.totalBalanceProvider = totalBalanceProvider
         self.userTokensManager = userTokensManager
+        self.pendingDerivationProvider = pendingDerivationProvider
         self.onArchive = onArchive
     }
 }

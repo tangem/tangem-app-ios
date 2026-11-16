@@ -162,6 +162,18 @@ final class AccountPickerViewModelTests: LeakTrackingTestSuite {
         #expect(accounts.map(\.isSelected) == [false])
     }
 
+    @Test("Checkmarks show only when the picker opens with a selected account", arguments: [true, false])
+    func checkmarksFollowSelectedAccount(hasSelectedAccount: Bool) async {
+        let account = makeAccount(isMain: true)
+        let (sut, _) = await makeSUT(
+            userWallets: [AccountPickerUserWallet(userWalletModel: makeUserWallet("userWallet"), accounts: [account])],
+            globalState: .multiple,
+            selectedAccount: hasSelectedAccount ? account : nil
+        )
+
+        #expect(sut.showsSelectionCheckmarks == hasSelectedAccount)
+    }
+
     @Test("The layout and title follow the accounts state while the picker is open")
     func layoutFollowsAccountsState() async throws {
         let globalStateProvider = SelectorCryptoAccountsGlobalStateProviderStub(state: .single)

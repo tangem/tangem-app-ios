@@ -16,8 +16,6 @@ final class MCPSessionsCleaner {
     private var bag: Set<AnyCancellable> = []
 
     func initialize() {
-        guard FeatureProvider.isAvailable(.mcp) else { return }
-
         userWalletRepository.eventProvider
             .withWeakCaptureOf(self)
             .sink { cleaner, event in

@@ -20,7 +20,8 @@ struct OnrampAllOfferViewModelBuilder {
         provider: OnrampProvider,
         buyAction: OnrampOfferViewModel.BuyAction,
         infoAction: (() -> Void)? = nil,
-        linkedBanner: LinkedMarketingBannerViewModel? = nil
+        linkedBanner: LinkedMarketingBannerViewModel? = nil,
+        isBuyEnabled: Bool = true
     ) -> OnrampOfferViewModel {
         let isNativeApplePay = buyAction.isNativeApplePay
 
@@ -75,6 +76,7 @@ struct OnrampAllOfferViewModelBuilder {
             amount: amount,
             provider: offerProvider,
             isAvailable: provider.isExecutable,
+            isBuyEnabled: isBuyEnabled,
             buyAction: buyAction,
             legalNotice: legalNotice,
             linkedBanner: linkedBanner

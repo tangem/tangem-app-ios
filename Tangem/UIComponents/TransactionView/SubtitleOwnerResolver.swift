@@ -52,7 +52,7 @@ struct SubtitleOwnerResolver {
         guard isAccountsMode, let account = match.walletModel.account else {
             return .wallet(
                 name: walletName,
-                imageProvider: match.userWalletModel.walletImageProvider,
+                walletIcon: match.userWalletModel.walletIcon,
                 thumbnailType: match.userWalletModel.config.walletThumbnailType
             )
         }

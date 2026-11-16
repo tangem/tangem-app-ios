@@ -71,6 +71,21 @@ extension CommonEmailDataCollectorBuilder: EmailDataCollectorBuilder {
         )
     }
 
+    func makeMailData(swapProvider: ExpressProvider, isFeeIncluded: Bool, amount: BSDKAmount, error: UniversalError) -> EmailDataCollector {
+        SendScreenDataCollector(
+            userWalletEmailData: emailDataProvider.emailData,
+            walletModel: walletModel,
+            fee: nil,
+            destination: "-",
+            amount: amount,
+            isFeeIncluded: isFeeIncluded,
+            lastError: .init(error: error),
+            stakingAction: nil,
+            stakingTarget: nil,
+            swapProvider: swapProvider.name
+        )
+    }
+
     func makeMailData(
         stakingActionType: StakingAction.ActionType?,
         target: StakingTargetInfo,

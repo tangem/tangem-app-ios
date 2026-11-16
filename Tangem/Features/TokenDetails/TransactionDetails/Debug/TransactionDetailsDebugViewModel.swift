@@ -41,7 +41,7 @@ final class TransactionDetailsDebugViewModel: ObservableObject {
 
     func copyTapped() {
         UIPasteboard.general.string = copyText
-        Toast(view: SuccessToast(text: "Copied")).present(layout: .top(padding: 14), type: .temporary())
+        LegacyToast(view: SuccessToast(text: "Copied")).present(layout: .top(padding: 14), type: .temporary())
     }
 
     private var copyText: String {

@@ -69,10 +69,6 @@ final class MarketsTokenDetailsViewModel: ObservableObject {
 
     var price: String? { priceInfo?.price }
 
-    var attributedPrice: AttributedString? {
-        price.map { priceHelper.makeAttributedPrice(price: $0) }
-    }
-
     var priceChangeState: PriceChangeView.State? { priceInfo?.priceChangeState }
 
     var isMarketsSheetStyle: Bool { presentationStyle == .marketsSheet }

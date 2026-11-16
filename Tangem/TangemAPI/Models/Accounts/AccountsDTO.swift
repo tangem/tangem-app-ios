@@ -35,7 +35,21 @@ extension AccountsDTO {
 }
 
 extension AccountsDTO {
+    static var supportedAccountTypes: [AccountType] {
+        var types: [AccountType] = [.crypto]
+
+        if FeatureProvider.isAvailable(.jointAccounts) {
+            types.append(.joint)
+        }
+
+        if FeatureProvider.isAvailable(.collectibles) {
+            types.append(.collectibles)
+        }
+
+        return types
+    }
+
     static var isV2Available: Bool {
-        FeatureProvider.isAvailable(.jointAccounts) || FeatureProvider.isAvailable(.collectibles)
+        supportedAccountTypes.contains { $0 != .crypto }
     }
 }

@@ -59,7 +59,7 @@ extension AuthViewState {
         let id: UserWalletId
         let title: String
         let description: String
-        let imageProvider: WalletImageProviding
+        let icon: UserWalletIcon
         let isProtected: Bool
         let isUnlocking: (UserWalletId?) -> Bool
         let action: () -> Void

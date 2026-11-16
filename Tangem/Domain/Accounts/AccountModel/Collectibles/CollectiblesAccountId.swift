@@ -9,8 +9,7 @@
 import Foundation
 import TangemFoundation
 
-/// One collectibles account per wallet, so the wallet is the identity — and stays it once the backend serves
-/// a record, since swapping in a backend id would move the persistence key.
+/// One per wallet, keyed like its account list entry so that the backend order places it like any other account.
 struct CollectiblesAccountId: Hashable {
     let userWalletId: UserWalletId
 }
@@ -18,7 +17,7 @@ struct CollectiblesAccountId: Hashable {
 // MARK: - AccountModelPersistentIdentifierConvertible
 
 extension CollectiblesAccountId: AccountModelPersistentIdentifierConvertible {
-    func toPersistentIdentifier() -> String {
-        "Collectibles/\(userWalletId.stringValue)"
+    func toPersistentIdentifier() -> AnyHashable {
+        AccountModelUtils.collectiblesAccountDerivationIdentity.toPersistentIdentifier()
     }
 }

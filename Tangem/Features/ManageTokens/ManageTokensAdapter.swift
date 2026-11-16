@@ -173,7 +173,7 @@ private extension ManageTokensAdapter {
                 displayAlertAndUpdateSelection(
                     for: tokenItem,
                     title: Localization.commonAttention,
-                    message: Localization.alertManageTokensUnsupportedMessage(tokenItem.blockchain.displayName)
+                    message: Localization.alertManageTokensUnsupportedMessage(tokenItem.blockchain.displayName.droppingNetworkSuffix)
                 )
 
                 return
@@ -272,7 +272,7 @@ private extension ManageTokensAdapter {
         let binding = Binding<Bool> {
             false
         } set: { _ in
-            Toast(view: SuccessToast(text: Localization.contractAddressCopiedMessage))
+            LegacyToast(view: SuccessToast(text: Localization.contractAddressCopiedMessage))
                 .present(
                     layout: .bottom(padding: 80),
                     type: .temporary()

@@ -20,6 +20,10 @@ final class TransferModel {
     private let _destination: CurrentValueSubject<SendDestination?, Never>
     private let _destinationAdditionalField: CurrentValueSubject<SendDestinationAdditionalField, Never>
     private let _amount: CurrentValueSubject<SendAmount?, Never>
+    private let contractCallData: Data?
+    private let preparation: TransferPreparation?
+    private let preparationGas = OSAllocatedUnfairLock<Task<TransferPreparationGas?, Never>?>(initialState: nil)
+    private let _preparationGasState: CurrentValueSubject<TransferPreparationGasState, Never>
     private let _isFeeIncluded = CurrentValueSubject<Bool, Never>(false)
 
     private let _transaction = CurrentValueSubject<Result<BSDKTransaction, Error>?, Never>(nil)
@@ -46,7 +50,11 @@ final class TransferModel {
     private let balanceConverter = BalanceConverter()
     private let transactionBuild = OSAllocatedUnfairLock(initialState: TransactionBuild())
     private var transactionInputsSubscription: AnyCancellable?
-    private var feeUpdateTask: Task<Void, Never>?
+    private(set) var feeUpdateTask: Task<Void, Never>?
+
+    var transactionBuildTask: Task<Void, Never>? {
+        transactionBuild.withLock { $0.task }
+    }
 
     // MARK: - Public interface
 
@@ -69,6 +77,9 @@ final class TransferModel {
         _destination = .init(predefinedValues.destination)
         _destinationAdditionalField = .init(predefinedValues.tag)
         _amount = .init(predefinedValues.amount)
+        contractCallData = predefinedValues.contractCallData
+        preparation = predefinedValues.preparation
+        _preparationGasState = .init(predefinedValues.preparation == nil ? .estimated : .estimating)
 
         bind()
     }
@@ -176,15 +187,35 @@ private extension TransferModel {
 
     func updateFees(amountValue: Decimal, destination: String) {
         feeUpdateTask?.cancel()
+        let preparationEstimate = startPreparationGasEstimate(amountValue: amountValue, destination: destination)
+
         feeUpdateTask = runTask(in: self) { model in
             let feeProvidersManager = model._sourceToken.tokenFeeProvidersManager
+
+            if let preparationEstimate {
+                let gas = await preparationEstimate.value
+                guard !Task.isCancelled else { return }
+
+                guard let gas else {
+                    model._preparationGasState.send(.reverted)
+                    return
+                }
+
+                feeProvidersManager.update(input: .dex(.ethereumEstimate(estimatedGasLimit: gas.total, otherNativeFee: nil)))
+                await feeProvidersManager.updateFees().value
+                guard !Task.isCancelled else { return }
+
+                model._preparationGasState.send(.estimated)
+                return
+            }
+
             var estimationAmount = model.gaslessTransactionAmount(
                 enteredAmount: amountValue,
                 fee: feeProvidersManager.selectedTokenFee.value.value
             ) ?? amountValue
 
             for _ in 0 ..< Self.maximumGaslessQuoteResolutionAttempts {
-                feeProvidersManager.update(input: .common(amount: estimationAmount, destination: destination))
+                feeProvidersManager.update(input: model.feeInput(amount: estimationAmount, destination: destination))
                 await feeProvidersManager.updateFees().value
 
                 guard !Task.isCancelled,
@@ -283,7 +314,13 @@ private extension TransferModel {
 
         var transactionsParams: TransactionParams?
 
-        if case .filled(_, _, let params) = additionalField {
+        if let contractCallData {
+            guard case .coin = amount.type, let wei = amount.bigUIntValue, wei > 0 else {
+                throw ValidationError.invalidAmount
+            }
+
+            transactionsParams = EthereumTransactionParams(data: contractCallData)
+        } else if case .filled(_, _, let params) = additionalField {
             transactionsParams = params
         }
 
@@ -300,6 +337,70 @@ private extension TransferModel {
     private func makeAmount(decimal: Decimal) -> Amount {
         let tokenItem = _sourceToken.tokenItem
         return Amount(with: tokenItem.blockchain, type: tokenItem.amountType, value: decimal)
+    }
+}
+
+// MARK: - Fee input
+
+extension TransferModel {
+    func updateFees(amountOrBalance amount: Decimal?) {
+        guard let destination = _destination.value?.value.transactionAddress else {
+            return
+        }
+
+        updateFees(amountValue: amount ?? _sourceToken.availableBalanceProvider.balanceType.value ?? 0, destination: destination)
+    }
+}
+
+private extension TransferModel {
+    static func preparationAware(_ fee: TokenFee, preparationGasState: TransferPreparationGasState) -> TokenFee {
+        switch preparationGasState {
+        case .estimated:
+            return fee
+        case .estimating:
+            return TokenFee(option: fee.option, tokenItem: fee.tokenItem, value: .loading)
+        case .reverted:
+            return TokenFee(option: fee.option, tokenItem: fee.tokenItem, value: .failure(TransferPreparationError.simulationReverted))
+        }
+    }
+
+    func startPreparationGasEstimate(amountValue: Decimal, destination: String) -> Task<TransferPreparationGas?, Never>? {
+        guard let preparation, let contractCallData else {
+            return nil
+        }
+
+        let call = TransferPreparationCall(destination: destination, value: contractCallEstimationAmount(for: amountValue), data: contractCallData)
+        let estimate = Task { await preparation.gas(mainCall: call) }
+
+        preparationGas.withLock { previous in
+            previous?.cancel()
+            previous = estimate
+        }
+
+        _preparationGasState.send(.estimating)
+        return estimate
+    }
+
+    func contractCallEstimationAmount(for amount: Decimal) -> Decimal {
+        let balance = _sourceToken.availableBalanceProvider.balanceType.value ?? amount
+        let halfBalance = (balance / 2).rounded(scale: _sourceToken.tokenItem.decimalCount)
+        return min(amount, halfBalance)
+    }
+
+    func feeInput(amount: Decimal, destination: String) -> TokenFeeProviderInputData {
+        guard let contractCallData else {
+            return .common(amount: amount, destination: destination)
+        }
+
+        return .dex(
+            .ethereum(
+                amount: makeAmount(decimal: contractCallEstimationAmount(for: amount)),
+                destination: destination,
+                txData: contractCallData,
+                otherNativeFee: nil,
+                gasLimitIncreasePercent: EthereumFeeParametersConstants.yieldModuleGasLimitIncreasePercent
+            )
+        )
     }
 }
 
@@ -340,6 +441,15 @@ private extension TransferModel {
     }
 
     private func simpleSend() async throws -> TransactionDispatcherResult {
+        if preparation != nil {
+            await awaitSettled { feeUpdateTask }
+            try Task.checkCancellation()
+
+            guard _preparationGasState.value == .estimated else {
+                throw TransactionDispatcherResult.Error.feeNotFound
+            }
+        }
+
         // Await async network validation
         await awaitSettled { transactionBuild.withLock { $0.task } }
         // The wait outlives cancellation of this send, so a superseded one stops before the dispatcher.
@@ -354,8 +464,19 @@ private extension TransferModel {
             throw TransactionDispatcherResult.Error.transactionNotFound
         }
 
-        let dispatcher = _sourceToken.transactionDispatcherProvider.makeTransferTransactionDispatcher()
-        var result = try await dispatcher.send(transaction: .transfer(transaction))
+        var result: TransactionDispatcherResult
+        if let preparation {
+            guard let gasEstimate = preparationGas.withLock({ $0 }), let gas = await gasEstimate.value else {
+                throw TransactionDispatcherResult.Error.feeNotFound
+            }
+
+            try Task.checkCancellation()
+            result = try await preparation.send(mainCall: transaction, gas: gas)
+        } else {
+            let dispatcher = _sourceToken.transactionDispatcherProvider.makeTransferTransactionDispatcher()
+            result = try await dispatcher.send(transaction: .transfer(transaction))
+        }
+
         result.transfer = TransactionDispatcherResult.Transfer(
             amount: transaction.amount.value,
             destination: transaction.destinationAddress,
@@ -503,11 +624,13 @@ extension TransferModel: SendFeeUpdater {
 
 extension TransferModel: SendFeeInput {
     var selectedFee: TokenFee? {
-        _sourceToken.tokenFeeProvidersManager.selectedTokenFee
+        Self.preparationAware(_sourceToken.tokenFeeProvidersManager.selectedTokenFee, preparationGasState: _preparationGasState.value)
     }
 
     var selectedFeePublisher: AnyPublisher<TokenFee, Never> {
-        _sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher
+        Publishers.CombineLatest(_sourceToken.tokenFeeProvidersManager.selectedTokenFeePublisher, _preparationGasState.removeDuplicates())
+            .map(Self.preparationAware(_:preparationGasState:))
+            .eraseToAnyPublisher()
     }
 
     var isSelectedFeeActual: Bool {
@@ -551,12 +674,13 @@ extension TransferModel: SendFeeInput {
 
 extension TransferModel: SendSummaryInput, SendSummaryOutput {
     var isReadyToSendPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(
+        Publishers.CombineLatest3(
             _transaction,
-            _sourceToken.tokenFeeProvidersManager.selectedFeeTokenUsageAvailabilityPublisher
+            _sourceToken.tokenFeeProvidersManager.selectedFeeTokenUsageAvailabilityPublisher,
+            _preparationGasState
         )
-        .map { transaction, availability in
-            transaction?.value != nil && availability.allowsFeePayment
+        .map { transaction, availability, preparationGasState in
+            transaction?.value != nil && availability.allowsFeePayment && preparationGasState == .estimated
         }
         .removeDuplicates()
         .eraseToAnyPublisher()
@@ -696,6 +820,7 @@ extension TransferModel: NotificationTapDelegate {
              .closeGetTangemPay,
              .removeTangemPayAccount,
              .editSlippage,
+             .changeOnrampCountry,
              .linkUserWallet:
             assertionFailure("Notification tap not handled")
         }
@@ -816,15 +941,21 @@ extension TransferModel {
         let destination: SendDestination?
         let tag: SendDestinationAdditionalField
         let amount: SendAmount?
+        let contractCallData: Data?
+        let preparation: TransferPreparation?
 
         init(
             destination: SendDestination? = nil,
             tag: SendDestinationAdditionalField = .notSupported,
-            amount: SendAmount? = nil
+            amount: SendAmount? = nil,
+            contractCallData: Data? = nil,
+            preparation: TransferPreparation? = nil
         ) {
             self.destination = destination
             self.tag = tag
             self.amount = amount
+            self.contractCallData = contractCallData
+            self.preparation = preparation
         }
     }
 }

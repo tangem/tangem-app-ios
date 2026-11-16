@@ -39,7 +39,7 @@ struct EarnMostlyUsedView: View {
     }
 
     private var errorView: some View {
-        TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: retryAction)
+        UnableToLoadDataView(isButtonBusy: false, retryButtonAction: retryAction)
             .padding(.horizontal, Layout.horizontalPadding)
             .infinityFrame()
     }

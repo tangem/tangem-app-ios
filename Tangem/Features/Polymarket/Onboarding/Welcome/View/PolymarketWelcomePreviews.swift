@@ -26,6 +26,7 @@ private final class PolymarketOnboardingInteractorPreviewStub: PolymarketOnboard
 }
 
 private final class PolymarketWelcomeRoutablePreviewStub: PolymarketWelcomeRoutable {
+    func onboardingDidStart() {}
     func onboardingDidFinish(isNewAccount: Bool) {}
     func openRegionWarning() {}
     func openLegalTerms(url: URL) {}

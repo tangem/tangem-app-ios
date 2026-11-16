@@ -83,6 +83,10 @@ public struct AddressServiceFactory {
              .arc,
              .publicMasterpiece,
              .onyx,
+             .zeniq,
+             .katana,
+             .xLayer,
+             .ink,
              .seiEvm:
             return EVMAddressService()
         case .rsk:

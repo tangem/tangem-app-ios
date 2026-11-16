@@ -10,6 +10,7 @@ import Foundation
 import WalletCore
 import BigInt
 import PotentCBOR
+import TangemFoundation
 
 /// You can decode your CBOR transaction here: https://cbor.me
 class CardanoTransactionBuilder {
@@ -135,7 +136,12 @@ private extension CardanoTransactionBuilder {
     func getFeeToken(_ tokenAmount: TokenAmount, destination: String, source: String) throws -> FeeResult {
         let uint64AdaAmount = try buildCardanoMinAdaAmount(asset: asset(for: tokenAmount.token), amount: tokenAmount.amount)
 
-        let balance = outputs.reduce(0) { $0 + $1.amount }
+        let (balance, isOverflow) = outputs.sumReportingOverflow(by: \.amount)
+
+        guard !isOverflow else {
+            throw BlockchainSdkError.failedToGetFee
+        }
+
         // If we'll try to build the transaction with adaValue more then balance
         // We'll receive the error from the WalletCore
         let adaValue = min(balance, uint64AdaAmount)
@@ -180,16 +186,9 @@ private extension CardanoTransactionBuilder {
 private extension CardanoTransactionBuilder {
     func minChange(token: Token, uint64Amount: UInt64) throws -> UInt64 {
         let asset = try asset(for: token)
+        let tokenBalance = try assetsBalances(exclude: nil)[asset]
 
-        let tokenBalance: UInt64 = outputs.reduce(0) { partialResult, output in
-            let amountInOutput = output.assets
-                .filter { $0.policyID == asset.policyID }
-                .reduce(0) { $0 + $1.amount }
-
-            return partialResult + amountInOutput
-        }
-
-        let isSpendFullTokenAmount = tokenBalance == uint64Amount
+        let isSpendFullTokenAmount = tokenBalance == BigUInt(uint64Amount)
         return try minChange(exclude: isSpendFullTokenAmount ? token : nil)
     }
 
@@ -199,7 +198,7 @@ private extension CardanoTransactionBuilder {
 
         let tokenBundle = CardanoTokenBundle.with {
             $0.token = assetsBalances.map { asset, balance in
-                buildCardanoTokenAmount(asset: asset, amount: BigUInt(balance))
+                buildCardanoTokenAmount(asset: asset, amount: balance)
             }
         }
 
@@ -207,18 +206,18 @@ private extension CardanoTransactionBuilder {
         return minChange
     }
 
-    func assetsBalances(exclude: Token?) throws -> [CardanoUnspentOutput.Asset: UInt64] {
+    func assetsBalances(exclude: Token?) throws -> [AssetID: BigUInt] {
         let excludeAsset = try exclude.map { try asset(for: $0) }
+
         return outputs
-            .flatMap {
-                $0.assets.filter { $0 != excludeAsset }
-            }
+            .flatMap(\.assets)
+            .filter { AssetID($0) != excludeAsset }
             .reduce(into: [:]) { result, asset in
-                result[asset, default: 0] += asset.amount
+                result[AssetID(asset), default: 0] += BigUInt(asset.amount)
             }
     }
 
-    func asset(for token: Token) throws -> CardanoUnspentOutput.Asset {
+    func asset(for token: Token) throws -> AssetID {
         let assetFilter = CardanoAssetFilter(contractAddress: token.contractAddress)
 
         let asset = outputs
@@ -234,12 +233,12 @@ private extension CardanoTransactionBuilder {
             throw CardanoError.assetNotFound
         }
 
-        return asset
+        return AssetID(asset)
     }
 
     // MARK: - Building
 
-    func buildCardanoTokenAmount(asset: CardanoUnspentOutput.Asset, amount: BigUInt) -> CardanoTokenAmount {
+    func buildCardanoTokenAmount(asset: AssetID, amount: BigUInt) -> CardanoTokenAmount {
         CardanoTokenAmount.with {
             $0.policyID = asset.policyID
             $0.assetNameHex = asset.assetNameHex
@@ -248,7 +247,7 @@ private extension CardanoTransactionBuilder {
         }
     }
 
-    func buildCardanoMinAdaAmount(asset: CardanoUnspentOutput.Asset, amount: UInt64) throws -> UInt64 {
+    func buildCardanoMinAdaAmount(asset: AssetID, amount: UInt64) throws -> UInt64 {
         let tokenBundle = CardanoTokenBundle.with {
             $0.token = [buildCardanoTokenAmount(asset: asset, amount: BigUInt(amount))]
         }
@@ -414,6 +413,17 @@ private extension CardanoTransactionBuilder {
     struct TokenAmount {
         let token: Token
         let amount: UInt64
+    }
+
+    /// Identifies an asset across UTXOs: unlike `CardanoUnspentOutput.Asset`, it ignores the amount.
+    struct AssetID: Hashable {
+        let policyID: String
+        let assetNameHex: String
+
+        init(_ asset: CardanoUnspentOutput.Asset) {
+            policyID = asset.policyID
+            assetNameHex = asset.assetNameHex
+        }
     }
 
     enum BuildCardanoSigningInputOption {

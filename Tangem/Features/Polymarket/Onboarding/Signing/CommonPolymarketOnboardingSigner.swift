@@ -29,7 +29,8 @@ final class CommonPolymarketOnboardingSigner {
 
 extension CommonPolymarketOnboardingSigner: PolymarketOnboardingSigning {
     func sign(
-        approvals: PolymarketRelayedBatch.Unsigned
+        approvals: PolymarketRelayedBatch.Unsigned,
+        fastTradingAuthorization: PolymarketRelayedBatch.Unsigned?
     ) async throws(PolymarketSigningError) -> PolymarketOnboardingSignatures {
         guard let ownerKey = PolymarketUtilities.getKey(from: keysRepository) else { throw .notDerived }
 
@@ -37,9 +38,19 @@ extension CommonPolymarketOnboardingSigner: PolymarketOnboardingSigning {
         let timestamp = String(Int(Date().timeIntervalSince1970))
 
         let authDigest = PolymarketClobAuth.digest(ownerAddress: ownerAddress, timestamp: timestamp)
-        let batchDigest = try makeBatchDigest(for: approvals)
+        var batchDigests = [try makeBatchDigest(for: approvals)]
 
-        let signatures = try await makeSignatures(auth: authDigest, batch: batchDigest, using: ownerKey)
+        if let fastTradingAuthorization {
+            batchDigests.append(try makeBatchDigest(for: fastTradingAuthorization))
+        }
+
+        let signatures = try await makeSignatures(auth: authDigest, batches: batchDigests, using: ownerKey)
+
+        guard let approvalsSignature = signatures.batches.first else {
+            throw .unknown
+        }
+
+        let fastTradingAuthorizationSignature = signatures.batches.dropFirst().first
 
         return PolymarketOnboardingSignatures(
             authHeaders: PolymarketCLOBAuthHeaders(
@@ -48,7 +59,10 @@ extension CommonPolymarketOnboardingSigner: PolymarketOnboardingSigning {
                 timestamp: timestamp,
                 nonce: PolymarketClobAuth.nonce
             ),
-            approvals: approvals.signed(by: ownerAddress, signature: signatures.batch)
+            approvals: approvals.signed(by: ownerAddress, signature: approvalsSignature),
+            fastTradingAuthorization: fastTradingAuthorizationSignature.flatMap { signature in
+                fastTradingAuthorization?.signed(by: ownerAddress, signature: signature)
+            }
         )
     }
 }
@@ -65,30 +79,30 @@ private extension CommonPolymarketOnboardingSigner {
         }
     }
 
-    func makeBatchDigest(for approvals: PolymarketRelayedBatch.Unsigned) throws(PolymarketSigningError) -> Data {
+    func makeBatchDigest(for batch: PolymarketRelayedBatch.Unsigned) throws(PolymarketSigningError) -> Data {
         do {
-            return try PolymarketRelayedBatchSigning.digest(for: approvals)
+            return try PolymarketRelayedBatchSigning.digest(for: batch)
         } catch {
-            PolymarketLogger.error("Failed to build the approvals digest", error: error)
+            PolymarketLogger.error("Failed to build the onboarding batch digest", error: error)
             throw .unknown
         }
     }
 
     func makeSignatures(
         auth authDigest: Data,
-        batch batchDigest: Data,
+        batches batchDigests: [Data],
         using ownerKey: Wallet.PublicKey
-    ) async throws(PolymarketSigningError) -> (auth: String, batch: String) {
+    ) async throws(PolymarketSigningError) -> (auth: String, batches: [String]) {
         do {
-            let signatures = try await signer.sign(hashes: [authDigest, batchDigest], ownerKey: ownerKey)
+            let signatures = try await signer.sign(hashes: [authDigest] + batchDigests, ownerKey: ownerKey)
 
             let unmarshalled = try signatures.map { try $0.unmarshal().hexString.lowercased().addHexPrefix() }
 
-            guard unmarshalled.count == 2, let auth = unmarshalled.first, let batch = unmarshalled.last else {
+            guard unmarshalled.count == batchDigests.count + 1, let auth = unmarshalled.first else {
                 throw PolymarketSigningError.unknown
             }
 
-            return (auth: auth, batch: batch)
+            return (auth: auth, batches: Array(unmarshalled.dropFirst()))
         } catch {
             PolymarketLogger.error("Failed to sign the onboarding digests", error: error)
             throw PolymarketSigningError(signingFailure: error)

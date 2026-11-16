@@ -16,6 +16,7 @@ extension Snapshotting where Value: View, Format == UIImage {
         canvas: SnapshotCanvas = .component,
         layoutDirection: LayoutDirection = .leftToRight,
         dynamicTypeSize: DynamicTypeSize = .large,
+        reduceTransparency: Bool = false,
         background: Color = DesignSystem.Color.bgPrimary
     ) -> Self {
         let frame = SnapshotFrame(canvas: canvas)
@@ -38,6 +39,7 @@ extension Snapshotting where Value: View, Format == UIImage {
                     .environment(\.colorScheme, colorScheme)
                     .environment(\.layoutDirection, layoutDirection)
                     .environment(\.dynamicTypeSize, dynamicTypeSize)
+                    .environment(\._accessibilityReduceTransparency, reduceTransparency)
                     .environment(\.locale, Locale(identifier: "en_US"))
                     .environment(\.timeZone, TimeZone(secondsFromGMT: 0)!)
                     .environment(\.displayScale, frame.scale)
@@ -56,6 +58,7 @@ extension Dictionary where Key == String {
         colorSchemes: [ColorScheme] = [.light, .dark],
         layoutDirection: LayoutDirection = .leftToRight,
         dynamicTypeSize: DynamicTypeSize = .large,
+        reduceTransparency: Bool = false,
         background: Color = DesignSystem.Color.bgPrimary
     ) -> Self where Value == Snapshotting<V, UIImage> {
         var strategies = Self()
@@ -71,6 +74,7 @@ extension Dictionary where Key == String {
                     canvas: canvas,
                     layoutDirection: layoutDirection,
                     dynamicTypeSize: dynamicTypeSize,
+                    reduceTransparency: reduceTransparency,
                     background: background
                 )
             }

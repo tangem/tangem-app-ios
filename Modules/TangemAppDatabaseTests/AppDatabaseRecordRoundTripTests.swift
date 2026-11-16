@@ -201,6 +201,32 @@ struct AppDatabaseRecordRoundTripTests {
         }
     }
 
+    @Test("JointOperationRecord votes stored before they kept their signatures are read with none")
+    func jointOperationVotesWithoutSignatureKeyDecode() throws {
+        let databaseQueue = try AppDatabaseTestFactory.makeMigratedDatabaseQueue()
+
+        try databaseQueue.write { database in
+            try database.execute(sql: """
+            INSERT INTO jointOperations (
+                id, cryptoAccountID, safeAddress, chainID, status, initiator, "to", value, data, operation,
+                safeTxGas, baseGas, gasPrice, gasToken, refundReceiver, nonce, threshold, signatures, createdAt
+            )
+            VALUES (
+                'joint-operation-1', 'crypto-account-1', '0xsafe', 8453, 'awaitingSignatures', '0xinitiator', '0xrecipient', '0', '0x', 0,
+                '0', '0', '0', '0x0000000000000000000000000000000000000000', '0xtreasury', 0, 1,
+                '[{"address":"0xinitiator","state":"signed","at":"2026-09-08T09:20:37.000Z"}]', '2026-07-27 00:00:00.000'
+            )
+            """)
+        }
+
+        let record = try databaseQueue.read { database in
+            try JointOperationRecord.fetchOne(database, key: "joint-operation-1")
+        }
+
+        let expectedSignature = JointOperationRecord.Signature(address: "0xinitiator", state: "signed", signature: nil, at: "2026-09-08T09:20:37.000Z")
+        #expect(try #require(record).signatures == [expectedSignature])
+    }
+
     @Test("Fully populated JointOperationsSyncMetadataRecord round-trips")
     func fullJointOperationsSyncMetadataRecordRoundTrips() throws {
         let record = AppDatabaseFixtures.makeFullJointOperationsSyncMetadataRecord(walletID: "hashed-wallet-id")

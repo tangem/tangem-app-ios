@@ -20,16 +20,5 @@ extension InjectedValues {
 }
 
 private struct MarketingActivityBindingServiceKey: InjectionKey {
-    static var currentValue: MarketingActivityBindingService = {
-        guard FeatureProvider.isAvailable(.marketingActivityBinding) else {
-            return DummyMarketingActivityBindingService()
-        }
-
-        return CommonMarketingActivityBindingService()
-    }()
-}
-
-private struct DummyMarketingActivityBindingService: MarketingActivityBindingService {
-    func initialize() {}
-    func register(uid: String) {}
+    static var currentValue: MarketingActivityBindingService = CommonMarketingActivityBindingService()
 }

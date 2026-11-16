@@ -12,7 +12,8 @@ import TangemPolymarket
 import TangemUI
 
 struct PolymarketMainDependenciesFactory {
-    func make(for userWalletModel: any UserWalletModel) -> PolymarketMainDependencies {
+    @MainActor
+    func make(for userWalletModel: any UserWalletModel, fastTrading: PolymarketFastTradingContext?) -> PolymarketMainDependencies {
         let walletId = userWalletModel.userWalletId.stringValue
         let isPhaseTwoAvailable = FeatureProvider.isAvailable(.polymarketPhaseTwo)
         let apiProvider = PolymarketAPIProviderFactory().makeProvider(walletId: walletId)
@@ -38,7 +39,10 @@ struct PolymarketMainDependenciesFactory {
             ),
             positionsService: PolymarketPositionsFactory().makeService(for: userWalletModel, apiProvider: apiProvider),
             activityService: PolymarketActivityFactory().makeService(for: userWalletModel, apiProvider: apiProvider),
-            placementService: PolymarketOrderPlacementFactory().makeService(for: userWalletModel),
+            placementService: PolymarketOrderPlacementFactory().makeService(
+                for: userWalletModel,
+                signingRouter: fastTrading?.signingRouter ?? PolymarketSessionKeyFactory().makeOwnerKeySigningRouter(for: userWalletModel)
+            ),
             clobService: PolymarketOnboardingServicesFactory.makeDefault().makeCLOBService(),
             redeemService: PolymarketRedeemFactory().makeService(for: userWalletModel, sessionHealth: sessionHealth),
             withdrawContext: PolymarketWithdrawFactory().makeContext(for: userWalletModel, sessionHealth: sessionHealth),
@@ -46,8 +50,10 @@ struct PolymarketMainDependenciesFactory {
             refreshCenter: refreshCenter,
             activityHandler: PolymarketMainActivityHandler(fundsArrivalTracker: fundsArrivalTracker, refreshCenter: refreshCenter),
             sessionHealth: sessionHealth,
-            isSingleSheetOrderEnabled: isPhaseTwoAvailable,
-            isPhaseTwoAvailable: isPhaseTwoAvailable
+            fastTrading: fastTrading,
+            isSingleSheetOrderEnabled: FeatureProvider.isAvailable(.polymarketFastOrders),
+            isPhaseTwoAvailable: isPhaseTwoAvailable,
+            isEventChartEnabled: isPhaseTwoAvailable && FeatureProvider.isAvailable(.polymarketEventCharts)
         )
     }
 }
@@ -86,8 +92,10 @@ struct PolymarketMainDependencies {
     let refreshCenter: PolymarketMainRefreshCenter
     let activityHandler: PolymarketMainActivityHandler
     let sessionHealth: PolymarketSessionHealth
+    let fastTrading: PolymarketFastTradingContext?
     let isSingleSheetOrderEnabled: Bool
     let isPhaseTwoAvailable: Bool
+    let isEventChartEnabled: Bool
 
     var walletId: String {
         userWalletModel.userWalletId.stringValue
@@ -120,8 +128,34 @@ struct PolymarketMainDependencies {
             fundsArrivalTracker: fundsArrivalTracker,
             withdrawTracker: withdrawContext.tracker,
             refreshCenter: refreshCenter,
+            fastTrading: fastTrading?.service,
             coordinator: routable
         )
+    }
+
+    @MainActor
+    func makeFastTradingSettings(onClose: @escaping () -> Void) -> PolymarketFastTradingViewModel? {
+        fastTrading.map { fastTrading in
+            PolymarketFastTradingViewModel(
+                service: fastTrading.service,
+                signingButtonType: signingButtonType,
+                thisDeviceName: PolymarketSessionKeyFactory.deviceName,
+                onClose: onClose
+            )
+        }
+    }
+
+    @MainActor
+    func makeFastTradingActivation(onClose: @escaping () -> Void) -> PolymarketFastTradingActivationViewModel? {
+        fastTrading.map { fastTrading in
+            PolymarketFastTradingActivationViewModel(service: fastTrading.service, signingButtonType: signingButtonType, onClose: onClose)
+        }
+    }
+
+    func makeSessionKeySigningAvailability() -> PolymarketSessionKeySigningAvailability? {
+        fastTrading.map { fastTrading in
+            CommonPolymarketSessionKeySigningAvailability(service: fastTrading.service, signingRouter: fastTrading.signingRouter)
+        }
     }
 
     @MainActor

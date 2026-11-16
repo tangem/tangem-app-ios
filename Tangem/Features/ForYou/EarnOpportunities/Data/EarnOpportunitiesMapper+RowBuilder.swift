@@ -39,7 +39,7 @@ extension EarnOpportunitiesMapper {
                 id: holding.id,
                 tokenIconInfo: holding.tokenIconInfo,
                 name: holding.currencyName,
-                network: Localization.walletNetworkGroupTitle(holding.networkName),
+                network: Localization.walletNetworkGroupTitle(holding.networkName.droppingNetworkSuffix),
                 rewardAmount: rewardAmount(for: holding),
                 apyText: holding.apyInfo.rateType.earnBadgeText(percentText: percentFormatter.format(holding.apyInfo.apy, option: .interval))
             )
@@ -59,7 +59,7 @@ extension EarnOpportunitiesMapper {
                     customTokenColor: nil
                 ),
                 name: token.name,
-                network: Localization.walletNetworkGroupTitle(token.networkName),
+                network: Localization.walletNetworkGroupTitle(token.networkName.droppingNetworkSuffix),
                 rateText: token.rateText,
                 productText: productText(for: token.earnType)
             )

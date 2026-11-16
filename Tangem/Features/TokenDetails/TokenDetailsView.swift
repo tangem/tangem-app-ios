@@ -92,7 +92,6 @@ struct TokenDetailsView: View {
 
     private var leadingContent: some View {
         NavigationBarButton.back(action: viewModel.onBack)
-            .redesigned()
     }
 
     @ViewBuilder
@@ -177,7 +176,6 @@ struct TokenDetailsView: View {
                     },
                     label: {
                         NavigationBarButton.details(action: {})
-                            .redesigned()
                             .allowsHitTesting(false)
                     }
                 )
@@ -330,7 +328,7 @@ private extension TokenDetailsView {
         .first ?? CommonWalletModel.mockETH
 
     let notifManager = SingleTokenNotificationManager(
-        userWalletId: userWalletModel.userWalletId,
+        userWalletInfo: userWalletModel.userWalletInfo,
         walletModel: walletModel,
         walletModelsManager: cryptoAccountModel.walletModelsManager,
         signingActionButtonType: .requiredNFCInteraction

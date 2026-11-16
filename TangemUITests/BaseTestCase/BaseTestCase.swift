@@ -31,6 +31,7 @@ class BaseTestCase: XCTestCase {
     }
 
     func launchApp(
+        backendAuthenticationApiType: BackendAuthenticationAPI? = nil,
         tangemApiType: TangemAPI? = nil,
         expressApiType: ExpressAPI? = nil,
         stakingApiType: StakingAPI? = nil,
@@ -48,6 +49,11 @@ class BaseTestCase: XCTestCase {
         extraLaunchEnvironment: [String: String] = [:]
     ) {
         var arguments: [String] = []
+
+        arguments.append(contentsOf: [
+            "-backend_authentication_api_type",
+            (backendAuthenticationApiType ?? (tangemApiType == .mock ? .mock : .production)).rawValue,
+        ])
 
         arguments.append(contentsOf: [
             "-tangem_api_type", tangemApiType?.rawValue ?? TangemAPI.prod.rawValue,

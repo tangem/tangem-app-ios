@@ -15,7 +15,7 @@ import TangemFoundation
 final class WalletModelsTotalBalanceProvider {
     private let walletModelsManager: WalletModelsManager
     private let analyticsLogger: TotalBalanceProviderAnalyticsLogger
-    private let derivationStatusProvider: DerivationStatusProvider?
+    private let pendingDerivationStatusProvider: PendingDerivationStatusProvider
     private let totalBalanceStateBuilder: WalletModelsTotalBalanceStateBuilder
 
     private let totalBalanceSubject: CurrentValueSubject<TotalBalanceState, Never>
@@ -24,11 +24,11 @@ final class WalletModelsTotalBalanceProvider {
     init(
         walletModelsManager: WalletModelsManager,
         analyticsLogger: TotalBalanceProviderAnalyticsLogger,
-        derivationStatusProvider: DerivationStatusProvider?
+        pendingDerivationStatusProvider: PendingDerivationStatusProvider
     ) {
         self.walletModelsManager = walletModelsManager
         self.analyticsLogger = analyticsLogger
-        self.derivationStatusProvider = derivationStatusProvider
+        self.pendingDerivationStatusProvider = pendingDerivationStatusProvider
 
         totalBalanceStateBuilder = .init(walletModelsManager: walletModelsManager)
         totalBalanceSubject = .init(totalBalanceStateBuilder.buildTotalBalanceState())
@@ -58,7 +58,7 @@ extension WalletModelsTotalBalanceProvider: TotalBalanceProvider {
 
 private extension WalletModelsTotalBalanceProvider {
     func bind() {
-        let hasEntriesWithoutDerivationPublisher = derivationStatusProvider?.hasPendingDerivations ?? .just(output: false)
+        let hasEntriesWithoutDerivationPublisher = pendingDerivationStatusProvider.hasPendingDerivations
         let balanceStatePublisher = walletModelsManager
             .walletModelsPublisher
             .removeDuplicates()

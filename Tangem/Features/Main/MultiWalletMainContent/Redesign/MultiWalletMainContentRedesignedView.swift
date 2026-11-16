@@ -45,10 +45,6 @@ struct MultiWalletMainContentRedesignedView: View {
                 pausedJointAccounts
 
                 listContent
-
-                if let collectiblesAccountViewModel = viewModel.collectiblesAccountViewModel {
-                    collectiblesAccount(viewModel: collectiblesAccountViewModel)
-                }
             }
 
             if let nftEntrypointViewModel = viewModel.nftEntrypointViewModel {
@@ -119,7 +115,7 @@ struct MultiWalletMainContentRedesignedView: View {
     @ViewBuilder
     private var listContent: some View {
         let isLoading = viewModel.isLoadingTokenList
-        let hasContent = !viewModel.plainSections.isEmpty || !viewModel.accountSections.isEmpty
+        let hasContent = !viewModel.plainSections.isEmpty || !viewModel.accountRows.isEmpty
 
         if isLoading {
             skeletonPlaceholders
@@ -185,15 +181,25 @@ struct MultiWalletMainContentRedesignedView: View {
 
     private var accountsList: some View {
         VStack(spacing: 8) {
-            ForEach(viewModel.accountSections) { accountSection in
-                ExpandableAccountItemView(viewModel: accountSection.model) {
-                    LazyVStack(spacing: 0) {
-                        tokenRowsContent(sections: accountSection.items, roundBottomCorners: true)
-                    }
-                }
-                .cornerRadius(24)
-                .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
+            ForEach(viewModel.accountRows) { accountRow in
+                accountRowContent(accountRow)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func accountRowContent(_ accountRow: MultiWalletMainContentAccountRow) -> some View {
+        switch accountRow {
+        case .account(let accountSection):
+            ExpandableAccountItemView(viewModel: accountSection.model) {
+                LazyVStack(spacing: 0) {
+                    tokenRowsContent(sections: accountSection.items, roundBottomCorners: true)
+                }
+            }
+            .cornerRadius(24)
+            .backgroundColor(MultiWalletMainContentConstants.tokenListBackgroundColor)
+        case .collectibles(let collectiblesAccountViewModel):
+            collectiblesAccount(viewModel: collectiblesAccountViewModel)
         }
     }
 

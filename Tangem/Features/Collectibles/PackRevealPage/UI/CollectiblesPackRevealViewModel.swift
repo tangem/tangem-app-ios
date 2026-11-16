@@ -204,7 +204,7 @@ private extension CollectiblesPackRevealViewModel {
     }
 
     static func presentToast(title: String, icon: ImageType, iconColor: Color) {
-        Toast(view: TangemSnackbar(title: title).icon(icon).iconColor(iconColor))
+        LegacyToast(view: TangemSnackbar(title: title).icon(icon).iconColor(iconColor))
             .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 }

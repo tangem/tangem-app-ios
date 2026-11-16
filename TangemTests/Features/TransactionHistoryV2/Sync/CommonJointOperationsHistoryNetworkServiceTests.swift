@@ -225,8 +225,4 @@ private struct CancellingRecordsWriterStub: JointOperationsHistoryWriter {
     func save(remote items: [JointOperationHistoryItem]) async throws {
         withUnsafeCurrentTask { $0?.cancel() }
     }
-
-    func save(local items: [JointOperationHistoryItem]) async throws {}
-
-    func delete(operationIds: [String]) async throws {}
 }

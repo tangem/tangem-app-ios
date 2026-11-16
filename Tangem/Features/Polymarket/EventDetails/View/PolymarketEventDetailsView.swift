@@ -189,8 +189,7 @@ struct PolymarketEventDetailsView: View {
 
             PriceChangeView(
                 state: .loaded(changeType: change.type, text: change.text),
-                showIconForNeutral: false,
-                useRedesignColors: true
+                showIconForNeutral: false
             )
         }
     }

@@ -69,13 +69,13 @@ public extension Swift.Collection where Element: Swift.AdditiveArithmetic {
 }
 
 public extension Swift.Collection {
-    func sumReportingOverflow<T: FixedWidthInteger>(by keyPath: KeyPath<Element, T>) throws -> T {
-        try reduce(T.zero) {
-            let (partialValue, overflow) = $0.addingReportingOverflow($1[keyPath: keyPath])
-            if overflow {
-                throw NSError(domain: "Integer overflow", code: -1)
-            }
-            return partialValue
+    func sumReportingOverflow<T: FixedWidthInteger>(
+        by keyPath: KeyPath<Element, T>
+    ) -> (partialValue: T, overflow: Bool) {
+        reduce((partialValue: T.zero, overflow: false)) { result, element in
+            let (partialValue, overflow) = result.partialValue.addingReportingOverflow(element[keyPath: keyPath])
+
+            return (partialValue: partialValue, overflow: result.overflow || overflow)
         }
     }
 }

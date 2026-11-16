@@ -9,5 +9,5 @@
 import Foundation
 
 protocol CollectiblesPendingPurchaseProvider {
-    func load() async throws -> CollectiblesPendingPurchase?
+    func load() async throws -> [CollectiblesPendingPurchase]
 }

@@ -21,9 +21,13 @@ struct OnrampSummaryView: View {
         GroupedScrollView(contentType: .plain(spacing: 8)) {
             OnrampAmountView(viewModel: viewModel.onrampAmountViewModel)
 
+            if let restrictedRegionName = viewModel.restrictedRegionName {
+                BuyAndSwapRestrictionBanner(regionName: restrictedRegionName)
+            }
+
             marketingBanner
 
-            CallToActionMarketingBannersView(banners: viewModel.callToActionMarketingBanners) { action in
+            CallToActionMarketingBannersView(banners: viewModel.topCallToActionBanners) { action in
                 keyboardActive = false
                 viewModel.userDidTapCallToActionBanner(action: action)
             }
@@ -91,20 +95,24 @@ struct OnrampSummaryView: View {
         if !offers.recommended.isEmpty {
             OnrampOffersSectionView(title: Localization.onrampRecommendedTitle) {
                 ForEach(offers.recommended) { item in
-                    VStack(alignment: .leading, spacing: 8) {
-                        OnrampOfferView(viewModel: item.viewModel)
-
-                        if let footnote = item.footnote {
-                            OnrampOfferFootnoteView(text: footnote)
+                    switch item {
+                    case .offer(let offer):
+                        OnrampOfferView(viewModel: offer)
+                    case .banner(let banner):
+                        CallToActionMarketingBannersView(banners: [banner]) { action in
+                            keyboardActive = false
+                            viewModel.userDidTapCallToActionBanner(action: action)
                         }
                     }
                 }
             }
         }
 
-        OnrampAllOffersButton {
-            keyboardActive = false
-            viewModel.userDidTapAllOffersButton()
+        if offers.hasMoreOffers {
+            OnrampAllOffersButton {
+                keyboardActive = false
+                viewModel.userDidTapAllOffersButton()
+            }
         }
     }
 
@@ -145,16 +153,6 @@ private struct OnrampOffersSectionView<Content: View>: View {
                 content()
             }
         }
-    }
-}
-
-private struct OnrampOfferFootnoteView: View {
-    let text: String
-
-    var body: some View {
-        Text(text)
-            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
-            .padding(.horizontal, 16)
     }
 }
 

@@ -13,7 +13,7 @@ import struct TangemUIUtils.AlertBinder
 
 class SendFinishViewModel: ObservableObject, Identifiable {
     var headerTitle: String {
-        headerTitleProvider.title
+        headerTitleProvider?.title ?? ""
     }
 
     @Published private(set) var showHeader = false
@@ -32,10 +32,9 @@ class SendFinishViewModel: ObservableObject, Identifiable {
 
     // Staking
 
-    @Published private(set) var onrampAmountCompactViewModel: OnrampAmountCompactViewModel?
-    @Published private(set) var onrampStatusCompactViewModel: OnrampStatusCompactViewModel?
+    @Published private(set) var onrampStatusScreenViewModel: OnrampStatusScreenViewModel?
 
-    private let headerTitleProvider: any SendFinishHeaderTitleProvider
+    private let headerTitleProvider: (any SendFinishHeaderTitleProvider)?
     private let analyticsLogger: SendFinishAnalyticsLogger
 
     private weak var coordinator: SendRoutable?
@@ -48,10 +47,9 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         addContactViewModel: SendAddContactFinishViewModel?,
         stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
         sendFeeFinishViewModel: SendFeeFinishViewModel?,
-        onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
-        onrampStatusCompactViewModel: OnrampStatusCompactViewModel?,
+        onrampStatusScreenViewModel: OnrampStatusScreenViewModel?,
         jointAccountSignaturesCompactViewModel: JointAccountSignaturesCompactViewModel?,
-        headerTitleProvider: any SendFinishHeaderTitleProvider,
+        headerTitleProvider: (any SendFinishHeaderTitleProvider)?,
         analyticsLogger: SendFinishAnalyticsLogger,
         coordinator: SendRoutable
     ) {
@@ -61,8 +59,7 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         self.addContactViewModel = addContactViewModel
         self.stakingTargetsCompactViewModel = stakingTargetsCompactViewModel
         self.sendFeeFinishViewModel = sendFeeFinishViewModel
-        self.onrampAmountCompactViewModel = onrampAmountCompactViewModel
-        self.onrampStatusCompactViewModel = onrampStatusCompactViewModel
+        self.onrampStatusScreenViewModel = onrampStatusScreenViewModel
         self.jointAccountSignaturesCompactViewModel = jointAccountSignaturesCompactViewModel
         self.headerTitleProvider = headerTitleProvider
         self.analyticsLogger = analyticsLogger
@@ -77,6 +74,11 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         withAnimation(SendTransitions.animation) {
             showHeader = true
         }
+    }
+
+    func close() {
+        analyticsLogger.logCloseButton()
+        coordinator?.dismiss(reason: .mainButtonTap(type: .close))
     }
 
     func share(url: URL) {

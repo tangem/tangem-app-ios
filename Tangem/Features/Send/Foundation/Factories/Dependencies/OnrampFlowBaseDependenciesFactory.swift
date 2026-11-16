@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
+import Combine
+import CombineExt
 import TangemExpress
 
 protocol OnrampFlowBaseDependenciesFactory {
@@ -34,12 +36,16 @@ extension OnrampFlowBaseDependenciesFactory {
     func makeOnrampDependencies(preferredValues: PreferredValues) -> (
         manager: OnrampManager,
         repository: OnrampRepository,
-        dataRepository: OnrampDataRepository
+        dataRepository: OnrampDataRepository,
+        isCountryByIPEnabled: Bool
     ) {
         let apiProvider = expressDependenciesFactory.expressAPIProvider
-        let repository: OnrampRepository = expressDependenciesFactory.onrampRepository
-
         let factory = TangemExpressFactory()
+        let isCountryByIPEnabled = FeatureProvider.isAvailable(.onrampCountryByIP)
+        let repository: OnrampRepository = isCountryByIPEnabled
+            ? factory.makeCountryByIPOnrampRepository(userCurrencyStore: InjectedValues[\.onrampUserCurrencyStore])
+            : expressDependenciesFactory.onrampRepository
+
         let dataRepository = factory.makeOnrampDataRepository(expressAPIProvider: apiProvider)
 
         let analyticsLogger = CommonExpressAnalyticsLogger(tokenItem: tokenItem)
@@ -49,13 +55,15 @@ extension OnrampFlowBaseDependenciesFactory {
             dataRepository: dataRepository,
             analyticsLogger: analyticsLogger,
             providerItemSorter: ProviderItemSorterByOnrampProviderExpectedAmount(),
-            preferredValues: preferredValues
+            preferredValues: preferredValues,
+            countryByIPProvider: isCountryByIPEnabled ? OnrampCountryByIPProviderFactory.make(expressAPIProvider: apiProvider) : nil
         )
 
         return (
             manager: manager,
             repository: repository,
-            dataRepository: dataRepository
+            dataRepository: dataRepository,
+            isCountryByIPEnabled: isCountryByIPEnabled
         )
     }
 
@@ -67,6 +75,7 @@ extension OnrampFlowBaseDependenciesFactory {
         onrampRepository: some OnrampRepository,
         analyticsLogger: some OnrampSendAnalyticsLogger,
         autoupdatingTimer: AutoupdatingTimer,
+        isCountryByIPEnabled: Bool,
         predefinedValues: OnrampModel.PredefinedValues
     ) -> OnrampModel {
         OnrampModel(
@@ -80,6 +89,7 @@ extension OnrampFlowBaseDependenciesFactory {
             autoupdatingTimer: autoupdatingTimer,
             redirectSettingsBuilder: OnrampRedirectSettingsBuilder(),
             transactionHistoryEnricherFactory: { [sourceToken] in await sourceToken.transactionHistoryEnricher },
+            isCountryByIPEnabled: isCountryByIPEnabled,
             predefinedValues: predefinedValues
         )
     }
@@ -95,6 +105,24 @@ extension OnrampFlowBaseDependenciesFactory {
     }
 
     func makeOnrampMarketingBannerManager() -> OnrampMarketingBannerManager {
-        OnrampMarketingBannerManager(userWalletId: userWalletInfo.id)
+        OnrampMarketingBannerManager(
+            userWalletId: userWalletInfo.id,
+            moneyAccountStatePublisher: makeMoneyAccountStatePublisher()
+        )
+    }
+
+    private func makeMoneyAccountStatePublisher() -> AnyPublisher<TangemPayMoneyAccountState?, Never> {
+        let userWalletModel = InjectedValues[\.userWalletRepository].models.first { $0.userWalletId == userWalletInfo.id }
+
+        guard let userWalletModel else {
+            return Just(nil).eraseToAnyPublisher()
+        }
+
+        return AccountModelsAggregator(.tangemPay)
+            .modelPublisher(from: userWalletModel.accountModelsManager)
+            .flatMapLatest { accountModel -> AnyPublisher<TangemPayMoneyAccountState?, Never> in
+                accountModel?.moneyAccountStatePublisher ?? Just(nil).eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
     }
 }

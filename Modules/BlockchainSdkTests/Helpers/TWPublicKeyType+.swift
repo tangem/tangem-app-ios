@@ -91,6 +91,10 @@ extension PublicKeyType {
              .arc,
              .publicMasterpiece,
              .onyx,
+             .zeniq,
+             .katana,
+             .xLayer,
+             .ink,
              .seiEvm:
             self = PublicKeyType.secp256k1Extended
         case .stellar,

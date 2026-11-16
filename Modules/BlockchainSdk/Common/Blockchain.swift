@@ -120,6 +120,10 @@ public indirect enum Blockchain: Equatable, Hashable {
     case arc(testnet: Bool)
     case publicMasterpiece
     case onyx(testnet: Bool)
+    case zeniq
+    case katana(testnet: Bool)
+    case xLayer(testnet: Bool)
+    case ink(testnet: Bool)
 
     public var isTestnet: Bool {
         switch self {
@@ -186,7 +190,10 @@ public indirect enum Blockchain: Equatable, Hashable {
              .adi(let testnet),
              .electroneum(let testnet),
              .arc(let testnet),
-             .onyx(let testnet):
+             .onyx(let testnet),
+             .katana(let testnet),
+             .xLayer(let testnet),
+             .ink(let testnet):
             return testnet
         case .litecoin,
              .ducatus,
@@ -214,7 +221,8 @@ public indirect enum Blockchain: Equatable, Hashable {
              .clore,
              .fact0rn,
              .arbitrumNova,
-             .publicMasterpiece:
+             .publicMasterpiece,
+             .zeniq:
             return false
         case .stellar(_, let testnet),
              .hedera(_, let testnet),
@@ -380,6 +388,10 @@ public indirect enum Blockchain: Equatable, Hashable {
              .arc,
              .publicMasterpiece,
              .onyx,
+             .zeniq,
+             .katana,
+             .xLayer,
+             .ink,
              .seiEvm:
             return 18
         case .cardano,
@@ -443,7 +455,9 @@ public indirect enum Blockchain: Equatable, Hashable {
              .scroll,
              .linea,
              .robinhood,
-             .arbitrumNova:
+             .arbitrumNova,
+             .katana,
+             .ink:
             return "ETH"
         case .ethereumClassic:
             return "ETC"
@@ -614,6 +628,10 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "PMT"
         case .onyx:
             return "XCN"
+        case .zeniq:
+            return "ZENIQ"
+        case .xLayer:
+            return "OKB"
         }
     }
 
@@ -734,6 +752,14 @@ public indirect enum Blockchain: Equatable, Hashable {
             return "Public Masterpiece"
         case .onyx:
             return "Onyx" + testnetSuffix
+        case .zeniq:
+            return "Zeniq"
+        case .katana:
+            return isTestnet ? "Katana Bokuto Testnet" : "Katana"
+        case .xLayer:
+            return "X Layer" + testnetSuffix
+        case .ink:
+            return isTestnet ? "Ink Sepolia Testnet" : "Ink"
         default:
             var name = "\(self)".capitalizingFirstLetter()
             if let index = name.firstIndex(of: "(") {
@@ -1040,6 +1066,10 @@ public extension Blockchain {
         case .arc: return isTestnet ? 5042002 : 5042
         case .publicMasterpiece: return 290290
         case .onyx: return isTestnet ? 8901 : 327
+        case .zeniq: return 383414847825
+        case .katana: return isTestnet ? 737373 : 747474
+        case .xLayer: return isTestnet ? 1952 : 196
+        case .ink: return isTestnet ? 763373 : 57073
         case .seiEvm: return isTestnet ? 1328 : 1329
         default:
             return nil
@@ -1061,7 +1091,9 @@ public extension Blockchain {
              .scroll,
              .linea,
              .robinhood,
-             .arbitrumNova:
+             .arbitrumNova,
+             .katana,
+             .ink:
             return true
         default:
             return false
@@ -1138,6 +1170,10 @@ public extension Blockchain {
         case .arc: return true
         case .publicMasterpiece: return true
         case .onyx: return false // eth_feeHistory baseFeePerGas is zeroes
+        case .zeniq: return false
+        case .katana: return true
+        case .xLayer: return true
+        case .ink: return true
         case .seiEvm: return true
         default:
             assertionFailure("Don't forget about evm here")
@@ -1315,6 +1351,10 @@ extension Blockchain: Codable {
         case .arc: return "arc"
         case .publicMasterpiece: return "public-masterpiece"
         case .onyx: return "onyx"
+        case .zeniq: return "zeniq"
+        case .katana: return "katana"
+        case .xLayer: return "x-layer"
+        case .ink: return "ink"
         }
     }
 
@@ -1441,6 +1481,10 @@ extension Blockchain: Codable {
         case "arc": self = .arc(testnet: isTestnet)
         case "public-masterpiece": self = .publicMasterpiece
         case "onyx": self = .onyx(testnet: isTestnet)
+        case "zeniq": self = .zeniq
+        case "katana": self = .katana(testnet: isTestnet)
+        case "x-layer": self = .xLayer(testnet: isTestnet)
+        case "ink": self = .ink(testnet: isTestnet)
         default:
             throw BlockchainSdkError.decodingFailed
         }
@@ -1778,6 +1822,23 @@ private extension Blockchain {
             case .network: return "onyx"
             case .coin: return "chain-2"
             }
+        case .zeniq:
+            return "zeniq"
+        case .katana:
+            switch type {
+            case .network: return "katana"
+            case .coin: return "katana-ethereum"
+            }
+        case .xLayer:
+            switch type {
+            case .network: return "x-layer"
+            case .coin: return "okb"
+            }
+        case .ink:
+            switch type {
+            case .network: return "ink"
+            case .coin: return "ink-ethereum"
+            }
         }
     }
 
@@ -1854,13 +1915,17 @@ extension Blockchain {
              .arc,
              .publicMasterpiece,
              .onyx,
+             .zeniq,
              .seiEvm:
             return EthereumWalletAssembly()
         case .optimism,
              .manta,
              .base,
              .cyber,
-             .blast:
+             .blast,
+             .katana,
+             .xLayer,
+             .ink:
             return EthereumOptimisticRollupWalletAssembly()
         case .scroll:
             return ScrollWalletAssembly()

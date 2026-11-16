@@ -66,6 +66,13 @@ struct BackendAuthenticationDebugService: Sendable {
         try await dependencies.sessionTokensRepository.delete()
     }
 
+    func resetAll() async {
+        await dependencies.storageCleaner.clean()
+        dependencies.deviceRegistrationStatusRepository.persist(isRegistered: false)
+        dependencies.appAttestationStatusRepository.persist(isAppAttested: false)
+        await dependencies.userWalletRegistrationStatusRepository.replaceAll(with: [])
+    }
+
     private func updateAccessToken(
         _ transform: (SessionTokens.Token) -> SessionTokens.Token
     ) async throws(SessionTokensRepositoryError) -> SessionTokens? {

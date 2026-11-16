@@ -292,5 +292,19 @@ extension Analytics {
         case category = "Category"
         case productCard = "Product Card"
         case shtorkaState = "Shtorka State"
+
+        // MARK: - ETH Lending
+
+        case currentAPY = "Current APY"
+        case displayCurrency = "Display Currency"
+        case percent = "Percent"
+        case feeSpeed = "Fee Speed"
+        case transactionType = "Transaction Type"
+        case amountBucket = "Amount Bucket"
+        case performanceFee = "Performance Fee"
+        case withUpgrade = "With Upgrade"
+        case destination = "Destination"
+        case positionBucket = "Position Bucket"
+        case liquidityCapped = "Liquidity Capped"
     }
 }

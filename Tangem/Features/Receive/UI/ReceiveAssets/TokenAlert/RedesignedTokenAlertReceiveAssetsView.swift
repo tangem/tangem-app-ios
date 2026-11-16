@@ -43,7 +43,7 @@ struct RedesignedTokenAlertReceiveAssetsView: View {
                 Text(Localization.domainReceiveAssetsOnboardingTitle)
                     .lineLimit(2)
 
-                Text(Localization.domainReceiveAssetsOnboardingNetworkName(viewModel.networkName))
+                Text(Localization.domainReceiveAssetsOnboardingNetworkName(viewModel.networkName.droppingNetworkSuffix))
             }
             .style(DesignSystem.Font.headingSmallToken, color: DesignSystem.Color.textPrimary)
 

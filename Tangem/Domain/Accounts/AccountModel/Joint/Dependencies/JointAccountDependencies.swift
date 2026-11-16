@@ -13,7 +13,7 @@ struct JointAccountDependencies: BalanceProvidingAccountDependencies {
     let userTokensManager: UserTokensManager
     let walletModelsManager: WalletModelsManager
     let walletModelsFactoryInput: WalletModelsFactoryInput
-    let derivationManager: (DerivationManager & DerivationStatusProvider)?
+    let pendingDerivationProvider: AccountPendingDerivationProvider
     let operationsService: any JointAccountOperationsService
     let pendingOperationsProvider: any JointAccountPendingOperationsProvider
     let finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater

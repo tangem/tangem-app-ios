@@ -79,7 +79,7 @@ struct ShtorkaShowcase: View {
                 legacySheetItem = ShtorkaMockLegacySheetItem()
             },
             onToastTap: {
-                Toast(view: SuccessToast(text: "Swap completed: 0.25 ETH → 742.18 USDT"))
+                LegacyToast(view: SuccessToast(text: "Swap completed: 0.25 ETH → 742.18 USDT"))
                     .present(layout: .top(padding: 14), type: .temporary())
             }
         )

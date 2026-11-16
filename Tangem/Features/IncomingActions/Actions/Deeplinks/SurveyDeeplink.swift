@@ -25,10 +25,12 @@ extension SurveyDeeplink {
     }
 
     init(link: DeeplinkURL) throws {
-        // SurveySparrow tokens are opaque vendor identifiers of no fixed shape, so anything but emptiness
-        // is accepted.
-        guard let token = link.query.unchecked(Keys.token)?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty else {
+        guard let rawToken = link.query.unchecked(Keys.token)?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty else {
             throw DeeplinkQuery.ValidationError.missingValue(key: Keys.token)
+        }
+
+        guard let token = DeeplinkRules.surveyToken(rawToken) else {
+            throw DeeplinkQuery.ValidationError.malformedValue(key: Keys.token)
         }
 
         self.token = token

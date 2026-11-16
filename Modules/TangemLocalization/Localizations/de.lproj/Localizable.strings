@@ -1502,12 +1502,6 @@
 "money_account_send_unavailable_title" = "Funktion derzeit nicht verfügbar";
 "money_account_yield_mode_average_apr" = "Durchschnittlicher effektiver Jahreszins %@";
 "money_account_yield_mode_earn_up_to" = "Verdienen Sie bis zu %@ pro Jahr";
-"native_survey_comment_placeholder" = "Type something";
-"native_survey_done_description" = "It helps us make Tangem better.";
-"native_survey_done_title" = "Thanks for your feedback";
-"native_survey_nps_scale_hint" = "0 is not at all likely, 10 is extremely likely";
-"native_survey_optional" = "Optional";
-"native_survey_send_feedback" = "Send feedback";
 "news_all_news" = "Alle Neuigkeiten";
 "news_like" = "Gefällt mir";
 "news_quick_recap" = "Kurze Zusammenfassung";

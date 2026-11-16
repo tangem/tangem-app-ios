@@ -555,7 +555,9 @@ extension CommonTangemApiService: TangemApiService {
     func getUserAccounts(
         userWalletId: String
     ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
-        let target = TangemApiTarget(type: .getUserAccounts(userWalletId: userWalletId))
+        let target = TangemApiTarget(
+            type: .getUserAccounts(userWalletId: userWalletId, urlParameters: .init(supportedAccountTypes: AccountsDTO.supportedAccountTypes))
+        )
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
@@ -572,7 +574,14 @@ extension CommonTangemApiService: TangemApiService {
     func saveUserAccounts(
         userWalletId: String, revision: String, accounts: AccountsDTO.Request.Accounts
     ) async throws -> (revision: String?, accounts: AccountsDTO.Response.Accounts) {
-        let target = TangemApiTarget(type: .saveUserAccounts(userWalletId: userWalletId, revision: revision, accounts: accounts))
+        let target = TangemApiTarget(
+            type: .saveUserAccounts(
+                userWalletId: userWalletId,
+                urlParameters: .init(supportedAccountTypes: AccountsDTO.supportedAccountTypes),
+                revision: revision,
+                accounts: accounts
+            )
+        )
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)
@@ -587,7 +596,9 @@ extension CommonTangemApiService: TangemApiService {
     }
 
     func getArchivedUserAccounts(userWalletId: String) async throws -> AccountsDTO.Response.ArchivedAccounts {
-        let target = TangemApiTarget(type: .getArchivedUserAccounts(userWalletId: userWalletId))
+        let target = TangemApiTarget(
+            type: .getArchivedUserAccounts(userWalletId: userWalletId, urlParameters: .init(supportedAccountTypes: AccountsDTO.supportedAccountTypes))
+        )
 
         return try await withErrorLoggingPipeline(target: target) {
             let response = try await provider.asyncRequest(target)

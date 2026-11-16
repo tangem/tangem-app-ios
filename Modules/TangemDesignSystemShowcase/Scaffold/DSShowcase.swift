@@ -277,6 +277,9 @@ private struct DSShowcaseEnvironmentPanel: View {
                 controls.picker("Reduce Motion", $environment.reduceMotion, options: [nil, false, true]) { isOn in
                     isOn.map { $0 ? "on" : "off" } ?? "system"
                 }
+                controls.picker("Reduce Transparency", $environment.reduceTransparency, options: [nil, false, true]) { isOn in
+                    isOn.map { $0 ? "on" : "off" } ?? "system"
+                }
                 controls.picker("Background", $environment.background)
             }
             .padding(.top, 12)

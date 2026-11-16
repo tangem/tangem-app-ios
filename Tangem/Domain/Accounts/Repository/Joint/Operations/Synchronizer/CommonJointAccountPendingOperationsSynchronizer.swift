@@ -13,10 +13,12 @@ import TangemFoundation
 
 actor CommonJointAccountPendingOperationsSynchronizer {
     /// - Note: `prepend` is used to emulate 'hot' publisher (observable) behavior.
-    nonisolated let operationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never>
+    nonisolated let pendingOperationsPublisher: AnyPublisher<[JointAccountOperations], Never>
 
     private nonisolated let persistentStorage: JointAccountsPendingOperationsPersistentStorage
-    private let historyEnricherFactory: TransactionHistoryJointAccountDataEnriching.Factory
+    private nonisolated let safeAddressResolver: JointAccountSafeAddressResolver
+    private nonisolated let reader: JointAccountPendingOperationsReader
+    private nonisolated let storageReadingQueue: DispatchQueue
     private let merger: JointAccountPendingOperationsMerger
 
     private var version = 0
@@ -24,23 +26,28 @@ actor CommonJointAccountPendingOperationsSynchronizer {
 
     init(
         persistentStorage: JointAccountsPendingOperationsPersistentStorage,
-        historyEnricherFactory: @escaping TransactionHistoryJointAccountDataEnriching.Factory,
+        safeAddressResolver: JointAccountSafeAddressResolver,
         merger: JointAccountPendingOperationsMerger = JointAccountPendingOperationsMerger()
     ) {
-        self.persistentStorage = persistentStorage
-        self.historyEnricherFactory = historyEnricherFactory
-        self.merger = merger
-
+        let reader = JointAccountPendingOperationsReader(persistentStorage: persistentStorage, safeAddressResolver: safeAddressResolver)
         let storageReadingQueue = DispatchQueue(
             label: "com.tangem.CommonJointAccountPendingOperationsSynchronizer.storageReadingQueue",
             qos: .userInitiated
         )
 
-        operationsPublisher = persistentStorage
+        self.persistentStorage = persistentStorage
+        self.safeAddressResolver = safeAddressResolver
+        self.reader = reader
+        self.storageReadingQueue = storageReadingQueue
+        self.merger = merger
+
+        pendingOperationsPublisher = persistentStorage
             .didUpdatePublisher
+            .merge(with: safeAddressResolver.didUpdatePublisher)
             .prepend(()) // An initial value to trigger loading from storage
+            .subscribe(on: storageReadingQueue)
             .receive(on: storageReadingQueue)
-            .map { _ in persistentStorage.getList() }
+            .map { _ in reader.reload() }
             .removeDuplicates()
             .receiveOnMain()
             .share(replay: 1)
@@ -51,8 +58,20 @@ actor CommonJointAccountPendingOperationsSynchronizer {
 // MARK: - JointAccountPendingOperationsSynchronizer protocol conformance
 
 extension CommonJointAccountPendingOperationsSynchronizer: JointAccountPendingOperationsSynchronizer {
-    nonisolated var operations: [StoredJointAccountPendingOperations] {
-        persistentStorage.getList()
+    nonisolated var pendingOperations: [JointAccountOperations] {
+        reader.pendingOperations
+    }
+
+    nonisolated func operationPublisher(id: String) -> AnyPublisher<JointAccountOperation?, Never> {
+        persistentStorage
+            .didUpdatePublisher
+            .prepend(())
+            .subscribe(on: storageReadingQueue)
+            .receive(on: storageReadingQueue)
+            .map { [reader] _ in reader.operation(id: id) }
+            .removeDuplicates()
+            .receiveOnMain()
+            .eraseToAnyPublisher()
     }
 
     var checkpoint: JointAccountPendingOperationsCheckpoint {
@@ -63,15 +82,9 @@ extension CommonJointAccountPendingOperationsSynchronizer: JointAccountPendingOp
         version += 1
         localUpdates.append(LocalUpdate(version: version, update: update))
 
-        let stored = persistentStorage.getList()
-        let merged = merger.merge(stored, applying: update)
-        try write(merged, over: stored)
-
-        if case .operationRemoved(let operationId, _) = update {
-            await historyEnricherFactory()?.removeOperations(withIds: [operationId])
+        try write(operationIds: [update.operationId]) { stored in
+            merger.merge(stored, applying: update)
         }
-
-        await enrichHistory(with: changes(in: merged, comparedTo: stored))
     }
 
     func apply(
@@ -79,67 +92,96 @@ extension CommonJointAccountPendingOperationsSynchronizer: JointAccountPendingOp
         forCryptoAccountId cryptoAccountId: String,
         requestedAt checkpoint: JointAccountPendingOperationsCheckpoint
     ) async throws {
+        let refresh = JointAccountPendingOperationsUpdate.operationRefreshed(operation, cryptoAccountId: cryptoAccountId)
         let unseenUpdates = localUpdates.filter { $0.version > checkpoint.version }.map(\.update)
+        let operationIds = ([refresh] + unseenUpdates).map(\.operationId).toSet()
 
-        let stored = persistentStorage.getList()
-        let refreshed = merger.merge(stored, applying: .operationRefreshed(operation, cryptoAccountId: cryptoAccountId))
-        let merged = unseenUpdates.reduce(refreshed) { merger.merge($0, applying: $1) }
-        try write(merged, over: stored)
-
-        await enrichHistory(with: changes(in: merged, comparedTo: stored))
+        try write(operationIds: operationIds) { stored in
+            let refreshed = merger.merge(stored, applying: refresh)
+            return unseenUpdates.reduce(refreshed) { merger.merge($0, applying: $1) }
+        }
     }
 
-    func apply(listing: [StoredJointAccountPendingOperations], requestedAt checkpoint: JointAccountPendingOperationsCheckpoint) async throws {
+    func apply(listing: [JointAccountOperations], requestedAt checkpoint: JointAccountPendingOperationsCheckpoint) async throws {
         let unseenUpdates = localUpdates.filter { $0.version > checkpoint.version }
+        let replayedUpdates = unseenUpdates.map(\.update)
+        let listedOperationIds = listing.flatMap { $0.operations.map(\.id) }
+        let operationIds = (listedOperationIds + replayedUpdates.map(\.operationId)).toSet()
 
-        let stored = persistentStorage.getList()
-        let merged = merger.merge(listing: listing, into: stored, replaying: unseenUpdates.map(\.update))
-        try write(merged, over: stored)
+        try write(operationIds: operationIds) { stored in
+            merger.merge(listing: listing, into: stored, replaying: replayedUpdates)
+        }
 
         localUpdates = unseenUpdates
-
-        await enrichHistory(with: changes(in: merged, comparedTo: stored))
     }
 }
 
 // MARK: - Private
 
 private extension CommonJointAccountPendingOperationsSynchronizer {
-    func write(_ merged: [StoredJointAccountPendingOperations], over stored: [StoredJointAccountPendingOperations]) throws {
-        guard merged != stored else {
-            return
+    func write(
+        operationIds: Set<String>,
+        merge: ([JointAccountOperations]) -> [JointAccountOperations]
+    ) throws {
+        let directory = JointAccountSafeDirectory(safeAddressResolver.accountSafes)
+
+        try persistentStorage.update(operationIds: operationIds, safeAddresses: directory.safeAddresses) { storedItems in
+            let trustedItems = directory.trustedItems(storedItems)
+            let merged = merge(directory.records(from: trustedItems))
+            return changes(in: merged, comparedTo: trustedItems, directory: directory)
         }
 
-        try persistentStorage.replace(with: merged)
+        reader.reload()
     }
 
     func changes(
-        in merged: [StoredJointAccountPendingOperations],
-        comparedTo stored: [StoredJointAccountPendingOperations]
-    ) -> [StoredJointAccountPendingOperations] {
-        merged.compactMap { record in
-            let storedOperations = stored.first(by: record.cryptoAccountId)?.operations ?? []
-            let changedOperations = record.operations.filter { operation in
-                storedOperations.first { $0.id == operation.id } != operation
-            }
+        in merged: [JointAccountOperations],
+        comparedTo storedItems: [JointOperationHistoryItem],
+        directory: JointAccountSafeDirectory
+    ) -> JointAccountsPendingOperationsChanges {
+        let storedItemsKeyedByOperationIds = storedItems.keyedFirst(by: \.operation.id)
+        let mergedOperationIds = merged.flatMap { $0.operations.map(\.id) }.toSet()
 
-            guard changedOperations.isNotEmpty else {
-                return nil
+        let savedItems = merged.flatMap { record in
+            record.operations.compactMap { operation in
+                historyItem(
+                    for: operation,
+                    cryptoAccountId: record.cryptoAccountId,
+                    storedItem: storedItemsKeyedByOperationIds[operation.id],
+                    directory: directory
+                )
             }
-
-            return StoredJointAccountPendingOperations(cryptoAccountId: record.cryptoAccountId, operations: changedOperations)
         }
+
+        let removedOperationIds = storedItemsKeyedByOperationIds.keys
+            .filter { !mergedOperationIds.contains($0) }
+            .sorted()
+
+        return JointAccountsPendingOperationsChanges(savedItems: savedItems, removedOperationIds: removedOperationIds)
     }
 
-    func enrichHistory(with changes: [StoredJointAccountPendingOperations]) async {
-        guard changes.isNotEmpty,
-              let historyEnricher = await historyEnricherFactory() else {
-            return
+    func historyItem(
+        for operation: JointAccountOperation,
+        cryptoAccountId: String,
+        storedItem: JointOperationHistoryItem?,
+        directory: JointAccountSafeDirectory
+    ) -> JointOperationHistoryItem? {
+        guard storedItem?.operation != operation else {
+            return nil
         }
 
-        for record in changes {
-            await historyEnricher.enrich(with: record.operations, cryptoAccountId: record.cryptoAccountId)
+        guard let safeAddress = directory.safeAddress(forCryptoAccountId: cryptoAccountId) else {
+            JointAccountsLogger.warning("Skipping a joint operation of an account with no active Safe")
+            return nil
         }
+
+        return JointOperationHistoryItem(
+            operation: operation,
+            cryptoAccountId: cryptoAccountId,
+            safeAddress: safeAddress,
+            createdAt: operation.createdAt,
+            threshold: operation.threshold
+        )
     }
 }
 

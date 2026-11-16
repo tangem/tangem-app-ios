@@ -80,7 +80,7 @@ private extension PolymarketLiveTopicsReaderTests {
             values: { topics in values.makeStream(topics) },
             statusChanges: { statuses.makeStream() }
         )
-        let updates = PolymarketTestSignal<RecordedReaderUpdate>()
+        let updates = TestSignal<RecordedReaderUpdate>()
         updates.record(sut.updates, transform: { RecordedReaderUpdate($0) })
 
         statuses.push(.connected)
@@ -93,14 +93,14 @@ private extension PolymarketLiveTopicsReaderTests {
         let sut: PolymarketLiveTopicsReader<String, Int>
         let statuses: PolymarketLiveStreamSpy<PolymarketWebSocketConnectionStatus>
         let values: ValuesSourceSpy
-        let updates: PolymarketTestSignal<RecordedReaderUpdate>
+        let updates: TestSignal<RecordedReaderUpdate>
     }
 }
 
 // MARK: - Doubles
 
 private final class ValuesSourceSpy: Sendable {
-    let requests = PolymarketTestSignal<PolymarketLiveStreamSpy<Int>>()
+    let requests = TestSignal<PolymarketLiveStreamSpy<Int>>()
 
     func makeStream(_ topics: Set<String>) -> AsyncStream<Int> {
         let stream = PolymarketLiveStreamSpy<Int>(assetIds: topics)

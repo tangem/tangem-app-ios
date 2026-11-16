@@ -19,7 +19,7 @@ extension CollectiblesAccountModelsRegistry {
         let balanceService: any CollectiblesBalanceService
         let buybackSigningLimits: any CollectiblesBuybackSigningLimits
         let accountListWriter: AccountListWriter
-        let coldOwnerNetwork: BlockchainNetwork
+        let pendingDerivationProvider: AccountPendingDerivationProvider
         let keysPublisher: AnyPublisher<[KeyInfo], Never>
     }
 
@@ -83,12 +83,18 @@ extension CollectiblesAccountModelsRegistry {
                 presenceStore: StoredCollectiblesAccountPresenceStore.appSettings()
             )
 
+            let pendingDerivationProvider = CollectiblesAccountPendingDerivationProvider(
+                coldOwnerNetwork: CollectiblesAccountKeyPath.blockchainNetwork(for: derivationStyle),
+                syncStatusProvider: manager,
+                keysProvider: keysRepository
+            )
+
             return Dependencies(
                 manager: manager,
                 balanceService: balanceService,
                 buybackSigningLimits: buybackSigningLimits,
                 accountListWriter: AccountListWriter(cryptoAccountsRepository: cryptoAccountsRepository),
-                coldOwnerNetwork: CollectiblesAccountKeyPath.blockchainNetwork(for: derivationStyle),
+                pendingDerivationProvider: pendingDerivationProvider,
                 keysPublisher: keysRepository.keysPublisher
             )
         }

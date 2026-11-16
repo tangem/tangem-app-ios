@@ -271,20 +271,31 @@ private struct TopNavigationPushDemo: View {
 
     @Environment(\.dismiss) private var dismiss
 
+    @State private var isLoading = false
+
     var body: some View {
         List {
             NavigationLink("Push screen \(depth + 1)") {
                 TopNavigationPushDemo(depth: depth + 1, config: config)
             }
 
+            SwiftUI.Button(isLoading ? "Loading…" : "Load for 3 s (no back, no swipe)") { isLoading = true }
+                .disabled(isLoading)
+
             SwiftUI.Button("Pop", role: .destructive) { dismiss() }
+        }
+        .task(id: isLoading) {
+            guard isLoading else { return }
+
+            try? await ContinuousClock().sleep(for: .seconds(3))
+            isLoading = false
         }
         .topNavigation(
             title: "Screen \(depth)",
             subtitle: config.showsSubtitle ? "Depth \(depth)" : nil,
             animatesSubtitleAppearance: config.animatesSubtitleAppearance,
             contentPosition: config.contentPosition,
-            leading: .automatic,
+            leading: isLoading ? .none : .automatic,
             actions: config.actions(config.actionsKind),
             actionsHaveBackground: config.actionsHaveBackground,
             close: config.showsClose ? .enabled { dismiss() } : nil

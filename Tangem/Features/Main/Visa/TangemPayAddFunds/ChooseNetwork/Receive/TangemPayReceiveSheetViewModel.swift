@@ -42,7 +42,7 @@ final class TangemPayReceiveSheetViewModel: ObservableObject, FloatingSheetConte
         address = input.depositAddress
 
         let symbols = input.tokens.map(\.symbol).joined(separator: " \(Localization.commonOr) ")
-        heading = Localization.receiveBottomSheetWarningMessageCompact(symbols, input.networkTitle)
+        heading = Localization.receiveBottomSheetWarningMessageCompact(symbols, input.networkTitle.droppingNetworkSuffix)
         notificationInputs = [
             NotificationViewInput(
                 style: .plain,
@@ -95,7 +95,7 @@ extension TangemPayReceiveSheetViewModel: QRCodeReceiveAssetsRoutable {
     func copyToClipboard(with address: String) {
         UIPasteboard.general.string = address
 
-        Toast(
+        LegacyToast(
             view: TangemSnackbar(title: Localization.walletNotificationAddressCopied)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
                 .iconColor(DesignSystem.Color.iconAccentBlue)

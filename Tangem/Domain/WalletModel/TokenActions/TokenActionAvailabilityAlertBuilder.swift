@@ -34,7 +34,7 @@ struct TokenActionAvailabilityAlertBuilder {
         case .hasPendingTransaction(let blockchainDisplayName):
             return AlertBinder(
                 title: "",
-                message: Localization.tokenButtonUnavailabilityReasonPendingTransactionSend(blockchainDisplayName)
+                message: Localization.tokenButtonUnavailabilityReasonPendingTransactionSend(blockchainDisplayName.displayName.droppingNetworkSuffix)
             )
         case .blockchainUnreachable, .blockchainLoading:
             return tryAgainLaterAlert
@@ -45,12 +45,12 @@ struct TokenActionAvailabilityAlertBuilder {
 
     func alert(for status: TokenActionAvailabilityProvider.SendActionAvailabilityStatus) -> AlertBinder? {
         switch status {
-        case .available:
+        case .available, .zeroFeeCurrencyBalance:
             return nil
         case .hasPendingTransaction(let blockchainDisplayName):
             return .init(
                 title: "",
-                message: Localization.tokenButtonUnavailabilityReasonPendingTransactionSend(blockchainDisplayName)
+                message: Localization.tokenButtonUnavailabilityReasonPendingTransactionSend(blockchainDisplayName.droppingNetworkSuffix)
             )
         case .cantSignLongTransactions:
             return cantSignLongTransactionAlert
@@ -159,7 +159,7 @@ struct TokenActionAvailabilityAlertBuilder {
         case .hasPendingTransaction(let blockchainDisplayName):
             return .init(
                 title: "",
-                message: Localization.tokenButtonUnavailabilityReasonPendingTransactionSell(blockchainDisplayName)
+                message: Localization.tokenButtonUnavailabilityReasonPendingTransactionSell(blockchainDisplayName.droppingNetworkSuffix)
             )
         case .blockchainUnreachable, .blockchainLoading:
             return tryAgainLaterAlert
@@ -182,7 +182,7 @@ struct TokenActionAvailabilityAlertBuilder {
         case .hasPendingTransaction(let blockchainDisplayName):
             return .init(
                 title: "",
-                message: Localization.dynamicAddressesUnavailabilityReasonPendingTransactionSend(blockchainDisplayName)
+                message: Localization.dynamicAddressesUnavailabilityReasonPendingTransactionSend(blockchainDisplayName.droppingNetworkSuffix)
             )
         }
     }

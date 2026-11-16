@@ -143,6 +143,21 @@ extension CommonSendMailDataBuilder: SendMailDataBuilder {
         return (emailDataCollector: emailDataCollector, chatDataCollector: chatDataCollector, recipient: try emailRecipient())
     }
 
+    func makeSupportData(exchangeDataError: ExpressExchangeDataError) throws -> SupportData {
+        guard let amount = baseDataInput.bsdkAmount else {
+            throw SendMailDataBuilderError.notFound("Amount")
+        }
+
+        let emailDataCollector = try emailDataCollectorBuilder().makeMailData(
+            swapProvider: exchangeDataError.provider,
+            isFeeIncluded: baseDataInput.isFeeIncluded,
+            amount: amount,
+            error: exchangeDataError.toUniversalError()
+        )
+
+        return (emailDataCollector: emailDataCollector, chatDataCollector: EmptyChatDataCollector(), recipient: try emailRecipient())
+    }
+
     // MARK: - Staking transaction methods
 
     func makeSupportData(stakingRequestError error: UniversalError) throws -> SupportData {

@@ -192,7 +192,7 @@ struct PolymarketMyPositionsView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Constants.paginationVerticalPadding)
         case .paginationError:
-            TangemUnableToLoadDataView(
+            UnableToLoadDataView(
                 isButtonBusy: false,
                 retryButtonAction: { viewModel.handleViewAction(.retryNextPage) }
             )

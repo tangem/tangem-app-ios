@@ -14,19 +14,45 @@ import TangemPay
 struct TangemPayMoneyAccountRowStateTests {
     @Test("An open account is shown as active whatever the verification says", arguments: [false, true])
     func openAccountIsActive(isKYCIncomplete: Bool) throws {
-        let state = try TangemPayMoneyAccountRowState(
-            moneyAccountState: .active(makeMoneyAccount(status: "COMPLETED")),
-            isKYCIncomplete: isKYCIncomplete
+        let moneyAccount = try makeMoneyAccount(status: "COMPLETED")
+        let state = TangemPayMoneyAccountRowState(
+            moneyAccountState: .active(moneyAccount),
+            isKYCIncomplete: isKYCIncomplete,
+            isCached: false
         )
 
-        #expect(state == .active)
+        #expect(state == .active(balance: moneyAccount.fiatBalance, isCached: false))
+    }
+
+    @Test("An open account is marked as cached while Tangem Pay shows cached data", arguments: [false, true])
+    func openAccountCarriesCachedMark(isCached: Bool) throws {
+        let moneyAccount = try makeMoneyAccount(status: "COMPLETED")
+        let state = TangemPayMoneyAccountRowState(
+            moneyAccountState: .active(moneyAccount),
+            isKYCIncomplete: false,
+            isCached: isCached
+        )
+
+        #expect(state == .active(balance: moneyAccount.fiatBalance, isCached: isCached))
+    }
+
+    @Test("Rows without a balance look the same whether the data is cached or not", arguments: ["PROCESSING", "FAILED"])
+    func rowsWithoutBalanceIgnoreCachedMark(status: String) throws {
+        let moneyAccount = try makeMoneyAccount(status: status)
+        let moneyAccountState: TangemPayMoneyAccountState = status == "FAILED" ? .activationFailed(moneyAccount) : .activating(moneyAccount)
+
+        let cachedState = TangemPayMoneyAccountRowState(moneyAccountState: moneyAccountState, isKYCIncomplete: false, isCached: true)
+        let freshState = TangemPayMoneyAccountRowState(moneyAccountState: moneyAccountState, isKYCIncomplete: false, isCached: false)
+
+        #expect(cachedState == freshState)
     }
 
     @Test("The account waits for a deposit when its own activation step says so")
     func awaitingDepositStepHoldsTheAccount() throws {
         let state = try TangemPayMoneyAccountRowState(
             moneyAccountState: .activating(makeMoneyAccount(step: "AWAITING_DEPOSIT")),
-            isKYCIncomplete: false
+            isKYCIncomplete: false,
+            isCached: false
         )
 
         #expect(state == .awaitingDeposit)
@@ -36,7 +62,8 @@ struct TangemPayMoneyAccountRowStateTests {
     func otherStepsAreActivating(step: String?) throws {
         let state = try TangemPayMoneyAccountRowState(
             moneyAccountState: .activating(makeMoneyAccount(step: step)),
-            isKYCIncomplete: false
+            isKYCIncomplete: false,
+            isCached: false
         )
 
         #expect(state == .activating)
@@ -46,7 +73,8 @@ struct TangemPayMoneyAccountRowStateTests {
     func failedOpeningIsFailed() throws {
         let state = try TangemPayMoneyAccountRowState(
             moneyAccountState: .activationFailed(makeMoneyAccount(status: "FAILED")),
-            isKYCIncomplete: false
+            isKYCIncomplete: false,
+            isCached: false
         )
 
         #expect(state == .failed)
@@ -57,14 +85,18 @@ struct TangemPayMoneyAccountRowStateTests {
         let moneyAccount = try makeMoneyAccount(status: status)
         let moneyAccountState: TangemPayMoneyAccountState = status == "FAILED" ? .activationFailed(moneyAccount) : .activating(moneyAccount)
 
-        let state = TangemPayMoneyAccountRowState(moneyAccountState: moneyAccountState, isKYCIncomplete: true)
+        let state = TangemPayMoneyAccountRowState(moneyAccountState: moneyAccountState, isKYCIncomplete: true, isCached: false)
 
         #expect(state == nil)
     }
 
     @Test("An account that has not started, was closed or is not known has no row", arguments: HiddenState.allCases)
     func hiddenStatesHaveNoRow(hiddenState: HiddenState) throws {
-        let state = try TangemPayMoneyAccountRowState(moneyAccountState: hiddenState.moneyAccountState(), isKYCIncomplete: false)
+        let state = try TangemPayMoneyAccountRowState(
+            moneyAccountState: hiddenState.moneyAccountState(),
+            isKYCIncomplete: false,
+            isCached: false
+        )
 
         #expect(state == nil)
     }
@@ -123,6 +155,7 @@ private func makeMoneyAccount(status: String = "PROCESSING", step: String? = nil
         customerId: "customer",
         bankingAccount: bankingAccount,
         walletModel: WalletModelTestsMock(fiatBalance: 0, priceChange24h: nil),
+        customerService: CustomerInfoManagementServiceStub(),
         account: nil
     )
 }

@@ -38,11 +38,13 @@ struct DeeplinkOverlayProviderTests {
              .promo,
              .onboardVisa,
              .payApp,
+             .onboardVirtualAccount,
              .jointAccountInvite,
              .jointAccount,
              .token,
              .feed,
-             .support:
+             .support,
+             .promoPage:
             true
 
         // Shown by the main screen or by a responder of its own.
@@ -52,8 +54,7 @@ struct DeeplinkOverlayProviderTests {
              .payCustomCard,
              .tangemPayTransaction,
              .mcpIntent,
-             .mcpAuthorization,
-             .promoPage:
+             .mcpAuthorization:
             false
         }
     }
@@ -74,6 +75,7 @@ struct DeeplinkOverlayProviderTests {
         .promo(PromoDeeplink(code: "PROMO", token: .bitcoin, refcode: nil, campaign: nil)),
         .onboardVisa(OnboardVisaDeeplink(deeplinkString: nil)),
         .payApp(PayAppDeeplink(deeplinkString: "https://tangem.com/pay-app?id=1")),
+        .onboardVirtualAccount(OnboardVirtualAccountDeeplink(deeplinkString: "tangem://onboard-virtual-account?entry=ff1&id=VRTACC01")),
         .jointAccountInvite(JointAccountInviteDeeplink(inviteId: "B15CF4AC")),
         .jointAccount(JointAccountDeeplink(entry: .members, userWalletId: "wallet", accountId: "BA910A77")),
         .token(TokenDeeplink(tokenId: "ethereum", networkId: "ethereum")),

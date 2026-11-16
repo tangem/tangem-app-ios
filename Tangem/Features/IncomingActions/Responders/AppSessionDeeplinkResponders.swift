@@ -23,6 +23,7 @@ final class AppSessionDeeplinkResponders {
     private let mcpAuthorizationResponder = MCPAuthorizationDeeplinkResponder()
     private let mcpIntentResponder = MCPIntentDeeplinkResponder()
     private let surveyResponder = SurveyDeeplinkResponder()
+    private let promoPageService: PromoPageService
 
     private var bag: Set<AnyCancellable> = []
 
@@ -47,7 +48,14 @@ final class AppSessionDeeplinkResponders {
 
     /// The one link that arrived while no session was on screen — the launch, unlock or welcome screen — kept
     /// for the main screen to pick up when it first appears. A newer one takes its place.
-    private var waitingAction: IncomingAction?
+    private var waitingAction: IncomingAction? {
+        didSet { savePromoPage(of: waitingAction) }
+    }
+
+    init(promoPageService: PromoPageService = PromoPageService()) {
+        self.promoPageService = promoPageService
+        waitingAction = promoPageService.pendingPage.map { .navigation(PromoPageDeeplink(page: $0).action) }
+    }
 
     func start() {
         standAtTheDoor()
@@ -95,6 +103,19 @@ private extension AppSessionDeeplinkResponders {
     func standAtTheDoor() {
         incomingActionManager.resignFirstResponder(self)
         incomingActionManager.becomeFirstResponder(self)
+    }
+}
+
+// MARK: - Promo page
+
+private extension AppSessionDeeplinkResponders {
+    func savePromoPage(of action: IncomingAction?) {
+        guard case .navigation(.promoPage(let deeplink)) = action, let page = deeplink.page else {
+            promoPageService.clearPending()
+            return
+        }
+
+        promoPageService.markPending(page: page)
     }
 }
 

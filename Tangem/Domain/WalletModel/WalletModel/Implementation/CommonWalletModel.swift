@@ -36,9 +36,10 @@ class CommonWalletModel {
     lazy var fiatStakingBalanceProvider = makeFiatStakingBalanceProvider()
     lazy var fiatTotalTokenBalanceProvider = makeFiatTotalTokenBalanceProvider()
 
+    let pendingTransactionsProvider: PendingTransactionsProvider
+
     private(set) weak var account: (any CryptoAccountModel)?
 
-    private let sendAvailabilityProvider: TransactionSendAvailabilityProvider
     private let tokenBalancesRepository: TokenBalancesRepository
     private let walletManager: WalletManager
     private let _stakingManager: StakingManager?
@@ -99,16 +100,17 @@ class CommonWalletModel {
         stakingManager: StakingManager?,
         isYieldModuleSupported: Bool,
         featureManager: WalletModelFeaturesManager,
+        pendingTransactionsProvider: PendingTransactionsProvider,
         transactionHistoryUpdater: TransactionHistoryUpdater,
         transactionHistoryService: TransactionHistoryService?,
         receiveAddressService: ReceiveAddressService,
-        sendAvailabilityProvider: TransactionSendAvailabilityProvider,
         tokenBalancesRepository: TokenBalancesRepository,
         isCustom: Bool
     ) {
         self.userWalletId = userWalletId
         self.walletManager = walletManager
         self.featureManager = featureManager
+        self.pendingTransactionsProvider = pendingTransactionsProvider
         self.transactionHistoryUpdater = transactionHistoryUpdater
         _stakingManager = stakingManager
         self.isYieldModuleSupported = isYieldModuleSupported
@@ -116,7 +118,6 @@ class CommonWalletModel {
         _receiveAddressService = receiveAddressService
         self.tokenItem = tokenItem
         self.isCustom = isCustom
-        self.sendAvailabilityProvider = sendAvailabilityProvider
         self.tokenBalancesRepository = tokenBalancesRepository
 
         id = WalletModelId(tokenItem: tokenItem)
@@ -134,6 +135,7 @@ class CommonWalletModel {
 
     func setCryptoAccount(_ cryptoAccount: any CryptoAccountModel) {
         account = cryptoAccount
+        pendingTransactionsProvider.setCryptoAccount(cryptoAccount)
     }
 
     private func initializeLazyProperties() {
@@ -349,21 +351,18 @@ extension CommonWalletModel: WalletModel {
             currencyName = wallet.blockchain.displayName
         }
 
-        return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName)
+        return Localization.addressQrCodeMessageFormat(currencyName, symbol, wallet.blockchain.displayName.droppingNetworkSuffix)
     }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> {
-        Publishers.Merge4(
+        Publishers.Merge5(
             expressAvailabilityProvider.availabilityDidChangePublisher,
             stakingManagerStatePublisher.mapToVoid(),
             totalTokenBalanceProvider.balanceTypePublisher.mapToVoid(),
-            (yieldModuleManager?.statePublisher ?? Just(.none).eraseToAnyPublisher()).mapToVoid()
+            (yieldModuleManager?.statePublisher ?? Just(.none).eraseToAnyPublisher()).mapToVoid(),
+            pendingTransactionsProvider.hasAnyBlockingPendingTransactionsPublisher.mapToVoid()
         )
         .eraseToAnyPublisher()
-    }
-
-    var sendingRestrictions: SendingRestrictions? {
-        sendAvailabilityProvider.sendingRestrictions(walletModel: self)
     }
 
     var isDemo: Bool { demoBalance != nil }
@@ -374,6 +373,18 @@ extension CommonWalletModel: WalletModel {
 
     var yieldModuleManager: (any YieldModuleManager)? {
         _yieldModuleManager
+    }
+
+    var lendingModuleReader: (any LendingModuleReader)? {
+        guard isYieldModuleSupported,
+              case .blockchain(let network) = tokenItem,
+              network.blockchain == LendingOnAave.blockchain,
+              let yieldSupplyService = walletManager.yieldSupplyService,
+              yieldSupplyService.isSupported() else {
+            return nil
+        }
+
+        return YieldSupplyLendingModuleReader(service: yieldSupplyService)
     }
 
     var stakeKitTransactionSender: StakeKitTransactionSender? {
@@ -776,56 +787,6 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
             .eraseToAnyPublisher()
     }
 
-    var hasPendingTransactions: Bool {
-        if hasJointAccountOperationsInFlight {
-            return true
-        }
-
-        // For bitcoin we check only outgoing transaction
-        // because we will not use unconfirmed utxo
-        if case .bitcoin = blockchainNetwork.blockchain {
-            return wallet.pendingTransactions.contains { !$0.isIncoming }
-        }
-
-        return wallet.hasPendingTx(for: amountType)
-    }
-
-    var hasAnyPendingTransactions: Bool {
-        if hasJointAccountOperationsInFlight {
-            return true
-        }
-
-        // For bitcoin we check only outgoing transaction
-        // because we will not use unconfirmed utxo
-        if case .bitcoin = blockchainNetwork.blockchain {
-            return wallet.pendingTransactions.contains { !$0.isIncoming }
-        }
-
-        return wallet.hasPendingTx
-    }
-
-    private var hasJointAccountOperationsInFlight: Bool {
-        guard let jointAccount = account as? any JointAccountModel, let chainId = tokenItem.blockchain.chainId else {
-            return false
-        }
-
-        return jointAccount.jointAccountPendingOperationsProvider.hasPendingOperations(chainId: chainId)
-    }
-
-    var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> {
-        walletManager
-            .walletPublisher
-            .withWeakCaptureOf(self)
-            .map {
-                $0.pendingTransaction(for: $1)
-            }
-            .eraseToAnyPublisher()
-    }
-
-    private func pendingTransaction(for wallet: Wallet) -> [PendingTransactionRecord] {
-        wallet.pendingTransactions.filter { !$0.isDummy && $0.amount.type == amountType }
-    }
-
     private func transactionHistoryState() -> AnyPublisher<WalletModelTransactionHistoryState, Never> {
         guard let _transactionHistoryService else {
             return .just(output: .notSupported)
@@ -834,7 +795,7 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
         return Publishers.Merge3(
             transactionHistoryUpdateTrigger.withLatestFrom(_transactionHistoryService.statePublisher),
             _transactionHistoryService.statePublisher,
-            pendingTransactionPublisher.removeDuplicates().withLatestFrom(_transactionHistoryService.statePublisher)
+            pendingTransactionsProvider.pendingTransactionsPublisher.removeDuplicates().withLatestFrom(_transactionHistoryService.statePublisher)
         )
         .withWeakCaptureOf(self)
         .asyncMap { walletModel, state -> WalletModelTransactionHistoryState in
@@ -855,7 +816,7 @@ extension CommonWalletModel: WalletModelTransactionHistoryProvider {
     }
 
     private func insertPendingTransactionRecordIfNeeded(into items: inout [TransactionRecord]) {
-        let pendingTransactions = pendingTransaction(for: wallet)
+        let pendingTransactions = pendingTransactionsProvider.pendingTransactions
         guard !pendingTransactions.isEmpty else {
             AppLogger.info(self, "has not local pending transactions")
             return

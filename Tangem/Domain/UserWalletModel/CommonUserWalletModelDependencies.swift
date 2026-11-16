@@ -17,10 +17,12 @@ import TangemPay
 struct CommonUserWalletModelDependencies {
     let keysRepository: KeysRepository
     let totalBalanceProvider: TotalBalanceProvider
+    let notificationBadgeCounter: NotificationBadgeCounter
     let nftManager: NFTManager
     let userWalletPushNotificationsManager: UserWalletPushNotificationsManager
     let priceAlertsSubscriptionsProvider: PriceAlertsSubscriptionsProvider
     let accountModelsManager: AccountModelsManager
+    let derivationManager: DerivationManager?
     let addressBookManager: AddressBookManager
 
     private let userWalletModelConfigurableDependencies: UserWalletModelConfigurableDependencies
@@ -42,6 +44,7 @@ struct CommonUserWalletModelDependencies {
             keysRepository: keysRepository,
             areHDWalletsSupported: areHDWalletsSupported
         )
+        self.derivationManager = derivationManager
 
         let polymarketAccountProvider = PolymarketAccountProvider(
             builder: PolymarketAccountBuilder(
@@ -117,6 +120,12 @@ struct CommonUserWalletModelDependencies {
             accountModelsManager: accountModelsManager
         )
 
+        notificationBadgeCounter = CompositeNotificationBadgeCounter(
+            counters: [
+                JointAccountsNotificationBadgeCounter(accountModelsManager: accountModelsManager),
+            ]
+        )
+
         nftManager = Self.makeNFTManager(
             userWalletId: userWalletId,
             accountModelsManager: accountModelsManager
@@ -164,7 +173,7 @@ private extension CommonUserWalletModelDependencies {
     static func makeDerivationManager(
         keysRepository: KeysRepository,
         areHDWalletsSupported: Bool
-    ) -> (DerivationManager & DerivationDependenciesConfigurable)? {
+    ) -> (DerivationManager & DerivationManagerDependenciesConfigurable)? {
         return areHDWalletsSupported ? CommonDerivationManager(keysRepository: keysRepository) : nil
     }
 
@@ -207,17 +216,15 @@ private extension CommonUserWalletModelDependencies {
             auxiliaryDataStorage: auxiliaryDataStorage,
             persistentStorage: persistentStorage,
             storageController: persistentStorage,
-            hasTokenSynchronization: hasTokenSynchronization
+            hasTokenSynchronization: hasTokenSynchronization,
+            isJointAccountsAvailable: isJointAccountsAvailable
         )
 
         let jointAccountsNetworkService = CommonJointAccountsNetworkService(userWalletId: userWalletId)
         let jointAccountsPersistentStorage = CommonJointAccountsPersistentStorage(storageIdentifier: userWalletId.stringValue)
         let jointAccountPendingOperationsSynchronizer = CommonJointAccountPendingOperationsSynchronizer(
-            persistentStorage: CommonJointAccountsPendingOperationsPersistentStorage(storageIdentifier: userWalletId.stringValue),
-            historyEnricherFactory: TransactionHistoryJointAccountDataEnricherFactory.make(
-                persistentStorage: jointAccountsPersistentStorage,
-                isJointAccountsAvailable: isJointAccountsAvailable
-            )
+            persistentStorage: CommonJointAccountsPendingOperationsPersistentStorage(),
+            safeAddressResolver: CommonJointAccountSafeAddressResolver(persistentStorage: jointAccountsPersistentStorage)
         )
 
         let jointAccountPendingOperationsRepository = CommonJointAccountPendingOperationsRepository(
@@ -448,7 +455,7 @@ private extension CommonUserWalletModelDependencies {
     /// Represents dependencies that are required for `UserWalletModel` but must be configured later when the model is already created.
     /// This is needed to break circular dependencies between `UserWalletModel` and some of its dependencies (e.g. `KeysRepository`).
     struct UserWalletModelConfigurableDependencies {
-        let derivationManager: DerivationDependenciesConfigurable?
+        let derivationManager: DerivationManagerDependenciesConfigurable?
         let keysRepository: CommonKeysRepository
         let cryptoAccountsRepository: CommonCryptoAccountsRepository
         let keysDerivingInteractorFactory: KeysDerivingInteractorFactory

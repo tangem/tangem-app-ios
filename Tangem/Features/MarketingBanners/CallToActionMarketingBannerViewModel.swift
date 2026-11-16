@@ -29,6 +29,15 @@ enum CallToActionMarketingBanner: Identifiable, Hashable {
             viewModel.link
         }
     }
+
+    var replacedSlot: MarketingBanner.RecommendedSlot? {
+        switch self {
+        case .pseudoProvider(let viewModel):
+            viewModel.content.replacedSlot
+        case .standalone:
+            nil
+        }
+    }
 }
 
 extension CallToActionMarketingBanner {
@@ -37,6 +46,7 @@ extension CallToActionMarketingBanner {
         let subtitle: String?
         let etaLabel: String?
         let partnerLabel: String?
+        let replacedSlot: MarketingBanner.RecommendedSlot?
     }
 
     struct Standalone: Hashable {

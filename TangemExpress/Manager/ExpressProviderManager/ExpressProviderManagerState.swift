@@ -92,6 +92,7 @@ public extension ExpressProviderManagerState {
         public let provider: ExpressProvider
         public let policy: ApprovePolicy
         public let data: ApproveTransactionData
+        public let approveAmount: Decimal
         public let approvalFlow: ApprovalFlow
         public let fee: Fee
         public let quote: ExpressQuote
@@ -130,6 +131,7 @@ public extension ExpressProviderManagerState {
             public let provider: ExpressProvider
             public let approvePolicy: ApprovePolicy
             public let approveTransactionData: ApproveTransactionData
+            public let approveAmount: Decimal
             public let approvalFlow: ApprovalFlow
             public let approveFee: Fee
         }

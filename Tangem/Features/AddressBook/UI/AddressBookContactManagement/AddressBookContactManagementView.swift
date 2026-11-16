@@ -48,7 +48,7 @@ struct AddressBookContactManagementView: View {
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             },
             trailingContent: {
-                NavigationBarButton.close(action: viewModel.userDidRequestDismiss).redesigned()
+                NavigationBarButton.close(action: viewModel.userDidRequestDismiss)
             }
         )
         .readGeometry(\.size.height, bindTo: $headerHeight)

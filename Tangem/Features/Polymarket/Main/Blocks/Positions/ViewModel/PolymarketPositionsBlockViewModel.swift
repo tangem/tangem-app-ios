@@ -72,6 +72,19 @@ final class PolymarketPositionsBlockViewModel: ObservableObject {
     }
 }
 
+// MARK: - Placeholder
+
+extension PolymarketPositionsBlockViewModel {
+    var placeholderContent: Content {
+        switch content {
+        case .hidden, .skeleton:
+            content
+        case .failed, .positions, .noActivePositions:
+            .skeleton(rowCount: skeletonRowCount)
+        }
+    }
+}
+
 // MARK: - View actions
 
 extension PolymarketPositionsBlockViewModel {
@@ -300,6 +313,7 @@ private extension PolymarketPositionsBlockViewModel {
             rememberShownCount(openPositions.count)
             content = .positions(openPositions.map(PolymarketPositionRow.Model.make(position:)), showsViewAll: hasMorePositions)
         case .loaded where hadPositionsBefore:
+            rememberShownCount(0)
             content = .noActivePositions(showsViewAll: hasMorePositions)
         case .loaded:
             content = .hidden

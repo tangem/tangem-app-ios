@@ -58,6 +58,7 @@ struct JointAccountJoinView: View {
                     footer
                 }
                 .padding(.horizontal, Constants.contentHorizontalPadding)
+                .layoutPriority(1)
             }
         }
         .topNavigation(leading: .none, close: .enabled(viewModel.onCloseTap))
@@ -117,14 +118,23 @@ struct JointAccountJoinView: View {
 
     @ViewBuilder
     private func rows(_ content: JointAccountJoinViewModel.Content) -> some View {
+        Row(title: Localization.jointAccountMembersTitle, value: content.membersCount)
+            .contentLead(.end)
+            .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+            .showDivider(true)
+
+        Row(title: Localization.jointAccountInviteMembersRequiredApprovals, value: content.requiredApprovals)
+            .contentLead(.end)
+            .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
+            .valueAccessory { infoIcon }
+            .showDivider(true)
+            .onTap { viewModel.onRequiredApprovalsTap(content) }
+            .accessibilityHint(Localization.jointAccountInviteMembersAboutSignaturesTitle)
+
         Row(title: Localization.jointAccountInviteMembersCreator, value: content.creatorName)
             .contentLead(.end)
             .overrideTextColors(.init(value: DesignSystem.Color.textSecondary))
-            .valueAccessory {
-                DesignSystem.Icons.Info.regular20.image
-                    .renderingMode(.template)
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
-            }
+            .valueAccessory { infoIcon }
             .showDivider(true)
             .onTap(action: viewModel.onCreatorInfoTap)
 
@@ -153,6 +163,13 @@ struct JointAccountJoinView: View {
             }
     }
 
+    private var infoIcon: some View {
+        DesignSystem.Icons.Info.regular20.image
+            .renderingMode(.template)
+            .foregroundStyle(DesignSystem.Color.iconSecondary)
+            .accessibilityHidden(true)
+    }
+
     private var footer: some View {
         TangemUI.Button(label: Localization.commonContinue, accessibilityLabel: nil) {
             viewModel.onContinueTap()
@@ -172,7 +189,7 @@ private extension JointAccountJoinView {
         static let glowHeight: CGFloat = 422
         static let glowHorizontalPadding: CGFloat = 13
         static let glowBlurRadius: CGFloat = 80
-        static let glowOpacity: CGFloat = 0.2
+        static let glowOpacity: CGFloat = 0.1
 
         static let accountIconSize: CGFloat = 128
         static let accountIconCornerRadiusRatio: CGFloat = 0.28

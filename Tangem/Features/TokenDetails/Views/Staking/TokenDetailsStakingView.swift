@@ -15,6 +15,8 @@ import TangemAccessibilityIdentifiers
 struct TokenDetailsStakingView: View {
     let state: TokenDetailsStakingState
 
+    @ObservedObject private var visibilityState = SensitiveTextVisibilityState.shared
+
     @ScaledMetric private var horizontalSpacing: CGFloat = 8
     @ScaledMetric private var verticalSpacing: CGFloat = 4
     @ScaledMetric private var padding: CGFloat = 16
@@ -42,6 +44,10 @@ struct TokenDetailsStakingView: View {
             enableView(item: item)
         case .unavailable(let item):
             unavailableView(item: item)
+        case .yieldEnabled(let item):
+            yieldEnabledView(item: item)
+        case .earn(let item):
+            earnView(item: item)
         }
     }
 }
@@ -123,9 +129,12 @@ private extension TokenDetailsStakingView {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 VStack(alignment: .trailing, spacing: verticalSpacing) {
-                    SensitiveText(item.fiatBalance)
+                    UtilBalance(item.fiatBalance)
+                        .masked(visibilityState.isHidden)
+                        .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
 
-                    SensitiveText(item.cryptoBalance)
+                    UtilBalance(item.cryptoBalance)
+                        .masked(visibilityState.isHidden)
                         .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
                 }
                 .accessibilityIdentifier(TokenAccessibilityIdentifiers.stakingBalance)
@@ -139,6 +148,54 @@ private extension TokenDetailsStakingView {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
+    }
+
+    func yieldEnabledView(item: TokenDetailsStakingState.YieldEnabledItem) -> some View {
+        let balance = visibilityState.isHidden ? visibilityState.maskedBalanceString : item.balance
+
+        return MessageBanner(title: item.title, description: "\(balance) \(AppConstants.dotSign) \(item.activeCount)")
+            .glowRing(.info)
+            .slotStart {
+                yieldIllustration
+            }
+            .slotEnd {
+                DesignSystem.Icons.ChevronRight.regular20.image
+                    .renderingMode(.template)
+                    .flipsForRightToLeftLayoutDirection(true)
+                    .foregroundStyle(DesignSystem.Color.iconSecondary)
+                    .frame(height: iconDimension)
+                    .accessibilityHidden(true)
+            }
+            .onTap(item.action)
+            .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
+    }
+
+    var yieldIllustration: some View {
+        EarnIllustrationView(illustration: DesignSystem.Icons.accountYield)
+            .shadow(
+                color: DesignSystem.Color.bgAccentBlue.opacity(0.35),
+                radius: iconShadowBlurRadius,
+                x: .zero,
+                y: iconShadowOffsetX
+            )
+    }
+
+    func earnView(item: TokenDetailsStakingState.AvailableItem) -> some View {
+        MessageBanner(title: item.title, description: item.description)
+            .variant(.info)
+            .glowRing(.info)
+            .slotStart {
+                yieldIllustration
+            }
+            .slotEnd {
+                TangemUI.Button(label: item.actionTitle, accessibilityLabel: nil, action: item.action)
+                    .styleType(.primary)
+                    .size(.x8)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+            .onTap(item.action)
+            .accessibilityIdentifier(TokenAccessibilityIdentifiers.nativeStakingBlock)
     }
 
     @ViewBuilder

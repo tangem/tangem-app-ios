@@ -15,6 +15,7 @@ struct SilentPushTesterView: View {
         Form {
             Section("Payload") {
                 labeledField("user_wallet_id", text: $viewModel.userWalletId)
+                labeledField("account_id", text: $viewModel.accountId)
                 labeledField("network_id", text: $viewModel.networkId)
                 labeledField("token_id", text: $viewModel.tokenId)
                 labeledField("derivation_path", text: $viewModel.derivationPath)

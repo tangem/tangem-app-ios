@@ -146,7 +146,7 @@ extension StakingNotificationEvent: NotificationEvent {
                 ? Localization.warningBlockedFundsForFeeMessage(configuration.feeAmountTypeName)
                 : Localization.warningSendBlockedFundsForFeeMessage(
                     configuration.transactionAmountTypeName,
-                    configuration.networkName,
+                    configuration.networkName.droppingNetworkSuffix,
                     configuration.transactionAmountTypeName,
                     configuration.feeAmountTypeName,
                     configuration.feeAmountTypeCurrencySymbol

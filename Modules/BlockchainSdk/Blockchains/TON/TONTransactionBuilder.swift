@@ -75,7 +75,7 @@ final class TONTransactionBuilder {
 
         guard preSigningOutput.error == .ok, !preSigningOutput.data.isEmpty else {
             BSDKLogger.error(error: "TONPreSigningOutput has a error: \(preSigningOutput.errorMessage)")
-            throw NSError()
+            throw BlockchainSdkError.failedToBuildTx
         }
 
         return TONPreSignData(dataToSign: preSigningOutput.data, serializedTransactionInput: txInputData)

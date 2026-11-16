@@ -116,10 +116,8 @@ struct NewsPagerView: View {
                 Group {
                     if viewModel.isDeeplinkMode {
                         NavigationBarButton.close(action: { viewModel.handleViewAction(.back) })
-                            .redesigned()
                     } else {
                         NavigationBarButton.back(action: { viewModel.handleViewAction(.back) })
-                            .redesigned()
                     }
                 }
                 .readGeometry(\.size.width, bindTo: $sheetNavigationButtonWidth)
@@ -133,7 +131,6 @@ struct NewsPagerView: View {
             },
             trailingContent: {
                 NavigationBarButton.share(action: { viewModel.handleViewAction(.share) })
-                    .redesigned()
                     .disabled(viewModel.isCurrentArticleLoading)
             }
         )
@@ -172,12 +169,10 @@ struct NewsPagerView: View {
                         NavigationBarButton.back(action: { viewModel.handleViewAction(.back) })
                     }
                 }
-                .redesigned()
                 .padding(.leading, 16)
             },
             rightButtons: {
                 NavigationBarButton.share(action: { viewModel.handleViewAction(.share) })
-                    .redesigned()
                     .disabled(viewModel.isCurrentArticleLoading)
                     .padding(.trailing, 16)
             }
@@ -194,7 +189,6 @@ struct NewsPagerView: View {
         NavigationToolbarButton.share(placement: .topBarTrailing) {
             viewModel.handleViewAction(.share)
         }
-        .redesigned()
         .customizationBehavior(viewModel.isCurrentArticleLoading ? .disabled : .default)
     }
 
@@ -280,7 +274,7 @@ private struct NewsPageContentView: View {
     }
 
     private var errorView: some View {
-        TangemUnableToLoadDataView(
+        UnableToLoadDataView(
             isButtonBusy: false,
             retryButtonAction: { viewModel.handleViewAction(.retry) }
         )

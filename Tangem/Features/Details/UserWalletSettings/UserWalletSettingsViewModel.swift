@@ -13,7 +13,6 @@ import TangemFoundation
 import TangemAccessibilityIdentifiers
 import TangemMobileWalletSdk
 import TangemAssets
-import struct SwiftUI.Image
 import struct SwiftUI.Text
 import struct TangemUIUtils.AlertBinder
 import struct TangemUIUtils.ConfirmationDialogViewModel
@@ -27,7 +26,10 @@ final class UserWalletSettingsViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published private(set) var name: String
-    @Published private(set) var walletImage: Image?
+
+    var walletIcon: UserWalletIcon {
+        userWalletModel.walletIcon
+    }
 
     @Published var accountsViewModel: UserSettingsAccountsViewModel?
     @Published var mobileAccessCodeViewModel: DefaultRowViewModel?
@@ -105,17 +107,6 @@ final class UserWalletSettingsViewModel: ObservableObject {
 
     func onAppear() {
         setupView()
-        loadWalletImage()
-    }
-
-    private func loadWalletImage() {
-        runTask(in: self) { viewModel in
-            let imageValue = await viewModel.userWalletModel.walletImageProvider.loadSmallImage()
-
-            await runOnMain {
-                viewModel.walletImage = imageValue.image
-            }
-        }
     }
 
     func onTapNameField() {
@@ -155,6 +146,29 @@ final class UserWalletSettingsViewModel: ObservableObject {
         ) { [weak self] in
             self?.coordinator?.onAlertDismiss()
         }
+    }
+
+    func showPausedJointAccountAlert() {
+        alert = AlertBuilder.makePausedJointAccountAlert { [weak self] in
+            self?.openPausedJointAccountSupport()
+        }
+    }
+
+    private func openPausedJointAccountSupport() {
+        let dataCollector = DetailsFeedbackDataCollector(
+            data: [
+                .init(
+                    userWalletEmailData: userWalletModel.emailData,
+                    walletModels: AccountWalletModelsAggregator.walletModels(from: userWalletModel.accountModelsManager)
+                ),
+            ]
+        )
+
+        coordinator?.openMail(
+            with: dataCollector,
+            emailType: .appFeedback(subject: EmailConfig.default.subject),
+            recipient: EmailConfig.default.recipient
+        )
     }
 
     func mobileUpgradeTap() {
@@ -492,6 +506,10 @@ private extension UserWalletSettingsViewModel {
     }
 
     func openCardSettings() {
+        guard let cardImageProvider = userWalletModel.cardImageProvider else {
+            return
+        }
+
         Analytics.log(.buttonCardSettings, contextParams: analyticsContextParams)
 
         let scanParameters = CardScannerParameters(
@@ -507,7 +525,7 @@ private extension UserWalletSettingsViewModel {
 
         coordinator?.openScanCardSettings(
             with: .init(
-                cardImageProvider: userWalletModel.walletImageProvider,
+                cardImageProvider: cardImageProvider,
                 cardScanner: scanner
             )
         )

@@ -75,12 +75,30 @@ extension Button {
         let animation: Animation?
     }
 
+    struct HoldHint {
+        let text: String
+        let isShown: Bool
+
+        var labelAnimation: Animation {
+            isShown ? HoldMotion.hintStepIn : HoldMotion.hintStepOut.delay(HoldMotion.hintStepDuration)
+        }
+
+        var hintAnimation: Animation {
+            isShown ? HoldMotion.hintStepIn.delay(HoldMotion.hintStepDuration) : HoldMotion.hintStepOut
+        }
+    }
+
     enum HoldMotion {
         static let release: Animation = .easeOut(duration: 0.24)
         static let pulseHalfDuration: TimeInterval = 0.1
         static let pulse: Animation = .timingCurve(0.5, 0, 0.5, 1, duration: pulseHalfDuration)
         static let completion: Animation = .timingCurve(0.5, 0, 0.5, 1, duration: 0.05)
         static let shakeTravelDistance: CGFloat = -8
+        static let hintTransitionDuration: TimeInterval = 0.14
+        static let hintStepDuration: TimeInterval = hintTransitionDuration / 2
+        static let hintVisibleDuration: TimeInterval = 1
+        static let hintStepIn: Animation = .easeIn(duration: hintStepDuration)
+        static let hintStepOut: Animation = .easeOut(duration: hintStepDuration)
     }
 }
 
@@ -151,15 +169,13 @@ extension Button {
         }
 
         private var displayedBase: Button {
-            if model.showsCancelHint {
-                return base.labelText(configuration.cancelHint)
-            }
+            let hinted = base.holdHint(HoldHint(text: configuration.cancelHint, isShown: model.showsCancelHint))
 
             if model.state == .confirmed {
-                return base.loading(.spinner)
+                return hinted.loading(.spinner)
             }
 
-            return base
+            return hinted
         }
 
         private var holdFill: HoldFill {
@@ -195,6 +211,73 @@ extension Button {
         static func == (lhs: Self, rhs: Self) -> Bool {
             lhs.id == rhs.id
         }
+    }
+}
+
+// MARK: - Hint layout
+
+extension Button {
+    struct HoldHintLayout: Layout {
+        var progress: CGFloat
+
+        var animatableData: CGFloat {
+            get { progress }
+            set { progress = newValue }
+        }
+
+        func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+            guard let label = subviews.first, let hint = subviews.last else {
+                return .zero
+            }
+
+            let labelSize = label.sizeThatFits(.unspecified)
+            let hintSize = hint.sizeThatFits(.unspecified)
+            let widthLimit = proposal.width ?? .infinity
+
+            let width = switch progress {
+            case 0: fittedSize(of: label, widthLimit: widthLimit).width
+            case 1: fittedSize(of: hint, widthLimit: widthLimit).width
+            default: min(interpolatedWidth(label: labelSize.width, hint: hintSize.width), widthLimit)
+            }
+
+            return CGSize(width: width, height: max(labelSize.height, hintSize.height))
+        }
+
+        func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+            guard let label = subviews.first, let hint = subviews.last else {
+                return
+            }
+
+            let idealWidth = interpolatedWidth(
+                label: label.sizeThatFits(.unspecified).width,
+                hint: hint.sizeThatFits(.unspecified).width
+            )
+            let widthLimit = bounds.width + Self.widthTolerance < idealWidth ? bounds.width : .infinity
+
+            for subview in [label, hint] {
+                subview.place(
+                    at: CGPoint(x: bounds.midX, y: bounds.midY),
+                    anchor: .center,
+                    proposal: ProposedViewSize(fittedSize(of: subview, widthLimit: widthLimit))
+                )
+            }
+        }
+
+        private func fittedSize(of subview: LayoutSubview, widthLimit: CGFloat) -> CGSize {
+            let idealSize = subview.sizeThatFits(.unspecified)
+
+            guard idealSize.width > widthLimit else {
+                return idealSize
+            }
+
+            return subview.sizeThatFits(ProposedViewSize(width: widthLimit, height: nil))
+        }
+
+        private func interpolatedWidth(label: CGFloat, hint: CGFloat) -> CGFloat {
+            label + (hint - label) * progress
+        }
+
+        private static let widthTolerance: CGFloat = 1
     }
 }
 

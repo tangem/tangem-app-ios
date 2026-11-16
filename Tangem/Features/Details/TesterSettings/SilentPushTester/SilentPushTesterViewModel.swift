@@ -27,11 +27,12 @@ final class SilentPushTesterViewModel: ObservableObject {
     @Published var tokenId: String = ""
     @Published var derivationPath: String = ""
     @Published var transactionId: String = ""
+    @Published var accountId: String = ""
     @Published var selectedType: IncomingActionConstants.DeeplinkType = .incomeTransaction
     @Published var scenario: Scenario = .hit
     @Published var lastResultMessage: String = ""
 
-    let types: [IncomingActionConstants.DeeplinkType] = [.incomeTransaction, .onrampStatusUpdate, .swapStatusUpdate]
+    let types: [IncomingActionConstants.DeeplinkType] = [.incomeTransaction, .onrampStatusUpdate, .swapStatusUpdate, .jointTokens]
 
     enum Scenario: String, CaseIterable, Identifiable {
         case hit = "Hit (token in list)"
@@ -66,6 +67,7 @@ final class SilentPushTesterViewModel: ObservableObject {
             return
         }
 
+        accountId = DeeplinkWalletModelLocator.accountIdentifier(of: walletModel.account) ?? ""
         networkId = walletModel.tokenItem.blockchain.networkId
         tokenId = walletModel.tokenItem.id ?? ""
         derivationPath = walletModel.tokenItem.blockchainNetwork.derivationPath?.rawPath ?? ""
@@ -92,7 +94,7 @@ final class SilentPushTesterViewModel: ObservableObject {
             userWalletId: userWalletId,
             derivationPath: derivationPath.nilIfEmpty,
             transactionId: transactionId.nilIfEmpty,
-            accountId: nil
+            accountId: accountId.nilIfEmpty
         )
 
         let url = helper.buildURL(scheme: .withoutRedirectUniversalLink)
@@ -113,6 +115,7 @@ final class SilentPushTesterViewModel: ObservableObject {
             params.networkId: networkId,
             params.tokenId: effectiveTokenId,
             params.userWalletId: userWalletId,
+            params.accountId: accountId.nilIfEmpty ?? "null",
             params.derivationPath: derivationPath.nilIfEmpty ?? "null",
             TokenDeeplink.Keys.transactionId: transactionId.nilIfEmpty ?? "null",
         ]

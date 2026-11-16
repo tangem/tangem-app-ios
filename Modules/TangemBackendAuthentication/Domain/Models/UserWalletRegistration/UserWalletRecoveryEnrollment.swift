@@ -16,11 +16,12 @@ public struct UserWalletRecoveryEnrollment: Equatable, Sendable {
     /// Base64 of the social backup recovery key `K`, encrypted with the KMS recovery public key.
     public let encryptedRecoveryKey: String
 
-    public let recoveryKeyId: String?
+    /// `kid` of the KMS public key that `encryptedRecoveryKey` was encrypted with, as the backend returned it.
+    public let recoveryKeyID: String?
 
-    public init(providerIdToken: String, encryptedRecoveryKey: String, recoveryKeyId: String?) {
+    public init(providerIdToken: String, encryptedRecoveryKey: String, recoveryKeyID: String?) {
         self.providerIdToken = providerIdToken
         self.encryptedRecoveryKey = encryptedRecoveryKey
-        self.recoveryKeyId = recoveryKeyId
+        self.recoveryKeyID = recoveryKeyID
     }
 }

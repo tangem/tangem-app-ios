@@ -15,7 +15,7 @@ struct PromoCampaignEnrollmentResultView: View {
     var body: some View {
         if let payoutWallet = viewModel.payoutWallet, let payout = payoutWallet.payout {
             screen.details {
-                PromoCampaignPayoutCardView(walletName: payoutWallet.name, imageProvider: payoutWallet.imageProvider, payout: payout)
+                PromoCampaignPayoutCardView(walletName: payoutWallet.name, walletIcon: payoutWallet.walletIcon, payout: payout)
             }
         } else if !viewModel.enrolledWallets.isEmpty {
             screen.details {

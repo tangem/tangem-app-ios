@@ -23,7 +23,7 @@ struct TokenRowShowcase: View {
         DSShowcase("TokenRow") { controls in
             controls.picker("Case", $configuration.contentCase)
 
-            if configuration.contentCase == .balance {
+            if configuration.contentCase.hasBalance {
                 controls.picker("Title accessory", $configuration.titleAccessory)
 
                 if configuration.titleAccessory == .reward {
@@ -40,11 +40,12 @@ struct TokenRowShowcase: View {
                 controls.toggle("Message bubble", $configuration.showBubble)
 
                 if configuration.showBubble {
+                    controls.picker("Bubble", $configuration.bubble)
                     controls.toggle("Bubble icon", $configuration.bubbleHasIcon)
                     controls.toggle("Bubble chevron", $configuration.bubbleHasChevron)
                 }
 
-                if configuration.titleAccessory == .reward || configuration.showBubble {
+                if configuration.titleAccessory == .reward {
                     controls.picker("Accent", $configuration.accent)
                 }
 
@@ -60,15 +61,15 @@ struct TokenRowShowcase: View {
                 controls.toggle("Trailing icon", $configuration.showTrailingIcon)
             }
 
-            if configuration.contentCase == .balance || configuration.contentCase == .compact {
+            if configuration.contentCase.hasBalance || configuration.contentCase == .compact {
                 controls.toggle("Grayscale icon", $configuration.isIconGrayscale)
             }
 
-            if configuration.contentCase == .balance || (configuration.contentCase == .compact && configuration.compactSubtitle == .balance) {
+            if configuration.contentCase.hasBalance || (configuration.contentCase == .compact && configuration.compactSubtitle == .balance) {
                 controls.picker("Fiat balance", $configuration.fiatState, options: BalanceStateOption.allCases, label: \.label)
             }
 
-            if configuration.contentCase != .compact, configuration.contentCase != .shimmer {
+            if configuration.contentCase.hasQuote {
                 controls.toggle("Quote", $configuration.showQuote)
                 controls.picker("Price change", $configuration.priceChange)
 
@@ -134,8 +135,29 @@ struct TokenRowShowcase: View {
             }
 
             DSShowcaseGroup("Message bubble") {
-                DSShowcaseMatrix(rows: TokenRowAccent.allCases, columns: [false, true], columnLabel: { $0 ? "chevron" : "close" }) { accent, hasChevron in
-                    matrixRow(Configuration(accent: accent, showBubble: true, bubbleHasChevron: hasChevron))
+                DSShowcaseMatrix(rows: BubbleOption.allCases) { bubble in
+                    matrixRow(
+                        Configuration(
+                            titleAccessory: .none,
+                            showBubble: true,
+                            bubble: bubble,
+                            bubbleHasChevron: bubble.hasChevron
+                        )
+                    )
+                }
+            }
+
+            DSShowcaseGroup("Network") {
+                DSShowcaseMatrix(rows: TitleAccessoryOption.allCases, columns: [false, true], columnLabel: { $0 ? "bubble" : "no bubble" }) { titleAccessory, showBubble in
+                    matrixRow(
+                        Configuration(
+                            contentCase: .network,
+                            titleAccessory: titleAccessory,
+                            showBubble: showBubble,
+                            bubble: .pending,
+                            bubbleHasChevron: BubbleOption.pending.hasChevron
+                        )
+                    )
                 }
             }
 
@@ -147,7 +169,7 @@ struct TokenRowShowcase: View {
 
             DSShowcaseGroup("Overflowing text") {
                 DSShowcaseMatrix(rows: ContentCase.allCases.filter { $0 != .shimmer }) { contentCase in
-                    matrixRow(Configuration(contentCase: contentCase, showBubble: contentCase == .balance, overflow: true))
+                    matrixRow(Configuration(contentCase: contentCase, showBubble: contentCase.hasBalance, overflow: true))
                 }
             }
 
@@ -159,7 +181,7 @@ struct TokenRowShowcase: View {
             }
 
             DSShowcaseGroup("Masked balances") {
-                DSShowcaseMatrix(rows: [ContentCase.balance, .compact]) { contentCase in
+                DSShowcaseMatrix(rows: [ContentCase.balance, .network, .compact]) { contentCase in
                     matrixRow(Configuration(contentCase: contentCase))
                         .environment(\.isBalanceMasked, true)
                 }
@@ -187,6 +209,21 @@ struct TokenRowShowcase: View {
                 titleAccessory: titleAccessoryModel(configuration),
                 quote: configuration.showQuote ? configuration.quote : nil,
                 priceChange: configuration.priceChange.value(isUpdating: configuration.isPriceChangeUpdating),
+                balance: TokenRow.Balance(
+                    fiat: fiatBalanceValue(configuration),
+                    crypto: configuration.showCrypto ? balanceValue(configuration.cryptoState, configuration.crypto) : nil
+                ),
+                indicator: configuration.indicator.value,
+                bubble: configuration.showBubble ? bubbleModel(configuration, isInteractive: isInteractive) : nil,
+                onTap: onTap
+            )
+
+        case .network:
+            return TokenRow.Content.network(
+                icon: TokenRow.Icon(Self.iconInfo, isGrayscale: configuration.isIconGrayscale),
+                title: configuration.title,
+                titleAccessory: titleAccessoryModel(configuration),
+                network: configuration.network,
                 balance: TokenRow.Balance(
                     fiat: fiatBalanceValue(configuration),
                     crypto: configuration.showCrypto ? balanceValue(configuration.cryptoState, configuration.crypto) : nil
@@ -252,11 +289,9 @@ struct TokenRowShowcase: View {
 
     private func bubbleModel(_ configuration: Configuration, isInteractive: Bool) -> TokenRowMessageBubble.Model {
         TokenRowMessageBubble.Model(
-            text: configuration.overflow
-                ? "Enable 5.47% APY on your balance and start earning rewards every single day"
-                : "Enable 5.47% APY on your balance",
-            variant: configuration.accent == .yield ? .success : .info,
-            icon: configuration.bubbleHasIcon ? Self.bubbleIcon(for: configuration.accent) : nil,
+            text: configuration.bubbleText,
+            variant: configuration.bubble.variant,
+            icon: configuration.bubbleHasIcon ? configuration.bubble.icon : nil,
             trailingAccessory: configuration.bubbleHasChevron ? .chevron : .close(action: {
                 guard isInteractive else { return }
                 closeCount += 1
@@ -311,13 +346,6 @@ struct TokenRowShowcase: View {
             customTokenColor: nil
         )
     }
-
-    private static func bubbleIcon(for accent: TokenRowAccent) -> ImageType {
-        switch accent {
-        case .yield: return DesignSystem.Icons.ChartBarVertical.regular16
-        case .staking: return DesignSystem.Icons.Stack.regular16
-        }
-    }
 }
 
 // MARK: - Configuration
@@ -332,6 +360,7 @@ private extension TokenRowShowcase {
         var showQuote = true
         var showCrypto = true
         var showBubble = false
+        var bubble: BubbleOption = .yield
         var bubbleHasIcon = true
         var bubbleHasChevron = false
         var fiatState: BalanceStateOption = .loaded
@@ -352,6 +381,15 @@ private extension TokenRowShowcase {
         var ticker: String { overflow ? "WSTETH" : "BTC" }
         var warningText: String { overflow ? "Network is unreachable right now" : "Unreachable" }
         var noteText: String { overflow ? "No address derived yet" : "No address" }
+        var network: String { overflow ? "Polygon zkEVM Cardona Testnet network" : "Bitcoin network" }
+
+        var bubbleText: String {
+            switch bubble {
+            case .yield: return overflow ? "Enable 5.47% APY on your balance and start earning rewards every single day" : "Enable 5.47% APY on your balance"
+            case .staking: return overflow ? "Enable 5.47% APR on your balance and start earning rewards every single day" : "Enable 5.47% APR on your balance"
+            case .pending: return overflow ? "Review and sign the operation before the other members can complete it" : "Review and sign the operation"
+            }
+        }
 
         var rewardLabel: String {
             switch accent {
@@ -385,10 +423,45 @@ extension TokenRowShowcase {
 private extension TokenRowShowcase {
     enum ContentCase: Hashable, CaseIterable {
         case balance
+        case network
         case compact
         case warning
         case note
         case shimmer
+
+        var hasBalance: Bool {
+            self == .balance || self == .network
+        }
+
+        var hasQuote: Bool {
+            self == .balance || self == .warning || self == .note
+        }
+    }
+
+    enum BubbleOption: Hashable, CaseIterable {
+        case yield
+        case staking
+        case pending
+
+        var variant: TokenRowMessageBubble.Variant {
+            switch self {
+            case .yield: return .success
+            case .staking: return .info
+            case .pending: return .warning
+            }
+        }
+
+        var icon: ImageType {
+            switch self {
+            case .yield: return DesignSystem.Icons.ChartLineVertical.regular16
+            case .staking: return DesignSystem.Icons.Stack.regular16
+            case .pending: return DesignSystem.Icons.Clock.regular16
+            }
+        }
+
+        var hasChevron: Bool {
+            self == .pending
+        }
     }
 
     enum TitleAccessoryOption: Hashable, CaseIterable {

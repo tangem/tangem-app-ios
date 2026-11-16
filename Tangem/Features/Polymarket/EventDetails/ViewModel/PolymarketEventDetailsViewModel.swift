@@ -278,7 +278,7 @@ final class PolymarketEventDetailsViewModel: ObservableObject, Identifiable {
 
     @MainActor
     private func presentOutdatedDataToast() {
-        Toast(view: WarningToast(text: Localization.predictionMainDataOutdated))
+        LegacyToast(view: WarningToast(text: Localization.predictionMainDataOutdated))
             .present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
     }
 

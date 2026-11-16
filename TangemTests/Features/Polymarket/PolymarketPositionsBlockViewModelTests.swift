@@ -56,6 +56,21 @@ struct PolymarketPositionsBlockViewModelTests {
         #expect(second.sut.content == .skeleton(rowCount: 2))
     }
 
+    @Test("After the block showed no positions the next skeleton has no rows")
+    func skeletonAfterNoPositionsHasNoRows() async throws {
+        let presenceStore = PolymarketAccountPresenceStoreStub(positions: true)
+        presenceStore.setShownPositionsCount(2, for: Self.userWalletId)
+        let firstService = PositionsBlockServiceStub(active: [Self.page([])], finished: [.success(false)])
+        let first = Self.makeSUT(service: firstService, presenceStore: presenceStore)
+
+        try await first.log.waitUntil { $0 == .noActivePositions(showsViewAll: false) }
+
+        let secondService = PositionsBlockServiceStub(active: [Self.page([])], finished: [.success(false)])
+        let second = Self.makeSUT(service: secondService, presenceStore: presenceStore)
+
+        #expect(second.sut.content == .skeleton(rowCount: 0))
+    }
+
     @Test("The block shows three positions and offers the rest when there are more")
     func showsThreeAndOffersTheRest() async throws {
         let service = PositionsBlockServiceStub(active: [Self.page(["a", "b", "c", "d"])], finished: [.success(false)])
@@ -456,7 +471,7 @@ private enum TestError: Error {
 private final class ContentLog {
     private(set) var contents: [PolymarketPositionsBlockViewModel.Content] = []
 
-    private let changes = PolymarketTestSignal<Void>()
+    private let changes = TestSignal<Void>()
     private var subscription: AnyCancellable?
 
     init(_ sut: PolymarketPositionsBlockViewModel) {

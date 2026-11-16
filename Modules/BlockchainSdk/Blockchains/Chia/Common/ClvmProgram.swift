@@ -51,7 +51,7 @@ class ClvmProgram {
             return Data([2] + left + right).getSHA256()
         }
 
-        throw NSError()
+        throw CasperError.undefinedEncodeException
     }
 
     func serialize() throws -> Data {

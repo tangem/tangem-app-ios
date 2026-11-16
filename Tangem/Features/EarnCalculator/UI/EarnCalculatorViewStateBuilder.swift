@@ -97,7 +97,7 @@ private extension EarnCalculatorViewStateBuilder {
             value: balanceFormatter.formatFiatBalance(
                 value,
                 currencyCode: currencyCode,
-                formattingOptions: Constants.wholeNumberOptions
+                formattingOptions: .wholeFiatFormattingOptions
             ),
             canDecrease: value > field.range.lowerBound,
             canIncrease: value < field.range.upperBound
@@ -109,7 +109,7 @@ private extension EarnCalculatorViewStateBuilder {
         let formatted = balanceFormatter.formatFiatBalance(
             rounded,
             currencyCode: currencyCode,
-            formattingOptions: Constants.wholeNumberOptions
+            formattingOptions: .wholeFiatFormattingOptions
         )
 
         return rounded > .zero ? String.plusSign + formatted : formatted
@@ -127,11 +127,5 @@ private extension EarnCalculatorViewStateBuilder {
 private extension EarnCalculatorViewStateBuilder {
     enum Constants {
         static let maxBarCount = 24
-        static let wholeNumberOptions = BalanceFormattingOptions(
-            minFractionDigits: 0,
-            maxFractionDigits: 0,
-            formatEpsilonAsLowestRepresentableValue: false,
-            roundingType: .default(roundingMode: .plain, scale: 0)
-        )
     }
 }

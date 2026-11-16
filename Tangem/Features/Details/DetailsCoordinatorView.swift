@@ -18,6 +18,7 @@ struct DetailsCoordinatorView: CoordinatorView {
             if let model = coordinator.detailsViewModel {
                 DetailsView(viewModel: model)
                     .navigationLinks(links)
+                    .addWalletPresentation(coordinator.addWalletCoordinator)
                     .supportChatPresentation(coordinator.supportChatPresenter)
             }
 
@@ -30,9 +31,6 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.connectionsCoordinator) {
                 ConnectionsCoordinatorView(coordinator: $0)
             }
-            .navigation(item: $coordinator.walletConnectCoordinator) {
-                WalletConnectCoordinatorView(coordinator: $0)
-            }
             .navigation(item: $coordinator.userWalletSettingsCoordinator) {
                 UserWalletSettingsCoordinatorView(coordinator: $0)
             }
@@ -44,9 +42,6 @@ struct DetailsCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.tosViewModel) {
                 DetailsTOSView(viewModel: $0)
-            }
-            .navigation(item: $coordinator.addWalletSelectorCoordinator) {
-                AddWalletSelectorCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.environmentSetupCoordinator) {
                 EnvironmentSetupCoordinatorView(coordinator: $0)

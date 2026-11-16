@@ -19,7 +19,6 @@ struct PolymarketCategoryTabsView: View {
 
             filterTabs
         }
-        .animation(.polymarketStateChange, value: viewModel.selectedSubcategoryID)
     }
 
     @ViewBuilder
@@ -27,7 +26,7 @@ struct PolymarketCategoryTabsView: View {
         let tabs = viewModel.subcategoryTabs
 
         if !tabs.isEmpty {
-            TabNavigation(data: tabs, selection: viewModel.selectedSubcategoryTab)
+            TabNavigation(data: tabs, selection: viewModel.selectedSubcategoryTab.animation(.polymarketStateChange))
                 .variant(.material)
                 .scrollable()
                 .padding(.top, Constants.subcategoriesTopPadding)
@@ -39,7 +38,7 @@ struct PolymarketCategoryTabsView: View {
         let tabs = viewModel.filterTabs
 
         if !tabs.isEmpty {
-            TabNavigation(data: tabs, selection: viewModel.selectedFilterTab)
+            TabNavigation(data: tabs, selection: viewModel.selectedFilterTab.animation(.polymarketStateChange))
                 .variant(.material)
                 .scrollable()
                 .padding(.vertical, Constants.filtersVerticalPadding)

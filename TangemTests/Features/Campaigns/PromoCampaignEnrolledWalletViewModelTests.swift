@@ -58,7 +58,7 @@ private extension PromoCampaignEnrolledWalletViewModelTests {
         PromoCampaignEnrolledWalletViewModel(
             name: "Main wallet",
             subtitle: "3 cards",
-            imageProvider: CardImageProviderMock(),
+            walletIcon: .loadable(CardImageProviderMock()),
             isUserWalletLocked: isUserWalletLocked,
             totalBalancePublisher: totalBalancePublisher
         )

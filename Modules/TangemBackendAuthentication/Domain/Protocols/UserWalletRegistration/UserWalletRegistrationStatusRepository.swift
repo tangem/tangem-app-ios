@@ -6,9 +6,9 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-import struct TangemFoundation.UserWalletId
+package import struct TangemFoundation.UserWalletId
 
-protocol UserWalletRegistrationStatusRepository: Sendable {
+package protocol UserWalletRegistrationStatusRepository: Sendable {
     func retrieve(id: UserWalletId) async -> Bool
     func updates(id: UserWalletId) async -> AsyncStream<Bool>
 

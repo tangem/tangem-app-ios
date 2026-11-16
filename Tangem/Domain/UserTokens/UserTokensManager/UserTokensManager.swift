@@ -15,10 +15,6 @@ protocol UserTokensManager: UserTokensReordering, DisposableEntity {
 
     var userTokensPublisher: AnyPublisher<[TokenItem], Never> { get }
 
-    var derivationManager: (DerivationManager & DerivationStatusProvider)? { get }
-
-    func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void)
-
     func contains(_ tokenItem: TokenItem, derivationInsensitive: Bool) -> Bool
 
     /// Checks if any tokenItem needs derivation by card

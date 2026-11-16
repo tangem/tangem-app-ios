@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Testing
+import BigInt
 import BlockchainSdk
 import TangemFoundation
 @testable import Tangem
@@ -21,23 +22,40 @@ struct WalletModelJointAccountPendingTransactionsTests {
 
     @Test("An operation underway in the wallet's network is a pending transaction of the wallet and of the network")
     func operationUnderwayInTheNetworkCounts() throws {
-        let provider = try PendingOperationsProviderStub(chainIds: [#require(Self.coin.blockchain.chainId)])
+        let provider = PendingOperationsProviderStub()
         let account = makeJointAccount(provider: provider)
         let sut = Self.makeWalletModel(account: account)
 
-        #expect(sut.hasPendingTransactions)
-        #expect(sut.hasAnyPendingTransactions)
+        try provider.send([Self.makeOperation(in: account, tokenItem: Self.coin)])
+
+        #expect(sut.pendingTransactionsProvider.hasBlockingPendingTransactions)
+        #expect(sut.pendingTransactionsProvider.hasAnyBlockingPendingTransactions)
         withExtendedLifetime(account) {}
     }
 
     @Test("An operation underway in another network is no pending transaction of this wallet")
     func operationUnderwayInAnotherNetworkDoesNotCount() throws {
-        let provider = try PendingOperationsProviderStub(chainIds: [#require(Blockchain.polygon(testnet: false).chainId)])
+        let provider = PendingOperationsProviderStub()
         let account = makeJointAccount(provider: provider)
         let sut = Self.makeWalletModel(account: account)
 
-        #expect(!sut.hasPendingTransactions)
-        #expect(!sut.hasAnyPendingTransactions)
+        try provider.send([Self.makeOperation(in: account, tokenItem: Self.polygonCoin)])
+
+        #expect(!sut.pendingTransactionsProvider.hasBlockingPendingTransactions)
+        #expect(!sut.pendingTransactionsProvider.hasAnyBlockingPendingTransactions)
+        withExtendedLifetime(account) {}
+    }
+
+    @Test("An operation that is over is no pending transaction of the wallet")
+    func operationThatIsOverDoesNotCount() throws {
+        let provider = PendingOperationsProviderStub()
+        let account = makeJointAccount(provider: provider)
+        let sut = Self.makeWalletModel(account: account)
+
+        try provider.send([Self.makeOperation(in: account, tokenItem: Self.coin, status: .executed)])
+
+        #expect(!sut.pendingTransactionsProvider.hasBlockingPendingTransactions)
+        #expect(!sut.pendingTransactionsProvider.hasAnyBlockingPendingTransactions)
         withExtendedLifetime(account) {}
     }
 
@@ -46,8 +64,8 @@ struct WalletModelJointAccountPendingTransactionsTests {
         let account = CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in })
         let sut = Self.makeWalletModel(account: account)
 
-        #expect(!sut.hasPendingTransactions)
-        #expect(!sut.hasAnyPendingTransactions)
+        #expect(!sut.pendingTransactionsProvider.hasBlockingPendingTransactions)
+        #expect(!sut.pendingTransactionsProvider.hasAnyBlockingPendingTransactions)
     }
 }
 
@@ -56,35 +74,54 @@ struct WalletModelJointAccountPendingTransactionsTests {
 private extension WalletModelJointAccountPendingTransactionsTests {
     static let ethereum = BlockchainNetwork(.ethereum(testnet: false), derivationPath: nil)
     static let coin: TokenItem = .blockchain(ethereum)
+    static let polygonCoin: TokenItem = .blockchain(BlockchainNetwork(.polygon(testnet: false), derivationPath: nil))
     static let creatorAddress = "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf"
     static let safeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
+    static let recipient = "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c"
 
     static func makeWalletModel(account: any CryptoAccountModel) -> CommonWalletModel {
-        let mobileWalletInfo = MobileWalletInfo(
-            hasMnemonicBackup: false,
-            hasICloudBackup: false,
-            hasSocialLogin: false,
-            accessCodeStatus: .none,
-            keys: []
-        )
-        let config = UserWalletConfigFactory().makeConfig(mobileWalletInfo: mobileWalletInfo)
+        let walletManager = EthereumWalletManagerMock()
         let walletModel = CommonWalletModel(
             userWalletId: UserWalletId(value: Data(repeating: 0xAB, count: 32)),
             tokenItem: coin,
-            walletManager: EthereumWalletManagerMock(),
+            walletManager: walletManager,
             stakingManager: nil,
             isYieldModuleSupported: false,
             featureManager: WalletModelFeaturesManagerMock(),
+            pendingTransactionsProvider: CommonPendingTransactionsProvider(walletProvider: walletManager, tokenItem: coin),
             transactionHistoryUpdater: TransactionHistoryUpdater(),
             transactionHistoryService: nil,
             receiveAddressService: DummyReceiveAddressService(addressInfos: []),
-            sendAvailabilityProvider: TransactionSendAvailabilityProvider(hardwareLimitationsUtil: HardwareLimitationsUtil(config: config)),
             tokenBalancesRepository: TokenBalancesRepositoryMock(),
             isCustom: false
         )
         walletModel.setCryptoAccount(account)
 
         return walletModel
+    }
+
+    static func makeOperation(
+        in account: any JointAccountModel,
+        tokenItem: TokenItem,
+        status: JointAccountOperationStatus = .awaitingSignatures
+    ) throws -> JointAccountPendingOperation {
+        let wallet = try JointAccountWalletBuilder().build(
+            walletModel: WalletModelTestsMock(
+                tokenItem: tokenItem,
+                isEmpty: false,
+                account: account,
+                safeWalletManagerOperationsService: SafeWalletManagerOperationsServiceTestsMock()
+            )
+        )
+
+        return JointAccountPendingOperation(
+            wallet: wallet,
+            initiator: .unlisted(address: creatorAddress),
+            operation: JointAccountCompositionFixture.coinTransfer(status: status, initiator: creatorAddress),
+            innerCallType: .transfer(.coin(destination: recipient, value: 1_000_000_000_000_000)),
+            feeTokenItem: tokenItem,
+            handleProvider: JointAccountPendingOperationHandleProviderStub()
+        )
     }
 
     func makeJointAccount(provider: any JointAccountPendingOperationsProvider) -> any JointAccountModel {
@@ -112,22 +149,22 @@ private extension WalletModelJointAccountPendingTransactionsTests {
 // MARK: - Stubs
 
 private final class PendingOperationsProviderStub: JointAccountPendingOperationsProvider {
-    private let chainIds: Set<Int>
+    private let operationsSubject = CurrentValueSubject<[JointAccountPendingOperation], Never>([])
 
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> {
-        Just([]).eraseToAnyPublisher()
+        operationsSubject.eraseToAnyPublisher()
     }
 
-    init(chainIds: Set<Int>) {
-        self.chainIds = chainIds
-    }
-
-    func hasPendingOperations(chainId: Int) -> Bool {
-        chainIds.contains(chainId)
+    func send(_ operations: [JointAccountPendingOperation]) {
+        operationsSubject.send(operations)
     }
 
     func requestFrequentUpdates(operationId: String) -> AnyCancellable? {
         nil
+    }
+
+    func pendingOperation(from operation: JointAccountOperation) async throws -> JointAccountPendingOperation {
+        throw "Not called by these tests"
     }
 
     func loadOperation(id: String) async throws -> JointAccountPendingOperation {

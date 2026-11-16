@@ -57,17 +57,30 @@ enum TransactionOperationStatusMapper {
             return viewStatus(for: stage(for: info.transaction.status))
         case .express(.onramp(let info)):
             return viewStatus(for: stage(for: info.transaction.status))
-        case .jointOperation, nil:
-            switch record.status {
-            case .confirmed:
-                return .confirmed
+        case .jointOperation(let info):
+            switch info.item.operation.status {
+            case .executed, .awaitingSignatures, .pending, .unknown:
+                return viewStatus(for: record.status)
             case .failed:
                 return .failed
-            case .unconfirmed:
-                return .inProgress
-            case .undefined:
-                return .undefined
+            case .cancelled:
+                return .cancelled
             }
+        case nil:
+            return viewStatus(for: record.status)
+        }
+    }
+
+    private static func viewStatus(for status: TransactionRecord.TransactionStatus) -> TransactionViewModel.Status {
+        switch status {
+        case .confirmed:
+            return .confirmed
+        case .failed:
+            return .failed
+        case .unconfirmed:
+            return .inProgress
+        case .undefined:
+            return .undefined
         }
     }
 }

@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemFoundation
 import TangemNetworkUtils
 import TangemPolymarket
 
@@ -20,5 +21,17 @@ extension PolymarketOnboardingServicesFactory {
             serverClock: InjectedValues[\.polymarketServerClock],
             unauthorizedObserver: InjectedValues[\.polymarketUnauthorizedEvents]
         )
+    }
+}
+
+// MARK: - CLOB services by credentials
+
+extension PolymarketOnboardingServicesFactory {
+    func makeOwnerCLOBService(userWalletId: UserWalletId) -> PolymarketCLOBService {
+        makeCLOBService(walletId: userWalletId.stringValue)
+    }
+
+    func makeSessionKeyCLOBService() -> PolymarketCLOBService {
+        makeCLOBService(walletId: nil)
     }
 }

@@ -85,7 +85,7 @@ final class TangemPayPinCheckViewModel: ObservableObject, Identifiable {
     private func onError() {
         coordinator?.closePinCheck()
         Task { @MainActor in
-            Toast(view: WarningToast(text: Localization.commonSomethingWentWrong))
+            LegacyToast(view: WarningToast(text: Localization.commonSomethingWentWrong))
                 .present(
                     layout: .top(padding: 20),
                     type: .temporary()

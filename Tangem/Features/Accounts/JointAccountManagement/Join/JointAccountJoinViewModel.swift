@@ -53,6 +53,11 @@ final class JointAccountJoinViewModel: ObservableObject {
         )
     }
 
+    func onRequiredApprovalsTap(_ content: Content) {
+        let config = content.preview.config
+        coordinator?.openAboutSignatures(policy: JointAccountPolicy(membersCount: config.membersCount, signersCount: config.threshold))
+    }
+
     func onWalletTap() {
         let accountSelectorViewModel = AccountSelectorViewModel(
             userWalletModels: availableUserWalletModels,
@@ -125,6 +130,8 @@ private extension JointAccountJoinViewModel {
                 accountIconViewData: Self.makeAccountIconViewData(config: preview.config),
                 title: Self.makeTitle(accountName: preview.config.name),
                 subtitle: Self.makeSubtitle(config: preview.config),
+                membersCount: Localization.accountDetailsJointMembersCount(preview.config.membersCount),
+                requiredApprovals: Localization.jointAccountInviteMembersApprovalsValue(preview.config.threshold, preview.config.membersCount),
                 creatorName: preview.creator.name,
                 isWalletSelectionAvailable: available.count > 1
             )
@@ -209,6 +216,8 @@ extension JointAccountJoinViewModel {
         let accountIconViewData: AccountIconView.ViewData
         let title: AttributedString
         let subtitle: AttributedString
+        let membersCount: String
+        let requiredApprovals: String
         let creatorName: String
         let isWalletSelectionAvailable: Bool
     }

@@ -252,7 +252,7 @@ extension CollectiblesManager: CollectiblesOnboarder {
                 continue
             }
 
-            if step == .vault(.pointAtHeldSessionKey) {
+            if step == .vault(.reissueSessionKey) {
                 rememberReplacedSessionKey(in: resolved)
             }
 
@@ -340,8 +340,8 @@ public extension CollectiblesManager {
 
 extension CollectiblesManager {
     /// Replaces `session_key` with a freshly generated key — the compromised-device exit, not the reinstall
-    /// one. `onboard()` handles a vault naming a key this phone does not hold by pointing the chain at the key
-    /// it does; this discards a key that is still on chain, so it needs the pending-then-promote slot and a
+    /// one. `onboard()` handles a vault naming a key this phone does not hold by naming a freshly generated
+    /// one; this discards a key that is still on chain, so it needs the pending-then-promote slot and a
     /// deliberate user action. Never invoked automatically: two devices rotating on refresh would fight forever.
     func rotateSessionKey() async throws {
         // [REDACTED_TODO_COMMENT]

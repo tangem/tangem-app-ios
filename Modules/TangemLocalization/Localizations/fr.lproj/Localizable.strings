@@ -2400,7 +2400,7 @@
 "support_chat_share_logs_button" = "Joindre les logs de l'app";
 "support_chat_swap_prefilled_message" = "Données du SWAP :\nDepuis :%1$@%2$@\nVers :%3$@%4$@\nPar :%5$@-%6$@";
 "support_selector_view_chat_button" = "Accéder au chat";
-"support_selector_view_email_button" = "Ouvrir la messagerie";
+"support_selector_view_email_button" = "Ouvrir un email";
 "survey_demand_business_interest_question" = "Les services OTC pour votre entreprise vous intéressent-ils ?";
 "survey_demand_button" = "Rejoindre la liste";
 "survey_demand_current_solution_cash_exchange" = "Échange en espèces";

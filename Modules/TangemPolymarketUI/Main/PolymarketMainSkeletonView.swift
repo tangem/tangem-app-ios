@@ -7,16 +7,24 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
 
 public struct PolymarketCategoriesSkeletonView: View {
     public init() {}
 
     public var body: some View {
+        tabNavigation
+            .hidden()
+            .overlay(alignment: .leading) {
+                tabNavigation.loading(true)
+            }
+    }
+
+    private var tabNavigation: TabNavigation<[PolymarketCategoryTab]> {
         TabNavigation(data: Constants.tabs, selection: .constant(Constants.tabs[0]))
             .variant(.material)
             .scrollable()
-            .loading(true)
     }
 }
 
@@ -36,7 +44,9 @@ public struct PolymarketEventsSkeletonView: View {
 private extension PolymarketCategoriesSkeletonView {
     enum Constants {
         static let tabCount = 5
-        static let tabs: [PolymarketCategoryTab] = (0 ..< tabCount).map { PolymarketCategoryTab(id: $0, title: "") }
+        static let tabs: [PolymarketCategoryTab] = (0 ..< tabCount).map {
+            PolymarketCategoryTab(id: $0, title: "", icon: DesignSystem.Icons.ChartAscending.regular20)
+        }
     }
 }
 

@@ -30,7 +30,8 @@ struct PolymarketRedeemFactory {
                 keysRepository: userWalletModel.keysRepository,
                 signer: userWalletModel.signer
             ),
-            serverClock: InjectedValues[\.polymarketServerClock]
+            serverClock: InjectedValues[\.polymarketServerClock],
+            operationSlot: PolymarketWalletOperationSlot(userWalletId: userWalletModel.userWalletId)
         )
     }
 }

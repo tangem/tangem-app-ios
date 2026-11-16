@@ -289,7 +289,7 @@ private extension PolymarketWithdrawTrackerTests {
         let serverClock: PolymarketServerClock
 
         private let log = OSAllocatedUnfairLock(initialState: [PolymarketWithdrawState?]())
-        private let changes = PolymarketTestSignal<Void>()
+        private let changes = TestSignal<Void>()
         private var subscription: AnyCancellable?
 
         init(

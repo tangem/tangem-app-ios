@@ -32,7 +32,7 @@ struct PolymarketOrderSingleSheetTests {
     func summaryStepOpensSummary() async throws {
         let context = try await makeContext(isSingleSheet: false)
 
-        context.sut.handleViewAction(.placeOrder)
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
         context.sut.handleViewAction(.openSummary)
 
         #expect(!context.sut.isPlacing)
@@ -45,12 +45,93 @@ struct PolymarketOrderSingleSheetTests {
     func singleSheetPlacesDirectly() async throws {
         let context = try await makeContext(isSingleSheet: true, placement: .success(.stub(makingAmount: 100, takingAmount: 138)))
 
-        context.sut.handleViewAction(.placeOrder)
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         try await context.routable.resultOpened.next()
 
         #expect(context.routable.summaryOpenings == 0)
         #expect(context.placementService.placements == 1)
+    }
+
+    // MARK: - Fast trading
+
+    @Test("An order on a device with a usable session key is signed by the session key")
+    func usableSessionKeySignsTheOrder() async throws {
+        let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true)
+        let choice = PolymarketOrderSigningChoice(availability: availability, showNotice: { _ in })
+        let context = try await makeContext(isSingleSheet: true, placement: .success(.stub(makingAmount: 100, takingAmount: 138)), signingChoice: choice)
+
+        try #require(choice.method == .sessionKey)
+
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
+
+        try await context.routable.resultOpened.next()
+
+        #expect(context.placementService.signings == [.sessionKey(PolymarketSessionKeySigningAvailabilityStub.session)])
+    }
+
+    @Test("A session key lost between showing the button and the tap leaves the order for a card signature")
+    func lostSessionKeyWaitsForTheCard() async throws {
+        let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true)
+        let choice = PolymarketOrderSigningChoice(availability: availability, showNotice: { _ in })
+        let context = try await makeContext(isSingleSheet: true, placement: .success(.stub(makingAmount: 100, takingAmount: 138)), signingChoice: choice)
+
+        availability.publish(false)
+        context.sut.handleViewAction(.placeOrder(signing: .sessionKey))
+
+        await context.sut.$isPlacing.firstValue(where: { !$0 })
+
+        #expect(context.placementService.placements == 0)
+        #expect(choice.method == .ownerKey)
+
+        _ = await context.model.$state.firstValue { $0.quote.quote != nil && !$0.quote.isAwaitingQuote }
+        _ = await context.sut.$isNextEnabled.firstValue { $0 }
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
+
+        try await context.routable.resultOpened.next()
+
+        #expect(context.placementService.signings == [.ownerKey])
+    }
+
+    @Test("A session key the entry check could not confirm turns the tap to the card without placing the order or a support alert")
+    func unconfirmedSessionKeyFallsBackToTheCard() async throws {
+        let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true, readiness: .ownerKey)
+        let notices = TestSignal<String>()
+        let choice = PolymarketOrderSigningChoice(availability: availability, showNotice: { notices.send($0) })
+        let context = try await makeContext(
+            isSingleSheet: true,
+            placement: .success(.stub(makingAmount: 100, takingAmount: 138)),
+            signingChoice: choice
+        )
+        _ = await context.sut.$isNextEnabled.firstValue { $0 }
+
+        context.sut.handleViewAction(.placeOrder(signing: .sessionKey))
+
+        await context.sut.$isPlacing.firstValue(where: { !$0 })
+
+        #expect(context.placementService.placements == 0)
+        #expect(context.sut.alert == nil)
+        #expect(choice.method == .ownerKey)
+        #expect(notices.recorded == [PolymarketFastTradingStrings.sessionKeyUnavailableNotice])
+    }
+
+    @Test("A session key the exchange turns down switches the order to a card signature without placing it")
+    func refusedSessionKeyWaitsForTheCard() async throws {
+        let availability = PolymarketSessionKeySigningAvailabilityStub(isAvailable: true)
+        let choice = PolymarketOrderSigningChoice(availability: availability, showNotice: { _ in })
+        let context = try await makeContext(
+            isSingleSheet: true,
+            placement: .failure(PolymarketOrderPlacementSetupError.sessionKeyUnavailable),
+            signingChoice: choice
+        )
+
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
+
+        await context.sut.$isPlacing.firstValue(where: { !$0 })
+
+        #expect(context.placementService.placements == 1)
+        #expect(choice.method == .ownerKey)
+        #expect(context.sut.alert == nil)
     }
 
     // MARK: - Closing a position
@@ -76,7 +157,7 @@ struct PolymarketOrderSingleSheetTests {
             placement: .success(.stub(makingAmount: Self.heldShares, takingAmount: 7))
         )
 
-        context.sut.handleViewAction(.placeOrder)
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         try await context.routable.resultOpened.next()
 
@@ -102,8 +183,8 @@ struct PolymarketOrderSingleSheetTests {
         #expect(summary.sut.amountPresets.isEmpty)
     }
 
-    @Test("A book too thin for the whole amount still shows its quoted total")
-    func partialLiquidityShowsTheTotal() async throws {
+    @Test("A book too thin for the whole amount shows no total and keeps the fee breakdown shut")
+    func insufficientLiquidityHidesTheTotal() async throws {
         let quote = PolymarketOrderQuote.stub(status: .insufficientLiquidity)
         let context = try await makeContext(isSingleSheet: true, enteredAmount: nil, quote: quote)
 
@@ -111,27 +192,27 @@ struct PolymarketOrderSingleSheetTests {
 
         _ = await context.sut.$isProceedsStale.firstValue { !$0 }
 
-        #expect(context.model.state.quote.partialQuote != nil)
-        #expect(context.sut.totalText == PolymarketOrderFormatter.money(quote.total))
-        #expect(context.sut.isFeeBreakdownAvailable)
+        context.sut.handleViewAction(.openFeeBreakdown)
+
+        #expect(context.model.state.quote == .unavailable(.insufficientLiquidity, quote: quote))
+        #expect(context.sut.totalText == BalanceFormatter.defaultEmptyBalanceString)
+        #expect(!context.sut.isFeeBreakdownAvailable)
+        #expect(context.routable.feeBreakdownOpenings == 0)
     }
 
-    @Test("The fee breakdown of a partially fillable quote shows its fees on the single sheet only")
-    func partialLiquidityFeeBreakdown() async throws {
+    @Test("A fee breakdown left open shows no fees once the book can't fill the amount")
+    func insufficientLiquidityFeeBreakdown() async throws {
         let quote = PolymarketOrderQuote.stub(status: .insufficientLiquidity)
         let context = try await makeContext(isSingleSheet: true, enteredAmount: nil, quote: quote)
 
         context.model.apply(enteredAmount: 100, debounced: false)
 
-        _ = await context.model.$state.firstValue { $0.quote.partialQuote != nil }
+        _ = await context.model.$state.firstValue { $0.quote == .unavailable(.insufficientLiquidity, quote: quote) }
 
-        let singleSheet = PolymarketFeeBreakdownSheetViewModel(model: context.model, includesPartialQuote: true)
-        let summaryStep = PolymarketFeeBreakdownSheetViewModel(model: context.model)
+        let sheet = PolymarketFeeBreakdownSheetViewModel(model: context.model)
 
-        #expect(singleSheet.total == PolymarketOrderFormatter.money(quote.total))
-        #expect(singleSheet.polymarketFee == PolymarketOrderFormatter.money(quote.fees.market))
-        #expect(summaryStep.total == BalanceFormatter.defaultEmptyBalanceString)
-        #expect(summaryStep.polymarketFee == BalanceFormatter.defaultEmptyBalanceString)
+        #expect(sheet.total == BalanceFormatter.defaultEmptyBalanceString)
+        #expect(sheet.polymarketFee == BalanceFormatter.defaultEmptyBalanceString)
     }
 
     @Test("The total row waits for an amount")
@@ -172,7 +253,7 @@ struct PolymarketOrderSingleSheetTests {
     func uncoveredAmountDisablesPlacing() async throws {
         let context = try await makeContext(isSingleSheet: true, enteredAmount: 100, balance: 50)
 
-        context.sut.handleViewAction(.placeOrder)
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         #expect(!context.sut.isNextEnabled)
         #expect(!context.sut.isPlacing)
@@ -206,7 +287,7 @@ struct PolymarketOrderSingleSheetTests {
     func rejectionShowsAlert() async throws {
         let context = try await makeContext(isSingleSheet: true, placement: .failure(PolymarketOrderPlacementError.rejected(message: nil)))
 
-        context.sut.handleViewAction(.placeOrder)
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         _ = await context.sut.$alert.firstValue { $0 != nil }
 
@@ -220,7 +301,7 @@ struct PolymarketOrderSingleSheetTests {
     func cancelledSigningResumes(_ cancellation: SigningCancellation) async throws {
         let context = try await makeContext(isSingleSheet: true, placement: .failure(cancellation.error))
 
-        context.sut.handleViewAction(.placeOrder)
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         _ = await context.sut.$isPlacing.firstValue { !$0 }
 
@@ -231,95 +312,29 @@ struct PolymarketOrderSingleSheetTests {
 
     // MARK: - Tap before the quote
 
-    @Test("A tap while the quote loads places the order once the quote arrives, and only once")
-    func tapWhileQuotingPlacesOnceQuoted() async throws {
+    @Test("Place predict stays off while the quote loads, and a tap then is not kept for the quote")
+    func tapWhileQuotingPlacesNothing() async throws {
         let context = try await makeQuotingContext(placement: .success(.stub(makingAmount: 100, takingAmount: 138)))
 
-        context.sut.handleViewAction(.placeOrder)
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
-        #expect(context.sut.isPlacing)
-        #expect(context.placementService.placements == 0)
-
-        context.api.holdsQuotes = false
-        context.api.releaseQuotes()
-
-        try await context.routable.resultOpened.next()
-
-        #expect(context.placementService.placements == 1)
-        #expect(context.routable.results.count == 1)
-    }
-
-    @Test("A tap while the quote loads is released when the quote fails")
-    func tapWhileQuotingReleasedOnFailure() async throws {
-        let context = try await makeQuotingContext()
-        context.api.queuedQuoteResults = [.failure(StubError())]
-
-        context.sut.handleViewAction(.placeOrder)
-        context.api.holdsQuotes = false
-        context.api.releaseQuotes()
-
-        _ = await context.sut.$isPlacing.firstValue { !$0 }
-
-        #expect(context.model.state.quote.isFailed)
-        #expect(context.placementService.placements == 0)
-    }
-
-    @Test("A tap while the quote loads is released when the arrived quote can't be placed")
-    func tapWhileQuotingReleasedWhenGateCloses() async throws {
-        let context = try await makeQuotingContext()
-        context.api.queuedQuoteResults = [.success(.stub(status: .insufficientLiquidity))]
-
-        context.sut.handleViewAction(.placeOrder)
-        context.api.holdsQuotes = false
-        context.api.releaseQuotes()
-
-        _ = await context.sut.$isPlacing.firstValue { !$0 }
-
-        #expect(context.model.state.quote.partialQuote != nil)
-        #expect(context.placementService.placements == 0)
-        #expect(context.routable.closings == 0)
-    }
-
-    @Test("A tap is not placed when its quote arrives too late")
-    func lateQuoteDoesNotPlace() async throws {
-        let context = try await makeQuotingContext(placement: .success(.stub(makingAmount: 100, takingAmount: 138)))
-
-        context.sut.handleViewAction(.placeOrder)
-        context.clock.now += 60
-        context.api.holdsQuotes = false
-        context.api.releaseQuotes()
-
-        _ = await context.sut.$isPlacing.firstValue { !$0 }
-
-        #expect(context.model.state.quote.quote != nil)
-        #expect(context.placementService.placements == 0)
-    }
-
-    @Test("Leaving the sheet drops a tap waiting for its quote")
-    func leavingDropsPendingTap() async throws {
-        let context = try await makeQuotingContext(placement: .success(.stub(makingAmount: 100, takingAmount: 138)))
-
-        context.sut.handleViewAction(.placeOrder)
-        context.sut.handleViewAction(.onDisappear)
-
+        #expect(!context.sut.isNextEnabled)
         #expect(!context.sut.isPlacing)
 
         context.api.holdsQuotes = false
         context.api.releaseQuotes()
-        context.sut.handleViewAction(.onAppear)
 
-        _ = await context.sut.$isProceedsStale.firstValue { !$0 }
-        try await context.delays.waitUntilParked(Self.pollInterval)
+        _ = await context.sut.$isNextEnabled.firstValue { $0 }
 
+        #expect(!context.sut.isPlacing)
         #expect(context.placementService.placements == 0)
-        #expect(context.routable.results.isEmpty)
     }
 
     @Test("Closing is ignored while the order is being placed")
     func closeIgnoredWhilePlacing() async throws {
         let context = try await makeContext(isSingleSheet: true, placement: nil)
 
-        context.sut.handleViewAction(.placeOrder)
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         try await context.placementService.entered.next()
 
@@ -363,7 +378,6 @@ private extension PolymarketOrderSingleSheetTests {
     static let quote = PolymarketOrderQuote.stub(status: .full)
     static let heldShares: Decimal = 10
     static let sellQuote = PolymarketOrderQuote.stub(status: .full, shares: heldShares, expectedExecutionAmount: 7, total: Decimal(string: "6.5")!)
-    static let pollInterval: TimeInterval = 3
 
     struct StubError: Error {}
 
@@ -373,12 +387,6 @@ private extension PolymarketOrderSingleSheetTests {
         let routable: OrderRoutableSpy
         let placementService: PlacementServiceStub
         let api: PolymarketAPIProviderStub
-        let delays: PolymarketSteppedDelayProvider
-        let clock: Clock
-    }
-
-    final class Clock {
-        var now = Date(timeIntervalSince1970: 1_800_000_000)
     }
 
     func makeQuotingContext(placement: Result<PolymarketOrderPlacement, Error>? = .failure(CancellationError())) async throws -> Context {
@@ -388,7 +396,7 @@ private extension PolymarketOrderSingleSheetTests {
         context.model.apply(enteredAmount: 100, debounced: false)
 
         try await context.api.heldQuoteEntered.next()
-        _ = await context.sut.$isNextEnabled.firstValue { $0 }
+        _ = await context.sut.$isTotalLoading.firstValue { $0 }
 
         return context
     }
@@ -396,7 +404,7 @@ private extension PolymarketOrderSingleSheetTests {
     func place(_ result: Result<PolymarketOrderPlacement, Error>) async throws -> PolymarketOrderResultViewModel.State? {
         let context = try await makeContext(isSingleSheet: true, placement: result)
 
-        context.sut.handleViewAction(.placeOrder)
+        context.sut.handleViewAction(.placeOrder(signing: context.sut.signingMethod))
 
         try await context.routable.resultOpened.next()
 
@@ -409,13 +417,13 @@ private extension PolymarketOrderSingleSheetTests {
         enteredAmount: Decimal? = 100,
         balance: Decimal = 200,
         quote: PolymarketOrderQuote? = .stub(status: .full),
-        placement: Result<PolymarketOrderPlacement, Error>? = .failure(CancellationError())
+        placement: Result<PolymarketOrderPlacement, Error>? = .failure(CancellationError()),
+        signingChoice: PolymarketOrderSigningChoice? = nil
     ) async throws -> Context {
         let api = PolymarketAPIProviderStub(quoteResult: quote)
         let routable = OrderRoutableSpy()
         let placementService = PlacementServiceStub(result: placement)
         let delays = PolymarketSteppedDelayProvider()
-        let clock = Clock()
 
         let model = PolymarketOrderModel(
             market: .fixture,
@@ -437,8 +445,8 @@ private extension PolymarketOrderSingleSheetTests {
             flowStyle: isSingleSheet
                 ? .singleSheet(.init(placementService: placementService, signingButtonType: .holdToConfirm))
                 : .summaryStep,
-            coordinator: routable,
-            now: { clock.now }
+            signingChoice: signingChoice,
+            coordinator: routable
         )
 
         _ = await model.$state.firstValue { $0.balance != nil && $0.geoblock == .allowed }
@@ -463,9 +471,7 @@ private extension PolymarketOrderSingleSheetTests {
             model: model,
             routable: routable,
             placementService: placementService,
-            api: api,
-            delays: delays,
-            clock: clock
+            api: api
         )
     }
 }
@@ -473,10 +479,11 @@ private extension PolymarketOrderSingleSheetTests {
 // MARK: - Doubles
 
 private final class PlacementServiceStub: PolymarketOrderPlacementService {
-    let entered = PolymarketTestSignal<Void>()
+    let entered = TestSignal<Void>()
 
     private struct State {
         var placements = 0
+        var signings: [PolymarketOrderSigningRoute] = []
         var pending: CheckedContinuation<PolymarketOrderPlacement, Error>?
     }
 
@@ -491,6 +498,10 @@ private final class PlacementServiceStub: PolymarketOrderPlacementService {
         state.withLock { $0.placements }
     }
 
+    var signings: [PolymarketOrderSigningRoute] {
+        state.withLock { $0.signings }
+    }
+
     func resume(with result: Result<PolymarketOrderPlacement, Error>) {
         let pending = state.withLock { state in
             defer { state.pending = nil }
@@ -503,9 +514,13 @@ private final class PlacementServiceStub: PolymarketOrderPlacementService {
     func place(
         quote: PolymarketOrderQuote,
         market: PolymarketMarket,
-        outcome: PolymarketOutcome
+        outcome: PolymarketOutcome,
+        signing: PolymarketOrderSigningRoute
     ) async throws -> PolymarketOrderPlacement {
-        state.withLock { $0.placements += 1 }
+        state.withLock { state in
+            state.placements += 1
+            state.signings.append(signing)
+        }
 
         if let result {
             return try result.get()
@@ -520,7 +535,7 @@ private final class PlacementServiceStub: PolymarketOrderPlacementService {
 
 @MainActor
 private final class OrderRoutableSpy: PolymarketOrderRoutable {
-    let resultOpened = PolymarketTestSignal<Void>()
+    let resultOpened = TestSignal<Void>()
 
     private(set) var summaryOpenings = 0
     private(set) var feeBreakdownOpenings = 0

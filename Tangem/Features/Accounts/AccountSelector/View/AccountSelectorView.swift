@@ -17,12 +17,7 @@ struct AccountSelectorView: View {
     @ObservedObject var viewModel: AccountSelectorViewModel
     private let style: Style
 
-    private var showsBottomFade = false
-    private var bottomContentInset: CGFloat = 0
     private var showsSelectionCheckmarks = false
-
-    @State private var contentBottom: CGFloat = 0
-    @State private var viewportBottom: CGFloat = 0
 
     init(viewModel: AccountSelectorViewModel, style: Style = .legacy) {
         self.viewModel = viewModel
@@ -42,14 +37,6 @@ struct AccountSelectorView: View {
 // MARK: - Setupable
 
 extension AccountSelectorView: Setupable {
-    func bottomFade(_ isEnabled: Bool = true) -> Self {
-        map { $0.showsBottomFade = isEnabled }
-    }
-
-    func bottomContentInset(_ inset: CGFloat) -> Self {
-        map { $0.bottomContentInset = inset }
-    }
-
     func selectionCheckmarks(_ isEnabled: Bool = true) -> Self {
         map { $0.showsSelectionCheckmarks = isEnabled }
     }
@@ -167,28 +154,9 @@ private extension AccountSelectorView {
                 }
             }
             .padding(.horizontal, Redesigned.horizontalPadding)
-            .padding(.top, Redesigned.scrollVerticalPadding)
-            .padding(.bottom, Redesigned.scrollVerticalPadding + bottomContentInset)
-            .readGeometry(inCoordinateSpace: .global) { contentBottom = $0.frame.maxY }
+            .padding(.vertical, Redesigned.scrollVerticalPadding)
         }
         .scrollBounceBehavior(.basedOnSize)
-        .readGeometry(inCoordinateSpace: .global) { viewportBottom = $0.frame.maxY }
-        .overlay(alignment: .bottom) { bottomFade }
-    }
-
-    var hasContentBelowViewport: Bool {
-        contentBottom > viewportBottom
-    }
-
-    @ViewBuilder
-    var bottomFade: some View {
-        if showsBottomFade {
-            Fade(position: .bottom)
-                .variant(.hard)
-                .frame(height: 96)
-                .hidden(!hasContentBelowViewport)
-                .animation(.easeInOut(duration: 0.25), value: hasContentBelowViewport)
-        }
     }
 
     @ViewBuilder

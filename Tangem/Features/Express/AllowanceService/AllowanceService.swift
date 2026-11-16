@@ -19,11 +19,11 @@ protocol AllowanceService: ExpressAllowanceProvider {
 // MARK: - ExpressAllowanceProvider
 
 extension AllowanceService {
-    func allowanceState(request: ExpressManagerSwappingPairRequest, contractAddress: String, spender: String) async throws -> AllowanceState {
+    func allowanceState(amount: Decimal, approvePolicy: ApprovePolicy, contractAddress: String, spender: String) async throws -> AllowanceState {
         if contractAddress == ExpressConstants.coinContractAddress {
             return .enoughAllowance
         }
 
-        return try await allowanceState(amount: request.amount, spender: spender, approvePolicy: request.approvePolicy)
+        return try await allowanceState(amount: amount, spender: spender, approvePolicy: approvePolicy)
     }
 }

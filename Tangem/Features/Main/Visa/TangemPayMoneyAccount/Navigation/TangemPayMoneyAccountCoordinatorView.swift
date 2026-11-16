@@ -18,6 +18,25 @@ struct TangemPayMoneyAccountCoordinatorView: CoordinatorView {
         rootView
             .navigationLinks(links)
             .addressBookContactManagementSheet($coordinator.contactManagementCoordinator)
+            .modal(
+                item: $coordinator.addFundsViewModel,
+                contentLayout: .intrinsic,
+                dragIndicator: .hidden,
+                navigation: .title(Localization.tangempayCardDetailsAddFunds),
+                onDismiss: coordinator.addFundsDidDismiss,
+                content: { TangemPayMoneyAccountAddFundsView(viewModel: $0) }
+            )
+            .sheet(item: $coordinator.sendCoordinator) {
+                SendCoordinatorView(coordinator: $0)
+                    .softTopScrollEdgeEffect()
+            }
+            .fullScreenCover(item: $coordinator.accountDetailsViewModel) {
+                TangemPayVirtualAccountDetailsView(viewModel: $0)
+                    .softTopScrollEdgeEffect()
+            }
+            .floatingSheetContent(for: TangemPayVirtualAccountBankDetailsErrorPopupViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
     }
 }
 

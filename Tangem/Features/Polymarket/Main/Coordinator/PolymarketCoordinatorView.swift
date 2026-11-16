@@ -8,6 +8,7 @@
 
 import SwiftUI
 import TangemAssets
+import TangemLocalization
 import TangemPolymarketUI
 import TangemUI
 import TangemUIUtils
@@ -24,6 +25,14 @@ struct PolymarketCoordinatorView: CoordinatorView {
                 PolymarketRedeemView(viewModel: viewModel)
                     .softTopScrollEdgeEffect()
             }
+            .fullScreenCover(item: $coordinator.fastTradingActivation) { viewModel in
+                PolymarketFastTradingActivationView(viewModel: viewModel)
+            }
+            .modalStatus(
+                isPresented: $coordinator.isFastTradingActivationFailurePresented,
+                onDismiss: { coordinator.fastTradingActivationFailureDidDismiss() },
+                content: { fastTradingActivationFailure }
+            )
             .polymarketOrderSheet(presenter: coordinator.orderPresenter, host: nil)
             .background(PolymarketMainSheetHost(coordinator: coordinator, isActive: coordinator.orderPresenter.order == nil))
     }
@@ -40,6 +49,22 @@ struct PolymarketCoordinatorView: CoordinatorView {
         }
     }
 
+    private var fastTradingActivationFailure: some View {
+        ModalStatus(
+            .warning,
+            title: PolymarketFastTradingStrings.activationFailedTitle,
+            description: PolymarketFastTradingStrings.activationFailedDescription
+        )
+        .actions(
+            primary: TangemUI.Button(label: Localization.commonClose, accessibilityLabel: nil) {
+                coordinator.closeFastTradingActivationFailure()
+            },
+            secondary: TangemUI.Button(label: PolymarketFastTradingStrings.activateSessionKey, accessibilityLabel: nil) {
+                coordinator.activateFastTradingAfterFailure()
+            }
+        )
+    }
+
     private var links: some View {
         NavHolder()
             .navigation(item: $coordinator.destination) { destination in
@@ -54,6 +79,8 @@ struct PolymarketCoordinatorView: CoordinatorView {
                     TokenDetailsCoordinatorView(coordinator: coordinator)
                 case .activity(let coordinator):
                     PolymarketActivityCoordinatorView(coordinator: coordinator)
+                case .fastTrading(let viewModel):
+                    PolymarketFastTradingView(viewModel: viewModel)
                 case .category(let coordinator):
                     PolymarketCategoryCoordinatorView(coordinator: coordinator)
                 }

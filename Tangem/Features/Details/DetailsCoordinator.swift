@@ -27,12 +27,11 @@ final class DetailsCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var connectionsCoordinator: ConnectionsCoordinator?
-    @Published var walletConnectCoordinator: WalletConnectCoordinator?
     @Published var userWalletSettingsCoordinator: UserWalletSettingsCoordinator?
     @Published var modalOnboardingCoordinator: OnboardingCoordinator?
     @Published var appSettingsCoordinator: AppSettingsCoordinator?
     @Published var tangemPayOnboardingCoordinator: TangemPayOnboardingCoordinator?
-    @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
+    @Published var addWalletCoordinator: AddWalletCoordinator?
     @Published var addressBooksCoordinator: AddressBooksCoordinator?
 
     // MARK: - Child view models
@@ -54,6 +53,7 @@ final class DetailsCoordinator: CoordinatorObject {
     func start(with options: DetailsCoordinator.Options) {
         Task { @MainActor in
             detailsViewModel = DetailsViewModel(coordinator: self)
+            addWalletCoordinator = makeAddWalletCoordinator()
         }
     }
 }
@@ -83,19 +83,6 @@ extension DetailsCoordinator: DetailsRoutable {
             )
             coordinator.start(with: options)
             connectionsCoordinator = coordinator
-        }
-    }
-
-    func openWalletConnect(with disabledLocalizedReason: String?) {
-        Task {
-            let coordinator = WalletConnectCoordinator()
-
-            let options = WalletConnectCoordinator.Options(
-                disabledLocalizedReason: disabledLocalizedReason,
-                prefetchedConnectedDApps: await connectedDAppRepository.prefetchedDApps
-            )
-            coordinator.start(with: options)
-            walletConnectCoordinator = coordinator
         }
     }
 
@@ -130,17 +117,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openAddWallet() {
-        let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
-            switch options {
-            case .main:
-                self?.dismiss()
-            }
-        }
-
-        let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = AddWalletSelectorCoordinator.InputOptions(source: .settings)
-        coordinator.start(with: inputOptions)
-        addWalletSelectorCoordinator = coordinator
+        addWalletCoordinator?.start(with: .init())
     }
 
     func openAddWalletTypeSelector(output: AddWalletTypeSelectorSheetOutput) {
@@ -214,5 +191,30 @@ extension DetailsCoordinator: DetailsRoutable {
 extension DetailsCoordinator: AddWalletTypeSelectorSheetRoutable {
     func closeAddWalletTypeSelectorSheet() {
         floatingSheetPresenter.removeActiveSheet()
+    }
+}
+
+// MARK: - Add wallet
+
+private extension DetailsCoordinator {
+    func makeAddWalletCoordinator() -> AddWalletCoordinator {
+        let dismissAction: Action<AddWalletCoordinator.OutputOptions> = { [weak self] options in
+            self?.handleAddWalletDismiss(with: options)
+        }
+
+        return AddWalletCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+    }
+
+    func handleAddWalletDismiss(with options: AddWalletCoordinator.OutputOptions) {
+        Task { @MainActor [weak self] in
+            switch options {
+            case .main:
+                self?.dismiss()
+            case .hardwareWallet:
+                self?.detailsViewModel?.scanNewUserWallet()
+            case .dismiss:
+                break
+            }
+        }
     }
 }

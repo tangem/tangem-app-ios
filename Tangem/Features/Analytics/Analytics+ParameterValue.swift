@@ -74,6 +74,7 @@ extension Analytics {
         case details = "Details"
         case deviceSettings = "Device Settings"
         case settings = "Settings"
+        case allServices = "All Services"
         case account = "Account"
         case signIn = "Sign In"
         case receive = "Receive"
@@ -332,6 +333,7 @@ extension Analytics {
         case backupTypeCloud = "Cloud"
         case createWalletIntro = "Create Wallet Intro"
         case addNewWallet = "Add New Wallet"
+        case addWallet = "Add Wallet"
         case mobileWallets = "Mobile Wallets"
 
         // MARK: - Social login

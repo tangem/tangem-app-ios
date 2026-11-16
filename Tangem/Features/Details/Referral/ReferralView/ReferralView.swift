@@ -217,7 +217,6 @@ struct ReferralView: View {
                     title: Localization.commonCopy,
                     icon: .leading(Assets.Glyphs.copy),
                     style: .primary,
-                    isRedesign: false,
                     action: viewModel.copyPromoCode
                 )
 
@@ -225,7 +224,6 @@ struct ReferralView: View {
                     title: Localization.commonShare,
                     icon: .leading(Assets.share),
                     style: .primary,
-                    isRedesign: false,
                     action: viewModel.sharePromoCode
                 )
             }

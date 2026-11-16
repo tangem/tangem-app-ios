@@ -51,7 +51,7 @@ struct TokenActionAvailabilityAnalyticsMapper {
 
     func mapToParameterValue(_ status: TokenActionAvailabilityProvider.SendActionAvailabilityStatus) -> Analytics.ParameterValue {
         switch status {
-        case .available:
+        case .available, .zeroFeeCurrencyBalance:
             return Analytics.ParameterValue.available
         case .zeroWalletBalance, .noAccount:
             return Analytics.ParameterValue.empty

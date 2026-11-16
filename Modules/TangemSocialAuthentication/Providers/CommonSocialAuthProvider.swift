@@ -42,9 +42,9 @@ extension CommonSocialAuthProvider: SocialAuthProvider {
         let recoveryEncryptionKey = RecoveryEncryptionKey()
         let metadata = DeviceMetadataDTO.current
 
-        // [REDACTED_TODO_COMMENT]
-        let attestationToken: String? = nil
-        let appAttestKeyId: String? = nil
+        let appAssertion = await BackendAuthenticationAssembly.obtainRecoveryAppAssertion(nonce: credentials.nonce)
+        let attestationToken = appAssertion?.object.base64EncodedString()
+        let appAttestKeyId = appAssertion?.keyID
 
         let signaturePayload = DeviceSignaturePayloadFactory.make(
             nonce: credentials.nonce,
@@ -75,6 +75,10 @@ extension CommonSocialAuthProvider: SocialAuthProvider {
             )
         } catch where error.isRecoveryBindingNotFound {
             return nil
+        } catch where error.isAppAttestRejected {
+            BackendAuthenticationAssembly.clearAppAttestationStatus()
+            SocialAuthLogger.warning("App attestation status cleared, because backend rejected app assertion")
+            throw error
         }
     }
 

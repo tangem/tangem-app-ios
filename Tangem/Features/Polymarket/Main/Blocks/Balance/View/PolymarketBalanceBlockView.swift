@@ -17,9 +17,11 @@ import TangemUIUtils
 struct PolymarketBalanceBlockView: View {
     @ObservedObject var viewModel: PolymarketBalanceBlockViewModel
 
+    var isPlaceholder = false
+
     var body: some View {
         balanceBlock
-            .polymarketStateTransition(viewModel.isBalanceLoading)
+            .polymarketStateTransition(showsSkeleton)
             .bindAlert($viewModel.alert)
     }
 }
@@ -27,9 +29,13 @@ struct PolymarketBalanceBlockView: View {
 // MARK: - Balance
 
 private extension PolymarketBalanceBlockView {
+    var showsSkeleton: Bool {
+        isPlaceholder || viewModel.isBalanceLoading
+    }
+
     @ViewBuilder
     var balanceBlock: some View {
-        if viewModel.isBalanceLoading {
+        if showsSkeleton {
             balanceBlockSkeleton
         } else {
             VStack(spacing: Constants.balanceSpacing) {
@@ -65,7 +71,9 @@ private extension PolymarketBalanceBlockView {
                             cornerRadius: TangemMainActionButton.Size.buttonSide / 2
                         )
 
-                        Shimmer().variant(.text(style: .subheading, alignment: .center))
+                        Shimmer()
+                            .variant(.text(style: .subheading, alignment: .center))
+                            .frame(width: Constants.actionWidth)
                     }
                     .frame(minWidth: Constants.actionWidth)
                 }

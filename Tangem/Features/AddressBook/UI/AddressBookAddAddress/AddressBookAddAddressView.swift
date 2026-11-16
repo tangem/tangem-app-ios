@@ -35,13 +35,13 @@ struct AddressBookAddAddressView: View {
 
     private var header: some View {
         NavigationHeader(
-            leadingContent: { NavigationBarButton.back(action: { dismiss() }).redesigned() },
+            leadingContent: { NavigationBarButton.back(action: { dismiss() }) },
             principalContent: {
                 Text(viewModel.screenTitle)
                     .style(DesignSystem.Font.bodyMediumToken, color: DesignSystem.Color.textPrimary)
             },
             trailingContent: {
-                NavigationBarButton.close(action: viewModel.userDidRequestDismiss).redesigned()
+                NavigationBarButton.close(action: viewModel.userDidRequestDismiss)
             }
         )
         .readGeometry(\.size.height, bindTo: $headerHeight)

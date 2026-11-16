@@ -11,10 +11,16 @@ import TangemFoundation
 
 struct JointAccountOperationDeeplinkResolver {
     private let jointAccount: any JointAccountModel
+    private let historyOperations: [JointAccountOperation]
     private let timeout: Duration
 
-    init(jointAccount: any JointAccountModel, timeout: Duration) {
+    init(
+        jointAccount: any JointAccountModel,
+        historyOperations: [JointAccountOperation],
+        timeout: Duration
+    ) {
         self.jointAccount = jointAccount
+        self.historyOperations = historyOperations
         self.timeout = timeout
     }
 
@@ -28,7 +34,7 @@ struct JointAccountOperationDeeplinkResolver {
         } catch is TaskTimeoutError {
             throw Error.timedOut
         } catch where isUnavailable(error) {
-            JointAccountsLogger.warning("The joint operation from a deeplink is unavailable: \(error)")
+            JointAccountsLogger.warning("The joint operation is unavailable: \(error)")
             throw Error.operationIsUnavailable
         }
     }
@@ -55,6 +61,12 @@ private extension JointAccountOperationDeeplinkResolver {
         switch source {
         case .store:
             try await provider.pendingOperationsPublisher.async().first { $0.id == operationId }
+        case .history:
+            if let operation = historyOperations.first(where: { $0.id == operationId }) {
+                try await provider.pendingOperation(from: operation)
+            } else {
+                nil
+            }
         case .network:
             try await provider.loadOperation(id: operationId)
         }
@@ -85,6 +97,7 @@ extension JointAccountOperationDeeplinkResolver {
 private extension JointAccountOperationDeeplinkResolver {
     enum Source: CaseIterable {
         case store
+        case history
         case network
     }
 }

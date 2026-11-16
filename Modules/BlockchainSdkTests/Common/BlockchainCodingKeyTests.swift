@@ -142,4 +142,91 @@ struct BlockchainCodingKeyTests {
         #expect(mainnetLinks.testnetFaucetURL == nil)
         #expect(testnetLinks.testnetFaucetURL == nil)
     }
+
+    @Test
+    func zeniqConfiguration() {
+        let blockchain = Blockchain.zeniq
+
+        #expect(blockchain.chainId == 383414847825)
+        #expect(blockchain.isTestnet == false)
+        #expect(blockchain.networkId == "zeniq")
+        #expect(blockchain.coinId == "zeniq")
+        #expect(blockchain.currencySymbol == "ZENIQ")
+        #expect(blockchain.decimalCount == 18)
+        #expect(blockchain.displayName == "Zeniq")
+        #expect(!blockchain.supportsEIP1559)
+
+        let links = ExternalLinkProviderFactory().makeProvider(for: blockchain)
+        #expect(links.url(transaction: "hash")?.absoluteString == "https://zeniqscan.com/tx/hash")
+        #expect(links.url(address: "address", contractAddress: nil)?.absoluteString == "https://zeniqscan.com/address/address")
+        #expect(links.testnetFaucetURL == nil)
+    }
+
+    @Test
+    func katanaConfiguration() {
+        let mainnet = Blockchain.katana(testnet: false)
+        let testnet = Blockchain.katana(testnet: true)
+
+        #expect(mainnet.chainId == 747474)
+        #expect(testnet.chainId == 737373)
+        #expect(mainnet.networkId == "katana")
+        #expect(mainnet.coinId == "katana-ethereum")
+        #expect(mainnet.currencySymbol == "ETH")
+        #expect(mainnet.decimalCount == 18)
+        #expect(mainnet.isL2EthereumNetwork)
+        #expect(mainnet.supportsEIP1559)
+        #expect(mainnet.canHandleTokens)
+
+        let mainnetLinks = ExternalLinkProviderFactory().makeProvider(for: mainnet)
+        let testnetLinks = ExternalLinkProviderFactory().makeProvider(for: testnet)
+        #expect(mainnetLinks.url(transaction: "hash")?.absoluteString == "https://katanascan.com/tx/hash")
+        #expect(testnetLinks.url(address: "address", contractAddress: nil)?.absoluteString == "https://bokuto.katanascan.com/address/address")
+        #expect(mainnetLinks.testnetFaucetURL == nil)
+        #expect(testnetLinks.testnetFaucetURL == nil)
+    }
+
+    @Test
+    func xLayerConfiguration() {
+        let mainnet = Blockchain.xLayer(testnet: false)
+        let testnet = Blockchain.xLayer(testnet: true)
+
+        #expect(mainnet.chainId == 196)
+        #expect(testnet.chainId == 1952)
+        #expect(mainnet.networkId == "x-layer")
+        #expect(mainnet.coinId == "okb")
+        #expect(mainnet.currencySymbol == "OKB")
+        #expect(mainnet.decimalCount == 18)
+        #expect(!mainnet.isL2EthereumNetwork)
+        #expect(mainnet.supportsEIP1559)
+
+        let mainnetLinks = ExternalLinkProviderFactory().makeProvider(for: mainnet)
+        let testnetLinks = ExternalLinkProviderFactory().makeProvider(for: testnet)
+        #expect(mainnetLinks.url(transaction: "hash")?.absoluteString == "https://web3.okx.com/explorer/x-layer/tx/hash")
+        #expect(testnetLinks.url(address: "address", contractAddress: nil)?.absoluteString == "https://web3.okx.com/explorer/xlayer-test/address/address")
+        #expect(mainnetLinks.testnetFaucetURL == nil)
+        #expect(testnetLinks.testnetFaucetURL?.absoluteString == "https://web3.okx.com/xlayer/faucet")
+    }
+
+    @Test
+    func inkConfiguration() {
+        let mainnet = Blockchain.ink(testnet: false)
+        let testnet = Blockchain.ink(testnet: true)
+
+        #expect(mainnet.chainId == 57073)
+        #expect(testnet.chainId == 763373)
+        #expect(mainnet.networkId == "ink")
+        #expect(mainnet.coinId == "ink-ethereum")
+        #expect(mainnet.currencySymbol == "ETH")
+        #expect(mainnet.decimalCount == 18)
+        #expect(mainnet.isL2EthereumNetwork)
+        #expect(mainnet.supportsEIP1559)
+        #expect(mainnet.canHandleTokens)
+
+        let mainnetLinks = ExternalLinkProviderFactory().makeProvider(for: mainnet)
+        let testnetLinks = ExternalLinkProviderFactory().makeProvider(for: testnet)
+        #expect(mainnetLinks.url(transaction: "hash")?.absoluteString == "https://explorer.inkonchain.com/tx/hash")
+        #expect(testnetLinks.url(address: "address", contractAddress: nil)?.absoluteString == "https://explorer-sepolia.inkonchain.com/address/address")
+        #expect(mainnetLinks.testnetFaucetURL == nil)
+        #expect(testnetLinks.testnetFaucetURL == nil)
+    }
 }

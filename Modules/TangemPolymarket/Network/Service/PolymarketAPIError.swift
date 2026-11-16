@@ -82,6 +82,12 @@ public extension PolymarketAPIError {
         }
     }
 
+    var isRetryable: Bool {
+        guard case .http(let statusCode, _) = self else { return isTransient }
+
+        return isTransient || Constants.retryableClientStatusCodes.contains(statusCode)
+    }
+
     var isClientRefusal: Bool {
         guard case .http(let statusCode, _) = self else { return false }
 
@@ -101,6 +107,7 @@ public extension PolymarketAPIError {
 
 private extension PolymarketAPIError {
     enum Constants {
+        static let retryableClientStatusCodes: Set<Int> = [408, 429]
         static let unreachableCodes: Set<URLError.Code> = [
             .notConnectedToInternet,
             .cannotFindHost,

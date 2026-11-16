@@ -177,7 +177,7 @@ class ManageTokensViewModel: ObservableObject {
     }
 
     private func showPortfolioUpdatedToast() {
-        Toast(view: SuccessToast(text: Localization.manageTokensToastPortfolioUpdated))
+        LegacyToast(view: SuccessToast(text: Localization.manageTokensToastPortfolioUpdated))
             .present(
                 layout: .top(padding: 20),
                 type: .temporary()

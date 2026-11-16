@@ -125,7 +125,7 @@ struct EarnBestOpportunitiesListView: View {
 
     private var errorView: some View {
         Group {
-            TangemUnableToLoadDataView(
+            UnableToLoadDataView(
                 isButtonBusy: false,
                 retryButtonAction: retryAction
             )

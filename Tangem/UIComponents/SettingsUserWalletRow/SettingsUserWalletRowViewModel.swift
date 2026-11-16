@@ -14,7 +14,7 @@ import TangemUI
 
 final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     @Published var name: String = ""
-    @Published var icon: LoadingResult<ImageValue, Never> = .loading
+    @Published var icon: UserWalletIcon
     @Published var cardSetLabel: String
     @Published var hasSeedPhrase: Bool
     @Published var isUserWalletBackupNeeded: Bool
@@ -24,7 +24,6 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
     let isUserWalletLocked: Bool
     private let userWalletUpdatePublisher: AnyPublisher<UpdateResult, Never>
     private let totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
-    private var walletImageProvider: WalletImageProviding
     private var bag: Set<AnyCancellable> = []
 
     convenience init(userWallet: UserWalletModel, tapAction: @escaping () -> Void) {
@@ -36,7 +35,7 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
             isUserWalletLocked: userWallet.isUserWalletLocked,
             userWalletUpdatePublisher: userWallet.updatePublisher,
             totalBalancePublisher: userWallet.totalBalancePublisher,
-            walletImageProvider: userWallet.walletImageProvider,
+            icon: userWallet.walletIcon,
             tapAction: tapAction
         )
     }
@@ -49,7 +48,7 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         isUserWalletLocked: Bool,
         userWalletUpdatePublisher: AnyPublisher<UpdateResult, Never>,
         totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
-        walletImageProvider: WalletImageProviding,
+        icon: UserWalletIcon,
         tapAction: @escaping () -> Void
     ) {
         self.name = name
@@ -59,19 +58,9 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         self.isUserWalletLocked = isUserWalletLocked
         self.userWalletUpdatePublisher = userWalletUpdatePublisher
         self.totalBalancePublisher = totalBalancePublisher
-        self.walletImageProvider = walletImageProvider
+        self.icon = icon
         self.tapAction = tapAction
         bind()
-    }
-
-    func loadImage() {
-        runTask(in: self) { viewModel in
-            let image = await viewModel.walletImageProvider.loadSmallImage()
-
-            await runOnMain {
-                viewModel.icon = .success(image)
-            }
-        }
     }
 
     func bind() {
@@ -87,8 +76,7 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
                     viewModel.hasSeedPhrase = Self.hasSeedPhrase(for: model)
                     if case .configurationChanged(let model) = event {
                         viewModel.isUserWalletBackupNeeded = MobileBackupStatusUtil(userWalletModel: model).isBackupNeeded
-                        viewModel.walletImageProvider = model.walletImageProvider
-                        viewModel.loadImage()
+                        viewModel.icon = model.walletIcon
                     }
                 }
             }
@@ -103,10 +91,6 @@ final class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
                 viewModel.setupBalanceState(state: state, currencyCode: currencyCode)
             }
             .store(in: &bag)
-    }
-
-    func onAppear() {
-        loadImage()
     }
 
     private static func hasSeedPhrase(for userWallet: UserWalletModel) -> Bool {

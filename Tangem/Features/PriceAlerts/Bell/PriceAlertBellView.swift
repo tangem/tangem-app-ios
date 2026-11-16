@@ -16,7 +16,6 @@ struct PriceAlertBellView: View {
 
     var body: some View {
         NavigationBarButton.priceAlert(isActive: viewModel.isSubscribed, action: viewModel.toggleTapped)
-            .redesigned()
             .accessibilityIdentifier(MarketsAccessibilityIdentifiers.tokenDetailsSubscribeButton)
             .alert(item: $viewModel.alert) { $0.alert }
     }

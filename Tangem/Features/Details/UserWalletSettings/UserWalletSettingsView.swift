@@ -57,15 +57,9 @@ struct UserWalletSettingsView: View {
         .defaultRoundedBackground()
     }
 
-    @ViewBuilder
     private var walletIcon: some View {
-        if let walletImage = viewModel.walletImage {
-            walletImage
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 40, height: 40)
-                .cornerRadius(10)
-        }
+        UserWalletIconView(icon: viewModel.walletIcon, size: 40)
+            .cornerRadius(10)
     }
 
     @ViewBuilder

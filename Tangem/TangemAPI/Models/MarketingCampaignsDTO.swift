@@ -69,6 +69,7 @@ enum MarketingCampaignsDTO {
         let partnerLabel: String?
         let buttonText: String?
         let glow: Bool?
+        let replacesSlot: String?
 
         enum UIType: Codable {
             case standalone

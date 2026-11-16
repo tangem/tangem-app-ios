@@ -68,6 +68,12 @@ final class SendCoordinator: CoordinatorObject {
     @Published var onrampCountrySelectorViewModel: OnrampCountrySelectorViewModel?
     @Published var onrampCurrencySelectorViewModel: OnrampCurrencySelectorViewModel?
     @Published var onrampRedirectingViewModel: OnrampRedirectingViewModel?
+    @Published var onrampOffersSelectorViewModel: OnrampOffersSelectorViewModel? {
+        willSet { newValue != nil ? stateProvider.childPresented() : stateProvider.childDismissed() }
+    }
+
+    private var isOnrampOffersSelectorPresented = false
+    private var onrampOffersSelectorDismissAction: (() -> Void)?
     @Published var demandSurveySheet: DemandSurveySheet?
 
     let supportChatPresenter = SupportChatPresenter()
@@ -322,7 +328,7 @@ extension SendCoordinator: SendDestinationRoutable {
             self?.qrScanViewCoordinator = nil
         }
 
-        let text = Localization.sendQrcodeScanInfo(networkName)
+        let text = Localization.sendQrcodeScanInfo(networkName.droppingNetworkSuffix)
         let options = QRScanViewCoordinator.Options(code: codeBinding, text: text)
         qrScanViewCoordinator.start(with: options)
 
@@ -452,9 +458,8 @@ extension SendCoordinator: OnrampRoutable {
     }
 
     func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel) {
-        Task { @MainActor in
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
+        isOnrampOffersSelectorPresented = true
+        onrampOffersSelectorViewModel = viewModel
     }
 
     func openOnrampRedirecting(onrampRedirectingBuilder: OnrampRedirectingBuilder) {
@@ -562,6 +567,31 @@ extension SendCoordinator: OnrampCountrySelectorRoutable {
 extension SendCoordinator: OnrampCurrencySelectorRoutable {
     func dismissCurrencySelector() {
         onrampCurrencySelectorViewModel = nil
+    }
+}
+
+// MARK: - OnrampOffersSelectorRoutable
+
+extension SendCoordinator: OnrampOffersSelectorRoutable {
+    func closeOnrampOffersSelector(then action: (() -> Void)?) {
+        onrampOffersSelectorViewModel = nil
+
+        guard isOnrampOffersSelectorPresented else {
+            action?()
+            return
+        }
+
+        if let action {
+            onrampOffersSelectorDismissAction = action
+        }
+    }
+
+    func onrampOffersSelectorDidDismiss() {
+        isOnrampOffersSelectorPresented = false
+
+        let action = onrampOffersSelectorDismissAction
+        onrampOffersSelectorDismissAction = nil
+        action?()
     }
 }
 

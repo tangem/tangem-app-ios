@@ -13,10 +13,7 @@ import TangemFoundation
 extension CollectiblesAccountModelsRegistry {
     final class AccountListUpdater {
         static let persistentConfig = CryptoAccountPersistentConfig(
-            derivationIdentity: CryptoAccountDerivationIdentity(
-                derivationIndex: Constants.derivationIndex,
-                type: .collectibles
-            ),
+            derivationIdentity: AccountModelUtils.collectiblesAccountDerivationIdentity,
             name: Constants.name,
             icon: AccountModel.CompositeIcon(name: .package, color: .azure)
         )
@@ -60,7 +57,6 @@ private extension CollectiblesAccountModelsRegistry.AccountListUpdater {
 
 private extension CollectiblesAccountModelsRegistry.AccountListUpdater {
     enum Constants {
-        static let derivationIndex = 999_799
         static let name = "Collectibles"
     }
 }

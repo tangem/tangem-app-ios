@@ -101,7 +101,6 @@ struct CollapsedAccountItemHeaderView: View {
                         state: priceChange,
                         showSkeletonWhenLoading: true,
                         showIconForNeutral: false,
-                        isCapsuleSkeleton: true,
                         skeletonSize: CGSize(width: 40, height: 12) * scaleFactor
                     )
                 }

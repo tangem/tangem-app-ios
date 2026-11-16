@@ -7,13 +7,12 @@
 //
 
 import Foundation
+import enum TangemExpress.ExpressAPIType
 import TangemVisa
 import TangemStaking
 import TangemPay
 
-// MARK: - Provider
-
-class FeatureStorage {
+final class FeatureStorage {
     static let instance: FeatureStorage = .init()
 
     @AppStorageCompat(FeatureStorageKeys.testnet)
@@ -22,8 +21,11 @@ class FeatureStorage {
     @AppStorageCompat(FeatureStorageKeys.availableFeatures)
     var availableFeatures: [Feature: FeatureState] = [:]
 
+    @AppStorageCompat(FeatureStorageKeys.backendAuthenticationAPIType)
+    var backendAuthenticationAPIType = Defaults.backendAuthenticationAPIType
+
     @AppStorageCompat(FeatureStorageKeys.apiExpress)
-    var apiExpress: String = "production"
+    var apiExpress = Defaults.expressAPIType
 
     @AppStorageCompat(FeatureStorageKeys.supportedBlockchainsIds)
     var supportedBlockchainsIds: [String] = []
@@ -44,7 +46,7 @@ class FeatureStorage {
     var visaAPIType = VisaAPIType.prod
 
     @AppStorageCompat(FeatureStorageKeys.tangemAPIType)
-    var tangemAPIType = TangemAPIType.prod
+    var tangemAPIType = Defaults.tangemAPIType
 
     @AppStorageCompat(FeatureStorageKeys.stakeKitAPIType)
     var stakeKitAPIType = StakeKitAPIType.prod
@@ -64,11 +66,29 @@ class FeatureStorage {
     private init() {}
 }
 
+// MARK: - Defaults
+
+extension FeatureStorage {
+    enum Defaults {
+        static let backendAuthenticationAPIType = BackendAuthenticationAPIType.development
+        static let expressAPIType = ExpressAPIType.develop5New
+
+        static var tangemAPIType: TangemAPIType {
+            #if DEBUG
+            return TangemAPIType.dev
+            #else
+            return TangemAPIType.prod
+            #endif
+        }
+    }
+}
+
 // MARK: - Keys
 
 private enum FeatureStorageKeys: String {
     case testnet
     case availableFeatures = "integrated_features"
+    case backendAuthenticationAPIType = "backend_authentication_api_type"
     case apiExpress = "api_express"
     case supportedBlockchainsIds
     case stakingBlockchainsIds

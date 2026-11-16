@@ -71,12 +71,12 @@ private extension RatingFeedbackBottomSheetViewModel {
     // MARK: - Private logic
 
     func showSuccessToast() {
-        Toast(view: SuccessToast(text: Localization.commonSuccess))
+        LegacyToast(view: SuccessToast(text: Localization.commonSuccess))
             .present(layout: .top(padding: 20), type: .temporary())
     }
 
     func showErrorToast() {
-        Toast(view: WarningToast(text: Localization.commonSomethingWentWrong))
+        LegacyToast(view: WarningToast(text: Localization.commonSomethingWentWrong))
             .present(layout: .top(padding: 20), type: .temporary())
     }
 }

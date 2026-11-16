@@ -127,7 +127,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
             UIPasteboard.general.string = copiedText
         }
 
-        Toast(view: SuccessToast(text: toastMessage))
+        LegacyToast(view: SuccessToast(text: toastMessage))
             .present(
                 layout: .top(padding: 12),
                 type: .temporary()
@@ -147,7 +147,7 @@ final class TangemPayCardDetailsViewModel: ObservableObject {
                 viewModel.state = .hidden(isFrozen: viewModel.state.isFrozen)
                 AppLogger.error("Failed to load card details", error: error)
 
-                Toast(view: WarningToast(text: Localization.tangempayCardDetailsErrorText))
+                LegacyToast(view: WarningToast(text: Localization.tangempayCardDetailsErrorText))
                     .present(layout: .top(padding: 20), type: .temporary())
             }
         }

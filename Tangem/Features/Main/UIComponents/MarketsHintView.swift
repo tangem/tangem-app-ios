@@ -13,17 +13,7 @@ import TangemUI
 import TangemUIUtils
 
 struct MarketsHintView: View {
-    @Environment(\.isRedesign) var isRedesign
-
     var body: some View {
-        if isRedesign {
-            redesignBody
-        } else {
-            legacyBody
-        }
-    }
-
-    private var redesignBody: some View {
         VStack(spacing: 4) {
             Text(Localization.marketsHintPartOne)
                 .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textPrimary)
@@ -40,19 +30,5 @@ struct MarketsHintView: View {
                     .frame(width: 20, height: 20)
             }
         }
-    }
-
-    private var legacyBody: some View {
-        VStack(spacing: 8) {
-            Text(Localization.marketsHint)
-                .multilineTextAlignment(.center)
-                .lineLimit(4)
-                .style(Fonts.Regular.footnote, color: DesignSystem.Color.textSecondary)
-
-            Assets.chevronDown12.image
-        }
-        .padding(.top, 28)
-        .padding(.bottom, 8)
-        .frame(width: 162)
     }
 }

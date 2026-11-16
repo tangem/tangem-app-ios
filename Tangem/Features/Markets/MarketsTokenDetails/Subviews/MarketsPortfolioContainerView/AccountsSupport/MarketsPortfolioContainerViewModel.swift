@@ -212,7 +212,7 @@ final class MarketsPortfolioContainerViewModel: ObservableObject {
 
         case .list:
             return .content(.init(
-                balanceText: balanceText,
+                balanceText: balanceText ?? BalanceFormatter().formatFiatBalance(.zero),
                 tokensInPortfolioCount: tokenItems.count
             ))
         }
@@ -611,7 +611,7 @@ extension MarketsPortfolioContainerViewModel {
         case content(ContentData)
 
         struct ContentData: Equatable {
-            let balanceText: String?
+            let balanceText: String
             let tokensInPortfolioCount: Int
         }
 

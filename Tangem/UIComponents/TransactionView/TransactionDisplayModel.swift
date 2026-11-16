@@ -142,7 +142,7 @@ extension TransactionDisplayModel {
         status: TransactionViewModel.Status
     ) -> ChipStatusStyle {
         switch (status, transactionType) {
-        case (.failed, _), (.undefined, _):
+        case (.failed, _), (.cancelled, _), (.undefined, _):
             return .error
         case (.inProgress, _):
             return .progress
@@ -402,7 +402,14 @@ extension TransactionDisplayModel {
         status: TransactionViewModel.Status,
         subtitleOwner: TransactionViewModel.SubtitleOwner?
     ) -> TitleContent {
-        if subtitleOwner?.isOwnWallet == true {
+        guard subtitleOwner?.isOwnWallet == true else {
+            return directionalTitle(isOutgoing: isOutgoing, status: status)
+        }
+
+        switch status {
+        case .cancelled:
+            return .plain(Localization.transactionHistoryStatusTransferCancelled)
+        case .inProgress, .failed, .confirmed, .undefined:
             return statusTitle(
                 status: status,
                 progress: Localization.transactionHistoryStatusTransferring,
@@ -410,23 +417,23 @@ extension TransactionDisplayModel {
                 failed: Localization.transactionHistoryStatusTransferFailed
             )
         }
-
-        return directionalTitle(isOutgoing: isOutgoing, status: status)
     }
 
     private static func directionalTitle(isOutgoing: Bool, status: TransactionViewModel.Status) -> TitleContent {
         switch (isOutgoing, status) {
         case (true, .failed):
             return .plain(Localization.transactionHistoryStatusSendFailed)
-        case (false, .failed):
+        case (true, .cancelled):
+            return .plain(Localization.transactionHistoryStatusSendCancelled)
+        case (false, .failed), (false, .cancelled):
             return .plain(Localization.transactionHistoryStatusReceiveFailed)
         case (true, .inProgress):
             return .plain(Localization.commonSending)
         case (false, .inProgress):
             return .plain(Localization.commonReceiving)
-        case (true, _):
+        case (true, .confirmed), (true, .undefined):
             return .plain(Localization.commonSent)
-        case (false, _):
+        case (false, .confirmed), (false, .undefined):
             return .plain(Localization.commonReceived)
         }
     }
@@ -452,7 +459,7 @@ extension TransactionDisplayModel {
         failed: String
     ) -> TitleContent {
         switch status {
-        case .failed: .plain(failed)
+        case .failed, .cancelled: .plain(failed)
         case .inProgress: .plain(progress)
         case .confirmed, .undefined: .emphasizedSuffix(prefix: Localization.commonYieldModeInline + " ", emphasized: state.word)
         }
@@ -460,7 +467,7 @@ extension TransactionDisplayModel {
 
     private static func statusTitle(status: TransactionViewModel.Status, progress: String, done: String, failed: String) -> TitleContent {
         switch status {
-        case .failed: .plain(failed)
+        case .failed, .cancelled: .plain(failed)
         case .inProgress: .plain(progress)
         case .confirmed, .undefined: .plain(done)
         }

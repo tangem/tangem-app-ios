@@ -115,7 +115,8 @@ struct TransactionHistoryRecordsMapperTests {
             makeJointOperationIndexInfo(TransactionHistoryRecordsMapper.mapToJointOperationRecord(item)),
         ])
 
-        #expect(records == [.jointOperation(JointOperationHistoryInfo(item: item))])
+        let expectedInfo = try JointOperationHistoryTestDataFactory.info(item)
+        #expect(records == [.jointOperation(expectedInfo)])
     }
 
     @Test("Stored values this version does not know are read as unknown")
@@ -142,7 +143,7 @@ struct TransactionHistoryRecordsMapperTests {
             threshold: record.threshold,
             txHash: record.txHash,
             cancelReason: "expired",
-            signatures: [JointOperationRecord.Signature(address: "0xmember", state: "abstained", at: "2026-09-08T09:20:37.000Z")],
+            signatures: [JointOperationRecord.Signature(address: "0xmember", state: "abstained", signature: nil, at: "2026-09-08T09:20:37.000Z")],
             createdAt: record.createdAt,
             finishedAt: record.finishedAt
         )

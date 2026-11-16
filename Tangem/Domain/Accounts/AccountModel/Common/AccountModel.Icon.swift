@@ -26,6 +26,7 @@ extension AccountModel {
 
     enum StandaloneIcon: Hashable {
         case tangemPay
+        case moneyAccount
         case polymarket
         case collectibles
     }

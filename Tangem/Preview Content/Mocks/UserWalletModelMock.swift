@@ -38,7 +38,11 @@ class UserWalletModelMock: UserWalletModel {
 
     var totalBalance: TotalBalanceState { .empty }
 
-    var walletImageProvider: WalletImageProviding {
+    var walletIcon: UserWalletIcon {
+        .loadable(CardImageProviderMock())
+    }
+
+    var cardImageProvider: (any WalletImageProviding)? {
         CardImageProviderMock()
     }
 
@@ -59,6 +63,8 @@ class UserWalletModelMock: UserWalletModel {
     var backupInput: OnboardingInput? { nil }
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { .empty }
+
+    var notificationBadgeCountPublisher: AnyPublisher<Int, Never> { Empty(completeImmediately: false).eraseToAnyPublisher() }
 
     var cardSetLabel: String { config.cardSetLabel }
 
@@ -97,6 +103,10 @@ class UserWalletModelMock: UserWalletModel {
 
     var addressBookManager: AddressBookManager {
         NoopAddressBookManager()
+    }
+
+    var derivationManager: DerivationManager? {
+        nil
     }
 
     var refcodeProvider: RefcodeProvider? {

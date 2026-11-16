@@ -94,6 +94,6 @@ private extension OnrampCountrySelectorViewModel {
     }
 
     func updatePreference(country: OnrampCountry) {
-        repository.updatePreference(country: country, currency: country.currency)
+        repository.selectCountry(country)
     }
 }

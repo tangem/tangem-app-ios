@@ -53,6 +53,8 @@ struct CollectiblesMainView: View {
         // [REDACTED_TODO_COMMENT]
         .collectiblesDevnetProgress(actionsMenuViewModel.devnet)
         .task(viewModel.observe)
+        .task(banners.load)
+        .collectiblesPendingPurchaseSheet(banners.pendingPurchaseBannersViewModel)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
         .toolbar { toolbarContent }
@@ -102,7 +104,11 @@ private extension CollectiblesMainView {
                     }
                     .readGeometry(\.frame.minY, inCoordinateSpace: .named(Constants.scrollSpace), onChange: viewModel.updateScrollOffset)
             }
-            .refreshable { await viewModel.refresh() }
+            .refreshable {
+                async let catalogue: Void = viewModel.refresh()
+                async let pendingPurchases: Void = banners.load()
+                _ = await (catalogue, pendingPurchases)
+            }
             .coordinateSpace(name: Constants.scrollSpace)
             .readGeometry(\.size.height, bindTo: $scrollHeight)
             .onChange(of: viewModel.selectedLoreID) { _ in
@@ -349,8 +355,8 @@ private struct PreviewCatalogueProvider: CollectiblesLoresProvider, Collectibles
                 catalogueProvider: PreviewCatalogueProvider(),
                 signingActionButtonType: .requiredNFCInteraction
             )
-            .makeViewModel(routable: nil),
-            banners: CollectiblesAccountView.Banners(relinkBannerViewModel: nil),
+            .makeViewModel(routable: nil, pendingPurchases: nil),
+            banners: CollectiblesAccountView.Banners(relinkBannerViewModel: nil, pendingPurchaseBannersViewModel: nil),
             actionsMenuViewModel: CollectiblesActionsMenuViewModel(routable: nil),
             dismissStyle: .back,
             onDismiss: {}

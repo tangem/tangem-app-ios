@@ -14,14 +14,15 @@ import TangemUIUtils
 
 struct PromoCampaignPayoutCardView: View {
     let walletName: String
-    let imageProvider: WalletImageProviding
+    let walletIcon: UserWalletIcon
     let payout: PromoCampaignEnrollmentWallet.Payout
 
     var body: some View {
         VStack(spacing: 0) {
             TangemUI.Row(title: walletName)
                 .titleAccessory {
-                    PromoCampaignWalletImageView(imageProvider: imageProvider, side: Constants.walletImageSide)
+                    UserWalletIconView(icon: walletIcon, size: Constants.walletImageSide)
+                        .accessibilityHidden(true)
                 }
 
             TangemUI.Row(title: payout.address, subtitle: Localization.sendRecipient)
@@ -53,7 +54,7 @@ private enum Constants {
     let wallet = PromoCampaignEnrollmentWallet.previewWallets[0]
 
     if let payout = wallet.payout {
-        PromoCampaignPayoutCardView(walletName: wallet.name, imageProvider: wallet.imageProvider, payout: payout)
+        PromoCampaignPayoutCardView(walletName: wallet.name, walletIcon: wallet.walletIcon, payout: payout)
             .padding(16)
             .background(DesignSystem.Color.bgPrimary)
     }

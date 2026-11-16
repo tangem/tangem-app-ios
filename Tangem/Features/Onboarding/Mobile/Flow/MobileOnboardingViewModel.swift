@@ -110,10 +110,11 @@ private extension MobileOnboardingViewModel {
                 source: source,
                 coordinator: self
             )
-        case .iCloudBackupImport(let backups, let source):
+        case .iCloudBackupImport(let backups, let source, let analyticsSource):
             MobileOnboardingImportICloudBackupFlowBuilder(
                 backups: backups,
                 source: source,
+                analyticsSource: analyticsSource,
                 coordinator: self
             )
         }
