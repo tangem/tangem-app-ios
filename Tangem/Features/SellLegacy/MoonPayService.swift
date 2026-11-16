@@ -551,7 +551,7 @@ private extension Blockchain {
         case .terraV1: return nil
         case .terraV2: return nil
         case .tezos: return "xtz"
-        case .ton: return "ton"
+        case .ton: return "gram"
         case .tron: return "trx"
         case .veChain: return "vet"
         case .xdc: return nil
