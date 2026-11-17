@@ -44,6 +44,7 @@ public extension OnrampPaymentMethod {
 
         case sepa
         case invoiceRevolutPay
+        case moonpayBalance
 
         /// Generic for other not so important methods
         case other(id: String)
@@ -55,6 +56,7 @@ public extension OnrampPaymentMethod {
             case "google-pay": .googlePay
             case "sepa": .sepa
             case "invoice-revolut-pay": .invoiceRevolutPay
+            case "moonpay-balance": .moonpayBalance
             default: .other(id: id)
             }
         }
@@ -65,25 +67,33 @@ public extension OnrampPaymentMethod {
             case .card: return 3
             case .invoiceRevolutPay: return 2
             case .sepa: return 1
-            case .other: return 0
+            case .moonpayBalance, .other: return 0
             case .googlePay: return -1
             }
         }
 
         public var processingTime: ProcessingTime {
             switch self {
-            // Same instant. But more instantest :D
-            case .applePay, .googlePay: .instant(priority: 0)
-            case .invoiceRevolutPay: .instant(priority: 1)
+            case .applePay, .googlePay, .invoiceRevolutPay, .moonpayBalance: .instant
             case .card: .minutes(min: 3, max: 5)
             case .sepa: .days(3)
             case .other: .days(5)
             }
         }
+
+        public var speedRank: Int {
+            switch self {
+            case .applePay, .googlePay: 0
+            case .invoiceRevolutPay: 1
+            case .card: 2
+            case .sepa: 3
+            case .moonpayBalance, .other: 4
+            }
+        }
     }
 
-    enum ProcessingTime: Hashable, Comparable {
-        case instant(priority: Int)
+    enum ProcessingTime: Hashable {
+        case instant
         case minutes(min: Int, max: Int)
         case days(Int)
     }

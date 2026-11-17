@@ -94,12 +94,12 @@ extension OnrampProvider: Comparable {
     public static func < (lhs: OnrampProvider, rhs: OnrampProvider) -> Bool {
         switch (lhs.state, rhs.state) {
         // 1) Same amount and processing time: lower priority value first
-        case (.loaded(let lhsQuote), .loaded(let rhsQuote)) where lhsQuote.expectedAmount == rhsQuote.expectedAmount && lhs.paymentMethod.type.processingTime == rhs.paymentMethod.type.processingTime:
+        case (.loaded(let lhsQuote), .loaded(let rhsQuote)) where lhsQuote.expectedAmount == rhsQuote.expectedAmount && lhs.paymentMethod.type.speedRank == rhs.paymentMethod.type.speedRank:
             return lhs.paymentMethod.type.priority < rhs.paymentMethod.type.priority
 
         // 2) Same amount, different processing time: shorter first
         case (.loaded(let lhsQuote), .loaded(let rhsQuote)) where lhsQuote.expectedAmount == rhsQuote.expectedAmount:
-            return lhs.paymentMethod.type.processingTime < rhs.paymentMethod.type.processingTime
+            return lhs.paymentMethod.type.speedRank < rhs.paymentMethod.type.speedRank
 
         // 3) Different expected amounts: higher first
         case (.loaded(let lhsQuote), .loaded(let rhsQuote)):
