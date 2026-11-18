@@ -88,7 +88,7 @@ class BlockBookUTXOProvider {
         }
 
         // estimatesmartfee returns fee in currency per kilobyte
-        let bytesInKiloByte: Decimal = 1024
+        let bytesInKiloByte: Decimal = 1000
         let feeRatePerByte = fee * decimalValue / bytesInKiloByte
 
         return feeRatePerByte.rounded(roundingMode: .up)
