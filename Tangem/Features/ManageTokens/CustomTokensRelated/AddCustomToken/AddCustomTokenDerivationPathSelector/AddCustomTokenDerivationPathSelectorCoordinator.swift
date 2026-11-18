@@ -74,16 +74,7 @@ extension AddCustomTokenDerivationPathSelectorCoordinator: AddCustomTokenDerivat
             currentDerivationPath: currentDerivationPath,
             context: context,
             blockchain: blockchain,
-            output: output,
-            coordinator: self
+            output: output
         )
-    }
-}
-
-// MARK: - AddCustomTokenDerivationPathWriterRoutable
-
-extension AddCustomTokenDerivationPathSelectorCoordinator: AddCustomTokenDerivationPathWriterRoutable {
-    func closeDerivationPathWriter() {
-        derivationPathWriterViewModel = nil
     }
 }

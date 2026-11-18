@@ -187,18 +187,9 @@ extension TokensManagementFlowCoordinator: AddCustomTokenDerivationPathSelectorR
             currentDerivationPath: currentDerivationPath,
             context: context,
             blockchain: blockchain,
-            output: output,
-            coordinator: self
+            output: output
         )
         state = .derivationPathWriter(viewModel)
-    }
-}
-
-// MARK: - AddCustomTokenDerivationPathWriterRoutable
-
-extension TokensManagementFlowCoordinator: AddCustomTokenDerivationPathWriterRoutable {
-    func closeDerivationPathWriter() {
-        restoreDerivationSelector()
     }
 }
 
