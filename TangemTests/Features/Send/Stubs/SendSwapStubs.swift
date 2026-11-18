@@ -13,13 +13,20 @@ import Foundation
 
 final class ExpressAPIProviderStub: ExpressAPIProvider {
     var assetsHandler: (Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] = { _ in [] }
+    var pairsHandler: (Set<ExpressWalletCurrency>, Set<ExpressWalletCurrency>) async throws -> [ExpressPair] = { _, _ in [] }
+    var providersHandler: ([ExpressBranch]) async throws -> [ExpressProvider] = { _ in [] }
 
     func assets(currencies: Set<ExpressWalletCurrency>) async throws -> [ExpressAsset] {
         try await assetsHandler(currencies)
     }
 
-    func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] { [] }
-    func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] { [] }
+    func pairs(from: Set<ExpressWalletCurrency>, to: Set<ExpressWalletCurrency>) async throws -> [ExpressPair] {
+        try await pairsHandler(from, to)
+    }
+
+    func providers(branches: [ExpressBranch]) async throws -> [ExpressProvider] {
+        try await providersHandler(branches)
+    }
 
     func exchangeQuote(item: ExpressSwappableQuoteItem) async throws -> ExpressQuote {
         ExpressQuote(fromAmount: .zero, expectAmount: .zero, allowanceContract: nil, quoteId: nil, txType: nil, isRestricted: false, slippage: nil)

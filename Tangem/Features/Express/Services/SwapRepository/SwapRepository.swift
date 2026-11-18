@@ -19,8 +19,7 @@ protocol SwapRepository: ExpressRepository {
 
     // getAvailableProvidersIds is inherited from ExpressRepository
 
-    func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair]
-    func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair]
+    func getPairs(from wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async -> [ExpressPair]
 
     func providers(userWalletInfo: UserWalletInfo) async throws -> [ExpressProvider]
 }

@@ -108,6 +108,34 @@ struct ExpressAPITarget: Moya.TargetType {
         }
     }
 
+    var carriesBatchId: Bool {
+        switch target {
+        case .assets,
+             .pairs,
+             .providers,
+             .exchangeQuote,
+             .exchangeData,
+             .exchangeSent:
+            return true
+        case .exchangeMCPIntent,
+             .exchangeStatus,
+             .exchangeHistory,
+             .exchangeHistoryDelta,
+             .onrampCurrencies,
+             .onrampCountries,
+             .onrampCountryByIP,
+             .onrampPaymentMethods,
+             .onrampPairs,
+             .onrampQuote,
+             .onrampData,
+             .onrampNativePaymentData,
+             .onrampStatus,
+             .onrampHistory,
+             .onrampHistoryDelta:
+            return false
+        }
+    }
+
     var method: Moya.Method {
         switch target {
         case .assets,

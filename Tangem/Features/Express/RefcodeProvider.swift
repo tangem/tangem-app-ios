@@ -15,5 +15,7 @@ enum Refcode: String, CaseIterable {
 }
 
 protocol RefcodeProvider {
+    var batchId: String? { get }
+
     func getRefcode() -> Refcode?
 }

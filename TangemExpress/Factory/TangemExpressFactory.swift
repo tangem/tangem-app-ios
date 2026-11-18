@@ -93,6 +93,7 @@ public struct TangemExpressFactory {
                     userId: credential.userId,
                     sessionId: credential.sessionId,
                     refcode: credential.refcode,
+                    batchId: credential.batchId,
                     isVersionV2: featureFlags.isAPIV2Enabled
                 ),
                 DeviceInfoPlugin(),
@@ -112,12 +113,14 @@ public struct ExpressAPICredential {
     public let userId: String
     public let sessionId: String
     public let refcode: String?
+    public let batchId: String?
 
-    public init(apiKey: String, userId: String, sessionId: String, refcode: String?) {
+    public init(apiKey: String, userId: String, sessionId: String, refcode: String?, batchId: String?) {
         self.apiKey = apiKey
         self.userId = userId
         self.sessionId = sessionId
         self.refcode = refcode
+        self.batchId = batchId
     }
 }
 

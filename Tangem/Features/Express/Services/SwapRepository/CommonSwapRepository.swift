@@ -14,12 +14,18 @@ actor CommonSwapRepository {
     @Injected(\.userWalletRepository)
     private var userWalletRepository: UserWalletRepository
 
-    private lazy var cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory { userWalletId, refcode in
-        ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
-    }
+    private let cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory
 
-    private var pairs: Set<ExpressPair> = []
-    private var cachedExpressProviders: [ExpressProvider] = []
+    private var pairsByWalletId: [String: Set<ExpressPair>] = [:]
+    private var cachedExpressProvidersByWalletId: [String: [ExpressProvider]] = [:]
+
+    init(
+        providerFactory: @escaping CachingExpressAPIProviderFactory.Factory = { userWalletId, refcode in
+            ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+        }
+    ) {
+        cachingExpressAPIProviderFactory = CachingExpressAPIProviderFactory(providerFactory: providerFactory)
+    }
 
     private var userCurrencies: Set<ExpressWalletCurrency> {
         let tokenItems = AccountTokenItemsAggregator.tokenItems(from: userWalletRepository.models)
@@ -38,9 +44,10 @@ extension CommonSwapRepository: SwapRepository {
     ) async throws {
         guard !currencies.isEmpty else { return }
 
-        let provider = cachingExpressAPIProviderFactory.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
+        let walletId = userWalletInfo.id.stringValue
+        let provider = cachingExpressAPIProviderFactory.provider(for: walletId, refcode: userWalletInfo.refcode)
         let pairsTo = try await provider.pairs(from: [wallet], to: currencies.toSet())
-        pairs.formUnion(pairsTo.toSet())
+        pairsByWalletId[walletId, default: []].formUnion(pairsTo.toSet())
     }
 
     func updatePairs(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async throws {
@@ -48,12 +55,13 @@ extension CommonSwapRepository: SwapRepository {
 
         guard !currencies.isEmpty else { return }
 
-        let provider = cachingExpressAPIProviderFactory.provider(for: userWalletInfo.id.stringValue, refcode: userWalletInfo.refcode)
+        let walletId = userWalletInfo.id.stringValue
+        let provider = cachingExpressAPIProviderFactory.provider(for: walletId, refcode: userWalletInfo.refcode)
         async let pairsTo = provider.pairs(from: [wallet], to: currencies)
         async let pairsFrom = provider.pairs(from: currencies, to: [wallet])
 
-        try await pairs.formUnion(pairsTo.toSet())
-        try await pairs.formUnion(pairsFrom.toSet())
+        try await pairsByWalletId[walletId, default: []].formUnion(pairsTo.toSet())
+        try await pairsByWalletId[walletId, default: []].formUnion(pairsFrom.toSet())
     }
 
     func getAvailableProvidersIds(
@@ -65,12 +73,8 @@ extension CommonSwapRepository: SwapRepository {
         return providers.map(\.id)
     }
 
-    func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.destination == wallet.asCurrency }
-    }
-
-    func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairs.filter { $0.source == wallet.asCurrency }
+    func getPairs(from wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async -> [ExpressPair] {
+        pairs(walletId: userWalletInfo.id.stringValue).filter { $0.source == wallet.asCurrency }
     }
 
     func providers(userWalletInfo: UserWalletInfo) async throws -> [ExpressProvider] {
@@ -87,12 +91,12 @@ extension CommonSwapRepository: SwapRepository {
 
         guard !currencies.isEmpty else { return }
 
-        let cachedPairs = pairs.filter { $0.source == wallet.asCurrency }
+        let cachedPairs = pairs(walletId: walletInfo.id).filter { $0.source == wallet.asCurrency }
         let isPairCached = cachedPairs.contains { $0.destination == destination.asCurrency }
 
         let refcode = walletInfo.refcode.flatMap { Refcode(rawValue: $0) }
         let provider = cachingExpressAPIProviderFactory.provider(for: walletInfo.id, refcode: refcode)
-        cachedExpressProviders = []
+        cachedExpressProvidersByWalletId[walletInfo.id] = nil
 
         if isPairCached {
             return
@@ -101,8 +105,8 @@ extension CommonSwapRepository: SwapRepository {
         async let pairsTo = provider.pairs(from: [wallet], to: currencies)
         async let pairsFrom = provider.pairs(from: currencies, to: [wallet])
 
-        try await pairs.formUnion(pairsTo.toSet())
-        try await pairs.formUnion(pairsFrom.toSet())
+        try await pairsByWalletId[walletInfo.id, default: []].formUnion(pairsTo.toSet())
+        try await pairsByWalletId[walletInfo.id, default: []].formUnion(pairsFrom.toSet())
     }
 
     func providers(for pair: ExpressManagerSwappingPair) async throws -> [ExpressProvider] {
@@ -113,14 +117,18 @@ extension CommonSwapRepository: SwapRepository {
 }
 
 private extension CommonSwapRepository {
+    func pairs(walletId: String) -> Set<ExpressPair> {
+        pairsByWalletId[walletId] ?? []
+    }
+
     func fetchProvidersIfNeeded(walletId: String, refcode: Refcode?) async throws -> [ExpressProvider] {
-        if !cachedExpressProviders.isEmpty {
+        if let cachedExpressProviders = cachedExpressProvidersByWalletId[walletId], !cachedExpressProviders.isEmpty {
             return cachedExpressProviders
         }
 
         let provider = cachingExpressAPIProviderFactory.provider(for: walletId, refcode: refcode)
         let providers = try await provider.providers(branch: ExpressBranch.swap)
-        cachedExpressProviders = providers
+        cachedExpressProvidersByWalletId[walletId] = providers
         return providers
     }
 
@@ -131,7 +139,7 @@ private extension CommonSwapRepository {
         let source = pair.source.currency.asCurrency
         let destination = pair.destination.currency.asCurrency
 
-        let availablePair = pairs
+        let availablePair = pairs(walletId: pair.source.walletInfo.id)
             .first(where: { $0.source == source && $0.destination == destination })
 
         guard let availablePair else {

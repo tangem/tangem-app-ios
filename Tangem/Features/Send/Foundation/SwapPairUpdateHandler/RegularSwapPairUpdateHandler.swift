@@ -50,7 +50,7 @@ final class RegularSwapPairUpdateHandler: SwapPairUpdateHandler {
         }
 
         if !pair.isTransfer {
-            let cachedPairs = await swapRepository.getPairs(from: source.currency)
+            let cachedPairs = await swapRepository.getPairs(from: source.currency, userWalletInfo: source.userWalletInfo)
             let isPairCached = cachedPairs.contains { $0.destination == destination.currency.asCurrency }
 
             if !isPairCached {

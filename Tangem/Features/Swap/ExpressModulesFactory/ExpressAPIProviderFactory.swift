@@ -15,6 +15,7 @@ struct ExpressAPIProviderFactory {
     // MARK: - Injected
 
     @Injected(\.keysManager) private var keysManager: KeysManager
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Implementation
 
@@ -22,7 +23,7 @@ struct ExpressAPIProviderFactory {
         makeExpressAPIProvider(userId: userWalletId.stringValue, refcode: refcode)
     }
 
-    func makeExpressAPIProvider(userId: String, refcode: Refcode?) -> ExpressAPIProvider {
+    func makeExpressAPIProvider(userId: String, refcode: Refcode?, sendsBatchId: Bool = true) -> ExpressAPIProvider {
         let factory = TangemExpressFactory()
         let expressAPIType = AppEnvironment.current.expressAPIType
 
@@ -33,7 +34,8 @@ struct ExpressAPIProviderFactory {
             apiKey: apiKey,
             userId: userId,
             sessionId: AppConstants.sessionId,
-            refcode: refcode?.rawValue
+            refcode: refcode?.rawValue,
+            batchId: sendsBatchId ? batchId(userId: userId) : nil
         )
 
         let featureFlags = ExpressFeatureFlags(
@@ -52,6 +54,13 @@ struct ExpressAPIProviderFactory {
 }
 
 private extension ExpressAPIProviderFactory {
+    func batchId(userId: String) -> String? {
+        userWalletRepository.models
+            .first(where: { $0.userWalletId.stringValue == userId })?
+            .refcodeProvider?
+            .batchId
+    }
+
     var authenticationInterceptor: Interceptor {
         Interceptor(
             adapter: BackendAuthenticationAssembly.requestAdapter,

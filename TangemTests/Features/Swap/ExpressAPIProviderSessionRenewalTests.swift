@@ -57,7 +57,7 @@ private extension ExpressAPIProviderSessionRenewalTests {
         configuration.protocolClasses = [UnauthorizedOnceURLProtocolStub.self]
 
         return TangemExpressFactory().makeExpressAPIProvider(
-            credential: ExpressAPICredential(apiKey: "", userId: "", sessionId: sessionId, refcode: nil),
+            credential: ExpressAPICredential(apiKey: "", userId: "", sessionId: sessionId, refcode: nil, batchId: nil),
             configuration: configuration,
             expressAPIType: .production,
             exchangeDataDecoder: ExchangeDataDecoderStub(),
