@@ -19,6 +19,7 @@ final class DetailsCoordinator: CoordinatorObject {
     @Injected(\.safariManager) private var safariManager: SafariManager
     @Injected(\.connectedDAppRepository) private var connectedDAppRepository: any WalletConnectConnectedDAppRepository
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
+    @Injected(\.userWalletRepository) private var userWalletRepository: any UserWalletRepository
 
     // MARK: - Main view model
 
@@ -76,11 +77,14 @@ extension DetailsCoordinator: SupportChatPresenting {}
 extension DetailsCoordinator: DetailsRoutable {
     func openConnections() {
         Task {
-            let coordinator = ConnectionsCoordinator()
+            let prefetchedConnectedDApps = await connectedDAppRepository.prefetchedDApps
 
-            let options = ConnectionsCoordinator.Options(
-                prefetchedConnectedDApps: await connectedDAppRepository.prefetchedDApps
-            )
+            guard userWalletRepository.models.contains(where: { !$0.isUserWalletLocked }) else {
+                return
+            }
+
+            let coordinator = ConnectionsCoordinator()
+            let options = ConnectionsCoordinator.Options(prefetchedConnectedDApps: prefetchedConnectedDApps)
             coordinator.start(with: options)
             connectionsCoordinator = coordinator
         }

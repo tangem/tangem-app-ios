@@ -78,6 +78,10 @@ final class DetailsViewModel: ObservableObject {
         userWalletRepository.selectedModel
     }
 
+    private var hasUnlockedUserWallet: Bool {
+        userWalletRepository.models.contains { !$0.isUserWalletLocked }
+    }
+
     var applicationInfoFooter: String? {
         guard
             let appName: String = InfoDictionaryUtils.appName.value(),
@@ -289,6 +293,17 @@ private extension DetailsViewModel {
             }
             .store(in: &bag)
 
+        userWalletRepository.eventProvider
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .map { viewModel, _ in viewModel.hasUnlockedUserWallet }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, hasUnlockedUserWallet in
+                viewModel.connectionsRowViewModel?.isEnabled = hasUnlockedUserWallet
+            }
+            .store(in: &bag)
+
         tangemPayAvailabilityRepository
             .tangemPayDetailsEntrypointEligibleWalletSelectionPublisher
             .removeDuplicates()
@@ -321,6 +336,7 @@ private extension DetailsViewModel {
 
     func setupConnectionsRowViewModel() {
         connectionsRowViewModel = ConnectionsRowViewModel(
+            isEnabled: hasUnlockedUserWallet,
             action: { [weak self] in
                 self?.openConnections()
             }

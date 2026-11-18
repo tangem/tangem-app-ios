@@ -28,6 +28,7 @@ struct ConnectionsRowView: View {
             }
             .end(icon: DesignSystem.Icons.ChevronRight.regular20)
             .onTap(action: viewModel.action)
+            .disabled(!viewModel.isEnabled)
             .accessibilityIdentifier(DetailsAccessibilityIdentifiers.connectionsButton)
     }
 }
