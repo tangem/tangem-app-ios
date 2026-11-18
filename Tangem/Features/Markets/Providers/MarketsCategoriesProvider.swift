@@ -16,7 +16,13 @@ struct MarketsCategoriesSnapshot: Equatable {
     let country: String?
 
     var selectableCategories: [MarketsDTO.Categories.Category] {
-        categories.filter { $0.code != MarketsCategoryCode.featuredAssets }
+        categories.filter { category in
+            switch category.code {
+            case MarketsCategoryCode.featuredAssets: false
+            case MarketsCategoryCode.realWorldAssets: true
+            default: category.visible != false
+            }
+        }
     }
 
     var featuredCategory: MarketsDTO.Categories.Category? {
