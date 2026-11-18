@@ -59,6 +59,22 @@ final class AddCustomTokenUITests: BaseTestCase {
             .verifyDerivationFieldEnabled()
     }
 
+    func testAddCustomToken_SolanaPathForAnotherAccountRequiresConfirmation() {
+        let accounts = ScenarioConfig(name: "user_tokens_api", initialState: "TwoAccountsArchivable")
+        let path = "m/44'/501'/1'"
+        launchApp(tangemApiType: .mock, scenarios: [coinsScenario, accounts])
+
+        openAddCustomToken()
+            .selectNetwork("Solana")
+            .enterContractAddress(solanaContract)
+            .openDerivationSelector()
+            .chooseCustomDerivation()
+            .enterCustomDerivationPath(path)
+            .confirmDerivationForAccount("Account 2")
+            .openDerivationSelector()
+            .verifyDerivationOptionPath(option: "custom", expectedPath: path)
+    }
+
     func testAddCustomToken_CustomDerivationIndicatorShownOnMain() {
         setAllureId(771)
         launchApp(tangemApiType: .mock, scenarios: [coinsScenario, tokenAddFlowCustomDerivScenario])

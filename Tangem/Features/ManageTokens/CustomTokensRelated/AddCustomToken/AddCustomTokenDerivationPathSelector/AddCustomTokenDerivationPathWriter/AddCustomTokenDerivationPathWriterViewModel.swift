@@ -7,9 +7,9 @@
 //
 
 import Combine
+import TangemFoundation
 import TangemLocalization
 import TangemSdk
-import TangemUIUtils
 import TangemMacro
 import BlockchainSdk
 
@@ -17,32 +17,26 @@ protocol AddCustomTokenDerivationPathWriterOutput: AnyObject {
     func didEnterCustomDerivation(_ derivationPath: String)
 }
 
-protocol AddCustomTokenDerivationPathWriterRoutable: AnyObject {
-    func closeDerivationPathWriter()
-}
-
 final class AddCustomTokenDerivationPathWriterViewModel: ObservableObject, Identifiable {
+    @Injected(\.alertPresenter) private var alertPresenter: AlertPresenter
+
     @Published var derivationPathText: String
     @Published var derivationPathState: State = .empty
-    @Published var alert: AlertBinder?
 
     private let context: ManageTokensContext
     private let blockchain: Blockchain
     private weak var output: AddCustomTokenDerivationPathWriterOutput?
-    private weak var coordinator: AddCustomTokenDerivationPathWriterRoutable?
 
     init(
         currentDerivationPath: String,
         context: ManageTokensContext,
         blockchain: Blockchain,
-        output: AddCustomTokenDerivationPathWriterOutput,
-        coordinator: AddCustomTokenDerivationPathWriterRoutable
+        output: AddCustomTokenDerivationPathWriterOutput
     ) {
         derivationPathText = currentDerivationPath
         self.context = context
         self.blockchain = blockchain
         self.output = output
-        self.coordinator = coordinator
 
         bind()
     }
@@ -58,7 +52,6 @@ final class AddCustomTokenDerivationPathWriterViewModel: ObservableObject, Ident
         switch destination {
         case .currentAccount:
             output?.didEnterCustomDerivation(derivationPathText)
-            coordinator?.closeDerivationPathWriter()
 
         case .differentAccount(let accountName, _):
             showAccountMismatchAlert(accountName: accountName)
@@ -92,17 +85,15 @@ final class AddCustomTokenDerivationPathWriterViewModel: ObservableObject, Ident
     }
 
     private func showAccountMismatchAlert(accountName: String) {
-        alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
+        let alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
             title: Localization.customTokenAnotherAccountDialogTitle,
             message: Localization.customTokenAnotherAccountDialogDescription(accountName),
             buttonText: Localization.commonGotIt,
-            buttonAction: { [weak self] in
-                guard let self else { return }
-
-                output?.didEnterCustomDerivation(derivationPathText)
-                coordinator?.closeDerivationPathWriter()
+            buttonAction: { [weak self, derivationPathText] in
+                self?.output?.didEnterCustomDerivation(derivationPathText)
             }
         )
+        alertPresenter.present(alert: alert)
     }
 }
 

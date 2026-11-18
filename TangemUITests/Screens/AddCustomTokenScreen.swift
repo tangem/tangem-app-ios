@@ -80,6 +80,17 @@ final class AddCustomTokenScreen: ScreenBase<AddCustomTokenScreenElement> {
     }
 
     @discardableResult
+    func confirmDerivationForAccount(_ name: String) -> Self {
+        XCTContext.runActivity(named: "Confirm custom derivation for \(name)") { _ in
+            let alert = app.alerts[Localization.customTokenAnotherAccountDialogTitle]
+            let message = alert.staticTexts[Localization.customTokenAnotherAccountDialogDescription(name)]
+            waitAndAssertTrue(message, "The confirmation should name the destination account")
+            alert.buttons[Localization.commonGotIt].waitAndTap()
+            return self
+        }
+    }
+
+    @discardableResult
     func tapAddToken() -> Self {
         XCTContext.runActivity(named: "Tap Add Token") { _ in
             waitAndAssertTrue(addButton, "Add token button should exist")

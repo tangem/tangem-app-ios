@@ -118,15 +118,13 @@ final class TokensManagementFlowFactory {
         currentDerivationPath: String,
         context: ManageTokensContext,
         blockchain: Blockchain,
-        output: AddCustomTokenDerivationPathWriterOutput,
-        coordinator: AddCustomTokenDerivationPathWriterRoutable
+        output: AddCustomTokenDerivationPathWriterOutput
     ) -> AddCustomTokenDerivationPathWriterViewModel {
         AddCustomTokenDerivationPathWriterViewModel(
             currentDerivationPath: currentDerivationPath,
             context: context,
             blockchain: blockchain,
-            output: output,
-            coordinator: coordinator
+            output: output
         )
     }
 

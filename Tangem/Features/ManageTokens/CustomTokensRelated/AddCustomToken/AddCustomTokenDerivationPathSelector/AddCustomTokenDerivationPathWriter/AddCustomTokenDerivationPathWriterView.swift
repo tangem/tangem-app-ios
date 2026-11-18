@@ -30,7 +30,6 @@ struct AddCustomTokenDerivationPathWriterView: View {
         content
             .navigationTitle(Text(Localization.customTokenCustomDerivationTitle))
             .navigationBarTitleDisplayMode(.inline)
-            .alert(item: $viewModel.alert, content: { $0.alert })
             .onChange(of: viewModel.derivationPathState) { state in
                 textFieldColor = state.isFailure ? DesignSystem.Color.textAccentRed : DesignSystem.Color.textPrimary
             }
