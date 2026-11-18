@@ -146,32 +146,19 @@ final class TangemPayWithdrawUITests: BaseTestCase {
         TangemPayMainScreen(app).verifyBalanceContains("$12.00")
     }
 
-    func testWithdrawEnabled_WhenOnlyOneNonPolygonNetworkIsWithdrawable() {
+    func testWithdrawEnabled_WhenOnlyBscIsWithdrawable() {
         setAllureId(11645)
+        verifyWithdrawEnabledAndOpensFlow(withBalanceState: Constants.State.withdrawableOnlyOnBsc)
+    }
 
-        for (network, balanceState) in Constants.State.withdrawableOnlyOnNetwork {
-            XCTContext.runActivity(named: "Verify Withdraw with the withdrawable balance only on \(network.displayName)") { _ in
-                let paymentAccount = launchAndImportHotWallet(expressApiType: .mock, scenarios: [
-                    ScenarioConfig(name: Constants.Scenario.balance, initialState: balanceState),
-                    ScenarioConfig(name: Constants.Scenario.expressAssets, initialState: Constants.State.payWithdrawAllNetworks),
-                    ScenarioConfig(name: Constants.Scenario.history, initialState: Constants.State.emptyHistory),
-                    ScenarioConfig(name: Constants.Scenario.eligibilityChannels, initialState: Constants.State.withoutBankOfframp),
-                ])
-                .openTangemPay()
-                .waitForScreen()
+    func testWithdrawEnabled_WhenOnlyBaseIsWithdrawable() {
+        setAllureId(14042)
+        verifyWithdrawEnabledAndOpensFlow(withBalanceState: Constants.State.withdrawableOnlyOnBase)
+    }
 
-                paymentAccount
-                    .verifyBalanceContains(Constants.singleNetworkBalance)
-                    .verifyWithdrawEnabled()
-                    .tapWithdraw()
-                    .validateSwapScreenDisplayed()
-                    .waitFromTokenDisplayed(tokenSymbol: Constants.usdcSymbol)
-                    .tapFromTokenSelector()
-                    .verifyTokenCount(Constants.withdrawableTokenCount)
-                    .selectBalanceFilter(.all)
-                    .verifyTokenCount(Constants.enabledNetworkTokenCount)
-            }
-        }
+    func testWithdrawEnabled_WhenOnlyArbitrumIsWithdrawable() {
+        setAllureId(14043)
+        verifyWithdrawEnabledAndOpensFlow(withBalanceState: Constants.State.withdrawableOnlyOnArbitrum)
     }
 
     func testWithdraw_WithdrawDataFails_ShowsError() {
@@ -334,6 +321,28 @@ final class TangemPayWithdrawUITests: BaseTestCase {
 
         return json
     }
+
+    private func verifyWithdrawEnabledAndOpensFlow(withBalanceState balanceState: String) {
+        let paymentAccount = launchAndImportHotWallet(expressApiType: .mock, scenarios: [
+            ScenarioConfig(name: Constants.Scenario.balance, initialState: balanceState),
+            ScenarioConfig(name: Constants.Scenario.expressAssets, initialState: Constants.State.payWithdrawAllNetworks),
+            ScenarioConfig(name: Constants.Scenario.history, initialState: Constants.State.emptyHistory),
+            ScenarioConfig(name: Constants.Scenario.eligibilityChannels, initialState: Constants.State.withoutBankOfframp),
+        ])
+        .openTangemPay()
+        .waitForScreen()
+
+        paymentAccount
+            .verifyBalanceContains(Constants.singleNetworkBalance)
+            .verifyWithdrawEnabled()
+            .tapWithdraw()
+            .validateSwapScreenDisplayed()
+            .waitFromTokenDisplayed(tokenSymbol: Constants.usdcSymbol)
+            .tapFromTokenSelector()
+            .verifyTokenCount(Constants.withdrawableTokenCount)
+            .selectBalanceFilter(.all)
+            .verifyTokenCount(Constants.enabledNetworkTokenCount)
+    }
 }
 
 private extension TangemPayWithdrawUITests {
@@ -366,11 +375,9 @@ private extension TangemPayWithdrawUITests {
             static let withdrawError = "WithdrawError"
             static let orderHashReady = "OrderHashReady"
             static let orderWithoutHash = "OrderWithoutHash"
-            static let withdrawableOnlyOnNetwork: [(TangemPayNetwork, String)] = [
-                (.bsc, "WithdrawableOnlyOnBsc"),
-                (.base, "WithdrawableOnlyOnBase"),
-                (.arbitrum, "WithdrawableOnlyOnArbitrum"),
-            ]
+            static let withdrawableOnlyOnBsc = "WithdrawableOnlyOnBsc"
+            static let withdrawableOnlyOnBase = "WithdrawableOnlyOnBase"
+            static let withdrawableOnlyOnArbitrum = "WithdrawableOnlyOnArbitrum"
         }
 
         enum Endpoint {

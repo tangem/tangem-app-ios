@@ -13,14 +13,17 @@ import Experiment
 
 final class UITestExperimentService {
     private let wrapped: ExperimentService
-    private let variantOverrides: [ExperimentFeatureFlagKey: ExperimentFeatureVariantKey]
+    private let variantOverrides: [ExperimentFeatureFlagKey: String]
+    private let hasPinnedVariants: Bool
 
     init(
         wrapped: ExperimentService,
-        variantOverrides: [ExperimentFeatureFlagKey: ExperimentFeatureVariantKey]
+        variantOverrides: [ExperimentFeatureFlagKey: String],
+        hasPinnedVariants: Bool
     ) {
         self.wrapped = wrapped
         self.variantOverrides = variantOverrides
+        self.hasPinnedVariants = hasPinnedVariants
     }
 }
 
@@ -32,7 +35,7 @@ extension UITestExperimentService: ExperimentService {
     }
 
     var hasFreshVariants: Bool {
-        variantOverrides.isNotEmpty || wrapped.hasFreshVariants
+        hasPinnedVariants || wrapped.hasFreshVariants
     }
 
     func configure() {
@@ -40,12 +43,16 @@ extension UITestExperimentService: ExperimentService {
     }
 
     func variant(_ key: ExperimentFeatureFlagKey) -> Variant? {
-        wrapped.variant(key)
+        if let override = variantOverrides[key] {
+            return Variant(override)
+        }
+
+        return wrapped.variant(key)
     }
 
     func isOn(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool {
         if let override = variantOverrides[key] {
-            return override == variant
+            return override == variant.rawValue
         }
 
         return wrapped.isOn(key, variant: variant)
@@ -53,7 +60,7 @@ extension UITestExperimentService: ExperimentService {
 
     func isOnWithoutExposure(_ key: ExperimentFeatureFlagKey, variant: ExperimentFeatureVariantKey) -> Bool {
         if let override = variantOverrides[key] {
-            return override == variant
+            return override == variant.rawValue
         }
 
         return wrapped.isOnWithoutExposure(key, variant: variant)

@@ -15,17 +15,13 @@ struct UITestExperimentServiceConfigurator: Initializable {
             return
         }
 
-        let variantOverrides = makeVariantOverrides(from: ProcessInfo.processInfo.arguments)
-
-        guard variantOverrides.isNotEmpty else {
-            return
-        }
-
+        let pinnedVariants = makeVariantOverrides(from: ProcessInfo.processInfo.arguments)
         let originalService = InjectedValues[\.experimentService]
 
         InjectedValues[\.experimentService] = UITestExperimentService(
             wrapped: originalService,
-            variantOverrides: variantOverrides
+            variantOverrides: Constants.defaultVariantOverrides.merging(pinnedVariants) { _, pinned in pinned },
+            hasPinnedVariants: pinnedVariants.isNotEmpty
         )
     }
 }
@@ -33,7 +29,7 @@ struct UITestExperimentServiceConfigurator: Initializable {
 // MARK: - Private
 
 private extension UITestExperimentServiceConfigurator {
-    func makeVariantOverrides(from arguments: [String]) -> [ExperimentFeatureFlagKey: ExperimentFeatureVariantKey] {
+    func makeVariantOverrides(from arguments: [String]) -> [ExperimentFeatureFlagKey: String] {
         arguments.reduce(into: [:]) { overrides, argument in
             guard argument.hasPrefix(Constants.overridePrefix) else {
                 return
@@ -43,13 +39,11 @@ private extension UITestExperimentServiceConfigurator {
                 .dropFirst(Constants.overridePrefix.count)
                 .split(separator: "-", maxSplits: 1)
 
-            guard parts.count == 2,
-                  let key = ExperimentFeatureFlagKey(rawValue: String(parts[0])),
-                  let variant = ExperimentFeatureVariantKey(rawValue: String(parts[1])) else {
+            guard parts.count == 2, let key = ExperimentFeatureFlagKey(rawValue: String(parts[0])) else {
                 return
             }
 
-            overrides[key] = variant
+            overrides[key] = String(parts[1])
         }
     }
 }
@@ -59,5 +53,6 @@ private extension UITestExperimentServiceConfigurator {
 private extension UITestExperimentServiceConfigurator {
     enum Constants {
         static let overridePrefix = "-uitest-experiment-"
+        static let defaultVariantOverrides: [ExperimentFeatureFlagKey: String] = [.yieldModePromo: "off"]
     }
 }
