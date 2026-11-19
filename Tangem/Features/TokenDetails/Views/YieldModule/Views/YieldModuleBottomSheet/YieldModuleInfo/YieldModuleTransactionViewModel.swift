@@ -412,7 +412,9 @@ private extension YieldModuleTransactionViewModel {
     }
 
     func createFeeErrorNotification(yieldAction: YieldModuleAction) -> YieldModuleNotificationBannerParams {
-        notificationManager.createFeeUnreachableNotification { [weak self] in
+        logger.logNoticeNetworkFeeUnavailableShown()
+
+        return notificationManager.createFeeUnreachableNotification { [weak self] in
             Task { @MainActor in
                 self?.setNetworkFeeStateLoading()
                 await self?.walletModel.update(silent: true, options: .balances)

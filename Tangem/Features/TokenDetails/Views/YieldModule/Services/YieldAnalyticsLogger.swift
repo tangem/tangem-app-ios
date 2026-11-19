@@ -37,6 +37,7 @@ protocol YieldAnalyticsLogger {
     func logEarningNoticeHighNetworkFeeShown()
     func logEarningErrors(action: YieldAnalyticsAction, error: Error)
     func logEarningNoticeAmountNotDepositedShown()
+    func logNoticeNetworkFeeUnavailableShown()
 }
 
 final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
@@ -175,6 +176,14 @@ final class CommonYieldAnalyticsLogger: YieldAnalyticsLogger {
 
     func logEarningNoticeAmountNotDepositedShown() {
         Analytics.log(event: .earningNoticeAmountNotDeposited, params: tokenBlockchainParams())
+    }
+
+    func logNoticeNetworkFeeUnavailableShown() {
+        Analytics.log(
+            .noticeNetworkFeeUnavailable,
+            params: [.source: .yieldModuleSourceInfo],
+            contextParams: .userWallet(userWalletId)
+        )
     }
 
     func logEarningApyClicked(state: YieldAnalyticsState) {

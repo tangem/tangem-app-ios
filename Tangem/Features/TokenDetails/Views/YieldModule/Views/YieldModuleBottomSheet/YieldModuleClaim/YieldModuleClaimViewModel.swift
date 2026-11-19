@@ -51,6 +51,7 @@ final class YieldModuleClaimViewModel: ObservableObject {
     private weak var coordinator: YieldModuleActiveCoordinator?
     private let claimInteractor: YieldIncentivesClaimInteractor
     private let notificationManager: YieldModuleNotificationManager
+    private let logger: YieldAnalyticsLogger
 
     private lazy var feeFormatter = YieldModuleFeeFormatter(feeCurrency: walletModel.feeTokenItem, token: walletModel.tokenItem)
     private let mapper: YieldModuleClaimViewDataMapper
@@ -65,12 +66,14 @@ final class YieldModuleClaimViewModel: ObservableObject {
         coordinator: YieldModuleActiveCoordinator?,
         claimInteractor: YieldIncentivesClaimInteractor,
         notificationManager: YieldModuleNotificationManager,
+        logger: YieldAnalyticsLogger,
         signingActionButtonType: SigningActionButtonViewType
     ) {
         self.walletModel = walletModel
         self.coordinator = coordinator
         self.claimInteractor = claimInteractor
         self.notificationManager = notificationManager
+        self.logger = logger
         self.signingActionButtonType = signingActionButtonType
 
         mapper = YieldModuleClaimViewDataMapper(
@@ -281,7 +284,9 @@ private extension YieldModuleClaimViewModel {
     }
 
     func makeFeeErrorNotification() -> YieldModuleNotificationBannerParams {
-        notificationManager.createFeeUnreachableNotification { [weak self] in
+        logger.logNoticeNetworkFeeUnavailableShown()
+
+        return notificationManager.createFeeUnreachableNotification { [weak self] in
             self?.refresh(updatingBalances: true)
         }
     }

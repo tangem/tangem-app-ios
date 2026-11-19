@@ -21,6 +21,7 @@ protocol StakingSendAnalyticsLogger: StakeModelAnalyticsLogger,
     func setup(stakingTargetsInput: StakingTargetsInput)
     /// - Parameter feeCurrencyBalance: `nil` when the shortage was reported without the balance it was judged against.
     func logNoticeNotEnoughFee(feeCurrencyBalance: Decimal?)
+    func logNoticeNetworkFeeUnreachable()
     func logErrorSumLimit(errorMessage: String)
 }
 

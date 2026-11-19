@@ -560,7 +560,9 @@ private extension YieldModuleStartViewModel {
     }
 
     func createFeeErrorNotification(reloadAction: @MainActor @escaping () async -> Void) -> YieldModuleNotificationBannerParams {
-        notificationManager.createFeeUnreachableNotification {
+        logger.logNoticeNetworkFeeUnavailableShown()
+
+        return notificationManager.createFeeUnreachableNotification {
             Task {
                 await reloadAction()
             }

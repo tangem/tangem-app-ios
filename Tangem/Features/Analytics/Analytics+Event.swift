@@ -496,6 +496,7 @@ extension Analytics {
         case mainNoticeOSUpdate = "[Main Screen] Notice - OS Update"
         case mainButtonUpdateApp = "[Main Screen] Button - Update App"
         case mainButtonLater = "[Main Screen] Button - Later"
+        case noticeNetworkFeeUnavailable = "[Notice] Network Fee Unavailable"
 
         // MARK: - BlockchainSdk exceptions
 

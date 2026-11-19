@@ -13,4 +13,5 @@ protocol WalletConnectTransactionAnalyticsLogger {
     func logTransactionDetailsOpened(transactionData: WCHandleTransactionData)
     func logSignButtonTapped(transactionData: WCHandleTransactionData)
     func logCancelButtonTapped()
+    func logNoticeNetworkFeeUnreachable()
 }

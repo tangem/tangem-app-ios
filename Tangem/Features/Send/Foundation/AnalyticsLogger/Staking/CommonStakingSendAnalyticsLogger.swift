@@ -163,6 +163,10 @@ extension CommonStakingSendAnalyticsLogger: StakingSendAnalyticsLogger {
         Analytics.log(event: .stakingNoticeNotEnoughFee, params: params)
     }
 
+    func logNoticeNetworkFeeUnreachable() {
+        Analytics.log(.noticeNetworkFeeUnavailable, params: [.source: .transactionSourceStaking])
+    }
+
     func logErrorSumLimit(errorMessage: String) {
         Analytics.log(
             event: .stakingErrorSumLimit,

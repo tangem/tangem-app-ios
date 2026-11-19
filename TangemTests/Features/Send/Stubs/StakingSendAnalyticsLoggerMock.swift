@@ -14,6 +14,7 @@ import TangemStaking
 final class StakingSendAnalyticsLoggerMock: StakingSendAnalyticsLogger {
     private(set) var noticeNotEnoughFeeCalls = 0
     private(set) var noticeNotEnoughFeeBalances: [Decimal?] = []
+    private(set) var noticeNetworkFeeUnreachableCalls = 0
 
     // MARK: - StakingSendAnalyticsLogger
 
@@ -23,6 +24,10 @@ final class StakingSendAnalyticsLoggerMock: StakingSendAnalyticsLogger {
     func logNoticeNotEnoughFee(feeCurrencyBalance: Decimal?) {
         noticeNotEnoughFeeCalls += 1
         noticeNotEnoughFeeBalances.append(feeCurrencyBalance)
+    }
+
+    func logNoticeNetworkFeeUnreachable() {
+        noticeNetworkFeeUnreachableCalls += 1
     }
 
     func logErrorSumLimit(errorMessage: String) {}

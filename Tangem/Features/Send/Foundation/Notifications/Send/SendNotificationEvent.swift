@@ -158,6 +158,8 @@ extension SendNotificationEvent: NotificationEvent {
 
     var analyticsEvent: Analytics.Event? {
         switch self {
+        case .networkFeeUnreachable:
+            return Analytics.Event.noticeNetworkFeeUnavailable
         case .feeWillBeSubtractFromSendingAmount:
             return Analytics.Event.sendNoticeNetworkFeeCoverage
         case .validationErrorEvent(let validationEvent):
@@ -174,6 +176,9 @@ extension SendNotificationEvent: NotificationEvent {
 
     var analyticsParams: [Analytics.ParameterKey: String] {
         switch self {
+        case .networkFeeUnreachable:
+            return [.source: Analytics.ParameterValue.send.rawValue]
+
         case .feeWillBeSubtractFromSendingAmount(_, _, let amountCurrencySymbol):
             return [.token: amountCurrencySymbol]
 
