@@ -33,7 +33,7 @@ final class CommonOnrampStepsManager {
         summaryTitleProvider: SendSummaryTitleProvider,
         onrampBaseDataBuilder: OnrampRouterDataBuilder,
         shouldActivateKeyboard: Bool,
-        router: SendRoutable,
+        router: SendRoutable
     ) {
         self.onrampStep = onrampStep
         self.offersSelectorViewModel = offersSelectorViewModel
@@ -79,6 +79,8 @@ extension CommonOnrampStepsManager: SendStepsManager {
                     self?.onrampStep.openOnrampSettingsView()
                 }
             )
+        case .finish where !offersSelectorViewModel.presentsInModal:
+            return .init(leadingViewType: .closeButton)
         default:
             return .empty
         }
@@ -86,7 +88,8 @@ extension CommonOnrampStepsManager: SendStepsManager {
 
     var bottomBarSettings: SendStepBottomBarSettings {
         switch currentStep().type {
-        case .onramp, .finish: .hidden
+        case .onramp: .hidden
+        case .finish: offersSelectorViewModel.presentsInModal ? .hidden : .init(action: .close)
         default: .empty
         }
     }

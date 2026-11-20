@@ -57,3 +57,9 @@ struct SwapFinishHeaderTitleProvider: SendFinishHeaderTitleProvider {
 struct StakingFinishHeaderTitleProvider: SendFinishHeaderTitleProvider {
     var title: String { Localization.sentTransactionSentTitle }
 }
+
+// MARK: - Onramp
+
+struct OnrampFinishHeaderTitleProvider: SendFinishHeaderTitleProvider {
+    var title: String { Localization.commonInProgress }
+}

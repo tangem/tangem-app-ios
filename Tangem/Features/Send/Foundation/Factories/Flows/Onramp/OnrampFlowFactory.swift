@@ -23,6 +23,8 @@ final class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
 
     lazy var autoupdatingTimer = AutoupdatingTimer()
 
+    private let isOnrampImprovementsEnabled = FeatureProvider.isAvailable(.onrampImprovements)
+
     lazy var dependencies = makeOnrampDependencies(preferredValues: parameters.preferredValues)
     lazy var analyticsLogger = makeOnrampSendAnalyticsLogger(source: coordinatorSource)
     lazy var notificationManager = makeOnrampNotificationManager(input: onrampModel, delegate: onrampModel)
@@ -52,7 +54,7 @@ final class OnrampFlowFactory: OnrampFlowBaseDependenciesFactory {
     init(
         sourceToken: SendSourceToken,
         parameters: PredefinedOnrampParameters,
-        coordinatorSource: SendCoordinator.Source,
+        coordinatorSource: SendCoordinator.Source
     ) {
         self.sourceToken = sourceToken
         self.parameters = parameters
@@ -88,24 +90,39 @@ extension OnrampFlowFactory: SendGenericFlowFactory {
             restrictedRegionPublisher: onrampModel.restrictedRegionPublisher,
             input: onrampModel,
             output: onrampModel,
-            router: router
+            router: router,
+            presentsInModal: isOnrampImprovementsEnabled
         )
 
         let onrampStatusTracking = onrampStatusTrackingFactory.makeOnrampStatusTracking(
             expressAPIProvider: expressDependenciesFactory.expressAPIProvider
         )
 
-        let finish = makeSendFinishStep(
-            onrampStatusScreenViewModel: OnrampStatusScreenViewModel(
-                tokenItem: tokenItem,
-                amountInput: onrampModel,
-                providersInput: onrampModel,
-                statusInput: onrampModel,
-                pendingTransactionsManager: onrampStatusTracking.manager,
-                expressStatusPollingHelper: onrampStatusTracking.pollingHelper
-            ),
-            router: router
-        )
+        let finish = isOnrampImprovementsEnabled
+            ? makeSendFinishStep(
+                onrampStatusScreenViewModel: OnrampStatusScreenViewModel(
+                    tokenItem: tokenItem,
+                    amountInput: onrampModel,
+                    providersInput: onrampModel,
+                    statusInput: onrampModel,
+                    pendingTransactionsManager: onrampStatusTracking.manager,
+                    expressStatusPollingHelper: onrampStatusTracking.pollingHelper
+                ),
+                router: router
+            )
+            : makeSendFinishStep(
+                onrampAmountCompactViewModel: OnrampAmountCompactViewModel(
+                    onrampAmountInput: onrampModel,
+                    onrampProvidersInput: onrampModel,
+                    tokenItem: tokenItem
+                ),
+                onrampStatusCompactViewModel: OnrampStatusCompactViewModel(
+                    input: onrampModel,
+                    pendingTransactionsManager: onrampStatusTracking.manager,
+                    expressStatusPollingHelper: onrampStatusTracking.pollingHelper
+                ),
+                router: router
+            )
 
         notificationManager.setupManager(with: onrampModel)
 
@@ -215,7 +232,7 @@ extension OnrampFlowFactory: SendFinishStepBuildable {
     var finishDependencies: SendFinishStepBuilder.Dependencies {
         SendFinishStepBuilder.Dependencies(
             analyticsLogger: analyticsLogger,
-            headerTitleProvider: nil
+            headerTitleProvider: isOnrampImprovementsEnabled ? nil : OnrampFinishHeaderTitleProvider()
         )
     }
 }

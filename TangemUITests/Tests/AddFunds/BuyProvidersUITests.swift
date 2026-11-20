@@ -15,6 +15,7 @@ final class BuyProvidersUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             expressApiType: .mock,
+            featureToggles: OnrampUITestsFeatureToggles.improvements,
             scenarios: [ScenarioConfig(name: Constants.Scenario.onrampQuote, initialState: Constants.State.providersSorting)]
         )
 
@@ -50,6 +51,7 @@ final class BuyProvidersUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             expressApiType: .mock,
+            featureToggles: OnrampUITestsFeatureToggles.improvements,
             scenarios: [ScenarioConfig(name: Constants.Scenario.onrampQuote, initialState: Constants.State.providerRestricted)]
         )
 

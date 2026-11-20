@@ -37,6 +37,7 @@ enum Feature: String, Hashable, CaseIterable {
     case allServices
     case intentSurvey
     case onrampCountryByIP
+    case onrampImprovements
     case lendingOnAave
     case polymarketEventCharts
     case nativeNPSSurvey
@@ -73,6 +74,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .allServices: return "TWI-1720_all_services"
         case .intentSurvey: return "TWI-1899_intent_survey"
         case .onrampCountryByIP: return "[REDACTED_INFO]_onramp_country_by_ip"
+        case .onrampImprovements: return "TWI-1687_onramp_improvements"
         case .lendingOnAave: return "TWI-1676_lending_on_aave"
         case .polymarketEventCharts: return "TWI-1912_polymarket_event_charts"
         case .nativeNPSSurvey: return "TWI-1898_native_nps_survey"
@@ -109,6 +111,7 @@ enum Feature: String, Hashable, CaseIterable {
         case .allServices: return .unspecified
         case .intentSurvey: return .unspecified
         case .onrampCountryByIP: return .unspecified
+        case .onrampImprovements: return .version("6.10")
         case .lendingOnAave: return .unspecified
         case .polymarketEventCharts: return .unspecified
         case .nativeNPSSurvey: return .unspecified

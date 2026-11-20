@@ -35,6 +35,10 @@ extension FloatingSheetRegistry {
             RateInfoSheetView(viewModel: viewModel)
         }
 
+        register(OnrampOffersSelectorViewModel.self) { viewModel in
+            OnrampOffersSelectorSheetView(viewModel: viewModel)
+        }
+
         register(OnrampKYCVerificationSheetViewModel.self) { viewModel in
             OnrampKYCVerificationSheetView(viewModel: viewModel)
         }

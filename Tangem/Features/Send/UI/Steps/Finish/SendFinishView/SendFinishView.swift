@@ -39,6 +39,10 @@ struct SendFinishView: View {
                 SendAmountFinishView(viewModel: sendAmountFinishViewModel)
             }
 
+            if let onrampAmountCompactViewModel = viewModel.onrampAmountCompactViewModel {
+                OnrampAmountCompactView(viewModel: onrampAmountCompactViewModel)
+            }
+
             if let nftAssetCompactViewModel = viewModel.nftAssetCompactViewModel {
                 NFTAssetCompactView(viewModel: nftAssetCompactViewModel)
             }
@@ -61,6 +65,10 @@ struct SendFinishView: View {
 
             if let jointAccountSignaturesCompactViewModel = viewModel.jointAccountSignaturesCompactViewModel {
                 JointAccountSignaturesCompactView(viewModel: jointAccountSignaturesCompactViewModel)
+            }
+
+            if let onrampStatusCompactViewModel = viewModel.onrampStatusCompactViewModel {
+                OnrampStatusCompactView(viewModel: onrampStatusCompactViewModel)
             }
         }
         .onAppear(perform: viewModel.onAppear)

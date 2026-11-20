@@ -20,6 +20,10 @@ struct OnrampOffersSelectorView: View {
         }
     }
 
+    private var cardBackground: Color {
+        viewModel.presentsInModal ? DesignSystem.Color.bgTransparentOnMaterialPrimary : DesignSystem.Color.bgTransparentPrimary
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: contentSpacing) {
             if let standaloneMarketingBanners = viewModel.standaloneMarketingBanners {
@@ -44,11 +48,11 @@ struct OnrampOffersSelectorView: View {
         switch viewModel.viewState {
         case .paymentMethods(let paymentMethods):
             ForEach(paymentMethods) {
-                OnrampProviderItemView(viewModel: $0)
+                OnrampProviderItemView(viewModel: $0, background: cardBackground)
             }
         case .offers(let providers):
             ForEach(providers) {
-                OnrampOfferView(viewModel: $0, cardBackground: DesignSystem.Color.bgTransparentOnMaterialPrimary)
+                OnrampOfferView(viewModel: $0, cardBackground: cardBackground)
             }
         }
     }

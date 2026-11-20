@@ -44,6 +44,7 @@ final class OnrampSummaryViewModel: ObservableObject, Identifiable {
     private let isCountryUnsupportedPublisher: AnyPublisher<Bool, Never>
     private let restrictedRegionPublisher: AnyPublisher<OnrampCountry?, Never>
 
+    private let isRecommendedSlotReplacementEnabled = FeatureProvider.isAvailable(.onrampImprovements)
     private lazy var onrampOfferViewModelBuilder = OnrampSuggestedOfferViewModelBuilder(tokenItem: tokenItem)
     private var bannerIdsOffTop: Set<Int> = []
     private var bag = Set<AnyCancellable>()
@@ -108,7 +109,9 @@ private extension OnrampSummaryViewModel {
             .assign(to: &$standaloneMarketingBanners)
 
         let offersWithLayout = marketingBannerManager.callToActionBannersPublisher
-            .map(CallToActionLayout.init(banners:))
+            .map { [isRecommendedSlotReplacementEnabled] banners in
+                CallToActionLayout(banners: banners, replacesSlots: isRecommendedSlotReplacementEnabled)
+            }
             .removeDuplicates()
             .flatMapLatest { [interactor] layout in
                 interactor
@@ -190,7 +193,7 @@ private extension OnrampSummaryViewModel {
                         return slotBanners[slot].map(RecommendedItem.banner)
                     }
                 },
-                hasMoreOffers: offers.hasMoreOffers
+                hasMoreOffers: isRecommendedSlotReplacementEnabled ? offers.hasMoreOffers : true
             ))
         }
     }
@@ -332,10 +335,10 @@ extension OnrampSummaryViewModel {
         let all: [CallToActionMarketingBanner]
         let bannersBySlot: [MarketingBanner.RecommendedSlot: CallToActionMarketingBanner]
 
-        init(banners: [CallToActionMarketingBanner]) {
+        init(banners: [CallToActionMarketingBanner], replacesSlots: Bool = true) {
             var bannersBySlot: [MarketingBanner.RecommendedSlot: CallToActionMarketingBanner] = [:]
 
-            for banner in banners {
+            for banner in banners where replacesSlots {
                 if let slot = banner.replacedSlot, bannersBySlot[slot] == nil {
                     bannersBySlot[slot] = banner
                 }

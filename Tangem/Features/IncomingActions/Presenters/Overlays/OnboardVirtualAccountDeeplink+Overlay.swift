@@ -10,6 +10,10 @@ import SwiftUI
 
 extension OnboardVirtualAccountDeeplink: DeeplinkOverlayProviding {
     func makeOverlay(in context: DeeplinkOverlayContext) -> DeeplinkOverlayResult? {
-        context.makeTangemPayOnboardingOverlay(source: onboardingSource)
+        guard FeatureProvider.isAvailable(.onrampImprovements) else {
+            return nil
+        }
+
+        return context.makeTangemPayOnboardingOverlay(source: onboardingSource)
     }
 }

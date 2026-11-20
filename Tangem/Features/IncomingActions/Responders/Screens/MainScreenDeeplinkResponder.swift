@@ -117,6 +117,7 @@ private extension MainScreenDeeplinkResponder {
             return openTangemPayOnboarding(source: deeplink.onboardingSource, using: coordinator)
 
         case .onboardVirtualAccount(let deeplink):
+            guard FeatureProvider.isAvailable(.onrampImprovements) else { return false }
             return openTangemPayOnboarding(source: deeplink.onboardingSource, using: coordinator)
 
         case .tangemPayAccount(let deeplink):

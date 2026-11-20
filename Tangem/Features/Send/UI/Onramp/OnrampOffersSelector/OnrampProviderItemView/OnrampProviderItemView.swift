@@ -14,6 +14,7 @@ import TangemAccessibilityIdentifiers
 
 struct OnrampProviderItemView: View {
     let viewModel: OnrampProviderItemViewModel
+    var background: Color = DesignSystem.Color.bgTransparentOnMaterialPrimary
 
     var body: some View {
         SwiftUI.Button(action: viewModel.action) {
@@ -22,7 +23,7 @@ struct OnrampProviderItemView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(DesignSystem.Color.bgTransparentOnMaterialPrimary)
+                        .fill(background)
                 )
                 .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         }

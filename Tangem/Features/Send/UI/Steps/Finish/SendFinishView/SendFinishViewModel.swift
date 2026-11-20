@@ -33,6 +33,8 @@ class SendFinishViewModel: ObservableObject, Identifiable {
     // Staking
 
     @Published private(set) var onrampStatusScreenViewModel: OnrampStatusScreenViewModel?
+    @Published private(set) var onrampAmountCompactViewModel: OnrampAmountCompactViewModel?
+    @Published private(set) var onrampStatusCompactViewModel: OnrampStatusCompactViewModel?
 
     private let headerTitleProvider: (any SendFinishHeaderTitleProvider)?
     private let analyticsLogger: SendFinishAnalyticsLogger
@@ -48,6 +50,8 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
         sendFeeFinishViewModel: SendFeeFinishViewModel?,
         onrampStatusScreenViewModel: OnrampStatusScreenViewModel?,
+        onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
+        onrampStatusCompactViewModel: OnrampStatusCompactViewModel?,
         jointAccountSignaturesCompactViewModel: JointAccountSignaturesCompactViewModel?,
         headerTitleProvider: (any SendFinishHeaderTitleProvider)?,
         analyticsLogger: SendFinishAnalyticsLogger,
@@ -60,6 +64,8 @@ class SendFinishViewModel: ObservableObject, Identifiable {
         self.stakingTargetsCompactViewModel = stakingTargetsCompactViewModel
         self.sendFeeFinishViewModel = sendFeeFinishViewModel
         self.onrampStatusScreenViewModel = onrampStatusScreenViewModel
+        self.onrampAmountCompactViewModel = onrampAmountCompactViewModel
+        self.onrampStatusCompactViewModel = onrampStatusCompactViewModel
         self.jointAccountSignaturesCompactViewModel = jointAccountSignaturesCompactViewModel
         self.headerTitleProvider = headerTitleProvider
         self.analyticsLogger = analyticsLogger

@@ -458,6 +458,13 @@ extension SendCoordinator: OnrampRoutable {
     }
 
     func openOnrampOffersSelector(viewModel: OnrampOffersSelectorViewModel) {
+        guard viewModel.presentsInModal else {
+            Task { @MainActor in
+                floatingSheetPresenter.enqueue(sheet: viewModel)
+            }
+            return
+        }
+
         isOnrampOffersSelectorPresented = true
         onrampOffersSelectorViewModel = viewModel
     }
@@ -540,7 +547,7 @@ extension SendCoordinator: ApproveRoutable {
                 TangemBlogUrlBuilder().url(post: .giveRevokePermission),
                 configuration: .init(),
                 onDismiss: { [weak self] in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
-                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() },
+                onSuccess: { [weak self] _ in self?.floatingSheetPresenter.resumeSheetsDisplaying() }
             )
         }
     }

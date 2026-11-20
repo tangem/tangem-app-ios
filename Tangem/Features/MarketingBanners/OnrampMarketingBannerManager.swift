@@ -112,7 +112,18 @@ private extension OnrampMarketingBannerManager {
 
 extension OnrampMarketingBannerManager {
     var callToActionBannersPublisher: AnyPublisher<[CallToActionMarketingBanner], Never> {
-        Publishers.CombineLatest(
+        guard FeatureProvider.isAvailable(.onrampImprovements) else {
+            return conciergeWaitlistBannerFilter
+                .filter(callToActionBannersSubject.eraseToAnyPublisher())
+                .map { banners in
+                    banners.filter { !MoneyAccountBannerButtonTitle.isMoneyAccountLink($0.link) }
+                }
+                .receiveOnMain()
+                .removeDuplicates()
+                .eraseToAnyPublisher()
+        }
+
+        return Publishers.CombineLatest(
             conciergeWaitlistBannerFilter.filter(callToActionBannersSubject.eraseToAnyPublisher()),
             moneyAccountStatePublisher.prepend(nil)
         )

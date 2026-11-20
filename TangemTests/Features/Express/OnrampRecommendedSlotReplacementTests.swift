@@ -166,6 +166,18 @@ struct OnrampCallToActionLayoutTests {
         #expect(layout.all == [first, second, unslotted])
     }
 
+    @Test("With slot replacement off, every banner stays on top")
+    func slotReplacementOffKeepsBannersOnTop() {
+        let best = Self.banner(id: 1, slot: .greatRate)
+        let fastest = Self.banner(id: 2, slot: .fastest)
+        let unslotted = Self.banner(id: 3, slot: nil)
+
+        let layout = OnrampSummaryViewModel.CallToActionLayout(banners: [best, fastest, unslotted], replacesSlots: false)
+
+        #expect(layout.bannersBySlot.isEmpty)
+        #expect(layout.all == [best, fastest, unslotted])
+    }
+
     @Test("A banner placed in Recommended is not shown on top")
     func bannerInRecommendedIsOffTop() {
         let banner = Self.banner(id: 1, slot: .greatRate)

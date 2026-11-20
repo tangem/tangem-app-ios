@@ -12,7 +12,10 @@ import TangemExpress
 import TangemLocalization
 import TangemAccessibilityIdentifiers
 
-class OnrampOffersSelectorViewModel: ObservableObject, Identifiable {
+class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingSheetContentViewModel {
+    @Injected(\.floatingSheetPresenter)
+    private var floatingSheetPresenter: any FloatingSheetPresenter
+
     @Injected(\.incomingActionHandler)
     private var incomingActionHandler: IncomingActionHandler
 
@@ -69,10 +72,13 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable {
     private lazy var onrampProvidersItemViewModelBuilder = OnrampProviderItemViewModelBuilder(tokenItem: tokenItem)
     private weak var input: OnrampProvidersInput?
     private weak var output: OnrampSummaryOutput?
+    let presentsInModal: Bool
+
     private weak var router: OnrampOffersSelectorRoutable?
 
     @Published private var isVisible = false
     private var didLogGeoRestrictionNotice = false
+    private var didLogPaymentMethodScreenOpened = false
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -85,6 +91,7 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable {
         input: OnrampProvidersInput,
         output: OnrampSummaryOutput,
         router: OnrampOffersSelectorRoutable,
+        presentsInModal: Bool
     ) {
         self.tokenItem = tokenItem
         self.analyticsLogger = analyticsLogger
@@ -95,18 +102,29 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable {
         self.input = input
         self.output = output
         self.router = router
+        self.presentsInModal = presentsInModal
 
         bind()
     }
 
     func onAppear() {
-        selectedProviderItem = nil
-        analyticsLogger.logOnrampPaymentMethodScreenOpened()
+        if presentsInModal {
+            selectedProviderItem = nil
+            analyticsLogger.logOnrampPaymentMethodScreenOpened()
+        } else if !didLogPaymentMethodScreenOpened {
+            didLogPaymentMethodScreenOpened = true
+            analyticsLogger.logOnrampPaymentMethodScreenOpened()
+        }
+
         isVisible = true
     }
 
     func onDisappear() {
         isVisible = false
+
+        if !presentsInModal {
+            selectedProviderItem = nil
+        }
     }
 
     func back() {
@@ -114,6 +132,13 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable {
     }
 
     func close() {
+        guard presentsInModal else {
+            Task { @MainActor in
+                floatingSheetPresenter.removeActiveSheet()
+            }
+            return
+        }
+
         router?.closeOnrampOffersSelector(then: nil)
     }
 }
@@ -198,7 +223,14 @@ private extension OnrampOffersSelectorViewModel {
                     self?.analyticsLogger.logOnrampProviderChosen(provider: provider.provider)
                 },
                 onWidgetBuy: { [weak self] in
-                    self?.router?.closeOnrampOffersSelector { [weak self] in
+                    guard let self else { return }
+
+                    guard presentsInModal else {
+                        output?.userDidRequestOnramp(provider: provider)
+                        return
+                    }
+
+                    router?.closeOnrampOffersSelector { [weak self] in
                         self?.output?.userDidRequestOnramp(provider: provider)
                     }
                 }
