@@ -1,0 +1,21 @@
+{
+    "testnet": {
+        "paymentAccountRegistry": "",
+        "bridgeProcessor": ""
+    },
+    "mainnet": {
+        "paymentAccountRegistry": "",
+        "bridgeProcessor": ""
+    },
+    "txHistoryAPIAdditionalHeaders": {
+        "x-asn": ""
+    },
+    "rsaPublicKey": {
+        "prod": "",
+        "dev": ""
+    },
+    "rainRSAPublicKey": {
+        "prod": "",
+        "dev": ""
+    }
+}
