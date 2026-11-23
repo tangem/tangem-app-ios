@@ -36,9 +36,6 @@ final class DetailsViewModel: ObservableObject {
         if let connectionsRowViewModel {
             types.append(.connections(connectionsRowViewModel))
         }
-        if let walletConnectRowViewModel {
-            types.append(.walletConnect(walletConnectRowViewModel))
-        }
 
         if let addressBookRowViewModel {
             types.append(.addressBook(addressBookRowViewModel))
@@ -48,7 +45,6 @@ final class DetailsViewModel: ObservableObject {
     }
 
     @Published private var connectionsRowViewModel: ConnectionsRowViewModel?
-    @Published private var walletConnectRowViewModel: WalletConnectRowViewModel?
     @Published private var addressBookRowViewModel: AddressBookRowViewModel?
 
     @Published var getSectionViewModels: [DefaultRowViewModel] = []
@@ -80,6 +76,10 @@ final class DetailsViewModel: ObservableObject {
 
     private var selectedUserWalletModel: UserWalletModel? {
         userWalletRepository.selectedModel
+    }
+
+    private var hasUnlockedUserWallet: Bool {
+        userWalletRepository.models.contains { !$0.isUserWalletLocked }
     }
 
     var applicationInfoFooter: String? {
@@ -178,11 +178,6 @@ private extension DetailsViewModel {
         coordinator?.openConnections()
     }
 
-    func openWalletConnect() {
-        Analytics.log(.buttonWalletConnect)
-        coordinator?.openWalletConnect(with: selectedUserWalletModel?.config.getDisabledLocalizedReason(for: .walletConnect))
-    }
-
     func openOnboarding(with input: OnboardingInput) {
         coordinator?.openOnboardingModal(with: input)
     }
@@ -264,7 +259,6 @@ private extension DetailsViewModel {
 private extension DetailsViewModel {
     func setupView() {
         setupConnectionsRowViewModel()
-        setupWalletConnectRowViewModel()
         setupAddressBookRowViewModel()
         setupUserWalletViewModels()
         setupGetSectionViewModels()
@@ -299,6 +293,17 @@ private extension DetailsViewModel {
             }
             .store(in: &bag)
 
+        userWalletRepository.eventProvider
+            .receive(on: DispatchQueue.main)
+            .withWeakCaptureOf(self)
+            .map { viewModel, _ in viewModel.hasUnlockedUserWallet }
+            .removeDuplicates()
+            .withWeakCaptureOf(self)
+            .sink { viewModel, hasUnlockedUserWallet in
+                viewModel.connectionsRowViewModel?.isEnabled = hasUnlockedUserWallet
+            }
+            .store(in: &bag)
+
         tangemPayAvailabilityRepository
             .tangemPayDetailsEntrypointEligibleWalletSelectionPublisher
             .removeDuplicates()
@@ -330,33 +335,11 @@ private extension DetailsViewModel {
     }
 
     func setupConnectionsRowViewModel() {
-        guard FeatureProvider.isAvailable(.mcp) else {
-            return
-        }
-
         connectionsRowViewModel = ConnectionsRowViewModel(
+            isEnabled: hasUnlockedUserWallet,
             action: { [weak self] in
                 self?.openConnections()
             }
-        )
-    }
-
-    func setupWalletConnectRowViewModel() {
-        guard !FeatureProvider.isAvailable(.mcp) else {
-            return
-        }
-
-        guard
-            let selectedUserWalletModel,
-            !selectedUserWalletModel.config.getFeatureAvailability(.walletConnect).isHidden else {
-            walletConnectRowViewModel = nil
-            return
-        }
-
-        walletConnectRowViewModel = WalletConnectRowViewModel(
-            title: Localization.walletConnectTitle,
-            subtitle: Localization.walletConnectSubtitle,
-            action: weakify(self, forFunction: DetailsViewModel.openWalletConnect)
         )
     }
 
@@ -483,7 +466,11 @@ private extension DetailsViewModel {
     func openAddWalletTypeSelector() {
         coordinator?.openAddWalletTypeSelector(output: self)
     }
+}
 
+// MARK: - Card scanning
+
+extension DetailsViewModel {
     func scanNewUserWallet() {
         isScanning = true
 
@@ -773,7 +760,6 @@ extension DetailsViewModel {
     @RawCaseName
     enum TopSectionType: Identifiable {
         case connections(ConnectionsRowViewModel)
-        case walletConnect(WalletConnectRowViewModel)
         case addressBook(AddressBookRowViewModel)
     }
 

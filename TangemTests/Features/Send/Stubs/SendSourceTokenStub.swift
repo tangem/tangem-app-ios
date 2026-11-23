@@ -73,10 +73,11 @@ class SendSourceTokenStub: SendSourceToken {
 // MARK: - TokenBalanceProvider
 
 struct TokenBalanceProviderStub: TokenBalanceProvider {
-    let balanceType: TokenBalanceType = .loading(nil)
-    let balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> = Just(.loading(nil)).eraseToAnyPublisher()
-    let formattedBalanceType: FormattedTokenBalanceType = .loading(.empty("-"))
-    let formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> = Just(.loading(.empty("-"))).eraseToAnyPublisher()
+    var balanceType: TokenBalanceType = .loading(nil)
+    var formattedBalanceType: FormattedTokenBalanceType = .loading(.empty("-"))
+
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { Just(balanceType).eraseToAnyPublisher() }
+    var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { Just(formattedBalanceType).eraseToAnyPublisher() }
 }
 
 // MARK: - TransactionDispatcher

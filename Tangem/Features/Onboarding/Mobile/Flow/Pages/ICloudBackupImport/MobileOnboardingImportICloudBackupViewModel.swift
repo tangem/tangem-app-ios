@@ -61,14 +61,18 @@ final class MobileOnboardingImportICloudBackupViewModel: ObservableObject {
     )
 
     private let creationUtil = MobileCreationUtil()
+    private let creationAnalyticsLogger = MobileWalletCreationAnalyticsLogger()
 
+    private let source: MobileImportWalletSource
     private weak var dataSource: MobileOnboardingImportICloudBackupDataSource?
     private weak var delegate: MobileOnboardingImportICloudBackupDelegate?
 
     init(
+        source: MobileImportWalletSource,
         dataSource: MobileOnboardingImportICloudBackupDataSource,
         delegate: MobileOnboardingImportICloudBackupDelegate
     ) {
+        self.source = source
         self.dataSource = dataSource
         self.delegate = delegate
         bind()
@@ -188,6 +192,8 @@ private extension MobileOnboardingImportICloudBackupViewModel {
             await setupIsProcessing(true)
             let userWalletModel = try await createWallet(mnemonicWords: mnemonicWords, passphrase: passphrase)
             try await addWallet(userWalletModel: userWalletModel)
+            logWalletImportedAnalytics(seedLength: mnemonicWords.count, isPassphraseEmpty: passphrase.isEmpty)
+            logOnboardingFinishedAnalytics()
             await setupIsProcessing(false)
 
             await didImportBackup(userWalletModel: userWalletModel)
@@ -295,6 +301,22 @@ private extension MobileOnboardingImportICloudBackupViewModel {
 
     func logWrongPasswordAnalytics() {
         Analytics.log(.wrongCloudBackupPassword, contextParams: .custom(.mobileWallet))
+    }
+
+    func logWalletImportedAnalytics(seedLength: Int, isPassphraseEmpty: Bool) {
+        creationAnalyticsLogger.logWalletRestored(
+            source: source.analyticsParameterValue,
+            seedLength: seedLength,
+            isPassphraseEmpty: isPassphraseEmpty
+        )
+    }
+
+    func logOnboardingFinishedAnalytics() {
+        Analytics.log(
+            .onboardingFinished,
+            params: [.source: source.analyticsParameterValue],
+            contextParams: .custom(.mobileWallet)
+        )
     }
 }
 

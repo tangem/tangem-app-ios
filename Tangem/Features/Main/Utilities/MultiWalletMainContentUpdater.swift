@@ -25,7 +25,7 @@ enum MultiWalletMainContentUpdater {
             }
 
             outerGroup.addTask {
-                await AccountModelsAggregator(.collectibles).model(from: userWalletModel.accountModelsManager)?.refreshState()
+                await userWalletModel.accountModelsManager.collectiblesAccountModel()?.refreshState()
             }
 
             await outerGroup.waitForAll()

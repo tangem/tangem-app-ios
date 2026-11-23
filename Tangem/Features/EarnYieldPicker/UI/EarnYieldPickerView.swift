@@ -213,6 +213,7 @@ private extension EarnYieldPickerView {
 
         return TangemUI.Button(label: label, accessibilityLabel: nil, action: viewModel.onPrimaryActionTap)
             .styleType(.primary)
+            .loading(.spinner(if: viewModel.isPrimaryActionLoading))
     }
 }
 

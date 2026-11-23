@@ -8,10 +8,14 @@
 
 import Foundation
 
-public final class WeakRef<T: AnyObject> {
-    public weak var value: T?
+public final class WeakRef<T> {
+    private weak var object: AnyObject?
+
+    public var value: T? {
+        object as? T
+    }
 
     public init(_ value: T) {
-        self.value = value
+        object = value as AnyObject
     }
 }

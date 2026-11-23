@@ -29,6 +29,25 @@ struct RealAssetsFeedSearchProviderTests {
         #expect(filter?.order == .rating)
     }
 
+    @Test("The umbrella, which the admin hides by design, still scopes the search")
+    func scopesTheMarketToAHiddenUmbrella() {
+        let hiddenUmbrella = MarketsDTO.Categories.Category(
+            id: Self.umbrella.id,
+            code: Self.umbrella.code,
+            displayName: Self.umbrella.displayName,
+            displayOrder: Self.umbrella.displayOrder,
+            restricted: false,
+            tokensCount: Self.umbrella.tokensCount,
+            sectors: [],
+            visible: false
+        )
+        let snapshot = Self.snapshot(categories: [Self.commodities, hiddenUmbrella])
+
+        let filter = RealAssetsFeedSearchProvider.makeFilter(from: snapshot)
+
+        #expect(filter?.categoryId == hiddenUmbrella.id)
+    }
+
     @Test("Categories that don't carry the umbrella leave the query unanswered rather than searching the whole market")
     func failsWithoutTheUmbrellaCategory() async {
         let categories = CategoriesProviderStub(result: .success(Self.snapshot(categories: [Self.commodities])))

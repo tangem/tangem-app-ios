@@ -33,7 +33,6 @@ private extension MobileCreateWalletView {
         NavigationBarButton.back(action: viewModel.onBackTap)
             .padding(.leading, 16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .redesigned()
     }
 
     var content: some View {

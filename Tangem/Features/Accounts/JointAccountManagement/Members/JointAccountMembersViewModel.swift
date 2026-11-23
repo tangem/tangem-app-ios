@@ -157,7 +157,7 @@ private extension JointAccountMembersViewModel {
         let snackbar = TangemSnackbar(title: Localization.jointAccountActivatedSnackbar)
             .icon(DesignSystem.Icons.Success.regular20)
             .iconColor(DesignSystem.Color.iconAccentBlue)
-        Toast(view: snackbar).present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
+        LegacyToast(view: snackbar).present(layout: .top(padding: Constants.toastTopPadding), type: .temporary())
 
         coordinator?.closedActivatedAccount()
     }

@@ -18,5 +18,5 @@ struct JointAccountOperationsServiceMock: JointAccountOperationsService {
         operation
     }
 
-    func rejectOperation(_ operation: JointAccountOperation, in wallet: JointAccountWallet) async throws {}
+    func rejectOperation(id: String, in wallet: JointAccountWallet) async throws {}
 }

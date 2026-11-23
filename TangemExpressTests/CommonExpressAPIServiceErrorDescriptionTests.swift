@@ -28,7 +28,7 @@ private extension CommonExpressAPIServiceErrorDescriptionTests {
         configuration.protocolClasses = [ExpressErrorURLProtocol.self]
 
         let provider = TangemExpressFactory().makeExpressAPIProvider(
-            credential: ExpressAPICredential(apiKey: "", userId: "", sessionId: "", refcode: nil),
+            credential: ExpressAPICredential(apiKey: "", userId: "", sessionId: "", refcode: nil, batchId: nil),
             configuration: configuration,
             expressAPIType: .production,
             exchangeDataDecoder: StubExchangeDataDecoder(),

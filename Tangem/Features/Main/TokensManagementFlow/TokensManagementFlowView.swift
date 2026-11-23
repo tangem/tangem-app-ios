@@ -67,10 +67,9 @@ struct TokensManagementFlowView: View {
         switch viewModel.state {
         case .chooser:
             TokensManagementChooserView(viewModel: viewModel)
-        case .chooseAccount(let accountSelector):
+        case .chooseAccount(let accountPicker):
             ZStack(alignment: .bottom) {
-                AccountSelectorView(viewModel: accountSelector, style: .addTokenRedesigned)
-                    .bottomFade()
+                ScrollableAccountPickerView(viewModel: accountPicker)
                     .bottomContentInset(cancelButtonHeight)
 
                 cancelButton

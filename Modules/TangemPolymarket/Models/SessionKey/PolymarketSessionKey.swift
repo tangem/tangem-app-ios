@@ -16,7 +16,6 @@ public struct PolymarketSessionKey: Hashable, Sendable {
     public let status: Status
     public let scopes: [String]
     public let validUntil: Date?
-    public let renewAfter: Date?
     public let authorizedAt: Date?
     public let createdAt: Date?
 
@@ -28,7 +27,6 @@ public struct PolymarketSessionKey: Hashable, Sendable {
         status: Status,
         scopes: [String],
         validUntil: Date?,
-        renewAfter: Date?,
         authorizedAt: Date?,
         createdAt: Date?
     ) {
@@ -39,7 +37,6 @@ public struct PolymarketSessionKey: Hashable, Sendable {
         self.status = status
         self.scopes = scopes
         self.validUntil = validUntil
-        self.renewAfter = renewAfter
         self.authorizedAt = authorizedAt
         self.createdAt = createdAt
     }

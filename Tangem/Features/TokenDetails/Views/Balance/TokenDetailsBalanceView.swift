@@ -17,7 +17,6 @@ struct TokenDetailsBalanceView: View {
 
     @ScaledMetric private var scaleFactor: CGFloat = 1
 
-    @ScaledMetric private var tokenIconSide: CGFloat = 72
     @ScaledMetric private var balancePickerSide: CGFloat = 20
     @ScaledMetric private var balancePickerSpacing: CGFloat = 4
     @ScaledMetric private var balancePickerTopPadding: CGFloat = 12
@@ -49,8 +48,7 @@ private extension TokenDetailsBalanceView {
     }
 
     var tokenIcon: some View {
-        TokenIcon(tokenIconInfo: viewModel.tokenIconInfo, size: CGSize(width: tokenIconSide, height: tokenIconSide))
-            .redesigned()
+        TokenIconV2(tokenIconInfo: viewModel.tokenIconInfo, size: .size72)
     }
 
     var balancePicker: some View {
@@ -79,8 +77,11 @@ private extension TokenDetailsBalanceView {
         TokenDetailsBalanceStateView(
             state: viewModel.fiatBalanceState,
             skeletonSize: CGSize(width: 243, height: 48) * scaleFactor,
+            token: DesignSystem.Font.displayMediumToken,
+            color: DesignSystem.Color.textPrimary,
             minimumScaleFactor: Constants.fiatBalanceMinimumScaleFactor
         )
+        .dynamicTypeSize(...DynamicTypeSize.large)
         .accessibilityIdentifier(fiatBalanceAccessibilityIdentifier)
     }
 
@@ -96,7 +97,9 @@ private extension TokenDetailsBalanceView {
     var cryptoBalance: some View {
         TokenDetailsBalanceStateView(
             state: viewModel.cryptoBalanceState,
-            skeletonSize: CGSize(width: 115, height: 24) * scaleFactor
+            skeletonSize: CGSize(width: 115, height: 24) * scaleFactor,
+            token: DesignSystem.Font.bodyMediumToken,
+            color: DesignSystem.Color.textSecondary
         )
     }
 }

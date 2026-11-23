@@ -229,12 +229,15 @@ private extension LendingPositionContentView {
     var withdrawButton: TangemUI.Button {
         TangemUI.Button(label: "Withdraw", accessibilityLabel: nil) { action(.withdraw) }
             .styleType(.secondary(.default))
-            .enabled(state.canWithdraw)
+            .enabled(state.canWithdraw && !state.isAddFundsLoading)
+            .loading(.spinner(if: state.isWithdrawLoading))
     }
 
     var addFundsButton: TangemUI.Button {
         TangemUI.Button(label: Localization.commonAddFunds, accessibilityLabel: nil) { action(.addFunds) }
             .styleType(.primary)
+            .enabled(!state.isWithdrawLoading)
+            .loading(.spinner(if: state.isAddFundsLoading))
     }
 }
 
@@ -249,6 +252,13 @@ extension LendingPositionContentView {
         var chart: YieldChartContainerState
         var period: LendingApyHistoryPeriod
         var canWithdraw: Bool
+        var isAddFundsLoading = false
+        var isWithdrawLoading = false
+
+        var isRouteLoading: Bool {
+            isAddFundsLoading || isWithdrawLoading
+        }
+
         let details: EarnProductDetails
         let totalBalanceInfo: EarnProductDetails.InfoSheet
         let availableBalanceInfo: EarnProductDetails.InfoSheet

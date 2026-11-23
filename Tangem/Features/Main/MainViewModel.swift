@@ -29,6 +29,8 @@ final class MainViewModel: ObservableObject {
     @Published var selectedCardIndex = 0
     @Published private(set) var refreshingUserWalletIDs: Set<UserWalletId> = []
 
+    let isAllServicesAvailable = FeatureProvider.isAvailable(.allServices)
+
     // MARK: - Dependencies
 
     private let mainUserWalletPageBuilderFactory: MainUserWalletPageBuilderFactory
@@ -122,6 +124,12 @@ final class MainViewModel: ObservableObject {
     func openQRScan() {
         Analytics.log(.mainScreenButtonQRScan)
         coordinator?.openQRScan()
+    }
+
+    func openAllServices() {
+        guard mainBottomSheetUIManager.isShown else { return }
+
+        coordinator?.openAllServices()
     }
 
     func selectPage(userWalletId: UserWalletId) {
@@ -576,7 +584,7 @@ extension MainViewModel: MainLockedUserWalletDelegate {
 
 extension MainViewModel: MultiWalletMainContentDelegate, SingleWalletMainContentDelegate {
     func displayAddressCopiedToast() {
-        Toast(
+        LegacyToast(
             view: SuccessToast(text: Localization.walletNotificationAddressCopied)
                 .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
         )

@@ -8,6 +8,7 @@
 
 import Foundation
 import TangemFoundation
+import enum TangemExpress.ExpressAPIType
 
 extension AppEnvironment {
     var suiteName: String {
@@ -28,6 +29,22 @@ extension AppEnvironment {
         return identifier
     }
 
+    var backendAuthenticationAPIType: BackendAuthenticationAPIType {
+        #if INTERNAL || DEBUG
+        return FeatureStorage.instance.backendAuthenticationAPIType
+        #else
+        return BackendAuthenticationAPIType.production
+        #endif
+    }
+
+    var expressAPIType: ExpressAPIType {
+        #if INTERNAL || DEBUG
+        return FeatureStorage.instance.apiExpress
+        #else
+        return ExpressAPIType.production
+        #endif
+    }
+
     var apiBaseUrl: URL {
         FeatureStorage.instance.tangemAPIType.apiBaseUrl
     }
@@ -42,10 +59,6 @@ extension AppEnvironment {
 
     var apiBaseUrlv2WithGatewaySegment: URL {
         FeatureStorage.instance.tangemAPIType.apiBaseUrlv2WithGatewaySegment
-    }
-
-    var backendAuthenticationBaseUrl: URL {
-        FeatureStorage.instance.tangemAPIType.backendAuthenticationBaseUrl
     }
 
     var iconBaseUrl: URL {

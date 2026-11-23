@@ -237,7 +237,7 @@ extension DeeplinkWalletModelLocator {
     ) async {
         let cryptoAccounts = AccountModelsAggregator(.crypto, .joint).models(from: userWalletModel.accountModelsManager)
 
-        guard cryptoAccounts.isNotEmpty else {
+        guard userWalletModel.config.hasFeature(.multiCurrency), cryptoAccounts.isNotEmpty else {
             return
         }
 

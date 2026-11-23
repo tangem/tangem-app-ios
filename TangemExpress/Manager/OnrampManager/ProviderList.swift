@@ -92,7 +92,7 @@ public extension ProvidersList {
             return
         }
 
-        let fastestProviderItem = min(by: \.paymentMethod.type.processingTime)
+        let fastestProviderItem = min(by: \.paymentMethod.type.speedRank)
         let executableProviders = fastestProviderItem?.providers.filter(\.isExecutable)
         let preferredProvider = executableProviders?.first(where: { $0.provider.id == preferredProviderId })
         let fastestProvider = preferredProvider ?? executableProviders?.min()

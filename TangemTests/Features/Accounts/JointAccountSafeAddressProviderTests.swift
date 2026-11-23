@@ -82,6 +82,7 @@ private extension JointAccountSafeAddressProviderTests {
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: repository,
+            cryptoAccountsRepository: CryptoAccountsRepositoryStub(),
             userRoleService: JointAccountUserRoleServiceMock()
         )
     }

@@ -22,6 +22,10 @@ protocol AccountModelsManager: AccountModelsReordering, DisposableEntity {
 
     var accountModelsPublisher: AnyPublisher<[AccountModel], Never> { get }
 
+    var accountsOrderPublisher: AnyPublisher<[CryptoAccountDerivationIdentity], Never> { get }
+
+    func collectiblesAccountModel() async -> (any CollectiblesAccountModel)?
+
     /// Archived + active
     var totalCryptoAccountsCountPublisher: AnyPublisher<Int, Never> { get }
 

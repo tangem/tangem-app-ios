@@ -112,10 +112,34 @@ enum ExpressMergeTestDataFactory {
         status: TransactionRecord.TransactionStatus,
         feeToken: TokenItem
     ) -> TransactionRecord {
+        bsdkTransaction(
+            hash: hash,
+            isOutgoing: isOutgoing,
+            source: .multiple(sources.map { TransactionRecord.Source(address: $0, amount: 0) }),
+            destinations: destinations,
+            date: date,
+            index: index,
+            nonce: nonce,
+            status: status,
+            feeToken: feeToken
+        )
+    }
+
+    static func bsdkTransaction(
+        hash: String,
+        isOutgoing: Bool,
+        source: TransactionRecord.SourceType,
+        destinations: [(address: String, amount: Decimal)],
+        date: Date?,
+        index: Int,
+        nonce: Int?,
+        status: TransactionRecord.TransactionStatus,
+        feeToken: TokenItem
+    ) -> TransactionRecord {
         TransactionRecord(
             hash: hash,
             index: index,
-            source: .multiple(sources.map { TransactionRecord.Source(address: $0, amount: 0) }),
+            source: source,
             destination: .multiple(destinations.map { TransactionRecord.Destination(address: .user($0.address), amount: $0.amount) }),
             fee: feeToken.zeroFee,
             status: status,

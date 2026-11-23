@@ -327,8 +327,8 @@ private extension CommonJointAccountPendingOperationsRepositoryTests {
         try await Task.sleep(for: .milliseconds(50))
     }
 
-    static func record(operations: [JointAccountOperation]) -> StoredJointAccountPendingOperations {
-        StoredJointAccountPendingOperations(cryptoAccountId: accountId, operations: operations)
+    static func record(operations: [JointAccountOperation]) -> JointAccountOperations {
+        JointAccountOperations(cryptoAccountId: accountId, operations: operations)
     }
 
     static func request() -> JointAccountOperationRequest {
@@ -375,8 +375,8 @@ private extension CommonJointAccountPendingOperationsRepositoryTests {
             cancelReason: nil,
             initiator: initiator,
             signatures: signatures,
-            createdAt: nil,
-            threshold: nil
+            createdAt: Date(timeIntervalSince1970: 1_757_323_237),
+            threshold: 2
         )
     }
 }

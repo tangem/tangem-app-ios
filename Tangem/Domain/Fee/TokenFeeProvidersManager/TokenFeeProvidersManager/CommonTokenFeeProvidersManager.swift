@@ -149,6 +149,10 @@ extension CommonTokenFeeProvidersManager: ExpressFeeProvider {
         selectedFeeProvider.feeTokenItem.blockchain.isEvm
     }
 
+    var isFeeSponsored: Bool {
+        selectedFeeProvider.payer == .tangem
+    }
+
     func feeCurrency() -> ExpressWalletCurrency {
         selectedFeeProvider.feeTokenItem.expressCurrency
     }

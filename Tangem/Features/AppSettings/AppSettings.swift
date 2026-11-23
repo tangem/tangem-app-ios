@@ -129,6 +129,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.polymarketShownPositionsCount)
     var polymarketShownPositionsCount: [String: Int] = [:]
+
+    @AppStorageCompat(StorageType.polymarketFastTradingBannerDismissedAt)
+    var polymarketFastTradingBannerDismissedAt: [String: Date] = [:]
     @AppStorageCompat(StorageType.collectiblesHasAccount)
     var collectiblesHasAccount: [String: Bool] = [:]
 
@@ -209,6 +212,9 @@ final class AppSettings {
 
     @AppStorageCompat(StorageType.pendingTangemPayCampaignKey)
     var pendingTangemPayCampaignKey: String? = nil
+
+    @AppStorageCompat(StorageType.pendingPromoPage)
+    var pendingPromoPage: String? = nil
 
     @AppStorageCompat(StorageType.geoIpRegionCode)
     var geoIpRegionCode: String? = nil

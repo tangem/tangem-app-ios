@@ -75,7 +75,8 @@ enum MarketingBannerMapper {
                 etaLabel: banner.etaLabel?.nilIfEmpty,
                 partnerLabel: banner.partnerLabel?.nilIfEmpty,
                 buttonText: buttonText,
-                isGlowing: banner.glow ?? false
+                isGlowing: banner.glow ?? false,
+                replacedSlot: banner.replacesSlot.flatMap(MarketingBanner.RecommendedSlot.init(rawValue:))
             ))
 
         case .standaloneCTA:

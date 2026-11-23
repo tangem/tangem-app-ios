@@ -168,6 +168,17 @@ final class StakingNotificationManagerTests: LeakTrackingTestSuite {
         #expect(!events.contains { $0.isInsufficientFundsForFee })
     }
 
+    @Test("Network failure shows the fee-unavailable banner and logs its notice")
+    func networkFailureLogsFeeUnavailableNotice() {
+        let analyticsLogger = StakingSendAnalyticsLoggerMock()
+        let (manager, stateSubject) = makeSUT(analyticsLogger: analyticsLogger)
+
+        stateSubject.send(.failure(.network(URLError(.timedOut))))
+
+        #expect(stakingEvents(manager).contains { $0.isNetworkUnreachable })
+        #expect(analyticsLogger.noticeNetworkFeeUnreachableCalls == 1)
+    }
+
     @Test("Rent-exemption failure replaces the fee-included and max-amount banners with the rent error")
     func rentExemptionFailureHidesAmountRelatedBanners() {
         let (manager, stateSubject) = makeSUT(

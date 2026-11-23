@@ -47,6 +47,8 @@ struct MaterialSurface<S: InsettableShape>: ViewModifier {
     let shadow: TangemShadowToken?
     let prefersInset: Bool
 
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     @ViewBuilder
     func body(content: Content) -> some View {
         if #available(iOS 27.0, *) {
@@ -87,7 +89,7 @@ struct MaterialSurface<S: InsettableShape>: ViewModifier {
     @ViewBuilder
     private func fallback(_ content: Content) -> some View {
         let surface = content
-            .background { blurBackground.opacity(isVisible ? 1 : 0) }
+            .background { fallbackBackground.opacity(isVisible ? 1 : 0) }
             .overlay { borderStroke.opacity(isVisible ? 1 : 0) }
 
         if let shadow, isVisible {
@@ -104,6 +106,15 @@ struct MaterialSurface<S: InsettableShape>: ViewModifier {
                 .fill(shadow.color)
                 .blur(radius: shadow.blur)
                 .offset(x: shadow.offsetX, y: shadow.offsetY)
+        }
+    }
+
+    @ViewBuilder
+    private var fallbackBackground: some View {
+        if reduceTransparency {
+            shape.fill(solidFillColor)
+        } else {
+            blurBackground
         }
     }
 
@@ -133,6 +144,13 @@ struct MaterialSurface<S: InsettableShape>: ViewModifier {
         switch style {
         case .default: DesignSystem.Color.materialFillBlur
         case .inverted: DesignSystem.Color.materialInvertedFillBlur
+        }
+    }
+
+    private var solidFillColor: Color {
+        switch style {
+        case .default: DesignSystem.Color.materialFillSolid
+        case .inverted: DesignSystem.Color.materialInvertedFillSolid
         }
     }
 

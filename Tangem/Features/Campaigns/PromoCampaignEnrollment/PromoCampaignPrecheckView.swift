@@ -20,7 +20,7 @@ struct PromoCampaignPrecheckView: View {
             header
 
             if let payoutWallet = viewModel.payoutWallet, let payout = payoutWallet.payout {
-                PromoCampaignPayoutCardView(walletName: payoutWallet.name, imageProvider: payoutWallet.imageProvider, payout: payout)
+                PromoCampaignPayoutCardView(walletName: payoutWallet.name, walletIcon: payoutWallet.walletIcon, payout: payout)
             }
 
             TangemUI.Button(label: Localization.commonClose, accessibilityLabel: nil, action: viewModel.close)

@@ -6,6 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import TangemAccessibilityIdentifiers
 import TangemLocalization
 import TangemPolymarketUI
 import TangemUI
@@ -30,6 +31,7 @@ extension FloatingSheetRegistry {
 
         register(PolymarketRegionRestrictionViewModel.self) { viewModel in
             PolymarketRegionRestrictionView(viewModel: viewModel)
+                .accessibilityIdentifier(PolymarketAccessibilityIdentifiers.regionRestrictionSheet)
         }
 
         register(PolymarketAddFundsSheetViewModel.self) { viewModel in

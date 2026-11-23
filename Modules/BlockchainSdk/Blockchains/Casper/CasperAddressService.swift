@@ -52,7 +52,7 @@ extension CasperAddressService: AddressValidator {
         let isCorrectEd25519Address = address.count == CasperConstants.lengthED25519 && address.hasPrefix(CasperConstants.prefixED25519)
         let isCorrectSecp256k1Address = address.count == CasperConstants.lengthSECP256K1 && address.hasPrefix(CasperConstants.prefixSECP256K1)
 
-        guard isCorrectEd25519Address || isCorrectSecp256k1Address else {
+        guard isCorrectEd25519Address || isCorrectSecp256k1Address, address.isASCIIHex() else {
             return false
         }
 
@@ -82,5 +82,13 @@ extension CasperAddressService {
 private extension String {
     func isSameCase() -> Bool {
         lowercased() == self || uppercased() == self
+    }
+
+    func isASCIIHex() -> Bool {
+        utf8.allSatisfy { byte in
+            (UInt8(ascii: "0") ... UInt8(ascii: "9")).contains(byte)
+                || (UInt8(ascii: "a") ... UInt8(ascii: "f")).contains(byte)
+                || (UInt8(ascii: "A") ... UInt8(ascii: "F")).contains(byte)
+        }
     }
 }

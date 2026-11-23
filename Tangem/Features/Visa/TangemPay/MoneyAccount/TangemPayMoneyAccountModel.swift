@@ -35,14 +35,32 @@ protocol TangemPayMoneyAccountModel: AnyObject, WalletModelTransactionHistoryAdd
     var state: TangemPayLocalState? { get }
     var statePublisher: AnyPublisher<TangemPayLocalState, Never> { get }
 
+    var bankCredentials: TangemPayBankCredentialsResponse? { get }
+
     func updateBalance() async
     func loadTransactionHistory() async
     func updateTransactionHistory() async
     func reloadTransactionHistory() async
+    func loadBankCredentials() async throws
 
     func refreshState() async
     func renewSession(
         authorizingInteractor: TangemPayAuthorizing,
         completion: @escaping (TangemPayAuthorizationError?) -> Void
     )
+}
+
+// MARK: - Activation
+
+extension TangemPayMoneyAccountModel {
+    var isOpen: Bool {
+        activation.status == .completed
+    }
+
+    var isOpenPublisher: AnyPublisher<Bool, Never> {
+        activationPublisher
+            .map { $0.status == .completed }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
 }

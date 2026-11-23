@@ -118,6 +118,7 @@ enum EmailCollectedDataType {
         case amount
         case fee
         case isFeeIncluded = "Is fee included"
+        case provider = "Provider"
         case transactionHex = "Transaction HEX"
         case pushingTxHash = "Pushing Transaction Hash"
         case pushingFee = "Pushing Transaction New Fee"

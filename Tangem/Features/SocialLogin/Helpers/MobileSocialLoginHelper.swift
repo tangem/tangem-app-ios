@@ -22,14 +22,27 @@ final class MobileSocialLoginHelper {
         self.output = output
     }
 
-    func signIn() async {
+    @discardableResult
+    func signIn() async -> MobileSocialLoginResult {
         await output?.socialLoginLoading(true)
+        let result = await performSignIn()
+        await output?.socialLoginLoading(false)
+        return result
+    }
+}
+
+// MARK: - Private methods
+
+private extension MobileSocialLoginHelper {
+    func performSignIn() async -> MobileSocialLoginResult {
+        var isSignInPresented = false
 
         do {
             let nonce = try await MobileSocialLoginProviderFactory.makeProvider().recoverNonce()
 
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled else { return .cancelled }
             await output?.socialLoginWillPresentSignIn()
+            isSignInPresented = true
             let credentials = try await MobileSocialLoginProviderFactory.makeAppleSignInProvider().signIn(nonce: nonce)
 
             await output?.socialLoginProcessing(true)
@@ -38,26 +51,18 @@ final class MobileSocialLoginHelper {
 
             let input = MobileSocialWalletInput(credentials: credentials, hasBackup: hasBackup)
             await output?.socialLoginCompleted(input: input)
-
+            return .completed
+        } catch SocialAuthError.cancelled {
+            return .cancelled
         } catch {
-            switch error {
-            case SocialAuthError.cancelled:
-                break
-            default:
-                AppLogger.error("Social login failed", error: error)
-                guard !Task.isCancelled else { return }
-                await output?.socialLoginProcessing(false)
-                await output?.socialLoginFailed(failure: .somethingWentWrong)
-            }
+            AppLogger.error("Social login failed", error: error)
+            guard !Task.isCancelled else { return .cancelled }
+            await output?.socialLoginProcessing(false)
+            await output?.socialLoginFailed(failure: .somethingWentWrong)
+            return .failed(isSignInPresented: isSignInPresented)
         }
-
-        await output?.socialLoginLoading(false)
     }
-}
 
-// MARK: - Private methods
-
-private extension MobileSocialLoginHelper {
     func hasBackup() async -> Bool {
         do {
             return try await backupManager.hasBackup()
@@ -66,4 +71,12 @@ private extension MobileSocialLoginHelper {
             return false
         }
     }
+}
+
+// MARK: - Result
+
+enum MobileSocialLoginResult {
+    case completed
+    case cancelled
+    case failed(isSignInPresented: Bool)
 }

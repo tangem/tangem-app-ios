@@ -118,30 +118,6 @@ struct PolymarketOrderGateTests {
         #expect(gate.amountCaption == .notEnoughForFees)
     }
 
-    // MARK: - While quoting
-
-    @Test("A covered amount keeps the button ready while its quote is on the way")
-    func coveredAmountStaysReadyWhileQuoting() {
-        let gate = PolymarketOrderGate(state: .stub(quoteState: .loading, enteredAmount: 100, balance: 200), intent: Self.buyIntent)
-
-        #expect(!gate.isPrimaryButtonEnabled)
-        #expect(gate.isPrimaryButtonEnabledWhileQuoting)
-    }
-
-    @Test("An amount above the balance stays blocked while its quote is on the way")
-    func uncoveredAmountStaysBlockedWhileQuoting() {
-        let gate = PolymarketOrderGate(state: .stub(quoteState: .loading, enteredAmount: 100, balance: 50), intent: Self.buyIntent)
-
-        #expect(!gate.isPrimaryButtonEnabledWhileQuoting)
-    }
-
-    @Test("A quote that has arrived is judged by the quote, not by the waiting rule")
-    func arrivedQuoteIsNotWaiting() {
-        let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .full)), intent: Self.buyIntent)
-
-        #expect(!gate.isPrimaryButtonEnabledWhileQuoting)
-    }
-
     // MARK: - Selling
 
     @Test("Selling more shares than the position holds is refused")
@@ -180,20 +156,20 @@ struct PolymarketOrderGateTests {
         #expect(gate.amountCaption == nil)
     }
 
-    @Test("A sell refused only for the taker's dollar floor is still a sell the exchange can fill")
-    func sellIgnoresTheOrderAmountFloor() {
+    @Test("A sell the backend puts under the dollar floor is not placed")
+    func sellUnderTheOrderAmountFloorIsRefused() {
         let state = PolymarketOrderModel.State.stub(quote: .stub(status: .belowMinOrderAmount), enteredAmount: 10, balance: 1000)
         let gate = PolymarketOrderGate(state: state, intent: .sell(shares: 1000))
 
-        #expect(gate.isPrimaryButtonEnabled)
+        #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.notifications.isEmpty)
     }
 
-    @Test("The backend's dollar-floor verdict is not a refusal on either side")
-    func theOrderAmountFloorVerdictIsIgnored() {
+    @Test("A buy the backend puts under the dollar floor is not placed even when the client's own floor is met")
+    func buyUnderTheOrderAmountFloorIsRefused() {
         let gate = PolymarketOrderGate(state: .stub(quote: .stub(status: .belowMinOrderAmount)), intent: Self.buyIntent)
 
-        #expect(gate.isPrimaryButtonEnabled)
+        #expect(!gate.isPrimaryButtonEnabled)
         #expect(gate.notifications.isEmpty)
     }
 

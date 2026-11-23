@@ -89,7 +89,7 @@ extension CommonInformationRelevanceService: InformationRelevanceService {
                     throw error
                 }
 
-                guard input.isSelectedFeeActual else {
+                guard !newFee.value.isLoading, input.isSelectedFeeActual else {
                     return nil
                 }
 

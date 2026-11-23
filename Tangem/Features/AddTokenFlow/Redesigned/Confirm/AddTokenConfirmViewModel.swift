@@ -21,7 +21,6 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
     @Published private(set) var isSaving: Bool = false
     @Published private(set) var isTokenAlreadyAdded: Bool = false
     @Published private(set) var needsCardDerivation: Bool = false
-    @Published private(set) var walletIcon: ImageValue?
 
     // MARK: - Token Display
 
@@ -32,6 +31,7 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
     // MARK: - Row Data
 
     let accountRowData: AccountRowData
+    let walletIcon: UserWalletIcon?
     let networkRowData: NetworkRowData
     let isAccountSelectionAvailable: Bool
     let isNetworkSelectionAvailable: Bool
@@ -55,7 +55,6 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
     private let onAccountTapped: () -> Void
     private let onNetworkTapped: () -> Void
     private let onConfirmTapped: (Result<TokenItem, Error>) -> Void
-    private let walletImageProvider: WalletImageProviding?
     private var saveTask: Task<Void, Never>?
 
     private var account: any CryptoAccountModel { accountSelectorCell.cryptoAccountModel }
@@ -102,9 +101,9 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
             displayWallet: !hasMultipleAccounts
         )
         if case .wallet(let walletItem) = accountSelectorCell {
-            walletImageProvider = walletItem.walletImageProvider
+            walletIcon = walletItem.walletIcon
         } else {
-            walletImageProvider = nil
+            walletIcon = nil
         }
 
         networkRowData = NetworkRowData(
@@ -129,11 +128,6 @@ final class AddTokenConfirmViewModel: ObservableObject, Identifiable {
     func handleNetworkTap() {
         guard isNetworkSelectionAvailable else { return }
         onNetworkTapped()
-    }
-
-    func loadWalletImage() async {
-        guard let walletImageProvider else { return }
-        walletIcon = await walletImageProvider.loadSmallImage()
     }
 
     func handleConfirmTap() {

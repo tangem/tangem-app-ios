@@ -9,6 +9,8 @@
 import Combine
 import TangemUI
 import TangemExpress
+import TangemLocalization
+import TangemAccessibilityIdentifiers
 
 class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingSheetContentViewModel {
     @Injected(\.floatingSheetPresenter)
@@ -23,6 +25,22 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
             return .offers(mapToOnrampOfferViewModels(item: item))
         case .none:
             return .paymentMethods(mapToOnrampPaymentMethodRowViewData(providers: providersList))
+        }
+    }
+
+    var navigation: ModalNavigation {
+        switch selectedProviderItem {
+        case .some:
+            .title(
+                Localization.onrampAllOffersButtonTitle,
+                subtitle: Localization.onrampProvidersSubtitle,
+                leading: .custom(.back(accessibilityIdentifier: CommonUIAccessibilityIdentifiers.backButton) { [weak self] in self?.back() })
+            )
+        case .none:
+            .title(
+                Localization.onrampAllOffersButtonTitle,
+                subtitle: Localization.onrampPaymentMethodSubtitle
+            )
         }
     }
 
@@ -41,21 +59,26 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     @Published private var providersList: ProvidersList = []
     @Published private var selectedProviderItem: ProviderItem?
     @Published private var linkedBanners: [MarketingBanner] = []
+    @Published private var isBuyEnabled = true
 
     private let tokenItem: TokenItem
     private let analyticsLogger: SendOnrampOffersAnalyticsLogger
     private let buyActionBuilder: OnrampOfferViewModelBuyActionBuilder
     private let standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never>
     private let linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>
-    private var shouldOnrampPaymentMethodScreenOpenedLogged: Bool = true
+    private let restrictedRegionPublisher: AnyPublisher<OnrampCountry?, Never>
 
     private lazy var onrampOfferViewModelBuilder = OnrampAllOfferViewModelBuilder(tokenItem: tokenItem)
     private lazy var onrampProvidersItemViewModelBuilder = OnrampProviderItemViewModelBuilder(tokenItem: tokenItem)
     private weak var input: OnrampProvidersInput?
     private weak var output: OnrampSummaryOutput?
+    let presentsInModal: Bool
+
+    private weak var router: OnrampOffersSelectorRoutable?
 
     @Published private var isVisible = false
     private var didLogGeoRestrictionNotice = false
+    private var didLogPaymentMethodScreenOpened = false
     private var bag = Set<AnyCancellable>()
 
     init(
@@ -64,26 +87,33 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
         buyActionBuilder: OnrampOfferViewModelBuyActionBuilder,
         standaloneBannersPublisher: AnyPublisher<[StandaloneMarketingBannerViewModel], Never>,
         linkedBannersPublisher: AnyPublisher<[MarketingBanner], Never>,
+        restrictedRegionPublisher: AnyPublisher<OnrampCountry?, Never>,
         input: OnrampProvidersInput,
         output: OnrampSummaryOutput,
+        router: OnrampOffersSelectorRoutable,
+        presentsInModal: Bool
     ) {
         self.tokenItem = tokenItem
         self.analyticsLogger = analyticsLogger
         self.buyActionBuilder = buyActionBuilder
         self.standaloneBannersPublisher = standaloneBannersPublisher
         self.linkedBannersPublisher = linkedBannersPublisher
+        self.restrictedRegionPublisher = restrictedRegionPublisher
         self.input = input
         self.output = output
+        self.router = router
+        self.presentsInModal = presentsInModal
 
         bind()
     }
 
-    /// Because floating sheet use sheet content twice
-    /// then `onAppear` calls twice too
     func onAppear() {
-        if shouldOnrampPaymentMethodScreenOpenedLogged {
+        if presentsInModal {
+            selectedProviderItem = nil
             analyticsLogger.logOnrampPaymentMethodScreenOpened()
-            shouldOnrampPaymentMethodScreenOpenedLogged = false
+        } else if !didLogPaymentMethodScreenOpened {
+            didLogPaymentMethodScreenOpened = true
+            analyticsLogger.logOnrampPaymentMethodScreenOpened()
         }
 
         isVisible = true
@@ -91,7 +121,10 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
 
     func onDisappear() {
         isVisible = false
-        selectedProviderItem = nil
+
+        if !presentsInModal {
+            selectedProviderItem = nil
+        }
     }
 
     func back() {
@@ -99,9 +132,14 @@ class OnrampOffersSelectorViewModel: ObservableObject, Identifiable, FloatingShe
     }
 
     func close() {
-        Task { @MainActor in
-            floatingSheetPresenter.removeActiveSheet()
+        guard presentsInModal else {
+            Task { @MainActor in
+                floatingSheetPresenter.removeActiveSheet()
+            }
+            return
         }
+
+        router?.closeOnrampOffersSelector(then: nil)
     }
 }
 
@@ -134,6 +172,11 @@ private extension OnrampOffersSelectorViewModel {
 
         linkedBannersPublisher
             .assign(to: &$linkedBanners)
+
+        restrictedRegionPublisher
+            .map { $0 == nil }
+            .receiveOnMain()
+            .assign(to: &$isBuyEnabled)
     }
 
     /// The notice is counted once per flow, the way the other notice events are.
@@ -180,14 +223,24 @@ private extension OnrampOffersSelectorViewModel {
                     self?.analyticsLogger.logOnrampProviderChosen(provider: provider.provider)
                 },
                 onWidgetBuy: { [weak self] in
-                    self?.output?.userDidRequestOnramp(provider: provider)
+                    guard let self else { return }
+
+                    guard presentsInModal else {
+                        output?.userDidRequestOnramp(provider: provider)
+                        return
+                    }
+
+                    router?.closeOnrampOffersSelector { [weak self] in
+                        self?.output?.userDidRequestOnramp(provider: provider)
+                    }
                 }
             )
 
             return onrampOfferViewModelBuilder.mapToOnrampOfferViewModel(
                 provider: provider,
                 buyAction: buyAction,
-                linkedBanner: linkedBanner(for: provider)
+                linkedBanner: linkedBanner(for: provider),
+                isBuyEnabled: isBuyEnabled
             )
         }
 

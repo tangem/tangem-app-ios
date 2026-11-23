@@ -27,15 +27,17 @@ extension DeeplinkNavigationAction {
         case .promo(let deeplink): deeplink
         case .onboardVisa(let deeplink): deeplink
         case .payApp(let deeplink): deeplink
+        case .onboardVirtualAccount(let deeplink): deeplink
         case .jointAccountInvite(let deeplink): deeplink
         case .jointAccount(let deeplink): deeplink
         case .token(let deeplink): deeplink
         case .support(let deeplink): deeplink
         case .feed(let deeplink): deeplink
+        case .promoPage(let deeplink): deeplink
         // Shown by whoever owns them: the payment account and the co-brand campaign from the main screen,
         // campaigns, the survey and a payment transaction, an agent's intent or an MCP pairing request by
         // responders of their own.
-        case .tangemPayAccount, .campaigns, .survey, .payCustomCard, .tangemPayTransaction, .mcpIntent, .mcpAuthorization, .promoPage: nil
+        case .tangemPayAccount, .campaigns, .survey, .payCustomCard, .tangemPayTransaction, .mcpIntent, .mcpAuthorization: nil
         }
     }
 }

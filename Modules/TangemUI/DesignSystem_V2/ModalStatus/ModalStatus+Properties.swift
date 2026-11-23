@@ -23,14 +23,13 @@ extension ModalStatusAppearance {
         case .neutral(let icon):
             icon
         case .success:
-            DesignSystem.Icons.Success.regular32
+            DesignSystem.Icons.Success.regular28
         case .error:
-            DesignSystem.Icons.HeartBroken.regular32
+            DesignSystem.Icons.HeartBroken.regular28
         case .warning:
-            // [REDACTED_TODO_COMMENT]
             DesignSystem.Icons.Warning.regular28
         case .info:
-            DesignSystem.Icons.Info.regular32
+            DesignSystem.Icons.Info.regular28
         }
     }
 

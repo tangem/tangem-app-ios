@@ -11,7 +11,7 @@ import Foundation
 /// The dependencies an account's balance and rates are read off, whichever kind of account they were built for.
 protocol BalanceProvidingAccountDependencies {
     var walletModelsManager: WalletModelsManager { get }
-    var derivationManager: (DerivationManager & DerivationStatusProvider)? { get }
+    var pendingDerivationProvider: AccountPendingDerivationProvider { get }
 }
 
 extension BalanceProvidingAccountDependencies {
@@ -22,7 +22,7 @@ extension BalanceProvidingAccountDependencies {
         let totalBalanceProvider = WalletModelsTotalBalanceProvider(
             walletModelsManager: walletModelsManager,
             analyticsLogger: AccountTotalBalanceProviderAnalyticsLogger(),
-            derivationStatusProvider: derivationManager
+            pendingDerivationStatusProvider: pendingDerivationProvider
         )
 
         let commonBalanceProvider = CommonAccountBalanceProvider(

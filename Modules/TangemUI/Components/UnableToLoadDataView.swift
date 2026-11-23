@@ -1,17 +1,17 @@
 //
 //  UnableToLoadDataView.swift
-//  Tangem
+//  TangemModules
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2024 Tangem AG. All rights reserved.
+//  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
 import SwiftUI
-import TangemLocalization
 import TangemAssets
+import TangemUIUtils
+import TangemLocalization
 import TangemAccessibilityIdentifiers
 
-// [REDACTED_TODO_COMMENT]
 public struct UnableToLoadDataView: View {
     private let isButtonBusy: Bool
     private let retryButtonAction: () -> Void
@@ -24,27 +24,22 @@ public struct UnableToLoadDataView: View {
     public var body: some View {
         VStack(spacing: 12) {
             Text(Localization.marketsLoadingErrorTitle)
-                .style(Fonts.Bold.caption1.weight(.medium), color: DesignSystem.Color.textSecondary)
+                .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textSecondary)
 
-            SwiftUI.Button(action: retryButtonAction, label: {
-                HStack(spacing: .zero) {
-                    Text(Localization.tryToLoadDataAgainButtonTitle)
-                        .style(Fonts.Bold.caption1.weight(.medium), color: DesignSystem.Color.textPrimary)
-                }
-                .hidden(isButtonBusy)
-                .overlay {
-                    if isButtonBusy {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: DesignSystem.Color.iconSecondary))
-                    }
-                }
-            })
-            .roundedBackground(with: DesignSystem.Color.bgTransparentSecondary, verticalPadding: 6, horizontalPadding: 12, radius: 10)
-            .disabled(isButtonBusy)
+            Button(
+                label: Localization.tryToLoadDataAgainButtonTitle,
+                accessibilityLabel: nil,
+                action: retryButtonAction
+            )
+            .loading(.spinner(if: isButtonBusy))
+            .styleType(.secondary(.default))
+            .size(.x8)
             .accessibilityIdentifier(CommonUIAccessibilityIdentifiers.retryButton)
         }
     }
 }
+
+// MARK: - Previews
 
 #Preview {
     struct PreviewHolder: View {
@@ -53,7 +48,8 @@ public struct UnableToLoadDataView: View {
         var body: some View {
             UnableToLoadDataView(isButtonBusy: isLoading) {
                 isLoading = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                Task { @MainActor in
+                    try? await ContinuousClock().sleep(for: .seconds(2))
                     isLoading = false
                 }
             }

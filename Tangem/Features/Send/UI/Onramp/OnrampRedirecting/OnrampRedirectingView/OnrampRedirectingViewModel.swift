@@ -20,12 +20,12 @@ final class OnrampRedirectingViewModel: ObservableObject {
         "\(Localization.commonBuy) \(tokenItem.name)"
     }
 
-    var providerImageURL: URL? {
-        interactor.onrampProvider?.provider.imageURL
-    }
-
     var providerName: String {
         interactor.onrampProvider?.provider.name ?? Localization.expressProvider
+    }
+
+    var providerImageURL: URL? {
+        interactor.onrampProvider?.provider.imageURL
     }
 
     @Published var alert: AlertBinder?

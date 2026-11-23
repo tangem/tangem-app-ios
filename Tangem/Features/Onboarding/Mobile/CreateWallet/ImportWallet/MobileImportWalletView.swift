@@ -29,7 +29,9 @@ struct MobileImportWalletView: View {
 private extension MobileImportWalletView {
     var content: some View {
         VStack(spacing: .zero) {
-            navigation
+            if viewModel.hasNavigationBar {
+                navigation
+            }
 
             icon
                 .padding(.top, Layout.iconTopPadding)
@@ -45,7 +47,6 @@ private extension MobileImportWalletView {
     var navigation: some View {
         NavigationBarButton.close(action: viewModel.onCloseTap)
             .frame(maxWidth: .infinity, alignment: .trailing)
-            .redesigned()
     }
 
     var icon: some View {

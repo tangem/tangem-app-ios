@@ -14,6 +14,7 @@ struct ExpressAuthorizationPlugin: PluginType {
     let userId: String
     let sessionId: String
     let refcode: String?
+    let batchId: String?
     let isVersionV2: Bool
 
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
@@ -27,6 +28,10 @@ struct ExpressAuthorizationPlugin: PluginType {
 
         if let refcode {
             request.headers.add(name: "refcode", value: refcode)
+        }
+
+        if let batchId, let target = target as? ExpressAPITarget, target.carriesBatchId {
+            request.headers.add(name: "batch-id", value: batchId)
         }
 
         return request

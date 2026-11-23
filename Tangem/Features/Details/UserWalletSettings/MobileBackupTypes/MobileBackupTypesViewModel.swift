@@ -206,7 +206,7 @@ private extension MobileBackupTypesViewModel {
         let snackbar = TangemSnackbar(title: Localization.hwCloudBackupRemoved)
             .icon(DesignSystem.Icons.TrashBin.regular20)
             .iconColor(DesignSystem.Color.iconStatusError)
-        Toast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
+        LegacyToast(view: snackbar).present(layout: .top(padding: 8), type: .temporary())
     }
 }
 

@@ -47,6 +47,7 @@ public struct TangemExpressFactory {
         analyticsLogger: ExpressAnalyticsLogger,
         providerItemSorter: ProviderItemSorter,
         preferredValues: PreferredValues,
+        countryByIPProvider: (() async throws -> OnrampCountry)? = nil
     ) -> OnrampManager {
         CommonOnrampManager(
             apiProvider: expressAPIProvider,
@@ -54,12 +55,17 @@ public struct TangemExpressFactory {
             dataRepository: dataRepository,
             analyticsLogger: analyticsLogger,
             sorter: providerItemSorter,
-            preferredValues: preferredValues
+            preferredValues: preferredValues,
+            countryByIPProvider: countryByIPProvider
         )
     }
 
     public func makeOnrampRepository(storage: OnrampStorage) -> OnrampRepository {
         CommonOnrampRepository(storage: storage)
+    }
+
+    public func makeCountryByIPOnrampRepository(userCurrencyStore: OnrampUserCurrencyStore) -> OnrampRepository {
+        CountryByIPOnrampRepository(userCurrencyStore: userCurrencyStore)
     }
 
     public func makeOnrampDataRepository(expressAPIProvider: ExpressAPIProvider) -> OnrampDataRepository {
@@ -87,6 +93,7 @@ public struct TangemExpressFactory {
                     userId: credential.userId,
                     sessionId: credential.sessionId,
                     refcode: credential.refcode,
+                    batchId: credential.batchId,
                     isVersionV2: featureFlags.isAPIV2Enabled
                 ),
                 DeviceInfoPlugin(),
@@ -106,12 +113,14 @@ public struct ExpressAPICredential {
     public let userId: String
     public let sessionId: String
     public let refcode: String?
+    public let batchId: String?
 
-    public init(apiKey: String, userId: String, sessionId: String, refcode: String?) {
+    public init(apiKey: String, userId: String, sessionId: String, refcode: String?, batchId: String?) {
         self.apiKey = apiKey
         self.userId = userId
         self.sessionId = sessionId
         self.refcode = refcode
+        self.batchId = batchId
     }
 }
 

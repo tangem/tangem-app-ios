@@ -488,9 +488,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Fast trading expires in %li day</string>
+        <string>O trading rápido expira em %li dia</string>
         <key>other</key>
-        <string>Fast trading expires in %li days</string>
+        <string>O trading rápido expira em %li dias</string>
       </dict>
     </dict>
     <key>referral_number_of_wallets</key>

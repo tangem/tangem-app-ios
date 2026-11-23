@@ -33,6 +33,12 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
         moneyAccountStateSubject.eraseToAnyPublisher()
     }
 
+    var moneyAccountPublisher: AnyPublisher<(any TangemPayMoneyAccountModel)?, Never> {
+        moneyAccountSubject
+            .map { moneyAccount -> (any TangemPayMoneyAccountModel)? in moneyAccount }
+            .eraseToAnyPublisher()
+    }
+
     var isPaeraCustomerPublisher: AnyPublisher<Bool, Never> {
         stateSubject
             .map { $0 != nil }
@@ -263,6 +269,18 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
     }
 
     func refreshState() async {
+        let knownOpenMoneyAccount = moneyAccountSubject.value.flatMap { $0.isOpen ? $0 : nil }
+
+        async let knownOpenMoneyAccountBalanceUpdate: Void? = knownOpenMoneyAccount?.updateBalance()
+        await refreshAccountState()
+        await knownOpenMoneyAccountBalanceUpdate
+
+        if let moneyAccount = moneyAccountSubject.value, moneyAccount.isOpen, moneyAccount !== knownOpenMoneyAccount {
+            await moneyAccount.updateBalance()
+        }
+    }
+
+    private func refreshAccountState() async {
         guard await customerStatusChecker.checkIsPaeraCustomer(customerWalletId: customerWalletId) else {
             orderStatusPollingService.cancel()
             stateSubject.value = nil
@@ -306,11 +324,10 @@ final class TangemPayManager: TangemPayAccountModel, TangemPayAccountRemoving {
             switch error {
             case .unauthorized:
                 stateSubject.value = .syncNeeded
-                setMoneyAccountState(.syncNeeded)
             case .moyaError, .apiError, .decodingError, .serverError:
                 stateSubject.value = .unavailable
-                updateMoneyAccountState(summary: cachedCustomerSummary)
             }
+            updateMoneyAccountState(summary: cachedCustomerSummary)
             VisaLogger.error("Failed to get TangemPay enrollment state", error: error)
             return
         }

@@ -11,6 +11,7 @@ import Combine
 import BlockchainSdk
 import UIKit
 import SwiftUI
+import TangemFoundation
 import TangemUI
 
 final class TokenDetailsCoordinator: CoordinatorObject {
@@ -20,8 +21,11 @@ final class TokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Dependencies
 
     @Injected(\.safariManager) private var safariManager: SafariManager
+    @Injected(\.mailComposePresenter) private var mailPresenter: MailComposePresenter
     @Injected(\.floatingSheetPresenter) private var floatingSheetPresenter: any FloatingSheetPresenter
     @Injected(\.floatingSheetPresentingStateProvider) private var sheetStateProvider: any FloatingSheetPresentingStateProvider
+
+    let supportChatPresenter = SupportChatPresenter()
 
     // MARK: - Root view model
 
@@ -35,7 +39,14 @@ final class TokenDetailsCoordinator: CoordinatorObject {
     @Published var marketsTokenDetailsCoordinator: MarketsTokenDetailsCoordinator? = nil
     @Published var yieldModulePromoCoordinator: YieldModulePromoCoordinator? = nil
     @Published var yieldModuleActiveCoordinator: YieldModuleActiveCoordinator? = nil
+    @Published var earnYieldPickerCoordinator: EarnYieldPickerCoordinator? = nil
+    @Published var lendingPositionCoordinator: LendingPositionCoordinator? = nil
     @Published var contactManagementCoordinator: AddressBookContactManagementCoordinator? = nil
+    @Published var ethYieldSheet: EthYieldSheetViewModel? = nil
+
+    private var ethYieldSheetDismissAction: (() -> Void)?
+
+    private var earnYieldPickerOutput: EarnYieldPickerCoordinator.DismissOptions?
 
     // MARK: - Child view models
 
@@ -53,7 +64,7 @@ final class TokenDetailsCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         let notificationManager = SingleTokenNotificationManager(
-            userWalletId: options.userWalletInfo.id,
+            userWalletInfo: options.userWalletInfo,
             walletModel: options.walletModel,
             walletModelsManager: options.walletModelsManager,
             signingActionButtonType: SigningActionButtonViewTypeBuilder().build(userWalletInfo: options.userWalletInfo)
@@ -189,19 +200,19 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openJointAccountOperationDetails(
-        pendingOperation: JointAccountPendingOperation,
+        handle: JointAccountPendingOperationHandle,
         userWalletInfo: UserWalletInfo,
         addressBookManager: AddressBookManager
     ) {
         let addressBookWallet = AddressBookWallet(wallet: userWalletInfo, addressBookManager: addressBookManager)
         let viewModel = JointAccountOperationDetailsViewModel(
-            pendingOperation: pendingOperation,
+            handle: handle,
             addressBookWallet: addressBookWallet,
             recipientSource: CommonJointAccountOperationRecipientSource(addressBookWallet: addressBookWallet),
             coordinator: self,
             analyticsLogger: CommonJointAccountOperationAnalyticsLogger(
-                tokenItem: pendingOperation.tokenItem,
-                policy: pendingOperation.wallet.account?.policy
+                tokenItem: handle.wallet.tokenItem,
+                policy: handle.wallet.account?.policy
             )
         )
 
@@ -244,6 +255,50 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
 
         let coordinator = factory.makeYieldActiveCoordinator(dismissAction: dismissAction)
         yieldModuleActiveCoordinator = coordinator
+    }
+
+    func openEarnYieldPicker(options: EarnYieldPickerCoordinator.Options) {
+        let coordinator = EarnYieldPickerCoordinator(
+            dismissAction: { [weak self] output in
+                guard let self, earnYieldPickerCoordinator != nil else {
+                    return
+                }
+
+                earnYieldPickerOutput = output
+                earnYieldPickerCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: options)
+        earnYieldPickerCoordinator = coordinator
+    }
+
+    func openEthYieldSheet(_ viewModel: EthYieldSheetViewModel) {
+        ethYieldSheet = viewModel
+    }
+
+    func closeEthYieldSheet(then action: @escaping () -> Void) {
+        ethYieldSheetDismissAction = action
+        ethYieldSheet = nil
+    }
+
+    func ethYieldSheetDidDismiss() {
+        let action = ethYieldSheetDismissAction
+        ethYieldSheetDismissAction = nil
+        action?()
+    }
+
+    func openLendingPosition(options: LendingPositionCoordinator.Options) {
+        let coordinator = LendingPositionCoordinator(
+            dismissAction: { [weak self] _ in
+                self?.lendingPositionCoordinator = nil
+            },
+            popToRootAction: popToRootAction
+        )
+
+        coordinator.start(with: options)
+        lendingPositionCoordinator = coordinator
     }
 
     func openCloreMigration(factory: CloreMigrationModuleFlowFactory) {
@@ -600,6 +655,27 @@ extension TokenDetailsCoordinator: SingleTokenBaseRoutable {
     }
 }
 
+// MARK: - Earn yield picker
+
+extension TokenDetailsCoordinator {
+    func earnYieldPickerDidDismiss() {
+        guard let output = earnYieldPickerOutput else {
+            return
+        }
+
+        earnYieldPickerOutput = nil
+
+        switch output {
+        case .openStaking:
+            tokenDetailsViewModel?.openStaking()
+        case .addFunds(let type):
+            tokenDetailsViewModel?.actionsViewModel?.performAddFunds(type)
+        case .openLendingPosition:
+            tokenDetailsViewModel?.openLendingPosition()
+        }
+    }
+}
+
 // MARK: - SendFeeCurrencyNavigating
 
 extension TokenDetailsCoordinator: SendFeeCurrencyNavigating {}
@@ -623,4 +699,31 @@ extension TokenDetailsCoordinator: JointAccountOperationDetailsRoutable {
             openAddContact(addressBookWallet: addressBookWallet, prefilledEntries: prefilledEntries)
         }
     }
+
+    func openSupportFromOperationDetails(userWalletId: UserWalletId) {
+        let chatInput = SupportChatInputModel(
+            logsComposer: LogsComposer(infoProvider: BaseDataCollector()),
+            userWalletId: userWalletId,
+            source: .settings
+        )
+
+        openSupportTypeSelection(
+            emailAction: { [weak self] in
+                let mailViewModel = MailViewModel(
+                    logsComposer: LogsComposer(infoProvider: BaseDataCollector()),
+                    recipient: EmailConfig.default.recipient,
+                    emailType: .appFeedback(subject: EmailConfig.default.subject)
+                )
+
+                Task { @MainActor in
+                    self?.mailPresenter.present(viewModel: mailViewModel)
+                }
+            },
+            chatInput: chatInput
+        )
+    }
 }
+
+// MARK: - SupportChatPresenting
+
+extension TokenDetailsCoordinator: SupportChatPresenting {}

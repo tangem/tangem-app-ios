@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import TangemAssets
 import TangemUI
 
 struct MCPConnectionRequestUserWalletSelectorRowView: View {
@@ -45,18 +44,8 @@ struct MCPConnectionRequestUserWalletSelectorRowView: View {
                 .frame(width: 40, height: 26)
                 .clipShape(.rect(cornerRadius: 4))
 
-        case .mobileWallet(let iconAsset):
-            mobileWalletImage(iconAsset)
+        case .mobileWallet:
+            WalletIconView(content: .iconWithBackground(.mobileWallet), width: 40)
         }
-    }
-
-    private func mobileWalletImage(_ iconAsset: ImageType) -> some View {
-        iconAsset.image
-            .renderingMode(.template)
-            .resizable()
-            .frame(width: 16, height: 16)
-            .foregroundStyle(DesignSystem.Color.iconSecondary)
-            .frame(width: 40, height: 28)
-            .background(DesignSystem.Color.bgTransparentSecondary, in: .capsule)
     }
 }

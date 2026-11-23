@@ -159,11 +159,16 @@ struct SendView: View {
         case .none:
             EmptyView()
         case .some(let title):
-            Text(title)
-                .multilineTextAlignment(.center)
-                .style(Fonts.BoldStatic.body, color: DesignSystem.Color.textPrimary)
-                .lineLimit(1)
-                .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewTitle)
+            if let subtitle = viewModel.navigationBarSettings.subtitle {
+                TopNavigationTitleContent(title: title, subtitle: subtitle, animatesSubtitleAppearance: false)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewTitle)
+            } else {
+                Text(title)
+                    .multilineTextAlignment(.center)
+                    .style(Fonts.BoldStatic.body, color: DesignSystem.Color.textPrimary)
+                    .lineLimit(1)
+                    .accessibilityIdentifier(SendAccessibilityIdentifiers.sendViewTitle)
+            }
         }
     }
 

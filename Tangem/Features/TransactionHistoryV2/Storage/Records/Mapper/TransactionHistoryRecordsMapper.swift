@@ -183,7 +183,12 @@ enum TransactionHistoryRecordsMapper {
             txHash: operation.txHash,
             cancelReason: operation.cancelReason?.rawValue,
             signatures: operation.signatures.map { signature in
-                JointOperationRecord.Signature(address: signature.address, state: signature.state.rawValue, at: signature.at)
+                JointOperationRecord.Signature(
+                    address: signature.address,
+                    state: signature.state.rawValue,
+                    signature: signature.signature,
+                    at: signature.at
+                )
             },
             createdAt: item.createdAt,
             finishedAt: operation.finishedAt
@@ -265,7 +270,10 @@ enum TransactionHistoryRecordsMapper {
                 throw "Missing joint operation \(indexRecord.entityID) referenced by an index record"
             }
 
-            return .jointOperation(JointOperationHistoryInfo(item: try mapToJointOperationHistoryItem(record)))
+            let item = try mapToJointOperationHistoryItem(record)
+            let innerCallType = try SafeInnerCallTypeParser.parse(item.operation.safeTransaction.innerCall)
+
+            return .jointOperation(JointOperationHistoryInfo(item: item, innerCallType: innerCallType))
 
         default:
             throw "Unknown entity type \(indexRecord.entityType) of an index record for entity \(indexRecord.entityID)"
@@ -413,7 +421,7 @@ enum TransactionHistoryRecordsMapper {
 
     // MARK: Record to domain: Joint operations
 
-    private static func mapToJointOperationHistoryItem(_ record: JointOperationRecord) throws -> JointOperationHistoryItem {
+    static func mapToJointOperationHistoryItem(_ record: JointOperationRecord) throws -> JointOperationHistoryItem {
         guard record.data.removeHexPrefix().isValidHex else {
             throw "Malformed calldata of joint operation \(record.id)"
         }
@@ -444,6 +452,7 @@ enum TransactionHistoryRecordsMapper {
                 JointAccountOperation.Signature(
                     address: signature.address,
                     state: JointAccountOperation.Signature.State(rawValue: signature.state) ?? .unknown,
+                    signature: signature.signature,
                     at: signature.at
                 )
             },

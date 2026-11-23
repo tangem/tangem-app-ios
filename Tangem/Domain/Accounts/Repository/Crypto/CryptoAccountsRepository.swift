@@ -12,6 +12,7 @@ import TangemFoundation
 
 protocol CryptoAccountsRepository {
     var hasSyncedWithRemotePublisher: AnyPublisher<Bool, Never> { get }
+    var cryptoAccounts: [StoredCryptoAccount] { get }
     var cryptoAccountsPublisher: AnyPublisher<[StoredCryptoAccount], Never> { get }
     var auxiliaryDataPublisher: AnyPublisher<CryptoAccountsAuxiliaryData, Never> { get }
 
@@ -25,7 +26,8 @@ protocol CryptoAccountsRepository {
 
     func addNewCryptoAccount(
         withConfig config: CryptoAccountPersistentConfig,
-        remoteState: CryptoAccountsRemoteState
+        remoteState: CryptoAccountsRemoteState,
+        placement: StoredCryptoAccountsMerger.NewAccountsPlacement
     ) async throws -> StoredCryptoAccountsTokensDistributor.DistributionResult
 
     func updateExistingCryptoAccount(

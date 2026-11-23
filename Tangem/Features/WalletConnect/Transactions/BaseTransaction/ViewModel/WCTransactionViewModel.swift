@@ -510,6 +510,7 @@ private extension WCTransactionViewModel {
         switch selectedFee.value {
         case .failure:
             let networkFeeEvent = WCNotificationEvent.networkFeeUnreachable
+            analyticsLogger.logNoticeNetworkFeeUnreachable()
             feeValidationInputs = notificationManager.updateFeeValidationNotifications([networkFeeEvent], buttonAction: { [weak self] _, actionType in
                 self?.handleNotificationButtonAction(actionType)
             })

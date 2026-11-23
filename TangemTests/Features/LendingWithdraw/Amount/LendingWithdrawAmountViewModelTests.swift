@@ -1,0 +1,216 @@
+//
+//  LendingWithdrawAmountViewModelTests.swift
+//  TangemTests
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2026 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import Testing
+import TangemFoundation
+import TangemTestKit
+@testable import BlockchainSdk
+@testable import Tangem
+
+@Suite("Lending withdrawal amount", .timeLimit(.minutes(1)))
+@MainActor
+final class LendingWithdrawAmountViewModelTests: LeakTrackingTestSuite {
+    private static let blockchain = Blockchain.ethereum(testnet: false)
+    private static let tokenItem = TokenItem.blockchain(.init(blockchain, derivationPath: nil))
+    private static let module = "0x1111111111111111111111111111111111111111"
+    private static let position = Decimal(2)
+
+    @Test("A tap on the failed fee row estimates the fee again")
+    func retryFee() {
+        let (model, token, manager) = makeModel()
+        let sut = makeAmount(model: model, token: token)
+
+        sut.handle(.retryFee)
+
+        #expect(manager.updateFeesCalls == 1)
+    }
+
+    @Test("Without enough ETH for the network fee the amount field says so")
+    func notEnoughForFee() async {
+        let (model, token, _) = makeModel(walletBalance: Decimal(1) / 10000)
+        let sut = makeAmount(model: model, token: token)
+
+        let info = await sut.amountField.$bottomInfoText.values.first { $0 != nil }
+
+        #expect(info == .error(LendingWithdrawText.notEnough("ETH")))
+    }
+
+    @Test("Max fills in everything available to withdraw")
+    func maxFillsAvailable() async {
+        let (model, token, _) = makeModel(liquidity: .success(Decimal(15) / 10))
+        await model.loadAvailableToWithdraw()
+        let sut = makeAmount(model: model, token: token)
+
+        sut.handle(.share(100))
+
+        let amount = await MainActor.run { model.sourceAmount.value?.crypto }
+        #expect(amount == Decimal(string: "1.5"))
+    }
+
+    @Test("A new amount keeps Withdraw off until the fee for that amount arrives")
+    func newAmountWaitsForItsFee() async {
+        let (model, token, manager) = makeModel()
+        let sut = makeAmount(model: model, token: token)
+        sut.handle(.share(50))
+        _ = await sut.$state.values.first { $0.isSubmitEnabled }
+
+        let feeUpdate = TestGate()
+        manager.updateFeesGate = feeUpdate
+        sut.handle(.share(100))
+
+        let disabled = await sut.$state.values.first { !$0.isSubmitEnabled }
+        #expect(disabled != nil)
+
+        feeUpdate.open()
+
+        let enabled = await sut.$state.values.first { $0.isSubmitEnabled }
+        #expect(enabled != nil)
+    }
+
+    @Test("A fee request replaced by a retry while Withdraw waits for it still turns Withdraw back on")
+    func replacedFeeRequestStillEnablesWithdraw() async {
+        let (model, token, manager) = makeModel()
+        let sut = makeAmount(model: model, token: token)
+        sut.handle(.share(50))
+        _ = await sut.$state.values.first { $0.isSubmitEnabled }
+
+        let firstRequest = TestGate()
+        let firstRequestStarted = TestGate()
+        manager.updateFeesGate = firstRequest
+        manager.updateFeesStarted = firstRequestStarted
+        sut.handle(.share(100))
+        await firstRequestStarted.wait()
+
+        manager.updateFeesGate = nil
+        manager.updateFeesStarted = nil
+        sut.handle(.retryFee)
+        firstRequest.open()
+
+        let enabled = await sut.$state.values.first { $0.isSubmitEnabled }
+        #expect(enabled != nil)
+    }
+
+    @Test("An amount entered before the Aave liquidity loads turns Withdraw off once the liquidity is below it")
+    func liquidityBelowEnteredAmount() async {
+        let (model, token, _) = makeModel(liquidity: .success(Decimal(15) / 10))
+        let sut = makeAmount(model: model, token: token)
+        sut.handle(.share(100))
+        _ = await sut.$state.values.first { $0.isSubmitEnabled }
+
+        await model.loadAvailableToWithdraw()
+
+        let isWithdrawEnabled = await sut.$state.values.first { !$0.isSubmitEnabled }?.isSubmitEnabled
+        #expect(isWithdrawEnabled == false)
+    }
+
+    @Test("A not enough to withdraw notice is logged only while the amount screen is shown")
+    func noticeOnlyWhileShown() async {
+        let events = OSAllocatedUnfairLock(initialState: [Analytics.Event]())
+        let (model, token, _) = makeModel(liquidity: .success(Decimal(15) / 10))
+        await model.loadAvailableToWithdraw()
+        let sut = makeAmount(model: model, token: token, analyticsSink: { event, _ in events.withLock { $0.append(event) } })
+        sut.amountField.onValueChanged?(Decimal(string: "1.8"))
+        _ = await sut.amountField.$bottomInfoText.values.first { $0 != nil }
+        #expect(events.withLock { $0 }.isEmpty)
+
+        sut.onAppear()
+
+        #expect(events.withLock { $0 } == [.ethLendingWithdrawScreenOpened, .ethLendingNoticeInsufficientBalance])
+        await sut.loadTask?.value
+    }
+
+    @Test("Not enough ETH for the network fee is logged as a fee notice once the amount screen is shown")
+    func feeNoticeWhenShown() async {
+        let events = OSAllocatedUnfairLock(initialState: [Analytics.Event]())
+        let (model, token, _) = makeModel(walletBalance: Decimal(1) / 10000)
+        let sut = makeAmount(model: model, token: token, analyticsSink: { event, _ in events.withLock { $0.append(event) } })
+        _ = await sut.amountField.$bottomInfoText.values.first { $0 != nil }
+        #expect(events.withLock { $0 }.isEmpty)
+
+        sut.onAppear()
+
+        #expect(events.withLock { $0 } == [.ethLendingWithdrawScreenOpened, .ethLendingNoticeInsufficientFee])
+        await sut.loadTask?.value
+    }
+
+    @Test("A fee re-estimate while not enough ETH is shown keeps the notice, so it is logged once")
+    func feeReloadLogsNoticeOnce() async throws {
+        let events = OSAllocatedUnfairLock(initialState: [Analytics.Event]())
+        let (model, token, manager) = makeModel(walletBalance: Decimal(1) / 10000)
+        let feeProvider = try #require(manager.selectedFeeProvider as? ControllableTokenFeeProviderStub)
+        let sut = makeAmount(model: model, token: token, analyticsSink: { event, _ in events.withLock { $0.append(event) } })
+        sut.onAppear()
+        await sut.loadTask?.value
+
+        feeProvider.set(selectedTokenFee: TokenFee(option: .market, tokenItem: Self.tokenItem, value: .loading))
+        feeProvider.set(selectedTokenFee: Self.loadedFee)
+
+        #expect(events.withLock { $0 }.filter { $0 == .ethLendingNoticeInsufficientFee }.count == 1)
+    }
+}
+
+// MARK: - Helpers
+
+private extension LendingWithdrawAmountViewModelTests {
+    func amount(_ value: String) -> SendAmount {
+        SendAmount(type: .typical(crypto: Decimal(string: value), fiat: nil))
+    }
+
+    func makeToken(
+        walletBalance: Decimal,
+        manager: TokenFeeProvidersManagerMock,
+        dispatchError: Error? = nil
+    ) -> SendTransferableTokenStub {
+        SendTransferableTokenStub(
+            blockchain: Self.blockchain,
+            transactionCreator: BuildingTransactionCreatorStub(),
+            tokenFeeProvidersManager: manager,
+            balance: walletBalance,
+            transactionDispatcherProvider: RecordingTransactionDispatcherProvider(recorder: TransactionRecorder(), error: dispatchError)
+        )
+    }
+
+    static var loadedFee: TokenFee {
+        TokenFee(
+            option: .market,
+            tokenItem: tokenItem,
+            value: .success(Fee(Amount(with: blockchain, type: .coin, value: Decimal(1) / 1000)))
+        )
+    }
+
+    func makeFeeManager() -> TokenFeeProvidersManagerMock {
+        TokenFeeProvidersManagerMock(feeProvider: ControllableTokenFeeProviderStub(feeTokenItem: Self.tokenItem, selectedTokenFee: Self.loadedFee))
+    }
+
+    func makeModel(
+        liquidity: Result<Decimal, Error>? = nil,
+        walletBalance: Decimal = 2,
+        dispatchError: Error? = nil
+    ) -> (LendingWithdrawModel, SendTransferableTokenStub, TokenFeeProvidersManagerMock) {
+        let manager = makeFeeManager()
+        let token = makeToken(walletBalance: walletBalance, manager: manager, dispatchError: dispatchError)
+        let model = LendingWithdrawModel(
+            sourceToken: token,
+            yieldModule: Self.module,
+            upgradeImplementation: nil,
+            positionBalance: Self.position,
+            liquidityProvider: liquidity.map(LendingLiquidityProviderStub.init(result:))
+        )
+
+        return (trackForMemoryLeaks(model), token, manager)
+    }
+
+    func makeAmount(
+        model: LendingWithdrawModel,
+        token: SendTransferableTokenStub,
+        analyticsSink: @escaping LendingAnalyticsLogger.Sink = { _, _ in }
+    ) -> LendingWithdrawAmountViewModel {
+        trackForMemoryLeaks(LendingWithdrawAmountViewModel(model: model, sourceToken: token, analyticsLogger: LendingAnalyticsLogger(transactionType: .withdraw, isWithUpgrade: false, usdPrice: { nil }, sink: analyticsSink), router: nil))
+    }
+}

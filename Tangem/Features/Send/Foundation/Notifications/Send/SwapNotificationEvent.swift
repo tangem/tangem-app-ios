@@ -101,7 +101,7 @@ extension SwapNotificationEvent: NotificationEvent {
         case .validationErrorEvent(let event):
             return event.title
         case .refunded(tokenItem: let tokenItem):
-            return .string(Localization.expressExchangeNotificationRefundTitle(tokenItem.currencySymbol, tokenItem.networkName))
+            return .string(Localization.expressExchangeNotificationRefundTitle(tokenItem.currencySymbol, tokenItem.networkName.droppingNetworkSuffix))
         case .notEnoughBalanceForSwapping:
             return .string(Localization.swappingInsufficientFunds)
         case .longTimeAverageDuration:

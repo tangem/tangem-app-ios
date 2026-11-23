@@ -15,7 +15,7 @@ import TangemFoundation
 
 protocol WalletModel:
     AnyObject, Identifiable, Hashable, CustomStringConvertible,
-    AvailableTokenBalanceProviderInput, WalletModelBalancesProvider,
+    AvailableTokenBalanceProviderInput, WalletModelBalancesProvider, WalletModelPendingTransactionsProvider,
     WalletModelHelpers, WalletModelDependenciesProvider,
     WalletModelRentProvider, WalletModelUpdater, WalletModelTransactionHistoryProvider,
     WalletModelTransactionHistoryAddressesProvider, TransactionHistoryFetcher,
@@ -40,7 +40,6 @@ protocol WalletModel:
     var isAssetRequirementsTaskInProgressPublisher: AnyPublisher<Bool, Never> { get }
     var isDemo: Bool { get }
     var demoBalance: Decimal? { get set }
-    var sendingRestrictions: SendingRestrictions? { get }
     var featuresPublisher: AnyPublisher<[WalletModelFeature], Never> { get }
 
     // MARK: - Staking
@@ -58,6 +57,7 @@ protocol WalletModel:
 
     // [REDACTED_TODO_COMMENT]
     var yieldModuleManager: YieldModuleManager? { get }
+    var lendingModuleReader: (any LendingModuleReader)? { get }
 }
 
 extension WalletModel {
@@ -243,15 +243,17 @@ protocol WalletModelDependenciesProvider {
     var safeWalletManagerOperationsService: SafeWalletManagerOperationsService? { get }
 }
 
+// MARK: - Pending transactions
+
+protocol WalletModelPendingTransactionsProvider {
+    var pendingTransactionsProvider: PendingTransactionsProvider { get }
+}
+
 // MARK: - Tx history
 
 protocol WalletModelTransactionHistoryProvider {
     var isSupportedTransactionHistory: Bool { get }
-    var hasPendingTransactions: Bool { get }
-    /// Any pending transactions for the whole network. Coin, token, etc.
-    var hasAnyPendingTransactions: Bool { get }
     var transactionHistoryPublisher: AnyPublisher<WalletModelTransactionHistoryState, Never> { get }
-    var pendingTransactionPublisher: AnyPublisher<[PendingTransactionRecord], Never> { get }
 }
 
 // MARK: - Rent

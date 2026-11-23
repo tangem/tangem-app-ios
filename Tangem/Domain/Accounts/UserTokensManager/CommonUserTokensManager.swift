@@ -17,7 +17,7 @@ final class CommonUserTokensManager {
     @Injected(\.expressAvailabilityProvider) private var expressAvailabilityProvider: ExpressAvailabilityProvider
 
     weak var walletModelsManager: WalletModelsManager?
-    weak var derivationManager: (DerivationManager & DerivationStatusProvider)?
+    weak var derivationManager: DerivationManager?
 
     private let userWalletId: UserWalletId
     private let configProvider: UserWalletConfigProvider
@@ -276,9 +276,15 @@ extension CommonUserTokensManager: UserTokensManager {
             return
         }
 
-        // Delay to update derivations in derivationManager
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            derivationManager.deriveKeys(completion: completion)
+        runTask { @MainActor in
+            do {
+                // Delay to update derivations in derivationManager
+                try await Task.sleep(for: .seconds(0.1))
+                try await derivationManager.deriveKeys()
+                completion(.success(()))
+            } catch {
+                completion(.failure(error))
+            }
         }
     }
 
@@ -593,14 +599,14 @@ extension CommonUserTokensManager {
         var errorDescription: String? {
             switch self {
             case .failedSupportedLongHashesTokens(let blockchainDisplayName):
-                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName)
+                return Localization.alertManageTokensUnsupportedMessage(blockchainDisplayName.droppingNetworkSuffix)
             case .failedSupportedCurve(let blockchainDisplayName):
                 return Localization.alertManageTokensUnsupportedCurveMessage(blockchainDisplayName)
             case .failedToDeleteNetworkHasTokens(let tokenItem):
                 return Localization.tokenDetailsUnableHideAlertMessage(
                     tokenItem.name,
                     tokenItem.currencySymbol,
-                    tokenItem.blockchain.displayName
+                    tokenItem.blockchain.displayName.droppingNetworkSuffix
                 )
             case .addressNotFound,
                  .derivationNotSupported,

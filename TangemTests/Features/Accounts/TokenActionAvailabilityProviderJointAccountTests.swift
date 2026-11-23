@@ -185,11 +185,11 @@ struct TokenActionAvailabilityProviderJointAccountTests {
         }
     }
 
-    @Test("Swap into a token ignores what keeps it from being sent", arguments: SendingRestrictionCase.allCases)
-    func swapIntoTokenIgnoresSendingRestrictions(restriction: SendingRestrictionCase) async {
+    @Test("Swap into a token ignores what keeps it from being sent", arguments: SendBlockingBalanceCase.allCases)
+    func swapIntoTokenIgnoresSendingRestrictions(balance: SendBlockingBalanceCase) async {
         await withExpress {
             let walletModel = makeWalletModel(account: nil)
-            walletModel.sendingRestrictionsMock = restriction.sendingRestriction
+            walletModel.availableBalanceProviderMock = TokenBalanceProviderTestsMock(balanceType: balance.balanceType)
 
             let sut = makeSUT(walletModel: walletModel)
 
@@ -343,6 +343,20 @@ enum SendingRestrictionCase: CaseIterable {
         case .hasOnlyCachedBalance: .hasOnlyCachedBalance
         case .blockchainLoading: .blockchainLoading
         case .cantSignLongTransactions: .cantSignLongTransactions
+        }
+    }
+}
+
+enum SendBlockingBalanceCase: CaseIterable {
+    case hasOnlyCachedBalance
+    case blockchainLoading
+    case blockchainUnreachable
+
+    var balanceType: TokenBalanceType {
+        switch self {
+        case .hasOnlyCachedBalance: .loading(.init(balance: 1, date: Date(timeIntervalSince1970: 0)))
+        case .blockchainLoading: .loading(nil)
+        case .blockchainUnreachable: .failure(nil)
         }
     }
 }

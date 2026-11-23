@@ -155,6 +155,10 @@ extension CoinType {
              .arc,
              .publicMasterpiece,
              .onyx,
+             .zeniq,
+             .katana,
+             .xLayer,
+             .ink,
              .seiEvm:
             // Blockchains that are not in WalletCore yet
             return nil

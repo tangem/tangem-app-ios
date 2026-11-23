@@ -21,7 +21,6 @@ struct SettingsUserWalletRowView: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(WalletSettingsAccessibilityIdentifiers.walletSettingsButton(name: viewModel.name))
-        .onAppear(perform: viewModel.onAppear)
     }
 
     @ViewBuilder
@@ -42,30 +41,7 @@ struct SettingsUserWalletRowView: View {
     }
 
     private var icon: some View {
-        image
-            .frame(width: 36, height: 36)
-            .shimmerPlaceholder(
-                viewModel.icon.isLoading,
-                variant: .custom(width: 36, height: 22, cornerRadius: 3)
-            )
-    }
-
-    @ViewBuilder
-    private var image: some View {
-        switch viewModel.icon {
-        case .loading:
-            Color.clear
-
-        case .success(let image):
-            image.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-
-        case .failure:
-            Assets.Onboarding.darkCard.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-        }
+        UserWalletIconView(icon: viewModel.icon, size: 36)
     }
 
     private var textViews: some View {
@@ -124,7 +100,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: false,
                     userWalletUpdatePublisher: .just(output: .nameDidChange(name: "My wallet")),
                     totalBalancePublisher: .just(output: .loading(cached: .none)),
-                    walletImageProvider: CardImageProviderMock(),
+                    icon: .loadable(CardImageProviderMock()),
                     tapAction: {}
                 )
             )
@@ -138,7 +114,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: false,
                     userWalletUpdatePublisher: .just(output: .nameDidChange(name: "My wallet")),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
-                    walletImageProvider: CardImageProviderMock(),
+                    icon: .loadable(CardImageProviderMock()),
                     tapAction: {}
                 )
             )
@@ -152,7 +128,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: false,
                     userWalletUpdatePublisher: .empty,
                     totalBalancePublisher: .just(output: .loaded(balance: 123456789.99)),
-                    walletImageProvider: CardImageProviderMock(),
+                    icon: .loadable(CardImageProviderMock()),
                     tapAction: {}
                 )
             )
@@ -166,7 +142,7 @@ struct SettingsUserWalletRowView: View {
                     isUserWalletLocked: true,
                     userWalletUpdatePublisher: .just(output: .nameDidChange(name: "Locked wallet")),
                     totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
-                    walletImageProvider: CardImageProviderMock(),
+                    icon: .loadable(CardImageProviderMock()),
                     tapAction: {}
                 )
             )

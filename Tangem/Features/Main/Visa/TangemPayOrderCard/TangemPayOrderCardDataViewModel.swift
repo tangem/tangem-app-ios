@@ -54,6 +54,15 @@ final class TangemPayOrderCardDataViewModel: ObservableObject, Identifiable {
         }
     }
 
+    var isPushed: Bool {
+        switch purpose {
+        case .issue:
+            true
+        case .reissue:
+            false
+        }
+    }
+
     var isOrderEnabled: Bool {
         sections.flatMap(\.fields).allSatisfy { $0.currentError == nil }
     }
@@ -118,9 +127,8 @@ final class TangemPayOrderCardDataViewModel: ObservableObject, Identifiable {
         lastFieldID == id
     }
 
-    func back() {
+    func cancelOrder() {
         orderTask?.cancel()
-        coordinator?.orderCardDataDidGoBack()
     }
 
     func close() {

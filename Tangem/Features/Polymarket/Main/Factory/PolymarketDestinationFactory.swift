@@ -71,6 +71,16 @@ final class PolymarketDestinationFactory {
         return coordinator
     }
 
+    @MainActor
+    func makeSettings(onClose: @escaping () -> Void) -> PolymarketFastTradingViewModel? {
+        dependencies.makeFastTradingSettings(onClose: onClose)
+    }
+
+    @MainActor
+    func makeFastTradingActivation(onClose: @escaping () -> Void) -> PolymarketFastTradingActivationViewModel? {
+        dependencies.makeFastTradingActivation(onClose: onClose)
+    }
+
     func makeActivity(
         onRegionWarning: @escaping () -> Void,
         onClose: @escaping Action<Void>
@@ -91,6 +101,8 @@ final class PolymarketDestinationFactory {
     func makeCategory(
         category: PolymarketCategory,
         onRegionWarning: @escaping () -> Void,
+        onActivateFastTrading: @escaping @MainActor () -> Void,
+        onOpenSettings: @escaping @MainActor () -> Void,
         onClose: @escaping Action<Void>
     ) -> PolymarketCategoryCoordinator {
         let coordinator = PolymarketCategoryCoordinator(dismissAction: onClose)
@@ -103,7 +115,10 @@ final class PolymarketDestinationFactory {
             makeEventsViewModel: { routable in
                 dependencies.makeCategoryEventsViewModel(category: category, refreshCenter: refreshCenter, routable: routable)
             },
+            fastTrading: dependencies.fastTrading?.service,
             onRegionWarning: onRegionWarning,
+            onActivateFastTrading: onActivateFastTrading,
+            onOpenSettings: onOpenSettings,
             orderBuilder: self,
             eventBuilder: self
         ))
@@ -179,7 +194,8 @@ extension PolymarketDestinationFactory: PolymarketOrderFlowBuilder {
             addFundsReadinessStream: dependencies.accountFundsInteractor.makeStateStream(),
             onPlaced: onPlaced,
             onRegionWarning: onRegionWarning,
-            onAddFunds: onAddFunds
+            onAddFunds: onAddFunds,
+            sessionKeyAvailability: dependencies.makeSessionKeySigningAvailability()
         ))
 
         return coordinator
@@ -219,7 +235,7 @@ extension PolymarketDestinationFactory: PolymarketEventDetailsBuilder {
 
 private extension PolymarketDestinationFactory {
     func makeEventChartServices() -> PolymarketEventDetailsViewModel.ChartServices? {
-        guard dependencies.isPhaseTwoAvailable else { return nil }
+        guard dependencies.isEventChartEnabled else { return nil }
 
         return PolymarketEventDetailsViewModel.ChartServices(
             clobService: dependencies.clobService,

@@ -16,7 +16,7 @@ protocol StoredJointAccountRecord {
 
 extension StoredJointAccount: StoredJointAccountRecord {}
 
-extension StoredJointAccountPendingOperations: StoredJointAccountRecord {}
+extension JointAccountOperations: StoredJointAccountRecord {}
 
 extension Collection where Element: StoredJointAccountRecord {
     /// - Note: Matched without regard to case, which is the one rule every reader of these records shares: the

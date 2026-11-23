@@ -224,23 +224,25 @@ struct CollectiblesAPIServiceTests {
         #expect(Self.queryValue("includeAutoBuyback", of: request) == String(includesAutoBuyback))
     }
 
-    @Test("A spin the partner no longer knows surfaces as spinNotFound, other opening failures stay .http", arguments: [
-        ("No spin transaction found for memo", true),
-        ("Machine empty", false),
+    @Test("An opening the partner refuses surfaces as refused, a spin it no longer knows as spinNotFound, other failures stay .http", arguments: [
+        (3009, "Pack opening failed", CollectiblesPackOpeningError?.some(.refused)),
+        (3010, "Pack opening failed", .some(.refused)),
+        (3010, "No spin transaction found for memo", .some(.spinNotFound)),
+        (3015, "Pack opening failed", nil),
     ])
-    func mapsSpinNotFound(detail: String, isSpinNotFound: Bool) async throws {
+    func mapsOpeningFailure(code: Int, detail: String, expected: CollectiblesPackOpeningError?) async throws {
         CollectiblesStubURLProtocol.statusCode = 502
         CollectiblesStubURLProtocol.responses = [
-            Data(#"{"title":"Bad Gateway","status":502,"detail":"\#(detail)","code":3010,"errors":[]}"#.utf8),
+            Data(#"{"title":"Bad Gateway","status":502,"detail":"\#(detail)","code":\#(code),"errors":[]}"#.utf8),
         ]
 
         do {
             _ = try await makeSUT().openPack(txID: "tx-1", includesAutoBuyback: false, userWalletID: "wallet-1")
             Issue.record("Expected the opening to fail")
-        } catch CollectiblesPackOpeningError.spinNotFound {
-            #expect(isSpinNotFound)
+        } catch let error as CollectiblesPackOpeningError {
+            #expect(error == expected)
         } catch CollectiblesAPIService.Error.http(let statusCode, _) {
-            #expect(!isSpinNotFound)
+            #expect(expected == nil)
             #expect(statusCode == 502)
         }
     }

@@ -97,6 +97,10 @@ final class CommonWalletConnectTransactionAnalyticsLogger: WalletConnectTransact
         Analytics.log(.walletConnectCancelButtonTapped, params: [.type: .sign])
     }
 
+    func logNoticeNetworkFeeUnreachable() {
+        Analytics.log(.noticeNetworkFeeUnavailable, params: [.source: .transactionSourceWalletConnect])
+    }
+
     private func getSimulationResult(from simulationState: TransactionSimulationState) -> Analytics.ParameterValue {
         if case .simulationSucceeded(let result) = simulationState {
             return result.validationStatus?.analyticsTypeValue ?? .unknown

@@ -69,9 +69,7 @@ final class TangemPayCrossWalletSwapUITests: BaseTestCase {
         setAllureId(9683)
         wireMockClient.resetRequestJournalSync()
 
-        let mainScreen = launchWithSecondWallet()
-        let tetherBalance = mainScreen.getTokenBalanceNumeric(tokenName: Constants.Token.tether)
-
+        launchWithSecondWallet()
         showPreviousWallet()
             .openVisibleTangemPay(subtitle: Constants.cardSubtitle)
             .waitForScreen()
@@ -86,22 +84,16 @@ final class TangemPayCrossWalletSwapUITests: BaseTestCase {
             .confirmSwap()
 
         verifyWithdrawFinishScreen()
-        completeTransfer(payBalanceState: Constants.State.afterWithdraw, tetherBalanceState: Constants.State.afterPayWithdraw)
-        verifyPaymentAccountBalance(Constants.Balance.afterWithdraw)
+        TangemPayMainScreen(app)
+            .waitForScreen()
             .tapBack()
-        showNextWallet()
-        pullToRefresh()
-        MainScreen(app).waitForTokenBalance(tokenName: Constants.Token.tether, to: .increase, from: tetherBalance)
     }
 
     func testSwapFromPaymentAccountToOtherWalletTokenFromMainToken() {
         setAllureId(12128)
         wireMockClient.resetRequestJournalSync()
 
-        let mainScreen = launchWithSecondWallet()
-        let tetherBalance = mainScreen.getTokenBalanceNumeric(tokenName: Constants.Token.tether)
-
-        mainScreen
+        launchWithSecondWallet()
             .tapToken(Constants.Token.tether)
             .waitForNonZeroTotalBalance()
             .tapSwapButton()
@@ -118,11 +110,21 @@ final class TangemPayCrossWalletSwapUITests: BaseTestCase {
             .confirmSwap()
 
         verifyWithdrawFinishScreen()
-        completeTransfer(payBalanceState: Constants.State.afterWithdraw, tetherBalanceState: Constants.State.afterPayWithdraw)
+        TokenScreen(app).goBackToMain()
+    }
 
-        let walletScreen = TokenScreen(app).goBackToMain()
+    func testSwapFromPaymentAccountToOtherWalletToken_UpdatesBalancesAfterTransfer() {
+        setAllureId(14044)
+
+        let tetherBalance = launchWithSecondWallet().getTokenBalanceNumeric(tokenName: Constants.Token.tether)
+        showPreviousWallet()
+            .verifyVisibleTangemPayTile(subtitle: Constants.cardSubtitle, balance: Constants.Balance.initial)
+            .swipeWalletLeft()
+
+        completeTransfer(payBalanceState: Constants.State.afterWithdraw, tetherBalanceState: Constants.State.afterPayWithdraw)
+        MainScreen(app).scrollToTop()
         pullToRefresh()
-        walletScreen.waitForTokenBalance(tokenName: Constants.Token.tether, to: .increase, from: tetherBalance)
+        MainScreen(app).waitForTokenBalance(tokenName: Constants.Token.tether, to: .increase, from: tetherBalance)
 
         showPreviousWallet()
             .openVisibleTangemPay(subtitle: Constants.cardSubtitle)
@@ -137,11 +139,6 @@ final class TangemPayCrossWalletSwapUITests: BaseTestCase {
     }
 
     @discardableResult
-    private func showNextWallet() -> MainScreen {
-        pullToRefresh()
-        return MainScreen(app).swipeWalletLeft()
-    }
-
     private func launchWithSecondWallet() -> MainScreen {
         launchAndImportHotWalletWithRealPayAuthorization(expressApiType: .mock, scenarios: Constants.Scenarios.withdraw)
             .addNewWallet(name: .wallet2)

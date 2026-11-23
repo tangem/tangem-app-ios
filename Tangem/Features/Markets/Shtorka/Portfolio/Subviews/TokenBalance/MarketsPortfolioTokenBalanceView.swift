@@ -9,6 +9,7 @@
 import SwiftUI
 import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct MarketsPortfolioTokenBalanceView: View {
     @ScaledMetric private var failedBalanceTextIconSpacing: CGFloat = 2
@@ -16,6 +17,10 @@ struct MarketsPortfolioTokenBalanceView: View {
 
     let state: MarketsPortfolioTokenBalanceState
     let skeletonSize: CGSize
+    let token: TangemTypographyToken
+    let color: Color
+
+    @ObservedObject private var visibilityState = SensitiveTextVisibilityState.shared
 
     var body: some View {
         switch state {
@@ -60,7 +65,9 @@ struct MarketsPortfolioTokenBalanceView: View {
 
 private extension MarketsPortfolioTokenBalanceView {
     func textView(_ text: MarketsPortfolioTokenBalanceState.Text) -> some View {
-        SensitiveText(text)
+        UtilBalance(text)
+            .masked(visibilityState.isHidden)
+            .style(token, color: color)
     }
 
     func skeletonView(size: CGSize) -> some View {

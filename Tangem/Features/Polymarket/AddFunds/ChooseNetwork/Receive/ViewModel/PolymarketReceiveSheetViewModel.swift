@@ -51,8 +51,8 @@ final class PolymarketReceiveSheetViewModel: ObservableObject, FloatingSheetCont
         )
 
         let symbols = input.tokens.map(\.currencySymbol).joined(separator: " \(Localization.commonOr) ")
-        heading = Localization.receiveBottomSheetWarningMessageCompact(symbols, input.networkTitle)
-        warningTitle = Localization.receiveBottomSheetWarningTitle(symbols, input.networkTitle)
+        heading = Localization.receiveBottomSheetWarningMessageCompact(symbols, input.networkTitle.droppingNetworkSuffix)
+        warningTitle = Localization.receiveBottomSheetWarningTitle(symbols, input.networkTitle.droppingNetworkSuffix)
 
         warningDescription = Localization.receiveBottomSheetWarningMessageDescription
         limitsDescription = Localization.predictionAddFundsNotificationLimitsDescription(input.minimumDepositFormatted)
@@ -98,7 +98,7 @@ extension PolymarketReceiveSheetViewModel: QRCodeReceiveAssetsRoutable {
     func copyToClipboard(with address: String) {
         UIPasteboard.general.string = address
 
-        Toast(
+        LegacyToast(
             view: TangemSnackbar(title: Localization.walletNotificationAddressCopied)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
                 .iconColor(DesignSystem.Color.iconAccentBlue)

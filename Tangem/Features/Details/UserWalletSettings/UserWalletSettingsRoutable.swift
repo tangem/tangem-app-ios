@@ -23,6 +23,8 @@ protocol UserWalletSettingsRoutable: AnyObject, UserSettingsAccountsRoutable {
 
     func openNotificationSettings(userWalletModel: UserWalletModel)
 
+    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
+
     func openMobileBackupNeeded(userWalletModel: UserWalletModel)
     func openMobileBackupTypes(userWalletModel: UserWalletModel)
     func openMobileRemoveWalletNotification(userWalletModel: UserWalletModel)

@@ -11,12 +11,17 @@ import TangemAssets
 import TangemFoundation
 import TangemLocalization
 import TangemPay
+import TangemUI
 import struct TangemUIUtils.AlertBinder
 
 typealias TangemPayProceedToConfirmAction = (
     _ tariffPlan: VisaCustomerInfoResponse.TariffPlan,
     _ transitionType: TangemPayTariffPlanTransition.TransitionType
 ) -> Void
+
+typealias TangemPayPlaceOnboardingOrderAction = (
+    _ transition: TangemPayTariffPlanTransition
+) async throws(TangemPayOnboardingOrderError) -> Void
 
 final class TangemPaySelectPlanViewModel: ObservableObject {
     @Published private(set) var plans: [Plan] = []
@@ -40,6 +45,13 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
         plans.firstIndex { $0.id == selectedPlanID } ?? 0
     }
 
+    var selectButtonSigningType: SigningActionButtonViewType? {
+        if case .createOnboardingOrder(let signingType, _) = mode {
+            return signingType
+        }
+        return nil
+    }
+
     init(
         currentTariffPlan: VisaCustomerInfoResponse.TariffPlan? = nil,
         tariffPlanSelector: any TangemPayTariffPlanSelector,
@@ -53,8 +65,11 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
     }
 
     func onAppear() {
-        if case .onboarding = mode {
+        switch mode {
+        case .onboarding, .createOnboardingOrder:
             Analytics.log(.visaTiersTierSelectionScreenShowed)
+        case .planChange:
+            break
         }
     }
 
@@ -88,6 +103,23 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
                 return
             }
             onProceedToConfirm(transition.tariffPlan, transition.type)
+
+        case .createOnboardingOrder(_, let start):
+            guard let transition = transitions.first(where: { $0.tariffPlan.id == plan.id }) else {
+                return
+            }
+
+            isPlacingOrder = true
+
+            runTask(in: self) { @MainActor viewModel in
+                do throws(TangemPayOnboardingOrderError) {
+                    try await start(transition)
+                    viewModel.coordinator?.planDidActivate()
+                } catch {
+                    viewModel.isPlacingOrder = false
+                    viewModel.handleOnboardingOrderError(error)
+                }
+            }
 
         case .onboarding:
             guard let transitionType = plan.transitionType else {
@@ -131,6 +163,20 @@ final class TangemPaySelectPlanViewModel: ObservableObject {
 }
 
 private extension TangemPaySelectPlanViewModel {
+    func handleOnboardingOrderError(_ error: TangemPayOnboardingOrderError) {
+        switch error {
+        case .cancelled:
+            break
+        case .alreadyOnboarded, .notEligible:
+            close()
+        case .failed:
+            alert = AlertBinder(
+                title: Localization.commonError,
+                message: Localization.commonUnknownError
+            )
+        }
+    }
+
     func apply(transitions: TangemPayTariffPlanTransitionsResponse) {
         self.transitions = transitions
 
@@ -196,6 +242,7 @@ private extension TangemPaySelectPlanViewModel {
 extension TangemPaySelectPlanViewModel {
     enum Mode {
         case onboarding
+        case createOnboardingOrder(signingType: SigningActionButtonViewType?, start: TangemPayPlaceOnboardingOrderAction)
         case planChange(onProceedToConfirm: TangemPayProceedToConfirmAction)
     }
 

@@ -105,6 +105,17 @@ public extension TokenRow {
             onTap: () -> Void
         )
 
+        case network(
+            icon: Icon,
+            title: String,
+            titleAccessory: TokenRowTitleAccessory.Model?,
+            network: String,
+            balance: Balance,
+            indicator: BalanceIndicator?,
+            bubble: TokenRowMessageBubble.Model?,
+            onTap: () -> Void
+        )
+
         case compact(
             icon: Icon,
             title: String,

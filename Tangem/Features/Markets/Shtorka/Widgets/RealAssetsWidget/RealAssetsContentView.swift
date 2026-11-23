@@ -154,7 +154,7 @@ struct RealAssetsContentView: View {
     private var list: some View {
         switch viewModel.listContentState {
         case .failure:
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.tryLoadAgain)
+            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: viewModel.tryLoadAgain)
                 .infinityFrame(axis: .horizontal, alignment: .center)
                 .padding(.vertical, Layout.stateVerticalPadding)
 

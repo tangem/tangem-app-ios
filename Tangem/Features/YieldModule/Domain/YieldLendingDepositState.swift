@@ -12,10 +12,8 @@ import TangemFoundation
 enum YieldLendingDepositState: Equatable {
     case loading
     case failedToLoad
-    case temporarilyUnavailable
     case deployModule
     case unsupportedModule
-    case depositsPaused
     case activateToken(TokenActivation)
     case depositAvailable(withUpgrade: Bool)
 
@@ -25,12 +23,12 @@ enum YieldLendingDepositState: Equatable {
     }
 
     enum Module {
-        case notDeployed(isFactoryPaused: Bool)
+        case notDeployed
         case deployed(nativeSupport: NativeSupport, token: YieldModuleSmartContractState.InitializationState)
     }
 
     enum NativeSupport: Equatable {
-        case supported(isEntrySuspended: Bool)
+        case supported
         case afterUpgrade
         case unavailable
     }
@@ -41,14 +39,10 @@ enum YieldLendingDepositState: Equatable {
             return .loading
         case .failure:
             return .failedToLoad
-        case .success(.notDeployed(isFactoryPaused: true)):
-            return .temporarilyUnavailable
-        case .success(.notDeployed(isFactoryPaused: false)):
+        case .success(.notDeployed):
             return .deployModule
         case .success(.deployed(.unavailable, _)):
             return .unsupportedModule
-        case .success(.deployed(.supported(isEntrySuspended: true), _)):
-            return .depositsPaused
         case .success(.deployed(_, .notInitialized)):
             return .activateToken(.initialize)
         case .success(.deployed(_, .initialized(.notActive))):

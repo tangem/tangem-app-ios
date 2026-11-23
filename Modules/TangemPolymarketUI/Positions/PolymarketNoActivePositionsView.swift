@@ -47,6 +47,41 @@ public struct PolymarketNoActivePositionsView: View {
     }
 }
 
+// MARK: - Skeleton
+
+struct PolymarketNoActivePositionsSkeleton: View {
+    private typealias Constants = PolymarketNoActivePositionsView.Constants
+
+    var body: some View {
+        VStack(spacing: Constants.spacing) {
+            Shimmer()
+                .frame(width: Constants.iconContainerSide, height: Constants.iconContainerSide)
+                .clipShape(Circle())
+
+            VStack(spacing: 0) {
+                line(Constants.title)
+
+                line(Constants.subtitle)
+            }
+            .multilineTextAlignment(.center)
+        }
+        .padding(.vertical, Constants.verticalPadding)
+        .frame(maxWidth: .infinity)
+        .background(
+            DesignSystem.Color.bgSecondary,
+            in: RoundedRectangle(cornerRadius: Constants.cornerRadius, style: .continuous)
+        )
+    }
+
+    private func line(_ text: String) -> some View {
+        Text(text)
+            .style(DesignSystem.Font.captionMediumToken, color: DesignSystem.Color.textPrimary)
+            .hidden()
+            .frame(maxWidth: .infinity)
+            .overlay { Shimmer().variant(.text(style: .caption, alignment: .center)) }
+    }
+}
+
 // MARK: - Constants
 
 private extension PolymarketNoActivePositionsView {

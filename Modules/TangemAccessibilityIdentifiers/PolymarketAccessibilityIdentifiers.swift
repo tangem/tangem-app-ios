@@ -11,6 +11,17 @@ import Foundation
 public enum PolymarketAccessibilityIdentifiers {
     private static let prefix = "polymarket"
 
+    public static let feedWidget = "\(prefix)FeedWidget"
+
+    public static let onboardingTitle = "\(prefix)OnboardingTitle"
+    public static let onboardingActionButton = "\(prefix)OnboardingActionButton"
+
+    public static let mainScreenTitle = "\(prefix)MainScreenTitle"
+    public static let overflowMenuButton = "\(prefix)OverflowMenuButton"
+
+    public static let regionRestrictionBanner = "\(prefix)RegionRestrictionBanner"
+    public static let regionRestrictionSheet = "\(prefix)RegionRestrictionSheet"
+
     // MARK: - Add funds flow
 
     public static let addFundsButton = "\(prefix)AddFundsButton"

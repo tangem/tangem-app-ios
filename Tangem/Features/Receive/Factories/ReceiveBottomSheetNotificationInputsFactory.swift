@@ -154,6 +154,10 @@ struct ReceiveBottomSheetNotificationInputsFactory {
              (_, .arc),
              (_, .publicMasterpiece),
              (_, .onyx),
+             (_, .zeniq),
+             (_, .katana),
+             (_, .xLayer),
+             (_, .ink),
              (_, .seiEvm):
             // No additional notifications for these blockchains
             return baseNotificationInputs

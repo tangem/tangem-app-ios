@@ -32,4 +32,12 @@ public enum BackendAuthenticationDebugAssembly {
             logger: logger
         )
     }
+
+    public static func resetAll() async {
+        await BackendAuthenticationDebugService(
+            dependencies: BackendAuthenticationAssembly.debugDependencies,
+            dateProvider: Date.now
+        )
+        .resetAll()
+    }
 }

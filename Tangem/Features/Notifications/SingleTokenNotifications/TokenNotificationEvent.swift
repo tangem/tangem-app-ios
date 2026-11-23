@@ -141,7 +141,7 @@ extension TokenNotificationEvent: NotificationEvent {
         case .notEnoughFeeForTransaction(let configuration):
             return Localization.warningSendBlockedFundsForFeeMessage(
                 configuration.transactionAmountTypeName,
-                configuration.networkName,
+                configuration.networkName.droppingNetworkSuffix,
                 configuration.transactionAmountTypeName,
                 configuration.feeAmountTypeName,
                 configuration.feeAmountTypeCurrencySymbol
@@ -316,8 +316,6 @@ extension TokenNotificationEvent: NotificationEvent {
 // MARK: - Auxiliary types
 
 extension TokenNotificationEvent {
-    typealias NotEnoughFeeConfiguration = SendingRestrictions.NotEnoughFeeConfiguration
-
     enum UnfulfilledRequirementsConfiguration: Hashable {
         /// `formattedValue` is a formatted string for the value denominated in HBARs.
         struct HederaTokenAssociationFee: Hashable {

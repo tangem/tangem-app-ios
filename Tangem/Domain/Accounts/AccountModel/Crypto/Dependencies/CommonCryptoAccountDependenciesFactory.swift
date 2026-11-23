@@ -85,23 +85,20 @@ extension CommonCryptoAccountDependenciesFactory: CryptoAccountDependenciesFacto
             derivationPathBuilder: derivationPathBuilder
         )
 
-        // A single instance per unique account, account-specific proxy for `derivationManager`
-        let accountSpecificDerivationManager = derivationManager.map { innerDerivationManager in
-            return AccountDerivationManager(
-                keysRepository: keysRepository,
-                userTokensManager: userTokensManager,
-                innerDerivationManager: innerDerivationManager
-            )
-        }
+        let pendingDerivationProvider = CryptoAccountPendingDerivationProvider(
+            userTokensManager: userTokensManager,
+            keysRepository: keysRepository,
+            isDerivationSupported: derivationManager != nil
+        )
 
-        userTokensManager.derivationManager = accountSpecificDerivationManager
+        userTokensManager.derivationManager = derivationManager
         userTokensManager.walletModelsManager = walletModelsManager
 
         return CryptoAccountDependencies(
             userTokensManager: userTokensManager,
             walletModelsManager: walletModelsManager,
             walletModelsFactoryInput: wrappedWalletModelsFactory,
-            derivationManager: accountSpecificDerivationManager,
+            pendingDerivationProvider: pendingDerivationProvider,
         )
     }
 }

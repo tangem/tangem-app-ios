@@ -19,7 +19,7 @@ struct PendingExpressTxIdCopyButtonViewModel {
         UIPasteboard.general.string = transactionID
 
         let toastView = SuccessToast(text: Localization.expressTransactionIdCopied)
-        Toast(view: toastView).present(layout: .top(padding: 14), type: .temporary())
+        LegacyToast(view: toastView).present(layout: .top(padding: 14), type: .temporary())
     }
 }
 

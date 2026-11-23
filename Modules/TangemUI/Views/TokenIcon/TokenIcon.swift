@@ -29,18 +29,11 @@ public struct TokenIcon: View {
     private let customTokenIndicatorBorderWidth: CGFloat = 2
     private let customTokenIconSizeRatio = 0.54
 
-    @Environment(\.isRedesign) private var isRedesign
-    @ScaledMetric private var redesignedNetworkIconSide: CGFloat = 32
-
     private var customTokenIndicatorBorderSize: CGSize {
         customTokenIndicatorSize + CGSize(width: 2 * customTokenIndicatorBorderWidth, height: 2 * customTokenIndicatorBorderWidth)
     }
 
-    private var networkIconSize: CGSize {
-        isRedesign
-            ? CGSize(bothDimensions: redesignedNetworkIconSide)
-            : CGSize(bothDimensions: 14.0)
-    }
+    private let networkIconSize = CGSize(bothDimensions: 14.0)
 
     public var body: some View {
         if let customTokenColor {

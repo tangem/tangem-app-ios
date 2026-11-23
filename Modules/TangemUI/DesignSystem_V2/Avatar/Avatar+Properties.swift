@@ -20,17 +20,31 @@ public extension Avatar {
     }
 
     enum Content {
-        case icon(ImageType, appearance: IconAppearance = .neutral)
+        case icon(ImageType, appearance: IconAppearance = .neutral, shape: Shape = .circle)
         case transaction(TransactionKind, status: TransactionStatus)
         case user(User)
         case address(Image?)
-        case asset(Image)
-        case account(ImageType, fill: Color)
+        case asset(Image, shape: Shape = .circle)
+        case account(Account, hasIndicator: Bool = false)
+    }
+
+    enum Shape: CaseIterable, Hashable, Sendable {
+        case circle
+        case roundedSquare
     }
 
     enum User {
         case initial(String, fill: Color)
         case fallback
+    }
+
+    enum Account {
+        case icon(ImageType, fill: Color)
+        case letter(String, fill: Color)
+        case prediction
+        case gacha
+        case visa
+        case money
     }
 
     enum IconAppearance: CaseIterable, Hashable, Sendable {
@@ -49,6 +63,7 @@ public extension Avatar {
         case staking
         case delivery
         case pack
+        case fee
     }
 
     enum TransactionStatus: CaseIterable, Hashable, Sendable {
@@ -62,14 +77,29 @@ public extension Avatar {
 // MARK: - Content
 
 extension Avatar.Content {
-    var isAccount: Bool {
-        if case .account = self { true } else { false }
+    var shape: Avatar.Shape {
+        switch self {
+        case .icon(_, _, let shape), .asset(_, let shape): shape
+        case .account: .roundedSquare
+        case .transaction, .user, .address: .circle
+        }
     }
 
-    var hasHighlight: Bool {
+    var hasIndicator: Bool {
+        if case .account(_, hasIndicator: true) = self { true } else { false }
+    }
+}
+
+// MARK: - Account
+
+extension Avatar.Account {
+    var fill: Color {
         switch self {
-        case .user(.initial), .account: true
-        case .icon, .transaction, .user(.fallback), .address, .asset: false
+        case .icon(_, let fill), .letter(_, let fill): fill
+        case .prediction: DesignSystem.Color.bgAccentViolet
+        case .gacha: DesignSystem.Color.bgAccentYellow
+        case .visa: DesignSystem.Colors.accountVisa
+        case .money: DesignSystem.Color.bgAccentGreen
         }
     }
 }
@@ -79,10 +109,10 @@ extension Avatar.Content {
 extension Avatar.Size {
     var metrics: Avatar.Metrics {
         switch self {
-        case .size16: Avatar.Metrics(side: 16, glyph: 12, accountCornerRadius: 4)
-        case .size40: Avatar.Metrics(side: 40, glyph: 20, accountCornerRadius: 12)
-        case .size44: Avatar.Metrics(side: 44, glyph: 20, accountCornerRadius: 12)
-        case .size72: Avatar.Metrics(side: 72, glyph: 32, accountCornerRadius: 20)
+        case .size16: Avatar.Metrics(side: 16, glyph: 12, cornerRadius: 4, indicator: nil)
+        case .size40: Avatar.Metrics(side: 40, glyph: 20, cornerRadius: 12, indicator: Avatar.Indicator(side: 12, gap: 1, overhang: 1))
+        case .size44: Avatar.Metrics(side: 44, glyph: 20, cornerRadius: 12, indicator: Avatar.Indicator(side: 12, gap: 1, overhang: 1))
+        case .size72: Avatar.Metrics(side: 72, glyph: 28, cornerRadius: 20, indicator: Avatar.Indicator(side: 12, gap: 1, overhang: 0))
         }
     }
 
@@ -98,7 +128,7 @@ extension Avatar.Size {
         Avatar.Glyph(
             small: DesignSystem.Icons.User.regular12,
             medium: DesignSystem.Icons.User.regular20,
-            large: DesignSystem.Icons.User.regular32
+            large: DesignSystem.Icons.User.regular28
         )[self]
     }
 }
@@ -158,43 +188,49 @@ extension Avatar.TransactionKind {
             Avatar.Glyph(
                 small: Icons.ArrowUp.regular12,
                 medium: Icons.ArrowUp.regular20,
-                large: Icons.ArrowUp.regular32
+                large: Icons.ArrowUp.regular28
             )
         case .receive:
             Avatar.Glyph(
                 small: Icons.ArrowDown.regular12,
                 medium: Icons.ArrowDown.regular20,
-                large: Icons.ArrowDown.regular32
+                large: Icons.ArrowDown.regular28
             )
         case .swap:
             Avatar.Glyph(
                 small: Icons.ArrowSwapHorizontal.regular12,
                 medium: Icons.ArrowSwapHorizontal.regular20,
-                large: Icons.ArrowSwapHorizontal.regular32
+                large: Icons.ArrowSwapHorizontal.regular28
             )
         case .topUp:
             Avatar.Glyph(
                 small: Icons.Card.regular12,
                 medium: Icons.Card.regular20,
-                large: Icons.Card.regular32
+                large: Icons.Card.regular28
             )
         case .staking:
             Avatar.Glyph(
                 small: Icons.Stack.regular12,
                 medium: Icons.Stack.regular20,
-                large: Icons.Stack.regular32
+                large: Icons.Stack.regular28
             )
         case .delivery:
             Avatar.Glyph(
                 small: Icons.Box.regular12,
                 medium: Icons.Box.regular20,
-                large: Icons.Box.regular32
+                large: Icons.Box.regular28
             )
         case .pack:
             Avatar.Glyph(
                 small: Icons.CardsStar.regular12,
                 medium: Icons.CardsStar.regular20,
-                large: Icons.CardsStar.regular32
+                large: Icons.CardsStar.regular28
+            )
+        case .fee:
+            Avatar.Glyph(
+                small: Icons.Percent.regular12,
+                medium: Icons.Percent.regular20,
+                large: Icons.Percent.regular28
             )
         }
     }
@@ -224,18 +260,36 @@ extension Avatar {
 
 extension Avatar {
     struct Metrics {
-        static let highlightOpacity: Double = 0.2
-
         let side: CGFloat
         let glyph: CGFloat
-        let accountCornerRadius: CGFloat
+        let cornerRadius: CGFloat
+        let indicator: Indicator?
 
         func scaled(by factor: CGFloat) -> Metrics {
             Metrics(
                 side: side * factor,
                 glyph: glyph * factor,
-                accountCornerRadius: accountCornerRadius * factor
+                cornerRadius: cornerRadius * factor,
+                indicator: indicator?.scaled(by: factor)
             )
+        }
+    }
+
+    struct Indicator {
+        let side: CGFloat
+        let gap: CGFloat
+        let overhang: CGFloat
+
+        var cutOutDiameter: CGFloat {
+            side + gap * 2
+        }
+
+        var cutOutOverhang: CGFloat {
+            overhang + gap
+        }
+
+        func scaled(by factor: CGFloat) -> Indicator {
+            Indicator(side: side * factor, gap: gap * factor, overhang: overhang * factor)
         }
     }
 }

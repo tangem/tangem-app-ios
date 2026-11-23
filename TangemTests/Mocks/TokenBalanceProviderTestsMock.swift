@@ -11,16 +11,16 @@ import Combine
 @testable import Tangem
 
 final class TokenBalanceProviderTestsMock: TokenBalanceProvider {
-    private let balance: Decimal
+    let balanceType: TokenBalanceType
     private let formatted: String
 
-    init(balance: Decimal, formatted: String = "") {
-        self.balance = balance
+    init(balanceType: TokenBalanceType, formatted: String = "") {
+        self.balanceType = balanceType
         self.formatted = formatted
     }
 
-    var balanceType: TokenBalanceType {
-        .loaded(balance)
+    convenience init(balance: Decimal, formatted: String = "") {
+        self.init(balanceType: .loaded(balance), formatted: formatted)
     }
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {

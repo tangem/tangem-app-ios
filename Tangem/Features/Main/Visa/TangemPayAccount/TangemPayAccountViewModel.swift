@@ -18,6 +18,7 @@ protocol TangemPayAccountRoutable: AnyObject {
     func openTangemPayKYCDeclinedPopup(tangemPayKYCInteractor: TangemPayKYCInteractor)
     func openTangemPayMainView(tangemPayAccount: TangemPayAccount)
     func openTangemPaySelectPlan(tariffPlanSelector: any TangemPayTariffPlanSelector)
+    func openTangemPayVerified(interactor: any TangemPayUnifiedOnboardingInteractor)
     func openTangemPayResidency(interactor: any TangemPayResidencyInteractor)
     func openTangemPayRegionUnavailablePopup(region: TangemPayUnavailableRegion, interactor: any TangemPayResidencyInteractor)
 }
@@ -73,7 +74,9 @@ final class TangemPayAccountViewModel: ObservableObject {
             router?.openTangemPayMainView(tangemPayAccount: tangemPayAccount)
         case .planSelectNeeded(let tariffPlanSelector):
             router?.openTangemPaySelectPlan(tariffPlanSelector: tariffPlanSelector)
-        case .verified, .cardNotOpened:
+        case .verified(let interactor):
+            router?.openTangemPayVerified(interactor: interactor)
+        case .cardNotOpened:
             break
         }
     }

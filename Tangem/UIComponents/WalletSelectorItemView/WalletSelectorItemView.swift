@@ -75,30 +75,7 @@ struct WalletSelectorItemView: View {
     }
 
     private var icon: some View {
-        image
-            .frame(width: 36, height: 36)
-            .shimmerPlaceholder(
-                viewModel.icon.isLoading,
-                variant: .custom(width: 36, height: 22, cornerRadius: 3)
-            )
-    }
-
-    @ViewBuilder
-    private var image: some View {
-        switch viewModel.icon {
-        case .loading:
-            Color.clear
-
-        case .success(let image):
-            image.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-
-        case .failure:
-            Assets.Onboarding.darkCard.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-        }
+        UserWalletIconView(icon: viewModel.icon, size: 36)
     }
 }
 

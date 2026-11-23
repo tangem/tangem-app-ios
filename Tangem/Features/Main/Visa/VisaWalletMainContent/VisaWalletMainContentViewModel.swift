@@ -176,7 +176,7 @@ class VisaWalletMainContentViewModel: ObservableObject {
         UIPasteboard.general.string = accountAddress
         let heavyImpaceGenerator = UIImpactFeedbackGenerator(style: .heavy)
         heavyImpaceGenerator.impactOccurred()
-        Toast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
+        LegacyToast(view: SuccessToast(text: Localization.walletNotificationAddressCopied))
             .present(
                 layout: .top(padding: 12),
                 type: .temporary()

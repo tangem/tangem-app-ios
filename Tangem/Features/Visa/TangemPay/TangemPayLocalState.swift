@@ -101,6 +101,17 @@ extension TangemPayLocalState {
         return false
     }
 
+    var showsCachedData: Bool {
+        switch self {
+        case .syncNeeded, .syncInProgress, .unavailable:
+            return true
+        case .loading, .kycRequired, .residencyRequired, .regionUnavailable,
+             .kycDeclined, .failedToIssueCard, .tangemPayAccount, .cardDeactivated,
+             .planSelectNeeded, .verified, .cardNotOpened:
+            return false
+        }
+    }
+
     var indicatesStaleData: Bool {
         switch self {
         case .unavailable, .syncNeeded:

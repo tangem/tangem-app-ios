@@ -12,6 +12,7 @@ public typealias ExpressFeeProvider = FeeProvider
 
 public protocol FeeProvider {
     var supportsGasBasedFeeEstimate: Bool { get }
+    var isFeeSponsored: Bool { get }
 
     func feeCurrency() -> ExpressWalletCurrency
     func feeCurrencyBalance() throws -> Decimal
@@ -29,6 +30,8 @@ public protocol FeeProvider {
 }
 
 public extension FeeProvider {
+    var isFeeSponsored: Bool { false }
+
     func isFeeCurrency(source: ExpressWalletCurrency) -> Bool {
         source == feeCurrency()
     }

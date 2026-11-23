@@ -12,27 +12,43 @@ import TangemFoundation
 @testable import Tangem
 
 final class JointAccountPendingOperationsSynchronizerStub: JointAccountPendingOperationsSynchronizer {
-    private let pendingOperationsSubject: CurrentValueSubject<[StoredJointAccountPendingOperations], Never>
+    private let pendingOperationsSubject: CurrentValueSubject<[JointAccountOperations], Never>
+    private let storedOperationsSubject: CurrentValueSubject<[JointAccountOperation], Never>
     private let appliedUpdatesLock = OSAllocatedUnfairLock<[JointAccountPendingOperationsUpdate]>(initialState: [])
 
     var appliedUpdates: [JointAccountPendingOperationsUpdate] {
         appliedUpdatesLock.withLock { $0 }
     }
 
-    init(pendingOperations: [StoredJointAccountPendingOperations] = []) {
+    init(pendingOperations: [JointAccountOperations] = []) {
         pendingOperationsSubject = CurrentValueSubject(pendingOperations)
+        storedOperationsSubject = CurrentValueSubject(pendingOperations.flatMap(\.operations))
     }
 
-    func store(pendingOperations: [StoredJointAccountPendingOperations]) {
+    func store(pendingOperations: [JointAccountOperations]) {
+        store(operations: pendingOperations.flatMap(\.operations))
         pendingOperationsSubject.send(pendingOperations)
     }
 
-    var operations: [StoredJointAccountPendingOperations] {
+    func store(operations: [JointAccountOperation]) {
+        let operationIds = operations.map(\.id).toSet()
+        let kept = storedOperationsSubject.value.filter { !operationIds.contains($0.id) }
+        storedOperationsSubject.send(kept + operations)
+    }
+
+    var pendingOperations: [JointAccountOperations] {
         pendingOperationsSubject.value
     }
 
-    var operationsPublisher: AnyPublisher<[StoredJointAccountPendingOperations], Never> {
+    var pendingOperationsPublisher: AnyPublisher<[JointAccountOperations], Never> {
         pendingOperationsSubject.eraseToAnyPublisher()
+    }
+
+    func operationPublisher(id: String) -> AnyPublisher<JointAccountOperation?, Never> {
+        storedOperationsSubject
+            .map { $0.first { $0.id == id } }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     var checkpoint: JointAccountPendingOperationsCheckpoint {
@@ -51,7 +67,7 @@ final class JointAccountPendingOperationsSynchronizerStub: JointAccountPendingOp
         try apply(.operationRefreshed(operation, cryptoAccountId: cryptoAccountId))
     }
 
-    func apply(listing: [StoredJointAccountPendingOperations], requestedAt checkpoint: JointAccountPendingOperationsCheckpoint) throws {
+    func apply(listing: [JointAccountOperations], requestedAt checkpoint: JointAccountPendingOperationsCheckpoint) throws {
         throw "Not called by these tests"
     }
 }

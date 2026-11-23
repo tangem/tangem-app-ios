@@ -254,13 +254,12 @@ private extension CommonJointAccountsRepository {
         JointAccountsLogger.debug("Accounts: \(remoteJointAccounts)")
 
         let accounts = remoteJointAccounts.map(StoredJointAccount.init(remote:))
-        let pendingOperations = remoteJointAccounts.compactMap(StoredJointAccountPendingOperations.init(remote:))
+        let pendingOperations = remoteJointAccounts.compactMap(JointAccountOperations.init(remote:))
 
         eTagStorage.clearETag(for: eTagKey)
 
-        // The operations go first, so that an account arriving in the list finds what is in flight for it already there
-        try await pendingOperationsSynchronizer.apply(listing: pendingOperations, requestedAt: pendingOperationsCheckpoint)
         try persistentStorage.replace(with: accounts)
+        try await pendingOperationsSynchronizer.apply(listing: pendingOperations, requestedAt: pendingOperationsCheckpoint)
 
         let hasLocalWritesSinceRequest = await pendingOperationsSynchronizer.checkpoint != pendingOperationsCheckpoint
 

@@ -16,12 +16,19 @@ struct PolymarketOnboardingFactory {
 
     func makeWelcomeViewModel(
         for userWalletModel: any UserWalletModel,
+        fastTrading: PolymarketFastTradingContext?,
         coordinator: PolymarketWelcomeRoutable
     ) -> PolymarketWelcomeViewModel {
-        PolymarketWelcomeViewModel(
-            interactor: makeInteractor(for: userWalletModel),
-            hasExistingAccount: hasExistingAccount(for: userWalletModel),
+        let hasExistingAccount = hasExistingAccount(for: userWalletModel)
+        let onboardingFastTrading = hasExistingAccount ? nil : fastTrading.map { fastTrading in
+            PolymarketSessionKeyFactory().makeOnboardingFastTrading(for: userWalletModel, service: fastTrading.service)
+        }
+
+        return PolymarketWelcomeViewModel(
+            interactor: makeInteractor(for: userWalletModel, fastTrading: onboardingFastTrading),
+            hasExistingAccount: hasExistingAccount,
             signingButtonType: SigningActionButtonViewTypeBuilder().build(config: userWalletModel.config),
+            fastTrading: onboardingFastTrading,
             coordinator: coordinator
         )
     }
@@ -32,7 +39,10 @@ struct PolymarketOnboardingFactory {
         return state == .syncNeeded || presenceStore.hasAccount(userWalletId: userWalletModel.userWalletId)
     }
 
-    func makeInteractor(for userWalletModel: any UserWalletModel) -> PolymarketOnboardingInteractor {
+    func makeInteractor(
+        for userWalletModel: any UserWalletModel,
+        fastTrading: PolymarketOnboardingFastTrading?
+    ) -> PolymarketOnboardingInteractor {
         CommonPolymarketOnboardingInteractor(
             userWalletId: userWalletModel.userWalletId,
             hasExistingAccount: { hasExistingAccount(for: userWalletModel) },
@@ -47,7 +57,9 @@ struct PolymarketOnboardingFactory {
             walletService: services.makeWalletService(walletId: userWalletModel.userWalletId.stringValue),
             relayerService: services.makeRelayerService(),
             clobService: services.makeCLOBService(),
-            serverClock: InjectedValues[\.polymarketServerClock]
+            serverClock: InjectedValues[\.polymarketServerClock],
+            fastTrading: fastTrading,
+            operationSlot: PolymarketSessionKeyFactory.isFastTradingAvailable() ? PolymarketWalletOperationSlot(userWalletId: userWalletModel.userWalletId) : nil
         )
     }
 }

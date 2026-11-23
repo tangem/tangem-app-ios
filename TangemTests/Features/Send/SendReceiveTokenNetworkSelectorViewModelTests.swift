@@ -306,16 +306,12 @@ private actor SwapRepositoryConfigurableStub: SwapRepository {
         updatePairsCalled = true
     }
 
-    func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] {
+    func getPairs(from wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async -> [ExpressPair] {
         if pairsAvailableOnlyAfterUpdate, !updatePairsCalled {
             return []
         }
 
         return pairsToReturn.filter { $0.source == wallet.asCurrency }
-    }
-
-    func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] {
-        pairsToReturn.filter { $0.destination == wallet.asCurrency }
     }
 
     func providers(userWalletInfo: UserWalletInfo) async throws -> [ExpressProvider] {

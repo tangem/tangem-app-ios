@@ -132,6 +132,10 @@ extension CommonJointAccountModel: JointAccountModel {
         cryptoAccount.userTokensManager
     }
 
+    var pendingDerivationProvider: AccountPendingDerivationProvider {
+        cryptoAccount.pendingDerivationProvider
+    }
+
     func analyticsParameters(with builder: AccountsAnalyticsBuilder) -> [Analytics.ParameterKey: String] {
         cryptoAccount.analyticsParameters(with: builder)
     }

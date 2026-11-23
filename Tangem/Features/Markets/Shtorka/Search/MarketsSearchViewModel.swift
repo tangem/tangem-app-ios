@@ -13,11 +13,11 @@ import CombineExt
 import struct TangemUIUtils.AlertBinder
 
 final class MarketsSearchViewModel: ObservableObject {
-    private typealias SearchInput = MainBottomSheetHeaderViewModel.SearchInput
+    private typealias SearchInput = MarketsSearchHeaderViewModel.SearchInput
 
     // MARK: - Published Properties
 
-    @Published private(set) var headerViewModel: MainBottomSheetHeaderViewModel
+    @Published private(set) var headerViewModel: MarketsSearchHeaderViewModel
     @Published private(set) var marketsRatingHeaderViewModel: MarketsRatingHeaderViewModel
     @Published private(set) var tokenListViewModel: MarketsTokenListViewModel
     @Published private(set) var isSearching: Bool = false
@@ -28,7 +28,7 @@ final class MarketsSearchViewModel: ObservableObject {
     private weak var coordinator: MarketsRoutable?
 
     private let filterProvider: MarketsListDataFilterProvider
-    private let dataProvider = MarketsListDataProvider()
+    private let dataProvider: MarketsListDataProvider
     private let chartsHistoryProvider = MarketsListChartsHistoryProvider()
     private let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
     private let quotesUpdatesScheduler = MarketsQuotesUpdatesScheduler()
@@ -40,13 +40,32 @@ final class MarketsSearchViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(
+    convenience init(
         initialOrderType: MarketsListOrderType?,
         initialIntervalType: MarketsPriceIntervalType?,
         quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
         coordinator: MarketsRoutable
     ) {
+        self.init(
+            initialOrderType: initialOrderType,
+            initialIntervalType: initialIntervalType,
+            quotesRepositoryUpdateHelper: quotesRepositoryUpdateHelper,
+            coordinator: coordinator,
+            dataProvider: MarketsListDataProvider(),
+            searchInputScheduler: DispatchQueue.main
+        )
+    }
+
+    init(
+        initialOrderType: MarketsListOrderType?,
+        initialIntervalType: MarketsPriceIntervalType?,
+        quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper,
+        coordinator: MarketsRoutable,
+        dataProvider: MarketsListDataProvider,
+        searchInputScheduler: some Scheduler
+    ) {
         self.quotesRepositoryUpdateHelper = quotesRepositoryUpdateHelper
+        self.dataProvider = dataProvider
         self.coordinator = coordinator
 
         filterProvider = MarketsListDataFilterProvider(
@@ -60,7 +79,7 @@ final class MarketsSearchViewModel: ObservableObject {
             notationFormatter: DefaultAmountNotationFormatter()
         )
 
-        headerViewModel = MainBottomSheetHeaderViewModel()
+        headerViewModel = MarketsSearchHeaderViewModel()
         marketsRatingHeaderViewModel = MarketsRatingHeaderViewModel(provider: filterProvider)
 
         tokenListViewModel = MarketsTokenListViewModel(
@@ -74,7 +93,7 @@ final class MarketsSearchViewModel: ObservableObject {
 
         bindChildViewModels()
 
-        searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher)
+        searchTextBind(publisher: headerViewModel.enteredSearchInputPublisher, scheduler: searchInputScheduler)
         searchFilterBind(filterPublisher: filterProvider.filterPublisher)
 
         searchFocusBind()
@@ -124,10 +143,13 @@ private extension MarketsSearchViewModel {
             .store(in: &bag)
     }
 
-    private func searchTextBind(publisher: some Publisher<SearchInput, Never>) {
+    private func searchTextBind(publisher: some Publisher<SearchInput, Never>, scheduler: some Scheduler) {
         publisher
             .dropFirst()
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .debounce(for: .seconds(Constants.searchInputDebounceInterval), scheduler: scheduler)
+            .filter { searchInput in
+                if case .textInput = searchInput { true } else { false }
+            }
             // Ensure that clear and cancel input events will be delivered immediately
             .merge(with: publisher.filter { $0 == .clearInput || $0 == .cancelInput })
             .removeDuplicates { lhs, rhs in
@@ -204,6 +226,7 @@ private extension MarketsSearchViewModel {
 
 private extension MarketsSearchViewModel {
     enum Constants {
+        static let searchInputDebounceInterval: Double = 0.5
         static let filterRequiredReloadInterval: Set<MarketsListOrderType> = [.buyers, .gainers, .losers]
     }
 }

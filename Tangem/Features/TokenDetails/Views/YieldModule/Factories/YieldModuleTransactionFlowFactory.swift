@@ -68,6 +68,7 @@ final class YieldModuleTransactionFlowFactory {
             coordinator: coordinator,
             claimInteractor: claimInteractor,
             notificationManager: YieldModuleNotificationManager(tokenItem: walletModel.tokenItem, feeTokenItem: walletModel.feeTokenItem),
+            logger: logger,
             signingActionButtonType: signingActionButtonType
         )
     }

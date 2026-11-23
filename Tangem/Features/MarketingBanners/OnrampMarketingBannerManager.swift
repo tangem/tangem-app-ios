@@ -28,10 +28,15 @@ final class OnrampMarketingBannerManager {
     private let standaloneBannersSubject = CurrentValueSubject<[StandaloneMarketingBannerViewModel], Never>([])
     private let callToActionBannersSubject = CurrentValueSubject<[CallToActionMarketingBanner], Never>([])
     private let linkedBannersSubject = CurrentValueSubject<[MarketingBanner], Never>([])
+    private let moneyAccountStatePublisher: AnyPublisher<TangemPayMoneyAccountState?, Never>
     private var subscription: AnyCancellable?
 
-    init(userWalletId: UserWalletId) {
+    init(
+        userWalletId: UserWalletId,
+        moneyAccountStatePublisher: AnyPublisher<TangemPayMoneyAccountState?, Never>
+    ) {
         self.userWalletId = userWalletId
+        self.moneyAccountStatePublisher = moneyAccountStatePublisher
         conciergeWaitlistBannerFilter = ConciergeWaitlistBannerFilter(userWalletId: userWalletId)
     }
 }
@@ -107,11 +112,25 @@ private extension OnrampMarketingBannerManager {
 
 extension OnrampMarketingBannerManager {
     var callToActionBannersPublisher: AnyPublisher<[CallToActionMarketingBanner], Never> {
-        conciergeWaitlistBannerFilter
-            .filter(callToActionBannersSubject.eraseToAnyPublisher())
-            .receiveOnMain()
-            .removeDuplicates()
-            .eraseToAnyPublisher()
+        guard FeatureProvider.isAvailable(.onrampImprovements) else {
+            return conciergeWaitlistBannerFilter
+                .filter(callToActionBannersSubject.eraseToAnyPublisher())
+                .map { banners in
+                    banners.filter { !MoneyAccountBannerButtonTitle.isMoneyAccountLink($0.link) }
+                }
+                .receiveOnMain()
+                .removeDuplicates()
+                .eraseToAnyPublisher()
+        }
+
+        return Publishers.CombineLatest(
+            conciergeWaitlistBannerFilter.filter(callToActionBannersSubject.eraseToAnyPublisher()),
+            moneyAccountStatePublisher.prepend(nil)
+        )
+        .map { MoneyAccountBannerButtonTitle.applying(to: $0, moneyAccountState: $1) }
+        .receiveOnMain()
+        .removeDuplicates()
+        .eraseToAnyPublisher()
     }
 
     func perform(_ action: CallToActionMarketingBannerAction) {

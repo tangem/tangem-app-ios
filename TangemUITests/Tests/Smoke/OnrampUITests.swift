@@ -19,7 +19,7 @@ final class OnrampUITests: BaseTestCase {
         let expectedCurrency = "€"
         let expectedTitle = "Buy \(token)"
 
-        launchApp(tangemApiType: .mock, expressApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, featureToggles: OnrampUITestsFeatureToggles.improvements)
 
         try CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -38,7 +38,7 @@ final class OnrampUITests: BaseTestCase {
 
     func testGoOnramp_validateProvidersScreen() {
         setAllureId(2570)
-        launchApp(tangemApiType: .mock, expressApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, featureToggles: OnrampUITestsFeatureToggles.improvements)
 
         let providersAfterSelection = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -64,7 +64,7 @@ final class OnrampUITests: BaseTestCase {
         let newCurrency = "USD"
         let newCurrencySymbol = "$"
 
-        launchApp(tangemApiType: .mock, expressApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, featureToggles: OnrampUITestsFeatureToggles.improvements)
 
         try CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -87,7 +87,7 @@ final class OnrampUITests: BaseTestCase {
         setAllureId(2563)
         let countryToSelect = "United States of America"
 
-        launchApp(tangemApiType: .mock, expressApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, featureToggles: OnrampUITestsFeatureToggles.improvements)
 
         try CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -112,7 +112,7 @@ final class OnrampUITests: BaseTestCase {
         setAllureId(3479)
         let amountToEnter = "100"
 
-        launchApp(tangemApiType: .mock, expressApiType: .mock)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, featureToggles: OnrampUITestsFeatureToggles.improvements)
 
         let providersScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -144,6 +144,7 @@ final class OnrampUITests: BaseTestCase {
         launchApp(
             tangemApiType: .mock,
             expressApiType: .mock,
+            featureToggles: OnrampUITestsFeatureToggles.improvements,
             scenarios: [errorScenario]
         )
 

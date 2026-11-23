@@ -38,6 +38,7 @@ enum UITestsStorageCleaner {
         }
 
         clearTangemPayState()
+        clearPolymarketState()
         clearSwapTokenSelectorState()
         clearAppSettingsState()
 
@@ -85,6 +86,15 @@ enum UITestsStorageCleaner {
         AppSettings.shared.tangemPayCachedCashbackSummary = [:]
         AppSettings.shared.tangemPayCashbackBlockedBannerDismissedForCustomerWalletId = [:]
         AppLogger.info("Tangem Pay state cleared for UI tests")
+        #endif
+    }
+
+    private static func clearPolymarketState() {
+        #if DEBUG
+        AppSettings.shared.polymarketHasAccount = [:]
+        AppSettings.shared.polymarketHadPositions = [:]
+        AppSettings.shared.polymarketShownPositionsCount = [:]
+        AppLogger.info("Polymarket state cleared for UI tests")
         #endif
     }
 

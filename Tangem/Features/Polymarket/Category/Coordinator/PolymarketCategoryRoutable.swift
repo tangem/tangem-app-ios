@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol PolymarketCategoryRoutable: AnyObject {
+protocol PolymarketCategoryRoutable: PolymarketFastTradingBannerRoutable {
     func closeCategory()
 }

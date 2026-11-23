@@ -10,5 +10,5 @@ import Combine
 protocol WalletSelectorInfoProvider: AnyObject {
     var name: String { get }
     var updatePublisher: AnyPublisher<UpdateResult, Never> { get }
-    var walletImageProvider: WalletImageProviding { get }
+    var walletIcon: UserWalletIcon { get }
 }

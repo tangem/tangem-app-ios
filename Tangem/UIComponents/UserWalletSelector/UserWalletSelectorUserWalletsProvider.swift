@@ -18,6 +18,12 @@ extension UserWalletSelectorUserWalletsProvider where Self == AllUserWalletsProv
     }
 }
 
+extension UserWalletSelectorUserWalletsProvider where Self == StaticUserWalletsProvider {
+    static func userWallet(_ userWalletModel: any UserWalletModel) -> Self {
+        StaticUserWalletsProvider(userWalletModels: [userWalletModel])
+    }
+}
+
 // MARK: - Implementations
 
 struct AllUserWalletsProvider: UserWalletSelectorUserWalletsProvider {
@@ -26,4 +32,8 @@ struct AllUserWalletsProvider: UserWalletSelectorUserWalletsProvider {
     var userWalletModels: [any UserWalletModel] {
         userWalletRepository.models
     }
+}
+
+struct StaticUserWalletsProvider: UserWalletSelectorUserWalletsProvider {
+    let userWalletModels: [any UserWalletModel]
 }

@@ -33,6 +33,8 @@ enum JointOperationError: UniversalError, Equatable {
     case securityCheckUnavailable
     case operationNotFound
     case notAMember
+    case operationMismatch
+    case operationVerificationFailed(JointOperationVerificationFailure)
     case refused(JointOperationRefusal)
 
     var errorDescription: String? {
@@ -51,6 +53,8 @@ enum JointOperationError: UniversalError, Equatable {
         case .securityCheckUnavailable: "The operation could not be checked for security"
         case .operationNotFound: "The joint operation no longer exists"
         case .notAMember: "The wallet holds no slot in this joint account"
+        case .operationMismatch: "The joint operation handed to sign is not the one followed"
+        case .operationVerificationFailed(let failure): "The operation did not pass verification: \(failure)"
         case .refused(.nonceMismatch), .refused(.gasPriceTooLow), .refused(.gasPriceTooHigh): Localization.jointAccountSendNetworkChangedSubtitle
         case .refused: Localization.commonUnknownError
         }
@@ -82,6 +86,9 @@ enum JointOperationError: UniversalError, Equatable {
         case .refused(.invalidSafeOperation): 100013021
         case .refused(.invalidSafeAddress): 100013022
         case .refused(.unknown): 100013023
+        case .operationMismatch: 100013024
+        case .operationVerificationFailed(.refundMismatch): 100013025
+        case .operationVerificationFailed(.voteMismatch): 100013026
         }
     }
 }

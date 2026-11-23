@@ -149,6 +149,8 @@ extension CardanoError: UniversalError {
             102003006
         case .invalidDestinationAddress:
             102003007
+        case .tokenBalanceOverflow:
+            102003008
         }
     }
 }

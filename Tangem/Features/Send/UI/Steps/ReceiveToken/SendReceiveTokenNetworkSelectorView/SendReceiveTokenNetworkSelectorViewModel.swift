@@ -152,7 +152,7 @@ class SendReceiveTokenNetworkSelectorViewModel: ObservableObject, FloatingSheetC
             throw CommonError.objectReleased
         }
 
-        let pairs = await swapRepository.getPairs(from: sourceToken.tokenItem.expressCurrency)
+        let pairs = await swapRepository.getPairs(from: sourceToken.tokenItem.expressCurrency, userWalletInfo: userWalletInfo)
 
         // A (source, destination) can be cached as several `ExpressPair` values with different
         // provider lists (ExpressPair's `Hashable` includes `providers`), so merge providers

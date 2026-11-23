@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemExpress
 import TangemFoundation
 import TangemLocalization
 
@@ -28,6 +29,10 @@ final class BuyAndSwapRestrictionBannerViewModel: ObservableObject {
         await runOnMain {
             self.description = Localization.buySwapRegionRestrictionDescriptionRegion(name)
         }
+    }
+
+    static func regionName(of identity: OnrampIdentity) -> String {
+        localizedRegionName(for: identity.code) ?? identity.name
     }
 
     private static func localizedRegionName(for code: String) -> String? {

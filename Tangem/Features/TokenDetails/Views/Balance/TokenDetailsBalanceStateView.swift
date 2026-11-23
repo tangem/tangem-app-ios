@@ -7,12 +7,18 @@
 //
 
 import SwiftUI
+import TangemAssets
 import TangemUI
+import TangemUIUtils
 
 struct TokenDetailsBalanceStateView: View {
     let state: TokenDetailsBalanceState
     let skeletonSize: CGSize
+    let token: TangemTypographyToken
+    let color: Color
     var minimumScaleFactor: CGFloat = 1
+
+    @ObservedObject private var visibilityState = SensitiveTextVisibilityState.shared
 
     var body: some View {
         switch state {
@@ -36,8 +42,9 @@ struct TokenDetailsBalanceStateView: View {
 
 private extension TokenDetailsBalanceStateView {
     func textView(_ text: TokenDetailsBalanceState.Text) -> some View {
-        SensitiveText(text)
-            .lineLimit(1)
+        UtilBalance(text)
+            .masked(visibilityState.isHidden)
+            .style(token, color: color)
             .minimumScaleFactor(minimumScaleFactor)
             .modifier(CountsDownTransitionModifier(text: text))
     }

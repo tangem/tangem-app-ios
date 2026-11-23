@@ -57,17 +57,14 @@ final class TangemPayVirtualAccountBankDetailsErrorPopupViewModel: TangemPayPopu
         )
     }
 
-    private let tangemPayAccount: TangemPayAccount
-    private let productInstanceId: String
+    private let loadBankCredentials: () async throws -> TangemPayBankCredentialsResponse?
     private weak var coordinator: TangemPayVirtualAccountBankDetailsErrorPopupRoutable?
 
     init(
-        tangemPayAccount: TangemPayAccount,
-        productInstanceId: String,
+        loadBankCredentials: @escaping () async throws -> TangemPayBankCredentialsResponse?,
         coordinator: TangemPayVirtualAccountBankDetailsErrorPopupRoutable
     ) {
-        self.tangemPayAccount = tangemPayAccount
-        self.productInstanceId = productInstanceId
+        self.loadBankCredentials = loadBankCredentials
         self.coordinator = coordinator
 
         Analytics.log(.visaVATopupDetailsErrorShowed)
@@ -89,8 +86,9 @@ final class TangemPayVirtualAccountBankDetailsErrorPopupViewModel: TangemPayPopu
             defer { viewModel.isLoading = false }
 
             do {
-                let credentials = try await viewModel.tangemPayAccount.loadBankCredentials(productInstanceId: viewModel.productInstanceId)
-                viewModel.coordinator?.virtualAccountDidLoadBankCredentials(credentials)
+                if let credentials = try await viewModel.loadBankCredentials() {
+                    viewModel.coordinator?.virtualAccountDidLoadBankCredentials(credentials)
+                }
             } catch {
                 VisaLogger.error("Failed to load virtual account bank credentials", error: error)
             }

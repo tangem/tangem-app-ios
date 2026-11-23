@@ -10,6 +10,4 @@ import Foundation
 
 protocol JointOperationsHistoryWriter: Sendable {
     func save(remote items: [JointOperationHistoryItem]) async throws
-    func save(local items: [JointOperationHistoryItem]) async throws
-    func delete(operationIds: [String]) async throws
 }

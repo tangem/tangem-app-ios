@@ -187,7 +187,7 @@ final class TangemPayVirtualAccountUITests: BaseTestCase {
 
 private extension TangemPayVirtualAccountUITests {
     enum Constants {
-        static let achFee = "$1.5"
+        static let achFee = "$1.50"
         static let fedwireFee = "$25"
         static let depositLimit = "$10,000"
         static let beneficiaryName = "Hot Wallet User"

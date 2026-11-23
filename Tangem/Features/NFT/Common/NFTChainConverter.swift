@@ -163,6 +163,10 @@ enum NFTChainConverter {
              .arc,
              .publicMasterpiece,
              .onyx,
+             .zeniq,
+             .katana,
+             .xLayer,
+             .ink,
              .seiEvm:
             return nil
         }

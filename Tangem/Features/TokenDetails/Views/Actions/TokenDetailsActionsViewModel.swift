@@ -42,6 +42,23 @@ final class TokenDetailsActionsViewModel: ObservableObject {
         actionsRoutable = routable
         bind()
     }
+
+    func addFundsOptions() -> [AddFundsOption] {
+        incomingOptions().map { AddFundsOption(type: $0, isAvailable: isRowItemAvailable(for: $0)) }
+    }
+
+    func performAddFunds(_ type: TokenActionType) {
+        perform(type, kind: .addFunds)
+    }
+}
+
+// MARK: - AddFundsOption
+
+extension TokenDetailsActionsViewModel {
+    struct AddFundsOption: Equatable {
+        let type: TokenActionType
+        let isAvailable: Bool
+    }
 }
 
 // MARK: - Bindings

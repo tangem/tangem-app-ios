@@ -71,15 +71,27 @@ extension CommonUnspentOutputManager: UnspentOutputManager {
     }
 
     func confirmedBalance() throws -> UInt64 {
-        try outputs { dict in
-            try dict.flatMap { $0.value }.filter { $0.isConfirmed }.sumReportingOverflow(by: \.amount)
+        let (balance, isOverflow) = outputs { dict in
+            dict.flatMap { $0.value }.filter { $0.isConfirmed }.sumReportingOverflow(by: \.amount)
         }
+
+        guard !isOverflow else {
+            throw BlockchainSdkError.failedToParseNetworkResponse()
+        }
+
+        return balance
     }
 
     func unconfirmedBalance() throws -> UInt64 {
-        try outputs { dict in
-            try dict.flatMap { $0.value }.filter { !$0.isConfirmed }.sumReportingOverflow(by: \.amount)
+        let (balance, isOverflow) = outputs { dict in
+            dict.flatMap { $0.value }.filter { !$0.isConfirmed }.sumReportingOverflow(by: \.amount)
         }
+
+        guard !isOverflow else {
+            throw BlockchainSdkError.failedToParseNetworkResponse()
+        }
+
+        return balance
     }
 
     func clearOutputs() {

@@ -6,12 +6,14 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
+import Combine
 import Foundation
 import Testing
+import TangemFoundation
 import TangemTestKit
 @testable import Tangem
 
-@Suite("CollectiblesPacksViewModel", .serialized)
+@Suite("CollectiblesPacksViewModel", .timeLimit(.minutes(1)))
 @MainActor
 final class CollectiblesPacksViewModelTests: LeakTrackingTestSuite {
     typealias SUT = CollectiblesPacksViewModel
@@ -36,18 +38,18 @@ final class CollectiblesPacksViewModelTests: LeakTrackingTestSuite {
         #expect(selectedPack == nil)
     }
 
-    @Test("A pull-to-refresh keeps the shown packs until the new page arrives", .timeLimit(.minutes(1)))
-    func refreshKeepsPacksWhilePending() async {
+    @Test("A pull-to-refresh keeps the shown packs until the new page arrives")
+    func refreshKeepsPacksWhilePending() async throws {
         let provider = SuspendingPacksProvider()
         let sut = makeSUT(provider: provider)
 
         let refresh = Task { await sut.refresh() }
-        await waitUntil { provider.loadCallsCount == 1 }
+        try await provider.loads.next()
 
         #expect(sut.state.isContentLoaded)
 
         provider.resume(with: CollectiblesPacksPage(packs: [Self.packs()[0]], hasNext: false, cursor: nil))
-        await refresh.value
+        try await refresh.waitForCompletion()
 
         guard case .content(let models) = sut.state else {
             Issue.record("Expected the refreshed packs, got \(sut.state)")
@@ -59,13 +61,13 @@ final class CollectiblesPacksViewModelTests: LeakTrackingTestSuite {
 
     // MARK: - Lore switch
 
-    @Test("An uncached lore switch keeps the shown packs dimmed until the new page arrives", .timeLimit(.minutes(1)))
-    func loreSwitchKeepsPacksWhileReloading() async {
+    @Test("An uncached lore switch keeps the shown packs dimmed until the new page arrives")
+    func loreSwitchKeepsPacksWhileReloading() async throws {
         let provider = SuspendingPacksProvider()
         let sut = makeSUT(provider: provider)
 
         sut.reload(loreID: Constants.otherLoreID)
-        await waitUntil { provider.loadCallsCount == 1 }
+        try await provider.loads.next()
 
         guard case .reloading(.content(let shownModels)) = sut.state else {
             Issue.record("Expected the previous packs kept while reloading, got \(sut.state)")
@@ -75,7 +77,7 @@ final class CollectiblesPacksViewModelTests: LeakTrackingTestSuite {
         #expect(shownModels.map(\.id) == ["pokemon_50", "pokemon_250"])
 
         provider.resume(with: CollectiblesPacksPage(packs: [Self.packs()[0]], hasNext: false, cursor: nil))
-        await waitUntil { !sut.state.isReloading }
+        await sut.$state.firstValue { !$0.isReloading }
 
         guard case .content(let models) = sut.state else {
             Issue.record("Expected the new lore's packs, got \(sut.state)")
@@ -85,16 +87,16 @@ final class CollectiblesPacksViewModelTests: LeakTrackingTestSuite {
         #expect(models.map(\.id) == ["pokemon_50"])
     }
 
-    @Test("A failed uncached lore switch stops dimming and shows the failure", .timeLimit(.minutes(1)))
-    func failedLoreSwitchStopsReloading() async {
+    @Test("A failed uncached lore switch stops dimming and shows the failure")
+    func failedLoreSwitchStopsReloading() async throws {
         let provider = SuspendingPacksProvider()
         let sut = makeSUT(provider: provider)
 
         sut.reload(loreID: Constants.otherLoreID)
-        await waitUntil { provider.loadCallsCount == 1 }
+        try await provider.loads.next()
 
         provider.fail(with: URLError(.notConnectedToInternet))
-        await waitUntil { sut.state.isFailed }
+        await sut.$state.firstValue { $0.isFailed }
 
         #expect(sut.state.isFailed)
     }
@@ -151,23 +153,29 @@ private struct PacksProviderStub: CollectiblesPacksProvider {
 
 @MainActor
 private final class SuspendingPacksProvider: CollectiblesPacksProvider {
-    private(set) var loadCallsCount = 0
+    let loads = TestSignal<Void>()
 
-    private var continuation: CheckedContinuation<CollectiblesPacksPage, any Error>?
+    private let continuation = OSAllocatedUnfairLock<CheckedContinuation<CollectiblesPacksPage, any Error>?>(initialState: nil)
 
     func load(loreID: String?, query: String, cursor: String?) async throws -> CollectiblesPacksPage {
-        loadCallsCount += 1
-
-        return try await withCheckedThrowingContinuation { continuation = $0 }
+        try await withCheckedThrowingContinuation { continuation in
+            self.continuation.withLock { $0 = continuation }
+            loads.send()
+        }
     }
 
     func resume(with page: CollectiblesPacksPage) {
-        continuation?.resume(returning: page)
-        continuation = nil
+        pendingContinuation()?.resume(returning: page)
     }
 
     func fail(with error: any Error) {
-        continuation?.resume(throwing: error)
-        continuation = nil
+        pendingContinuation()?.resume(throwing: error)
+    }
+
+    private func pendingContinuation() -> CheckedContinuation<CollectiblesPacksPage, any Error>? {
+        continuation.withLock { continuation in
+            defer { continuation = nil }
+            return continuation
+        }
     }
 }

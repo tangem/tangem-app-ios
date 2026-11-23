@@ -125,7 +125,7 @@ private extension PolymarketFeedLiveGamesTrackerTests {
         let source = PolymarketLiveGamesSourceSpy()
         let delay = PolymarketSteppedDelayProvider()
         let sut = trackForMemoryLeaks(source.makeTracker(delayProvider: delay))
-        let updates = PolymarketTestSignal<RecordedGameUpdate>()
+        let updates = TestSignal<RecordedGameUpdate>()
         updates.record(sut.updates, transform: { RecordedGameUpdate($0) })
 
         sut.update(events: [Fixtures.basketball(gameId: Constants.gameId)])
@@ -138,7 +138,7 @@ private extension PolymarketFeedLiveGamesTrackerTests {
         let sut: PolymarketFeedLiveGamesTracker
         let source: PolymarketLiveGamesSourceSpy
         let delay: PolymarketSteppedDelayProvider
-        let updates: PolymarketTestSignal<RecordedGameUpdate>
+        let updates: TestSignal<RecordedGameUpdate>
         let stream: PolymarketLiveStreamSpy<PolymarketLiveGame>
     }
 

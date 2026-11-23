@@ -13,11 +13,11 @@ import Combine
 /// - Note: What they are followed through — the wallet's store of every account's operations — outlives the account,
 /// so a subscription belongs to whoever subscribes rather than to the provider handing the publisher out.
 protocol JointAccountPendingOperationsProvider {
-    func hasPendingOperations(chainId: Int) -> Bool
-
     var pendingOperationsPublisher: AnyPublisher<[JointAccountPendingOperation], Never> { get }
 
     func requestFrequentUpdates(operationId: String) -> AnyCancellable?
+
+    func pendingOperation(from operation: JointAccountOperation) async throws -> JointAccountPendingOperation
 
     func loadOperation(id: String) async throws -> JointAccountPendingOperation
 }

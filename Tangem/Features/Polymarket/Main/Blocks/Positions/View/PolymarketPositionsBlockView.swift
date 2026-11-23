@@ -13,13 +13,19 @@ import TangemPolymarketUI
 struct PolymarketPositionsBlockView: View {
     @ObservedObject var viewModel: PolymarketPositionsBlockViewModel
 
+    var isPlaceholder = false
+
     var body: some View {
         content
             .polymarketStateTransition(phase)
     }
 
+    private var displayedContent: PolymarketPositionsBlockViewModel.Content {
+        isPlaceholder ? viewModel.placeholderContent : viewModel.content
+    }
+
     private var phase: String {
-        switch viewModel.content {
+        switch displayedContent {
         case .hidden: "hidden"
         case .skeleton: "skeleton"
         case .failed: "failed"
@@ -30,7 +36,7 @@ struct PolymarketPositionsBlockView: View {
 
     @ViewBuilder
     private var content: some View {
-        switch viewModel.content {
+        switch displayedContent {
         case .hidden:
             EmptyView()
         case .skeleton(let rowCount):

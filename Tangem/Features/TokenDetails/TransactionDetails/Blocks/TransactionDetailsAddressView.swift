@@ -17,7 +17,7 @@ struct TransactionDetailsAddressViewData: Equatable {
     let label: String
     let actor: TransactionDetailsActor
     let copyAction: TransactionDetailsViewModel.ViewAction?
-    @IgnoredEquatable var walletImageProvider: (any WalletImageProviding)?
+    @IgnoredEquatable var walletIcon: UserWalletIcon?
 }
 
 struct TransactionDetailsAddressView: View {
@@ -50,8 +50,8 @@ struct TransactionDetailsAddressView: View {
         case .account(_, let icon):
             AccountIconView(data: icon, settings: .defaultSized)
         case .wallet:
-            if let provider = data.walletImageProvider {
-                WalletCounterpartyIconView(imageProvider: provider)
+            if let walletIcon = data.walletIcon {
+                WalletCounterpartyIconView(icon: walletIcon)
             } else {
                 EmptyView()
             }
@@ -62,50 +62,12 @@ struct TransactionDetailsAddressView: View {
 // MARK: - Wallet icon
 
 private struct WalletCounterpartyIconView: View {
-    @StateObject private var viewModel: WalletCounterpartyIconViewModel
+    let icon: UserWalletIcon
 
     @ScaledMetric private var side: CGFloat = 36
 
-    init(imageProvider: any WalletImageProviding) {
-        _viewModel = StateObject(wrappedValue: WalletCounterpartyIconViewModel(imageProvider: imageProvider))
-    }
-
     var body: some View {
-        let size = CGSize(bothDimensions: side)
-
-        iconImage
-            .frame(size: size)
-            .shimmerPlaceholder(viewModel.icon.isLoading, variant: .custom(cornerRadius: 3))
-            .onAppear { viewModel.loadImage() }
-    }
-
-    @ViewBuilder
-    private var iconImage: some View {
-        switch viewModel.icon {
-        case .loading:
-            Color.clear
-        case .success(let image):
-            image.image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-        }
-    }
-}
-
-private final class WalletCounterpartyIconViewModel: ObservableObject {
-    @Published private(set) var icon: LoadingResult<ImageValue, Never> = .loading
-
-    private let imageProvider: any WalletImageProviding
-
-    init(imageProvider: any WalletImageProviding) {
-        self.imageProvider = imageProvider
-    }
-
-    func loadImage() {
-        runTask(in: self) { viewModel in
-            let image = await viewModel.imageProvider.loadSmallImage()
-            await runOnMain { viewModel.icon = .success(image) }
-        }
+        UserWalletIconView(icon: icon, size: side)
     }
 }
 
@@ -118,7 +80,7 @@ private final class WalletCounterpartyIconViewModel: ObservableObject {
                 label: "From address",
                 actor: .address("33Bd321fS2p2o8Bk7mQwXeATkLQ3B36Yv2p21cEZga21412B", blockiesImage: AddressBlockiesIconViewData(image: nil)),
                 copyAction: .copy(value: "33Bd321fS2p2o8Bk7mQwXeATkLQ3B36Yv2p21cEZga21412B", toast: "Copied", kind: .address),
-                walletImageProvider: nil
+                walletIcon: nil
             ),
             onAction: { _ in }
         )
@@ -128,7 +90,7 @@ private final class WalletCounterpartyIconViewModel: ObservableObject {
                 label: "Recipient",
                 actor: .contact(name: "Alice", AddressBookContactNameIconViewData(letter: "A", color: .blue)),
                 copyAction: .copy(value: "Alice", toast: "Copied", kind: .address),
-                walletImageProvider: nil
+                walletIcon: nil
             ),
             onAction: { _ in }
         )
@@ -138,7 +100,7 @@ private final class WalletCounterpartyIconViewModel: ObservableObject {
                 label: "To",
                 actor: .account(name: "Family", icon: .composite(backgroundColor: .purple, nameMode: .letter("F"))),
                 copyAction: nil,
-                walletImageProvider: nil
+                walletIcon: nil
             ),
             onAction: { _ in }
         )
@@ -148,7 +110,7 @@ private final class WalletCounterpartyIconViewModel: ObservableObject {
                 label: "To",
                 actor: .wallet(name: "My Wallet"),
                 copyAction: nil,
-                walletImageProvider: nil
+                walletIcon: nil
             ),
             onAction: { _ in }
         )

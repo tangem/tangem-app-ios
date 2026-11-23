@@ -7,25 +7,37 @@
 //
 
 import Foundation
+import TangemFoundation
 
 struct CardanoResponseMapper {
     func mapToCardanoAddressResponse(
         tokens: [Token],
         unspentOutputs: [CardanoUnspentOutput],
         recentTransactionsHashes: [String]
-    ) -> CardanoAddressResponse {
-        let coinBalance: UInt64 = unspentOutputs.reduce(0) { $0 + $1.amount }
+    ) throws -> CardanoAddressResponse {
+        let (coinBalance, isOverflow) = unspentOutputs.sumReportingOverflow(by: \.amount)
 
-        let tokenBalances: [Token: UInt64] = tokens.reduce(into: [:]) { tokenBalances, token in
+        guard !isOverflow else {
+            throw BlockchainSdkError.failedToParseNetworkResponse()
+        }
+
+        let tokenBalances: [Token: Result<UInt64, Error>] = tokens.reduce(into: [:]) { tokenBalances, token in
             let assetFilter = CardanoAssetFilter(contractAddress: token.contractAddress)
             // Collecting of all output balance
-            tokenBalances[token, default: 0] += unspentOutputs.reduce(0) { result, output in
+            let (tokenBalance, isOverflow) = unspentOutputs
                 // Sum with each asset in output amount
-                result + output.assets.reduce(into: 0) { result, asset in
-                    if assetFilter.isEqualToAssetWith(policyId: asset.policyID, assetNameHex: asset.assetNameHex) {
-                        result += asset.amount
-                    }
+                .flatMap(\.assets)
+                .filter { asset in
+                    assetFilter.isEqualToAssetWith(policyId: asset.policyID, assetNameHex: asset.assetNameHex)
                 }
+                .sumReportingOverflow(by: \.amount)
+
+            tokenBalances[token] = Result {
+                guard !isOverflow else {
+                    throw CardanoError.tokenBalanceOverflow
+                }
+
+                return tokenBalance
             }
         }
 

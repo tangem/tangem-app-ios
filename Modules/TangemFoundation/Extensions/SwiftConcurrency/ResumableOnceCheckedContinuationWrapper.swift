@@ -21,21 +21,16 @@ public final class ResumableOnceCheckedContinuationWrapper<T, E>: @unchecked Sen
 
     /// Safe shim for `CheckedContinuation.resume(returning:)`.
     public func resumeIfNeeded(returning value: T) {
-        let continuationToResume: CheckedContinuation<T, E>? = criticalSection {
-            if isResumed {
-                return nil
-            }
-
-            isResumed = true
-            return innerContinuation
-        }
-
-        // Resuming should be performed outside of critical section to avoid potential deadlocks
-        continuationToResume?.resume(returning: value)
+        resumeIfNeeded(with: .success(value))
     }
 
     /// Safe shim for `CheckedContinuation.resume(throwing:)`.
     public func resumeIfNeeded(throwing error: E) {
+        resumeIfNeeded(with: .failure(error))
+    }
+
+    @discardableResult
+    public func resumeIfNeeded(with result: Result<T, E>) -> Bool {
         let continuationToResume: CheckedContinuation<T, E>? = criticalSection {
             if isResumed {
                 return nil
@@ -46,7 +41,9 @@ public final class ResumableOnceCheckedContinuationWrapper<T, E>: @unchecked Sen
         }
 
         // Resuming should be performed outside of critical section to avoid potential deadlocks
-        continuationToResume?.resume(throwing: error)
+        continuationToResume?.resume(with: result)
+
+        return continuationToResume != nil
     }
 }
 

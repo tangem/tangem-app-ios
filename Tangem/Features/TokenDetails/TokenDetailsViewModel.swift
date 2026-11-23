@@ -72,6 +72,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         }
     )
 
+    private lazy var earnStateProvider = makeEarnStateProvider()
+
     init(
         userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
@@ -125,10 +127,15 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     func openTransactionDetails(_ transaction: TransactionViewModel) {
         if let jointOperation = jointOperation(for: transaction) {
             coordinator?.openJointAccountOperationDetails(
-                pendingOperation: jointOperation,
+                handle: jointOperation.makeHandle(),
                 userWalletInfo: userWalletInfo,
                 addressBookManager: addressBookManager
             )
+            return
+        }
+
+        if let operationId = historyJointOperationId(for: transaction) {
+            resolveJointOperationDetails(operationId: operationId)
             return
         }
 
@@ -187,6 +194,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
              .closeGetTangemPay,
              .removeTangemPayAccount,
              .editSlippage,
+             .changeOnrampCountry,
              .linkUserWallet:
             break
         case .openFeeCurrency:
@@ -253,7 +261,7 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             ],
             analyticsSystems: .all
         )
-        Toast(
+        LegacyToast(
             view: SuccessToast(text: Localization.walletNotificationAddressCopied)
                 .accessibilityIdentifier(ActionButtonsAccessibilityIdentifiers.addressCopiedToast)
         )
@@ -261,6 +269,14 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
             layout: .bottom(padding: 80),
             type: .temporary()
         )
+    }
+
+    override func onPullToRefresh() async {
+        await MainActor.run {
+            earnStateProvider?.refresh()
+        }
+
+        await super.onPullToRefresh()
     }
 
     override func openMarketsTokenDetails() {
@@ -368,7 +384,7 @@ extension TokenDetailsViewModel {
         let message = Localization.tokenDetailsUnableHideAlertMessage(
             tokenName,
             currencySymbol,
-            blockchain.displayName
+            blockchain.displayName.droppingNetworkSuffix
         )
 
         alert = AlertBuilder.makeAlertWithDefaultPrimaryButton(
@@ -480,6 +496,7 @@ private extension TokenDetailsViewModel {
 
         return QuickTopUpBannerViewModel(
             sourceToken: sourceToken,
+            onrampCountryProvider: OnrampCountryByIPProviderFactory.make(userWalletInfo: userWalletInfo),
             onOpenOnramp: { [weak self] parameters in
                 self?.openOnramp(parameters: parameters)
             }
@@ -528,35 +545,37 @@ private extension TokenDetailsViewModel {
         .filter { $0.items.isNotEmpty }
     }
 
-    private func bindJointOperationDetails(operationId: String) {
+    private func resolveJointOperationDetails(operationId: String) {
         guard let jointAccount = walletModel.account as? any JointAccountModel else {
             return
         }
 
         let resolver = JointAccountOperationDeeplinkResolver(
             jointAccount: jointAccount,
+            historyOperations: historyJointOperations,
             timeout: Constants.jointOperationResolutionTimeout
         )
 
+        jointOperationDetailsTask?.cancel()
         jointOperationDetailsTask = Task { [weak self] in
             do {
                 let pendingOperation = try await resolver.resolve(operationId: operationId)
                 try Task.checkCancellation()
-                await self?.openJointOperationDetails(pendingOperation: pendingOperation)
+                await self?.openJointOperationDetails(handle: pendingOperation.makeHandle())
             } catch {
                 guard !error.isCancellationError else {
                     return
                 }
 
-                JointAccountsLogger.error("Failed to open the joint operation from a deeplink", error: error)
+                JointAccountsLogger.error("Failed to open the joint operation", error: error)
             }
         }
     }
 
     @MainActor
-    private func openJointOperationDetails(pendingOperation: JointAccountPendingOperation) {
+    private func openJointOperationDetails(handle: JointAccountPendingOperationHandle) {
         coordinator?.openJointAccountOperationDetails(
-            pendingOperation: pendingOperation,
+            handle: handle,
             userWalletInfo: userWalletInfo,
             addressBookManager: addressBookManager
         )
@@ -579,7 +598,7 @@ private extension TokenDetailsViewModel {
 
         if let pendingTransactionDetails {
             if pendingTransactionDetails.type == .jointOperation {
-                bindJointOperationDetails(operationId: pendingTransactionDetails.id)
+                resolveJointOperationDetails(operationId: pendingTransactionDetails.id)
             } else {
                 walletModel.transactionHistoryPublisher
                     .compactMap { state -> TransactionRecord? in
@@ -595,13 +614,22 @@ private extension TokenDetailsViewModel {
             }
         }
 
-        walletModel.stakingManagerStatePublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                AppLogger.info("Token details receive new StakingManager state: \(state)")
-                self?.updateStaking(state: state)
-            }
-            .store(in: &bag)
+        if let earnStateProvider {
+            earnStateProvider.statePublisher
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] state in
+                    self?.updateEarn(state: state)
+                }
+                .store(in: &bag)
+        } else {
+            walletModel.stakingManagerStatePublisher
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] state in
+                    AppLogger.info("Token details receive new StakingManager state: \(state)")
+                    self?.updateStaking(state: state)
+                }
+                .store(in: &bag)
+        }
 
         $miniChartData
             .receive(on: DispatchQueue.main)
@@ -660,6 +688,34 @@ private extension TokenDetailsViewModel {
         updateRedesignStaking(state: state)
     }
 
+    private func makeEarnStateProvider() -> TokenDetailsEarnStateProvider? {
+        guard LendingOnAave.isOffered(on: walletModel) else {
+            return nil
+        }
+
+        return TokenDetailsEarnStateProvider(
+            walletModel: walletModel,
+            userWalletInfo: userWalletInfo,
+            coordinator: coordinator,
+            addFundsOptions: { [weak self] in
+                self?.actionsViewModel?.addFundsOptions() ?? []
+            },
+            openStaking: { [weak self] in
+                self?.openStaking()
+            }
+        )
+    }
+
+    private func updateEarn(state: TokenDetailsEarnStateProvider.State) {
+        switch state {
+        case .earn(let earnState):
+            stakingState = earnState
+        case .staking(let state):
+            AppLogger.info("Token details receive new StakingManager state: \(state)")
+            updateStaking(state: state)
+        }
+    }
+
     private func updateRedesignStaking(state: StakingManagerState) {
         switch state {
         case .loading:
@@ -709,16 +765,11 @@ private extension TokenDetailsViewModel {
             balanceConverter.convertToFiat(balance, currencyId: currencyId)
         }
         let formattedFiatBalance = balanceFormatter.formatFiatBalance(fiatBalance)
-        let attributedFiatBalance = AttributedBalanceFormatter.format(
-            formattedFiatBalance,
-            token: DesignSystem.Font.bodyMediumToken,
-            color: DesignSystem.Color.textPrimary
-        )
 
         let item = TokenDetailsStakingState.EnableItem(
             title: Localization.stakingEnabled,
             rewardsState: rewardsState,
-            fiatBalance: attributedFiatBalance,
+            fiatBalance: formattedFiatBalance,
             cryptoBalance: cryptoBalance,
             action: weakify(self, forFunction: TokenDetailsViewModel.openStaking)
         )
@@ -1002,5 +1053,13 @@ extension TokenDetailsViewModel {
                 }
             }
         }
+    }
+}
+
+// MARK: - Lending on Aave position
+
+extension TokenDetailsViewModel {
+    func openLendingPosition() {
+        earnStateProvider?.openLendingPosition()
     }
 }

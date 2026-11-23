@@ -17,7 +17,7 @@ struct JointAccountFinishedOperationsWalletUpdaterTests {
 
     @Test(
         "Every wallet in the operation's network is updated once the operation is done",
-        arguments: [[], [JointAccountCompositionFixture.coinTransfer(status: .executed)]]
+        arguments: [[], [JointAccountCompositionFixture.validCoinTransfer(status: .executed)]]
     )
     func walletsInTheNetworkAreUpdated(remainingOperations: [JointAccountOperation]) {
         let (repository, walletModels, _, updater) = makeSUT()
@@ -35,7 +35,7 @@ struct JointAccountFinishedOperationsWalletUpdaterTests {
         let (repository, walletModels, _, updater) = makeSUT()
 
         repository.store(pendingOperations: [
-            JointAccountCompositionFixture.pendingOperationsRecord(operations: [JointAccountCompositionFixture.coinTransfer(status: .pending)]),
+            JointAccountCompositionFixture.pendingOperationsRecord(operations: [JointAccountCompositionFixture.validCoinTransfer(status: .pending)]),
         ])
 
         #expect(walletModels.coin.updateAfterSendingTransactionCallCount == 0)
@@ -91,7 +91,7 @@ private extension JointAccountFinishedOperationsWalletUpdaterTests {
         walletModelsManager.sendUpdate()
 
         let repository = JointAccountPendingOperationsRepositoryStub(pendingOperations: [
-            JointAccountCompositionFixture.pendingOperationsRecord(operations: [JointAccountCompositionFixture.coinTransfer()]),
+            JointAccountCompositionFixture.pendingOperationsRecord(operations: [JointAccountCompositionFixture.validCoinTransfer()]),
         ])
 
         let historyDeltaSyncing = JointOperationsHistoryDeltaSyncingStub()
@@ -101,7 +101,8 @@ private extension JointAccountFinishedOperationsWalletUpdaterTests {
                 derivationIdentity: JointAccountCompositionFixture.derivationIdentity,
                 pendingOperationsRepository: repository,
                 walletModelsManager: walletModelsManager,
-                membersService: JointAccountMembersServiceMock()
+                membersService: JointAccountMembersServiceMock(slots: [.member(JointAccountCompositionFixture.coinOperationMember, .active)]),
+                statusProvider: JointAccountStatusProviderStub(status: .active(safeAddress: JointAccountCompositionFixture.Signed.safeAddress))
             ),
             walletModelsManager: walletModelsManager,
             historyDeltaSyncing: historyDeltaSyncing

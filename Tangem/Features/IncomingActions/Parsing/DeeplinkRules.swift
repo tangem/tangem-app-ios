@@ -15,6 +15,10 @@ enum DeeplinkRules {
         value.range(of: Constants.allowedCharactersRegex, options: .regularExpression) != nil ? value : nil
     }
 
+    static func surveyToken(_ value: String) -> String? {
+        value.range(of: Constants.surveyTokenRegex, options: .regularExpression) != nil ? value : nil
+    }
+
     static func number(_ value: String) -> Int? {
         guard value.range(of: Constants.numericRegex, options: .regularExpression) != nil else {
             return nil
@@ -29,6 +33,7 @@ enum DeeplinkRules {
 private extension DeeplinkRules {
     enum Constants {
         static let allowedCharactersRegex = "^[a-zA-Z0-9-_@\\.]+$"
+        static let surveyTokenRegex = "^[A-Za-z0-9_-]+$"
         static let numericRegex = "^[0-9]+$"
     }
 }

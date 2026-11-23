@@ -9,7 +9,6 @@
 import Foundation
 import Testing
 import TangemFoundation
-import TangemTestKit
 @testable import TangemCollectibles
 @testable import Tangem
 
@@ -196,9 +195,10 @@ struct RemoteCollectiblesBuybackInteractorTests {
     @Test("Cancelling the sale while the status is awaited ends it as a cancellation")
     func cancelledWhileAwaitingStatus() async {
         let (sut, backend, _, _) = makeSUT(statuses: [.confirming], holdsStatus: true)
+        var statusLoads = backend.statusLoads.makeAsyncIterator()
         let sale = Task { try await sell(sut) }
 
-        await waitUntil { backend.statusLoadsCount == 1 }
+        await statusLoads.next()
         sale.cancel()
 
         await #expect(throws: CancellationError.self) {
@@ -333,11 +333,15 @@ private final class BuybackBackendStub: CollectiblesBuybackTransactionGenerator,
     private(set) var reports: [RemoteCollectiblesBuybackInteractorTests.Report] = []
     private(set) var statusLoadsCount = 0
 
+    let statusLoads: AsyncStream<Void>
+
     private let generateError: (any Error)?
     private let reportError: (any Error)?
     private var statuses: [CollectiblesBuybackStatus]
     private var statusFailures: Int
     private let holdsStatus: Bool
+    private let statusLoadsContinuation: AsyncStream<Void>.Continuation
+    private let heldStatusLoad = OSAllocatedUnfairLock<CheckedContinuation<Void, any Error>?>(initialState: nil)
 
     init(
         generateError: (any Error)?,
@@ -351,6 +355,7 @@ private final class BuybackBackendStub: CollectiblesBuybackTransactionGenerator,
         self.statuses = statuses
         self.statusFailures = statusFailures
         self.holdsStatus = holdsStatus
+        (statusLoads, statusLoadsContinuation) = AsyncStream.makeStream(of: Void.self)
     }
 
     func generate(
@@ -382,9 +387,10 @@ private final class BuybackBackendStub: CollectiblesBuybackTransactionGenerator,
 
     func load(buybackID: String) async throws -> CollectiblesBuybackStatus {
         statusLoadsCount += 1
+        statusLoadsContinuation.yield()
 
         if holdsStatus {
-            try await Task.sleep(for: .seconds(60))
+            try await holdUntilCancelled()
         }
 
         guard statusFailures == 0 else {
@@ -393,6 +399,32 @@ private final class BuybackBackendStub: CollectiblesBuybackTransactionGenerator,
         }
 
         return statuses.count > 1 ? statuses.removeFirst() : statuses[0]
+    }
+}
+
+private extension BuybackBackendStub {
+    func holdUntilCancelled() async throws {
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
+                let isCancelled = heldStatusLoad.withLock { state -> Bool in
+                    guard !Task.isCancelled else { return true }
+
+                    state = continuation
+                    return false
+                }
+
+                if isCancelled {
+                    continuation.resume(throwing: CancellationError())
+                }
+            }
+        } onCancel: { [heldStatusLoad] in
+            let held = heldStatusLoad.withLock { state -> CheckedContinuation<Void, any Error>? in
+                defer { state = nil }
+                return state
+            }
+
+            held?.resume(throwing: CancellationError())
+        }
     }
 }
 

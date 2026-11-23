@@ -16,7 +16,7 @@ struct PolymarketOrderPlacerTests {
     func domainReachesEveryStage(_ market: QuotedMarket) async throws {
         let signer = StubDigestSigner()
         let clobService = StubCLOBService()
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: signer)
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .depositWallet(signer))
 
         _ = try await placer.place(Self.options(market))
 
@@ -42,7 +42,7 @@ struct PolymarketOrderPlacerTests {
     func mismatchedQuoteIsNeverSigned(_ mismatch: MismatchedQuote) async {
         let signer = StubDigestSigner()
         let clobService = StubCLOBService()
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: signer)
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .depositWallet(signer))
 
         let error = await #expect(throws: PolymarketOrderPlacementError.self) {
             try await placer.place(mismatch.options)
@@ -62,7 +62,7 @@ struct PolymarketOrderPlacerTests {
     @Test("A refusal on the way to the card is reported as never sent")
     func signingFailureIsNotSent() async {
         let clobService = StubCLOBService()
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: FailingDigestSigner())
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .depositWallet(FailingDigestSigner()))
 
         let error = await #expect(throws: PolymarketOrderPlacementError.self) {
             try await placer.place(Self.options(.v1))
@@ -84,7 +84,7 @@ struct PolymarketOrderPlacerTests {
     ])
     func sellRefreshesThePosition(_ market: QuotedMarket, _ expected: PolymarketBalanceAllowanceAsset) async throws {
         let clobService = StubCLOBService()
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: StubDigestSigner())
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .depositWallet(StubDigestSigner()))
 
         _ = try await placer.place(Self.options(market, side: .sell))
 
@@ -95,7 +95,7 @@ struct PolymarketOrderPlacerTests {
     @Test("A purchase leaves the position balance alone")
     func buyDoesNotRefreshThePosition() async throws {
         let clobService = StubCLOBService()
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: StubDigestSigner())
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .depositWallet(StubDigestSigner()))
 
         _ = try await placer.place(Self.options(.v2, side: .buy))
 
@@ -105,7 +105,7 @@ struct PolymarketOrderPlacerTests {
     @Test("A failed refresh does not stop the sale")
     func failedRefreshStillSells() async throws {
         let clobService = StubCLOBService(refreshFails: true)
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: StubDigestSigner())
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .depositWallet(StubDigestSigner()))
 
         _ = try await placer.place(Self.options(.v1, side: .sell))
 
@@ -115,11 +115,10 @@ struct PolymarketOrderPlacerTests {
     @Test("An order signed by a session key carries the key's wrapped signature inside the session envelope and still names the deposit wallet as the signer")
     func sessionKeyOrderIsEnveloped() async throws {
         let clobService = StubCLOBService()
-        let cardSigner = StubDigestSigner()
         let sessionKeySigner = StubDigestSigner(signature: Self.sessionKeySignature)
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: cardSigner)
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .sessionKey(sessionKeySigner))
 
-        _ = try await placer.place(Self.options(.v2, signing: .sessionKey(address: Self.sessionKey, signer: sessionKeySigner)))
+        _ = try await placer.place(Self.sessionKeyOptions)
 
         let signedOrder = try #require(clobService.placedOrder)
 
@@ -133,7 +132,6 @@ struct PolymarketOrderPlacerTests {
 
         #expect(signedOrder.signature == expected)
         #expect(signedOrder.order.signer == Self.depositWallet)
-        #expect(cardSigner.signCount == 0)
         #expect(sessionKeySigner.signCount == 1)
     }
 
@@ -142,9 +140,9 @@ struct PolymarketOrderPlacerTests {
         let clobService = StubCLOBService(placeFailures: [Self.unreached, Self.unreached])
         let sessionKeySigner = StubDigestSigner()
         let delays = DelayProviderSpy()
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: StubDigestSigner(), delayProvider: delays)
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .sessionKey(sessionKeySigner), delayProvider: delays)
 
-        _ = try await placer.place(Self.options(.v2, signing: .sessionKey(address: Self.sessionKey, signer: sessionKeySigner)))
+        _ = try await placer.place(Self.sessionKeyOptions)
 
         #expect(clobService.placedOrders.count == 3)
         #expect(Set(clobService.placedOrders).count == 1)
@@ -156,10 +154,10 @@ struct PolymarketOrderPlacerTests {
     func sessionKeyResendIsBounded() async {
         let clobService = StubCLOBService(placeFailures: [Self.unreached, Self.unreached, Self.unreached])
         let delays = DelayProviderSpy()
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: StubDigestSigner(), delayProvider: delays)
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .sessionKey(StubDigestSigner()), delayProvider: delays)
 
         let error = await #expect(throws: PolymarketOrderPlacementError.self) {
-            try await placer.place(Self.options(.v2, signing: Self.sessionKeySigning))
+            try await placer.place(Self.sessionKeyOptions)
         }
 
         guard case .notSent = error else {
@@ -175,7 +173,7 @@ struct PolymarketOrderPlacerTests {
     func cardOrderIsNeverResent() async {
         let clobService = StubCLOBService(placeFailures: [Self.unreached])
         let delays = DelayProviderSpy()
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: StubDigestSigner(), delayProvider: delays)
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .depositWallet(StubDigestSigner()), delayProvider: delays)
 
         await #expect(throws: PolymarketOrderPlacementError.self) {
             try await placer.place(Self.options(.v2))
@@ -189,10 +187,10 @@ struct PolymarketOrderPlacerTests {
     func sessionKeyOrderIsNotResentOnOtherFailures(_ failure: UnrepeatableFailure) async {
         let clobService = StubCLOBService(placeFailures: [failure.error])
         let delays = DelayProviderSpy()
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: StubDigestSigner(), delayProvider: delays)
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .sessionKey(StubDigestSigner()), delayProvider: delays)
 
         await #expect(throws: PolymarketOrderPlacementError.self) {
-            try await placer.place(Self.options(.v2, signing: Self.sessionKeySigning))
+            try await placer.place(Self.sessionKeyOptions)
         }
 
         #expect(clobService.placedOrders.count == 1)
@@ -202,10 +200,10 @@ struct PolymarketOrderPlacerTests {
     @Test("A refusal of a resent order is an unknown outcome, because an earlier copy may already be on the book")
     func refusedResendIsAmbiguous() async {
         let clobService = StubCLOBService(placeFailures: [Self.unreached, PolymarketOrderPlacementError.rejected(message: Self.duplicateRefusal)])
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: StubDigestSigner(), delayProvider: DelayProviderSpy())
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .sessionKey(StubDigestSigner()), delayProvider: DelayProviderSpy())
 
         let error = await #expect(throws: PolymarketOrderPlacementError.self) {
-            try await placer.place(Self.options(.v2, signing: Self.sessionKeySigning))
+            try await placer.place(Self.sessionKeyOptions)
         }
 
         #expect(error?.isAmbiguous == true)
@@ -215,10 +213,10 @@ struct PolymarketOrderPlacerTests {
     @Test("A refusal of the first send stays a refusal")
     func refusedFirstSendIsRejected() async {
         let clobService = StubCLOBService(placeFailures: [PolymarketOrderPlacementError.rejected(message: Self.duplicateRefusal)])
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: StubDigestSigner(), delayProvider: DelayProviderSpy())
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .sessionKey(StubDigestSigner()), delayProvider: DelayProviderSpy())
 
         let error = await #expect(throws: PolymarketOrderPlacementError.self) {
-            try await placer.place(Self.options(.v2, signing: Self.sessionKeySigning))
+            try await placer.place(Self.sessionKeyOptions)
         }
 
         guard case .rejected = error else {
@@ -231,10 +229,10 @@ struct PolymarketOrderPlacerTests {
     func cancellationDuringTheResendWaitStopsTheOrder(_ cancelledWait: CancelledWait) async {
         let clobService = StubCLOBService(placeFailures: [Self.unreached])
         let delays = DelayProviderSpy(cancelledWait: cancelledWait)
-        let placer = PolymarketOrderPlacer(clobService: clobService, digestSigner: StubDigestSigner(), delayProvider: delays)
+        let placer = PolymarketOrderPlacer(clobService: clobService, signing: .sessionKey(StubDigestSigner()), delayProvider: delays)
 
         let order = Task {
-            _ = try await placer.place(Self.options(.v2, signing: Self.sessionKeySigning))
+            _ = try await placer.place(Self.sessionKeyOptions)
         }
 
         await #expect(throws: CancellationError.self) {
@@ -250,13 +248,14 @@ struct PolymarketOrderPlacerTests {
 
 private extension PolymarketOrderPlacerTests {
     static let depositWallet = "0x5A057dc6394196fBa51D84457DA3FB8FA241Fc20"
+    static let ownerAddress = "0x4130efa9e628a991520be60f2e948a4f9be52fbc"
     static let assetId = "1116017998421700000000000000000000000000000000000000000000000000047"
     static let sessionKey = "0x5e5500000000000000000000000000000000f001"
     static let sessionKeySignature = "0x" + String(repeating: "22", count: 65)
     static let duplicateRefusal = "order 0xf1503cb4 is invalid. Duplicated."
 
-    static var sessionKeySigning: PolymarketOrderPlacer.Signing {
-        .sessionKey(address: sessionKey, signer: StubDigestSigner(signature: sessionKeySignature))
+    static var sessionKeyOptions: PolymarketOrderPlacer.Options {
+        options(.v2, signingKeyAddress: sessionKey)
     }
 
     static let unreached = PolymarketOrderPlacementError.notSent(
@@ -266,24 +265,23 @@ private extension PolymarketOrderPlacerTests {
     static func options(
         _ market: QuotedMarket,
         side: PolymarketOrderSide = .buy,
-        signing: PolymarketOrderPlacer.Signing = .depositWallet
+        signingKeyAddress: String = PolymarketOrderPlacerTests.ownerAddress
     ) -> PolymarketOrderPlacer.Options {
-        options(quote: market.quote(side: side), isNegRisk: market.isNegRisk, signing: signing)
+        options(quote: market.quote(side: side), isNegRisk: market.isNegRisk, signingKeyAddress: signingKeyAddress)
     }
 
     static func options(
         quote: PolymarketOrderQuote,
         isNegRisk: Bool,
-        signing: PolymarketOrderPlacer.Signing = .depositWallet
+        signingKeyAddress: String = PolymarketOrderPlacerTests.ownerAddress
     ) -> PolymarketOrderPlacer.Options {
         PolymarketOrderPlacer.Options(
             quote: quote,
             assetId: assetId,
             isNegRisk: isNegRisk,
-            ownerAddress: "0x4130efa9e628a991520be60f2e948a4f9be52fbc",
+            signingKeyAddress: signingKeyAddress,
             depositWalletAddress: depositWallet,
-            credentials: PolymarketL2Credentials(apiKey: "api-key", secret: "secret", passphrase: "passphrase"),
-            signing: signing
+            credentials: PolymarketL2Credentials(apiKey: "api-key", secret: "secret", passphrase: "passphrase")
         )
     }
 }

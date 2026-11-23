@@ -334,6 +334,18 @@ extension CommonAccountModelsManager: AccountModelsManager {
         makeOrGetAccountModelsPublisher()
     }
 
+    nonisolated var accountsOrderPublisher: AnyPublisher<[CryptoAccountDerivationIdentity], Never> {
+        cryptoAccountsRepository
+            .cryptoAccountsPublisher
+            .map { $0.map(\.derivationIdentity) }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    func collectiblesAccountModel() async -> (any CollectiblesAccountModel)? {
+        await collectiblesAccountModelsRegistry.accountModel()
+    }
+
     func addCryptoAccount(name: String, icon: AccountModel.CompositeIcon) async throws(AccountEditError) -> AccountCreationResult {
         guard canAddCryptoAccounts else {
             throw .unknownError(AccountModelsManagerError.addingCryptoAccountsNotSupported)
@@ -360,7 +372,11 @@ extension CommonAccountModelsManager: AccountModelsManager {
         )
 
         do {
-            let distributionResult = try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: newAccountConfig, remoteState: remoteState)
+            let distributionResult = try await cryptoAccountsRepository.addNewCryptoAccount(
+                withConfig: newAccountConfig,
+                remoteState: remoteState,
+                placement: .last
+            )
 
             return AccountCreationResult(
                 operationResult: mapDistributionResult(distributionResult),
@@ -495,7 +511,11 @@ extension CommonAccountModelsManager: AccountModelsManager {
         let persistentConfig = info.toPersistentConfig()
 
         do {
-            let distributionResult = try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: persistentConfig, remoteState: remoteState)
+            let distributionResult = try await cryptoAccountsRepository.addNewCryptoAccount(
+                withConfig: persistentConfig,
+                remoteState: remoteState,
+                placement: .last
+            )
 
             if persistentConfig.derivationIdentity.type == .joint {
                 // The model is put together out of this account and the record kept for it, which only a read brings back

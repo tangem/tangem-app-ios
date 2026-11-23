@@ -41,6 +41,7 @@ struct CallToActionMarketingBannerViewModelFactoryTests {
         "tangem://onramp?type=concierge_waitlist",
         "https://tangem.com/onramp",
         "https://tangem.com/some-page",
+        "tangem://onboard-virtual-account?entry=ff1&id=VRTACC01",
     ])
     func openableLinkIsKept(link: String) {
         #expect(make(makeBanner(deeplink: URL(string: link)!)) != nil)
@@ -81,7 +82,8 @@ struct CallToActionMarketingBannerViewModelFactoryTests {
                 etaLabel: "up to 4 hours",
                 partnerLabel: "via MoonPay",
                 buttonText: "Request",
-                isGlowing: true
+                isGlowing: true,
+                replacedSlot: .greatRate
             )),
             deeplink: url
         )))
@@ -100,7 +102,8 @@ struct CallToActionMarketingBannerViewModelFactoryTests {
             categoryLabel: "Concierge for large purchases",
             subtitle: "Pay by bank transfer",
             etaLabel: "up to 4 hours",
-            partnerLabel: "via MoonPay"
+            partnerLabel: "via MoonPay",
+            replacedSlot: .greatRate
         ))
     }
 

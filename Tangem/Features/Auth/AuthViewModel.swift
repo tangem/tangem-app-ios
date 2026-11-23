@@ -111,7 +111,7 @@ private extension AuthViewModel {
             id: userWalletModel.userWalletId,
             title: userWalletModel.name,
             description: userWalletModel.config.cardSetLabel,
-            imageProvider: userWalletModel.walletImageProvider,
+            icon: userWalletModel.walletIcon,
             isProtected: !unlocker.canUnlockAutomatically,
             isUnlocking: { userWalletId in
                 userWalletModel.userWalletId == userWalletId
@@ -336,7 +336,7 @@ private extension AuthViewModel {
 
 // MARK: - Card scanning
 
-private extension AuthViewModel {
+extension AuthViewModel {
     func scanCard() {
         logScanCardTapAnalytics()
 
@@ -405,7 +405,9 @@ private extension AuthViewModel {
             }
         }
     }
+}
 
+private extension AuthViewModel {
     func scanCardTryAgain() {
         logScanCardTryAgainAnalytics()
         scanCard()

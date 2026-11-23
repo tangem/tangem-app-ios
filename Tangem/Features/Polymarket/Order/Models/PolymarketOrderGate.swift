@@ -14,7 +14,6 @@ struct PolymarketOrderGate {
     let notifications: [PolymarketOrderNotification]
     let amountCaption: AmountCaption?
     let isPrimaryButtonEnabled: Bool
-    let isPrimaryButtonEnabledWhileQuoting: Bool
     let canStepUp: Bool
     let canStepDown: Bool
     let selectableFractions: Set<PolymarketAmountFraction>
@@ -38,7 +37,6 @@ struct PolymarketOrderGate {
             && state.geoblock == .allowed
 
         isPrimaryButtonEnabled = isPlaceableApartFromQuote && Self.isQuotePlaceable(state: state, intent: intent)
-        isPrimaryButtonEnabledWhileQuoting = isPlaceableApartFromQuote && state.quote.isAwaitingQuote
 
         canStepUp = Self.canStepUp(state: state, intent: intent)
         canStepDown = Self.canStepDown(state: state, intent: intent)
@@ -92,7 +90,7 @@ private extension PolymarketOrderGate {
             return true
         }
 
-        return status == .belowMinOrderAmount || status.isPlaceable
+        return status.isPlaceable
     }
 
     static func notifications(state: PolymarketOrderModel.State, intent: PolymarketOrderIntent) -> [PolymarketOrderNotification] {

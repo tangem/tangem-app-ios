@@ -14,7 +14,7 @@ final class BuyReturnToAppUITests: BaseTestCase {
     func testBuyReturnToApp_FromTokenDetails() {
         setAllureId(2573)
 
-        launchApp(tangemApiType: .mock, expressApiType: .mock, scenarios: Constants.scenarios)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, featureToggles: OnrampUITestsFeatureToggles.improvements, scenarios: Constants.scenarios)
 
         let onrampScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -29,7 +29,7 @@ final class BuyReturnToAppUITests: BaseTestCase {
     func testBuyReturnToApp_FromTokenContextMenu() {
         setAllureId(12739)
 
-        launchApp(tangemApiType: .mock, expressApiType: .mock, scenarios: Constants.scenarios)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, featureToggles: OnrampUITestsFeatureToggles.improvements, scenarios: Constants.scenarios)
 
         let onrampScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -44,7 +44,7 @@ final class BuyReturnToAppUITests: BaseTestCase {
     func testBuyReturnToApp_FromAddFunds() {
         setAllureId(12740)
 
-        launchApp(tangemApiType: .mock, expressApiType: .mock, scenarios: Constants.scenarios)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, featureToggles: OnrampUITestsFeatureToggles.improvements, scenarios: Constants.scenarios)
 
         let onrampScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -61,7 +61,7 @@ final class BuyReturnToAppUITests: BaseTestCase {
     func testBuyReturnToApp_FromMarkets() {
         setAllureId(12741)
 
-        launchApp(tangemApiType: .mock, expressApiType: .mock, scenarios: Constants.scenarios)
+        launchApp(tangemApiType: .mock, expressApiType: .mock, featureToggles: OnrampUITestsFeatureToggles.improvements, scenarios: Constants.scenarios)
 
         let onrampScreen = CreateWalletSelectorScreen(app)
             .scanMockWallet(name: .wallet2)
@@ -92,7 +92,6 @@ final class BuyReturnToAppUITests: BaseTestCase {
         openOnrampReturnLink(Constants.ReturnLink.success)
 
         return OnrampFinishScreen(app)
-            .waitForInProgressTitle()
             .verifyTransactionDate(between: successLinkOpenedAt, and: Date())
             .verifyPurchaseDetails(
                 fiatAmount: Constants.amount,

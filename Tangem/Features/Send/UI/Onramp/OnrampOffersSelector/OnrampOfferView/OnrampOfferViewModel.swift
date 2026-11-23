@@ -20,6 +20,7 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
     let amount: Amount
     let provider: Provider
     let isAvailable: Bool
+    let isBuyEnabled: Bool
     let legalNotice: LegalNotice?
     let linkedBanner: LinkedMarketingBannerViewModel?
 
@@ -33,6 +34,7 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
         amount: Amount,
         provider: Provider,
         isAvailable: Bool,
+        isBuyEnabled: Bool = true,
         buyAction: BuyAction,
         legalNotice: LegalNotice? = nil,
         linkedBanner: LinkedMarketingBannerViewModel? = nil
@@ -41,6 +43,7 @@ struct OnrampOfferViewModel: Hashable, Identifiable {
         self.amount = amount
         self.provider = provider
         self.isAvailable = isAvailable
+        self.isBuyEnabled = isBuyEnabled
         self.buyAction = buyAction
         self.legalNotice = legalNotice
         self.linkedBanner = linkedBanner

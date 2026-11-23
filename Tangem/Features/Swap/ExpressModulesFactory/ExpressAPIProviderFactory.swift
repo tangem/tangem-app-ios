@@ -15,6 +15,7 @@ struct ExpressAPIProviderFactory {
     // MARK: - Injected
 
     @Injected(\.keysManager) private var keysManager: KeysManager
+    @Injected(\.userWalletRepository) private var userWalletRepository: UserWalletRepository
 
     // MARK: - Implementation
 
@@ -22,15 +23,9 @@ struct ExpressAPIProviderFactory {
         makeExpressAPIProvider(userId: userWalletId.stringValue, refcode: refcode)
     }
 
-    func makeExpressAPIProvider(userId: String, refcode: Refcode?) -> ExpressAPIProvider {
+    func makeExpressAPIProvider(userId: String, refcode: Refcode?, sendsBatchId: Bool = true) -> ExpressAPIProvider {
         let factory = TangemExpressFactory()
-        let expressAPIType: ExpressAPIType = {
-            if AppEnvironment.current.isProduction {
-                return .production
-            }
-
-            return ExpressAPIType(rawValue: FeatureStorage.instance.apiExpress) ?? .production
-        }()
+        let expressAPIType = AppEnvironment.current.expressAPIType
 
         let apiKey = apiKey(expressAPIType: expressAPIType)
         let exchangeDataDecoder = exchangeDataDecoder(expressAPIType: expressAPIType)
@@ -39,11 +34,12 @@ struct ExpressAPIProviderFactory {
             apiKey: apiKey,
             userId: userId,
             sessionId: AppConstants.sessionId,
-            refcode: refcode?.rawValue
+            refcode: refcode?.rawValue,
+            batchId: sendsBatchId ? batchId(userId: userId) : nil
         )
 
         let featureFlags = ExpressFeatureFlags(
-            isAPIV2Enabled: FeatureProvider.isAvailable(.expressApiV2)
+            isAPIV2Enabled: true
         )
 
         return factory.makeExpressAPIProvider(
@@ -52,12 +48,19 @@ struct ExpressAPIProviderFactory {
             expressAPIType: expressAPIType,
             exchangeDataDecoder: exchangeDataDecoder,
             featureFlags: featureFlags,
-            requestInterceptor: featureFlags.isAPIV2Enabled ? authenticationInterceptor : nil
+            requestInterceptor: authenticationInterceptor
         )
     }
 }
 
 private extension ExpressAPIProviderFactory {
+    func batchId(userId: String) -> String? {
+        userWalletRepository.models
+            .first(where: { $0.userWalletId.stringValue == userId })?
+            .refcodeProvider?
+            .batchId
+    }
+
     var authenticationInterceptor: Interceptor {
         Interceptor(
             adapter: BackendAuthenticationAssembly.requestAdapter,

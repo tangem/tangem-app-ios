@@ -9,7 +9,9 @@
 import Combine
 import SwiftUI
 import BlockchainSdk
+import TangemPay
 import TangemUI
+import TangemVisa
 
 final class TangemPayMoneyAccountCoordinator: CoordinatorObject {
     let dismissAction: Action<Void>
@@ -19,6 +21,9 @@ final class TangemPayMoneyAccountCoordinator: CoordinatorObject {
 
     @Injected(\.safariManager)
     private var safariManager: SafariManager
+
+    @Injected(\.mailComposePresenter)
+    private var mailPresenter: MailComposePresenter
 
     @Injected(\.floatingSheetPresenter)
     private var floatingSheetPresenter: any FloatingSheetPresenter
@@ -33,13 +38,20 @@ final class TangemPayMoneyAccountCoordinator: CoordinatorObject {
 
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
     @Published var contactManagementCoordinator: AddressBookContactManagementCoordinator? = nil
+    @Published var sendCoordinator: SendCoordinator? = nil
+
+    // MARK: - Modals
+
+    @Published var addFundsViewModel: TangemPayMoneyAccountAddFundsViewModel? = nil
+    @Published var accountDetailsViewModel: TangemPayVirtualAccountDetailsViewModel? = nil
 
     private(set) var options: Options!
 
-    var isTopUpPickerPresenting = false
     var isWithdrawHubPresenting = false
     var isYieldModePresenting = false
 
+    private var pendingAddFundsOption: TangemPayMoneyAccountAddFundsOption?
+    private var bankDetailsTask: Task<Void, Never>?
     private var safariHandle: SafariHandle?
     private var transactionDetailsPresentationTask: Task<Void, Never>?
     private var transactionDetailsSheetId: String?
@@ -77,13 +89,178 @@ extension TangemPayMoneyAccountCoordinator {
 extension TangemPayMoneyAccountCoordinator {
     func handle(_ output: TangemPayMoneyAccountViewModel.Output) {
         switch output {
-        case .topup: break
+        case .topup:
+            openAddFunds()
         case .withdraw: break
         case .openTransactionDetails(let id):
             openTransactionDetails(id: id)
         }
     }
 }
+
+// MARK: - Add funds
+
+extension TangemPayMoneyAccountCoordinator {
+    func addFundsDidDismiss() {
+        guard let option = pendingAddFundsOption else { return }
+
+        pendingAddFundsOption = nil
+        openAddFundsFlow(for: option)
+    }
+}
+
+private extension TangemPayMoneyAccountCoordinator {
+    func openAddFunds() {
+        addFundsViewModel = TangemPayMoneyAccountAddFundsViewModel { [weak self] option in
+            self?.pendingAddFundsOption = option
+            self?.addFundsViewModel = nil
+        }
+    }
+
+    func openAddFundsFlow(for option: TangemPayMoneyAccountAddFundsOption) {
+        switch option {
+        case .swap:
+            openSwap()
+        case .receive:
+            openReceive()
+        case .bankTransfer:
+            openBankDetails()
+        }
+    }
+
+    func openSwap() {
+        let parameters = TangemPayMoneyAccountAddFundsSwapPredefinedParametersBuilder(
+            userWalletModel: options.userWalletModel,
+            moneyAccount: options.moneyAccount
+        ).make()
+
+        let coordinator = makeSendCoordinator()
+        coordinator.start(with: .init(type: .swap(parameters), source: .main))
+        sendCoordinator = coordinator
+    }
+
+    func openReceive() {
+        let moneyAccount = options.moneyAccount
+        let viewModel = ReceiveMainViewModel(
+            options: .init(
+                tokenItem: moneyAccount.tokenItem,
+                flow: .crypto,
+                addressTypesProvider: SingleAddressReceiveAddressTypesProvider(
+                    address: moneyAccount.walletModel.defaultAddressString,
+                    colorScheme: .whiteBlack
+                )
+            ),
+            receiveTokenWithdrawNoticeInteractor: TangemPayReceiveTokenWithdrawNoticeInteractor()
+        )
+        viewModel.start()
+
+        Task { @MainActor in
+            floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+}
+
+// MARK: - Bank transfer
+
+private extension TangemPayMoneyAccountCoordinator {
+    func loadBankCredentials() async throws -> TangemPayBankCredentialsResponse? {
+        let moneyAccount = options.moneyAccount
+
+        if let credentials = moneyAccount.bankCredentials {
+            return credentials
+        }
+
+        try await moneyAccount.loadBankCredentials()
+        return moneyAccount.bankCredentials
+    }
+
+    func openBankDetails() {
+        guard bankDetailsTask == nil else { return }
+
+        bankDetailsTask = Task { @MainActor [weak self] in
+            await self?.loadAndOpenAccountDetails()
+            self?.bankDetailsTask = nil
+        }
+    }
+
+    @MainActor
+    func loadAndOpenAccountDetails() async {
+        do {
+            if let credentials = try await loadBankCredentials() {
+                openAccountDetails(credentials: credentials)
+                return
+            }
+        } catch {
+            VisaLogger.error("Failed to load money account bank credentials", error: error)
+        }
+
+        openBankDetailsErrorPopup()
+    }
+
+    @MainActor
+    func openAccountDetails(credentials: TangemPayBankCredentialsResponse) {
+        let fees = TangemPayVirtualAccountFee(credentials: credentials).map { [$0] } ?? []
+
+        accountDetailsViewModel = TangemPayVirtualAccountDetailsViewModel(
+            credentials: credentials,
+            feesSource: .known(fees),
+            onClose: { [weak self] in
+                self?.accountDetailsViewModel = nil
+            }
+        )
+    }
+
+    @MainActor
+    func openBankDetailsErrorPopup() {
+        let viewModel = TangemPayVirtualAccountBankDetailsErrorPopupViewModel(
+            loadBankCredentials: { [weak self] in try await self?.loadBankCredentials() },
+            coordinator: self
+        )
+
+        floatingSheetPresenter.enqueue(sheet: viewModel)
+    }
+}
+
+// MARK: - TangemPayVirtualAccountBankDetailsErrorPopupRoutable
+
+extension TangemPayMoneyAccountCoordinator: TangemPayVirtualAccountBankDetailsErrorPopupRoutable {
+    func virtualAccountDidLoadBankCredentials(_ credentials: TangemPayBankCredentialsResponse) {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            try? await Task.sleep(for: .seconds(0.2))
+            openAccountDetails(credentials: credentials)
+        }
+    }
+
+    func virtualAccountBankDetailsErrorPopupDidRequestSupport() {
+        let subject = VisaEmailSubject.usdAccountGeneralHelp
+        let dataCollector = TangemPayMoneyAccountSupportDataCollector(
+            customerId: options.moneyAccount.customerId,
+            accountId: options.moneyAccount.accountId
+        )
+        let logsComposer = LogsComposer(infoProvider: dataCollector, includeSystemLogs: false)
+        let mailViewModel = MailViewModel(
+            logsComposer: logsComposer,
+            recipient: EmailConfig.visaDefault(subject: subject).recipient,
+            emailType: .visaFeedback(subject: subject)
+        )
+
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+            mailPresenter.present(viewModel: mailViewModel)
+        }
+    }
+
+    func closeVirtualAccountSheet() {
+        Task { @MainActor in
+            floatingSheetPresenter.removeActiveSheet()
+        }
+    }
+}
+
+// MARK: - SendFeeCurrencyNavigating
+
+extension TangemPayMoneyAccountCoordinator: SendFeeCurrencyNavigating {}
 
 // MARK: - Transaction details
 

@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import TangemFoundation
 import TangemLocalization
+import TangemMacro
 import TangemPolymarket
 import TangemPolymarketUI
 import TangemUI
@@ -19,32 +20,50 @@ import TangemUIUtils
 final class PolymarketOrderSubmission {
     private let model: PolymarketOrderModel
     private let placementService: PolymarketOrderPlacementService
+    private let signingChoice: PolymarketOrderSigningChoice?
     private let now: () -> Date
 
     init(
         model: PolymarketOrderModel,
         placementService: PolymarketOrderPlacementService,
+        signingChoice: PolymarketOrderSigningChoice? = nil,
         now: @escaping () -> Date = Date.init
     ) {
         self.model = model
         self.placementService = placementService
+        self.signingChoice = signingChoice
         self.now = now
     }
 
-    func readiness() -> Readiness {
-        guard let quote = model.state.quote.quote else { return .unavailable }
+    func readiness(of state: PolymarketOrderModel.State) -> Readiness {
+        guard let quote = state.quote.quote else { return .unavailable }
 
-        guard model.state.keepsQuote(at: now()) else { return .staleQuote }
+        guard state.keepsQuote(at: now()) else { return .staleQuote }
 
         return .ready(quote)
     }
 
-    func submit(quote: PolymarketOrderQuote, marketRow: @escaping () -> PolymarketOrderMarketRow.Model) async -> Outcome {
+    func submit(
+        quote: PolymarketOrderQuote,
+        signing tapped: PolymarketOrderSigningMethod,
+        marketRow: @escaping () -> PolymarketOrderMarketRow.Model
+    ) async -> Outcome {
+        let signing: PolymarketOrderSigningRoute
+
+        switch await decision(tapped: tapped) {
+        case .sign(let method):
+            signing = method
+        case .routeChanged:
+            signingChoice?.switchToOwnerKey()
+            return .signingChanged
+        }
+
         do {
             let placement = try await placementService.place(
                 quote: quote,
                 market: model.market,
-                outcome: model.outcome
+                outcome: model.outcome,
+                signing: signing
             )
 
             guard !placement.isMatchedWithoutFill(side: model.intent.side) else {
@@ -63,6 +82,9 @@ final class PolymarketOrderSubmission {
             )
         } catch let error as PolymarketOrderPlacementError {
             return outcome(for: error, quote: quote, marketRow: marketRow())
+        } catch PolymarketOrderPlacementSetupError.sessionKeyUnavailable {
+            signingChoice?.declineSessionKey()
+            return .signingChanged
         } catch is CancellationError {
             return .cancelled
         } catch {
@@ -85,8 +107,10 @@ extension PolymarketOrderSubmission {
 // MARK: - Outcome
 
 extension PolymarketOrderSubmission {
+    @CaseFlagable
     enum Outcome {
         case cancelled
+        case signingChanged
         case failed(returningToMain: Bool)
         case finished(PolymarketOrderResultViewModel.State, PolymarketOrderResultViewModel.Content)
     }
@@ -123,6 +147,14 @@ extension PolymarketOrderSubmission {
             message: Localization.predictionPlacePriceChangedDescription,
             okAction: onAcknowledge
         )
+    }
+}
+
+// MARK: - Signing
+
+private extension PolymarketOrderSubmission {
+    func decision(tapped: PolymarketOrderSigningMethod) async -> PolymarketOrderSigningChoice.Decision {
+        await signingChoice?.decide(tapped: tapped) ?? .sign(.ownerKey)
     }
 }
 

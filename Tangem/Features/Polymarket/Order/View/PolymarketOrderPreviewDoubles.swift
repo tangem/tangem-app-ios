@@ -110,7 +110,8 @@ struct PolymarketOrderPreviewPlacementService: PolymarketOrderPlacementService {
     func place(
         quote: PolymarketOrderQuote,
         market: PolymarketMarket,
-        outcome: PolymarketOutcome
+        outcome: PolymarketOutcome,
+        signing: PolymarketOrderSigningRoute
     ) async throws -> PolymarketOrderPlacement {
         throw CancellationError()
     }

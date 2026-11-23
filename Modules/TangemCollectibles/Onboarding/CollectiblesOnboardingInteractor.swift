@@ -52,14 +52,14 @@ extension CollectiblesOnboardingInteractor {
 
     enum VaultStep: Hashable {
         case deploy
-        /// Points a vault that names an unknown session key back at the one this phone holds — the exit from a
-        /// reinstall. Caps stay as the chain holds them.
-        case pointAtHeldSessionKey
+        /// Names a freshly generated session key in a vault that answers to another key, so a key left by an
+        /// earlier install is never trusted again. Caps stay as the chain holds them.
+        case reissueSessionKey
 
         var instructionName: String {
             switch self {
             case .deploy: "init_vault"
-            case .pointAtHeldSessionKey: "update_vault"
+            case .reissueSessionKey: "update_vault"
             }
         }
     }
@@ -75,7 +75,7 @@ extension CollectiblesOnboardingInteractor {
         case .ready: .ready
         case .coldOwnerNotDerived: .step(.deriveColdKeyAndSetUpVault)
         case .notOnboarded: canDeployVault ? .step(.vault(.deploy)) : .vaultMissing
-        case .rekeyRequired: .step(.vault(.pointAtHeldSessionKey))
+        case .rekeyRequired: .step(.vault(.reissueSessionKey))
         // `resolveState` answers with a resolved case or throws; this is only ever the value
         // published before the first resolve finishes
         case .unresolved: throw CollectiblesOnboardingError.stateUnresolved
@@ -177,15 +177,7 @@ private extension CollectiblesOnboardingInteractor {
         }
 
         CollectiblesLogger.debug("hotDelegate: is a hot session key stored on the phone -> No, generating one")
-
-        do {
-            let sessionKey = try await sessionKeySigner.generateKey()
-            CollectiblesLogger.debug("hotDelegate: hot session key generated")
-            return sessionKey
-        } catch {
-            CollectiblesLogger.debug("hotDelegate: provision failed, error=\(error)")
-            throw error
-        }
+        return try await generateSessionKey()
     }
 
     func signVaultStep(
@@ -196,14 +188,14 @@ private extension CollectiblesOnboardingInteractor {
         switch step {
         case .deploy:
             CollectiblesLogger.debug("vault: does the User Account PDA exist on chain? -> No, creating the User Account PDA (init_vault)")
-        case .pointAtHeldSessionKey:
-            CollectiblesLogger.debug("vault: is the hot key the same as in the User Account PDA? -> No or unreadable on the phone, updating the key in the PDA (update_vault)")
+        case .reissueSessionKey:
+            CollectiblesLogger.debug("vault: is the hot key the same as in the User Account PDA? -> No or unreadable on the phone, naming a fresh key in the PDA (update_vault)")
         }
 
         do {
             let coldKey = try coldOwnerProvider.requiredColdOwnerKey()
             let program = try CollectiblesVaultProgram(programId: CollectiblesChainEnvironment.programId)
-            let instructions = try vaultInstructions(
+            let instructions = try await vaultInstructions(
                 for: step,
                 program: program,
                 coldOwner: coldKey.blockchainKey,
@@ -232,19 +224,32 @@ private extension CollectiblesOnboardingInteractor {
         program: CollectiblesVaultProgram,
         coldOwner: Data,
         inputs: VaultSetUpInputs
-    ) throws -> [CollectiblesInstruction] {
+    ) async throws -> [CollectiblesInstruction] {
         switch step {
         case .deploy:
             return try deployVaultInstructions(program: program, coldOwner: coldOwner, inputs: inputs)
-        case .pointAtHeldSessionKey:
+        case .reissueSessionKey:
+            let sessionKey = try await generateSessionKey()
+
             return [
                 try program.updateVaultInstruction(
                     coldOwner: coldOwner,
-                    sessionKey: inputs.sessionKey,
+                    sessionKey: sessionKey,
                     perSpinCap: nil,
                     dailyCap: nil
                 ),
             ]
+        }
+    }
+
+    func generateSessionKey() async throws -> Data {
+        do {
+            let sessionKey = try await sessionKeySigner.generateKey()
+            CollectiblesLogger.debug("hotDelegate: hot session key generated")
+            return sessionKey
+        } catch {
+            CollectiblesLogger.debug("hotDelegate: provision failed, error=\(error)")
+            throw error
         }
     }
 

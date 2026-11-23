@@ -7,40 +7,33 @@
 //
 
 import TangemAccessibilityIdentifiers
-import TangemAssets
 
 struct NavigationBarButtonRole {
     let sfSymbol: String
-    let iconAsset: ImageType
     let accessibilityIdentifier: String?
 
     static let back = NavigationBarButtonRole(
         sfSymbol: "chevron.backward",
-        iconAsset: Assets.Glyphs.chevron20LeftButtonNew,
         accessibilityIdentifier: CommonUIAccessibilityIdentifiers.backButton
     )
 
     static let close = NavigationBarButtonRole(
         sfSymbol: "xmark",
-        iconAsset: Assets.Glyphs.cross20ButtonNew,
         accessibilityIdentifier: CommonUIAccessibilityIdentifiers.closeButton
     )
 
     static let add = NavigationBarButtonRole(
         sfSymbol: "plus",
-        iconAsset: Assets.plus24,
         accessibilityIdentifier: CommonUIAccessibilityIdentifiers.addButton
     )
 
     static let share = NavigationBarButtonRole(
         sfSymbol: "square.and.arrow.up",
-        iconAsset: Assets.DesignSystem.share,
         accessibilityIdentifier: CommonUIAccessibilityIdentifiers.shareButton
     )
 
     static let details = NavigationBarButtonRole(
         sfSymbol: "ellipsis",
-        iconAsset: Assets.verticalDots,
         accessibilityIdentifier: nil
     )
 
@@ -48,7 +41,6 @@ struct NavigationBarButtonRole {
     static func priceAlert(isActive: Bool) -> NavigationBarButtonRole {
         NavigationBarButtonRole(
             sfSymbol: isActive ? "bell.fill" : "bell",
-            iconAsset: DesignSystem.Icons.Bell.regular24,
             accessibilityIdentifier: nil
         )
     }

@@ -11,5 +11,5 @@ import TangemUI
 @MainActor
 protocol WCTransactionRoutable {
     func show(floatingSheetViewModel: some FloatingSheetContentViewModel)
-    func show(toast: Toast<WarningToast>)
+    func show(toast: LegacyToast<WarningToast>)
 }

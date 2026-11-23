@@ -9,7 +9,7 @@
 import Foundation
 
 protocol LendingPositionRoutable: AnyObject {
-    func openWithdraw(position: Decimal)
+    func openWithdraw(position: Decimal, available: Decimal?)
     func openAddFunds()
     func openHowItWorks()
     func openURL(_ url: URL)

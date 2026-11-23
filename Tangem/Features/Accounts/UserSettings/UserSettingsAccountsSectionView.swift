@@ -19,8 +19,15 @@ struct UserSettingsAccountsSectionView: View {
         ReorderableGroupedSection(
             reorderableModels: $viewModel.accountRows,
             reorderableContent: { accountRow in
-                AccountRowButtonView(viewModel: accountRow.viewModel) {
-                    trailingChevron
+                switch accountRow.content {
+                case .regular(let viewModel, let hasDetails):
+                    AccountRowButtonView(viewModel: viewModel) {
+                        if hasDetails {
+                            trailingChevron
+                        }
+                    }
+                case .paused(let viewModel):
+                    PausedJointAccountRowView(viewModel: viewModel)
                 }
             },
             staticModels: [

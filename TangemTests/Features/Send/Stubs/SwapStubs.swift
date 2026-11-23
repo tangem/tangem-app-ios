@@ -32,8 +32,7 @@ final class SwapRepositoryStub: SwapRepository {
     func updatePairs(from wallet: ExpressWalletCurrency, to currencies: [ExpressWalletCurrency], userWalletInfo: UserWalletInfo) async throws {}
     func updatePairs(for wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async throws {}
     func getAvailableProvidersIds(for pair: ExpressManagerSwappingPair, rateType: ExpressProviderRateType?) async -> [ExpressProvider.Id] { [] }
-    func getPairs(from wallet: ExpressWalletCurrency) async -> [ExpressPair] { [] }
-    func getPairs(to wallet: ExpressWalletCurrency) async -> [ExpressPair] { [] }
+    func getPairs(from wallet: ExpressWalletCurrency, userWalletInfo: UserWalletInfo) async -> [ExpressPair] { [] }
     func providers(userWalletInfo: UserWalletInfo) async throws -> [ExpressProvider] { [] }
 
     // ExpressRepository

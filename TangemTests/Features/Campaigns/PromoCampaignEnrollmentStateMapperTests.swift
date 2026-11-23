@@ -127,7 +127,11 @@ struct PromoCampaignEnrollmentStateMapperTests {
         #expect(wallets.count == 1)
         #expect(wallet.name == "Main wallet")
         #expect(wallet.subtitle == "Test")
-        #expect(wallet.imageProvider is CardImageProviderMock)
+        if case .loadable(let imageProvider) = wallet.walletIcon {
+            #expect(imageProvider is CardImageProviderMock)
+        } else {
+            Issue.record("Expected a card wallet icon, got \(wallet.walletIcon)")
+        }
         #expect(wallet.payout?.address == "0xPayout")
     }
 

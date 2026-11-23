@@ -22,6 +22,8 @@ final class AccountPickerViewModel: ObservableObject {
     @Published private(set) var content: Content
     @Published private(set) var isBalanceMasked: Bool
 
+    let showsSelectionCheckmarks: Bool
+
     private var presentation: Presentation
     private let accountAvailabilityProvider: any AccountPickerAccountAvailabilityProvider
     private let userWalletAvailabilityProvider: any UserWalletSelectorAvailabilityProvider
@@ -53,6 +55,7 @@ final class AccountPickerViewModel: ObservableObject {
         self.onSelect = onSelect
         self.onUnavailableSelect = onUnavailableSelect
         selectedAccountId = selectedAccount?.id.toAnyHashable()
+        showsSelectionCheckmarks = selectedAccount != nil
         isBalanceMasked = SensitiveTextVisibilityViewModel.shared.isHidden
 
         bind(userWalletsProvider: userWalletsProvider)
@@ -229,7 +232,7 @@ private extension AccountPickerViewModel {
         return AccountPickerAccountItem(
             id: id,
             name: account.name,
-            icon: AccountModelUtils.UI.iconViewData(accountModel: account),
+            icon: AccountModelUtils.UI.avatarAccount(accountModel: account),
             badge: isJoint ? Localization.commonJoint : nil,
             subtitle: details.map { "\($0.tokensCount) \(AppConstants.dotSign)" },
             balance: details?.balance ?? placeholderBalance,

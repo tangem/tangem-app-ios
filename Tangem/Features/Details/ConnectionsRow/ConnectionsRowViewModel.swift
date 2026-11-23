@@ -13,5 +13,6 @@ struct ConnectionsRowViewModel: Identifiable {
     let id = UUID()
     let title = Localization.wcConnections
     let subtitle = Localization.wcConnectionsSubtitle
+    var isEnabled: Bool
     let action: () -> Void
 }

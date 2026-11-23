@@ -15,6 +15,7 @@ struct DSShowcaseEnvironment: Equatable {
     var appearance: Appearance = .system
     var dynamicTypeSize: DynamicTypeSize?
     var reduceMotion: Bool?
+    var reduceTransparency: Bool?
     var background: DSShowcaseStageBackground = .primary
 
     var summary: String {
@@ -23,6 +24,7 @@ struct DSShowcaseEnvironment: Equatable {
             String(describing: appearance),
             dynamicTypeSize.map { String(describing: $0) } ?? "system DT",
             reduceMotion.map { $0 ? "reduce motion" : "full motion" },
+            reduceTransparency.map { $0 ? "reduce transparency" : "full transparency" },
             String(describing: background),
         ]
         .compactMap { $0 }
@@ -82,6 +84,7 @@ private struct DSShowcaseEnvironmentModifier: ViewModifier {
     @Environment(\.colorScheme) private var systemColorScheme
     @Environment(\.dynamicTypeSize) private var systemDynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var systemReduceTransparency
 
     func body(content: Content) -> some View {
         content
@@ -89,6 +92,7 @@ private struct DSShowcaseEnvironmentModifier: ViewModifier {
             .environment(\.colorScheme, colorScheme)
             .environment(\.dynamicTypeSize, environment.dynamicTypeSize ?? systemDynamicTypeSize)
             .environment(\._accessibilityReduceMotion, environment.reduceMotion ?? systemReduceMotion)
+            .environment(\._accessibilityReduceTransparency, environment.reduceTransparency ?? systemReduceTransparency)
     }
 
     private var colorScheme: ColorScheme {

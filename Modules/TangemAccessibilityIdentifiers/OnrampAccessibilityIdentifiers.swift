@@ -59,8 +59,6 @@ public enum OnrampAccessibilityIdentifiers {
         return "onrampProviderNativeApplePayButton_\(name.lowercased().replacingOccurrences(of: " ", with: "_"))"
     }
 
-    public static let kycIcon = "onrampKycIcon"
-
     /// Payment methods screen
     public static let paymentMethodCard = "onrampPaymentMethodCard"
 

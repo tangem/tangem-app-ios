@@ -23,7 +23,8 @@ struct CommonTransactionHistoryRecordsJointOperationsTests {
             return await firstNonEmptyRecords(for: Self.baseCoin)
         }
 
-        #expect(records == [.jointOperation(JointOperationHistoryInfo(item: item))])
+        let expectedInfo = try JointOperationHistoryTestDataFactory.info(item)
+        #expect(records == [.jointOperation(expectedInfo)])
     }
 
     @Test("A saved token operation reaches the reader of the token, whatever the case of its contract")
@@ -35,7 +36,8 @@ struct CommonTransactionHistoryRecordsJointOperationsTests {
             return await firstNonEmptyRecords(for: Self.baseUSDC)
         }
 
-        #expect(records == [.jointOperation(JointOperationHistoryInfo(item: item))])
+        let expectedInfo = try JointOperationHistoryTestDataFactory.info(item)
+        #expect(records == [.jointOperation(expectedInfo)])
     }
 
     @Test("The latest state the history sent is kept, whatever the stored one", arguments: [
@@ -58,7 +60,8 @@ struct CommonTransactionHistoryRecordsJointOperationsTests {
             return await firstNonEmptyRecords(for: Self.baseCoin)
         }
 
-        #expect(records == [.jointOperation(JointOperationHistoryInfo(item: later))])
+        let expectedInfo = try JointOperationHistoryTestDataFactory.info(later)
+        #expect(records == [.jointOperation(expectedInfo)])
     }
 
     @Test("Within one page the later state of an operation wins")
@@ -71,7 +74,8 @@ struct CommonTransactionHistoryRecordsJointOperationsTests {
             return await firstNonEmptyRecords(for: Self.baseCoin)
         }
 
-        #expect(records == [.jointOperation(JointOperationHistoryInfo(item: inFlight))])
+        let expectedInfo = try JointOperationHistoryTestDataFactory.info(inFlight)
+        #expect(records == [.jointOperation(expectedInfo)])
     }
 
     @Test("Saving the same operation again leaves a single row")
@@ -85,7 +89,8 @@ struct CommonTransactionHistoryRecordsJointOperationsTests {
             return await firstNonEmptyRecords(for: Self.baseCoin)
         }
 
-        #expect(records == [.jointOperation(JointOperationHistoryInfo(item: item))])
+        let expectedInfo = try JointOperationHistoryTestDataFactory.info(item)
+        #expect(records == [.jointOperation(expectedInfo)])
     }
 
     @Test("An operation of another token stays out of the coin's history")

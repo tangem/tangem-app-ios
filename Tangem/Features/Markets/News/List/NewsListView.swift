@@ -95,7 +95,6 @@ struct NewsListView: View {
             settings: .init(backgroundColor: DesignSystem.Color.bgPrimary),
             leftButtons: { navigationBarLeadingButton }
         )
-        .environment(\.isRedesign, true)
     }
 
     @ViewBuilder
@@ -162,7 +161,7 @@ struct NewsListView: View {
 
     @ViewBuilder
     private var errorView: some View {
-        TangemUnableToLoadDataView(
+        UnableToLoadDataView(
             isButtonBusy: false,
             retryButtonAction: { viewModel.handleViewAction(.retry) }
         )

@@ -43,18 +43,6 @@ final class MobileRemoveSocialWalletViewModel: ObservableObject {
     }
 }
 
-// MARK: - Internal methods
-
-extension MobileRemoveSocialWalletViewModel {
-    func onBackTap() {
-        guard !isLoading else { return }
-
-        runTask(in: self) { viewModel in
-            await viewModel.close()
-        }
-    }
-}
-
 // MARK: - Private methods
 
 private extension MobileRemoveSocialWalletViewModel {
@@ -134,10 +122,6 @@ private extension MobileRemoveSocialWalletViewModel {
 private extension MobileRemoveSocialWalletViewModel {
     func completed() {
         coordinator?.removeSocialWalletCompleted()
-    }
-
-    func close() {
-        coordinator?.removeSocialWalletClose()
     }
 }
 

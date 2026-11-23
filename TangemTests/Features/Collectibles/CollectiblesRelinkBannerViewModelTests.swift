@@ -20,27 +20,30 @@ final class CollectiblesRelinkBannerViewModelTests: LeakTrackingTestSuite {
     typealias SUT = CollectiblesRelinkBannerViewModel
 
     @Test("A failed relink shows the error")
-    func failureShowsError() async {
+    func failureShowsError() async throws {
         let relinker = RelinkerStub(errors: [RelinkError()])
         let sut = makeSUT(relinker: relinker)
         let errors = ErrorRecorder(sut: sut, relinker: relinker)
 
         sut.relink()
-        await waitUntil { errors.relinkCalls.isNotEmpty }
+        let relinkTask = try #require(sut.relinkTask)
+        try await relinkTask.waitForCompletion()
 
         #expect(errors.relinkCalls == [1])
     }
 
     @Test("A cancelled card tap shows no error, unlike a failure right after it")
-    func cancellationIsSilent() async {
+    func cancellationIsSilent() async throws {
         let relinker = RelinkerStub(errors: [CancellationError(), RelinkError()])
         let sut = makeSUT(relinker: relinker)
         let errors = ErrorRecorder(sut: sut, relinker: relinker)
 
         sut.relink()
-        await waitUntil { relinker.relinkCallsCount == 1 }
+        let cancelledRelink = try #require(sut.relinkTask)
+        try await cancelledRelink.waitForCompletion()
         sut.relink()
-        await waitUntil { errors.relinkCalls.isNotEmpty }
+        let failedRelink = try #require(sut.relinkTask)
+        try await failedRelink.waitForCompletion()
 
         #expect(errors.relinkCalls == [2])
     }
@@ -79,7 +82,7 @@ final class CollectiblesRelinkBannerViewModelTests: LeakTrackingTestSuite {
 
         sut.relink()
         let relinkTask = try #require(sut.relinkTask)
-        await relinkTask.value
+        try await relinkTask.waitForCompletion()
 
         #expect(relinker.relinkCallsCount == 1)
         #expect(closingsCount == 0)

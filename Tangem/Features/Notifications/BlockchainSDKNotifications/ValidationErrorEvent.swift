@@ -15,7 +15,7 @@ enum ValidationErrorEvent: Hashable {
     // Amount/Fee notifications
     case invalidNumber
     case insufficientBalance
-    case insufficientBalanceForFee(configuration: SendingRestrictions.NotEnoughFeeConfiguration)
+    case insufficientBalanceForFee(configuration: NotEnoughFeeConfiguration)
 
     // Blockchain specific notifications
     case dustRestriction(minimumAmountFormatted: String, minimumChangeFormatted: String)
@@ -108,7 +108,7 @@ extension ValidationErrorEvent {
         case .insufficientBalanceForFee(let configuration):
             return Localization.warningSendBlockedFundsForFeeMessage(
                 configuration.transactionAmountTypeName,
-                configuration.networkName,
+                configuration.networkName.droppingNetworkSuffix,
                 configuration.transactionAmountTypeName,
                 configuration.feeAmountTypeName,
                 configuration.feeAmountTypeCurrencySymbol

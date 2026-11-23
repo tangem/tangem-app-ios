@@ -20,7 +20,7 @@ extension InjectedValues {
 private struct TransactionHistoryAuxDataRepositoryKey: InjectionKey {
     static var currentValue: TransactionHistoryAuxDataRepository = CommonTransactionHistoryAuxDataRepository(
         cachingExpressAPIProviderFactory: CachingExpressAPIProviderFactory { userWalletId, refcode in
-            ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode)
+            ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, refcode: refcode, sendsBatchId: false)
         },
         storage: makeStorage()
     )

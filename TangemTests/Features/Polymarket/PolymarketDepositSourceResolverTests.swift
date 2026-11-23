@@ -27,8 +27,8 @@ struct PolymarketDepositSourceResolverTests {
 
     @Test("With several accepted networks the richest of them is preselected, not the first")
     func richestAcceptedNetworkWins() async {
-        let poorer = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 10)
-        let richer = WalletModelTestsMock(tokenItem: usdcBase, isEmpty: false, fiatBalance: 500)
+        let poorer = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 10)
+        let richer = makeWalletModel(tokenItem: usdcBase, fiatBalance: 500)
 
         let chosen = await chooseSource(
             from: [poorer, richer],
@@ -40,8 +40,8 @@ struct PolymarketDepositSourceResolverTests {
 
     @Test("A network the bridge does not accept is no transfer source, however rich it is")
     func unacceptedNetworkIsNoTransferSource() async {
-        let accepted = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 10)
-        let unaccepted = WalletModelTestsMock(tokenItem: usdcBase, isEmpty: false, fiatBalance: 500)
+        let accepted = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 10)
+        let unaccepted = makeWalletModel(tokenItem: usdcBase, fiatBalance: 500)
 
         let chosen = await chooseSource(
             from: [accepted, unaccepted],
@@ -53,8 +53,8 @@ struct PolymarketDepositSourceResolverTests {
 
     @Test("The bridge's own currency stays the transfer source even when Express can't swap it")
     func depositCurrencyWinsWithoutSwapAvailability() async {
-        let matching = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 50)
-        let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 500)
+        let matching = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 50)
+        let swapFallback = makeWalletModel(tokenItem: ethereum, fiatBalance: 500)
 
         let chosen = await chooseSource(
             from: [matching, swapFallback],
@@ -67,8 +67,8 @@ struct PolymarketDepositSourceResolverTests {
 
     @Test("A funded deposit-currency token without a fiat quote still wins over the swap fallback")
     func matchingWithoutQuoteStaysTransfer() async {
-        let matching = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 0)
-        let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 500)
+        let matching = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 0)
+        let swapFallback = makeWalletModel(tokenItem: ethereum, fiatBalance: 500)
 
         let chosen = await chooseSource(
             from: [matching, swapFallback],
@@ -81,9 +81,8 @@ struct PolymarketDepositSourceResolverTests {
 
     @Test("A deposit-currency token the app can't transfer is skipped for the swap fallback")
     func transferUnavailableMatchingSkipped() async {
-        let matching = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 50)
-        matching.sendingRestrictionsMock = .blockchainUnreachable
-        let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 5)
+        let matching = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 50, availableBalance: .failure(nil))
+        let swapFallback = makeWalletModel(tokenItem: ethereum, fiatBalance: 5)
 
         let chosen = await chooseSource(
             from: [matching, swapFallback],
@@ -95,9 +94,8 @@ struct PolymarketDepositSourceResolverTests {
 
     @Test("Without the deposit currency the richest swap-available token wins; swap-unavailable ones never do")
     func fallbackRequiresSwapAvailability() async {
-        let swapAvailable = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 100)
-        let swapUnavailable = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 999)
-        swapUnavailable.sendingRestrictionsMock = .blockchainUnreachable
+        let swapAvailable = makeWalletModel(tokenItem: ethereum, fiatBalance: 100)
+        let swapUnavailable = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 999, availableBalance: .failure(nil))
 
         let chosen = await chooseSource(
             from: [swapAvailable, swapUnavailable],
@@ -109,9 +107,8 @@ struct PolymarketDepositSourceResolverTests {
 
     @Test("With no positive fiat anywhere the first swap-available token still becomes the source")
     func nothingFundedFallsBackToFirstSwapAvailable() async {
-        let unavailable = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 0)
-        unavailable.sendingRestrictionsMock = .blockchainUnreachable
-        let available = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 0)
+        let unavailable = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 0, availableBalance: .failure(nil))
+        let available = makeWalletModel(tokenItem: ethereum, fiatBalance: 0)
 
         let chosen = await chooseSource(
             from: [unavailable, available],
@@ -123,8 +120,7 @@ struct PolymarketDepositSourceResolverTests {
 
     @Test("Without a single swap-available token the source stays unresolved")
     func noSwapAvailableTokensResolveToNil() async {
-        let unavailable = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 999)
-        unavailable.sendingRestrictionsMock = .blockchainUnreachable
+        let unavailable = makeWalletModel(tokenItem: ethereum, fiatBalance: 999, availableBalance: .failure(nil))
 
         let chosen = await chooseSource(
             from: [unavailable],
@@ -136,8 +132,8 @@ struct PolymarketDepositSourceResolverTests {
 
     @Test("A custom token in the deposit currency is never the transfer source, so the swap fallback is picked")
     func customTokenIsNotTransferSource() async {
-        let custom = WalletModelTestsMock(tokenItem: usdcPolygon, isEmpty: false, fiatBalance: 500, isCustom: true)
-        let swapFallback = WalletModelTestsMock(tokenItem: ethereum, isEmpty: false, fiatBalance: 5)
+        let custom = makeWalletModel(tokenItem: usdcPolygon, fiatBalance: 500, isCustom: true)
+        let swapFallback = makeWalletModel(tokenItem: ethereum, fiatBalance: 5)
 
         let chosen = await chooseSource(
             from: [custom, swapFallback],
@@ -214,9 +210,11 @@ private extension PolymarketDepositSourceResolverTests {
     func makeWalletModel(
         tokenItem: TokenItem,
         fiatBalance: Decimal,
-        accountType: AccountType = .crypto
+        accountType: AccountType = .crypto,
+        isCustom: Bool = false,
+        availableBalance: TokenBalanceType = .loaded(1)
     ) -> WalletModelTestsMock {
-        WalletModelTestsMock(
+        let walletModel = WalletModelTestsMock(
             tokenItem: tokenItem,
             isEmpty: false,
             fiatBalance: fiatBalance,
@@ -224,8 +222,12 @@ private extension PolymarketDepositSourceResolverTests {
                 isMainAccount: false,
                 accountType: accountType,
                 onArchive: { _ in }
-            )
+            ),
+            isCustom: isCustom
         )
+        walletModel.availableBalanceProviderMock = TokenBalanceProviderTestsMock(balanceType: availableBalance)
+
+        return walletModel
     }
 
     func makeUserWalletInfo() -> UserWalletInfo {

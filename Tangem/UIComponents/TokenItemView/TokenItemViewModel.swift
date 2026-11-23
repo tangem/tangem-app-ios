@@ -50,7 +50,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
     var hasError: Bool { missingDerivation || networkUnreachable }
     var errorMessage: String? {
-        // Don't forget to add check in trailing item in `TokenItemView` when adding new error here
+        // Don't forget to add check in `hasError` when adding new error here, `tokenRowContent` relies on it
         if missingDerivation {
             return Localization.commonNoAddress
         }

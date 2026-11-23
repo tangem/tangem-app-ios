@@ -134,6 +134,12 @@ final class WireMockClient {
         try await findRequests(matching: WireMockFindRequestsRequest(method: method, urlPath: urlPath)).compactMap(\.url)
     }
 
+    func findRequestHeaders(method: String, urlPath: String) async throws -> [[String: String]] {
+        try await findRequests(matching: WireMockFindRequestsRequest(method: method, urlPath: urlPath))
+            .compactMap(\.headers)
+            .map { headers in Dictionary(uniqueKeysWithValues: headers.map { ($0.key.lowercased(), $0.value) }) }
+    }
+
     func findRequestTimestamps(method: String, urlPattern: String) async throws -> [Date] {
         try await findRequests(matching: WireMockFindRequestsRequest(method: method, urlPattern: urlPattern))
             .compactMap(\.loggedDate)
@@ -312,6 +318,22 @@ final class WireMockClient {
         }
         XCTestCase().wait(for: [expectation], timeout: .networkRequest)
         return urls
+    }
+
+    func findRequestHeadersSync(method: String, urlPath: String) -> [[String: String]] {
+        var headers: [[String: String]] = []
+        let expectation = XCTestExpectation(description: "Find WireMock request headers")
+        Task {
+            do {
+                headers = try await findRequestHeaders(method: method, urlPath: urlPath)
+                expectation.fulfill()
+            } catch {
+                XCTFail("Failed to find requests for \(method) \(urlPath): \(error)")
+                expectation.fulfill()
+            }
+        }
+        XCTestCase().wait(for: [expectation], timeout: .networkRequest)
+        return headers
     }
 
     func findRequestTimestampsSync(method: String, urlPattern: String) -> [Date] {

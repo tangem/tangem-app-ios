@@ -17,25 +17,21 @@ struct DemandSurveyView: View {
     @ObservedObject var viewModel: DemandSurveyViewModel
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Layout.sectionSpacing) {
-                header
+        VStack(alignment: .leading, spacing: Layout.sectionSpacing) {
+            header
 
-                ForEach(viewModel.survey.questions, id: \.key) { question in
-                    questionView(question)
-                }
+            ForEach(viewModel.survey.questions, id: \.key) { question in
+                questionView(question)
             }
-            .padding(Layout.padding)
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .padding(Layout.padding)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .disabled(viewModel.isSubmitting)
         .footer {
             Footer(.buttons(primary: submitButton))
                 .caption(AttributedString(Localization.surveyDemandFooter))
+                .showFade()
         }
-        .background(DesignSystem.Color.bgPrimary.ignoresSafeArea())
-        .navigationTitle(Localization.surveyDemandNavigationTitle)
-        .navigationBarTitleDisplayMode(.inline)
         .alert(item: $viewModel.alert) { $0.alert }
     }
 }
@@ -71,7 +67,7 @@ private extension DemandSurveyView {
             }
             .accessibilityElement(children: .combine)
 
-            WrappingHStack(alignment: .leading, horizontalSpacing: Layout.chipSpacing, verticalSpacing: Layout.chipSpacing) {
+            WrappingHStack(alignment: .leading, horizontalSpacing: Layout.chipHorizontalSpacing, verticalSpacing: Layout.chipVerticalSpacing) {
                 ForEach(question.answerKeys, id: \.self) { answerKey in
                     DemandSurveyAnswerChip(
                         title: DemandSurveyTexts.answer(answerKey, for: question.key) ?? answerKey,
@@ -89,6 +85,7 @@ private extension DemandSurveyView {
             accessibilityLabel: nil,
             action: viewModel.submit
         )
+        .styleType(.primary)
         .loading(.spinner(if: viewModel.isSubmitting))
         .enabled(viewModel.canSubmit)
     }
@@ -103,14 +100,15 @@ private extension DemandSurveyView {
         static let headerSpacing: CGFloat = 8
         static let questionSpacing: CGFloat = 12
         static let labelSpacing: CGFloat = 4
-        static let chipSpacing: CGFloat = 8
+        static let chipHorizontalSpacing: CGFloat = 4
+        static let chipVerticalSpacing: CGFloat = 8
     }
 }
 
 // MARK: - Previews
 
 #Preview {
-    NavigationStack {
+    Color.clear.modal(isPresented: .constant(true), navigation: .title(Localization.surveyDemandNavigationTitle)) {
         DemandSurveyView(viewModel: DemandSurveyViewModel(
             userWalletId: UserWalletId(value: Data(repeating: 0xAB, count: 32)),
             routable: DemandSurveyPreviewRoutable(),

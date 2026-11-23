@@ -913,6 +913,8 @@ extension CommonSendAnalyticsLogger: SendFinishAnalyticsLogger {
             analyticsSystems: .all
         )
     }
+
+    func logCloseButton() {}
 }
 
 // MARK: - SendBaseViewAnalyticsLogger

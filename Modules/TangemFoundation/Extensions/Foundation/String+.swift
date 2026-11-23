@@ -48,7 +48,7 @@ public extension String {
     }
 
     func stripLeadingZeroes() -> String {
-        replacingOccurrences(of: "^0+", with: "", options: .regularExpression)
+        String(unicodeScalars.drop(while: { $0 == "0" }))
     }
 
     func removeBchPrefix() -> String {
@@ -75,15 +75,7 @@ public extension String {
     }
 
     var isValidHex: Bool {
-        let regex = try! NSRegularExpression(pattern: "^[0-9a-f]*$", options: .caseInsensitive)
-
-        let found = regex.firstMatch(in: self, options: [], range: NSRange(location: 0, length: count))
-
-        if found == nil || found?.range.location == NSNotFound || count % 2 != 0 {
-            return false
-        }
-
-        return true
+        count.isMultiple(of: 2) && allSatisfy(\.isASCIIHexDigit)
     }
 
     func capitalizingFirstLetter() -> String {

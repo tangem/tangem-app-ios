@@ -407,13 +407,16 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var backupInput: OnboardingInput? { nil }
 
-    var walletImageProvider: WalletImageProviding { userWalletModel.walletImageProvider }
+    var walletIcon: UserWalletIcon { userWalletModel.walletIcon }
+    var cardImageProvider: (any WalletImageProviding)? { userWalletModel.cardImageProvider }
 
     var name: String { userWalletModel.name }
 
     var totalBalance: TotalBalanceState { userWalletModel.totalBalance }
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { userWalletModel.totalBalancePublisher }
+
+    var notificationBadgeCountPublisher: AnyPublisher<Int, Never> { userWalletModel.notificationBadgeCountPublisher }
 
     var cardSetLabel: String { config.cardSetLabel }
 
@@ -473,6 +476,10 @@ extension VisaUserWalletModel: UserWalletModel {
 
     var addressBookManager: AddressBookManager {
         userWalletModel.addressBookManager
+    }
+
+    var derivationManager: DerivationManager? {
+        userWalletModel.derivationManager
     }
 
     func update(type: UpdateRequest) {

@@ -13,7 +13,7 @@ import struct TangemFoundation.UserWalletId
 import enum TangemLocalization.Localization
 import struct TangemMCP.MCPSession
 import struct TangemUI.TangemSnackbar
-import class TangemUI.Toast
+import class TangemUI.LegacyToast
 
 @MainActor
 final class ConnectionsCoordinator: @MainActor CoordinatorObject {
@@ -153,7 +153,7 @@ extension ConnectionsCoordinator {
             .icon(DesignSystem.Icons.Checkmark.regular20)
             .iconColor(DesignSystem.Color.iconAccentBlue)
 
-        Toast(view: snackbar)
+        LegacyToast(view: snackbar)
             .present(layout: .top(padding: 20), type: .temporary())
     }
 
@@ -162,7 +162,7 @@ extension ConnectionsCoordinator {
             .icon(DesignSystem.Icons.Error.filled20)
             .iconColor(DesignSystem.Color.iconStatusError)
 
-        Toast(view: snackbar)
+        LegacyToast(view: snackbar)
             .present(layout: .top(padding: 20), type: .temporary())
     }
 }

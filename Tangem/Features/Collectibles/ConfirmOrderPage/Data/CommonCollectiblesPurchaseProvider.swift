@@ -68,7 +68,7 @@ extension CommonCollectiblesPurchaseProvider: CollectiblesPackOpener {
 // MARK: - CollectiblesPendingPurchaseProvider protocol conformance
 
 extension CommonCollectiblesPurchaseProvider: CollectiblesPendingPurchaseProvider {
-    func load() async throws -> CollectiblesPendingPurchase? {
-        try await service.loadActivePurchases(userWalletID: userWalletID).first
+    func load() async throws -> [CollectiblesPendingPurchase] {
+        try await service.loadActivePurchases(userWalletID: userWalletID)
     }
 }

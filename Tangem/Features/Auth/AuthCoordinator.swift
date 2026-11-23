@@ -26,7 +26,7 @@ final class AuthCoordinator: CoordinatorObject {
 
     // MARK: - Child coordinators
 
-    @Published var addWalletSelectorCoordinator: AddWalletSelectorCoordinator?
+    @Published var addWalletCoordinator: AddWalletCoordinator?
 
     required init(
         dismissAction: @escaping Action<ScanDismissOptions>,
@@ -38,6 +38,7 @@ final class AuthCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         rootViewModel = AuthViewModel(unlockOnAppear: options.unlockOnAppear, coordinator: self)
+        addWalletCoordinator = makeAddWalletCoordinator()
     }
 }
 
@@ -61,17 +62,7 @@ extension AuthCoordinator: AuthRoutable {
     }
 
     func openAddWallet() {
-        let dismissAction: Action<AddWalletSelectorCoordinator.OutputOptions> = { [weak self] options in
-            switch options {
-            case .main(let userWallet):
-                self?.dismiss(with: .main(userWallet))
-            }
-        }
-
-        let coordinator = AddWalletSelectorCoordinator(dismissAction: dismissAction)
-        let inputOptions = AddWalletSelectorCoordinator.InputOptions(source: .signIn)
-        coordinator.start(with: inputOptions)
-        addWalletSelectorCoordinator = coordinator
+        addWalletCoordinator?.start(with: .init())
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String) {
@@ -83,5 +74,30 @@ extension AuthCoordinator: AuthRoutable {
 
     func openScanCardManual() {
         safariManager.openURL(TangemBlogUrlBuilder().url(post: .scanCard))
+    }
+}
+
+// MARK: - Add wallet
+
+private extension AuthCoordinator {
+    func makeAddWalletCoordinator() -> AddWalletCoordinator {
+        let dismissAction: Action<AddWalletCoordinator.OutputOptions> = { [weak self] options in
+            self?.handleAddWalletDismiss(with: options)
+        }
+
+        return AddWalletCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+    }
+
+    func handleAddWalletDismiss(with options: AddWalletCoordinator.OutputOptions) {
+        Task { @MainActor [weak self] in
+            switch options {
+            case .main(let userWalletModel):
+                self?.dismiss(with: .main(userWalletModel))
+            case .hardwareWallet:
+                self?.rootViewModel?.scanCard()
+            case .dismiss:
+                break
+            }
+        }
     }
 }

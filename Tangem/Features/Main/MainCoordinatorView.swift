@@ -25,6 +25,7 @@ struct MainCoordinatorView: CoordinatorView {
                 if let mainViewModel = coordinator.mainViewModel {
                     MainView(viewModel: mainViewModel)
                         .navigationLinks(links)
+                        .supportChatPresentation(coordinator.supportChatPresenter)
                         .onDidAppear { [weak coordinator] in
                             coordinator?.showMarketsTooltip()
                         }
@@ -69,6 +70,9 @@ struct MainCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.tangemPaySelectPlanCoordinator) {
                 TangemPaySelectPlanCoordinatorView(coordinator: $0)
             }
+            .navigation(item: $coordinator.tangemPayVerifiedCoordinator) {
+                TangemPayVerifiedCoordinatorView(coordinator: $0)
+            }
             .navigation(item: $coordinator.yieldModulePromoCoordinator) {
                 YieldModulePromoCoordinatorView(coordinator: $0)
             }
@@ -105,6 +109,9 @@ struct MainCoordinatorView: CoordinatorView {
             }
             .shtorkaCompatibleFullScreenCover(item: $coordinator.jointAccountManagementCoordinator) {
                 JointAccountManagementCoordinatorView(coordinator: $0)
+            }
+            .shtorkaCompatibleFullScreenCover(item: $coordinator.allServicesCoordinator) {
+                AllServicesCoordinatorView(coordinator: $0)
             }
             .shtorkaCompatibleSheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
@@ -155,6 +162,12 @@ struct MainCoordinatorView: CoordinatorView {
                 TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: TangemPayRegionUnavailablePopupViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayMoneyAccountActivatingPopupViewModel.self) {
+                TangemPayPopupView(viewModel: $0)
+            }
+            .floatingSheetContent(for: TangemPayMoneyAccountFailedPopupViewModel.self) {
                 TangemPayPopupView(viewModel: $0)
             }
             .floatingSheetContent(for: PushNotificationsMainViewModel.self) {

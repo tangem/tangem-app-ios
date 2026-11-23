@@ -19,12 +19,6 @@ struct UserTokensManagerMock: UserTokensManager {
 
     var userTokensPublisher: AnyPublisher<[TokenItem], Never> { .just(output: userTokens) }
 
-    var derivationManager: (DerivationManager & DerivationStatusProvider)? { nil }
-
-    func deriveIfNeeded(completion: @escaping (Result<Void, Error>) -> Void) {
-        completion(.success(()))
-    }
-
     func update(
         itemsToRemove: [TokenItem],
         itemsToAdd: [TokenItem],

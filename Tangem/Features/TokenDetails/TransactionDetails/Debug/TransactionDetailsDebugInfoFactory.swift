@@ -23,7 +23,10 @@ enum TransactionDetailsDebugInfoFactory {
         case .express(.onramp):
             operation = "Onramp"
             source = isSynthetic ? "Express (synthetic)" : "BSDK + Express (merged)"
-        case .jointOperation, nil:
+        case .jointOperation(let info):
+            operation = "Joint operation (\(info.item.operation.status.rawValue))"
+            source = JointOperationSyntheticTxHelper.isSyntheticIdentifier(record.hash) ? "Joint (synthetic)" : "BSDK + Joint (merged)"
+        case nil:
             operation = "On-chain"
             source = "BSDK (on-chain)"
         }

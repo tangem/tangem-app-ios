@@ -28,7 +28,7 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             state: .loaded(OnrampQuote(expectedAmount: 200, nativePaymentAvailable: false, quoteId: "q2", isRestricted: false))
         )
 
-        let list = makeProvidersList([nativeApplePay, cardWithBetterRate])
+        let list = OnrampTestFixtures.makeProvidersList([nativeApplePay, cardWithBetterRate])
 
         let result = CommonOnrampSummaryInteractor.mapToSuggestedOffers(
             selectedProvider: .success(nativeApplePay),
@@ -56,7 +56,7 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             state: .loaded(OnrampQuote(expectedAmount: 200, nativePaymentAvailable: false, quoteId: "q2", isRestricted: false))
         )
 
-        let list = makeProvidersList([nativeApplePay, widgetApplePay])
+        let list = OnrampTestFixtures.makeProvidersList([nativeApplePay, widgetApplePay])
 
         let result = CommonOnrampSummaryInteractor.mapToSuggestedOffers(
             selectedProvider: .success(nativeApplePay),
@@ -84,7 +84,7 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             state: .loaded(OnrampQuote(expectedAmount: 150, nativePaymentAvailable: false, quoteId: "q2", isRestricted: false))
         )
 
-        let list = makeProvidersList([card, sepa])
+        let list = OnrampTestFixtures.makeProvidersList([card, sepa])
 
         let result = CommonOnrampSummaryInteractor.mapToSuggestedOffers(
             selectedProvider: .success(card),
@@ -111,7 +111,7 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             state: .loaded(OnrampQuote(expectedAmount: 50, nativePaymentAvailable: false, quoteId: "q2", isRestricted: false))
         )
 
-        let list = makeProvidersList([nativeApplePay, other])
+        let list = OnrampTestFixtures.makeProvidersList([nativeApplePay, other])
 
         let recentTransaction = RecentOnrampTransactionParameters(
             providerId: nativeApplePay.provider.id,
@@ -146,7 +146,7 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             state: .loaded(OnrampQuote(expectedAmount: 200, nativePaymentAvailable: false, quoteId: "q2", isRestricted: false))
         )
 
-        let list = makeProvidersList([nativeApplePay, widgetApplePay])
+        let list = OnrampTestFixtures.makeProvidersList([nativeApplePay, widgetApplePay])
 
         let result = CommonOnrampSummaryInteractor.mapToSuggestedOffers(
             selectedProvider: .success(nativeApplePay),
@@ -176,7 +176,7 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
             state: .loaded(OnrampQuote(expectedAmount: 50, nativePaymentAvailable: false, quoteId: "q2", isRestricted: false))
         )
 
-        let list = makeProvidersList([onlyProvider, other])
+        let list = OnrampTestFixtures.makeProvidersList([onlyProvider, other])
 
         let result = CommonOnrampSummaryInteractor.mapToSuggestedOffers(
             selectedProvider: .success(onlyProvider),
@@ -191,18 +191,6 @@ struct OnrampSummaryInteractorSuggestedOffersTests {
     }
 
     // MARK: - Helpers
-
-    private func makeProvidersList(_ providers: [OnrampProvider]) -> ProvidersList {
-        let grouped = Dictionary(grouping: providers, by: { $0.paymentMethod.id })
-        let items = grouped.map { _, providers in
-            ProviderItem(paymentMethod: providers[0].paymentMethod, providers: providers)
-        }
-        items.forEach { $0.sort() }
-        let list: ProvidersList = items
-        list.updateAttractiveTypes()
-        list.updateProcessingTimeTypes(preferredProviderId: nil)
-        return list
-    }
 
     private func unwrapSuccess(
         _ result: LoadingResult<OnrampSummaryInteractorSuggestedOffers, Never>

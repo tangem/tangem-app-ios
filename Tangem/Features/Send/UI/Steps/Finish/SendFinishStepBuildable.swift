@@ -19,10 +19,11 @@ extension SendFinishStepBuildable {
         addContactViewModel: SendAddContactFinishViewModel? = nil,
         stakingTargetsCompactViewModel: StakingTargetsCompactViewModel? = nil,
         sendFeeFinishViewModel: SendFeeFinishViewModel? = nil,
+        onrampStatusScreenViewModel: OnrampStatusScreenViewModel? = nil,
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel? = nil,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel? = nil,
         jointAccountSignaturesCompactViewModel: JointAccountSignaturesCompactViewModel? = nil,
-        router: SendRoutable,
+        router: SendRoutable
     ) -> SendFinishStepBuilder.ReturnValue {
         SendFinishStepBuilder.make(
             io: finishIO,
@@ -33,10 +34,11 @@ extension SendFinishStepBuildable {
             addContactViewModel: addContactViewModel,
             stakingTargetsCompactViewModel: stakingTargetsCompactViewModel,
             sendFeeFinishViewModel: sendFeeFinishViewModel,
+            onrampStatusScreenViewModel: onrampStatusScreenViewModel,
             onrampAmountCompactViewModel: onrampAmountCompactViewModel,
             onrampStatusCompactViewModel: onrampStatusCompactViewModel,
             jointAccountSignaturesCompactViewModel: jointAccountSignaturesCompactViewModel,
-            router: router,
+            router: router
         )
     }
 }
@@ -48,7 +50,7 @@ enum SendFinishStepBuilder {
 
     struct Dependencies {
         let analyticsLogger: any SendFinishAnalyticsLogger
-        let headerTitleProvider: any SendFinishHeaderTitleProvider
+        let headerTitleProvider: (any SendFinishHeaderTitleProvider)?
     }
 
     typealias ReturnValue = SendFinishStep
@@ -62,10 +64,11 @@ enum SendFinishStepBuilder {
         addContactViewModel: SendAddContactFinishViewModel?,
         stakingTargetsCompactViewModel: StakingTargetsCompactViewModel?,
         sendFeeFinishViewModel: SendFeeFinishViewModel?,
+        onrampStatusScreenViewModel: OnrampStatusScreenViewModel?,
         onrampAmountCompactViewModel: OnrampAmountCompactViewModel?,
         onrampStatusCompactViewModel: OnrampStatusCompactViewModel?,
         jointAccountSignaturesCompactViewModel: JointAccountSignaturesCompactViewModel?,
-        router: SendRoutable,
+        router: SendRoutable
     ) -> ReturnValue {
         let viewModel = SendFinishViewModel(
             input: io.input,
@@ -75,6 +78,7 @@ enum SendFinishStepBuilder {
             addContactViewModel: addContactViewModel,
             stakingTargetsCompactViewModel: stakingTargetsCompactViewModel,
             sendFeeFinishViewModel: sendFeeFinishViewModel,
+            onrampStatusScreenViewModel: onrampStatusScreenViewModel,
             onrampAmountCompactViewModel: onrampAmountCompactViewModel,
             onrampStatusCompactViewModel: onrampStatusCompactViewModel,
             jointAccountSignaturesCompactViewModel: jointAccountSignaturesCompactViewModel,

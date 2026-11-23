@@ -11,8 +11,9 @@ import TangemSdk
 import TangemFoundation
 
 struct CommonExpressRefcodeProvider: RefcodeProvider {
+    let batchId: String?
+
     private let userWalletId: UserWalletId
-    private let batchId: String?
     private let cardId: String?
 
     // MARK: - Init

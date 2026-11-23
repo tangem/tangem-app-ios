@@ -39,6 +39,7 @@ enum MobileOnboardingFlow {
 
     case iCloudBackupImport(
         backups: [MobileWalletBackup],
-        source: MobileOnboardingFlowSource
+        source: MobileOnboardingFlowSource,
+        analyticsSource: MobileImportWalletSource
     )
 }

@@ -207,7 +207,7 @@ struct EnvironmentSetupView: View {
     }
 
     private var exitButton: some View {
-        SwiftUI.Button("Exit", action: viewModel.showExitAlert)
+        SwiftUI.Button("Exit") { viewModel.showExitAlert() }
             .disableAnimations()
     }
 }

@@ -617,6 +617,25 @@ final class HostAnalyticsFormatterUtilTests: XCTestCase {
             "https://rpc.onyx.org/",
             "https://rpc-onyx.chain.com/",
             "https://rpc.testnet.goliath.net/",
+            // zeniq
+            "https://api.zeniq.network/",
+            "https://zsc.nomo.rest/",
+            "https://383414847825.rpc.thirdweb.com/",
+            // katana
+            "https://rpc.katana.network/",
+            "https://rpc.katanarpc.com/",
+            "https://katana.drpc.org/",
+            "https://rpc-bokuto.katanarpc.com/",
+            // x-layer
+            "https://rpc.xlayer.tech/",
+            "https://xlayerrpc.okx.com/",
+            "https://testrpc.xlayer.tech/terigon",
+            // ink
+            "https://rpc-gel.inkonchain.com/",
+            "https://rpc-qnd.inkonchain.com/",
+            "https://ink.drpc.org/",
+            "https://ink-rpc.publicnode.com/",
+            "https://rpc-gel-sepolia.inkonchain.com/",
             // sei-v2
             "https://sei-evm-rpc.stakeme.pro/",
             "https://evm-rpc.sei-apis.com/",

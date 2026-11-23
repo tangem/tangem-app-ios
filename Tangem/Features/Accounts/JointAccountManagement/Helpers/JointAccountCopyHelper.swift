@@ -16,7 +16,7 @@ struct JointAccountCopyHelper {
         UIPasteboard.general.string = value
         FeedbackGenerator.selectionChanged()
 
-        Toast(
+        LegacyToast(
             view: TangemSnackbar(title: text)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
                 .iconColor(DesignSystem.Color.iconAccentBlue)

@@ -32,32 +32,31 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
     }
 
     @Test("Opening does not request the machine the catalogue already delivered")
-    func opensWithoutRequest() async {
+    func opensWithoutRequest() async throws {
         let provider = MachineProviderStub(results: [.success(Self.machine())])
         let sut = makeSUT(provider: provider)
 
         sut.onWillAppear()
-        await Task.yield()
-        await stopPolling(sut)
+        try await stopPolling(sut)
 
         #expect(provider.loadCallsCount == 0)
     }
 
     @Test("A poll response refreshes the header and the CTA price")
-    func refreshesHeaderFromPolling() async {
+    func refreshesHeaderFromPolling() async throws {
         let provider = MachineProviderStub(results: [.success(Self.machine(name: "Repriced pack", price: 55))])
         let sut = makeSUT(provider: provider, pollInterval: .milliseconds(10))
 
         sut.onWillAppear()
-        await waitUntil { sut.title == "Repriced pack" }
-        await stopPolling(sut)
+        await sut.$title.firstValue { $0 == "Repriced pack" }
+        try await stopPolling(sut)
 
         #expect(sut.title == "Repriced pack")
         #expect(sut.openButtonText == "Open for \(Self.priceText(55))")
     }
 
     @Test("A repeated load call does not start a second polling loop")
-    func loadIsIdempotent() async {
+    func loadIsIdempotent() async throws {
         let provider = MachineProviderStub(results: [.success(Self.machine())])
         let sut = makeSUT(provider: provider)
 
@@ -69,11 +68,11 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
         // Identity rather than the call count: a second loop would be cancelled before it ever reached the provider
         #expect(sut.pollingTask == runningLoop)
 
-        await stopPolling(sut)
+        try await stopPolling(sut)
     }
 
     @Test("A silent refresh that fails leaves the last values on screen while the loop keeps polling")
-    func failedRefreshKeepsTheLastValues() async {
+    func failedRefreshKeepsTheLastValues() async throws {
         // Every call past the first one fails, so a screen reset cannot be masked by a later success.
         let provider = MachineProviderStub(results: [
             .success(Self.machine()),
@@ -83,56 +82,61 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
 
         sut.onWillAppear()
         // The loop is sequential, so a third call proves the second one's failure was handled to the end.
-        await waitUntil { provider.loadCallsCount >= 3 }
-        await stopPolling(sut)
+        try await provider.loads.waitForCount(3)
+        try await stopPolling(sut)
 
         #expect(sut.details.tiers.map(\.tier) == [.common, .rare, .epic])
     }
 
     @Test("Going to the background stops the polling loop")
-    func backgroundStopsPolling() async {
-        let notificationCenter = NotificationCenter()
+    func backgroundStopsPolling() async throws {
+        let notificationCenter = NotificationCenterSpy()
         let sut = makeSUT(notificationCenter: notificationCenter)
 
         sut.onWillAppear()
-        await waitUntil { notificationCenter.post(.didEnterBackground) && sut.pollingTask == nil }
+        try await notificationCenter.observation(of: .didEnterBackground)
+
+        let pollingTask = sut.pollingTask
+        notificationCenter.post(.didEnterBackground)
+        try await pollingTask?.waitForCompletion()
 
         #expect(sut.pollingTask == nil)
     }
 
     @Test("Returning to the foreground fetches at once and resumes polling")
-    func foregroundFetchesAndResumes() async {
-        let notificationCenter = ObservedNotificationCenter()
+    func foregroundFetchesAndResumes() async throws {
+        let notificationCenter = NotificationCenterSpy()
         let provider = MachineProviderStub(results: [.success(Self.machine(name: "Fresh pack"))])
         let sut = makeSUT(provider: provider, notificationCenter: notificationCenter)
 
         sut.onWillAppear()
-        await waitUntil { notificationCenter.isObserving(.didEnterBackground, .willEnterForeground) }
+        try await notificationCenter.observation(of: .didEnterBackground)
+        try await notificationCenter.observation(of: .willEnterForeground)
 
+        let pollingTask = sut.pollingTask
         notificationCenter.post(.didEnterBackground)
-        await waitUntil { sut.pollingTask == nil }
+        try await pollingTask?.waitForCompletion()
 
         notificationCenter.post(.willEnterForeground)
-        await waitUntil { sut.title == "Fresh pack" }
+        await sut.$title.firstValue { $0 == "Fresh pack" }
 
         #expect(provider.loadCallsCount == 1)
         #expect(sut.pollingTask != nil)
 
-        await stopPolling(sut)
+        try await stopPolling(sut)
     }
 
     @Test("Returning to the foreground off the screen leaves polling stopped")
-    func foregroundOffScreenKeepsPollingStopped() async {
-        let notificationCenter = NotificationCenter()
+    func foregroundOffScreenKeepsPollingStopped() async throws {
+        let notificationCenter = NotificationCenterSpy()
         let provider = MachineProviderStub(results: [.success(Self.machine())])
         let sut = makeSUT(provider: provider, notificationCenter: notificationCenter)
 
         sut.onWillAppear()
-        await stopPolling(sut)
-        for _ in 0 ..< 10 {
-            notificationCenter.post(.willEnterForeground)
-            await Task.yield()
-        }
+        try await stopPolling(sut)
+        try await notificationCenter.observation(of: .willEnterForeground)
+
+        try await notificationCenter.postAndWaitForDelivery(.willEnterForeground)
 
         #expect(sut.pollingTask == nil)
         #expect(provider.loadCallsCount == 0)
@@ -153,13 +157,13 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
 
         isPurchaseLocked = true
         relinkStatusProvider.isRelinkRequiredSubject.send(true)
-        _ = await sut.$isOpenLocked.values.first { $0 }
+        await sut.$isOpenLocked.firstValue { $0 }
 
         #expect(sut.isOpenLocked)
     }
 
     @Test("Appearing again picks up a purchase lock that changed while the screen was covered")
-    func appearingUpdatesOpening() async {
+    func appearingUpdatesOpening() async throws {
         var isPurchaseLocked = false
         let sut = makeSUT(isPurchaseLocked: { isPurchaseLocked })
 
@@ -167,36 +171,36 @@ final class CollectiblesMachineViewModelTests: LeakTrackingTestSuite {
         sut.onWillAppear()
 
         #expect(sut.isOpenLocked)
-        await stopPolling(sut)
+        try await stopPolling(sut)
     }
 
     @Test("Opening the pack screen checks again whether the account has to be relinked")
-    func openingRechecksRelink() async {
+    func openingRechecksRelink() async throws {
         let relinkStatusProvider = RelinkStatusProviderStub()
         let sut = makeSUT(relinkStatusProvider: relinkStatusProvider)
         var refreshes = relinkStatusProvider.refreshes.makeAsyncIterator()
 
         sut.onWillAppear()
         await refreshes.next()
-        await stopPolling(sut)
+        try await stopPolling(sut)
 
         #expect(relinkStatusProvider.refreshesCount == 1)
     }
 
     @Test("Returning to the foreground on the pack screen checks the relink again")
-    func foregroundRechecksRelink() async {
-        let notificationCenter = ObservedNotificationCenter()
+    func foregroundRechecksRelink() async throws {
+        let notificationCenter = NotificationCenterSpy()
         let relinkStatusProvider = RelinkStatusProviderStub()
         let sut = makeSUT(relinkStatusProvider: relinkStatusProvider, notificationCenter: notificationCenter)
         var refreshes = relinkStatusProvider.refreshes.makeAsyncIterator()
 
         sut.onWillAppear()
         await refreshes.next()
-        await notificationCenter.observation(of: .willEnterForeground)
+        try await notificationCenter.observation(of: .willEnterForeground)
 
         notificationCenter.post(.willEnterForeground)
         await refreshes.next()
-        await stopPolling(sut)
+        try await stopPolling(sut)
 
         #expect(relinkStatusProvider.refreshesCount == 2)
     }
@@ -213,7 +217,8 @@ private extension CollectiblesMachineViewModelTests {
         notificationCenter: NotificationCenter = NotificationCenter()
     ) -> SUT {
         let sut = SUT(
-            pack: Self.pack(),
+            machineID: "pokemon_50",
+            machine: Self.machine(),
             routable: nil,
             prizePoolProvider: PrizePoolProviderStub(),
             relinkStatusProvider: relinkStatusProvider,
@@ -225,20 +230,11 @@ private extension CollectiblesMachineViewModelTests {
         return trackForMemoryLeaks(sut)
     }
 
-    static func pack() -> CollectiblesPack {
-        CollectiblesPack(
-            id: "pokemon_50",
-            loreID: "pokemon",
-            currencyCode: "USD",
-            machine: machine()
-        )
-    }
-
     /// Waits for the loop to unwind so the leak check does not race the in-flight request.
-    func stopPolling(_ sut: SUT) async {
+    func stopPolling(_ sut: SUT) async throws {
         let task = sut.pollingTask
         sut.onWillDisappear()
-        await task?.value
+        try await task?.waitForCompletion()
     }
 
     /// Spells the expected money format out instead of reusing the app preset, so a change to the preset fails here.
@@ -307,7 +303,11 @@ private struct PrizePoolProviderStub: CollectiblesPrizePoolProvider {
 
 @MainActor
 private final class MachineProviderStub: CollectiblesMachineProvider {
-    private(set) var loadCallsCount = 0
+    let loads = TestSignal<Void>()
+
+    var loadCallsCount: Int {
+        loads.recorded.count
+    }
 
     private var results: [Result<CollectiblesMachine, any Error>]
 
@@ -317,83 +317,8 @@ private final class MachineProviderStub: CollectiblesMachineProvider {
     }
 
     func load(id: String) async throws -> CollectiblesMachine {
-        loadCallsCount += 1
-
         let result = results.count > 1 ? results.removeFirst() : results[0]
+        loads.send()
         return try result.get()
-    }
-}
-
-private final class ObservedNotificationCenter: NotificationCenter, @unchecked Sendable {
-    private struct State {
-        var observedNames: Set<Notification.Name> = []
-        var waiters: [(name: Notification.Name, continuation: CheckedContinuation<Void, Never>)] = []
-    }
-
-    private let state = OSAllocatedUnfairLock(initialState: State())
-
-    func isObserving(_ events: AppEvent...) -> Bool {
-        state.withLock { $0.observedNames.isSuperset(of: events.map(\.name)) }
-    }
-
-    func observation(of event: AppEvent) async {
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            let isObserved = state.withLock { state -> Bool in
-                guard !state.observedNames.contains(event.name) else {
-                    return true
-                }
-
-                state.waiters.append((name: event.name, continuation: continuation))
-                return false
-            }
-
-            if isObserved {
-                continuation.resume()
-            }
-        }
-    }
-
-    override func addObserver(
-        forName name: NSNotification.Name?,
-        object obj: Any?,
-        queue: OperationQueue?,
-        using block: @escaping @Sendable (Notification) -> Void
-    ) -> any NSObjectProtocol {
-        let observer = super.addObserver(forName: name, object: obj, queue: queue, using: block)
-
-        guard let name else {
-            return observer
-        }
-
-        let waiters = state.withLock { state -> [CheckedContinuation<Void, Never>] in
-            state.observedNames.insert(name)
-            let waiters = state.waiters.filter { $0.name == name }.map(\.continuation)
-            state.waiters.removeAll { $0.name == name }
-            return waiters
-        }
-
-        waiters.forEach { $0.resume() }
-
-        return observer
-    }
-}
-
-private extension NotificationCenter {
-    enum AppEvent {
-        case didEnterBackground
-        case willEnterForeground
-
-        var name: Notification.Name {
-            switch self {
-            case .didEnterBackground: UIApplication.didEnterBackgroundNotification
-            case .willEnterForeground: UIApplication.willEnterForegroundNotification
-            }
-        }
-    }
-
-    @discardableResult
-    func post(_ event: AppEvent) -> Bool {
-        post(name: event.name, object: nil)
-        return true
     }
 }

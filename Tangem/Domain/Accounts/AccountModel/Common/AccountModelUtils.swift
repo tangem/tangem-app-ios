@@ -55,6 +55,27 @@ enum AccountModelUtils {
         derivationIdentity == Constants.mainAccountDerivationIdentity
     }
 
+    static var collectiblesAccountDerivationIdentity: CryptoAccountDerivationIdentity {
+        Constants.collectiblesAccountDerivationIdentity
+    }
+
+    static func ordered<Account>(
+        _ accounts: [Account],
+        by accountsOrder: [CryptoAccountDerivationIdentity],
+        persistentIdentifier: (Account) -> AnyHashable
+    ) -> [Account] {
+        let positions = Dictionary(
+            accountsOrder.enumerated().map { ($1.toPersistentIdentifier(), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        return accounts
+            .enumerated()
+            .map { (positions[persistentIdentifier($1)] ?? accountsOrder.count + $0, $1) }
+            .sorted { $0.0 < $1.0 }
+            .map(\.1)
+    }
+
     static func isAccountNameValid(_ accountName: String) -> Bool {
         let trimmedAccountName = accountName.trimmed()
 
@@ -99,6 +120,11 @@ private extension AccountModelUtils {
         static let mainAccountDerivationIdentity = CryptoAccountDerivationIdentity(
             derivationIndex: Constants.mainAccountDerivationIndex,
             type: .crypto
+        )
+        static let collectiblesAccountDerivationIndex = 999_799
+        static let collectiblesAccountDerivationIdentity = CryptoAccountDerivationIdentity(
+            derivationIndex: Constants.collectiblesAccountDerivationIndex,
+            type: .collectibles
         )
         static let mainAccountIconName: AccountModel.CompositeIcon.Name = .star
         static let maxAccountNameLength = 20

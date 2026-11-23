@@ -58,7 +58,7 @@ struct PolymarketSearchResultsView: View {
 
     private var skeleton: some View {
         ScrollView(showsIndicators: false) {
-            LazyVStack(spacing: Constants.contentSpacing) {
+            VStack(spacing: Constants.contentSpacing) {
                 resultsTitle
 
                 PolymarketEventsSkeletonView()
@@ -70,12 +70,14 @@ struct PolymarketSearchResultsView: View {
 
     private var results: some View {
         ScrollView(showsIndicators: false) {
-            LazyVStack(spacing: Constants.contentSpacing) {
+            VStack(spacing: Constants.contentSpacing) {
                 resultsTitle
 
-                eventCards
+                LazyVStack(spacing: Constants.contentSpacing) {
+                    eventCards
 
-                paginationFooter
+                    paginationFooter
+                }
             }
             .padding(.vertical, Constants.contentVerticalPadding)
         }
@@ -115,7 +117,7 @@ struct PolymarketSearchResultsView: View {
         case .paginationLoading:
             paginationLoader
         case .paginationError:
-            TangemUnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.handleViewAction(.retryNextPage) })
+            UnableToLoadDataView(isButtonBusy: false, retryButtonAction: { viewModel.handleViewAction(.retryNextPage) })
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Constants.paginationVerticalPadding)
         case .prompt, .loading, .noResults, .error, .allDataLoaded:

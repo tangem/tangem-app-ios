@@ -11,7 +11,7 @@ import TangemUI
 
 final class WCToastFactory {
     func makeWarningToast(with text: String) {
-        Toast(view: WarningToast(text: text))
+        LegacyToast(view: WarningToast(text: text))
             .present(
                 layout: .top(padding: 20),
                 type: .temporary()
@@ -19,7 +19,7 @@ final class WCToastFactory {
     }
 
     func makeSuccessToast(with text: String) {
-        Toast(view: SuccessToast(text: text))
+        LegacyToast(view: SuccessToast(text: text))
             .present(
                 layout: .top(padding: 20),
                 type: .temporary()

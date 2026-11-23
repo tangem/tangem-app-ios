@@ -10,6 +10,7 @@ import Foundation
 import Sodium
 import SwiftCBOR
 import CryptoSwift
+import TangemFoundation
 
 struct CardanoAddressService {
     private let addressHeaderByte = Data([UInt8(97)])
@@ -44,7 +45,7 @@ struct CardanoAddressService {
 @available(iOS 13.0, *)
 extension CardanoAddressService: AddressValidator {
     func validate(_ address: String) -> Bool {
-        guard !address.isEmpty else {
+        guard address.isNotEmpty else {
             return false
         }
 
@@ -52,18 +53,23 @@ extension CardanoAddressService: AddressValidator {
             return CardanoAddressUtils.isValidShelleyAddress(address)
         } else {
             let decoded58 = address.base58DecodedBytes
-            guard !decoded58.isEmpty else {
+            guard decoded58.isNotEmpty else {
                 return false
             }
 
-            guard let cborArray = try? CBORDecoder(input: decoded58).decodeItem(),
+            // A Byron address is only 3 levels deep, so this cap leaves headroom and still stops stack overflows
+            let decoder = CBORDecoder(input: decoded58, options: CBOROptions(maximumDepth: 8))
+
+            guard let cborArray = try? decoder.decodeItem(),
                   let addressArray = cborArray[0],
-                  let checkSumArray = cborArray[1] else {
+                  let checkSumArray = cborArray[1]
+            else {
                 return false
             }
 
             guard case CBOR.tagged(_, let cborByteString) = addressArray,
-                  case CBOR.byteString(let addressBytes) = cborByteString else {
+                  case CBOR.byteString(let addressBytes) = cborByteString
+            else {
                 return false
             }
 

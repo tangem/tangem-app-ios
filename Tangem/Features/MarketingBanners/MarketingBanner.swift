@@ -34,6 +34,12 @@ extension MarketingBanner {
         let partnerLabel: String?
         let buttonText: String
         let isGlowing: Bool
+        let replacedSlot: RecommendedSlot?
+    }
+
+    enum RecommendedSlot: String, Hashable, CaseIterable {
+        case greatRate = "best"
+        case fastest
     }
 
     struct StandaloneCTA {

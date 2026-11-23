@@ -102,8 +102,8 @@ enum JointAccountCompositionFixture {
         )
     }
 
-    static func pendingOperationsRecord(operations: [JointAccountOperation]) -> StoredJointAccountPendingOperations {
-        StoredJointAccountPendingOperations(cryptoAccountId: caseFlippedCryptoAccountId, operations: operations)
+    static func pendingOperationsRecord(operations: [JointAccountOperation]) -> JointAccountOperations {
+        JointAccountOperations(cryptoAccountId: caseFlippedCryptoAccountId, operations: operations)
     }
 
     static func coinTransfer(
@@ -112,8 +112,8 @@ enum JointAccountCompositionFixture {
         finishedAt: Date? = nil,
         initiator: String = "0x7e5fb2c1a9d3e5f70241c6b8a91cd9c1e7f45bdf",
         signatures: [JointAccountOperation.Signature] = [],
-        createdAt: Date? = nil,
-        threshold: Int? = nil
+        createdAt: Date = Date(timeIntervalSince1970: 1_757_323_237),
+        threshold: Int = 2
     ) -> JointAccountOperation {
         JointAccountOperation(
             id: id,
@@ -140,16 +140,55 @@ enum JointAccountCompositionFixture {
             threshold: threshold
         )
     }
+
+    static let coinOperationSafeTransaction = SafeTransaction(
+        to: strangerAddress,
+        value: 1_000_000_000_000_000,
+        data: Data(),
+        operation: 0,
+        safeTxGas: 0,
+        baseGas: JointOperationFeeConstants.baseGas,
+        gasPrice: 1_000_000_000,
+        gasToken: SafeGasToken.coinGasTokenRawValue,
+        refundReceiver: JointOperationFeeConstants.refundReceiver,
+        nonce: 0
+    )
+
+    static let coinOperationVote = try! JointOperationVoteFixture.approve(
+        over: coinOperationSafeTransaction,
+        chainId: 1,
+        safeAddress: Signed.safeAddress
+    )
+
+    static var coinOperationMember: JointAccountMember {
+        JointAccountMember(name: "Member", address: coinOperationVote.address, role: .creator, isMe: false, signature: nil)
+    }
+
+    static func validCoinTransfer(status: JointAccountOperationStatus = .awaitingSignatures) -> JointAccountOperation {
+        JointAccountOperation(
+            id: "coin",
+            chainId: 1,
+            safeTransaction: coinOperationSafeTransaction,
+            status: status,
+            txHash: nil,
+            finishedAt: nil,
+            cancelReason: nil,
+            initiator: coinOperationVote.address,
+            signatures: [coinOperationVote.signature],
+            createdAt: Date(timeIntervalSince1970: 1_757_323_237),
+            threshold: 2
+        )
+    }
 }
 
 // MARK: - Keys
 
 extension JointAccountCompositionFixture {
-    static let ownAddress = "0x6ECa00c52AFC728CDbF42E817d712e175bb23C7d"
+    static let ownAddress = Signed.member1Address
     static let strangerAddress = "0x2b5ad9c1e7f40638b2c1a9d3e5f70241c6b8a91c"
     static let seedKey = Data(hexString: "0279BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798")
     static let derivedKey = ExtendedPublicKey(
-        publicKey: Data(hexString: "0241DCD64B5F4A039FC339A16300A833A883B218909F2EBCAF3906651C76842C45"),
+        publicKey: seedKey,
         chainCode: Data(repeating: 0x11, count: 32)
     )
 
@@ -181,13 +220,58 @@ extension JointAccountCompositionFixture {
 
     static func makeStatusProvider(
         repository: JointAccountsRepository,
-        userRoleService: JointAccountUserRoleService
+        userRoleService: JointAccountUserRoleService,
+        cryptoAccountsRepository: CryptoAccountsRepository = CryptoAccountsRepositoryStub(cryptoAccounts: [Signed.cryptoAccount()])
     ) -> CommonJointAccountStatusProvider {
         CommonJointAccountStatusProvider(
             userWalletId: userWalletId,
             derivationIdentity: derivationIdentity,
             jointAccountsRepository: repository,
+            cryptoAccountsRepository: cryptoAccountsRepository,
             userRoleService: userRoleService
         )
+    }
+}
+
+// MARK: - Signed composition
+
+extension JointAccountCompositionFixture {
+    enum Signed {
+        static let config = JointAccountSignedConfig(name: "Joint account", icon: "Family", iconColor: "Azure", membersCount: 3, threshold: 2)
+        static let safeAddress = "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b"
+        static let checksummedSafeAddress = "0x8f3a1C5e7b9D0246A8C0E2B4D6F8a0c2E4B6c21B"
+
+        static let member1Address = "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+        static let member2Address = "0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF"
+        static let member3Address = "0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69"
+
+        static let member1Signature = "0x4716923e895bf6b93c2c146e7d7b0e829b4a32ec4c615f1283812da02eb8806906e07621fd58c9d619482899da61a20ffe1ce7a9ef57c7ced8ebb997e82d38d31b"
+        static let member2Signature = "0x28a2519e0f3909bcba3113e789b33e1329f740c8eca6c4340f20b3e2e9df48e51620d0f68fb74f131af44fe0060fefcb612eaccaaec9eb0bc518bbd7367e72dd1c"
+        static let member3Signature = "0x1d0455986d39d28eebd18693545114ee57fcc473634ec0f14330edeb44026a990e960a1079c02bfbf0a98620ac3bef4471f135f6d591a3489d836d8814116cdb1c"
+
+        static var signedMembers: [StoredJointAccount.Member] {
+            account(status: .active(safeAddress: safeAddress)).members
+        }
+
+        static func account(status: JointAccountStatus) -> StoredJointAccount {
+            storedAccount(
+                status: status,
+                membersCount: config.membersCount,
+                members: [member1Address, member2Address, member3Address].map { member(address: $0) },
+                memberSignatures: [member1Signature, member2Signature, member3Signature]
+            )
+        }
+
+        static func cryptoAccount(name: String? = config.name) -> StoredCryptoAccount {
+            StoredCryptoAccount(
+                derivationIndex: derivationIdentity.derivationIndex,
+                type: .joint,
+                name: name,
+                icon: StoredCryptoAccount.Icon(iconName: config.icon, iconColor: config.iconColor),
+                tokens: [],
+                grouping: .none,
+                sorting: .manual
+            )
+        }
     }
 }

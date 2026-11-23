@@ -108,22 +108,7 @@ private extension AccountPickerUserWalletsProviderTests {
     }
 
     func makeJointAccount(isActive: Bool) -> any JointAccountModel {
-        CommonJointAccountModel(
-            cryptoAccount: CryptoAccountModelMock(isMainAccount: false, onArchive: { _ in }),
-            derivationIdentity: CryptoAccountDerivationIdentity(derivationIndex: 1, type: .joint),
-            accountPolicy: JointAccountPolicy(membersCount: 3, signersCount: 2),
-            statusProvider: JointAccountStatusProviderStub(status: isActive ? .active(safeAddress: "0x8f3a1c5e7b9d0246a8c0e2b4d6f8a0c2e4b6c21b") : .pending),
-            operationsService: JointAccountOperationsServiceMock(),
-            pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-            membersService: JointAccountMembersServiceMock(),
-            finishedOperationsWalletUpdater: JointAccountFinishedOperationsWalletUpdater(
-                pendingOperationsProvider: JointAccountPendingOperationsProviderMock(),
-                walletModelsManager: WalletModelsManagerMock(),
-                historyDeltaSyncing: JointOperationsHistoryDeltaSyncingStub()
-            ),
-            userRoleService: JointAccountUserRoleServiceMock(),
-            delegate: delegate
-        )
+        makeJointAccountStub(isActive: isActive, delegate: delegate)
     }
 
     func makeUserWallet(_ idSeed: String, isLocked: Bool = false, accounts: [any CryptoAccountModel]) -> SelectorUserWalletModelStub {

@@ -95,6 +95,7 @@ extension TangemPayMainCoordinator {
         let tangemPayAccount: TangemPayAccount
         let userWalletModel: any UserWalletModel
         let openingAction: TangemPayOpeningAction?
+        let restartOnboarding: () -> Void
     }
 
     typealias DismissOptions = FeeCurrencyNavigatingDismissOption
@@ -256,6 +257,10 @@ extension TangemPayMainCoordinator: TangemPayMainRoutable {
             awaitingDepositCanceller: tangemPayAccount,
             closeFlow: { [weak self] in
                 self?.currentPlanCoordinator = nil
+            },
+            restartOnboarding: options.restartOnboarding,
+            returnToMain: { [weak self] in
+                self?.dismiss(with: nil)
             }
         ))
         currentPlanCoordinator = coordinator
@@ -696,7 +701,7 @@ private extension TangemPayMainCoordinator {
 
     @MainActor
     func showVirtualAccountRequestSentToast() {
-        Toast(
+        LegacyToast(
             view: TangemSnackbar(title: Localization.tangempayBankTransferRequestSent)
                 .icon(DesignSystem.Icons.Checkmark.regular20)
                 .iconColor(DesignSystem.Color.iconAccentBlue)
@@ -708,7 +713,7 @@ private extension TangemPayMainCoordinator {
     func openVirtualAccountDetails(credentials: TangemPayBankCredentialsResponse, tangemPayAccount: TangemPayAccount) {
         virtualAccountDetailsViewModel = TangemPayVirtualAccountDetailsViewModel(
             credentials: credentials,
-            tangemPayAccount: tangemPayAccount,
+            feesSource: .remote { try await tangemPayAccount.loadOnrampFees() },
             onClose: { [weak self] in
                 self?.virtualAccountDetailsViewModel = nil
             }
@@ -781,8 +786,7 @@ extension TangemPayMainCoordinator: TangemPayVirtualAccountInfoSheetRoutable {
             await dismissVirtualAccountInfo()
 
             let viewModel = TangemPayVirtualAccountBankDetailsErrorPopupViewModel(
-                tangemPayAccount: tangemPayAccount,
-                productInstanceId: productInstanceId,
+                loadBankCredentials: { try await tangemPayAccount.loadBankCredentials(productInstanceId: productInstanceId) },
                 coordinator: self
             )
             floatingSheetPresenter.enqueue(sheet: viewModel)

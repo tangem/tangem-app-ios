@@ -7,7 +7,9 @@
 //
 
 import Foundation
+import BigInt
 
 enum SmartContractMethodParameterType {
     case bytes(Data)
+    case uint256(BigUInt)
 }

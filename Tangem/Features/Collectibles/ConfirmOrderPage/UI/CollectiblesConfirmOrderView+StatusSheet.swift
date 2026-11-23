@@ -9,7 +9,6 @@
 import Kingfisher
 import SwiftUI
 import TangemAssets
-import TangemCollectibles
 import TangemLocalization
 import TangemUI
 import TangemUIUtils
@@ -28,6 +27,8 @@ extension CollectiblesConfirmOrderView {
                 lowInventory
             case .packUnopened:
                 packUnopened
+            case .refundOnTheWay:
+                refundOnTheWay
             case .buybackComplete(let content):
                 buybackComplete(content)
             }
@@ -59,21 +60,35 @@ private extension CollectiblesConfirmOrderView.StatusSheet {
         .actions(primary: button(Localization.collectiblesPackUnopenedOpenPack, action: onOpenPack))
     }
 
-    // [REDACTED_TODO_COMMENT]
+    var refundOnTheWay: some View {
+        ModalStatus(
+            .info,
+            title: Localization.collectiblesRefundOnTheWayTitle,
+            description: Localization.collectiblesRefundOnTheWaySubtitle
+        )
+        .actions(primary: button(Localization.commonClose, action: onExplorePacks))
+    }
+
     @ViewBuilder
     func buybackComplete(_ content: CollectiblesConfirmOrderViewModel.BuybackComplete) -> some View {
         let title = [Localization.collectiblesAutoBuybackTitle, content.cardName]
             .compactMap { $0 }
             .joined(separator: "\n")
+        let openAgain = openAgainButton(price: content.price)
 
-        let description = soldMessageText(amount: content.amount)
-
-        if let cardImageURL = content.cardImageURL {
+        switch (content.cardImageURL, content.amount.map(soldMessageText(amount:))) {
+        case (let cardImageURL?, let description?):
             ModalStatus(title: title, description: description) { cardImage(url: cardImageURL) }
-                .actions(primary: openAgainButton(price: content.price), secondary: explorePacksButton)
-        } else {
+                .actions(primary: openAgain, secondary: explorePacksButton)
+        case (let cardImageURL?, nil):
+            ModalStatus(title: title) { cardImage(url: cardImageURL) }
+                .actions(primary: openAgain, secondary: explorePacksButton)
+        case (nil, let description?):
             ModalStatus(.success, title: title, description: description)
-                .actions(primary: openAgainButton(price: content.price), secondary: explorePacksButton)
+                .actions(primary: openAgain, secondary: explorePacksButton)
+        case (nil, nil):
+            ModalStatus(.success, title: title)
+                .actions(primary: openAgain, secondary: explorePacksButton)
         }
     }
 
@@ -95,20 +110,13 @@ private extension CollectiblesConfirmOrderView.StatusSheet {
             .overlay { Avatar(.icon(DesignSystem.Icons.Error.filled20), size: .size40) }
     }
 
-    func soldMessageText(amount: String?) -> AttributedString {
-        var text = AttributedString("Your common card was sold back instantly.")
+    func soldMessageText(amount: String) -> AttributedString {
+        var text = AttributedString(Localization.collectiblesAutoBuybackMessage(amount))
 
-        guard let amount else {
-            return text
+        if let amountRange = text.range(of: amount) {
+            text[amountRange].foregroundColor = DesignSystem.Color.textPrimary
         }
 
-        var credited = AttributedString("+\(amount)")
-        credited.foregroundColor = DesignSystem.Color.textPrimary
-
-        text.append(AttributedString("\n"))
-        text.append(credited)
-        let network = CollectiblesChainEnvironment.usdcTokenItem.networkName
-        text.append(AttributedString(" on \(network) has been credited to your main Tangem Wallet"))
         return text
     }
 

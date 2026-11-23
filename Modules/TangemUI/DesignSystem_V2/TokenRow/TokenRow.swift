@@ -50,8 +50,28 @@ public struct TokenRow: View, Setupable {
                 icon: icon,
                 title: title,
                 titleAccessory: titleAccessory,
-                quote: quote,
-                priceChange: priceChange,
+                subtitle: .quote(quote, priceChange: priceChange),
+                balance: balance,
+                indicator: indicator,
+                bubble: bubble,
+                onTap: onTap
+            )
+
+        case .network(
+            let icon,
+            let title,
+            let titleAccessory,
+            let network,
+            let balance,
+            let indicator,
+            let bubble,
+            let onTap
+        ):
+            balanceRow(
+                icon: icon,
+                title: title,
+                titleAccessory: titleAccessory,
+                subtitle: .network(network),
                 balance: balance,
                 indicator: indicator,
                 bubble: bubble,
@@ -76,12 +96,16 @@ public struct TokenRow: View, Setupable {
 // MARK: - Balance
 
 private extension TokenRow {
+    enum BalanceSubtitle {
+        case quote(String?, priceChange: TokenRowPriceChange?)
+        case network(String)
+    }
+
     func balanceRow(
         icon: Icon,
         title: String,
         titleAccessory: TokenRowTitleAccessory.Model?,
-        quote: String?,
-        priceChange: TokenRowPriceChange?,
+        subtitle: BalanceSubtitle,
         balance: Balance,
         indicator: BalanceIndicator?,
         bubble: TokenRowMessageBubble.Model?,
@@ -97,8 +121,7 @@ private extension TokenRow {
                     contentLead: balance.hasSkeleton ? .equal : .end,
                     titleColumn: titleColumn(
                         title: title,
-                        quote: quote,
-                        priceChange: priceChange,
+                        subtitle: balanceSubtitle(subtitle),
                         titleAccessory: titleAccessory.map { titleAccessoryView($0) }
                     ),
                     valueColumn: balanceColumn(balance: balance, indicator: indicator)
@@ -113,6 +136,18 @@ private extension TokenRow {
                 }
             }
         )
+    }
+
+    @ViewBuilder
+    func balanceSubtitle(_ subtitle: BalanceSubtitle) -> some View {
+        switch subtitle {
+        case .quote(let quote, let priceChange):
+            quoteLine(quote: quote, priceChange: priceChange)
+
+        case .network(let network):
+            captionText(network)
+                .frame(minHeight: quoteLineHeight)
+        }
     }
 
     func titleAccessoryView(_ model: TokenRowTitleAccessory.Model) -> some View {
@@ -364,13 +399,16 @@ private extension TokenRow {
         quote: String?,
         priceChange: TokenRowPriceChange?
     ) -> some View {
-        titleColumn(title: title, quote: quote, priceChange: priceChange, titleAccessory: EmptyView())
+        titleColumn(
+            title: title,
+            subtitle: quoteLine(quote: quote, priceChange: priceChange),
+            titleAccessory: EmptyView()
+        )
     }
 
     func titleColumn(
         title: String,
-        quote: String?,
-        priceChange: TokenRowPriceChange?,
+        subtitle: some View,
         titleAccessory: some View
     ) -> some View {
         VStack(alignment: .leading, spacing: lineSpacing) {
@@ -380,7 +418,7 @@ private extension TokenRow {
                 titleAccessory
             }
 
-            quoteLine(quote: quote, priceChange: priceChange)
+            subtitle
         }
     }
 

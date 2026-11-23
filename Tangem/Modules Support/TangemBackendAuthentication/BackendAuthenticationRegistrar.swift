@@ -21,7 +21,7 @@ enum BackendAuthenticationRegistrar {
     static func configure() {
         BackendAuthenticationAssembly.configure(
             BackendAuthenticationAssembly.Configuration(
-                baseURL: AppEnvironment.current.backendAuthenticationBaseUrl,
+                baseURL: AppEnvironment.current.backendAuthenticationAPIType.baseURL,
                 appPrivateKey: keysManager.authServiceKey,
                 provider: TangemProvider<BackendAuthenticationTarget>(configuration: .ephemeralConfiguration),
                 userWalletProvider: TangemProvider<UserWalletTarget>(

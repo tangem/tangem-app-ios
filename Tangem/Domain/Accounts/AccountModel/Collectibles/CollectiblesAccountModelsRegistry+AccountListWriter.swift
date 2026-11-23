@@ -24,7 +24,7 @@ extension CollectiblesAccountModelsRegistry {
                     return
                 }
 
-                _ = try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: config, remoteState: remoteState)
+                _ = try await cryptoAccountsRepository.addNewCryptoAccount(withConfig: config, remoteState: remoteState, placement: .first)
             } catch {
                 AccountsLogger.error("Failed to add the collectibles account", error: error)
             }

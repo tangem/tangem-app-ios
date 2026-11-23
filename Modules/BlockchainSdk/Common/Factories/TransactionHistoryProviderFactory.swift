@@ -93,7 +93,8 @@ public struct TransactionHistoryProviderFactory {
              .polygonZkEVM,
              .sonic,
              .xdc,
-             .bsc:
+             .bsc,
+             .katana:
             // https://docs.etherscan.io/supported-chains
 
             guard let chainId = blockchain.chainId else {
@@ -138,6 +139,18 @@ public struct TransactionHistoryProviderFactory {
                 mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
                 networkConfiguration: input.tangemProviderConfig,
                 targetConfiguration: .onyx
+            )
+        case .zeniq:
+            return EtherscanTransactionHistoryProvider(
+                mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
+                networkConfiguration: input.tangemProviderConfig,
+                targetConfiguration: .zeniq
+            )
+        case .ink:
+            return EtherscanTransactionHistoryProvider(
+                mapper: EtherscanTransactionHistoryMapper(blockchain: blockchain),
+                networkConfiguration: input.tangemProviderConfig,
+                targetConfiguration: .ink
             )
         case .algorand(_, let isTestnet):
             let node: NodeInfo

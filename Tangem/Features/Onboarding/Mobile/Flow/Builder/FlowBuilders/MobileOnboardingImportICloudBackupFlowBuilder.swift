@@ -20,15 +20,18 @@ final class MobileOnboardingImportICloudBackupFlowBuilder: MobileOnboardingFlowB
     private let hasBackupList: Bool
     private let backups: [MobileWalletBackup]
     private let source: MobileOnboardingFlowSource
+    private let analyticsSource: MobileImportWalletSource
     private weak var coordinator: MobileOnboardingFlowRoutable?
 
     init(
         backups: [MobileWalletBackup],
         source: MobileOnboardingFlowSource,
+        analyticsSource: MobileImportWalletSource,
         coordinator: MobileOnboardingFlowRoutable
     ) {
         self.backups = backups
         self.source = source
+        self.analyticsSource = analyticsSource
         self.coordinator = coordinator
         hasBackupList = backups.count > 1 || backups.allSatisfy(MobileBackupImportUtil().isAdded)
         super.init(hasProgressBar: false)
@@ -70,6 +73,7 @@ private extension MobileOnboardingImportICloudBackupFlowBuilder {
 
     func makeBackupStep() -> MobileOnboardingFlowStep {
         MobileOnboardingImportICloudBackupStep(
+            source: analyticsSource,
             dataSource: self,
             delegate: self
         )

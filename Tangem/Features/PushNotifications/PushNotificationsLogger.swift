@@ -13,3 +13,5 @@ let PushNotificationsSyncServiceLogger = AppLogger.tag("PushNotificationsSyncSer
 
 /// Logger for the push notifications settings feature (notification preferences).
 let PushSettingsLogger = AppLogger.tag("PushSettings")
+
+let NotificationBadgeLogger = AppLogger.tag("NotificationBadge")

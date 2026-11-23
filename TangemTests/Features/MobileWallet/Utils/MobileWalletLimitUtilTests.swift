@@ -49,6 +49,32 @@ struct MobileWalletLimitUtilTests {
             #expect(sut.restriction(for: .socialLogin) == .mobileWalletsLimitReached(.socialLogin))
         }
     }
+
+    @Test("A social wallet counts towards the mobile wallet limit")
+    func socialWalletIsCounted() async {
+        await withWallets(Wallets.mobile(count: 4) + [Wallets.social()]) { sut in
+            #expect(sut.restriction(for: .create) == .mobileWalletsLimitReached(.create))
+        }
+    }
+
+    @Test("Storing a sixth mobile wallet is refused while a card can still be stored")
+    func storingChecksOnlyMobileWallets() {
+        let wallets = Wallets.mobile(count: 5)
+
+        #expect(MobileWalletLimit.isReached(for: Wallets.mobile(), in: wallets))
+        #expect(!MobileWalletLimit.isReached(for: Wallets.card(), in: wallets))
+    }
+
+    @Test("Storing a fifth mobile wallet is allowed")
+    func storingBelowLimitIsAllowed() {
+        #expect(!MobileWalletLimit.isReached(for: Wallets.mobile(), in: Wallets.mobile(count: 4)))
+    }
+
+    @Test("The limit is reached at five mobile wallets regardless of cards")
+    func limitIsReachedAtFiveMobileWallets() {
+        #expect(MobileWalletLimit.isReached(in: Wallets.mobile(count: 5)))
+        #expect(!MobileWalletLimit.isReached(in: Wallets.mobile(count: 4) + Wallets.cards(count: 3)))
+    }
 }
 
 // MARK: - Helpers

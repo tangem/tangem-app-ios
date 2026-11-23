@@ -6,7 +6,7 @@
 //  Copyright © 2026 Tangem AG. All rights reserved.
 //
 
-protocol AppAttestationStatusRepository: Sendable {
+package protocol AppAttestationStatusRepository: Sendable {
     func retrieve() -> Bool
     func persist(isAppAttested: Bool)
 }

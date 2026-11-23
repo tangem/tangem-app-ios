@@ -17,6 +17,19 @@ struct SendFinishView: View {
     @ObservedObject var viewModel: SendFinishViewModel
 
     var body: some View {
+        if let onrampStatusScreenViewModel = viewModel.onrampStatusScreenViewModel {
+            OnrampStatusScreenView(
+                viewModel: onrampStatusScreenViewModel,
+                transactionTime: viewModel.transactionSentTime,
+                onClose: viewModel.close
+            )
+            .onAppear(perform: viewModel.onAppear)
+        } else {
+            content
+        }
+    }
+
+    private var content: some View {
         GroupedScrollView(contentType: .lazy(alignment: .center, spacing: 14)) {
             if viewModel.showHeader, let transactionTime = viewModel.transactionSentTime {
                 header(transactionTime: transactionTime)

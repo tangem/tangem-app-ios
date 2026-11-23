@@ -43,11 +43,11 @@ extension MarketsPortfolioTokenListRowViewModel {
         case .loading:
             .loading
         case .loadingCached(let text):
-            .updating(balanceValue(text))
+            .updating(UtilBalance.Value(text))
         case .loaded(let text):
-            .loaded(balanceValue(text))
+            .loaded(UtilBalance.Value(text))
         case .failed(let text, let icon):
-            .loaded(balanceValue(text), isStale: icon != nil)
+            .loaded(UtilBalance.Value(text), isStale: icon != nil)
         }
     }
 
@@ -56,20 +56,9 @@ extension MarketsPortfolioTokenListRowViewModel {
         case .loading:
             .loading
         case .loadingCached(let text):
-            .updating(balanceValue(text))
+            .updating(UtilBalance.Value(text))
         case .loaded(let text), .failed(let text, _):
-            .loaded(balanceValue(text))
-        }
-    }
-
-    private func balanceValue(_ text: SensitiveText.TextType) -> UtilBalance.Value {
-        switch text {
-        case .string(let value):
-            .string(value)
-        case .attributed(let value):
-            .attributed(value)
-        case .builder(let builder, let sensitive):
-            .string(builder(sensitive))
+            .loaded(UtilBalance.Value(text))
         }
     }
 }

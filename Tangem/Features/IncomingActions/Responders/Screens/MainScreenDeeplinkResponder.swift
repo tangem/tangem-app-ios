@@ -116,6 +116,10 @@ private extension MainScreenDeeplinkResponder {
         case .payApp(let deeplink):
             return openTangemPayOnboarding(source: deeplink.onboardingSource, using: coordinator)
 
+        case .onboardVirtualAccount(let deeplink):
+            guard FeatureProvider.isAvailable(.onrampImprovements) else { return false }
+            return openTangemPayOnboarding(source: deeplink.onboardingSource, using: coordinator)
+
         case .tangemPayAccount(let deeplink):
             guard let userWalletModel = deeplink.findUserWalletModel() else { return false }
             openTangemPayAccount(of: userWalletModel, openingAction: deeplink.openingAction, action: .navigation(action))

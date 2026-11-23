@@ -10,7 +10,6 @@ import TangemFoundation
 import Foundation
 import TangemUI
 import UIKit
-import BlockchainSdk
 
 final class ActionButtonsBuyCoordinator: CoordinatorObject {
     let dismissAction: Action<ActionButtonsBuyDismissPayload?>
@@ -102,6 +101,22 @@ extension ActionButtonsBuyCoordinator: ActionButtonsBuyRoutable {
         }
     }
 
+    func openAddToken(viewModel: AddTokenFlowRedesignedViewModel) {
+        Task { @MainActor [weak self] in
+            self?.floatingSheetPresenter.enqueue(sheet: viewModel)
+        }
+    }
+
+    func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
+        let coordinator = MarketsTokenDetailsCoordinator(
+            dismissAction: { [weak self] in
+                self?.marketsTokenDetailsCoordinator = nil
+            }
+        )
+        coordinator.start(with: .init(info: tokenInfo, style: .addFundsSheet))
+        marketsTokenDetailsCoordinator = coordinator
+    }
+
     private func showTokenList() {
         guard let tokenListViewModel else { return }
         viewState = .newTokenList(tokenListViewModel)
@@ -168,7 +183,7 @@ extension ActionButtonsBuyCoordinator: AddTokenFlowRoutable, AddTokenFlowRedesig
     }
 
     func presentSuccessToast(with text: String) {
-        Toast(view: SuccessToast(text: text))
+        LegacyToast(view: SuccessToast(text: text))
             .present(
                 layout: .top(padding: ToastConstants.topPadding),
                 type: .temporary()
@@ -176,126 +191,11 @@ extension ActionButtonsBuyCoordinator: AddTokenFlowRoutable, AddTokenFlowRedesig
     }
 
     func presentErrorToast(with text: String) {
-        Toast(view: WarningToast(text: text))
+        LegacyToast(view: WarningToast(text: text))
             .present(
                 layout: .top(padding: ToastConstants.topPadding),
                 type: .temporary()
             )
-    }
-}
-
-// MARK: - PulseMarketWidgetRoutable
-
-extension ActionButtonsBuyCoordinator: PulseMarketWidgetRoutable {
-    func openMarketsTokenDetails(for tokenInfo: MarketsTokenModel) {
-        guard let userWalletModel = resolveMarketsTokenTargetWallet() else {
-            openMarketsDetailsCoordinator(for: tokenInfo)
-            return
-        }
-
-        let isAdded = TokenAdditionChecker.areTokenItemsAddedInAllAccounts(userWalletModels: [userWalletModel]) {
-            account, supportedBlockchains in
-
-            MarketsTokenItemsProvider.calculateTokenItems(
-                coinId: tokenInfo.id,
-                coinName: tokenInfo.name,
-                coinSymbol: tokenInfo.symbol,
-                networks: tokenInfo.networks ?? [],
-                supportedBlockchains: supportedBlockchains,
-                cryptoAccount: account
-            )
-        }
-
-        guard
-            var networks = tokenInfo.networks,
-            !isAdded
-        else {
-            openMarketsDetailsCoordinator(for: tokenInfo)
-            return
-        }
-
-        if tokenInfo.id == Blockchain.ethereum(testnet: false).coinId {
-            let l2Items = SupportedBlockchains.l2Blockchains.map {
-                NetworkModel(networkId: $0.networkId, contractAddress: nil, decimalCount: nil)
-            }
-            networks.append(contentsOf: l2Items)
-        }
-
-        let inputData = MarketsAddTokenFlowConfigurationFactory.InputData(
-            coinId: tokenInfo.id,
-            coinName: tokenInfo.name,
-            coinSymbol: tokenInfo.symbol,
-            networks: networks
-        )
-
-        let configuration = MarketsAddTokenFlowConfigurationFactory.makeForPulseWidget(
-            inputData: inputData,
-            onConfirm: { [weak self] tokenItem, accountSelectorCell in
-                Task { @MainActor in
-                    guard let self else { return }
-
-                    let walletModel = await accountSelectorCell.cryptoAccountModel
-                        .walletModelsManager.waitForWalletModel(for: tokenItem)
-
-                    guard let walletModel else { return }
-
-                    self.close()
-                    self.openAddFunds(
-                        userWalletInfo: accountSelectorCell.userWalletModel.userWalletInfo,
-                        walletModel: walletModel
-                    )
-                }
-            }
-        )
-
-        guard let tokenItem = MarketsAddTokenFlowConfigurationFactory.makePreselectedTokenItem(
-            inputData: inputData,
-            userWalletModels: userWalletModels,
-            isTokenAdded: configuration.isTokenAdded
-        ) else {
-            openMarketsDetailsCoordinator(for: tokenInfo)
-            return
-        }
-
-        Task { @MainActor in
-            guard let viewModel = AddTokenFlowRedesignedViewModel(
-                tokenItem: tokenItem,
-                userWalletModels: userWalletModels,
-                preferredWalletId: userWalletModel.userWalletId,
-                configuration: configuration,
-                coordinator: self
-            ) else {
-                openMarketsDetailsCoordinator(for: tokenInfo)
-                return
-            }
-            floatingSheetPresenter.enqueue(sheet: viewModel)
-        }
-    }
-
-    private func openMarketsDetailsCoordinator(for tokenInfo: MarketsTokenModel) {
-        let coordinator = MarketsTokenDetailsCoordinator(
-            dismissAction: { [weak self] in
-                self?.marketsTokenDetailsCoordinator = nil
-            }
-        )
-        coordinator.start(with: .init(info: tokenInfo, style: .addFundsSheet))
-        marketsTokenDetailsCoordinator = coordinator
-    }
-
-    func openSeeAllPulseMarketWidget(with orderType: MarketsListOrderType) {
-        assertionFailure("See all is hidden in the Buy pulse widget, so this is never invoked.")
-    }
-}
-
-// MARK: - Markets token add funds helpers
-
-private extension ActionButtonsBuyCoordinator {
-    func resolveMarketsTokenTargetWallet() -> UserWalletModel? {
-        if let selectedChipId = tokenListViewModel?.tokenSelectorViewModel.selectedChipId {
-            return userWalletModels.first { $0.userWalletId.stringValue == selectedChipId }
-        }
-
-        return userWalletModels.count == 1 ? userWalletModels.first : nil
     }
 }
 
@@ -347,8 +247,7 @@ private extension ActionButtonsBuyCoordinator {
         PulseMarketWidgetViewModel(
             widgetsUpdateHandler: CommonMarketsMainWidgetDataService(widgetTypes: [.pulse]),
             quotesRepositoryUpdateHelper: CommonMarketsQuotesUpdateHelper(),
-            analyticsService: CommonMarketsWidgetAnalyticsService(),
-            coordinator: self
+            analyticsService: CommonMarketsWidgetAnalyticsService()
         )
     }
 }

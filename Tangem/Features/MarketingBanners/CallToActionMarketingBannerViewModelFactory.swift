@@ -31,7 +31,8 @@ enum CallToActionMarketingBannerViewModelFactory {
                     categoryLabel: content.categoryLabel,
                     subtitle: content.subtitle,
                     etaLabel: content.etaLabel,
-                    partnerLabel: content.partnerLabel
+                    partnerLabel: content.partnerLabel,
+                    replacedSlot: content.replacedSlot
                 )
             ))
 

@@ -22,6 +22,7 @@ final class SingleTokenNotificationManager {
 
     private let analyticsService: NotificationsAnalyticsService
 
+    private let userWalletInfo: UserWalletInfo
     private let walletModel: any WalletModel
     private let walletModelsManager: WalletModelsManager
     private let signingActionButtonType: SigningActionButtonViewType
@@ -37,15 +38,16 @@ final class SingleTokenNotificationManager {
     private var totalState: TokenBalanceType?
 
     init(
-        userWalletId: UserWalletId,
+        userWalletInfo: UserWalletInfo,
         walletModel: any WalletModel,
         walletModelsManager: WalletModelsManager,
         signingActionButtonType: SigningActionButtonViewType
     ) {
+        self.userWalletInfo = userWalletInfo
         self.walletModel = walletModel
         self.walletModelsManager = walletModelsManager
         self.signingActionButtonType = signingActionButtonType
-        analyticsService = NotificationsAnalyticsService(userWalletId: userWalletId)
+        analyticsService = NotificationsAnalyticsService(userWalletId: userWalletInfo.id)
         bind()
     }
 
@@ -134,11 +136,12 @@ final class SingleTokenNotificationManager {
             events.append(.cloreMigration)
         }
 
-        switch walletModel.sendingRestrictions {
-        case .zeroFeeCurrencyBalance(let configuration) where !walletModel.isMainToken && !shouldSuppressNotEnoughFeeNotification():
+        let sendAvailability = TokenActionAvailabilityProvider(userWalletInfo: userWalletInfo, walletModel: walletModel).sendAvailability
+
+        if case .zeroFeeCurrencyBalance(let configuration) = sendAvailability,
+           !walletModel.isMainToken,
+           !shouldSuppressNotEnoughFeeNotification() {
             events.append(.notEnoughFeeForTransaction(configuration: configuration))
-        default:
-            break
         }
 
         events += makeAssetRequirementsNotificationEvents()
@@ -303,7 +306,7 @@ final class SingleTokenNotificationManager {
         let asset = walletModel.tokenItem.amountType
 
         guard
-            !walletModel.hasPendingTransactions,
+            !walletModel.pendingTransactionsProvider.hasBlockingPendingTransactions,
             let assetRequirementsManager = walletModel.assetRequirementsManager
         else {
             return []

@@ -15,8 +15,8 @@ final class PolymarketSteppedDelayProvider: PollDelayProvider, Sendable {
         case cancelled(TimeInterval)
     }
 
-    let requests = PolymarketTestSignal<TimeInterval>()
-    let cancellations = PolymarketTestSignal<TimeInterval>()
+    let requests = TestSignal<TimeInterval>()
+    let cancellations = TestSignal<TimeInterval>()
 
     private let passes: @Sendable (TimeInterval) -> Bool
     private let onEvent: @Sendable (Event) -> Void

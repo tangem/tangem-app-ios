@@ -33,11 +33,9 @@ enum MCPModuleFactory {
     static let kingfisherImageCache = ImageCache(name: "com.tangem.mcp.icons")
 
     static func configure() {
-        guard FeatureProvider.isAvailable(.mcp) else { return }
-
         let configuration = MCPAssembly.Configuration(
             floatingSheetRegistry: FloatingSheetRegistry.default,
-            baseURL: AppEnvironment.current.backendAuthenticationBaseUrl,
+            baseURL: AppEnvironment.current.backendAuthenticationAPIType.baseURL,
             requestAdapter: BackendAuthenticationAssembly.requestAdapter,
             requestRetrier: BackendAuthenticationAssembly.requestRetrier,
             authorizationAnalyticsReporter: CommonMCPAuthorizationAnalyticsReporter(),
@@ -55,10 +53,6 @@ enum MCPModuleFactory {
         preselectedUserWalletID: UserWalletId? = nil,
         connectionAcceptedAction: @escaping (UserWalletId) -> Void = { _ in }
     ) -> MCPConnectionRequestViewModel? {
-        guard FeatureProvider.isAvailable(.mcp) else {
-            return nil
-        }
-
         let userWallets = Self.userWalletRepository.models.map(MCPUserWallet.init(from:))
 
         guard !userWallets.isEmpty else {
@@ -289,7 +283,12 @@ extension MCPModuleFactory {
                 return UIImage()
             }
 
-            return await userWalletModel.walletImageProvider.loadSmallUIImage()
+            switch userWalletModel.walletIcon {
+            case .loadable(let imageProvider):
+                return await imageProvider.loadSmallUIImage()
+            case .content:
+                return UIImage()
+            }
         }
     }
 

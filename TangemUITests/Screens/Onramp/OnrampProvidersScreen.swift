@@ -10,14 +10,16 @@ import XCTest
 import TangemAccessibilityIdentifiers
 
 final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
-    private lazy var screenTitle = staticText(.screenTitle)
+    private lazy var screenTitle = app.staticTexts.matching(NSPredicate(format: "label == %@", Localization.onrampAllOffersButtonTitle)).firstMatch
     private lazy var closeButton = button(.closeButton)
+    private lazy var backButton = button(.backButton)
 
     @discardableResult
     func waitForProviders() -> Self {
         XCTContext.runActivity(named: "Validate OnRamp providers screen elements") { _ in
             waitAndAssertTrue(screenTitle, "Providers screen title should exist")
             waitAndAssertTrue(closeButton, "Close button should exist")
+            waitAndAssertTrue(backButton, "Back button to the payment methods should exist")
 
             let amountsQuery = app.staticTexts.matching(NSPredicate(format: "identifier BEGINSWITH 'onrampProviderAmount_'"))
             let firstAmount = amountsQuery.firstMatch
@@ -97,10 +99,14 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
     @discardableResult
     func tapAnyBuyButtonAndValidateWebView() -> Self {
         XCTContext.runActivity(named: "Tap Buy on any offer and validate webview opens") { _ in
-            let buyButton = app.buttons.matching(NSPredicate(format: "label == 'Buy'"))
-                .firstMatch
-            waitAndAssertTrue(buyButton, "Buy button should exist before tapping")
-            XCTAssertTrue(buyButton.isHittable, "Buy button should be hittable before tapping")
+            let buyButtons = app.buttons.matching(NSPredicate(format: "label == 'Buy'"))
+            waitAndAssertTrue(buyButtons.firstMatch, "Buy button should exist before tapping")
+
+            guard let buyButton = buyButtons.firstHittableElement() else {
+                XCTFail("Buy button of an offer in the All offers modal should be hittable")
+                return
+            }
+
             buyButton.tap()
 
             // Validate that a web view (SFSafariViewController or WKWebView) appears
@@ -216,15 +222,15 @@ final class OnrampProvidersScreen: ScreenBase<OnrampProvidersScreenElement> {
 }
 
 enum OnrampProvidersScreenElement: String, UIElement {
-    case screenTitle
     case closeButton
+    case backButton
 
     var accessibilityIdentifier: String {
         switch self {
-        case .screenTitle:
-            return OnrampAccessibilityIdentifiers.providersScreenTitle
         case .closeButton:
             return CommonUIAccessibilityIdentifiers.closeButton
+        case .backButton:
+            return CommonUIAccessibilityIdentifiers.backButton
         }
     }
 }

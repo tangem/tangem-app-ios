@@ -14,35 +14,25 @@ import TangemAccessibilityIdentifiers
 
 struct OnrampProviderItemView: View {
     let viewModel: OnrampProviderItemViewModel
+    var background: Color = DesignSystem.Color.bgTransparentOnMaterialPrimary
 
     var body: some View {
         SwiftUI.Button(action: viewModel.action) {
             content
-                .defaultRoundedBackground(
-                    with: DesignSystem.Color.bgSecondary,
-                    verticalPadding: .zero,
-                    horizontalPadding: .zero
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(background)
                 )
+                .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         }
+        .buttonStyle(.plain)
         .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodCard)
     }
 
     private var content: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            topView
-
-            if let providersInfo = viewModel.providersInfo {
-                availableOffers(providers: providersInfo)
-                    // Icon size + padding
-                    .padding(.leading, 36 + 12)
-            }
-        }
-        .padding(.all, 14)
-        .contentShape(Rectangle())
-    }
-
-    private var topView: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .top, spacing: 12) {
             OnrampPaymentMethodIconView(
                 lightURL: viewModel.paymentMethod.lightIconURL,
                 darkURL: viewModel.paymentMethod.darkIconURL
@@ -50,21 +40,22 @@ struct OnrampProviderItemView: View {
             .opacity(viewModel.isAvailable ? 1 : 0.5)
             .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodIcon(id: viewModel.paymentMethod.id))
 
-            titleView
+            VStack(alignment: .leading, spacing: 4) {
+                Text(viewModel.paymentMethod.name)
+                    .style(
+                        DesignSystem.Font.bodyMediumToken,
+                        color: viewModel.isAvailable ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary
+                    )
+                    .lineLimit(1)
+                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodName(id: viewModel.paymentMethod.id))
 
-            Spacer(minLength: 0)
-        }
-        .infinityFrame(axis: .horizontal)
-    }
+                amountView
 
-    private var titleView: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(viewModel.paymentMethod.name)
-                .style(Fonts.Bold.subheadline, color: viewModel.isAvailable ? DesignSystem.Color.textPrimary : DesignSystem.Color.textSecondary)
-                .lineLimit(1)
-                .accessibilityIdentifier(OnrampAccessibilityIdentifiers.paymentMethodName(id: viewModel.paymentMethod.id))
-
-            amountView
+                if let providersInfo = viewModel.providersInfo {
+                    availableOffers(providers: providersInfo)
+                        .padding(.top, 4)
+                }
+            }
         }
     }
 
@@ -73,58 +64,52 @@ struct OnrampProviderItemView: View {
         switch viewModel.amountType {
         case .availableFrom(let amount):
             Text(Localization.onrampProviderMinAmount(amount))
-                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
         case .availableUpTo(let amount):
             Text(Localization.onrampProviderMaxAmount(amount))
-                .style(Fonts.Regular.caption1, color: DesignSystem.Color.textSecondary)
+                .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
                 .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
         case .available(let amount):
-            HStack(spacing: 4) {
-                Text(amount.attributedFormatted)
-                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
-
-                OnrampAmountBadge(badge: amount.badge)
-                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.bestRateBadge(id: viewModel.paymentMethod.id))
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 4) { availableAmount(amount) }
+                VStack(alignment: .leading, spacing: 4) { availableAmount(amount) }
             }
         }
     }
 
+    @ViewBuilder
+    private func availableAmount(_ amount: OnrampProviderItemViewModel.Amount) -> some View {
+        Text(amount.attributedFormatted)
+            .style(DesignSystem.Font.subheadingMediumToken, color: DesignSystem.Color.textSecondary)
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerAmount(name: viewModel.paymentMethod.id))
+
+        OnrampAmountBadge(badge: amount.badge)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.bestRateBadge(id: viewModel.paymentMethod.id))
+    }
+
     private func availableOffers(providers: OnrampProviderItemViewModel.ProvidersInfo) -> some View {
-        HStack(spacing: 8) {
-            HStack(spacing: 4) {
-                Assets.stakingMiniIcon.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
-                    .frame(width: 10, height: 10)
-
-                Text(providers.providersFormatted)
-                    .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
-                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerCount(id: viewModel.paymentMethod.id))
-            }
-            .padding(4)
-            .overlay(
-                RoundedRectangle(cornerRadius: 6)
-                    .stroke(DesignSystem.Color.borderSecondary, lineWidth: 1)
-            )
-
-            HStack(spacing: 4) {
-                Assets.Express.providerTimeIconMini.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .foregroundStyle(DesignSystem.Color.iconSecondary)
-                    .frame(width: 10, height: 10)
-
-                Text(providers.timeFormatted)
-                    .style(Fonts.Regular.caption2, color: DesignSystem.Color.textSecondary)
-                    .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerTime(id: viewModel.paymentMethod.id))
-            }
-            .padding(4)
-            .overlay(
-                RoundedRectangle(cornerRadius: 6)
-                    .stroke(DesignSystem.Color.borderSecondary, lineWidth: 1)
-            )
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 4) { offerBadges(providers: providers) }
+            VStack(alignment: .leading, spacing: 4) { offerBadges(providers: providers) }
         }
+    }
+
+    @ViewBuilder
+    private func offerBadges(providers: OnrampProviderItemViewModel.ProvidersInfo) -> some View {
+        TangemUI.Badge(label: providers.providersFormatted, accessibilityLabel: providers.providersFormatted)
+            .size(.x4)
+            .slotStart(DesignSystem.Icons.Stack.regular12)
+            .accessibilityRemoveTraits(.isImage)
+            .accessibilityAddTraits(.isStaticText)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerCount(id: viewModel.paymentMethod.id))
+
+        TangemUI.Badge(label: providers.timeFormatted, accessibilityLabel: providers.timeFormatted)
+            .size(.x4)
+            .slotStart(DesignSystem.Icons.Clock.regular12)
+            .accessibilityRemoveTraits(.isImage)
+            .accessibilityAddTraits(.isStaticText)
+            .accessibilityIdentifier(OnrampAccessibilityIdentifiers.providerTime(id: viewModel.paymentMethod.id))
     }
 }

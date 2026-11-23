@@ -70,6 +70,7 @@ final class AppOverlaysManager {
         floatingSheetViewModel.removeAllSheets()
         floatingSheetViewModel.pauseSheetsDisplaying()
         overlayViewPresenterViewModel.dismissAll()
+        ToastPresenter.shared.dismissAll()
         alertPresenterViewModel.alert = nil
         dismissShareSheet()
 

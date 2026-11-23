@@ -30,7 +30,7 @@ final class MarketsSearchCoordinator: CoordinatorObject {
 
     // MARK: - Private
 
-    private(set) var leadingButton: MarketsSearchNavigationBar<DefaultNavigationBarTitle>.LeadingButton = .back
+    private(set) var leadingButton: MarketsSearchLeadingButton = .back
 
     // MARK: - Init
 
@@ -63,7 +63,7 @@ extension MarketsSearchCoordinator {
         let quotesRepositoryUpdateHelper: MarketsQuotesUpdateHelper
         /// Style of the leading button in the navigation bar: `.back` for in-app navigation
         /// (e.g. "See All" from the Markets bottom sheet), `.close` for modal deeplink entry.
-        let leadingButton: MarketsSearchNavigationBar<DefaultNavigationBarTitle>.LeadingButton
+        let leadingButton: MarketsSearchLeadingButton
     }
 }
 

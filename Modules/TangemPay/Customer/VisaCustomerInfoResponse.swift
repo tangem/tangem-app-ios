@@ -87,6 +87,7 @@ public extension VisaCustomerInfoResponse {
         public let adminCardLimit: CardLimit
         public let actualCardLimit: CardLimit?
         public let productSpecificationDataType: ProductSpecificationDataType
+        public let paymentAccountType: PaymentAccountType
 
         enum CodingKeys: String, CodingKey {
             case id
@@ -100,6 +101,7 @@ public extension VisaCustomerInfoResponse {
             case adminCardLimit
             case actualCardLimit
             case productSpecificationDataType
+            case paymentAccountType
         }
 
         public init(from decoder: Decoder) throws {
@@ -115,6 +117,18 @@ public extension VisaCustomerInfoResponse {
             adminCardLimit = try container.decodeIfPresent(CardLimit.self, forKey: .adminCardLimit) ?? CardLimit(amount: 0, periodType: "")
             actualCardLimit = try container.decodeIfPresent(CardLimit.self, forKey: .actualCardLimit)
             productSpecificationDataType = try container.decodeIfPresent(ProductSpecificationDataType.self, forKey: .productSpecificationDataType) ?? .undefined
+            paymentAccountType = try container.decodeIfPresent(PaymentAccountType.self, forKey: .paymentAccountType) ?? .undefined
+        }
+    }
+
+    enum PaymentAccountType: String, Codable {
+        case collateralBankingAccount = "COLLATERAL_BANKING_ACCOUNT"
+        case collateralVirtualAccount = "COLLATERAL_VIRTUAL_ACCOUNT"
+        case undefined = "UNDEFINED"
+
+        public init(from decoder: Decoder) throws {
+            let raw = try decoder.singleValueContainer().decode(String.self)
+            self = Self(rawValue: raw) ?? .undefined
         }
     }
 
@@ -413,7 +427,11 @@ public extension VisaCustomerInfoResponse {
 
     /// First Virtual Account (`ACCOUNT`) product instance, regardless of status.
     var virtualAccountProductInstance: ProductInstance? {
-        productInstances.first { $0.productSpecificationDataType == .account }
+        productInstances.first { $0.paymentAccountType == .collateralVirtualAccount }
+    }
+
+    var collateralBankingAccountProductInstance: ProductInstance? {
+        productInstances.first { $0.paymentAccountType == .collateralBankingAccount }
     }
 
     /// Card product instances only — excludes Virtual Account (`ACCOUNT`) instances, which share

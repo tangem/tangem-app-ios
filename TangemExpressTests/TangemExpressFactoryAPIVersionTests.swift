@@ -54,7 +54,7 @@ private extension TangemExpressFactoryAPIVersionTests {
         configuration.protocolClasses = [urlProtocol]
 
         return TangemExpressFactory().makeExpressAPIProvider(
-            credential: ExpressAPICredential(apiKey: "", userId: "", sessionId: sessionId, refcode: nil),
+            credential: ExpressAPICredential(apiKey: "", userId: "", sessionId: sessionId, refcode: nil, batchId: nil),
             configuration: configuration,
             expressAPIType: .production,
             exchangeDataDecoder: ExchangeDataDecoderStub(),

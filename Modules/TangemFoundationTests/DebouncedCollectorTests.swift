@@ -8,6 +8,7 @@
 import Foundation
 import Testing
 import Combine
+import TangemTestKit
 @testable import TangemFoundation
 
 @Suite("Publishers.DebouncedCollector tests")
@@ -15,91 +16,94 @@ struct DebouncedCollectorTests {
     // MARK: - Functional behavior
 
     @Test("Collects values emitted within a single debounce window into one array")
-    @MainActor
-    func collectsValuesWithinWindow() async throws {
+    func collectsValuesWithinWindow() {
+        let scheduler = ManualSchedulerStub()
         let subject = PassthroughSubject<Int, Never>()
         var received: [[Int]] = []
         let cancellable = subject
-            .collect(debouncedTime: .milliseconds(50), scheduler: DispatchQueue.main)
+            .collect(debouncedTime: .milliseconds(50), scheduler: scheduler)
             .sink { received.append($0) }
 
         subject.send(1)
         subject.send(2)
         subject.send(3)
-
-        try await Task.sleep(for: .milliseconds(150))
+        scheduler.advance(by: .milliseconds(50))
         _ = cancellable
 
         #expect(received == [[1, 2, 3]])
     }
 
     @Test("Resets accumulator between two debounce windows")
-    @MainActor
-    func resetsAccumulatorBetweenWindows() async throws {
+    func resetsAccumulatorBetweenWindows() {
+        let scheduler = ManualSchedulerStub()
         let subject = PassthroughSubject<Int, Never>()
         var received: [[Int]] = []
         let cancellable = subject
-            .collect(debouncedTime: .milliseconds(50), scheduler: DispatchQueue.main)
+            .collect(debouncedTime: .milliseconds(50), scheduler: scheduler)
             .sink { received.append($0) }
 
         subject.send(1)
         subject.send(2)
-        try await Task.sleep(for: .milliseconds(150))
+        scheduler.advance(by: .milliseconds(50))
 
         subject.send(3)
         subject.send(4)
-        try await Task.sleep(for: .milliseconds(150))
+        scheduler.advance(by: .milliseconds(50))
         _ = cancellable
 
         #expect(received == [[1, 2], [3, 4]])
     }
 
     @Test("Single value within window emits array of one")
-    @MainActor
-    func singleValueEmitsArrayOfOne() async throws {
+    func singleValueEmitsArrayOfOne() {
+        let scheduler = ManualSchedulerStub()
         let subject = PassthroughSubject<Int, Never>()
         var received: [[Int]] = []
         let cancellable = subject
-            .collect(debouncedTime: .milliseconds(50), scheduler: DispatchQueue.main)
+            .collect(debouncedTime: .milliseconds(50), scheduler: scheduler)
             .sink { received.append($0) }
 
         subject.send(42)
-        try await Task.sleep(for: .milliseconds(150))
+        scheduler.advance(by: .milliseconds(50))
         _ = cancellable
 
         #expect(received == [[42]])
     }
 
     @Test("No upstream emissions produce no output")
-    @MainActor
-    func noEmissionsProduceNoOutput() async throws {
+    func noEmissionsProduceNoOutput() {
+        let scheduler = ManualSchedulerStub()
         let subject = PassthroughSubject<Int, Never>()
         var received: [[Int]] = []
         let cancellable = subject
-            .collect(debouncedTime: .milliseconds(50), scheduler: DispatchQueue.main)
+            .collect(debouncedTime: .milliseconds(50), scheduler: scheduler)
             .sink { received.append($0) }
 
-        try await Task.sleep(for: .milliseconds(150))
+        scheduler.advance(by: .milliseconds(50))
         _ = cancellable
 
         #expect(received.isEmpty)
     }
 
     @Test("Late emissions extend the debounce window")
-    @MainActor
-    func lateEmissionsExtendTheWindow() async throws {
+    func lateEmissionsExtendTheWindow() {
+        let scheduler = ManualSchedulerStub()
         let subject = PassthroughSubject<Int, Never>()
         var received: [[Int]] = []
         let cancellable = subject
-            .collect(debouncedTime: .milliseconds(80), scheduler: DispatchQueue.main)
+            .collect(debouncedTime: .milliseconds(80), scheduler: scheduler)
             .sink { received.append($0) }
 
         subject.send(1)
-        try await Task.sleep(for: .milliseconds(40))
+        scheduler.advance(by: .milliseconds(40))
         subject.send(2)
-        try await Task.sleep(for: .milliseconds(40))
+        scheduler.advance(by: .milliseconds(40))
         subject.send(3)
-        try await Task.sleep(for: .milliseconds(150))
+        scheduler.advance(by: .milliseconds(79))
+
+        #expect(received.isEmpty)
+
+        scheduler.advance(by: .milliseconds(1))
         _ = cancellable
 
         #expect(received == [[1, 2, 3]])

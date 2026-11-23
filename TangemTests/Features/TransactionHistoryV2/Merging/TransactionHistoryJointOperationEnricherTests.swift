@@ -26,7 +26,8 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             let enriched = try #require(await enrich([record], with: [item]).singleElement)
 
             #expect(enriched.hash == Self.txHash.uppercased())
-            #expect(enriched.jointOperationInfo == JointOperationHistoryInfo(item: item))
+            let expectedInfo = try JointOperationHistoryTestDataFactory.info(item)
+            #expect(enriched.jointOperationInfo == expectedInfo)
             #expect(enriched.isOutgoing)
             #expect(enriched.source == .single(.init(address: Self.safeAddress, amount: 1)))
             #expect(enriched.destination == .single(.init(address: .user(Self.recipient), amount: 1)))
@@ -42,7 +43,8 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             let enriched = try #require(await enrich([record], with: [item]).singleElement)
 
             #expect(enriched.hash == Self.txHash)
-            #expect(enriched.jointOperationInfo == JointOperationHistoryInfo(item: item))
+            let expectedInfo = try JointOperationHistoryTestDataFactory.info(item)
+            #expect(enriched.jointOperationInfo == expectedInfo)
         }
 
         @Test("A token operation states the token amount and the refund cap, not the relayer's gas")
@@ -71,7 +73,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
                 Self.record(hash: Self.txHash, index: 1, isOutgoing: true, destination: .user(Self.recipient)),
             ]
 
-            let enriched = await enrich(records, with: [item])
+            let enriched = try await enrich(records, with: [item])
 
             #expect(enriched.map(\.index) == [1])
             #expect(enriched.first?.jointOperationInfo != nil)
@@ -85,7 +87,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
                 Self.record(hash: Self.txHash, index: 1, isOutgoing: false, destination: .user(Self.safeAddress)),
             ]
 
-            let enriched = await enrich(records, with: [item])
+            let enriched = try await enrich(records, with: [item])
 
             #expect(enriched.map(\.index) == [1])
             #expect(enriched.first?.isOutgoing == true)
@@ -119,7 +121,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             let expressRecord = Self.record(hash: Self.txHash, isOutgoing: true, destination: .user(Self.recipient))
                 .withExpressExtraInfo(.exchange(Self.exchangeInfo()))
 
-            let enriched = await enrich([expressRecord], with: [item])
+            let enriched = try await enrich([expressRecord], with: [item])
 
             #expect(enriched == [expressRecord])
         }
@@ -151,7 +153,8 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             #expect(synthetic.destination == .single(.init(address: .user(Self.recipient), amount: 1)))
             #expect(synthetic.tokenTransfers.isEmpty)
             #expect(synthetic.nonce == nil)
-            #expect(synthetic.jointOperationInfo == JointOperationHistoryInfo(item: item))
+            let expectedInfo = try JointOperationHistoryTestDataFactory.info(item)
+            #expect(synthetic.jointOperationInfo == expectedInfo)
         }
 
         @Test("Only an executed synthetic operation states the refund cap as its fee")
@@ -159,7 +162,7 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             let executed = Self.item(id: "executed", status: .executed, txHash: nil, safeTransaction: Self.coinSafeTransaction())
             let cancelled = Self.item(id: "cancelled", status: .cancelled, txHash: nil, safeTransaction: Self.coinSafeTransaction())
 
-            let enriched = await enrich([], with: [executed, cancelled])
+            let enriched = try await enrich([], with: [executed, cancelled])
             let feesByOperation = Dictionary(uniqueKeysWithValues: enriched.compactMap { record in
                 record.jointOperationInfo.map { ($0.groupingId, record.fee.amount.value) }
             })
@@ -172,48 +175,48 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
             .pending,
             .unknown,
         ])
-        func unfinishedOperationHasNoSyntheticRecord(status: JointAccountOperationStatus) async {
+        func unfinishedOperationHasNoSyntheticRecord(status: JointAccountOperationStatus) async throws {
             let item = Self.item(status: status, txHash: nil, safeTransaction: Self.coinSafeTransaction())
 
-            #expect(await enrich([], with: [item]).isEmpty)
+            #expect(try await enrich([], with: [item]).isEmpty)
         }
 
         @Test("A synthetic operation is replaced by its on-chain record once that arrives")
-        func syntheticOperationIsReplacedByItsRecord() async {
+        func syntheticOperationIsReplacedByItsRecord() async throws {
             let item = Self.item(status: .executed, txHash: Self.txHash, safeTransaction: Self.coinSafeTransaction())
             let record = Self.record(hash: Self.txHash, isOutgoing: true, destination: .contract(Self.safeAddress))
 
-            let beforeRecord = await enrich([], with: [item])
-            let afterRecord = await enrich([record], with: [item])
+            let beforeRecord = try await enrich([], with: [item])
+            let afterRecord = try await enrich([record], with: [item])
 
             #expect(beforeRecord.map(\.hash) == [JointOperationSyntheticTxHelper(operationId: Self.operationId).makeSyntheticTxIdentifier()])
             #expect(afterRecord.map(\.hash) == [Self.txHash])
         }
 
         @Test("A synthetic operation older than the window is left out, and shown once the window is lifted")
-        func syntheticOperationOutsideWindowIsLeftOut() async {
+        func syntheticOperationOutsideWindowIsLeftOut() async throws {
             let item = Self.item(status: .executed, txHash: nil, safeTransaction: Self.coinSafeTransaction())
             let windowStart = Self.finishedAt.addingTimeInterval(1)
 
-            #expect(await enrich([], with: [item], syntheticWindowStart: windowStart).isEmpty)
-            #expect(await enrich([], with: [item], syntheticWindowStart: Self.finishedAt).count == 1)
-            #expect(await enrich([], with: [item], syntheticWindowStart: nil).count == 1)
+            #expect(try await enrich([], with: [item], syntheticWindowStart: windowStart).isEmpty)
+            #expect(try await enrich([], with: [item], syntheticWindowStart: Self.finishedAt).count == 1)
+            #expect(try await enrich([], with: [item], syntheticWindowStart: nil).count == 1)
         }
 
         @Test("A synthetic operation is dated by its result, or by its creation when it has none")
-        func syntheticOperationIsDatedByResult() async {
+        func syntheticOperationIsDatedByResult() async throws {
             let item = Self.item(status: .cancelled, txHash: nil, safeTransaction: Self.coinSafeTransaction(), finishedAt: nil)
 
-            #expect(await enrich([], with: [item]).first?.date == Self.createdAt)
+            #expect(try await enrich([], with: [item]).first?.date == Self.createdAt)
         }
 
         @Test("The result is sorted newest first")
-        func resultIsSortedNewestFirst() async {
+        func resultIsSortedNewestFirst() async throws {
             let item = Self.item(status: .executed, txHash: nil, safeTransaction: Self.coinSafeTransaction())
             let older = Self.record(hash: "0xolder", isOutgoing: false, destination: .user(Self.safeAddress), date: Self.createdAt)
             let newer = Self.record(hash: "0xnewer", isOutgoing: false, destination: .user(Self.safeAddress), date: Self.finishedAt.addingTimeInterval(60))
 
-            let enriched = await enrich([older, newer], with: [item])
+            let enriched = try await enrich([older, newer], with: [item])
 
             #expect(enriched.map(\.hash) == ["0xnewer", JointOperationSyntheticTxHelper(operationId: Self.operationId).makeSyntheticTxIdentifier(), "0xolder"])
         }
@@ -347,12 +350,12 @@ extension TransactionHistoryAuxDataRepositoryDependentTests {
         }
 
         @Test("Records of other hashes pass through untouched")
-        func otherRecordsPassThrough() async {
+        func otherRecordsPassThrough() async throws {
             let item = Self.item(status: .executed, txHash: Self.txHash, safeTransaction: Self.coinSafeTransaction())
             let matched = Self.record(hash: Self.txHash, isOutgoing: true, destination: .contract(Self.safeAddress))
             let other = Self.record(hash: "0xother", isOutgoing: false, destination: .user(Self.safeAddress), date: Self.createdAt)
 
-            let enriched = await enrich([matched, other], with: [item])
+            let enriched = try await enrich([matched, other], with: [item])
 
             #expect(enriched.map(\.hash) == [Self.txHash, "0xother"])
             #expect(enriched.first?.jointOperationInfo != nil)
@@ -385,14 +388,16 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.TransactionH
         with items: [JointOperationHistoryItem],
         currentToken: TokenItem = coin,
         syntheticWindowStart: Date? = nil
-    ) async -> [TransactionRecord] {
-        await InjectedDependenciesIsolation.shared.run {
+    ) async throws -> [TransactionRecord] {
+        let infos = try items.map(JointOperationHistoryTestDataFactory.info)
+
+        return await InjectedDependenciesIsolation.shared.run {
             let previousAuxDataRepository = InjectedValues[\.transactionHistoryAuxDataRepository]
             InjectedValues[\.transactionHistoryAuxDataRepository] = auxDataRepository
             defer { InjectedValues[\.transactionHistoryAuxDataRepository] = previousAuxDataRepository }
 
             return TransactionHistoryJointOperationEnricher(currentToken: currentToken, feeTokenItem: Self.coin)
-                .enrich(records, with: items, syntheticWindowStart: syntheticWindowStart)
+                .enrich(records, with: infos, syntheticWindowStart: syntheticWindowStart)
         }
     }
 
@@ -414,8 +419,8 @@ private extension TransactionHistoryAuxDataRepositoryDependentTests.TransactionH
                 cancelReason: status == .cancelled ? .initiator : nil,
                 initiator: JointOperationHistoryTestDataFactory.initiator,
                 signatures: [],
-                createdAt: nil,
-                threshold: nil
+                createdAt: createdAt,
+                threshold: 2
             ),
             cryptoAccountId: "crypto-account-1",
             safeAddress: safeAddress,

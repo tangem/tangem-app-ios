@@ -23,6 +23,7 @@ public struct Button: View, Setupable {
     private var loading: Loading?
     private var isEnabled = true
     private var accessibilityLabel: String?
+    private var holdHint: HoldHint?
     @ScaledMetric private var iconSide = Size.x10.iconSize
     @ScaledMetric private var wrapperPadding = Size.x10.wrapperPadding
     @ScaledMetric private var horizontalPadding = Size.x10.horizontalPadding
@@ -135,9 +136,7 @@ public struct Button: View, Setupable {
                     iconView(iconStart)
                 }
 
-                Text(attributedString)
-                    .lineLimit(1)
-                    .padding(.horizontal, wrapperPadding)
+                labelText(attributedString)
 
                 if let iconEnd {
                     iconView(iconEnd)
@@ -146,6 +145,29 @@ public struct Button: View, Setupable {
         case .iconOnly(let icon):
             iconView(icon)
         }
+    }
+
+    @ViewBuilder
+    private func labelText(_ text: AttributedString) -> some View {
+        if let holdHint {
+            HoldHintLayout(progress: holdHint.isShown ? 1 : 0) {
+                paddedText(text)
+                    .opacity(holdHint.isShown ? 0 : 1)
+
+                paddedText(AttributedString(holdHint.text))
+                    .opacity(holdHint.isShown ? 1 : 0)
+                    .animation(holdHint.hintAnimation, value: holdHint.isShown)
+            }
+            .animation(holdHint.labelAnimation, value: holdHint.isShown)
+        } else {
+            paddedText(text)
+        }
+    }
+
+    private func paddedText(_ text: AttributedString) -> some View {
+        Text(text)
+            .lineLimit(1)
+            .padding(.horizontal, wrapperPadding)
     }
 
     private var loadingRow: some View {
@@ -254,10 +276,7 @@ extension Button {
         map { $0._iconSide = ScaledMetric(wrappedValue: side, relativeTo: .body) }
     }
 
-    func labelText(_ text: String) -> Self {
-        map {
-            guard case .label(_, let iconStart, let iconEnd) = $0.content else { return }
-            $0.content = .label(AttributedString(text), iconStart: iconStart, iconEnd: iconEnd)
-        }
+    func holdHint(_ hint: HoldHint) -> Self {
+        map { $0.holdHint = hint }
     }
 }

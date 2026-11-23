@@ -20,6 +20,14 @@ final class TokenSelectorViewModel: ObservableObject {
 
     let showsBalanceFilter: Bool
 
+    var selectedWalletId: UserWalletId? {
+        guard let selectedChipId else {
+            return wallets.singleElement?.walletId
+        }
+
+        return wallets.first { $0.walletId.stringValue == selectedChipId }?.walletId
+    }
+
     @Published private(set) var wallets: [TokenSelectorWalletItemViewModel]
     @Published private(set) var walletChips: [WalletChipData] = []
     @Published private(set) var contentVisibility: ContentVisibility = .empty(.noTokens)

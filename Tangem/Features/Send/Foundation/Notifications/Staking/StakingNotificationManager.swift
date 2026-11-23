@@ -174,6 +174,7 @@ private extension CommonStakingNotificationManager {
             showInsufficientFundsForFee(feeCurrencyBalance: feeCurrencyBalance)
 
         default:
+            analyticsLogger.logNoticeNetworkFeeUnreachable()
             show(error: .networkUnreachable)
         }
     }

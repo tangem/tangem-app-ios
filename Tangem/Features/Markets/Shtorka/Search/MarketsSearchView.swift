@@ -15,7 +15,7 @@ import TangemUIUtils
 
 struct MarketsSearchView: View {
     @ObservedObject var viewModel: MarketsSearchViewModel
-    let leadingButton: MarketsSearchNavigationBar<DefaultNavigationBarTitle>.LeadingButton
+    let leadingButton: MarketsSearchLeadingButton
     let onLeadingButtonAction: () -> Void
 
     @State private var headerHeight: CGFloat = .zero
@@ -112,8 +112,8 @@ struct MarketsSearchView: View {
                     .transition(.move(edge: .leading).combined(with: .opacity))
             }
 
-            MainBottomSheetHeaderView(viewModel: viewModel.headerViewModel, backgroundColor: .clear)
-                .searchFieldInsets(searchFieldInsets)
+            MarketsSearchHeaderView(viewModel: viewModel.headerViewModel)
+                .padding(searchFieldInsets)
         }
         .animation(.easeInOut(duration: 0.2), value: viewModel.isSearchFieldFocused)
     }
@@ -123,10 +123,8 @@ struct MarketsSearchView: View {
         switch leadingButton {
         case .back:
             NavigationBarButton.back(action: onLeadingButtonAction)
-                .redesigned()
         case .close:
             NavigationBarButton.close(action: onLeadingButtonAction)
-                .redesigned()
         }
     }
 
@@ -253,7 +251,7 @@ struct MarketsSearchView: View {
 
     @ViewBuilder
     private var errorStateView: some View {
-        TangemUnableToLoadDataView(
+        UnableToLoadDataView(
             isButtonBusy: false,
             retryButtonAction: viewModel.tokenListViewModel.onTryLoadList
         )

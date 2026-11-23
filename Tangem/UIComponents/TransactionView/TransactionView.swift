@@ -29,7 +29,7 @@ struct TransactionView: View {
         switch viewModel.icon.status {
         case .confirmed: TxHistoryAccessibilityIdentifiers.transactionConfirmedStatus(key: transactionKey)
         case .inProgress: TxHistoryAccessibilityIdentifiers.transactionInProgressStatus(key: transactionKey)
-        case .failed, .undefined: nil
+        case .failed, .cancelled, .undefined: nil
         }
     }
 
@@ -248,13 +248,13 @@ private extension TransactionView {
         }
 
         switch viewModel.icon.status {
-        case .failed, .undefined: return .failed
+        case .failed, .cancelled, .undefined: return .failed
         case .inProgress: return .progress
         case .confirmed: return .finished
         }
     }
 
-    var isFailed: Bool { viewModel.icon.status == .failed }
+    var isFailed: Bool { viewModel.icon.status.isFailed }
 
     var nameColor: Color {
         switch rowStatus {

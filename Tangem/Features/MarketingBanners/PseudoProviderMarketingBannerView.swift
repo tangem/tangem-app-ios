@@ -135,7 +135,8 @@ private extension PseudoProviderMarketingBannerView {
                     categoryLabel: "Concierge for large purchases",
                     subtitle: "Pay by bank transfer",
                     etaLabel: "up to 4 hours",
-                    partnerLabel: "via MoonPay"
+                    partnerLabel: "via MoonPay",
+                    replacedSlot: nil
                 )
             ),
             onAction: { _ in }
@@ -149,7 +150,7 @@ private extension PseudoProviderMarketingBannerView {
                 isGlowing: false,
                 link: URL(string: "https://btcdirect.eu")!,
                 isDismissible: false,
-                content: .init(categoryLabel: "OTC partner service", subtitle: nil, etaLabel: nil, partnerLabel: nil)
+                content: .init(categoryLabel: "OTC partner service", subtitle: nil, etaLabel: nil, partnerLabel: nil, replacedSlot: nil)
             ),
             onAction: { _ in }
         )

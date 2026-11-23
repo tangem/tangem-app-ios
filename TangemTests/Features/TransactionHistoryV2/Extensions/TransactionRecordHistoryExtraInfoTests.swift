@@ -47,8 +47,8 @@ struct TransactionRecordHistoryExtraInfoTests {
     }
 
     @Test("Joint operation info is read back through its projection and groups the row by the operation")
-    func jointOperationInfoIsProjected() {
-        let info = JointOperationHistoryInfo(item: JointOperationHistoryTestDataFactory.coinItem(id: "joint"))
+    func jointOperationInfoIsProjected() throws {
+        let info = try JointOperationHistoryTestDataFactory.info(JointOperationHistoryTestDataFactory.coinItem(id: "joint"))
 
         let record = makeRecord().withJointOperationInfo(info)
 
@@ -66,9 +66,9 @@ struct TransactionRecordHistoryExtraInfoTests {
     }
 
     @Test("Copying a record with joint operation info keeps it folded")
-    func withJointOperationInfoKeepsIsFolded() {
+    func withJointOperationInfoKeepsIsFolded() throws {
         let folded = makeRecord(isFolded: true)
-        let info = JointOperationHistoryInfo(item: JointOperationHistoryTestDataFactory.coinItem(id: "joint"))
+        let info = try JointOperationHistoryTestDataFactory.info(JointOperationHistoryTestDataFactory.coinItem(id: "joint"))
 
         let enriched = folded.withJointOperationInfo(info)
 

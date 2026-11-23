@@ -106,7 +106,7 @@ private extension DynamicAddressesEnterViewModel {
     }
 
     private func showSuccessToast() {
-        Toast(view: SuccessToast(text: Localization.dynamicAddressesEnabledToastTitle))
+        LegacyToast(view: SuccessToast(text: Localization.dynamicAddressesEnabledToastTitle))
             .present(
                 layout: .top(),
                 type: .temporary()

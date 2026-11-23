@@ -15,13 +15,24 @@ struct DerivationTests {
         let legacy: DerivationStyle = .v1
         let new: DerivationStyle = .v2
 
-        let fantom: Blockchain = .fantom(testnet: false)
-        #expect(fantom.derivationPath(for: legacy)?.rawPath == "m/44'/1007'/0'/0/0")
-        #expect(fantom.derivationPath(for: new)?.rawPath == "m/44'/60'/0'/0/0")
+        let evmChains: [(blockchain: Blockchain, legacyPath: String)] = [
+            (.ethereum(testnet: false), "m/44'/60'/0'/0/0"),
+            (.fantom(testnet: false), "m/44'/1007'/0'/0/0"),
+            (.electroneum(testnet: false), "m/44'/415'/0'/0/0"),
+            (.arc(testnet: false), "m/44'/5042'/0'/0/0"),
+            (.publicMasterpiece, "m/44'/60'/0'/0/0"),
+            (.onyx(testnet: false), "m/44'/60'/0'/0/0"),
+            (.zeniq, "m/44'/60'/0'/0/0"),
+            (.katana(testnet: false), "m/44'/60'/0'/0/0"),
+            (.xLayer(testnet: false), "m/44'/60'/0'/0/0"),
+            (.ink(testnet: false), "m/44'/60'/0'/0/0"),
+        ]
 
-        let eth: Blockchain = .ethereum(testnet: false)
-        #expect(eth.derivationPath(for: legacy)?.rawPath == "m/44'/60'/0'/0/0")
-        #expect(eth.derivationPath(for: new)?.rawPath == "m/44'/60'/0'/0/0")
+        for (blockchain, legacyPath) in evmChains {
+            #expect(blockchain.derivationPath(for: legacy)?.rawPath == legacyPath)
+            #expect(blockchain.derivationPath(for: new)?.rawPath == "m/44'/60'/0'/0/0")
+            #expect(blockchain.derivationPath(for: .v3)?.rawPath == "m/44'/60'/0'/0/0")
+        }
 
         let ethTest: Blockchain = .ethereum(testnet: true)
         #expect(ethTest.derivationPath(for: legacy)?.rawPath == "m/44'/1'/0'/0/0")
@@ -35,24 +46,5 @@ struct DerivationTests {
         #expect(gonka.derivationPath(for: legacy)?.rawPath == "m/44'/1200'/0'/0/0")
         #expect(gonka.derivationPath(for: new)?.rawPath == "m/44'/1200'/0'/0/0")
         #expect(gonka.derivationPath(for: .v3)?.rawPath == "m/44'/1200'/0'/0/0")
-
-        let electroneum: Blockchain = .electroneum(testnet: false)
-        #expect(electroneum.derivationPath(for: legacy)?.rawPath == "m/44'/415'/0'/0/0")
-        #expect(electroneum.derivationPath(for: new)?.rawPath == "m/44'/60'/0'/0/0")
-        #expect(electroneum.derivationPath(for: .v3)?.rawPath == "m/44'/60'/0'/0/0")
-
-        let arc: Blockchain = .arc(testnet: false)
-        #expect(arc.derivationPath(for: legacy)?.rawPath == "m/44'/5042'/0'/0/0")
-        #expect(arc.derivationPath(for: new)?.rawPath == "m/44'/60'/0'/0/0")
-        #expect(arc.derivationPath(for: .v3)?.rawPath == "m/44'/60'/0'/0/0")
-
-        let publicMasterpiece: Blockchain = .publicMasterpiece
-        #expect(publicMasterpiece.derivationPath(for: legacy)?.rawPath == "m/44'/60'/0'/0/0")
-        #expect(publicMasterpiece.derivationPath(for: new)?.rawPath == "m/44'/60'/0'/0/0")
-        #expect(publicMasterpiece.derivationPath(for: .v3)?.rawPath == "m/44'/60'/0'/0/0")
-        let onyx: Blockchain = .onyx(testnet: false)
-        #expect(onyx.derivationPath(for: legacy)?.rawPath == "m/44'/60'/0'/0/0")
-        #expect(onyx.derivationPath(for: new)?.rawPath == "m/44'/60'/0'/0/0")
-        #expect(onyx.derivationPath(for: .v3)?.rawPath == "m/44'/60'/0'/0/0")
     }
 }

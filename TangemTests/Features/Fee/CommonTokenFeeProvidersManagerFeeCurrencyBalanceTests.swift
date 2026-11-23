@@ -46,11 +46,19 @@ struct CommonTokenFeeProvidersManagerFeeCurrencyBalanceTests {
         #expect(try sut.feeCurrencyBalance() == 0.005)
     }
 
+    @Test("The fee is sponsored only when the selected provider is paid by Tangem", arguments: [TokenFeePayer.user, .tangem])
+    func feeIsSponsoredByPayer(payer: TokenFeePayer) {
+        let sut = makeManager(balance: .loaded(0), payer: payer)
+
+        #expect(sut.isFeeSponsored == (payer == .tangem))
+    }
+
     // MARK: - Helpers
 
-    private func makeManager(balance: TokenBalanceType) -> CommonTokenFeeProvidersManager {
+    private func makeManager(balance: TokenBalanceType, payer: TokenFeePayer = .user) -> CommonTokenFeeProvidersManager {
         let provider = ControllableTokenFeeProviderStub(
             feeTokenItem: ethTokenItem,
+            payer: payer,
             balance: balance,
             selectedTokenFee: TokenFee(option: .market, tokenItem: ethTokenItem, value: .loading)
         )

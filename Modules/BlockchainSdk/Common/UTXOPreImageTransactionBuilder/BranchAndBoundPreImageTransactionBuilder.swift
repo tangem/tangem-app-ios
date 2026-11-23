@@ -49,9 +49,12 @@ extension BranchAndBoundPreImageTransactionBuilder: UTXOPreImageTransactionBuild
             throw Error.noOutputs
         }
 
-        let outputsTotal = try outputs.sumReportingOverflow(by: \.amount)
+        let (outputsTotal, isOverflow) = outputs.sumReportingOverflow(by: \.amount)
 
-        guard let total = Int(exactly: outputsTotal) else {
+        guard
+            !isOverflow,
+            let total = Int(exactly: outputsTotal)
+        else {
             throw Error.outputsTotalOverflow
         }
 

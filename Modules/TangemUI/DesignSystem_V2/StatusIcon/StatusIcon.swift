@@ -19,7 +19,8 @@ import TangemUIUtils
 /// via the chain modifiers: ``tint(_:)`` (defaults to the glyph's status color),
 /// ``size(_:)`` (defaults to 40 pt), ``glow(_:)`` (the blurred duplicate behind the
 /// glyph), and ``animated(_:)`` — `false` freezes the final frame. The animation plays
-/// once per appearance; with Reduce Motion enabled the final frame is shown immediately.
+/// once per appearance, except ``Glyph/pending``, which loops; with Reduce Motion enabled
+/// the final frame is shown immediately.
 /// Timings and easing live in the Lottie assets and are deliberately not exposed.
 ///
 /// ```swift
@@ -36,6 +37,7 @@ public struct StatusIcon: View, Setupable {
         case checkmark
         case heartBroken
         case warning
+        case pending
     }
 
     private let glyph: Glyph
@@ -90,11 +92,11 @@ public struct StatusIcon: View, Setupable {
 
     private var playbackMode: LottiePlaybackMode {
         if !isAnimated || reduceMotion {
-            .paused(at: .progress(1))
+            .paused(at: .progress(glyph.isLooping ? Metrics.loopingStillProgress : 1))
         } else if startDelay > 0, !isPlaybackStarted {
             .paused(at: .progress(0))
         } else {
-            .playing(.fromProgress(0, toProgress: 1, loopMode: .playOnce))
+            .playing(.fromProgress(0, toProgress: 1, loopMode: glyph.isLooping ? .loop : .playOnce))
         }
     }
 
@@ -131,7 +133,12 @@ private extension StatusIcon.Glyph {
         case .checkmark: LottieFile.lottieStatusScreenCheckmark
         case .heartBroken: LottieFile.lottieStatusScreenHeart
         case .warning: LottieFile.lottieStatusScreenWarning
+        case .pending: LottieFile.lottieStatusScreenPending
         }
+    }
+
+    var isLooping: Bool {
+        self == .pending
     }
 
     var defaultTint: Color {
@@ -140,6 +147,7 @@ private extension StatusIcon.Glyph {
         case .checkmark: DesignSystem.Color.iconStatusSuccess
         case .heartBroken: DesignSystem.Color.iconStatusError
         case .warning: DesignSystem.Color.iconStatusWarning
+        case .pending: DesignSystem.Color.iconStatusInfo
         }
     }
 }
@@ -149,6 +157,7 @@ private extension StatusIcon.Glyph {
 private extension StatusIcon {
     enum Metrics {
         static let defaultSide: CGFloat = 40
+        static let loopingStillProgress: CGFloat = 0.5
         static let glowBlurRadius: CGFloat = 8
         static let glowOpacity: Double = 0.4
         /// The assets run their active part in ~0.8 s while the Figma preview settles the

@@ -52,6 +52,7 @@ class SingleTokenBaseViewModel: NotificationTapDelegate {
     @Published private(set) final var jointOperationsInFlightSection: TransactionListItem?
 
     private var jointOperationsInFlight: [JointAccountPendingOperation] = []
+    private var historyJointOperationsByRecord: [TransactionRecord.ID: JointAccountOperation] = [:]
 
     private var availableActions: [TokenActionType] = []
     private let tokenRouter: SingleTokenRoutable
@@ -415,25 +416,19 @@ extension SingleTokenBaseViewModel {
             }
             .store(in: &bag)
 
-        walletModel
-            .pendingTransactionPublisher
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .map { owner, transactions in
-                // Only if the transaction history isn't supported
-                guard !owner.walletModel.isSupportedTransactionHistory else {
-                    return []
+        // Only if the transaction history isn't supported
+        if !walletModel.isSupportedTransactionHistory {
+            walletModel
+                .pendingTransactionsProvider
+                .pendingTransactionsPublisher
+                .receiveOnMain()
+                .withWeakCaptureOf(self)
+                .map { owner, transactions in
+                    transactions.map(owner.pendingTransactionRecordMapper.mapToTransactionViewModel)
                 }
-
-                return transactions.map { transaction in
-                    owner.pendingTransactionRecordMapper.mapToTransactionViewModel(transaction)
-                }
-            }
-            .withWeakCaptureOf(self)
-            .sink { owner, viewModels in
-                owner.pendingTransactionViews = viewModels
-            }
-            .store(in: &bag)
+                .assign(to: \.pendingTransactionViews, on: self, ownership: .weak)
+                .store(in: &bag)
+        }
 
         // [REDACTED_TODO_COMMENT]
         walletModel.transactionHistoryPublisher
@@ -578,6 +573,7 @@ extension SingleTokenBaseViewModel {
     ) {
         switch newState {
         case .notSupported:
+            historyJointOperationsByRecord = [:]
             transactionHistoryState = .notSupported
         case .notLoaded, .loading:
             if case .loaded = transactionHistoryState {
@@ -586,8 +582,10 @@ extension SingleTokenBaseViewModel {
 
             transactionHistoryState = .loading
         case .error(let error):
+            historyJointOperationsByRecord = [:]
             transactionHistoryState = .error(error)
         case .loaded(let records):
+            historyJointOperationsByRecord = jointOperations(in: records)
             let listItems = transactionHistoryMapper.mapTransactionListItem(
                 from: records,
                 groupingStyle: .day,
@@ -620,6 +618,26 @@ extension SingleTokenBaseViewModel {
 
     final func jointOperation(for transaction: TransactionViewModel) -> JointAccountPendingOperation? {
         jointOperationsInFlight.first { $0.id == transaction.hash }
+    }
+
+    final func historyJointOperationId(for transaction: TransactionViewModel) -> String? {
+        historyJointOperationsByRecord[transaction.id]?.id
+    }
+
+    final var historyJointOperations: [JointAccountOperation] {
+        Array(historyJointOperationsByRecord.values)
+    }
+
+    private func jointOperations(in records: [TransactionRecord]) -> [TransactionRecord.ID: JointAccountOperation] {
+        let pairs = records.compactMap { record -> (TransactionRecord.ID, JointAccountOperation)? in
+            guard let info = record.jointOperationInfo else {
+                return nil
+            }
+
+            return (record.id, info.item.operation)
+        }
+
+        return Dictionary(pairs, uniquingKeysWith: { first, _ in first })
     }
 
     private func updateMiniChartState(using data: MarketsChartModel) {
